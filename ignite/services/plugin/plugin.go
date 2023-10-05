@@ -20,6 +20,7 @@ import (
 
 	"github.com/ignite/cli/ignite/config"
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/env"
 	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
@@ -117,7 +118,7 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 		pluginPath = cp.Path
 	)
 	if pluginPath == "" {
-		p.Error = errors.Errorf(`missing plugin property "path"`)
+		p.Error = errors.Errorf(`missing app property "path"`)
 		return p
 	}
 
@@ -130,11 +131,11 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 		// This is a local plugin, check if the file exists
 		st, err := os.Stat(pluginPath)
 		if err != nil {
-			p.Error = errors.Wrapf(err, "local plugin path %q not found", pluginPath)
+			p.Error = errors.Wrapf(err, "local app path %q not found", pluginPath)
 			return p
 		}
 		if !st.IsDir() {
-			p.Error = errors.Errorf("local plugin path %q is not a dir", pluginPath)
+			p.Error = errors.Errorf("local app path %q is not a directory", pluginPath)
 			return p
 		}
 		p.srcPath = pluginPath
@@ -149,7 +150,7 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 	}
 	parts := strings.Split(pluginPath, "/")
 	if len(parts) < 3 {
-		p.Error = errors.Errorf("plugin path %q is not a valid repository URL", pluginPath)
+		p.Error = errors.Errorf("app path %q is not a valid repository URL", pluginPath)
 		return p
 	}
 	p.repoPath = path.Join(parts[:3]...)
@@ -239,7 +240,7 @@ func (p *Plugin) load(ctx context.Context) {
 		logLevel = hclog.Trace
 	}
 	logger := hclog.New(&hclog.LoggerOptions{
-		Name:   fmt.Sprintf("plugin %s", p.Path),
+		Name:   fmt.Sprintf("app %s", p.Path),
 		Output: os.Stderr,
 		Level:  logLevel,
 	})
@@ -321,8 +322,8 @@ func (p *Plugin) fetch() {
 	if p.Error != nil {
 		return
 	}
-	p.ev.Send(fmt.Sprintf("Fetching plugin %q", p.cloneURL), events.ProgressStart())
-	defer p.ev.Send(fmt.Sprintf("Plugin fetched %q", p.cloneURL), events.ProgressFinish())
+	p.ev.Send(fmt.Sprintf("Fetching app %q", p.cloneURL), events.ProgressStart())
+	defer p.ev.Send(fmt.Sprintf("%s App fetched %q", icons.OK, p.cloneURL), events.ProgressFinish())
 
 	urlref := strings.Join([]string{p.cloneURL, p.reference}, "@")
 	err := xgit.Clone(context.Background(), urlref, p.cloneDir)
@@ -336,8 +337,8 @@ func (p *Plugin) build(ctx context.Context) {
 	if p.Error != nil {
 		return
 	}
-	p.ev.Send(fmt.Sprintf("Building plugin %q", p.Path), events.ProgressStart())
-	defer p.ev.Send(fmt.Sprintf("Plugin built %q", p.Path), events.ProgressFinish())
+	p.ev.Send(fmt.Sprintf("Building app %q", p.Path), events.ProgressStart())
+	defer p.ev.Send(fmt.Sprintf("%s App built %q", icons.OK, p.Path), events.ProgressFinish())
 
 	if err := gocmd.ModTidy(ctx, p.srcPath); err != nil {
 		p.Error = errors.Wrapf(err, "go mod tidy")
@@ -391,7 +392,7 @@ func (p *Plugin) outdatedBinary() bool {
 		return nil
 	})
 	if err != nil {
-		fmt.Printf("error while walking plugin source path %q\n", p.srcPath)
+		fmt.Printf("error while walking app source path %q\n", p.srcPath)
 		return false
 	}
 	return mostRecent.After(binaryTime)

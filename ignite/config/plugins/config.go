@@ -13,7 +13,6 @@ import (
 )
 
 type Config struct {
-	// path to the config file
 	path string
 
 	// Apps holds the list of installed Ignite Apps.
@@ -89,9 +88,8 @@ func (p Plugin) IsLocalPath() bool {
 }
 
 // HasPath verifies if a plugin has the given path regardless of version.
-// Example:
-// github.com/foo/bar@v1 and github.com/foo/bar@v2 have the same path so "true"
-// will be returned.
+// For example github.com/foo/bar@v1 and github.com/foo/bar@v2 have the
+// same path so "true" will be returned.
 func (p Plugin) HasPath(path string) bool {
 	if path == "" {
 		return false
