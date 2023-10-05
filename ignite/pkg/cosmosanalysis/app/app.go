@@ -423,7 +423,7 @@ func resolveCosmosPackagePath(chainRoot string) (string, error) {
 		return "", err
 	}
 
-	deps, err := gomodule.ResolveDependencies(modFile)
+	deps, err := gomodule.ResolveDependencies(modFile, false)
 	if err != nil {
 		return "", err
 	}
