@@ -39,12 +39,12 @@ func LoadPlugins(ctx context.Context, cmd *cobra.Command) error {
 	if err != nil && !errors.As(err, &cosmosanalysis.ErrPathNotChain{}) {
 		return err
 	} else if err == nil {
-		pluginsConfigs = append(pluginsConfigs, localCfg.Plugins...)
+		pluginsConfigs = append(pluginsConfigs, localCfg.Apps...)
 	}
 
 	globalCfg, err := parseGlobalPlugins()
 	if err == nil {
-		pluginsConfigs = append(pluginsConfigs, globalCfg.Plugins...)
+		pluginsConfigs = append(pluginsConfigs, globalCfg.Apps...)
 	}
 	ensureDefaultPlugins(cmd, globalCfg)
 
@@ -76,7 +76,7 @@ func parseLocalPlugins(cmd *cobra.Command) (*pluginsconfig.Config, error) {
 	_ = cmd
 	wd, err := os.Getwd()
 	if err != nil {
-		return nil, fmt.Errorf("parse local plugins: %w", err)
+		return nil, fmt.Errorf("parse local apps: %w", err)
 	}
 	if err := cosmosanalysis.IsChainPath(wd); err != nil {
 		return nil, err
@@ -97,8 +97,8 @@ func parseGlobalPlugins() (cfg *pluginsconfig.Config, err error) {
 		return &pluginsconfig.Config{}, nil
 	}
 
-	for i := range cfg.Plugins {
-		cfg.Plugins[i].Global = true
+	for i := range cfg.Apps {
+		cfg.Apps[i].Global = true
 	}
 	return
 }
@@ -172,11 +172,11 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 	cmdPath := hook.CommandPath()
 	cmd := findCommandByPath(rootCmd, cmdPath)
 	if cmd == nil {
-		p.Error = errors.Errorf("unable to find commandPath %q for plugin hook %q", cmdPath, hook.Name)
+		p.Error = errors.Errorf("unable to find command path %q for app hook %q", cmdPath, hook.Name)
 		return
 	}
 	if !cmd.Runnable() {
-		p.Error = errors.Errorf("can't attach plugin hook %q to non executable command %q", hook.Name, hook.PlaceHookOn)
+		p.Error = errors.Errorf("can't attach app hook %q to non executable command %q", hook.Name, hook.PlaceHookOn)
 		return
 	}
 
@@ -208,7 +208,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 
 		err := p.Interface.ExecuteHookPre(ctx, newExecutedHook(hook, cmd, args))
 		if err != nil {
-			return fmt.Errorf("plugin %q ExecuteHookPre() error: %w", p.Path, err)
+			return fmt.Errorf("app %q ExecuteHookPre() error: %w", p.Path, err)
 		}
 		return nil
 	}
@@ -223,7 +223,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 				ctx := cmd.Context()
 				err := p.Interface.ExecuteHookCleanUp(ctx, newExecutedHook(hook, cmd, args))
 				if err != nil {
-					fmt.Printf("plugin %q ExecuteHookCleanUp() error: %v", p.Path, err)
+					fmt.Printf("app %q ExecuteHookCleanUp() error: %v", p.Path, err)
 				}
 			}
 			return err
@@ -241,7 +241,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 		defer func() {
 			err := p.Interface.ExecuteHookCleanUp(ctx, execHook)
 			if err != nil {
-				fmt.Printf("plugin %q ExecuteHookCleanUp() error: %v", p.Path, err)
+				fmt.Printf("app %q ExecuteHookCleanUp() error: %v", p.Path, err)
 			}
 		}()
 
@@ -255,7 +255,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 
 		err := p.Interface.ExecuteHookPost(ctx, execHook)
 		if err != nil {
-			return fmt.Errorf("plugin %q ExecuteHookPost() error : %w", p.Path, err)
+			return fmt.Errorf("app %q ExecuteHookPost() error : %w", p.Path, err)
 		}
 		return nil
 	}
@@ -279,11 +279,11 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd *plugin.C
 	cmdPath := pluginCmd.Path()
 	cmd := findCommandByPath(rootCmd, cmdPath)
 	if cmd == nil {
-		p.Error = errors.Errorf("unable to find commandPath %q for plugin %q", cmdPath, p.Path)
+		p.Error = errors.Errorf("unable to find command path %q for app %q", cmdPath, p.Path)
 		return
 	}
 	if cmd.Runnable() {
-		p.Error = errors.Errorf("can't attach plugin command %q to runnable command %q", pluginCmd.Use, cmd.CommandPath())
+		p.Error = errors.Errorf("can't attach app command %q to runnable command %q", pluginCmd.Use, cmd.CommandPath())
 		return
 	}
 
@@ -293,7 +293,7 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd *plugin.C
 	pluginCmdName := strings.Split(pluginCmd.Use, " ")[0]
 	for _, cmd := range cmd.Commands() {
 		if cmd.Name() == pluginCmdName {
-			p.Error = errors.Errorf("plugin command %q already exists in ignite's commands", pluginCmdName)
+			p.Error = errors.Errorf("app command %q already exists in Ignite's commands", pluginCmdName)
 			return
 		}
 	}
@@ -356,30 +356,30 @@ func findCommandByPath(cmd *cobra.Command, cmdPath string) *cobra.Command {
 	return nil
 }
 
-// NewPlugin returns a command that groups plugin related sub commands.
-func NewPlugin() *cobra.Command {
+// NewApp returns a command that groups Ignite App related sub commands.
+func NewApp() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "plugin [command]",
-		Short: "Handle plugins",
+		Use:   "app [command]",
+		Short: "Create and manage Ignite Apps",
 	}
 
 	c.AddCommand(
-		NewPluginList(),
-		NewPluginUpdate(),
-		NewPluginScaffold(),
-		NewPluginDescribe(),
-		NewPluginAdd(),
-		NewPluginRemove(),
+		NewAppList(),
+		NewAppUpdate(),
+		NewAppScaffold(),
+		NewAppDescribe(),
+		NewAppInstall(),
+		NewAppUninstall(),
 	)
 
 	return c
 }
 
-func NewPluginList() *cobra.Command {
+func NewAppList() *cobra.Command {
 	lstCmd := &cobra.Command{
 		Use:   "list",
-		Short: "List declared plugins and status",
-		Long:  "Prints status and information of declared plugins",
+		Short: "List installed apps",
+		Long:  "Prints status and information of all installed Ignite Apps.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
 			return printPlugins(cmd.Context(), s)
@@ -388,12 +388,15 @@ func NewPluginList() *cobra.Command {
 	return lstCmd
 }
 
-func NewPluginUpdate() *cobra.Command {
+func NewAppUpdate() *cobra.Command {
 	return &cobra.Command{
 		Use:   "update [path]",
-		Short: "Update plugins",
-		Long:  "Updates a plugin specified by path. If no path is specified all declared plugins are updated",
-		Args:  cobra.MaximumNArgs(1),
+		Short: "Update app",
+		Long: `Updates an Ignite App specified by path.
+
+If no path is specified all declared apps are updated.`,
+		Example: "ignite app update github.com/org/my-app/",
+		Args:    cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				// update all plugins
@@ -401,7 +404,7 @@ func NewPluginUpdate() *cobra.Command {
 				if err != nil {
 					return err
 				}
-				fmt.Printf("All plugins updated.\n")
+				fmt.Printf("All apps updated.\n")
 				return nil
 			}
 			// find the plugin to update
@@ -411,25 +414,24 @@ func NewPluginUpdate() *cobra.Command {
 					if err != nil {
 						return err
 					}
-					fmt.Printf("Plugin %q updated.\n", p.Path)
+					fmt.Printf("App %q updated.\n", p.Path)
 					return nil
 				}
 			}
-			return errors.Errorf("Plugin %q not found", args[0])
+			return errors.Errorf("App %q not found", args[0])
 		},
 	}
 }
 
-func NewPluginAdd() *cobra.Command {
+func NewAppInstall() *cobra.Command {
 	cmdPluginAdd := &cobra.Command{
-		Use:   "add [path] [key=value]...",
-		Short: "Adds a plugin declaration to a plugin configuration",
-		Long: `Adds a plugin declaration to a plugin configuration.
-Respects key value pairs declared after the plugin path to be added to the
-generated configuration definition.
-Example:
-  ignite plugin add github.com/org/my-plugin/ foo=bar baz=qux`,
-		Args: cobra.MinimumNArgs(1),
+		Use:   "install [path] [key=value]...",
+		Short: "Install app",
+		Long: `Installs an Ignite App.
+
+Respects key value pairs declared after the app path to be added to the generated configuration definition.`,
+		Example: "ignite app install github.com/org/my-app/ foo=bar baz=qux",
+		Args:    cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			session := cliui.New(cliui.WithStdout(os.Stdout))
 			defer session.End()
@@ -449,9 +451,9 @@ Example:
 				return err
 			}
 
-			for _, p := range conf.Plugins {
+			for _, p := range conf.Apps {
 				if p.Path == args[0] {
-					return fmt.Errorf("cannot add duplicate plugin %s", args[0])
+					return fmt.Errorf("app %s is already installed", args[0])
 				}
 			}
 
@@ -478,7 +480,7 @@ Example:
 				p.With[kv[0]] = kv[1]
 			}
 
-			session.StartSpinner("Loading plugin")
+			session.StartSpinner("Loading app")
 			plugins, err := plugin.Load(cmd.Context(), []pluginsconfig.Plugin{p}, pluginsOptions...)
 			if err != nil {
 				return err
@@ -486,16 +488,16 @@ Example:
 			defer plugins[0].KillClient()
 
 			if plugins[0].Error != nil {
-				return fmt.Errorf("error while loading plugin %q: %w", args[0], plugins[0].Error)
+				return fmt.Errorf("error while loading app %q: %w", args[0], plugins[0].Error)
 			}
-			session.Println("Done loading plugin")
-			conf.Plugins = append(conf.Plugins, p)
+			session.Println(icons.OK, "Done loading apps")
+			conf.Apps = append(conf.Apps, p)
 
 			if err := conf.Save(); err != nil {
 				return err
 			}
 
-			session.Printf("🎉 %s added \n", args[0])
+			session.Printf("%s Installed %s\n", icons.Tada, args[0])
 			return nil
 		},
 	}
@@ -505,11 +507,13 @@ Example:
 	return cmdPluginAdd
 }
 
-func NewPluginRemove() *cobra.Command {
+func NewAppUninstall() *cobra.Command {
 	cmdPluginRemove := &cobra.Command{
-		Use:     "remove [path]",
+		Use:     "uninstall [path]",
 		Aliases: []string{"rm"},
-		Short:   "Removes a plugin declaration from a chain's plugin configuration",
+		Short:   "Uninstall app",
+		Long:    "Uninstalls an Ignite App specified by path.",
+		Example: "ignite app uninstall github.com/org/my-app/",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
@@ -530,9 +534,9 @@ func NewPluginRemove() *cobra.Command {
 			}
 
 			removed := false
-			for i, cp := range conf.Plugins {
+			for i, cp := range conf.Apps {
 				if cp.Path == args[0] {
-					conf.Plugins = append(conf.Plugins[:i], conf.Plugins[i+1:]...)
+					conf.Apps = append(conf.Apps[:i], conf.Apps[i+1:]...)
 					removed = true
 					break
 				}
@@ -540,14 +544,14 @@ func NewPluginRemove() *cobra.Command {
 
 			if !removed {
 				// return if no matching plugin path found
-				return fmt.Errorf("plugin %s not found", args[0])
+				return fmt.Errorf("app %s not found", args[0])
 			}
 
 			if err := conf.Save(); err != nil {
 				return err
 			}
 
-			s.Printf("%s %s removed\n", icons.OK, args[0])
+			s.Printf("%s %s uninstalled\n", icons.OK, args[0])
 			s.Printf("\t%s updated\n", conf.Path())
 
 			return nil
@@ -559,12 +563,15 @@ func NewPluginRemove() *cobra.Command {
 	return cmdPluginRemove
 }
 
-func NewPluginScaffold() *cobra.Command {
+func NewAppScaffold() *cobra.Command {
 	return &cobra.Command{
-		Use:   "scaffold [github.com/org/repo]",
-		Short: "Scaffold a new plugin",
-		Long:  "Scaffolds a new plugin in the current directory with the given repository path configured. A git repository will be created with the given module name, unless the current directory is already a git repository.",
-		Args:  cobra.ExactArgs(1),
+		Use:   "scaffold [name]",
+		Short: "Scaffold a new Ignite App",
+		Long: `Scaffolds a new Ignite App in the current directory.
+
+A git repository will be created with the given module name, unless the current directory is already a git repository.`,
+		Example: "ignite app scaffold github.com/org/my-app/",
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 			defer session.End()
@@ -582,19 +589,19 @@ func NewPluginScaffold() *cobra.Command {
 				return err
 			}
 
-			message := `
-⭐️ Successfully created a new plugin '%[1]s'.
-👉 update plugin code at '%[2]s/main.go'
+			message := `⭐️ Successfully created a new Ignite App '%[1]s'.
 
-👉 test plugin integration by adding the plugin to a chain's config:
+👉 Update app code at '%[2]s/main.go'
 
-  ignite plugin add %[2]s
+👉 Test Ignite App integration by installing the app within the chain directory:
 
-Or to the global config:
+  ignite app install %[2]s
 
-  ignite plugin add -g %[2]s
+Or globally:
 
-👉 once the plugin is pushed to a repository, replace the local path by the repository path.
+  ignite app install -g %[2]s
+
+👉 Once the app is pushed to a repository, replace the local path by the repository path.
 `
 			session.Printf(message, moduleName, path)
 			return nil
@@ -602,12 +609,13 @@ Or to the global config:
 	}
 }
 
-func NewPluginDescribe() *cobra.Command {
+func NewAppDescribe() *cobra.Command {
 	return &cobra.Command{
-		Use:   "describe [path]",
-		Short: "Output information about the a registered plugin",
-		Long:  "Output information about a registered plugins commands and hooks.",
-		Args:  cobra.ExactArgs(1),
+		Use:     "describe [path]",
+		Short:   "Print information about installed apps",
+		Long:    "Print information about an installed Ignite App commands and hooks.",
+		Example: "ignite app describe github.com/org/my-app/",
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
 			ctx := cmd.Context()
@@ -616,18 +624,24 @@ func NewPluginDescribe() *cobra.Command {
 				if p.Path == args[0] {
 					manifest, err := p.Interface.Manifest(ctx)
 					if err != nil {
-						return fmt.Errorf("error while loading plugin manifest: %w", err)
+						return fmt.Errorf("error while loading app manifest: %w", err)
 					}
-					s.Printf("Plugin '%s':\n", args[0])
-					s.Printf("%s %d Command(s):\n", icons.Command, len(manifest.Commands))
-					for i, c := range manifest.Commands {
-						cmdPath := fmt.Sprintf("%s %s", c.Path(), c.Use)
-						s.Printf("\t%d) '%s'\n", i+1, cmdPath)
+
+					if len(manifest.Commands) > 0 {
+						s.Println("Commands:")
+						for i, c := range manifest.Commands {
+							cmdPath := fmt.Sprintf("%s %s", c.Path(), c.Use)
+							s.Printf("  %d) %s\n", i+1, cmdPath)
+						}
 					}
-					s.Printf("%s %d Hook(s):\n", icons.Hook, len(manifest.Hooks))
-					for i, h := range manifest.Hooks {
-						s.Printf("\t%d) '%s' on command '%s'\n", i+1, h.Name, h.CommandPath())
+
+					if len(manifest.Hooks) > 0 {
+						s.Println("Hooks:")
+						for i, h := range manifest.Hooks {
+							s.Printf("  %d) '%s' on command '%s'\n", i+1, h.Name, h.CommandPath())
+						}
 					}
+
 					break
 				}
 			}
@@ -637,43 +651,41 @@ func NewPluginDescribe() *cobra.Command {
 	}
 }
 
-func printPlugins(ctx context.Context, session *cliui.Session) error {
-	var (
-		entries     [][]string
-		buildStatus = func(p *plugin.Plugin) string {
-			if p.Error != nil {
-				return fmt.Sprintf("%s Error: %v", icons.NotOK, p.Error)
-			}
-			manifest, err := p.Interface.Manifest(ctx)
-			if err != nil {
-				return fmt.Sprintf("%s Error: Manifest() returned %v", icons.NotOK, err)
-			}
-			var (
-				hookCount = len(manifest.Hooks)
-				cmdCount  = len(manifest.Commands)
-			)
-			return fmt.Sprintf("%s Loaded: %s %d %s%d ", icons.OK, icons.Command, cmdCount, icons.Hook, hookCount)
-		}
-		installedStatus = func(p *plugin.Plugin) string {
-			if p.IsGlobal() {
-				return "global"
-			}
-			return "local"
-		}
-	)
-	for _, p := range plugins {
-		entries = append(entries, []string{p.Path, buildStatus(p), installedStatus(p)})
+func getPluginLocationName(p *plugin.Plugin) string {
+	if p.IsGlobal() {
+		return "global"
 	}
-	if err := session.PrintTable([]string{"Path", "Status", "Config"}, entries...); err != nil {
-		return fmt.Errorf("error while printing plugins: %w", err)
+	return "local"
+}
+
+func getPluginStatus(ctx context.Context, p *plugin.Plugin) string {
+	if p.Error != nil {
+		return fmt.Sprintf("%s Error: %v", icons.NotOK, p.Error)
+	}
+
+	_, err := p.Interface.Manifest(ctx)
+	if err != nil {
+		return fmt.Sprintf("%s Error: Manifest() returned %v", icons.NotOK, err)
+	}
+
+	return fmt.Sprintf("%s Loaded", icons.OK)
+}
+
+func printPlugins(ctx context.Context, session *cliui.Session) error {
+	var entries [][]string
+	for _, p := range plugins {
+		entries = append(entries, []string{p.Path, getPluginLocationName(p), getPluginStatus(ctx, p)})
+	}
+
+	if err := session.PrintTable([]string{"Path", "Config", "Status"}, entries...); err != nil {
+		return fmt.Errorf("error while printing apps: %w", err)
 	}
 	return nil
 }
 
 func flagSetPluginsGlobal() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.BoolP(flagPluginsGlobal, "g", false, "use global plugins configuration"+
-		" ($HOME/.ignite/plugins/plugins.yml)")
+	fs.BoolP(flagPluginsGlobal, "g", false, "use global plugins configuration ($HOME/.ignite/apps/igniteapps.yml)")
 	return fs
 }
 

@@ -11,9 +11,9 @@ import (
 	"github.com/ignite/cli/ignite/services/plugin"
 )
 
-type p struct{}
+type app struct{}
 
-func (p) Manifest(ctx context.Context) (*plugin.Manifest, error) {
+func (app) Manifest(ctx context.Context) (*plugin.Manifest, error) {
 	return &plugin.Manifest{
 		Name: "<%= Name %>",
 		// Add commands here
@@ -43,7 +43,7 @@ func (p) Manifest(ctx context.Context) (*plugin.Manifest, error) {
 	}, nil
 }
 
-func (p) Execute(ctx context.Context, cmd *plugin.ExecutedCommand) error {
+func (app) Execute(ctx context.Context, cmd *plugin.ExecutedCommand) error {
 	// TODO: write command execution here
 	fmt.Printf("Hello I'm the example-plugin plugin\n")
 	fmt.Printf("My executed command: %q\n", cmd.Path)
@@ -75,17 +75,17 @@ func (p) Execute(ctx context.Context, cmd *plugin.ExecutedCommand) error {
 	return nil
 }
 
-func (p) ExecuteHookPre(ctx context.Context, h *plugin.ExecutedHook) error {
+func (app) ExecuteHookPre(ctx context.Context, h *plugin.ExecutedHook) error {
 	fmt.Printf("Executing hook pre %q\n", h.Hook.GetName())
 	return nil
 }
 
-func (p) ExecuteHookPost(ctx context.Context, h *plugin.ExecutedHook) error {
+func (app) ExecuteHookPost(ctx context.Context, h *plugin.ExecutedHook) error {
 	fmt.Printf("Executing hook post %q\n", h.Hook.GetName())
 	return nil
 }
 
-func (p) ExecuteHookCleanUp(ctx context.Context, h *plugin.ExecutedHook) error {
+func (app) ExecuteHookCleanUp(ctx context.Context, h *plugin.ExecutedHook) error {
 	fmt.Printf("Executing hook cleanup %q\n", h.Hook.GetName())
 	return nil
 }
@@ -114,7 +114,7 @@ func main() {
 	hplugin.Serve(&hplugin.ServeConfig{
 		HandshakeConfig: plugin.HandshakeConfig(),
 		Plugins: map[string]hplugin.Plugin{
-			"<%= Name %>": plugin.NewGRPC(&p{}),
+			"<%= Name %>": plugin.NewGRPC(&app{}),
 		},
 		GRPCServer: hplugin.DefaultGRPCServer,
 	})

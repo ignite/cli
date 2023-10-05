@@ -31,7 +31,7 @@ func writeConfigCache(pluginPath string, conf hplugin.ReattachConfig) error {
 		return fmt.Errorf("provided path is invalid: %s", pluginPath)
 	}
 	if conf.Addr == nil {
-		return fmt.Errorf("plugin Address info cannot be empty")
+		return fmt.Errorf("app Address info cannot be empty")
 	}
 	cache, err := newCache()
 	if err != nil {
