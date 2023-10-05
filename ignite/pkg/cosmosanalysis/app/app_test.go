@@ -506,6 +506,41 @@ func Test_mergeImports(t *testing.T) {
 				"cosmossdk.io/x/foo",
 			},
 		},
+		{
+			name: "test three keeper import",
+			blankImports: []string{
+				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts",
+				"cosmossdk.io/x/feegrant/module",
+			},
+			discovered: []string{
+				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/controller/keeper",
+				"github.com/cosmos/cosmos-sdk/x/bank/keeper",
+				"cosmossdk.io/x/feegrant/types",
+				"cosmossdk.io/x/feegrant",
+				"cosmossdk.io/x/foo",
+			},
+			want: []string{
+				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts",
+				"github.com/cosmos/cosmos-sdk/x/bank/keeper",
+				"cosmossdk.io/x/feegrant/module",
+				"cosmossdk.io/x/foo",
+			},
+		},
+		{
+			name: "test three keeper import",
+			blankImports: []string{
+				"github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts",
+				"github.com/cosmos/ibc-go/modules/capability",
+			},
+			discovered: []string{
+				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts",
+				"github.com/cosmos/ibc-go/modules/capability",
+			},
+			want: []string{
+				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts",
+				"github.com/cosmos/ibc-go/modules/capability",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
