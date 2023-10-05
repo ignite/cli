@@ -188,7 +188,7 @@ ignite
 						nil,
 					)
 			},
-			expectedError: `can't attach plugin command "foo" to runnable command "ignite scaffold chain"`,
+			expectedError: `can't attach app command "foo" to runnable command "ignite scaffold chain"`,
 		},
 		{
 			name: "fail: link to unknown command",
@@ -206,7 +206,7 @@ ignite
 						nil,
 					)
 			},
-			expectedError: `unable to find commandPath "ignite unknown" for plugin "foo"`,
+			expectedError: `unable to find command path "ignite unknown" for app "foo"`,
 		},
 		{
 			name: "fail: plugin name exists in legacy commands",
@@ -223,7 +223,7 @@ ignite
 						nil,
 					)
 			},
-			expectedError: `plugin command "scaffold" already exists in ignite's commands`,
+			expectedError: `app command "scaffold" already exists in Ignite's commands`,
 		},
 		{
 			name: "fail: plugin name with args exists in legacy commands",
@@ -240,7 +240,7 @@ ignite
 						nil,
 					)
 			},
-			expectedError: `plugin command "scaffold" already exists in ignite's commands`,
+			expectedError: `app command "scaffold" already exists in Ignite's commands`,
 		},
 		{
 			name: "fail: plugin name exists in legacy sub commands",
@@ -258,7 +258,7 @@ ignite
 						nil,
 					)
 			},
-			expectedError: `plugin command "chain" already exists in ignite's commands`,
+			expectedError: `app command "chain" already exists in Ignite's commands`,
 		},
 		{
 			name: "ok: link multiple at root",
@@ -460,27 +460,6 @@ func TestLinkPluginHooks(t *testing.T) {
 		expectedError string
 		setup         func(*testing.T, context.Context, *mocks.PluginInterface)
 	}{
-		// TODO(tb): commented because linkPluginCmds is not invoked in this test,
-		// so it's not possible to assert that a hook can't be placed on a plugin
-		// command.
-		/*
-			{
-				name: "fail: hook plugin command",
-				setup: func(t *testing.T, ctx context.Context, p*mocks.PluginInterface) {
-					p.EXPECT().Manifest().Return(plugin.Manifest{Commands:[]plugin.Command{{Use: "test-plugin"}}, nil)
-					p.EXPECT().Manifest().Return(plugin.Manifest{
-						[]plugin.Hook{
-							{
-								Name:        "test-hook",
-								PlaceHookOn: "ignite test-plugin",
-							},
-						},
-						nil,
-					)
-				},
-				expectedError: `unable to find commandPath "ignite test-plugin" for plugin hook "test-hook"`,
-			},
-		*/
 		{
 			name: "fail: command not runnable",
 			setup: func(t *testing.T, ctx context.Context, p *mocks.PluginInterface) {
@@ -497,7 +476,7 @@ func TestLinkPluginHooks(t *testing.T) {
 						nil,
 					)
 			},
-			expectedError: `can't attach plugin hook "test-hook" to non executable command "ignite scaffold"`,
+			expectedError: `can't attach app hook "test-hook" to non executable command "ignite scaffold"`,
 		},
 		{
 			name: "fail: command doesn't exists",
@@ -515,7 +494,7 @@ func TestLinkPluginHooks(t *testing.T) {
 						nil,
 					)
 			},
-			expectedError: `unable to find commandPath "ignite chain" for plugin hook "test-hook"`,
+			expectedError: `unable to find command path "ignite chain" for app hook "test-hook"`,
 		},
 		{
 			name: "ok: single hook",

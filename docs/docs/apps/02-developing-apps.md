@@ -1,50 +1,51 @@
 ---
-description: Using and Developing plugins
+description: Using and Developing Ignite Apps
 ---
 
-# Developing Plugins
+# Developing Ignite Apps
 
-It's easy to create a plugin and use it immediately in your project. First
-choose a directory outside your project and run :
+It's easy to create an app and use it immediately in your project. First
+choose a directory outside your project and run:
 
 ```sh
-$ ignite plugin scaffold my-plugin
+$ ignite app scaffold my-app
 ```
 
-This will create a new directory `my-plugin` that contains the plugin's code,
-and will output some instructions about how to use your plugin with the
-`ignite` command. Indeed, a plugin path can be a local directory, which has
-several benefits:
+This will create a new directory `my-app` that contains the app's code
+and will output some instructions about how to use your app with the
+`ignite` command. An app path can be a local directory which has several
+benefits:
 
-- you don't need to use a git repository during the development of your plugin.
-- the plugin is recompiled each time you run the `ignite` binary in your
-project, if the source files are older than the plugin binary.
+- You don't need to use a Git repository during the development of your app.
+- The app is recompiled each time you run the `ignite` binary in your
+  project if the source files are older than the app binary.
 
-Thus, the plugin development workflow is as simple as :
+Thus, app development workflow is as simple as:
 
-1. scaffold a plugin with `ignite plugin scaffold my-plugin`
-2. add it to your config via `ignite plugin add -g /path/to/my-plugin`
-3. update plugin code
-4. run `ignite my-plugin` binary to compile and run the plugin.
-5. go back to 3.
+1. Scaffold an app with `ignite app scaffold my-app`
+2. Add it to your config via `ignite app install -g /path/to/my-app`
+3. Update app code
+4. Run `ignite my-app` binary to compile and run the app
+5. Go back to 3
 
-Once your plugin is ready, you can publish it to a git repository, and the
-community can use it by calling `ignite plugin add github.com/foo/my-plugin`.
+Once your app is ready you can publish it to a Git repository and the
+community can use it by calling `ignite app install github.com/foo/my-app`.
 
-Now let's detail how to update your plugin's code.
+Now let's detail how to update your app's code.
 
-## The plugin interface
+## App interface
 
-The `ignite` plugin system uses `github.com/hashicorp/go-plugin` under the hood,
-which implies to implement a predefined interface:
+Under the hood Ignite Apps are implemented using a plugin system based on
+`github.com/hashicorp/go-plugin`.
+
+All apps must implement a predefined interface:
 
 ```go title=ignite/services/plugin/interface.go
-// An ignite plugin must implements the Plugin interface.
 type Interface interface {
-	// Manifest declares the plugin's Command(s) and Hook(s).
+	// Manifest declares app's Command(s) and Hook(s).
 	Manifest(context.Context) (*Manifest, error)
 
-	// Execute will be invoked by ignite when a plugin Command is executed.
+	// Execute will be invoked by ignite when an app Command is executed.
 	// It is global for all commands declared in Manifest, if you have declared
 	// multiple commands, use cmd.Path to distinguish them.
 	// The ClientAPI argument can be used by plugins to get chain app analysis info.
@@ -74,17 +75,16 @@ type Interface interface {
 }
 ```
 
-The code scaffolded already implements this interface, you just need to update
-the methods' body.
+The scaffolded code already implements this interface, you just need to update
+the method's body.
 
-
-## Defining plugin's manifest
+## Defining app's manifest
 
 Here is the `Manifest` proto message definition:
 
 ```protobuf title=proto/ignite/services/plugin/grpc/v1/types.proto
 message Manifest {
-  // Plugin name.
+  // App name.
   string name = 1;
 
   // Commands contains the commands that will be added to the list of ignite commands.
@@ -94,49 +94,48 @@ message Manifest {
   // Hooks contains the hooks that will be attached to the existing ignite commands.
   repeated Command commands = 3;
 
-  // Enables sharing a single plugin server across all running instances of a plugin.
-  // Useful if a plugin adds or extends long running commands.
+  // Enables sharing a single app server across all running instances of an Ignite App.
+  // Useful if an app adds or extends long running commands.
   //
-  // Example: if a plugin defines a hook on `ignite chain serve`, a plugin server is
-  // instanciated when the command is run. Now if you want to interact with that instance
-  // from commands defined in that plugin, you need to enable shared host, or else the
-  // commands will just instantiate separate plugin servers.
+  // Example: if an app defines a hook on `ignite chain serve`, a server is instanciated
+  // when the command is run. Now if you want to interact with that instance
+  // from commands defined in that app, you need to enable shared host, or else the
+  // commands will just instantiate separate app servers.
   //
-  // When enabled, all plugins of the same path loaded from the same configuration will
+  // When enabled, all apps of the same path loaded from the same configuration will
   // attach it's RPC client to a an existing RPC server.
   //
-  // If a plugin instance has no other running plugin servers, it will create one and it
+  // If an app instance has no other running app servers, it will create one and it
   // will be the host.
   repeated Hook hooks = 4;
 }
 ```
 
-In your plugin's code, the `Manifest` method already returns a predefined
-`Manifest` struct as an example. Adapt it according to your need.
+In your app's code the `Manifest` method already returns a predefined
+`Manifest` struct as an example. You must adapt it according to your need.
 
-If your plugin adds one or more new commands to `ignite`, feeds the `Commands`
-field.
+If your app adds one or more new commands to `ignite`, add them to the
+`Commands` field.
 
-If your plugin adds features to existing commands, feeds the `Hooks` field.
+If your app adds features to existing commands, add them to the `Hooks` field.
 
-Of course a plugin can declare `Commands` *and* `Hooks`.
+Of course an app can declare both, `Commands` *and* `Hooks`.
 
-A plugin may also share a host process by setting `SharedHost` to `true`.
-`SharedHost` is desirable if a plugin hooks into, or declares long running commands.
-Commands executed from the same plugin context interact with the same plugin server. 
+An app may also share a host process by setting `SharedHost` to `true`.
+`SharedHost` is desirable if an app hooks into, or declares long running commands.
+Commands executed from the same app context interact with the same app server. 
 Allowing all executing commands to share the same server instance, giving shared execution context.
 
-## Adding new command
+## Adding new commands
 
-Plugin commands are custom commands added to the ignite cli by a registered
-plugin. Commands can be of any path not defined already by ignite. All plugin
-commands will extend of the command root `ignite`. 
+App commands are custom commands added to Ignite CLI by an installed app.
+Commands can use any path not defined already by the CLI.
 
-For instance, let's say your plugin adds a new `oracle` command to `ignite
-scaffold`, the `Manifest()` method will look like :
+For instance, let's say your app adds a new `oracle` command to `ignite
+scaffold`, then the `Manifest` method will look like :
 
 ```go
-func (p) Manifest(context.Context) (*plugin.Manifest, error) {
+func (app) Manifest(context.Context) (*plugin.Manifest, error) {
 	return &plugin.Manifest{
 		Name: "oracle",
 		Commands: []*plugin.Command{
@@ -156,11 +155,11 @@ func (p) Manifest(context.Context) (*plugin.Manifest, error) {
 }
 ```
 
-To update the plugin execution, you have to change the plugin `Execute` command,
-for instance :
+To update the app execution, you have to change the `Execute` command. For
+example:
 
 ```go
-func (p) Execute(_ context.Context, cmd *plugin.ExecutedCommand, _ plugin.ClientAPI) error {
+func (app) Execute(_ context.Context, cmd *plugin.ExecutedCommand, _ plugin.ClientAPI) error {
 	if len(cmd.Args) == 0 {
 		return fmt.Errorf("oracle name missing")
 	}
@@ -185,23 +184,24 @@ func (p) Execute(_ context.Context, cmd *plugin.ExecutedCommand, _ plugin.Client
 }
 ```
 
-Then, run `ignite scaffold oracle` to execute the plugin.
+Then, run `ignite scaffold oracle` to execute the app.
 
 ## Adding hooks
 
-Plugin `Hooks` allow existing ignite commands to be extended with new
+App `Hooks` allow existing CLI commands to be extended with new
 functionality. Hooks are useful when you want to streamline functionality
 without needing to run custom scripts after or before a command has been run.
-this can streamline processes that where once error prone or forgotten all
+This can streamline processes that where once error prone or forgotten all
 together.
 
-The following are hooks defined which will run on a registered `ignite` commands
+The following are hooks defined which will run on a registered `ignite`
+command:
 
 | Name     | Description                                                                                                                                           |
 | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Pre      | Runs before a commands main functionality is invoked in the `PreRun` scope                                                                            |
 | Post     | Runs after a commands main functionality is invoked in the `PostRun` scope                                                                            |
-| Clean Up | Runs after a commands main functionality is invoked. if the command returns an error it will run before the error is returned to guarantee execution. |
+| Clean Up | Runs after a commands main functionality is invoked. If the command returns an error it will run before the error is returned to guarantee execution. |
 
 *Note*: If a hook causes an error in the pre step the command will not run
 resulting in `post` and `clean up` not executing.
@@ -209,7 +209,7 @@ resulting in `post` and `clean up` not executing.
 The following is an example of a `hook` definition.
 
 ```go
-func (p) Manifest(context.Context) (*plugin.Manifest, error) {
+func (app) Manifest(context.Context) (*plugin.Manifest, error) {
 	return &plugin.Manifest{
 		Name: "oracle",
 		Hooks: []*plugin.Hook{
@@ -221,7 +221,7 @@ func (p) Manifest(context.Context) (*plugin.Manifest, error) {
 	}, nil
 }
 
-func (p) ExecuteHookPre(_ context.Context, h *plugin.ExecutedHook, _ plugin.ClientAPI) error {
+func (app) ExecuteHookPre(_ context.Context, h *plugin.ExecutedHook, _ plugin.ClientAPI) error {
 	switch h.Hook.GetName() {
 	case "my-hook":
 		fmt.Println("I'm executed before ignite chain build")
@@ -231,7 +231,7 @@ func (p) ExecuteHookPre(_ context.Context, h *plugin.ExecutedHook, _ plugin.Clie
 	return nil
 }
 
-func (p) ExecuteHookPost(_ context.Context, h *plugin.ExecutedHook, _ plugin.ClientAPI) error {
+func (app) ExecuteHookPost(_ context.Context, h *plugin.ExecutedHook, _ plugin.ClientAPI) error {
 	switch h.Hook.GetName() {
 	case "my-hook":
 		fmt.Println("I'm executed after ignite chain build (if no error)")
@@ -241,7 +241,7 @@ func (p) ExecuteHookPost(_ context.Context, h *plugin.ExecutedHook, _ plugin.Cli
 	return nil
 }
 
-func (p) ExecuteHookCleanUp(_ context.Context, h *plugin.ExecutedHook, _ plugin.ClientAPI) error {
+func (app) ExecuteHookCleanUp(_ context.Context, h *plugin.ExecutedHook, _ plugin.ClientAPI) error {
 	switch h.Hook.GetName() {
 	case "my-hook":
 		fmt.Println("I'm executed after ignite chain build (regardless errors)")
@@ -252,7 +252,7 @@ func (p) ExecuteHookCleanUp(_ context.Context, h *plugin.ExecutedHook, _ plugin.
 }
 ```
 
-Above we can see a similar definition to `Command` where a hook has a `Name` and
-a `PlaceHookOn`. You'll notice that the `Execute*` methods map directly to each
-life cycle of the hook. All hooks defined within the plugin will invoke these
+Above we can see a similar definition to `Command` where a hook has a `Name`
+and a `PlaceHookOn`. You'll notice that the `Execute*` methods map directly to
+each life cycle of the hook. All hooks defined within the app will invoke these
 methods.

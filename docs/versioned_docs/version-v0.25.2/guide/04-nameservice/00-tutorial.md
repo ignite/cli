@@ -29,7 +29,7 @@ This tutorial guides you through these steps to build a blockchain for a nameser
 - A supported version of [Ignite CLI](/). To install Ignite CLI, see [Install Ignite CLI](../01-install.md). 
 * A text editor like [Visual Studio Code](https://code.visualstudio.com/download). 
 * A web browser like [Chrome](https://www.google.com/chrome) or [Firefox](https://www.mozilla.org/en-US/firefox/new).
-- Familiarity with [Cosmos SDK modules](https://docs.cosmos.network/main/building-modules/intro.html) 
+- Familiarity with [Cosmos SDK modules](https://docs.cosmos.network/main/building-modules/intro) 
 
 ## Nameservice App Goals
 
@@ -72,11 +72,11 @@ For your nameservice app, use one store to map a `name` key to its respective `w
 
 ## Messages
 
-In the Cosmos SDK, [messages](https://docs.cosmos.network/main/building-modules/messages-and-queries.html#messages) are objects that are contained in transactions to trigger state transitions. Each Cosmos SDK module defines a list of messages and how to handle them. 
+In the Cosmos SDK, [messages](https://docs.cosmos.network/main/building-modules/messages-and-queries#messages) are objects that are contained in transactions to trigger state transitions. Each Cosmos SDK module defines a list of messages and how to handle them. 
 
 You must create [messages for the nameservice module](./02-messages.md) that support this functionality:
 
-- When a transaction that is included in a block reaches a Tendermint node, the transaction is passed to the application using the Application Blockchain Interface [(ABCI)](https://docs.cosmos.network/main/intro/sdk-app-architecture.html#abci) between Tendermint and your app. 
+- When a transaction that is included in a block reaches a Tendermint node, the transaction is passed to the application using the Application Blockchain Interface [(ABCI)](https://docs.cosmos.network/main/intro/sdk-app-architecture#abci) between Tendermint and your app. 
 - The transaction is decoded to get the message. 
 - The message is then routed to the appropriate module and handled according to the logic defined in the corresponding `Handler`. 
 - If the state needs to be updated, the `Handler` calls the `Keeper` to perform the update. 

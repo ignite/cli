@@ -29,14 +29,14 @@ type (
 	Manifest        = v1.Manifest
 )
 
-// An ignite plugin must implements the Plugin interface.
+// Interface defines the interface that all Ignite App must implement.
 //
 //go:generate mockery --srcpkg . --name Interface --structname PluginInterface --filename interface.go --with-expecter
 type Interface interface {
-	// Manifest declares the plugin's Command(s) and Hook(s).
+	// Manifest declares the app's Command(s) and Hook(s).
 	Manifest(context.Context) (*Manifest, error)
 
-	// Execute will be invoked by ignite when a plugin Command is executed.
+	// Execute will be invoked by ignite when an app Command is executed.
 	// It is global for all commands declared in Manifest, if you have declared
 	// multiple commands, use cmd.Path to distinguish them.
 	// The clientAPI argument can be used by plugins to get chain app analysis info.
