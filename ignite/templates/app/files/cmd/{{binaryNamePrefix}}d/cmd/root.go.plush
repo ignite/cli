@@ -3,14 +3,12 @@ package cmd
 import (
 	"os"
 	"strings"
-	"time"
 
 	"cosmossdk.io/client/v2/autocli"
 	clientv2keyring "cosmossdk.io/client/v2/autocli/keyring"
 	"cosmossdk.io/core/address"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
-	cmtcfg "github.com/cometbft/cometbft/config"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -18,7 +16,6 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/server"
-	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -81,13 +78,11 @@ func NewRootCmd() *cobra.Command {
 
 			// This needs to go after ReadFromClientConfig, as that function
 			// sets the RPC client needed for SIGN_MODE_TEXTUAL.
-			enabledSignModes := append(tx.DefaultSignModes, signing.SignMode_SIGN_MODE_TEXTUAL)
+			txConfigOpts.EnabledSignModes = append(tx.DefaultSignModes, signing.SignMode_SIGN_MODE_TEXTUAL)
+			txConfigOpts.TextualCoinMetadataQueryFn = txmodule.NewGRPCCoinMetadataQueryFn(clientCtx)
 			txConfigWithTextual, err := tx.NewTxConfigWithOptions(
 				codec.NewProtoCodec(clientCtx.InterfaceRegistry),
-				tx.ConfigOptions{
-					EnabledSignModes:           enabledSignModes,
-					TextualCoinMetadataQueryFn: txmodule.NewGRPCCoinMetadataQueryFn(clientCtx),
-				},
+				txConfigOpts,
 			)
 			if err != nil {
 				return err
@@ -102,15 +97,10 @@ func NewRootCmd() *cobra.Command {
 				return err
 			}
 
-			// overwrite the minimum gas price from the app configuration
-			srvCfg := serverconfig.DefaultConfig()
-			srvCfg.MinGasPrices = "0mini"
+			customAppTemplate, customAppConfig := initAppConfig()
+			customCMTConfig := initCometBFTConfig()
 
-			// overwrite the block timeout
-			cmtCfg := cmtcfg.DefaultConfig()
-			cmtCfg.Consensus.TimeoutCommit = 3 * time.Second
-
-			return server.InterceptConfigsPreRunHandler(cmd, serverconfig.DefaultConfigTemplate, srvCfg, cmtCfg)
+			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customCMTConfig)
 		},
 	}
 
