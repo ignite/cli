@@ -238,7 +238,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 
 func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "genesis_test.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/genesis_test.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -307,7 +307,7 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 
 func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "genesis.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
