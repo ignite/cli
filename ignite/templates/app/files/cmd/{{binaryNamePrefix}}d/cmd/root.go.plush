@@ -30,10 +30,12 @@ import (
 // NewRootCmd creates a new root command for simd. It is called once in the main function.
 func NewRootCmd() *cobra.Command {
 	var (
-		txConfigOpts       tx.ConfigOptions
+		interfaceRegistry  codectypes.InterfaceRegistry
+		appCodec           codec.Codec
+		txConfig           client.TxConfig
 		autoCliOpts        autocli.AppOptions
 		moduleBasicManager module.BasicManager
-		initClientCtx      client.Context
+		clientCtx          *client.Context
 	)
 
 	if err := depinject.Inject(
@@ -47,10 +49,12 @@ func NewRootCmd() *cobra.Command {
 				ProvideKeyring,
 			),
 		),
-		&txConfigOpts,
+		&interfaceRegistry,
+		&appCodec,
+		&txConfig,
 		&autoCliOpts,
 		&moduleBasicManager,
-		&initClientCtx,
+		&clientCtx,
 	); err != nil {
 		panic(err)
 	}
@@ -64,6 +68,7 @@ func NewRootCmd() *cobra.Command {
 			cmd.SetOut(cmd.OutOrStdout())
 			cmd.SetErr(cmd.ErrOrStderr())
 
+			initClientCtx := *clientCtx
 			initClientCtx = initClientCtx.WithCmdContext(cmd.Context())
 			initClientCtx, err := client.ReadPersistentCommandFlags(initClientCtx, cmd.Flags())
 			if err != nil {
@@ -75,11 +80,15 @@ func NewRootCmd() *cobra.Command {
 				return err
 			}
 
-			// This needs to go after ReadFromClientConfig, as that function sets the RPC client needed for SIGN_MODE_TEXTUAL.
-			txConfigOpts.EnabledSignModes = append(txConfigOpts.EnabledSignModes, signing.SignMode_SIGN_MODE_TEXTUAL)
-			txConfigOpts.TextualCoinMetadataQueryFn = txmodule.NewGRPCCoinMetadataQueryFn(initClientCtx)
+			// This needs to go after ReadFromClientConfig, as that function
+			// sets the RPC client needed for SIGN_MODE_TEXTUAL.
+			enabledSignModes := append(tx.DefaultSignModes, signing.SignMode_SIGN_MODE_TEXTUAL)
+			txConfigOpts := tx.ConfigOptions{
+				EnabledSignModes:           enabledSignModes,
+				TextualCoinMetadataQueryFn: txmodule.NewGRPCCoinMetadataQueryFn(initClientCtx),
+			}
 			txConfigWithTextual, err := tx.NewTxConfigWithOptions(
-				codec.NewProtoCodec(initClientCtx.InterfaceRegistry),
+				codec.NewProtoCodec(interfaceRegistry),
 				txConfigOpts,
 			)
 			if err != nil {
@@ -97,12 +106,14 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
-	initRootCmd(rootCmd, initClientCtx.TxConfig, initClientCtx.InterfaceRegistry, initClientCtx.Codec, moduleBasicManager)
+	initRootCmd(rootCmd, txConfig, interfaceRegistry, appCodec, moduleBasicManager)
 
 	overwriteFlagDefaults(rootCmd, map[string]string{
 		flags.FlagChainID:        strings.ReplaceAll(app.Name, "-", ""),
 		flags.FlagKeyringBackend: "test",
 	})
+
+	initRootCmd(rootCmd, txConfig, interfaceRegistry, appCodec, moduleBasicManager)
 
 	if err := autoCliOpts.EnhanceRootCommand(rootCmd); err != nil {
 		panic(err)
