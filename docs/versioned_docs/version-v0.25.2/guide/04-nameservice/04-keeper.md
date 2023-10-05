@@ -5,7 +5,7 @@ description: Define keepers for the nameservice module.
 
 # Keeper
 
-> The main core of a Cosmos SDK module is a piece called the keeper. The keeper handles interactions with the store, has references to other [keepers](https://docs.cosmos.network/main/building-modules/keeper.html) for cross-module interactions, and contains most of the core functionality of a module.
+> The main core of a Cosmos SDK module is a piece called the keeper. The keeper handles interactions with the store, has references to other [keepers](https://docs.cosmos.network/main/building-modules/keeper) for cross-module interactions, and contains most of the core functionality of a module.
 
 ## Define Keepers for the Nameservice Module 
 

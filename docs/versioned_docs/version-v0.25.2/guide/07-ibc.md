@@ -206,7 +206,7 @@ Finally, the Ignite CLI-generated AppendPost function returns the ID of the new 
 
 Append the type instance as `PostID` on receiving the packet:
 
-- The context `ctx` is an [immutable data structure](https://docs.cosmos.network/main/core/context.html#go-context-package) that has header data from the transaction. See [how the context is initiated](https://github.com/cosmos/cosmos-sdk/blob/master/types/context.go#L71)
+- The context `ctx` is an [immutable data structure](https://docs.cosmos.network/main/core/context#go-context-package) that has header data from the transaction. See [how the context is initiated](https://github.com/cosmos/cosmos-sdk/blob/master/types/context.go#L71)
 - The identifier format that you defined earlier
 - The `title` is the Title of the blog post
 - The `content` is the Content of the blog post
