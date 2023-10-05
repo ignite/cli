@@ -119,7 +119,6 @@ var (
     // NOTE: capability module's beginblocker must come before any modules using capabilities (e.g. IBC)
 	beginBlockers = []string{
 	    // cosmos sdk modules
-		upgradetypes.ModuleName,
 		minttypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
@@ -151,6 +150,11 @@ var (
 		ibcfeetypes.ModuleName,
 		// chain modules
 		// this line is used by starport scaffolding # stargate/app/endBlockers
+	}
+
+	preBlockers = []string{
+		upgradetypes.ModuleName,
+		// this line is used by starport scaffolding # stargate/app/preBlockers
 	}
 
 	// module account permissions
@@ -185,6 +189,7 @@ var (
 				Name: runtime.ModuleName,
 				Config: appconfig.WrapAny(&runtimev1alpha1.Module{
 					AppName:       Name,
+					PreBlockers:   preBlockers,
 					BeginBlockers: beginBlockers,
 					EndBlockers:   endBlockers,
 					InitGenesis:   genesisModuleOrder,
