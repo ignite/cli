@@ -141,13 +141,11 @@ func overwriteFlagDefaults(c *cobra.Command, defaults map[string]string) {
 func ProvideClientContext(
 	appCodec codec.Codec,
 	interfaceRegistry codectypes.InterfaceRegistry,
-	txConfig client.TxConfig,
 	legacyAmino *codec.LegacyAmino,
-) client.Context {
-	clientCtx := client.Context{}.
+) *client.Context {
+	initClientCtx := client.Context{}.
 		WithCodec(appCodec).
 		WithInterfaceRegistry(interfaceRegistry).
-		WithTxConfig(txConfig).
 		WithLegacyAmino(legacyAmino).
 		WithInput(os.Stdin).
 		WithAccountRetriever(types.AccountRetriever{}).
@@ -155,13 +153,13 @@ func ProvideClientContext(
 		WithViper(app.Name)
 
 	// Read the config again to overwrite the default values with the values from the config file
-	clientCtx, _ = config.ReadFromClientConfig(clientCtx)
+	initClientCtx, _ = config.ReadFromClientConfig(initClientCtx)
 
-	return clientCtx
+	return &initClientCtx
 }
 
-func ProvideKeyring(clientCtx client.Context, addressCodec address.Codec) (clientv2keyring.Keyring, error) {
-	kb, err := client.NewKeyringFromBackend(clientCtx, clientCtx.Keyring.Backend())
+func ProvideKeyring(clientCtx *client.Context, addressCodec address.Codec) (clientv2keyring.Keyring, error) {
+	kb, err := client.NewKeyringFromBackend(*clientCtx, clientCtx.Keyring.Backend())
 	if err != nil {
 		return nil, err
 	}
