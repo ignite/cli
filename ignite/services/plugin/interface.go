@@ -20,14 +20,14 @@ func init() {
 	gob.Register(ExecutedHook{})
 }
 
-// An ignite plugin must implements the Plugin interface.
+// Interface defines the interface that all Ignite App must implement.
 //
 //go:generate mockery --srcpkg . --name Interface --structname PluginInterface --filename interface.go --with-expecter
 type Interface interface {
-	// Manifest declares the plugin's Command(s) and Hook(s).
+	// Manifest declares the app's Command(s) and Hook(s).
 	Manifest() (Manifest, error)
 
-	// Execute will be invoked by ignite when a plugin Command is executed.
+	// Execute will be invoked by ignite when an app Command is executed.
 	// It is global for all commands declared in Manifest, if you have declared
 	// multiple commands, use cmd.Path to distinguish them.
 	Execute(cmd ExecutedCommand) error
@@ -37,11 +37,13 @@ type Interface interface {
 	// It is global for all hooks declared in Manifest, if you have declared
 	// multiple hooks, use hook.Name to distinguish them.
 	ExecuteHookPre(hook ExecutedHook) error
+
 	// ExecuteHookPost is invoked by ignite when a command specified by the hook
 	// path is invoked.
 	// It is global for all hooks declared in Manifest, if you have declared
 	// multiple hooks, use hook.Name to distinguish them.
 	ExecuteHookPost(hook ExecutedHook) error
+
 	// ExecuteHookCleanUp is invoked by ignite when a command specified by the
 	// hook path is invoked. Unlike ExecuteHookPost, it is invoked regardless of
 	// execution status of the command and hooks.
@@ -50,28 +52,32 @@ type Interface interface {
 	ExecuteHookCleanUp(hook ExecutedHook) error
 }
 
-// Manifest represents the plugin behavior.
+// Manifest represents the Ignite App behavior.
 type Manifest struct {
 	Name string
+
 	// Commands contains the commands that will be added to the list of ignite
 	// commands. Each commands are independent, for nested commands use the
 	// inner Commands field.
 	Commands []Command
+
 	// Hooks contains the hooks that will be attached to the existing ignite
 	// commands.
 	Hooks []Hook
-	// SharedHost enables sharing a single plugin server across all running instances
-	// of a plugin. Useful if a plugin adds or extends long running commands
+
+	// SharedHost enables sharing a single app server across all running instances
+	// of an app. Useful if an app adds or extends long running commands
 	//
-	// Example: if a plugin defines a hook on `ignite chain serve`, a plugin server is instanciated
+	// Example: if an app defines a hook on `ignite chain serve`, a server is instanciated
 	// when the command is run. Now if you want to interact with that instance from commands
-	// defined in that plugin, you need to enable `SharedHost`, or else the commands will just
-	// instantiate separate plugin servers.
+	// defined in that app, you need to enable `SharedHost`, or else the commands will just
+	// instantiate separate app servers.
 	//
-	// When enabled, all plugins of the same `Path` loaded from the same configuration will
-	// attach it's rpc client to a an existing rpc server.
+	// When enabled, all apps of the same `Path` loaded from the same configuration will
+	// attach it's RPC client to a an existing RPC server.
 	//
-	// If a plugin instance has no other running plugin servers, it will create one and it will be the host.
+	// If an app instance has no other running app servers, it will create one and it
+	// will be the host.
 	SharedHost bool `yaml:"shared_host"`
 }
 
@@ -96,31 +102,38 @@ func convertCobraCommand(c *cobra.Command, placeCommandUnder string) Command {
 	return cmd
 }
 
-// Command represents a plugin command.
+// Command represents an app command.
 type Command struct {
 	// Same as cobra.Command.Use
 	Use string
+
 	// Same as cobra.Command.Aliases
 	Aliases []string
+
 	// Same as cobra.Command.Short
 	Short string
+
 	// Same as cobra.Command.Long
 	Long string
+
 	// Same as cobra.Command.Hidden
 	Hidden bool
+
 	// Flags holds the list of command flags
 	Flags []Flag
+
 	// PlaceCommandUnder indicates where the command should be placed.
 	// For instance `ignite scaffold` will place the command at the
 	// `scaffold` command.
 	// An empty value is interpreted as `ignite` (==root).
 	PlaceCommandUnder string
+
 	// List of sub commands
 	Commands []Command
 }
 
-// PlaceCommandUnderFull returns a normalized p.PlaceCommandUnder, by adding
-// the `ignite ` prefix if not present.
+// PlaceCommandUnderFull returns a normalized p.PlaceCommandUnder,
+// by adding the `ignite ` prefix if not present.
 func (c Command) PlaceCommandUnderFull() string {
 	return commandFull(c.PlaceCommandUnder)
 }
@@ -133,8 +146,7 @@ func commandFull(cmdPath string) string {
 	return strings.TrimSpace(cmdPath)
 }
 
-// ToCobraCommand turns Command into a cobra.Command so it can be added to a
-// parent command.
+// ToCobraCommand turns Command into a cobra.Command so it can be added to a parent command.
 func (c Command) ToCobraCommand() (*cobra.Command, error) {
 	cmd := &cobra.Command{
 		Use:     c.Use,
@@ -152,11 +164,12 @@ func (c Command) ToCobraCommand() (*cobra.Command, error) {
 	return cmd, nil
 }
 
-// Hook represents a user defined action within a plugin.
+// Hook represents a user defined action within an app.
 type Hook struct {
 	// Name identifies the hook for the client to invoke the correct hook
 	// must be unique
 	Name string
+
 	// PlaceHookOn indicates the command to register the hooks for
 	PlaceHookOn string
 }
@@ -167,24 +180,28 @@ func (h Hook) PlaceHookOnFull() string {
 	return commandFull(h.PlaceHookOn)
 }
 
-// ExecutedCommand represents a plugin command under execution.
+// ExecutedCommand represents an app command under execution.
 type ExecutedCommand struct {
 	// Use is copied from Command.Use
 	Use string
+
 	// Path contains the command path, e.g. `ignite scaffold foo`
 	Path string
+
 	// Args are the command arguments
 	Args []string
+
 	// Full list of args taken from os.Args
 	OSArgs []string
-	// With contains the plugin config parameters
+
+	// With contains the app config parameters
 	With map[string]string
 
 	flags  *pflag.FlagSet
 	pflags *pflag.FlagSet
 }
 
-// ExecutedHook represents a plugin hook under execution.
+// ExecutedHook represents an app hook under execution.
 type ExecutedHook struct {
 	// ExecutedCommand gives access to the command attached by the hook.
 	ExecutedCommand ExecutedCommand
@@ -210,7 +227,7 @@ func (c *ExecutedCommand) PersistentFlags() *pflag.FlagSet {
 }
 
 // SetFlags set the flags.
-// As a plugin developer, you probably don't need to use it.
+// As an app developer, you probably don't need to use it.
 func (c *ExecutedCommand) SetFlags(cmd *cobra.Command) {
 	c.flags = cmd.Flags()
 	c.pflags = cmd.PersistentFlags()
@@ -224,8 +241,8 @@ type Flag struct {
 	DefValue  string // default value (as text); for usage message
 	Type      FlagType
 	Value     string
-	// Persistent indicates wether or not the flag is propagated on children
-	// commands
+
+	// Persistent indicates wether or not the flag is propagated on children commands
 	Persistent bool
 }
 
@@ -234,7 +251,7 @@ type FlagType string
 
 const (
 	// NOTE(tb): we declare only the main used cobra flag types for simplicity
-	// If a plugin receives an unhandled type, it will output an error.
+	// If an app receives an unhandled type, it will output an error.
 	FlagTypeString      FlagType = "string"
 	FlagTypeInt         FlagType = "int"
 	FlagTypeUint        FlagType = "uint"
@@ -365,8 +382,8 @@ func (c *ExecutedCommand) GobDecode(bz []byte) error {
 }
 
 // handshakeConfigs are used to just do a basic handshake between
-// a plugin and host. If the handshake fails, a user friendly error is shown.
-// This prevents users from executing bad plugins or executing a plugin
+// an app and host. If the handshake fails, a user friendly error is shown.
+// This prevents users from executing bad apps or executing an app
 // directory. It is a UX feature, not a security feature.
 var handshakeConfig = plugin.HandshakeConfig{
 	ProtocolVersion:  1,
@@ -419,7 +436,6 @@ func (g *InterfaceRPC) ExecuteHookCleanUp(hook ExecutedHook) error {
 // InterfaceRPCServer is the RPC server that InterfaceRPC talks to, conforming to
 // the requirements of net/rpc.
 type InterfaceRPCServer struct {
-	// This is the real implementation
 	Impl Interface
 }
 
@@ -445,18 +461,14 @@ func (s *InterfaceRPCServer) ExecuteHookCleanUp(args map[string]interface{}, _ *
 	return s.Impl.ExecuteHookCleanUp(args["executedHook"].(ExecutedHook))
 }
 
-// This is the implementation of plugin.Interface so we can serve/consume this
+// InterfacePlugin is the implementation of Interface.
 //
 // This has two methods: Server must return an RPC server for this plugin
 // type. We construct a InterfaceRPCServer for this.
 //
 // Client must return an implementation of our interface that communicates
 // over an RPC client. We return InterfaceRPC for this.
-//
-// Ignore MuxBroker. That is used to create more multiplexed streams on our
-// plugin connection and is a more advanced use case.
 type InterfacePlugin struct {
-	// Impl Injection
 	Impl Interface
 }
 
