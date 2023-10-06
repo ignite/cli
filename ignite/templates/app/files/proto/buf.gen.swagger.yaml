@@ -10,5 +10,5 @@ plugins:
     opt:
       - logtostderr=true
       - openapi_naming_strategy=fqn
-      - simple_operation_ids=true
       - json_names_for_fields=false
+      - generate_unbound_methods=true
