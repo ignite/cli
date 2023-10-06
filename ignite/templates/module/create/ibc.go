@@ -189,7 +189,7 @@ func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunF
 
 		// Import
 		templateImport := `%[1]v
-%[2]vmodule "%[3]v/x/%[2]v"
+%[2]vmodule "%[3]v/x/%[2]v/module"
 %[2]vmoduletypes "%[3]v/x/%[2]v/types"`
 		replacementImport := fmt.Sprintf(templateImport, module.PlaceholderIBCImport, opts.ModuleName, opts.ModulePath)
 		content := replacer.Replace(f.String(), module.PlaceholderIBCImport, replacementImport)
