@@ -17,9 +17,9 @@ func init() {
 	gob.Register(plugin.ExecutedHook{})
 }
 
-type p struct{}
+type app struct{}
 
-func (p) Manifest() (plugin.Manifest, error) {
+func (app) Manifest() (plugin.Manifest, error) {
 	return plugin.Manifest{
 		Name: "<%= Name %>",
 		// Add commands here
@@ -49,7 +49,7 @@ func (p) Manifest() (plugin.Manifest, error) {
 	}, nil
 }
 
-func (p) Execute(cmd plugin.ExecutedCommand) error {
+func (app) Execute(cmd plugin.ExecutedCommand) error {
 	// TODO: write command execution here
 	fmt.Printf("Hello I'm the <%= Name %> plugin\n")
 	fmt.Printf("My executed command: %q\n", cmd.Path)
@@ -75,17 +75,17 @@ func (p) Execute(cmd plugin.ExecutedCommand) error {
 	return nil
 }
 
-func (p) ExecuteHookPre(hook plugin.ExecutedHook) error {
+func (app) ExecuteHookPre(hook plugin.ExecutedHook) error {
 	fmt.Printf("Executing hook pre %q\n", hook.Name)
 	return nil
 }
 
-func (p) ExecuteHookPost(hook plugin.ExecutedHook) error {
+func (app) ExecuteHookPost(hook plugin.ExecutedHook) error {
 	fmt.Printf("Executing hook post %q\n", hook.Name)
 	return nil
 }
 
-func (p) ExecuteHookCleanUp(hook plugin.ExecutedHook) error {
+func (app) ExecuteHookCleanUp(hook plugin.ExecutedHook) error {
 	fmt.Printf("Executing hook cleanup %q\n", hook.Name)
 	return nil
 }
@@ -107,7 +107,7 @@ func getChain(cmd plugin.ExecutedCommand, chainOption ...chain.Option) (*chain.C
 
 func main() {
 	pluginMap := map[string]hplugin.Plugin{
-		"<%= Name %>": &plugin.InterfacePlugin{Impl: &p{}},
+		"<%= Name %>": &plugin.InterfacePlugin{Impl: &app{}},
 	}
 
 	hplugin.Serve(&hplugin.ServeConfig{
