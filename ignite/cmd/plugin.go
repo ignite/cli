@@ -212,7 +212,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 			if err != nil {
 				err := p.Interface.ExecuteHookCleanUp(newExecutedHook(hook, cmd, args))
 				if err != nil {
-					fmt.Printf("plugin %q ExecuteHookCleanUp() error: %v", p.Path, err)
+					cmd.Printf("plugin %q ExecuteHookCleanUp() error: %v", p.Path, err)
 				}
 			}
 			return err
@@ -229,7 +229,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 		defer func() {
 			err := p.Interface.ExecuteHookCleanUp(execHook)
 			if err != nil {
-				fmt.Printf("plugin %q ExecuteHookCleanUp() error: %v", p.Path, err)
+				cmd.Printf("plugin %q ExecuteHookCleanUp() error: %v", p.Path, err)
 			}
 		}()
 
@@ -388,7 +388,7 @@ func NewPluginUpdate() *cobra.Command {
 				if err != nil {
 					return err
 				}
-				fmt.Printf("All plugins updated.\n")
+				cmd.Println("All plugins updated.")
 				return nil
 			}
 			// find the plugin to update
@@ -398,7 +398,7 @@ func NewPluginUpdate() *cobra.Command {
 					if err != nil {
 						return err
 					}
-					fmt.Printf("Plugin %q updated.\n", p.Path)
+					cmd.Printf("Plugin %q updated.\n", p.Path)
 					return nil
 				}
 			}

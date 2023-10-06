@@ -37,16 +37,16 @@ gh_protoc_release_url="https://api.github.com/repos/protocolbuffers/protobuf/rel
 setdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)" # this line powered by stackoverflow
 
 # Check dir else create save dir
-if [[ $(basename ${setdir}) = "scripts" ]] ; then
-    if [[ $(basename $(dirname "${setdir}")) = "starport" ]] ; then
-        [[ -d $(dirname "${setdir}/pkg/protoc/data") ]] || mkdir -p "$(dirname "${setdir}")/starport/pkg/protoc/data"
+if [[ $(basename "${setdir}") = "scripts" ]] ; then
+    if [[ $(basename "$(dirname "${setdir}")") = "cli" ]] ; then
+        [[ -d $(dirname "${setdir}/pkg/protoc/data") ]] || mkdir -p "$(dirname "${setdir}")/ignite/pkg/protoc/data"
     else
-        echo "Attention: you are running the script out of the startport project please run it this script in: https://github.com/tendermint/starport"
+        echo "Attention: you are running the script out of the ignite cli project please run it this script in: https://github.com/ignite/cli"
         exit 1
     fi
 else
     echo "$setdir"
-    echo "Attention: you are running the script out of the startport project please run it this script in: https://github.com/tendermint/starport"
+    echo "Attention: you are running the script out of the ignite cli project please run it this script in: https://github.com/ignite/cli"
     exit 1
 fi
 
