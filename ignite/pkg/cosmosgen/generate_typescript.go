@@ -2,7 +2,6 @@ package cosmosgen
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
@@ -179,8 +178,12 @@ func (g *tsGenerator) generateModuleTemplate(
 	}
 
 	specPath := filepath.Join(out, "api.swagger.yml")
-	fmt.Println(specPath)
-	g.g.generateModuleOpenAPISpec(m, specPath)
+
+	err = g.g.generateModuleOpenAPISpec(m, specPath)
+
+	if err != nil {
+		return err
+	}
 	// generate the REST client from the OpenAPI spec
 
 	var (
