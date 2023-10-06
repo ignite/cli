@@ -244,6 +244,5 @@ func (g *generator) generateModuleOpenAPISpec(m module.Module, out string) error
 	}
 
 	// combine specs into one and save to out.
-	err := swaggercombine.Combine(g.ctx, conf, out)
-	return err
+	return swaggercombine.Combine(g.ctx, conf, out)
 }

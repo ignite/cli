@@ -33,11 +33,6 @@ type ModulesInPath struct {
 	ModuleIncludes ModuleIncludes
 }
 
-var (
-	errFileFound    = errors.New("Searched file found")     // Hacky way to terminate dir walk early
-	errFileNotFound = errors.New("Searched file not found") // Hacky way to terminate dir walk early
-)
-
 func (g *generator) setup() (err error) {
 	// Cosmos SDK hosts proto files of own x/ modules and some third party ones needed by itself and
 	// blockchain apps. Generate should be aware of these and make them available to the blockchain
@@ -180,7 +175,7 @@ Leave this here for reference to improve resolution algorithm
 	}
 */
 func (g *generator) checkForBuf(modpath string) (string, error) {
-	var bufPath string
+	var bufPath string = ""
 	err := filepath.WalkDir(modpath,
 		func(path string, _ fs.DirEntry, err error) error {
 			if err != nil {
@@ -188,17 +183,16 @@ func (g *generator) checkForBuf(modpath string) (string, error) {
 			}
 			if filepath.Base(path) == "buf.yaml" {
 				bufPath = path
-				return errFileFound
+				return filepath.SkipAll
 			}
 			return nil
 		})
-	if errors.Is(err, errFileFound) {
-		return bufPath, nil
-	}
+
 	if err != nil {
 		return "", err
+	} else {
+		return bufPath, nil
 	}
-	return "", errFileNotFound
 }
 
 func (g *generator) generateBufIncludeFolder(modpath string) (string, error) {
@@ -229,18 +223,20 @@ func (g *generator) resolveIncludes(path string) (paths []string, err error) {
 	}
 	if f.IsDir() {
 		bufPath, err := g.checkForBuf(p) // Look for a buf file to make our lives easier
-		if err != nil && !errors.Is(err, errFileNotFound) {
+		if err != nil {
 			return nil, err
 		}
-		if err == nil { // If it exists, use buf export to package all protos needed to build the modules in a temp folder
+
+		if bufPath == "" {
+			// if it doesn't exist, get list of include folders the old-fashioned way
+			paths = append(paths, g.getProtoIncludeFolders(path)...)
+		} else {
+			// If it exists, use buf export to package all protos needed to build the modules in a temp folder
 			protoPath, err := g.generateBufIncludeFolder(p)
 			if err != nil {
 				return nil, err
 			}
 			paths = append(paths, protoPath)
-		}
-		if bufPath == "" { // if it doesn't exist, get list of include folders the old-fashioned way
-			paths = append(paths, g.getProtoIncludeFolders(path)...)
 		}
 	}
 
