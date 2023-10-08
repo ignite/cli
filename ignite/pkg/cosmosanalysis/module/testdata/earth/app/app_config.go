@@ -64,16 +64,19 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	_ "github.com/cosmos/cosmos-sdk/x/staking" // import for side-effects
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	_ "github.com/cosmos/ibc-go/modules/capability" // import for side-effects
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+	_ "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts" // import for side-effects
 	icatypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/types"
+	_ "github.com/cosmos/ibc-go/v8/modules/apps/29-fee" // import for side-effects
 	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"google.golang.org/protobuf/types/known/durationpb"
 
-	marsmodulev1 "github.com/ignite/mars/api/mars/mars/module"
-	_ "github.com/ignite/mars/x/mars" // import for side-effects
-	marsmoduletypes "github.com/ignite/mars/x/mars/types"
+	marsmodulev1 "github.com/tendermint/mars/api/mars/mars/module"
+	_ "github.com/tendermint/mars/x/mars" // import for side-effects
+	marsmoduletypes "github.com/tendermint/mars/x/mars/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 )
 
@@ -120,7 +123,6 @@ var (
 	// NOTE: capability module's beginblocker must come before any modules using capabilities (e.g. IBC)
 	beginBlockers = []string{
 		// cosmos sdk modules
-		upgradetypes.ModuleName,
 		minttypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
@@ -156,6 +158,11 @@ var (
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	}
 
+	preBlockers = []string{
+		upgradetypes.ModuleName,
+		// this line is used by starport scaffolding # stargate/app/preBlockers
+	}
+
 	// module account permissions
 	moduleAccPerms = []*authmodulev1.ModuleAccountPermission{
 		{Account: authtypes.FeeCollectorName},
@@ -188,6 +195,7 @@ var (
 				Name: runtime.ModuleName,
 				Config: appconfig.WrapAny(&runtimev1alpha1.Module{
 					AppName:       Name,
+					PreBlockers:   preBlockers,
 					BeginBlockers: beginBlockers,
 					EndBlockers:   endBlockers,
 					InitGenesis:   genesisModuleOrder,
