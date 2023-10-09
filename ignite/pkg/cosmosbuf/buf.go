@@ -80,18 +80,18 @@ func (b Buf) Export(
 	}
 	g, ctx := errgroup.WithContext(ctx)
 
-	if strings.Contains(protoDir, cosmosver.CosmosModulePath) {
+	if strings.HasPrefix(protoDir, cosmosver.CosmosModulePath) {
 		if b.sdkCache == "" {
 			b.sdkCache, err = PrepareSDK(protoDir)
 			if err != nil {
 				return err
 			}
 		}
-		dirs := strings.Split(protoDir, "/proto")
-		if len(dirs) < 2 {
-			return fmt.Errorf("invalid cosmos sdk mod path: %s", dirs)
+		path := strings.TrimPrefix(protoDir, cosmosver.CosmosModulePath+"/proto")
+		if path == "" {
+			return fmt.Errorf("invalid Cosmos SDK mod path: %s", protoDir)
 		}
-		protoDir = filepath.Join(b.sdkCache, dirs[1])
+		protoDir = filepath.Join(b.sdkCache, path)
 	}
 	cmd, err := b.generateCommand(
 		CMDExport,
