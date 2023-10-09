@@ -175,7 +175,7 @@ Leave this here for reference to improve resolution algorithm
 	}
 */
 func (g *generator) checkForBuf(modpath string) (string, error) {
-	var bufPath string = ""
+	var bufPath string
 	err := filepath.WalkDir(modpath,
 		func(path string, _ fs.DirEntry, err error) error {
 			if err != nil {
