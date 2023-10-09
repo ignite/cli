@@ -162,6 +162,7 @@ func New(
                 // Passing the getter, the app IBC Keeper will always be accessible.
                 // This needs to be removed after IBC supported App Wiring.
                 app.GetIBCKeeper,
+                app.GetCapabilityScopedKeeper,
 				// supply the logger
 				logger,
 
@@ -394,9 +395,14 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig
 	docs.RegisterOpenAPIService(Name, apiSvr.Router)
 }
 
-// GetIBCKeeper returns the IBC keeper
+// GetIBCKeeper returns the IBC keeper.
 func (app *App) GetIBCKeeper() *ibckeeper.Keeper {
 	return app.IBCKeeper
+}
+
+// GetCapabilityScopedKeeper returns the capability scoped keeper.
+func (app *App) GetCapabilityScopedKeeper(moduleName string) capabilitykeeper.ScopedKeeper {
+	return app.CapabilityKeeper.ScopeToModule(moduleName)
 }
 
 // GetMaccPerms returns a copy of the module account permissions

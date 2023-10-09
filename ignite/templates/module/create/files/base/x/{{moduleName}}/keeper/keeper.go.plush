@@ -31,7 +31,7 @@ type (
         authority string
         <%= if (isIBC) { %>
         ibcKeeperFn  func() *ibckeeper.Keeper
-        scopedKeeper exported.ScopedKeeper<% } %>
+        capabilityScopedFn func(string) capabilitykeeper.ScopedKeeper<% } %>
 		<%= for (dependency) in dependencies { %>
         <%= toVariableName(dependency.KeeperName()) %> types.<%= dependency.KeeperName() %><% } %>
 	}
@@ -43,7 +43,7 @@ func NewKeeper(
     logger log.Logger,
 	authority string,<%= if (isIBC) { %>
 	ibcKeeperFn func() *ibckeeper.Keeper,
-    scopedKeeper exported.ScopedKeeper,<% } %>
+    capabilityScopedFn func(string) capabilitykeeper.ScopedKeeper,<% } %>
     <%= for (dependency) in dependencies { %>
     <%= toVariableName(dependency.KeeperName()) %> types.<%= dependency.KeeperName() %>,<% } %>
 ) Keeper {
@@ -57,7 +57,7 @@ func NewKeeper(
 		authority:    authority,
 		logger:       logger,<%= if (isIBC) { %>
         ibcKeeperFn:   ibcKeeperFn,
-        scopedKeeper:  scopedKeeper,<% } %>
+        capabilityScopedFn:  capabilityScopedFn,<% } %>
 		<%= for (dependency) in dependencies { %>
 		<%= toVariableName(dependency.KeeperName()) %>: <%= toVariableName(dependency.KeeperName()) %>,<% } %>
 	}
@@ -80,23 +80,23 @@ func (k Keeper) Logger() log.Logger {
 // ChanCloseInit defines a wrapper function for the channel Keeper's function.
 func (k Keeper) ChanCloseInit(ctx sdk.Context, portID, channelID string) error {
 	capName := host.ChannelCapabilityPath(portID, channelID)
-	chanCap, ok := k.scopedKeeper.GetCapability(ctx, capName)
+	chanCap, ok := k.ScopedKeeper().GetCapability(ctx, capName)
 	if !ok {
 		return errorsmod.Wrapf(channeltypes.ErrChannelCapabilityNotFound, "could not retrieve channel capability at: %s", capName)
 	}
-	return k.ibcKeeper.ChannelKeeper.ChanCloseInit(ctx, portID, channelID, chanCap)
+	return k.ibcKeeperFn().ChannelKeeper.ChanCloseInit(ctx, portID, channelID, chanCap)
 }
 
 // IsBound checks if the IBC app module is already bound to the desired port
 func (k Keeper) IsBound(ctx sdk.Context, portID string) bool {
-	_, ok := k.scopedKeeper.GetCapability(ctx, host.PortPath(portID))
+	_, ok := k.ScopedKeeper().GetCapability(ctx, host.PortPath(portID))
 	return ok
 }
 
 // BindPort defines a wrapper function for the port Keeper's function in
 // order to expose it to module's InitGenesis function
 func (k Keeper) BindPort(ctx sdk.Context, portID string) error {
-	cap := k.ibcKeeper.PortKeeper.BindPort(ctx, portID)
+	cap := k.ibcKeeperFn().PortKeeper.BindPort(ctx, portID)
 	return k.ClaimCapability(ctx, cap, host.PortPath(portID))
 }
 
@@ -116,16 +116,16 @@ func (k Keeper) SetPort(ctx sdk.Context, portID string) {
 
 // AuthenticateCapability wraps the scopedKeeper's AuthenticateCapability function
 func (k Keeper) AuthenticateCapability(ctx sdk.Context, cap *capabilitytypes.Capability, name string) bool {
-	return k.scopedKeeper.AuthenticateCapability(ctx, cap, name)
+	return k.ScopedKeeper().AuthenticateCapability(ctx, cap, name)
 }
 
 // ClaimCapability allows the IBC app module to claim a capability that core IBC
 // passes to it
 func (k Keeper) ClaimCapability(ctx sdk.Context, cap *capabilitytypes.Capability, name string) error {
-	return k.scopedKeeper.ClaimCapability(ctx, cap, name)
+	return k.ScopedKeeper().ClaimCapability(ctx, cap, name)
 }
 
 // ScopedKeeper returns the ScopedKeeper
 func (k Keeper) ScopedKeeper() exported.ScopedKeeper {
-	return k.scopedKeeper
+	return k.capabilityScopedFn(types.ModuleName)
 }<% } %>
