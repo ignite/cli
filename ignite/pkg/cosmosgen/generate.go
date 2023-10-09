@@ -176,23 +176,20 @@ Leave this here for reference to improve resolution algorithm
 */
 func (g *generator) checkForBuf(modpath string) (string, error) {
 	var bufPath string
-	err := filepath.WalkDir(modpath,
-		func(path string, _ fs.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
-			if filepath.Base(path) == "buf.yaml" {
-				bufPath = path
-				return filepath.SkipAll
-			}
-			return nil
-		})
-
+	err := filepath.WalkDir(modpath, func(path string, _ fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if filepath.Base(path) == "buf.yaml" {
+			bufPath = path
+			return filepath.SkipAll
+		}
+		return nil
+	})
 	if err != nil {
 		return "", err
-	} else {
-		return bufPath, nil
 	}
+	return bufPath, nil
 }
 
 func (g *generator) generateBufIncludeFolder(modpath string) (string, error) {
