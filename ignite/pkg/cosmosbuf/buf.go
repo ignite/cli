@@ -102,7 +102,6 @@ func (b Buf) Export(
 		return err
 	}
 	g.Go(func() error {
-		cmd := cmd
 		return b.runCommand(ctx, cmd...)
 	})
 	return g.Wait()
