@@ -210,15 +210,15 @@ func (g *generator) resolveIncludes(path string) (paths []string, err error) {
 	if err != nil {
 		return nil, err
 	}
+
 	p := filepath.Join(path, g.protoDir) // Look for the default protoDir ("/proto")
 	paths = append(paths, p)
-	f, err := os.Stat(p)
-	if err != nil {
-		if !os.IsNotExist(err) {
-			return nil, err
-		}
+	fi, err := os.Stat(p)
+	if err != nil && !os.IsNotExist(err) {
+		return nil, err
 	}
-	if f.IsDir() {
+
+	if fi.IsDir() {
 		bufPath, err := g.checkForBuf(p) // Look for a buf file to make our lives easier
 		if err != nil {
 			return nil, err

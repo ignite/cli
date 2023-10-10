@@ -115,7 +115,7 @@ func (s *Scaffolder) AddOracle(
 	if err != nil {
 		return sm, err
 	}
-	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
+	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath, false)
 }
 
 // Deprecated: This function is no longer maintained.
