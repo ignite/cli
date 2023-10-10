@@ -24,9 +24,10 @@ const (
 )
 
 var AppImplementation = []string{
-	"GetKey",
 	"AppCodec",
-	"TxConfig",
+	"GetKey",
+	"GetMemKey",
+	"kvStoreKeys",
 	"RegisterAPIRoutes",
 }
 

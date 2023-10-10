@@ -3,7 +3,6 @@ package cmd
 import (
 	"errors"
 	"io"
-	"os"
 
 	"cosmossdk.io/log"
 	confixcmd "cosmossdk.io/tools/confix/cmd"
@@ -191,11 +190,15 @@ func newApp(
 ) servertypes.Application {
 	baseappOptions := server.DefaultBaseappOptions(appOpts)
 
-	return app.New(
+	app, err := app.New(
 		logger, db, traceStore, true,
 		appOpts,
 		baseappOptions...,
 	)
+	if err != nil {
+		panic(err)
+	}
+	return app
 }
 
 // appExport creates a new app (optionally at a given height) and exports state.
@@ -209,6 +212,11 @@ func appExport(
 	appOpts servertypes.AppOptions,
 	modulesToExport []string,
 ) (servertypes.ExportedApp, error) {
+	var (
+		bApp *app.App
+		err  error
+	)
+
 	// this check is necessary as we use the flag in x/upgrade.
 	// we can exit more gracefully by checking the flag here.
 	homePath, ok := appOpts.Get(flags.FlagHome).(string)
@@ -225,26 +233,21 @@ func appExport(
 	viperAppOpts.Set(server.FlagInvCheckPeriod, 1)
 	appOpts = viperAppOpts
 
-	var bApp *app.App
 	if height != -1 {
-		bApp = app.New(logger, db, traceStore, false, appOpts)
+		bApp, err = app.New(logger, db, traceStore, false, appOpts)
+		if err != nil {
+			return servertypes.ExportedApp{}, err
+		}
 
 		if err := bApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		bApp = app.New(logger, db, traceStore, true, appOpts)
+		bApp, err = app.New(logger, db, traceStore, true, appOpts)
+		if err != nil {
+			return servertypes.ExportedApp{}, err
+		}
 	}
 
 	return bApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
-}
-
-var tempDir = func() string {
-	dir, err := os.MkdirTemp("", app.Name)
-	if err != nil {
-		dir = app.DefaultNodeHome
-	}
-	defer os.RemoveAll(dir)
-
-	return dir
 }
