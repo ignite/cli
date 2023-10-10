@@ -6,7 +6,8 @@
 
 - [#3476](https://github.com/ignite/cli/pull/3476) Use `buf.build` binary to code generate from proto files
 - [#3614](https://github.com/ignite/cli/pull/3614) feat: use DefaultBaseappOptions for app.New method
-- [#3553](https://github.com/ignite/cli/pull/3553) Change app.go to v2 and add AppWiring feature
+- [#3536](https://github.com/ignite/cli/pull/3536) Change app.go to v2 and add AppWiring feature
+- [#3670](https://github.com/ignite/cli/pull/3670) Remove nodetime binaries
 
 ### Changes
 
@@ -617,7 +618,7 @@ Our new name is **Ignite CLI**!
   automatically take care of building proto files without a need of script in the app's source code.
 - Integrated third-party proto-files used by Cosmos SDK modules into Ignite CLI
 - Added ability to customize binary name with `build.binary` in `config.yml`
-- Added ability to change path to home directory with ` .home` in `config.yml`
+- Added ability to change path to home directory with `.home` in `config.yml`
 - Added ability to add accounts by `address` with in `config.yml`
 - Added faucet functionality available on port 4500 and configurable with `faucet` in `config.yml`
 - Added `starport faucet [address] [coins]` command
