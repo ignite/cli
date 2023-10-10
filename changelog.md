@@ -8,6 +8,7 @@
 - [#3614](https://github.com/ignite/cli/pull/3614) feat: use DefaultBaseappOptions for app.New method
 - [#3536](https://github.com/ignite/cli/pull/3536) Change app.go to v2 and add AppWiring feature
 - [#3659](https://github.com/ignite/cli/pull/3659) cosmos-sdk `v0.50.x`
+- [#3670](https://github.com/ignite/cli/pull/3670) Remove nodetime binaries
 
 ### Changes
 
