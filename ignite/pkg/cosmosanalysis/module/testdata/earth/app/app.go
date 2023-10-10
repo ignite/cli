@@ -28,15 +28,18 @@ type Foo struct {
 
 var ModuleBasics = module.NewBasicManager(foo.AppModuleBasic{})
 
-func (Foo) Name() string                                    { return app.BaseApp.Name() }
-func (Foo) GetKey(storeKey string) *storetypes.KVStoreKey   { return nil }
-func (Foo) RegisterAPIRoutes()                              {}
-func (Foo) TxConfig() client.TxConfig                       { return nil }
-func (Foo) RegisterTxService()                              {}
-func (Foo) RegisterTendermintService()                      {}
-func (Foo) InterfaceRegistry() codectypes.InterfaceRegistry { return nil }
-func (Foo) AppCodec() codec.Codec                           { return app.appCodec }
-func (Foo) AutoCliOpts() autocli.AppOptions                 { return autocli.AppOptions{} }
+func (Foo) Name() string                                         { return app.BaseApp.Name() }
+func (Foo) RegisterAPIRoutes()                                   {}
+func (Foo) TxConfig() client.TxConfig                            { return nil }
+func (Foo) RegisterTxService()                                   {}
+func (Foo) RegisterTendermintService()                           {}
+func (Foo) InterfaceRegistry() codectypes.InterfaceRegistry      { return nil }
+func (Foo) AppCodec() codec.Codec                                { return app.appCodec }
+func (Foo) AutoCliOpts() autocli.AppOptions                      { return autocli.AppOptions{} }
+func (Foo) GetKey(storeKey string) *storetypes.KVStoreKey        { return nil }
+func (Foo) GetMemKey(storeKey string) *storetypes.MemoryStoreKey { return nil }
+func (Foo) kvStoreKeys() map[string]*storetypes.KVStoreKey       { return nil }
+func (Foo) GetSubspace(moduleName string) paramstypes.Subspace   { return subspace }
 func (Foo) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
 }

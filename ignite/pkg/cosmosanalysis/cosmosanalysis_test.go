@@ -74,8 +74,13 @@ func (f Foo) foobar() {}
 package app
 type App struct {}
 func (app *App) Name() string { return app.BaseApp.Name() }
-func (app *App) GetKey(storeKey string) *storetypes.KVStoreKey   { return nil }
-func (app *App) RegisterAPIRoutes()                              {}
+func (app *App) RegisterAPIRoutes()                                   {}
+func (app *App) RegisterTxService()                                   {}
+func (app *App) AppCodec() codec.Codec                                { return app.appCodec }
+func (app *App) GetKey(storeKey string) *storetypes.KVStoreKey        { return nil }
+func (app *App) GetMemKey(storeKey string) *storetypes.MemoryStoreKey { return nil }
+func (app *App) kvStoreKeys() map[string]*storetypes.KVStoreKey       { return nil }
+func (app *App) GetSubspace(moduleName string) paramstypes.Subspace   { return subspace }
 func (app *App) TxConfig() client.TxConfig                       { return nil }
 func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
@@ -88,8 +93,13 @@ func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.Respo
 package app_test
 type App struct {}
 func (app *App) Name() string { return app.BaseApp.Name() }
-func (app *App) GetKey(storeKey string) *storetypes.KVStoreKey   { return nil }
-func (app *App) RegisterAPIRoutes()                              {}
+func (app *App) RegisterAPIRoutes()                                   {}
+func (app *App) RegisterTxService()                                   {}
+func (app *App) AppCodec() codec.Codec                                { return app.appCodec }
+func (app *App) GetKey(storeKey string) *storetypes.KVStoreKey        { return nil }
+func (app *App) GetMemKey(storeKey string) *storetypes.MemoryStoreKey { return nil }
+func (app *App) kvStoreKeys() map[string]*storetypes.KVStoreKey       { return nil }
+func (app *App) GetSubspace(moduleName string) paramstypes.Subspace   { return subspace }
 func (app *App) TxConfig() client.TxConfig                       { return nil }
 func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
