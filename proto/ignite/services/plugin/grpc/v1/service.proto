@@ -75,10 +75,8 @@ message ExecuteHookCleanUpResponse {}
 service ClientAPIService {
   // GetChainInfo returns basic chain info for the configured app
   rpc GetChainInfo(GetChainInfoRequest) returns (GetChainInfoResponse);
-
-  // Dependencies returns the app dependencies.
-  //rpc Dependencies(DependenciesRequest) returns (DependenciesResponse);
 }
+
 message GetChainInfoRequest {}
 
 message GetChainInfoResponse {
