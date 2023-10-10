@@ -193,8 +193,8 @@ type <%= title(moduleName) %>Inputs struct {
 	BankKeeper    types.BankKeeper<%= for (dependency) in dependencies { %><%= if (dependency.Name != "Bank" && dependency.Name != "Account") { %>
     <%= dependency.KeeperName() %> types.<%= dependency.KeeperName() %><% } %><% } %>
 
-    <%= if (isIBC) { %>IBCKeeperFn        func() *ibckeeper.Keeper
-    CapabilityScopedFn func(moduleName string) capabilitykeeper.ScopedKeeper<% } %>
+    <%= if (isIBC) { %>IBCKeeperFn        func() *ibckeeper.Keeper                   `optional:"true"`
+    CapabilityScopedFn func(string) capabilitykeeper.ScopedKeeper `optional:"true"`<% } %>
 }
 
 type <%= title(moduleName) %>Outputs struct {

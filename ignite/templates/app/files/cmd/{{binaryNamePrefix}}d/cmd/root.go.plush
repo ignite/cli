@@ -27,7 +27,7 @@ import (
 	"<%= ModulePath %>/app"
 )
 
-// NewRootCmd creates a new root command for simd. It is called once in the main function.
+// NewRootCmd creates a new root command for <%= BinaryNamePrefix %>d. It is called once in the main function.
 func NewRootCmd() *cobra.Command {
 	var (
 		txConfigOpts       tx.ConfigOptions
