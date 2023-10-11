@@ -176,7 +176,7 @@ func (a Adapter) Save(ctx context.Context, txs []cosmosclient.TX) error {
 	}
 
 	// Rollback won't have any effect if the transaction is committed before
-	defer sqlTx.Rollback()
+	defer sqlTx.Rollback() //nolint:errcheck
 
 	// Prepare insert statements to speed up "bulk" saving times
 	txStmt, err := sqlTx.PrepareContext(ctx, sqlInsertTX)

@@ -240,7 +240,8 @@ func TestJSONFile_Update(t *testing.T) {
 			}
 			for key, value := range updates {
 				newValue := value
-				err = f.Field(key, &newValue)
+				err := f.Field(key, &newValue)
+				require.NoError(t, err)
 				require.Equal(t, value, newValue)
 			}
 		})
