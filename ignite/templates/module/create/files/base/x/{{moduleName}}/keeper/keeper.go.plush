@@ -88,10 +88,14 @@ func (k *Keeper) ChanCloseInit(ctx sdk.Context, portID, channelID string) error 
 	return k.ibcKeeperFn().ChannelKeeper.ChanCloseInit(ctx, portID, channelID, chanCap)
 }
 
-// IsBound checks if the IBC app module is already bound to the desired port
-func (k *Keeper) IsBound(ctx sdk.Context, portID string) bool {
-	_, ok := k.ScopedKeeper().GetCapability(ctx, host.PortPath(portID))
-	return ok
+// ShouldBound checks if the IBC app module can be bound to the desired port
+func (k *Keeper) ShouldBound(ctx sdk.Context, portID string) bool {
+	scopedKeeper := k.ScopedKeeper()
+	if scopedKeeper == nil {
+		return false
+	}
+	_, ok := scopedKeeper.GetCapability(ctx, host.PortPath(portID))
+	return !ok
 }
 
 // BindPort defines a wrapper function for the port Keeper's function in
@@ -128,7 +132,7 @@ func (k *Keeper) ClaimCapability(ctx sdk.Context, cap *capabilitytypes.Capabilit
 
 // ScopedKeeper returns the ScopedKeeper
 func (k *Keeper) ScopedKeeper() exported.ScopedKeeper {
-	if k.scopedKeeper == nil {
+	if k.scopedKeeper == nil && k.capabilityScopedFn != nil {
 		k.scopedKeeper = k.capabilityScopedFn(types.ModuleName)
 	}
 	return k.scopedKeeper
