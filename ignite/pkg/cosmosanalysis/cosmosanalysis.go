@@ -76,24 +76,67 @@ func FindImplementation(modulePath string, interfaceList []string) (found []stri
 		for _, f := range pkg.Files {
 			files = append(files, f)
 		}
-		found = append(found, FindImplementationInFiles(files, interfaceList)...)
+		found = append(found, findImplementationInFiles(files, interfaceList)...)
 	}
 
 	return found, nil
 }
 
-func FindImplementationInFiles(files []*ast.File, interfaceList []string) (found []string) {
-	for _, f := range files {
-		found = append(found, FindImplementationInFile(f, interfaceList)...)
-	}
-	return found
-}
-
+// FindImplementationInFile find all struct implements the interfaceList into an ast.File.
 func FindImplementationInFile(n ast.Node, interfaceList []string) (found []string) {
 	// collect all structs under path to find out the ones that satisfies the implementation
 	structImplementations := make(map[string]implementation)
 
-	ast.Inspect(n, func(n ast.Node) bool {
+	findImplementation(n, func(methodName, structName string) bool {
+		// mark the implementation that this struct satisfies.
+		if _, ok := structImplementations[structName]; !ok {
+			structImplementations[structName] = newImplementation(interfaceList)
+		}
+
+		structImplementations[structName][methodName] = true
+
+		return true
+	})
+
+	for name, impl := range structImplementations {
+		if checkImplementation(impl) {
+			found = append(found, name)
+		}
+	}
+
+	return found
+}
+
+// findImplementationInFiles find all struct implements the interfaceList into a list of ast.File.
+func findImplementationInFiles(files []*ast.File, interfaceList []string) (found []string) {
+	// collect all structs under path to find out the ones that satisfies the implementation
+	structImplementations := make(map[string]implementation)
+
+	for _, f := range files {
+		findImplementation(f, func(methodName, structName string) bool {
+			// mark the implementation that this struct satisfies.
+			if _, ok := structImplementations[structName]; !ok {
+				structImplementations[structName] = newImplementation(interfaceList)
+			}
+
+			structImplementations[structName][methodName] = true
+
+			return true
+		})
+	}
+
+	for name, impl := range structImplementations {
+		if checkImplementation(impl) {
+			found = append(found, name)
+		}
+	}
+
+	return found
+}
+
+// findImplementation parse the ast.Node and call the callback if is a struct implementation.
+func findImplementation(f ast.Node, endCallback func(methodName, structName string) bool) {
+	ast.Inspect(f, func(n ast.Node) bool {
 		// look for struct methods.
 		methodDecl, ok := n.(*ast.FuncDecl)
 		if !ok {
@@ -133,23 +176,11 @@ func FindImplementationInFile(n ast.Node, interfaceList []string) (found []strin
 		}
 		structName := ident.Name
 
-		// mark the implementation that this struct satisfies.
-		if _, ok := structImplementations[structName]; !ok {
-			structImplementations[structName] = newImplementation(interfaceList)
+		if endCallback != nil {
+			return endCallback(methodName, structName)
 		}
-
-		structImplementations[structName][methodName] = true
-
 		return true
 	})
-
-	for name, impl := range structImplementations {
-		if checkImplementation(impl) {
-			found = append(found, name)
-		}
-	}
-
-	return found
 }
 
 // newImplementation returns a new object to parse implementation of an interface.
@@ -229,7 +260,7 @@ func FindAppFilePath(chainRoot string) (path string, err error) {
 			return err
 		}
 
-		currFound := FindImplementationInFiles([]*ast.File{f}, AppImplementation)
+		currFound := findImplementationInFiles([]*ast.File{f}, AppImplementation)
 		if len(currFound) > 0 {
 			found = append(found, path)
 		}
