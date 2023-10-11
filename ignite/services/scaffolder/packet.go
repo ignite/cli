@@ -164,6 +164,9 @@ func isIBCModule(appPath string, moduleName string) (bool, error) {
 
 	// check the legacy path
 	absPathLegacy, err := filepath.Abs(filepath.Join(appPath, moduleDir, moduleName, ibcModuleImplementation))
+	if err != nil {
+		return false, err
+	}
 	_, err = os.Stat(absPathLegacy)
 	if os.IsNotExist(err) {
 		// Not an IBC module
