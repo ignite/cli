@@ -79,7 +79,7 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 // Deprecated: This function is no longer maintained.
 func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module_ibc.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/module_ibc.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

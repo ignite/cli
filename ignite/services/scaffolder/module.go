@@ -46,6 +46,7 @@ const (
 	extrasVersion = "v0.1.0"
 	appPkg        = "app"
 	moduleDir     = "x"
+	modulePkg     = "module"
 )
 
 var (
