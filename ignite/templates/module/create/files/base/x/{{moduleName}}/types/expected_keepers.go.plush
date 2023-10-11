@@ -24,9 +24,7 @@ import (
         // SlashingKeeper defines the expected interface for the Slashing module.
         type SlashingKeeper interface {
         	IsTombstoned(context.Context, sdk.ConsAddress) bool
-        	Slash(context.Context, sdk.ConsAddress, math.LegacyDec, int64, int64) error
         	Jail(context.Context, sdk.ConsAddress) error
-        	JailUntil(context.Context, sdk.ConsAddress, time.Time) error
         	// Methods imported from account should be defined here
         }
 
