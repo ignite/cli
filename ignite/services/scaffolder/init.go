@@ -51,7 +51,7 @@ func Init(
 		return "", err
 	}
 
-	err = finish(ctx, cacheStorage, path, pathInfo.RawPath, noDefaultModule)
+	err = finish(ctx, cacheStorage, path, pathInfo.RawPath)
 	if err != nil {
 		return "", err
 	}

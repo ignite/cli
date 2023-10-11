@@ -241,7 +241,7 @@ func (s Scaffolder) AddType(
 		return sm, err
 	}
 
-	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath, false)
+	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
 // checkForbiddenTypeIndex returns true if the name is forbidden as a index name.

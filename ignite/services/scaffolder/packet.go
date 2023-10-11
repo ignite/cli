@@ -143,7 +143,7 @@ func (s Scaffolder) AddPacket(
 	if err != nil {
 		return sm, err
 	}
-	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath, false)
+	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
 // isIBCModule returns true if the provided module implements the IBC module interface

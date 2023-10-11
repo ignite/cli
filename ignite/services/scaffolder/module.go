@@ -239,7 +239,7 @@ func (s Scaffolder) CreateModule(
 		return sm, runErr
 	}
 
-	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath, false)
+	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
 // moduleExists checks if the module exists in the app.

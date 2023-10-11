@@ -167,7 +167,7 @@ func (s Scaffolder) AddMessage(
 	if err != nil {
 		return sm, err
 	}
-	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath, false)
+	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
 // checkForbiddenMessageField returns true if the name is forbidden as a message name.

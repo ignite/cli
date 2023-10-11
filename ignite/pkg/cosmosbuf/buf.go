@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -48,8 +49,11 @@ var (
 		CMDExport:   {},
 	}
 
-	// ErrInvalidCommand error invalid command name.
+	// ErrInvalidCommand indicates an invalid command name.
 	ErrInvalidCommand = errors.New("invalid command name")
+
+	// ErrProtoFilesNotFound indicates that no ".proto" files were found.
+	ErrProtoFilesNotFound = errors.New("no proto files found")
 )
 
 // New creates a new Buf based on the installed binary.
@@ -94,6 +98,10 @@ func (b Buf) Export(ctx context.Context, protoDir, output string) error {
 
 		// Use the SDK copy to resolve SDK proto files
 		protoDir = filepath.Join(b.sdkProtoDir, paths[1])
+	}
+
+	if err := checkContainsProtoFiles(protoDir); err != nil {
+		return err
 	}
 
 	flags := map[string]string{
@@ -149,7 +157,7 @@ func (b Buf) Generate(
 		}
 		dirs := strings.Split(protoDir, "/proto/")
 		if len(dirs) < 2 {
-			return fmt.Errorf("invalid cosmos sdk mod path: %s", dirs)
+			return fmt.Errorf("invalid Cosmos SDK mod path: %s", dirs)
 		}
 		protoDir = filepath.Join(b.sdkProtoDir, dirs[1])
 	}
@@ -165,14 +173,21 @@ func (b Buf) Generate(
 			if _, ok := excluded[filepath.Base(file.Path)]; ok {
 				continue
 			}
-			cmd, err := b.generateCommand(
-				CMDGenerate,
-				flags,
-				file.Path,
-			)
+
+			if err := checkContainsProtoFiles(file.Path); err != nil {
+				// Silently ignore paths that doesn't contain proto files
+				if errors.Is(err, ErrProtoFilesNotFound) {
+					continue
+				}
+
+				return err
+			}
+
+			cmd, err := b.generateCommand(CMDGenerate, flags, file.Path)
 			if err != nil {
 				return err
 			}
+
 			g.Go(func() error {
 				cmd := cmd
 				return b.runCommand(ctx, cmd...)
@@ -244,4 +259,32 @@ func CopySDKProtoDir(protoDir string) (string, error) {
 		return "", err
 	}
 	return tmpDir, xos.CopyFolder(srcPath, tmpDir)
+}
+
+// checkContainsProtoFiles checks that the directory contains at least one ".proto" file.
+// The function can be used in contexts where Buf might be run in a directory that doesn't
+// contain proto files because it was not yet initialized, for example when scaffolding an
+// initial app without a module.
+func checkContainsProtoFiles(dir string) error {
+	var hasProtoFile bool
+
+	err := filepath.WalkDir(dir, func(path string, _ fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if filepath.Ext(path) == ".proto" {
+			hasProtoFile = true
+			return filepath.SkipAll
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	if !hasProtoFile {
+		return fmt.Errorf("%w: %s", ErrProtoFilesNotFound, dir)
+	}
+	return nil
 }
