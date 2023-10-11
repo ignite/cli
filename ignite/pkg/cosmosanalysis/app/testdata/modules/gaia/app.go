@@ -2,12 +2,13 @@ package gaia
 
 import (
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/server"
 	"io"
 	stdlog "log"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/cosmos/cosmos-sdk/server"
 
 	"cosmossdk.io/client/v2/autocli"
 	sdkerrors "cosmossdk.io/errors"

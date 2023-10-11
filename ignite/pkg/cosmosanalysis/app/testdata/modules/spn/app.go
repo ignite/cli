@@ -1,11 +1,12 @@
 package app
 
 import (
-	"github.com/cosmos/cosmos-sdk/server"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/cosmos/cosmos-sdk/server"
 
 	"cosmossdk.io/client/v2/autocli"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"

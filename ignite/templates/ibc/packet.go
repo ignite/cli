@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 
 	"github.com/emicklei/proto"
-
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
 
@@ -19,6 +18,7 @@ import (
 	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
 	"github.com/ignite/cli/ignite/templates/module"
 	"github.com/ignite/cli/ignite/templates/testutil"
+	"github.com/ignite/cli/ignite/templates/typed"
 )
 
 var (
@@ -317,9 +317,14 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 			protoutil.NewField("channelID", "string", 3),
 			protoutil.NewField("timeoutTimestamp", "uint64", 4),
 		)
+		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.LowerCamel)
 
 		// Create MsgSend, MsgSendResponse and add to file.
-		msgSend := protoutil.NewMessage("MsgSend"+typenameUpper, protoutil.WithFields(sendFields...))
+		msgSend := protoutil.NewMessage(
+			"MsgSend"+typenameUpper,
+			protoutil.WithFields(sendFields...),
+			protoutil.WithMessageOptions(creatorOpt),
+		)
 		msgSendResponse := protoutil.NewMessage("MsgSend" + typenameUpper + "Response")
 		protoutil.Append(protoFile, msgSend, msgSendResponse)
 
