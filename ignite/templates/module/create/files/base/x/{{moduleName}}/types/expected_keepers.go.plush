@@ -3,7 +3,8 @@ package types
 import (
 	"context"
 
-	<%= if (dependencies.Contains("Staking")) { %>"cosmossdk.io/math"<% } %>
+	<%= if (dependencies.Contains("Staking")) { %>"cosmossdk.io/core/address"
+    stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"<% } %>
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	<%= if (dependencies.Contains("Authz")) { %>"github.com/cosmos/cosmos-sdk/x/authz"<% } %>
 )
@@ -14,14 +15,18 @@ import (
     <% } else if (dependency.Name == "Staking") { %>
         // StakingKeeper defines the expected interface for the Staking module.
         type StakingKeeper interface {
-        	TotalBondedTokens(context.Context) (math.Int, error)
+        	ConsensusAddressCodec() address.Codec
+        	ValidatorByConsAddr(context.Context, sdk.ConsAddress) (stakingtypes.ValidatorI, error)
         	// Methods imported from account should be defined here
         }
 
     <% } else if (dependency.Name == "Slashing") { %>
         // SlashingKeeper defines the expected interface for the Slashing module.
         type SlashingKeeper interface {
+        	IsTombstoned(context.Context, sdk.ConsAddress) bool
+        	Slash(context.Context, sdk.ConsAddress, math.LegacyDec, int64, int64) error
         	Jail(context.Context, sdk.ConsAddress) error
+        	JailUntil(context.Context, sdk.ConsAddress, time.Time) error
         	// Methods imported from account should be defined here
         }
 
