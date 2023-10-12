@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -23,9 +24,9 @@ type (
 
 	// Buf represents the buf application structure.
 	Buf struct {
-		path     string
-		sdkCache string
-		cache    *protoanalysis.Cache
+		path        string
+		sdkProtoDir string
+		cache       *protoanalysis.Cache
 	}
 )
 
@@ -48,8 +49,11 @@ var (
 		CMDExport:   {},
 	}
 
-	// ErrInvalidCommand error invalid command name.
+	// ErrInvalidCommand indicates an invalid command name.
 	ErrInvalidCommand = errors.New("invalid command name")
+
+	// ErrProtoFilesNotFound indicates that no ".proto" files were found.
+	ErrProtoFilesNotFound = errors.New("no proto files found")
 )
 
 // New creates a new Buf based on the installed binary.
@@ -70,41 +74,51 @@ func (c Command) String() string {
 }
 
 // Export runs the buf Export command for the files in the proto directory.
-func (b Buf) Export(
-	ctx context.Context,
-	protoDir,
-	output string,
-) (err error) {
-	flags := map[string]string{
-		flagOutput: output,
-	}
-	g, ctx := errgroup.WithContext(ctx)
-
+func (b Buf) Export(ctx context.Context, protoDir, output string) error {
+	// Check if the proto directory is the Cosmos SDK one
 	if strings.Contains(protoDir, cosmosver.CosmosModulePath) {
-		if b.sdkCache == "" {
-			b.sdkCache, err = PrepareSDK(protoDir)
+		if b.sdkProtoDir == "" {
+			// Copy Cosmos SDK proto path without the Buf workspace.
+			// This is done because the workspace contains a reference to
+			// a "orm/internal" proto folder that is not present by default
+			// in the SDK repository.
+			d, err := CopySDKProtoDir(protoDir)
 			if err != nil {
 				return err
 			}
+
+			b.sdkProtoDir = d
 		}
-		dirs := strings.Split(protoDir, "/proto")
-		if len(dirs) < 2 {
-			return fmt.Errorf("invalid cosmos sdk mod path: %s", dirs)
+
+		// Split absolute path into an absolute prefix and a relative suffix
+		paths := strings.Split(protoDir, "/proto")
+		if len(paths) < 2 {
+			return fmt.Errorf("invalid Cosmos SDK mod path: %s", protoDir)
 		}
-		protoDir = filepath.Join(b.sdkCache, dirs[1])
+
+		// Use the SDK copy to resolve SDK proto files
+		protoDir = filepath.Join(b.sdkProtoDir, paths[1])
 	}
-	cmd, err := b.generateCommand(
-		CMDExport,
-		flags,
-		protoDir,
-	)
+
+	if err := checkContainsProtoFiles(protoDir); err != nil {
+		return err
+	}
+
+	flags := map[string]string{
+		flagOutput: output,
+	}
+
+	cmd, err := b.generateCommand(CMDExport, flags, protoDir)
 	if err != nil {
 		return err
 	}
+
+	g, ctx := errgroup.WithContext(ctx)
+
 	g.Go(func() error {
-		cmd := cmd
 		return b.runCommand(ctx, cmd...)
 	})
+
 	return g.Wait()
 }
 
@@ -135,17 +149,17 @@ func (b Buf) Generate(
 	// change the workspace copying the files to another folder and generate the
 	// files.
 	if strings.Contains(protoDir, cosmosver.CosmosModulePath) {
-		if b.sdkCache == "" {
-			b.sdkCache, err = PrepareSDK(protoDir)
+		if b.sdkProtoDir == "" {
+			b.sdkProtoDir, err = CopySDKProtoDir(protoDir)
 			if err != nil {
 				return err
 			}
 		}
 		dirs := strings.Split(protoDir, "/proto/")
 		if len(dirs) < 2 {
-			return fmt.Errorf("invalid cosmos sdk mod path: %s", dirs)
+			return fmt.Errorf("invalid Cosmos SDK mod path: %s", dirs)
 		}
-		protoDir = filepath.Join(b.sdkCache, dirs[1])
+		protoDir = filepath.Join(b.sdkProtoDir, dirs[1])
 	}
 
 	pkgs, err := protoanalysis.Parse(ctx, b.cache, protoDir)
@@ -159,14 +173,21 @@ func (b Buf) Generate(
 			if _, ok := excluded[filepath.Base(file.Path)]; ok {
 				continue
 			}
-			cmd, err := b.generateCommand(
-				CMDGenerate,
-				flags,
-				file.Path,
-			)
+
+			if err := checkContainsProtoFiles(file.Path); err != nil {
+				// Silently ignore paths that doesn't contain proto files
+				if errors.Is(err, ErrProtoFilesNotFound) {
+					continue
+				}
+
+				return err
+			}
+
+			cmd, err := b.generateCommand(CMDGenerate, flags, file.Path)
 			if err != nil {
 				return err
 			}
+
 			g.Go(func() error {
 				cmd := cmd
 				return b.runCommand(ctx, cmd...)
@@ -174,6 +195,14 @@ func (b Buf) Generate(
 		}
 	}
 	return g.Wait()
+}
+
+// Cleanup deletes temporary files and directories.
+func (b Buf) Cleanup() error {
+	if b.sdkProtoDir != "" {
+		return os.Remove(b.sdkProtoDir)
+	}
+	return nil
 }
 
 // runCommand run the buf CLI command.
@@ -208,7 +237,7 @@ func (b Buf) generateCommand(
 	return command, nil
 }
 
-// findSDKProtoPath find the cosmos-sdk proto folder path.
+// FindSDKProtoPath finds the Cosmos SDK proto folder path.
 func FindSDKProtoPath(protoDir string) (string, error) {
 	paths := strings.Split(protoDir, "@")
 	if len(paths) < 2 {
@@ -218,9 +247,9 @@ func FindSDKProtoPath(protoDir string) (string, error) {
 	return fmt.Sprintf("%s@%s/proto", paths[0], version), nil
 }
 
-// prepareSDK copy the cosmos sdk proto folder to a temporary directory
-// so we can skip the buf workspace.
-func PrepareSDK(protoDir string) (string, error) {
+// CopySDKProtoDir copies Cosmos SDK proto folder to a temporary directory.
+// The temporary directory must be removed by the caller.
+func CopySDKProtoDir(protoDir string) (string, error) {
 	tmpDir, err := os.MkdirTemp("", "proto-sdk")
 	if err != nil {
 		return "", err
@@ -230,4 +259,32 @@ func PrepareSDK(protoDir string) (string, error) {
 		return "", err
 	}
 	return tmpDir, xos.CopyFolder(srcPath, tmpDir)
+}
+
+// checkContainsProtoFiles checks that the directory contains at least one ".proto" file.
+// The function can be used in contexts where Buf might be run in a directory that doesn't
+// contain proto files because it was not yet initialized, for example when scaffolding an
+// initial app without a module.
+func checkContainsProtoFiles(dir string) error {
+	var hasProtoFile bool
+
+	err := filepath.WalkDir(dir, func(path string, _ fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if filepath.Ext(path) == ".proto" {
+			hasProtoFile = true
+			return filepath.SkipAll
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	if !hasProtoFile {
+		return fmt.Errorf("%w: %s", ErrProtoFilesNotFound, dir)
+	}
+	return nil
 }

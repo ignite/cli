@@ -132,6 +132,8 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		return err
 	}
 
+	defer b.Cleanup()
+
 	g := &generator{
 		ctx:          ctx,
 		buf:          b,

@@ -46,19 +46,13 @@ func Init(
 	path = filepath.Join(root, appFolder)
 
 	// create the project
-	if err := generate(
-		ctx,
-		tracer,
-		pathInfo,
-		addressPrefix,
-		path,
-		noDefaultModule,
-		params,
-	); err != nil {
+	err = generate(ctx, tracer, pathInfo, addressPrefix, path, noDefaultModule, params)
+	if err != nil {
 		return "", err
 	}
 
-	if err := finish(ctx, cacheStorage, path, pathInfo.RawPath); err != nil {
+	err = finish(ctx, cacheStorage, path, pathInfo.RawPath)
+	if err != nil {
 		return "", err
 	}
 
