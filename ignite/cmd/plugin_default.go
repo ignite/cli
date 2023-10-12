@@ -1,8 +1,6 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
@@ -63,18 +61,12 @@ func newPluginInstallCmd(dp defaultPlugin) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			if cfg.HasPlugin(dp.path) {
-				// plugin already declared in global plugins, this shouldn't happen
-				// because this is actually why this command has been added, so let's
-				// break violently
-				panic(fmt.Sprintf("plugin %q unexpected in global config", dp.path))
-			}
 
 			// add plugin to config
 			pluginCfg := pluginsconfig.Plugin{
 				Path: dp.path,
 			}
-			cfg.Plugins = append(cfg.Plugins, pluginCfg)
+			cfg.Apps = append(cfg.Apps, pluginCfg)
 			if err := cfg.Save(); err != nil {
 				return err
 			}

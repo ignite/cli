@@ -137,6 +137,17 @@ func TestFindRegisteredModules(t *testing.T) {
 			),
 		},
 		{
+			name: "with runtime api routes",
+			path: "testdata/modules/runtime_api_routes",
+			expectedModules: append(
+				basicModules,
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+				"github.com/username/test/x/foo",
+				"github.com/cosmos/cosmos-sdk/client/grpc/node",
+			),
+		},
+		{
 			name:            "same file function",
 			path:            "testdata/modules/file_function",
 			expectedModules: basicModules,
