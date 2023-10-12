@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 
 	sdkmath "cosmossdk.io/math"
+
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"

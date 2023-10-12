@@ -7,6 +7,7 @@
 - [#3476](https://github.com/ignite/cli/pull/3476) Use `buf.build` binary to code generate from proto files
 - [#3614](https://github.com/ignite/cli/pull/3614) feat: use DefaultBaseappOptions for app.New method
 - [#3536](https://github.com/ignite/cli/pull/3536) Change app.go to v2 and add AppWiring feature
+- [#3670](https://github.com/ignite/cli/pull/3670) Remove nodetime binaries
 
 ### Changes
 
@@ -17,6 +18,8 @@
 - [#3658](https://github.com/ignite/cli/pull/3658) Rename Marshaler to Codec in EncodingConfig
 - [#3653](https://github.com/ignite/cli/pull/3653) Add "app" extension to plugin binaries
 - [#3656](https://github.com/ignite/cli/pull/3656) Disable Go toolchain download
+- [#3662](https://github.com/ignite/cli/pull/3662) Refactor CLI "plugin" command to "app"
+- [#3669](https://github.com/ignite/cli/pull/3669) Rename `plugins` config file to `igniteapps`
 
 ### Fixes
 
@@ -25,6 +28,7 @@
 - [#3610](https://github.com/ignite/cli/pull/3610) Fix overflow issue of cosmos faucet in `pkg/cosmosfaucet/transfer.go` and `pkg/cosmosfaucet/cosmosfaucet.go`
 - [#3618](https://github.com/ignite/cli/pull/3618) Fix TS client generation import path issue
 - [#3631](https://github.com/ignite/cli/pull/3631) Fix unnecessary vue import in hooks/composables template
+- [#3661](https://github.com/ignite/cli/pull/3661) Change `pkg/cosmosanalysis` to find Cosmos SDK runtime app registered modules
 
 ## [`v0.27.0`](https://github.com/ignite/cli/releases/tag/v0.27.0)
 
