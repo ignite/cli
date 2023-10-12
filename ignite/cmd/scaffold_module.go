@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -14,6 +15,11 @@ import (
 	"github.com/ignite/cli/ignite/services/scaffolder"
 	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
 )
+
+// moduleNameKeeperAlias is a map of well known module names that have a different keeper name than the usual <module-name>Keeper.
+var moduleNameKeeperAlias = map[string]string{
+	"auth": "account",
+}
 
 const (
 	flagDep                 = "dep"
@@ -168,6 +174,10 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		for _, name := range dependencies {
 			if !isValid(name) {
 				return fmt.Errorf("invalid module dependency name format '%s'", name)
+			}
+
+			if alias, ok := moduleNameKeeperAlias[strings.ToLower(name)]; ok {
+				name = alias
 			}
 
 			deps = append(deps, modulecreate.NewDependency(name))
