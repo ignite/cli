@@ -180,20 +180,31 @@ func (f *JSONFile) Field(key string, param interface{}) error {
 	switch dataType {
 	case jsonparser.Boolean, jsonparser.Array, jsonparser.Number, jsonparser.Object:
 		err := json.Unmarshal(value, param)
-		if _, ok := err.(*json.UnmarshalTypeError); ok { //nolint:errorlint
+		var unmarshalTypeError *json.UnmarshalTypeError
+		if errors.As(err, &unmarshalTypeError) { //nolint:errorlint
 			return ErrInvalidValueType
-		} else if err != nil {
-			return err
 		}
 	case jsonparser.String:
-		paramStr, ok := param.(*string)
-		if !ok {
-			return ErrInvalidValueType
-		}
-		*paramStr, err = jsonparser.ParseString(value)
+		result, err := jsonparser.ParseString(value)
 		if err != nil {
 			return err
 		}
+		paramStr, ok := param.(*string)
+		if ok {
+			*paramStr = result
+			break
+		}
+		if _, ok := param.(interface{}); ok {
+			err := json.Unmarshal(value, param)
+			var unmarshalTypeError *json.UnmarshalTypeError
+			var syntaxTypeError *json.SyntaxError
+			if errors.As(err, &unmarshalTypeError) ||
+				errors.As(err, &syntaxTypeError) { //nolint:errorlint
+				return ErrInvalidValueType
+			}
+			break
+		}
+		return ErrInvalidValueType
 	case jsonparser.NotExist:
 	case jsonparser.Null:
 	case jsonparser.Unknown:
