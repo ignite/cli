@@ -84,8 +84,6 @@ func Find(n uint, options ...Options) (ports []uint, err error) {
 			}
 			ports = append(ports, port)
 			registered[port] = true
-			break
-		}
 	}
 	return ports, nil
 }
