@@ -2,7 +2,6 @@ package ignitecmd
 
 import (
 	"errors"
-	"fmt"
 	"os"
 
 	"github.com/cosmos/go-bip39"
@@ -71,6 +70,6 @@ func accountImportHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Printf("Account %q imported.\n", name)
+	cmd.Printf("Account %q imported.\n", name)
 	return nil
 }
