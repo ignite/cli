@@ -60,29 +60,29 @@ func Find(n uint, options ...Options) (ports []uint, err error) {
 	// Marker to point if a port is already added in the list
 	registered := make(map[uint]bool)
 	for len(registered) < int(n) {
-			// Greater or equal to min and lower than max
-			totalPorts := opts.maxPort - opts.minPort + 1
-			randomPort := opts.randomizer.Intn(int(totalPorts))
-			port := uint(randomPort) + opts.minPort
+		// Greater or equal to min and lower than max
+		totalPorts := opts.maxPort - opts.minPort + 1
+		randomPort := opts.randomizer.Intn(int(totalPorts))
+		port := uint(randomPort) + opts.minPort
 
-			conn, err := net.Dial("tcp", fmt.Sprintf(":%d", port))
-			// if there is an error, this might mean that no one is listening from this port
-			// which is what we need.
-			if err == nil {
-				conn.Close()
-				continue
-			}
-			if conn != nil {
-				defer conn.Close()
-			}
+		conn, err := net.Dial("tcp", fmt.Sprintf(":%d", port))
+		// if there is an error, this might mean that no one is listening from this port
+		// which is what we need.
+		if err == nil {
+			conn.Close()
+			continue
+		}
+		if conn != nil {
+			defer conn.Close()
+		}
 
-			// if the port is already registered we skip it to the next one
-			// otherwise it's added to the ports list and pointed in our map
-			if registered[port] {
-				continue
-			}
-			ports = append(ports, port)
-			registered[port] = true
+		// if the port is already registered we skip it to the next one
+		// otherwise it's added to the ports list and pointed in our map
+		if registered[port] {
+			continue
+		}
+		ports = append(ports, port)
+		registered[port] = true
 	}
 	return ports, nil
 }
