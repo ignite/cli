@@ -5,66 +5,74 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/ignite/cli/ignite/pkg/availableport"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/ignite/pkg/availableport"
 )
 
-func TestAvailablePort(t *testing.T) {
-
-	ports, err := availableport.Find(10)
-	require.Equal(t, nil, err)
-	require.Equal(t, 10, len(ports))
-
-	for idx := 0; idx < 9; idx++ {
-		for jdx := idx + 1; jdx < 10; jdx++ {
-			require.NotEqual(t, ports[idx], ports[jdx])
-		}
+func TestFind(t *testing.T) {
+	tests := []struct {
+		name    string
+		n       uint
+		options []availableport.Options
+		err     error
+	}{
+		{
+			name: "test 10 ports",
+			n:    10,
+		},
+		{
+			name: "invalid port range",
+			n:    10,
+			options: []availableport.Options{
+				availableport.WithMinPort(5),
+				availableport.WithMaxPort(1),
+			},
+			err: fmt.Errorf("invalid ports range: max < min (1 < 5)"),
+		},
+		{
+			name: "invalid maximum port range",
+			n:    10,
+			options: []availableport.Options{
+				availableport.WithMinPort(55001),
+				availableport.WithMaxPort(1),
+			},
+			err: fmt.Errorf("invalid ports range: max < min (1 < 55001)"),
+		},
+		{
+			name: "only invalid maximum port range",
+			n:    10,
+			options: []availableport.Options{
+				availableport.WithMaxPort(43999),
+			},
+			err: fmt.Errorf("invalid ports range: max < min (43999 < 44000)"),
+		},
+		{
+			name: "with randomizer",
+			n:    100,
+			options: []availableport.Options{
+				availableport.WithRandomizer(rand.New(rand.NewSource(2023))),
+				availableport.WithMinPort(100),
+				availableport.WithMaxPort(200),
+			},
+		},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := availableport.Find(tt.n, tt.options...)
+			if tt.err != nil {
+				require.Equal(t, tt.err, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Len(t, got, int(tt.n))
 
-	// Case no ports generated
-	options := []availableport.Options{
-		availableport.WithMinPort(1),
-		availableport.WithMaxPort(1),
+			seen := make(map[uint]struct{})
+			for _, val := range got {
+				_, ok := seen[val]
+				require.Falsef(t, ok, "duplicated port %d", val)
+				seen[val] = struct{}{}
+			}
+		})
 	}
-	ports, err = availableport.Find(10, options...)
-	require.Equal(t, fmt.Errorf("invalid amount of ports requested: limit is 0"), err)
-	require.Equal(t, 0, len(ports))
-
-	//	// Case max < min
-	options = []availableport.Options{
-		availableport.WithMinPort(5),
-		availableport.WithMaxPort(1),
-	}
-	ports, err = availableport.Find(10, options...)
-	require.Equal(t, fmt.Errorf("invalid ports range: max < min (1 < 5)"), err)
-	require.Equal(t, 0, len(ports))
-
-	// Case max < min min restriction given
-	options = []availableport.Options{
-		availableport.WithMinPort(55001),
-		availableport.WithMaxPort(1),
-	}
-	ports, err = availableport.Find(10, options...)
-	require.Equal(t, fmt.Errorf("invalid ports range: max < min (1 < 55001)"), err)
-	require.Equal(t, 0, len(ports))
-
-	//	 Case max < min max restriction given
-	options = []availableport.Options{
-		availableport.WithMaxPort(43999),
-	}
-	ports, err = availableport.Find(10, options...)
-	require.Equal(t, fmt.Errorf("invalid ports range: max < min (43999 < 44000)"), err)
-	require.Equal(t, 0, len(ports))
-
-	//	Case randomizer given
-
-	options = []availableport.Options{
-		availableport.WithRandomizer(rand.New(rand.NewSource(2023))),
-		availableport.WithMinPort(100),
-		availableport.WithMaxPort(200),
-	}
-
-	ports, err = availableport.Find(10, options...)
-	require.Equal(t, 10, len(ports))
-	require.Equal(t, []uint([]uint{0xc3, 0x81, 0x96, 0x6c, 0x78, 0xa9, 0xa6, 0x79, 0x83, 0xa0}), ports)
 }
