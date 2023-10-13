@@ -64,6 +64,6 @@ func accountExportHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Printf("Account %q exported to file: %s\n", name, path)
+	cmd.Printf("Account %q exported to file: %s\n", name, path)
 	return nil
 }

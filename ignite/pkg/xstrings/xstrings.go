@@ -4,6 +4,7 @@ import (
 	"strings"
 	"unicode"
 
+	"golang.org/x/exp/slices" // TODO: replace with slices.Contains when it will be available in stdlib (1.21)
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
@@ -19,23 +20,12 @@ func AllOrSomeFilter(list, filterList []string) []string {
 	var elems []string
 
 	for _, elem := range list {
-		if !SliceContains(filterList, elem) {
+		if !slices.Contains(filterList, elem) {
 			elems = append(elems, elem)
 		}
 	}
 
 	return elems
-}
-
-// SliceContains returns with true if s is a member of ss.
-func SliceContains(ss []string, s string) bool {
-	for _, e := range ss {
-		if e == s {
-			return true
-		}
-	}
-
-	return false
 }
 
 // List returns a slice of strings captured after the value returned by do which is

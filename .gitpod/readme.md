@@ -38,7 +38,7 @@ ignite chain serve
 
 ## Install Ignite CLI locally
 
-```
+```sh
 curl https://get.ignite.com/cli | bash
 ```
 
