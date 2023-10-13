@@ -75,7 +75,7 @@ func FaucetHost(cfg *Config) string {
 	// We keep supporting Port option for backward compatibility
 	// TODO: drop this option in the future
 	host := cfg.Faucet.Host
-	if cfg.Faucet.Port != 0 {
+	if cfg.Faucet.Port != uint(0) {
 		host = fmt.Sprintf(":%d", cfg.Faucet.Port)
 	}
 
