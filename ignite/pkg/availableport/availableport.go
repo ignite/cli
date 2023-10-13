@@ -59,8 +59,7 @@ func Find(n uint, options ...Options) (ports []uint, err error) {
 
 	// Marker to point if a port is already added in the list
 	registered := make(map[uint]bool)
-	for i := uint(0); i < n; i++ {
-		for {
+	for len(registered) < int(n) {
 			// Greater or equal to min and lower than max
 			totalPorts := opts.maxPort - opts.minPort + 1
 			randomPort := opts.randomizer.Intn(int(totalPorts))
