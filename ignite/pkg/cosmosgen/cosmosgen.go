@@ -2,6 +2,7 @@ package cosmosgen
 
 import (
 	"context"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -117,6 +118,14 @@ type generator struct {
 	appIncludes         []string
 	thirdModules        map[string][]module.Module
 	thirdModuleIncludes map[string][]string
+	tmpDirs             []string
+}
+
+func (g *generator) cleanup() {
+	// Remove temporary directories created during generation
+	for _, path := range g.tmpDirs {
+		_ = os.RemoveAll(path)
+	}
 }
 
 // Generate generates code from protoDir of an SDK app residing at appPath with given options.
@@ -140,6 +149,8 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		thirdModuleIncludes: make(map[string][]string),
 		cacheStorage:        cacheStorage,
 	}
+
+	defer g.cleanup()
 
 	for _, apply := range options {
 		apply(g.o)

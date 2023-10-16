@@ -208,9 +208,10 @@ func (g *generator) generateBufIncludeFolder(modpath string) (string, error) {
 		return "", err
 	}
 
+	g.tmpDirs = append(g.tmpDirs, protoPath)
+
 	err = g.buf.Export(g.ctx, modpath, protoPath)
 	if err != nil {
-		os.Remove(protoPath)
 		return "", err
 	}
 	return protoPath, nil
