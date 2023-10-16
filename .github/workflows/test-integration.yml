@@ -42,16 +42,6 @@ jobs:
             go.sum
             **/testdata/**
 
-      - uses: actions/cache@v3
-        if: env.GIT_DIFF
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
       - uses: actions/setup-go@v4
         if: env.GIT_DIFF
         with:
