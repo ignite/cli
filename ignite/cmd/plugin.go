@@ -233,7 +233,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 				}
 				err = p.Interface.ExecuteHookCleanUp(ctx, execHook, plugin.NewClientAPI(c))
 				if err != nil {
-					fmt.Printf("app %q ExecuteHookCleanUp() error: %v", p.Path, err)
+					cmd.Printf("app %q ExecuteHookCleanUp() error: %v", p.Path, err)
 				}
 			}
 			return err
@@ -256,7 +256,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 		defer func() {
 			err := p.Interface.ExecuteHookCleanUp(ctx, execHook, plugin.NewClientAPI(c))
 			if err != nil {
-				fmt.Printf("app %q ExecuteHookCleanUp() error: %v", p.Path, err)
+				cmd.Printf("app %q ExecuteHookCleanUp() error: %v", p.Path, err)
 			}
 		}()
 
@@ -423,7 +423,7 @@ If no path is specified all declared apps are updated.`,
 				if err != nil {
 					return err
 				}
-				fmt.Printf("All apps updated.\n")
+				cmd.Println("All apps updated.")
 				return nil
 			}
 			// find the plugin to update
@@ -433,7 +433,7 @@ If no path is specified all declared apps are updated.`,
 					if err != nil {
 						return err
 					}
-					fmt.Printf("App %q updated.\n", p.Path)
+					cmd.Printf("App %q updated.\n", p.Path)
 					return nil
 				}
 			}
