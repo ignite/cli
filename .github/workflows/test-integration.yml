@@ -55,7 +55,7 @@ jobs:
       - uses: actions/setup-go@v4
         if: env.GIT_DIFF
         with:
-          go-version-file: go.mod
+          go-version: 'stable'
 
       - name: Run Integration Tests
         if: env.GIT_DIFF
