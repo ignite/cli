@@ -36,12 +36,6 @@ type generateOptions struct {
 	specOut string
 }
 
-// TODO add WithInstall.
-type ModuleIncludes struct {
-	Includes []string
-	Modules  []module.Module
-}
-
 // ModulePathFunc defines a function type that returns a path based on a Cosmos SDK module.
 type ModulePathFunc func(module.Module) string
 
@@ -110,18 +104,19 @@ func IncludeDirs(dirs []string) Option {
 
 // generator generates code for sdk and sdk apps.
 type generator struct {
-	ctx          context.Context
-	buf          cosmosbuf.Buf
-	cacheStorage cache.Storage
-	appPath      string
-	protoDir     string
-	gomodPath    string
-	o            *generateOptions
-	sdkImport    string
-	deps         []gomodule.Version
-	appModules   []module.Module
-	appIncludes  []string
-	thirdModules map[string]ModuleIncludes // app dependency-modules/includes pair.
+	ctx                 context.Context
+	buf                 cosmosbuf.Buf
+	cacheStorage        cache.Storage
+	appPath             string
+	protoDir            string
+	gomodPath           string
+	o                   *generateOptions
+	sdkImport           string
+	deps                []gomodule.Version
+	appModules          []module.Module
+	appIncludes         []string
+	thirdModules        map[string][]module.Module
+	thirdModuleIncludes map[string][]string
 }
 
 // Generate generates code from protoDir of an SDK app residing at appPath with given options.
@@ -135,14 +130,15 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 	defer b.Cleanup()
 
 	g := &generator{
-		ctx:          ctx,
-		buf:          b,
-		appPath:      appPath,
-		protoDir:     protoDir,
-		gomodPath:    gomodPath,
-		o:            &generateOptions{},
-		thirdModules: make(map[string]ModuleIncludes),
-		cacheStorage: cacheStorage,
+		ctx:                 ctx,
+		buf:                 b,
+		appPath:             appPath,
+		protoDir:            protoDir,
+		gomodPath:           gomodPath,
+		o:                   &generateOptions{},
+		thirdModules:        make(map[string][]module.Module),
+		thirdModuleIncludes: make(map[string][]string),
+		cacheStorage:        cacheStorage,
 	}
 
 	for _, apply := range options {
