@@ -8,7 +8,7 @@ slug: /guide/nameservice
 
 The nameservice tutorial provides step-by-step instructions to build a blockchain app for a nameservice. The goal of the nameservice app is to send tokens between participants so that end users can buy names and set a value to the names. 
 
-This tutorial builds on knowlege and skills developed in the earlier tutorials in the Ignite CLI Developer Tutorials. Before you start this building your nameservice app, we recommend that you complete these foundational tutorials:
+This tutorial builds on knowledge and skills developed in the earlier tutorials in the Ignite CLI Developer Tutorials. Before you start this building your nameservice app, we recommend that you complete these foundational tutorials:
 
 - [Install Ignite CLI](../01-install.md)
 - [Hello, World](../02-hello.md)
