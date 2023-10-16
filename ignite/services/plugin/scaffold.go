@@ -32,7 +32,7 @@ func Scaffold(dir, moduleName string, sharedHost bool) (string, error) {
 	)
 	if _, err := os.Stat(finalDir); err == nil {
 		// finalDir already exists, don't overwrite stuff
-		return "", errors.Errorf("dir %q already exists, abort scaffolding", finalDir)
+		return "", errors.Errorf("directory %q already exists, abort scaffolding", finalDir)
 	}
 	if err := g.Box(template); err != nil {
 		return "", errors.WithStack(err)

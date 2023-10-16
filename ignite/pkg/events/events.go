@@ -2,7 +2,11 @@
 // for others to consume and display to end users in meaningful ways.
 package events
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/muesli/reflow/indent"
+)
 
 // ProgressIndication enumerates possible states of progress indication for an Event.
 type ProgressIndication uint8
@@ -23,6 +27,7 @@ type (
 	Event struct {
 		ProgressIndication ProgressIndication
 		Icon               string
+		Indent             uint
 		Message            string
 		Verbose            bool
 		Group              string
@@ -67,6 +72,13 @@ func Icon(icon string) Option {
 	}
 }
 
+// Indent sets the text indentation.
+func Indent(indent uint) Option {
+	return func(e *Event) {
+		e.Indent = indent
+	}
+}
+
 // Group sets a group name for the event.
 func Group(name string) Option {
 	return func(e *Event) {
@@ -86,11 +98,16 @@ func New(message string, options ...Option) Event {
 }
 
 func (e Event) String() string {
+	s := e.Message
 	if e.Icon != "" {
-		return fmt.Sprintf("%s %s", e.Icon, e.Message)
+		s = fmt.Sprintf("%s %s", e.Icon, s)
 	}
 
-	return e.Message
+	if e.Indent > 0 {
+		s = indent.String(s, e.Indent)
+	}
+
+	return s
 }
 
 // InProgress returns true when the event is in progress.

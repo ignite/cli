@@ -126,7 +126,7 @@ type Faucet struct {
 	Host string `yaml:"host,omitempty"`
 
 	// Port number for faucet server to listen at.
-	Port int `yaml:"port,omitempty"`
+	Port uint `yaml:"port,omitempty"`
 }
 
 // Init overwrites sdk configurations with given values.
