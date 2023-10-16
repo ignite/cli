@@ -25,12 +25,15 @@ jobs:
             **/*.go
             go.mod
             go.sum
+      - uses: actions/setup-go@v4
+        if: env.GIT_DIFF
+        with:
+          go-version-file: go.mod
       - uses: golangci/golangci-lint-action@v3
         if: env.GIT_DIFF
         with:
           version: v1.54.2
           skip-cache: true
-          disable:
-            - depguard
-          args: --timeout 10m
+          install-mode: goinstall
+          args: --timeout 20m
           github-token: ${{ secrets.github_token }}
