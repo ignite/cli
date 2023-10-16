@@ -1,6 +1,8 @@
 module github.com/ignite/cli
 
-go 1.21
+go 1.21.1
+
+toolchain go1.21.3
 
 require (
 	cosmossdk.io/math v1.0.1
