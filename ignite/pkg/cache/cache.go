@@ -91,10 +91,11 @@ func (c Cache[T]) Put(key string, value T) error {
 
 // Get fetches the value of key within the namespace.
 // If no value exists, it will return found == false.
-func (c Cache[T]) Get(key string) (val T, err error) {
+func (c Cache[T]) Get(key string) (T, error) {
+	var val T
 	db, err := openDB(c.storage.storagePath)
 	if err != nil {
-		return
+		return val, err
 	}
 	defer db.Close()
 

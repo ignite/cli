@@ -194,17 +194,14 @@ func (f *JSONFile) Field(key string, param interface{}) error {
 			*paramStr = result
 			break
 		}
-		if _, ok := param.(interface{}); ok {
-			err := json.Unmarshal(value, param)
-			var unmarshalTypeError *json.UnmarshalTypeError
-			var syntaxTypeError *json.SyntaxError
-			if errors.As(err, &unmarshalTypeError) ||
-				errors.As(err, &syntaxTypeError) {
-				return ErrInvalidValueType
-			}
-			break
+		var (
+			unmarshalTypeError *json.UnmarshalTypeError
+			syntaxTypeError    *json.SyntaxError
+		)
+		if err := json.Unmarshal(value, param); errors.As(err, &unmarshalTypeError) ||
+			errors.As(err, &syntaxTypeError) {
+			return ErrInvalidValueType
 		}
-		return ErrInvalidValueType
 	case jsonparser.NotExist:
 	case jsonparser.Null:
 	case jsonparser.Unknown:
