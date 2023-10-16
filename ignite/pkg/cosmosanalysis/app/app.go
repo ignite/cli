@@ -217,31 +217,32 @@ func newUnexpectedTypeErr(n any) error {
 	return errors.Errorf("unexpected type %T", n)
 }
 
-func findBasicManagerRegistrations(n ast.Node, pkgDir string, fileImports map[string]string) (packages []string, err error) {
+func findBasicManagerRegistrations(n ast.Node, pkgDir string, fileImports map[string]string) ([]string, error) {
 	callExprType, ok := n.(*ast.CallExpr)
 	if !ok {
-		return
+		return nil, nil
 	}
 
 	selectorExprType, ok := callExprType.Fun.(*ast.SelectorExpr)
 	if !ok {
-		return
+		return nil, nil
 	}
 
 	identExprType, ok := selectorExprType.X.(*ast.Ident)
 	if !ok {
-		return
+		return nil, nil
 	}
 	basicModulePkgName := findBasicManagerPkgName(fileImports)
 	if basicModulePkgName == "" {
 		// cosmos-sdk/types/module is not imported in this file, skip
-		return
+		return nil, nil
 	}
 	if identExprType.Name != basicModulePkgName || selectorExprType.Sel.Name != "NewBasicManager" {
-		return
+		return nil, nil
 	}
 
 	// Node "n" defines the call to NewBasicManager, let's loop on its args to discover modules
+	packages := make([]string, 0)
 	for _, arg := range callExprType.Args {
 		switch v := arg.(type) {
 

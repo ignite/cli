@@ -181,7 +181,7 @@ func (f *JSONFile) Field(key string, param interface{}) error {
 	case jsonparser.Boolean, jsonparser.Array, jsonparser.Number, jsonparser.Object:
 		err := json.Unmarshal(value, param)
 		var unmarshalTypeError *json.UnmarshalTypeError
-		if errors.As(err, &unmarshalTypeError) { //nolint:errorlint
+		if errors.As(err, &unmarshalTypeError) {
 			return ErrInvalidValueType
 		}
 	case jsonparser.String:
@@ -199,7 +199,7 @@ func (f *JSONFile) Field(key string, param interface{}) error {
 			var unmarshalTypeError *json.UnmarshalTypeError
 			var syntaxTypeError *json.SyntaxError
 			if errors.As(err, &unmarshalTypeError) ||
-				errors.As(err, &syntaxTypeError) { //nolint:errorlint
+				errors.As(err, &syntaxTypeError) {
 				return ErrInvalidValueType
 			}
 			break

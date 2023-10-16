@@ -1,6 +1,7 @@
 package placeholder
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -18,7 +19,8 @@ type MissingPlaceholdersError struct {
 
 // Is true if both errors have the same list of missing placeholders.
 func (e *MissingPlaceholdersError) Is(err error) bool {
-	other, ok := err.(*MissingPlaceholdersError) //nolint:errorlint
+	var other *MissingPlaceholdersError
+	ok := errors.As(err, &other)
 	if !ok {
 		return false
 	}
