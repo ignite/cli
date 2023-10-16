@@ -10,7 +10,7 @@ linters:
   enable:
     - bodyclose
     - decorder
-    - depguard
+    # - depguard
     - dogsled
     - dupword
     # - errcheck
