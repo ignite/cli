@@ -238,7 +238,7 @@ func (k msgServer) RevealSolution(goCtx context.Context, msg *types.MsgRevealSol
 		return nil, sdkError
 	}
 
-	// save the udpated scavenge to the store
+	// save the updated scavenge to the store
 	k.SetScavenge(ctx, scavenge)
 	return &types.MsgRevealSolutionResponse{}, nil
 }
