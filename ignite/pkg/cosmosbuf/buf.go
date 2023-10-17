@@ -200,7 +200,7 @@ func (b Buf) Generate(
 // Cleanup deletes temporary files and directories.
 func (b Buf) Cleanup() error {
 	if b.sdkProtoDir != "" {
-		return os.Remove(b.sdkProtoDir)
+		return os.RemoveAll(b.sdkProtoDir)
 	}
 	return nil
 }
