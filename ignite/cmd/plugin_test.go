@@ -333,6 +333,7 @@ ignite
 			tt.setup(t, pi)
 
 			_ = linkPlugins(rootCmd, []*plugin.Plugin{p})
+
 			if tt.expectedError != "" {
 				require.Error(p.Error)
 				require.EqualError(p.Error, tt.expectedError)
@@ -540,6 +541,7 @@ func TestLinkPluginHooks(t *testing.T) {
 			tt.setup(t, pi)
 
 			_ = linkPlugins(rootCmd, []*plugin.Plugin{p})
+
 			if tt.expectedError != "" {
 				require.EqualError(p.Error, tt.expectedError)
 				return
