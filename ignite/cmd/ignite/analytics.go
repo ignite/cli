@@ -20,9 +20,7 @@ const (
 	igniteAnonIdentity = "anon"
 )
 
-var (
-	gaclient *gacli.Client
-)
+var gaclient *gacli.Client
 
 type (
 	// metric represents an analytics metric.

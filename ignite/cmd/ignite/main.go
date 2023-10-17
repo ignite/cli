@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
+	"strings"
+
 	ignitecmd "github.com/ignite/cli/ignite/cmd"
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/clictx"
@@ -12,8 +15,6 @@ import (
 	"github.com/ignite/cli/ignite/pkg/gacli"
 	"github.com/ignite/cli/ignite/pkg/validation"
 	"github.com/ignite/cli/ignite/pkg/xstrings"
-	"os"
-	"strings"
 )
 
 func main() {
@@ -43,11 +44,6 @@ func run() int {
 			command: strings.Join(os.Args, " "),
 		})
 	}
-
-	const (
-		exitCodeOK    = 0
-		exitCodeError = 1
-	)
 	ctx := clictx.From(context.Background())
 
 	cmd, cleanUp, err := ignitecmd.New(ctx)
