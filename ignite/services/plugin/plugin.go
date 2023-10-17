@@ -20,6 +20,7 @@ import (
 
 	"github.com/ignite/cli/ignite/config"
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/env"
 	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
@@ -31,7 +32,7 @@ import (
 // PluginsPath holds the plugin cache directory.
 var PluginsPath = xfilepath.Mkdir(xfilepath.Join(
 	config.DirPath,
-	xfilepath.Path("plugins"),
+	xfilepath.Path("apps"),
 ))
 
 // Plugin represents a ignite plugin.
@@ -43,12 +44,12 @@ type Plugin struct {
 	// If any error occurred during the plugin load, it's stored here
 	Error error
 
-	repoPath   string
-	cloneURL   string
-	cloneDir   string
-	reference  string
-	srcPath    string
-	binaryName string
+	name      string
+	repoPath  string
+	cloneURL  string
+	cloneDir  string
+	reference string
+	srcPath   string
 
 	client *hplugin.Client
 
@@ -74,15 +75,13 @@ func CollectEvents(ev events.Bus) Option {
 // Load loads the plugins found in the chain config.
 //
 // There's 2 kinds of plugins, local or remote.
-// Local plugins have their path starting with a `/`, while remote plugins
-// don't.
+// Local plugins have their path starting with a `/`, while remote plugins don't.
 // Local plugins are useful for development purpose.
-// Remote plugins require to be fetched first, in $HOME/.ignite/plugins
-// folder, then they are loaded from there.
+// Remote plugins require to be fetched first, in $HOME/.ignite/apps folder,
+// then they are loaded from there.
 //
-// If an error occurs during a plugin load, it's not returned but rather stored
-// in the Plugin.Error field. This prevents the loading of other plugins to be
-// interrupted.
+// If an error occurs during a plugin load, it's not returned but rather stored in
+// the `Plugin.Error` field. This prevents the loading of other plugins to be interrupted.
 func Load(ctx context.Context, plugins []pluginsconfig.Plugin, options ...Option) ([]*Plugin, error) {
 	pluginsDir, err := PluginsPath()
 	if err != nil {
@@ -119,7 +118,7 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 		pluginPath = cp.Path
 	)
 	if pluginPath == "" {
-		p.Error = errors.Errorf(`missing plugin property "path"`)
+		p.Error = errors.Errorf(`missing app property "path"`)
 		return p
 	}
 
@@ -132,15 +131,15 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 		// This is a local plugin, check if the file exists
 		st, err := os.Stat(pluginPath)
 		if err != nil {
-			p.Error = errors.Wrapf(err, "local plugin path %q not found", pluginPath)
+			p.Error = errors.Wrapf(err, "local app path %q not found", pluginPath)
 			return p
 		}
 		if !st.IsDir() {
-			p.Error = errors.Errorf("local plugin path %q is not a dir", pluginPath)
+			p.Error = errors.Errorf("local app path %q is not a directory", pluginPath)
 			return p
 		}
 		p.srcPath = pluginPath
-		p.binaryName = path.Base(pluginPath)
+		p.name = path.Base(pluginPath)
 		return p
 	}
 	// This is a remote plugin, parse the URL
@@ -151,7 +150,7 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 	}
 	parts := strings.Split(pluginPath, "/")
 	if len(parts) < 3 {
-		p.Error = errors.Errorf("plugin path %q is not a valid repository URL", pluginPath)
+		p.Error = errors.Errorf("app path %q is not a valid repository URL", pluginPath)
 		return p
 	}
 	p.repoPath = path.Join(parts[:3]...)
@@ -165,12 +164,12 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 		p.cloneDir = path.Join(pluginsDir, p.repoPath)
 	}
 
-	// Plugin can have a subpath within its repository. For example,
-	// "github.com/ignite/plugins/plugin1" where "plugin1" is the subpath.
+	// Plugin can have a subpath within its repository.
+	// For example, "github.com/ignite/apps/app1" where "app1" is the subpath.
 	repoSubPath := path.Join(parts[3:]...)
 
 	p.srcPath = path.Join(p.cloneDir, repoSubPath)
-	p.binaryName = path.Base(pluginPath)
+	p.name = path.Base(pluginPath)
 
 	return p
 }
@@ -193,8 +192,12 @@ func (p *Plugin) KillClient() {
 	}
 }
 
-func (p *Plugin) binaryPath() string {
-	return path.Join(p.srcPath, p.binaryName)
+func (p Plugin) binaryName() string {
+	return fmt.Sprintf("%s.app", p.name)
+}
+
+func (p Plugin) binaryPath() string {
+	return path.Join(p.srcPath, p.binaryName())
 }
 
 // load tries to fill p.Interface, ensuring the plugin is usable.
@@ -229,7 +232,7 @@ func (p *Plugin) load(ctx context.Context) {
 	}
 	// pluginMap is the map of plugins we can dispense.
 	pluginMap := map[string]hplugin.Plugin{
-		p.binaryName: &InterfacePlugin{},
+		p.name: &InterfacePlugin{},
 	}
 	// Create an hclog.Logger
 	logLevel := hclog.Error
@@ -237,7 +240,7 @@ func (p *Plugin) load(ctx context.Context) {
 		logLevel = hclog.Trace
 	}
 	logger := hclog.New(&hclog.LoggerOptions{
-		Name:   fmt.Sprintf("plugin %s", p.Path),
+		Name:   fmt.Sprintf("app %s", p.Path),
 		Output: os.Stderr,
 		Level:  logLevel,
 	})
@@ -279,7 +282,7 @@ func (p *Plugin) load(ctx context.Context) {
 	}
 
 	// Request the plugin
-	raw, err := rpcClient.Dispense(p.binaryName)
+	raw, err := rpcClient.Dispense(p.name)
 	if err != nil {
 		p.Error = errors.Wrapf(err, "dispensing")
 		return
@@ -319,8 +322,8 @@ func (p *Plugin) fetch() {
 	if p.Error != nil {
 		return
 	}
-	p.ev.Send(fmt.Sprintf("Fetching plugin %q", p.cloneURL), events.ProgressStart())
-	defer p.ev.Send(fmt.Sprintf("Plugin fetched %q", p.cloneURL), events.ProgressFinish())
+	p.ev.Send(fmt.Sprintf("Fetching app %q", p.cloneURL), events.ProgressStart())
+	defer p.ev.Send(fmt.Sprintf("%s App fetched %q", icons.OK, p.cloneURL), events.ProgressFinish())
 
 	urlref := strings.Join([]string{p.cloneURL, p.reference}, "@")
 	err := xgit.Clone(context.Background(), urlref, p.cloneDir)
@@ -334,14 +337,14 @@ func (p *Plugin) build(ctx context.Context) {
 	if p.Error != nil {
 		return
 	}
-	p.ev.Send(fmt.Sprintf("Building plugin %q", p.Path), events.ProgressStart())
-	defer p.ev.Send(fmt.Sprintf("Plugin built %q", p.Path), events.ProgressFinish())
+	p.ev.Send(fmt.Sprintf("Building app %q", p.Path), events.ProgressStart())
+	defer p.ev.Send(fmt.Sprintf("%s App built %q", icons.OK, p.Path), events.ProgressFinish())
 
 	if err := gocmd.ModTidy(ctx, p.srcPath); err != nil {
 		p.Error = errors.Wrapf(err, "go mod tidy")
 		return
 	}
-	if err := gocmd.Build(ctx, p.binaryName, p.srcPath, nil); err != nil {
+	if err := gocmd.Build(ctx, p.binaryName(), p.srcPath, nil); err != nil {
 		p.Error = errors.Wrapf(err, "go build")
 		return
 	}
@@ -389,7 +392,7 @@ func (p *Plugin) outdatedBinary() bool {
 		return nil
 	})
 	if err != nil {
-		fmt.Printf("error while walking plugin source path %q\n", p.srcPath)
+		fmt.Printf("error while walking app source path %q\n", p.srcPath)
 		return false
 	}
 	return mostRecent.After(binaryTime)

@@ -37,7 +37,7 @@ validators:
       address: 0.0.0.0:8545
       ws-address: 0.0.0.0:8546
   home: $HOME/.evmosd
-plugins:
+apps:
 - name: plugin1
   path: /path/to/plugin1
 - name: plugin2

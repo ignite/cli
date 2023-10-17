@@ -289,6 +289,7 @@ func (s *Session) handleEvents() {
 			s.StopSpinner()
 			fmt.Fprintf(stdout, "%s\n", e)
 		case events.IndicationNone:
+			fallthrough
 		default:
 			// The text printed here won't be removed when the spinner stops
 			resume := s.PauseSpinner()

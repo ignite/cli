@@ -1,6 +1,6 @@
 module github.com/ignite/cli
 
-go 1.20
+go 1.21
 
 require (
 	cosmossdk.io/math v1.0.1
@@ -38,6 +38,7 @@ require (
 	github.com/hashicorp/go-hclog v1.2.0
 	github.com/hashicorp/go-plugin v1.4.9
 	github.com/iancoleman/strcase v0.2.0
+	github.com/ignite/ignite-files/nodetime v0.0.1
 	github.com/ignite/web v0.4.3
 	github.com/imdario/mergo v0.3.15
 	github.com/jpillora/chisel v1.8.1
@@ -60,10 +61,10 @@ require (
 	github.com/vektra/mockery/v2 v2.27.1
 	go.etcd.io/bbolt v1.3.7
 	golang.org/x/exp v0.0.0-20230519143937-03e91628a987
-	golang.org/x/mod v0.10.0
+	golang.org/x/mod v0.12.0
 	golang.org/x/sync v0.2.0
-	golang.org/x/term v0.8.0
-	golang.org/x/text v0.9.0
+	golang.org/x/term v0.13.0
+	golang.org/x/text v0.13.0
 	golang.org/x/tools v0.9.1
 	golang.org/x/vuln v0.1.0
 	google.golang.org/grpc v1.55.0
@@ -374,10 +375,10 @@ require (
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.23.0 // indirect
 	golang.org/x/arch v0.1.0 // indirect
-	golang.org/x/crypto v0.9.0 // indirect
+	golang.org/x/crypto v0.14.0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20221208152030-732eee02a75a // indirect
-	golang.org/x/net v0.10.0 // indirect
-	golang.org/x/sys v0.8.0 // indirect
+	golang.org/x/net v0.17.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect; indir ect

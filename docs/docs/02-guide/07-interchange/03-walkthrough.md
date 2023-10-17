@@ -435,7 +435,7 @@ buyOrderBook:
 interchanged q bank balances $(interchanged keys show -a alice --home ~/.mars)
 ```
 
-The author of the sell order successfuly exchanged 5 marscoin and received 25
+The author of the sell order successfully exchanged 5 marscoin and received 25
 venuscoin vouchers. The other 5marscoin created a sell order:
 
 ```yml
