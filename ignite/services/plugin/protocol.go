@@ -11,8 +11,8 @@ import (
 
 var handshakeConfig = hplugin.HandshakeConfig{
 	ProtocolVersion:  1,
-	MagicCookieKey:   "BASIC_PLUGIN",
-	MagicCookieValue: "hello",
+	MagicCookieKey:   "IGNITE_APP",
+	MagicCookieValue: "ignite",
 }
 
 // HandshakeConfig are used to just do a basic handshake between a plugin and host.
