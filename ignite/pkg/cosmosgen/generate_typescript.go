@@ -55,8 +55,8 @@ func (g *generator) generateTS() error {
 	// custom modules losing the registration of the third party
 	// modules when the root templates are re-generated.
 	for _, modules := range g.thirdModules {
-		data.Modules = append(data.Modules, modules.Modules...)
-		for _, m := range modules.Modules {
+		data.Modules = append(data.Modules, modules...)
+		for _, m := range modules {
 			if strings.HasPrefix(m.Pkg.Name, "interchain_security.ccv.consumer") {
 				data.IsConsumerChain = true
 			}
@@ -140,7 +140,8 @@ func (g *tsGenerator) generateModuleTemplates() error {
 	// is available and not generated it would lead to the registration of a new not generated
 	// 3rd party module.
 	for sourcePath, modules := range g.g.thirdModules {
-		add(sourcePath, modules.Modules, append(g.g.appIncludes, modules.Includes...))
+		includes := g.g.thirdModuleIncludes[sourcePath]
+		add(sourcePath, modules, append(g.g.appIncludes, includes...))
 	}
 
 	return gg.Wait()

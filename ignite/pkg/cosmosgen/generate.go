@@ -30,8 +30,9 @@ var protocGlobalInclude = xfilepath.List(
 )
 
 type ModulesInPath struct {
-	Path           string
-	ModuleIncludes ModuleIncludes
+	Path     string
+	Modules  []module.Module
+	Includes []string
 }
 
 func (g *generator) setup() (err error) {
@@ -117,20 +118,20 @@ func (g *generator) setup() (err error) {
 			if err != nil {
 				return err
 			}
-			includes := []string{}
-			if len(modules) > 0 {
 
-				includes, err = g.resolveIncludes(path) // For versioning issues, we do dependency/includes resolution per module
+			var includes []string
+			if len(modules) > 0 {
+				// For versioning issues, we do dependency/includes resolution per module
+				includes, err = g.resolveIncludes(path)
 				if err != nil {
 					return err
 				}
 			}
+
 			modulesInPath = ModulesInPath{
-				Path: path, // Each go module
-				ModuleIncludes: ModuleIncludes{ // Has a set of sdk modules and a set of includes to build them
-					Includes: includes,
-					Modules:  modules,
-				},
+				Path:     path,
+				Modules:  modules,
+				Includes: includes,
 			}
 
 			if err := moduleCache.Put(cacheKey, modulesInPath); err != nil {
@@ -138,7 +139,17 @@ func (g *generator) setup() (err error) {
 			}
 		}
 
-		g.thirdModules[modulesInPath.Path] = modulesInPath.ModuleIncludes
+		g.thirdModules[modulesInPath.Path] = append(
+			g.thirdModules[modulesInPath.Path],
+			modulesInPath.Modules...,
+		)
+
+		if modulesInPath.Includes != nil {
+			g.thirdModuleIncludes[modulesInPath.Path] = append(
+				g.thirdModuleIncludes[modulesInPath.Path],
+				modulesInPath.Includes...,
+			)
+		}
 	}
 
 	return nil
@@ -200,9 +211,10 @@ func (g *generator) generateBufIncludeFolder(modpath string) (string, error) {
 		return "", err
 	}
 
+	g.tmpDirs = append(g.tmpDirs, protoPath)
+
 	err = g.buf.Export(g.ctx, modpath, protoPath)
 	if err != nil {
-		os.Remove(protoPath)
 		return "", err
 	}
 	return protoPath, nil

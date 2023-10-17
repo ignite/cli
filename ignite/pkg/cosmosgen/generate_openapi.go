@@ -129,7 +129,7 @@ func (g *generator) generateOpenAPISpec() error {
 	}
 
 	for src, modules := range g.thirdModules {
-		if err := add(src, modules.Modules); err != nil {
+		if err := add(src, modules); err != nil {
 			return err
 		}
 	}
