@@ -143,10 +143,13 @@ func (g *generator) setup() (err error) {
 			g.thirdModules[modulesInPath.Path],
 			modulesInPath.Modules...,
 		)
-		g.thirdModuleIncludes[modulesInPath.Path] = append(
-			g.thirdModuleIncludes[modulesInPath.Path],
-			modulesInPath.Includes...,
-		)
+
+		if modulesInPath.Includes != nil {
+			g.thirdModuleIncludes[modulesInPath.Path] = append(
+				g.thirdModuleIncludes[modulesInPath.Path],
+				modulesInPath.Includes...,
+			)
+		}
 	}
 
 	return nil
