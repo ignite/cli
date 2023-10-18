@@ -20,8 +20,7 @@ type MissingPlaceholdersError struct {
 // Is true if both errors have the same list of missing placeholders.
 func (e *MissingPlaceholdersError) Is(err error) bool {
 	var other *MissingPlaceholdersError
-	ok := errors.As(err, &other)
-	if !ok {
+	if !errors.As(err, &other) {
 		return false
 	}
 	if len(other.missing) != len(e.missing) {

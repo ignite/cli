@@ -25,10 +25,13 @@ jobs:
             **/*.go
             go.mod
             go.sum
+
       - uses: actions/setup-go@v4
         if: env.GIT_DIFF
         with:
           go-version-file: go.mod
+          cache: false
+
       - uses: golangci/golangci-lint-action@v3
         if: env.GIT_DIFF
         with:
