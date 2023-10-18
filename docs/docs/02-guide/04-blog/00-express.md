@@ -173,7 +173,7 @@ While `ignite chain serve` is running in one terminal window, open another
 terminal and use the chain's binary to create a new blog post on the blockchain:
 
 ```
-blogd tx blog create-post 'Hello, World!' 'This is a blog post' --from alice
+blogd tx blog create-post 'Hello, World!' 'This is a blog post' --from alice --chain-id blog
 ```
 
 When using the `--from` flag to specify the account that will be used to sign a
@@ -220,7 +220,7 @@ transaction will be broadcasted to the blockchain and the blog post will be
 updated with the new body content.
 
 ```
-blogd tx blog update-post 0 'Hello, World!' 'This is a blog post from Alice' --from alice
+blogd tx blog update-post 0 'Hello, World!' 'This is a blog post from Alice' --from alice --chain-id blog
 ```
 
 Now that we have updated the blog post with new content, let's query the
@@ -263,7 +263,7 @@ example of how the blockchain can enforce rules and permissions, and it shows
 that only authorized users are able to make changes to the blockchain.
 
 ```
-blogd tx blog delete-post 0 --from bob
+blogd tx blog delete-post 0 --from bob --chain-id blog
 
 raw_log: 'failed to execute message; message index: 0: incorrect owner: unauthorized'
 ```
@@ -273,7 +273,7 @@ account. Since Alice is the author of the blog post, she should be authorized to
 delete it.
 
 ```
-blogd tx blog delete-post 0 --from alice
+blogd tx blog delete-post 0 --from alice --chain-id blog
 ```
 
 To check whether the blog post has been successfully deleted by Alice, we can
