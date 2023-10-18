@@ -43,22 +43,17 @@ jobs:
             go.sum
             **/testdata/**
 
-      - uses: actions/cache@v3
-        if: env.GIT_DIFF
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
       - uses: actions/setup-go@v4
         if: env.GIT_DIFF
         with:
-          go-version: '1.21'
+          go-version: 'stable'
+
       - name: Run Integration Tests
         if: env.GIT_DIFF
-        run: GOSUMDB=off go test -v -timeout 120m ./integration/${{ matrix.test-path }}
+        env:
+          GOTOOLCHAIN: local+path
+          GOSUMDB: off
+        run: go test -v -timeout 120m ./integration/${{ matrix.test-path }}
 
   status:
     runs-on: ubuntu-latest
