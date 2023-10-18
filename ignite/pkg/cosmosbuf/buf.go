@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -82,7 +81,7 @@ func (b Buf) Export(ctx context.Context, protoDir, output string) error {
 			// This is done because the workspace contains a reference to
 			// a "orm/internal" proto folder that is not present by default
 			// in the SDK repository.
-			d, err := CopySDKProtoDir(protoDir)
+			d, err := copySDKProtoDir(protoDir)
 			if err != nil {
 				return err
 			}
@@ -99,11 +98,13 @@ func (b Buf) Export(ctx context.Context, protoDir, output string) error {
 		// Use the SDK copy to resolve SDK proto files
 		protoDir = filepath.Join(b.sdkProtoDir, paths[1])
 	}
-
-	if err := checkContainsProtoFiles(protoDir); err != nil {
+	specs, err := xos.FindFiles(protoDir, "proto")
+	if err != nil {
 		return err
 	}
-
+	if len(specs) == 0 {
+		return ErrProtoFilesNotFound
+	}
 	flags := map[string]string{
 		flagOutput: output,
 	}
@@ -150,7 +151,7 @@ func (b Buf) Generate(
 	// files.
 	if strings.Contains(protoDir, cosmosver.CosmosModulePath) {
 		if b.sdkProtoDir == "" {
-			b.sdkProtoDir, err = CopySDKProtoDir(protoDir)
+			b.sdkProtoDir, err = copySDKProtoDir(protoDir)
 			if err != nil {
 				return err
 			}
@@ -174,13 +175,12 @@ func (b Buf) Generate(
 				continue
 			}
 
-			if err := checkContainsProtoFiles(file.Path); err != nil {
-				// Silently ignore paths that doesn't contain proto files
-				if errors.Is(err, ErrProtoFilesNotFound) {
-					continue
-				}
-
+			specs, err := xos.FindFiles(protoDir, "proto")
+			if err != nil {
 				return err
+			}
+			if len(specs) == 0 {
+				continue
 			}
 
 			cmd, err := b.generateCommand(CMDGenerate, flags, file.Path)
@@ -238,7 +238,7 @@ func (b Buf) generateCommand(
 }
 
 // FindSDKProtoPath finds the Cosmos SDK proto folder path.
-func FindSDKProtoPath(protoDir string) (string, error) {
+func findSDKProtoPath(protoDir string) (string, error) {
 	paths := strings.Split(protoDir, "@")
 	if len(paths) < 2 {
 		return "", fmt.Errorf("invalid sdk mod dir: %s", protoDir)
@@ -249,42 +249,14 @@ func FindSDKProtoPath(protoDir string) (string, error) {
 
 // CopySDKProtoDir copies Cosmos SDK proto folder to a temporary directory.
 // The temporary directory must be removed by the caller.
-func CopySDKProtoDir(protoDir string) (string, error) {
+func copySDKProtoDir(protoDir string) (string, error) {
 	tmpDir, err := os.MkdirTemp("", "proto-sdk")
 	if err != nil {
 		return "", err
 	}
-	srcPath, err := FindSDKProtoPath(protoDir)
+	srcPath, err := findSDKProtoPath(protoDir)
 	if err != nil {
 		return "", err
 	}
 	return tmpDir, xos.CopyFolder(srcPath, tmpDir)
-}
-
-// checkContainsProtoFiles checks that the directory contains at least one ".proto" file.
-// The function can be used in contexts where Buf might be run in a directory that doesn't
-// contain proto files because it was not yet initialized, for example when scaffolding an
-// initial app without a module.
-func checkContainsProtoFiles(dir string) error {
-	var hasProtoFile bool
-
-	err := filepath.WalkDir(dir, func(path string, _ fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if filepath.Ext(path) == ".proto" {
-			hasProtoFile = true
-			return filepath.SkipAll
-		}
-		return nil
-	})
-	if err != nil {
-		return err
-	}
-
-	if !hasProtoFile {
-		return fmt.Errorf("%w: %s", ErrProtoFilesNotFound, dir)
-	}
-	return nil
 }
