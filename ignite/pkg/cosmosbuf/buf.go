@@ -103,7 +103,7 @@ func (b Buf) Export(ctx context.Context, protoDir, output string) error {
 		return err
 	}
 	if len(specs) == 0 {
-		return ErrProtoFilesNotFound
+		return fmt.Errorf("%w: %s", ErrProtoFilesNotFound, protoDir)
 	}
 	flags := map[string]string{
 		flagOutput: output,
