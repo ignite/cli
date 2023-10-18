@@ -191,7 +191,7 @@ func TestFindAppFilePath(t *testing.T) {
 	appTestFilePath := filepath.Join(secondaryAppFolder, "my_own_app_test.go")
 	err = os.WriteFile(appTestFilePath, appTestFile, 0o644)
 	require.NoError(t, err)
-	_, err = cosmosanalysis.FindAppFilePath(tmpDir) //nolint:ineffassign
+	_, err = cosmosanalysis.FindAppFilePath(tmpDir)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "cannot locate your app.go")
 
