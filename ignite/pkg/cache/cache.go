@@ -94,7 +94,7 @@ func (c Cache[T]) Put(key string, value T) error {
 func (c Cache[T]) Get(key string) (val T, err error) {
 	db, err := openDB(c.storage.storagePath)
 	if err != nil {
-		return
+		return val, err
 	}
 	defer db.Close()
 

@@ -220,25 +220,25 @@ func newUnexpectedTypeErr(n any) error {
 func findBasicManagerRegistrations(n ast.Node, pkgDir string, fileImports map[string]string) (packages []string, err error) {
 	callExprType, ok := n.(*ast.CallExpr)
 	if !ok {
-		return
+		return packages, err
 	}
 
 	selectorExprType, ok := callExprType.Fun.(*ast.SelectorExpr)
 	if !ok {
-		return
+		return packages, err
 	}
 
 	identExprType, ok := selectorExprType.X.(*ast.Ident)
 	if !ok {
-		return
+		return packages, err
 	}
 	basicModulePkgName := findBasicManagerPkgName(fileImports)
 	if basicModulePkgName == "" {
 		// cosmos-sdk/types/module is not imported in this file, skip
-		return
+		return packages, err
 	}
 	if identExprType.Name != basicModulePkgName || selectorExprType.Sel.Name != "NewBasicManager" {
-		return
+		return packages, err
 	}
 
 	// Node "n" defines the call to NewBasicManager, let's loop on its args to discover modules
