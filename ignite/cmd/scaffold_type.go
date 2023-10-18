@@ -14,7 +14,7 @@ func NewScaffoldType() *cobra.Command {
 		Use:     "type NAME [field:type] ...",
 		Short:   "Type definition",
 		Long:    fmt.Sprintf("Type information\n%s\n", supportFieldTypes),
-		Example: "   ignite scaffold type todo-item priority:int desc:string tags:array.string done:bool",
+		Example: "  ignite scaffold type todo-item priority:int desc:string tags:array.string done:bool",
 		Args:    cobra.MinimumNArgs(1),
 		PreRunE: migrationPreRunHandler,
 		RunE:    scaffoldTypeHandler,
