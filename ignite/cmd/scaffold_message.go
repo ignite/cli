@@ -13,7 +13,7 @@ const flagSigner = "signer"
 // NewScaffoldMessage returns the command to scaffold messages.
 func NewScaffoldMessage() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "message [name] [field1] [field2:type2] ...",
+		Use:   "message [name] [field1:type1] [field2:type2] ...",
 		Short: "Message to perform state transition on the blockchain",
 		Long: `Message scaffolding is useful for quickly adding functionality to your
 blockchain to handle specific Cosmos SDK messages.

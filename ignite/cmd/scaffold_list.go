@@ -36,7 +36,7 @@ provides the logic to create, read, update, and delete instances of the type.
 For example, let's review a command that generates the code to handle a list of
 posts and each post has "title" and "body" fields:
 
-	ignite scaffold list post title body:string
+	ignite scaffold list post title body
 
 This provides you with a "Post" type, MsgCreatePost, MsgUpdatePost,
 MsgDeletePost and two queries: Post and PostAll. The compiled CLI, let's say the

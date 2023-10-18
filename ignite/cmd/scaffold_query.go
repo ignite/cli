@@ -17,9 +17,11 @@ const (
 // NewScaffoldQuery command creates a new type command to scaffold queries.
 func NewScaffoldQuery() *cobra.Command {
 	c := &cobra.Command{
-		Use:     "query [name] [request_field1] [request_field2:field2_type] ...",
-		Short:   "Query for fetching data from a blockchain\n",
-		Long:    "Query for fetching data from a blockchain\nFor detailed type information use ignite scaffold type --help",
+		Use:   "query [name] [field1:type1] [field2:type2] ...",
+		Short: "Query for fetching data from a blockchain",
+		Long: `Query for fetching data from a blockchain.
+		
+For detailed type information use ignite scaffold type --help.`,
 		Args:    cobra.MinimumNArgs(1),
 		PreRunE: migrationPreRunHandler,
 		RunE:    queryHandler,
