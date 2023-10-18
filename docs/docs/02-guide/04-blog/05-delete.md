@@ -7,7 +7,8 @@ message.
 
 ```go title="x/blog/keeper/post.go"
 func (k Keeper) RemovePost(ctx sdk.Context, id uint64) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PostKey))
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.KeyPrefix(types.PostKey))
 	store.Delete(GetPostIDBytes(id))
 }
 ```

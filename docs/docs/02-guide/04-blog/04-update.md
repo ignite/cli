@@ -15,7 +15,8 @@ Implement the `GetPost` keeper method in `post.go`:
 
 ```go title="x/blog/keeper/post.go"
 func (k Keeper) GetPost(ctx sdk.Context, id uint64) (val types.Post, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PostKey))
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.KeyPrefix(types.PostKey))
 	b := store.Get(GetPostIDBytes(id))
 	if b == nil {
 		return val, false
@@ -48,7 +49,8 @@ Implement the `SetPost` keeper method in `post.go`:
 
 ```go title="x/blog/keeper/post.go"
 func (k Keeper) SetPost(ctx sdk.Context, post types.Post) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PostKey))
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.KeyPrefix(types.PostKey))
 	b := k.cdc.MustMarshal(&post)
 	store.Set(GetPostIDBytes(post.Id), b)
 }
