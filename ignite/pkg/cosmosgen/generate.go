@@ -164,29 +164,6 @@ func (g *generator) getProtoIncludeFolders(modPath string) []string {
 	return includePaths
 }
 
-/*
-Leave this here for reference to improve resolution algorithm
-
-	func (g *generator) checkForProto(modpath string) (bool, error) {
-		err := filepath.WalkDir(modpath,
-			func(path string, _ fs.DirEntry, err error) error {
-				if err != nil {
-					return err
-				}
-				if filepath.Ext(path) == ".proto" {
-					return errFileFound
-				}
-				return nil
-			})
-		if err == errFileFound {
-			return true, nil
-		}
-		if err != nil {
-			return false, err
-		}
-		return false, errFileNotFound
-	}
-*/
 func (g *generator) findBufPath(modpath string) (string, error) {
 	var bufPath string
 	err := filepath.WalkDir(modpath, func(path string, _ fs.DirEntry, err error) error {
