@@ -114,13 +114,7 @@ func (b Buf) Export(ctx context.Context, protoDir, output string) error {
 		return err
 	}
 
-	g, ctx := errgroup.WithContext(ctx)
-
-	g.Go(func() error {
-		return b.runCommand(ctx, cmd...)
-	})
-
-	return g.Wait()
+	return b.runCommand(ctx, cmd...)
 }
 
 // Generate runs the buf Generate command for each file into the proto directory.
