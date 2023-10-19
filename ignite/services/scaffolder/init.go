@@ -132,6 +132,10 @@ func generate(
 			Params:     paramsFields,
 			IsIBC:      false,
 		}
+		// Check if the module name is valid
+		if err := checkModuleName(opts.AppPath, opts.ModuleName); err != nil {
+			return err
+		}
 		g, err = modulecreate.NewGenerator(opts)
 		if err != nil {
 			return err
