@@ -271,31 +271,31 @@ func (f Flag) feedFlagSet(fgr flagger) error {
 	case FlagTypeBool:
 		defVal, _ := strconv.ParseBool(f.DefValue)
 		fs.BoolP(f.Name, f.Shorthand, defVal, f.Usage)
-		fs.Set(f.Name, f.Value)
+		_ = fs.Set(f.Name, f.Value)
 	case FlagTypeInt:
 		defVal, _ := strconv.Atoi(f.DefValue)
 		fs.IntP(f.Name, f.Shorthand, defVal, f.Usage)
-		fs.Set(f.Name, f.Value)
+		_ = fs.Set(f.Name, f.Value)
 	case FlagTypeUint:
 		defVal, _ := strconv.ParseUint(f.DefValue, 10, 64)
 		fs.UintP(f.Name, f.Shorthand, uint(defVal), f.Usage)
-		fs.Set(f.Name, f.Value)
+		_ = fs.Set(f.Name, f.Value)
 	case FlagTypeInt64:
 		defVal, _ := strconv.ParseInt(f.DefValue, 10, 64)
 		fs.Int64P(f.Name, f.Shorthand, defVal, f.Usage)
-		fs.Set(f.Name, f.Value)
+		_ = fs.Set(f.Name, f.Value)
 	case FlagTypeUint64:
 		defVal, _ := strconv.ParseUint(f.DefValue, 10, 64)
 		fs.Uint64P(f.Name, f.Shorthand, defVal, f.Usage)
-		fs.Set(f.Name, f.Value)
+		_ = fs.Set(f.Name, f.Value)
 	case FlagTypeString:
 		fs.StringP(f.Name, f.Shorthand, f.DefValue, f.Usage)
-		fs.Set(f.Name, f.Value)
+		_ = fs.Set(f.Name, f.Value)
 	case FlagTypeStringSlice:
 		s := strings.Trim(f.DefValue, "[]")
 		defValue := strings.Fields(s)
 		fs.StringSliceP(f.Name, f.Shorthand, defValue, f.Usage)
-		fs.Set(f.Name, strings.Trim(f.Value, "[]"))
+		_ = fs.Set(f.Name, strings.Trim(f.Value, "[]"))
 	default:
 		return fmt.Errorf("flagset unmarshal: unhandled flag type %q in flag %#v", f.Type, f)
 	}

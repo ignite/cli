@@ -9,8 +9,12 @@ import (
 // NewScaffoldSingle returns a new command to scaffold a singleton.
 func NewScaffoldSingle() *cobra.Command {
 	c := &cobra.Command{
-		Use:     "single NAME [field]...",
-		Short:   "CRUD for data stored in a single location",
+		Use:   "single NAME [field:type]...",
+		Short: "CRUD for data stored in a single location",
+		Long: `CRUD for data stored in a single location.
+		
+For detailed type information use ignite scaffold type --help.`,
+		Example: "  ignite scaffold single todo-single title:string done:bool",
 		Args:    cobra.MinimumNArgs(1),
 		PreRunE: migrationPreRunHandler,
 		RunE:    scaffoldSingleHandler,

@@ -76,8 +76,10 @@ func (d *Doctor) MigrateConfig(_ context.Context) error {
 	status := "OK"
 
 	if version != chainconfig.LatestVersion {
-		f.Seek(0, 0)
-
+		_, err := f.Seek(0, 0)
+		if err != nil {
+			return errf(fmt.Errorf("failed to reset the file: %w", err))
+		}
 		// migrate config file
 		// Convert the current config to the latest version and update the YAML file
 		var buf bytes.Buffer

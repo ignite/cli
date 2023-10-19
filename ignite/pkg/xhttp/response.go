@@ -23,7 +23,7 @@ func ResponseJSON(w http.ResponseWriter, status int, data interface{}) error {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	w.Write(bz)
+	_, _ = w.Write(bz)
 	return err
 }
 
