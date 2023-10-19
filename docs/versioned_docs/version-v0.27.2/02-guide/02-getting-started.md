@@ -29,7 +29,7 @@ following command:
 ignite scaffold chain example
 ```
 
-The [`ignite scaffold chain`](../../references/cli#ignite-scaffold-chain) command
+The [`ignite scaffold chain`](/references/cli#ignite-scaffold-chain) command
 will create a new blockchain in a new directory `example`.
 
 The new blockchain is built using the Cosmos SDK framework and imports several
