@@ -19,13 +19,14 @@ const (
 
 // Type aliases for the current plugin version.
 type (
-	Manifest        = v1.Manifest
 	Command         = v1.Command
-	Hook            = v1.Hook
+	ChainInfo       = v1.ChainInfo
+	ExecutedCommand = v1.ExecutedCommand
+	ExecutedHook    = v1.ExecutedHook
 	Flag            = v1.Flag
 	FlagType        = v1.Flag_Type
-	ExecutedHook    = v1.ExecutedHook
-	ExecutedCommand = v1.ExecutedCommand
+	Hook            = v1.Hook
+	Manifest        = v1.Manifest
 )
 
 // Interface defines the interface that all Ignite App must implement.
@@ -38,24 +39,36 @@ type Interface interface {
 	// Execute will be invoked by ignite when an app Command is executed.
 	// It is global for all commands declared in Manifest, if you have declared
 	// multiple commands, use cmd.Path to distinguish them.
-	Execute(context.Context, *ExecutedCommand) error
+	// The clientAPI argument can be used by plugins to get chain app analysis info.
+	Execute(context.Context, *ExecutedCommand, ClientAPI) error
 
 	// ExecuteHookPre is invoked by ignite when a command specified by the Hook
 	// path is invoked.
 	// It is global for all hooks declared in Manifest, if you have declared
 	// multiple hooks, use hook.Name to distinguish them.
-	ExecuteHookPre(context.Context, *ExecutedHook) error
+	// The clientAPI argument can be used by plugins to get chain app analysis info.
+	ExecuteHookPre(context.Context, *ExecutedHook, ClientAPI) error
 
 	// ExecuteHookPost is invoked by ignite when a command specified by the hook
 	// path is invoked.
 	// It is global for all hooks declared in Manifest, if you have declared
 	// multiple hooks, use hook.Name to distinguish them.
-	ExecuteHookPost(context.Context, *ExecutedHook) error
+	// The clientAPI argument can be used by plugins to get chain app analysis info.
+	ExecuteHookPost(context.Context, *ExecutedHook, ClientAPI) error
 
 	// ExecuteHookCleanUp is invoked by ignite when a command specified by the
 	// hook path is invoked. Unlike ExecuteHookPost, it is invoked regardless of
 	// execution status of the command and hooks.
 	// It is global for all hooks declared in Manifest, if you have declared
 	// multiple hooks, use hook.Name to distinguish them.
-	ExecuteHookCleanUp(context.Context, *ExecutedHook) error
+	// The clientAPI argument can be used by plugins to get chain app analysis info.
+	ExecuteHookCleanUp(context.Context, *ExecutedHook, ClientAPI) error
+}
+
+// ClientAPI defines the interface for plugins to get chain app code analysis info.
+//
+//go:generate mockery --srcpkg . --name ClientAPI --structname PluginClientAPI --filename client_api.go --with-expecter
+type ClientAPI interface {
+	// GetChainInfo returns basic info for the configured blockchain app.
+	GetChainInfo(context.Context) (*ChainInfo, error)
 }

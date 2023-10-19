@@ -48,26 +48,30 @@ type Interface interface {
 	// Execute will be invoked by ignite when an app Command is executed.
 	// It is global for all commands declared in Manifest, if you have declared
 	// multiple commands, use cmd.Path to distinguish them.
-	Execute(context.Context, *ExecutedCommand) error
+	// The ClientAPI argument can be used by plugins to get chain app analysis info.
+	Execute(context.Context, *ExecutedCommand, ClientAPI) error
 
 	// ExecuteHookPre is invoked by ignite when a command specified by the Hook
 	// path is invoked.
 	// It is global for all hooks declared in Manifest, if you have declared
 	// multiple hooks, use hook.Name to distinguish them.
-	ExecuteHookPre(context.Context, *ExecutedHook) error
+	// The ClientAPI argument can be used by plugins to get chain app analysis info.
+	ExecuteHookPre(context.Context, *ExecutedHook, ClientAPI) error
 
 	// ExecuteHookPost is invoked by ignite when a command specified by the hook
 	// path is invoked.
 	// It is global for all hooks declared in Manifest, if you have declared
 	// multiple hooks, use hook.Name to distinguish them.
-	ExecuteHookPost(context.Context, *ExecutedHook) error
+	// The ClientAPI argument can be used by plugins to get chain app analysis info.
+	ExecuteHookPost(context.Context, *ExecutedHook, ClientAPI) error
 
 	// ExecuteHookCleanUp is invoked by ignite when a command specified by the
 	// hook path is invoked. Unlike ExecuteHookPost, it is invoked regardless of
 	// execution status of the command and hooks.
 	// It is global for all hooks declared in Manifest, if you have declared
 	// multiple hooks, use hook.Name to distinguish them.
-	ExecuteHookCleanUp(context.Context, *ExecutedHook) error
+	// The ClientAPI argument can be used by plugins to get chain app analysis info.
+	ExecuteHookCleanUp(context.Context, *ExecutedHook, ClientAPI) error
 }
 ```
 
@@ -155,7 +159,7 @@ To update the app execution, you have to change the `Execute` command. For
 example:
 
 ```go
-func (app) Execute(_ context.Context, cmd *plugin.ExecutedCommand) error {
+func (app) Execute(_ context.Context, cmd *plugin.ExecutedCommand, _ plugin.ClientAPI) error {
 	if len(cmd.Args) == 0 {
 		return fmt.Errorf("oracle name missing")
 	}
@@ -217,7 +221,7 @@ func (app) Manifest(context.Context) (*plugin.Manifest, error) {
 	}, nil
 }
 
-func (app) ExecuteHookPre(_ context.Context, h *plugin.ExecutedHook) error {
+func (app) ExecuteHookPre(_ context.Context, h *plugin.ExecutedHook, _ plugin.ClientAPI) error {
 	switch h.Hook.GetName() {
 	case "my-hook":
 		fmt.Println("I'm executed before ignite chain build")
@@ -227,7 +231,7 @@ func (app) ExecuteHookPre(_ context.Context, h *plugin.ExecutedHook) error {
 	return nil
 }
 
-func (app) ExecuteHookPost(_ context.Context, h *plugin.ExecutedHook) error {
+func (app) ExecuteHookPost(_ context.Context, h *plugin.ExecutedHook, _ plugin.ClientAPI) error {
 	switch h.Hook.GetName() {
 	case "my-hook":
 		fmt.Println("I'm executed after ignite chain build (if no error)")
@@ -237,7 +241,7 @@ func (app) ExecuteHookPost(_ context.Context, h *plugin.ExecutedHook) error {
 	return nil
 }
 
-func (app) ExecuteHookCleanUp(_ context.Context, h *plugin.ExecutedHook) error {
+func (app) ExecuteHookCleanUp(_ context.Context, h *plugin.ExecutedHook, _ plugin.ClientAPI) error {
 	switch h.Hook.GetName() {
 	case "my-hook":
 		fmt.Println("I'm executed after ignite chain build (regardless errors)")

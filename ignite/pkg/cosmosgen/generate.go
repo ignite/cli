@@ -59,7 +59,7 @@ func (g *generator) setup() (err error) {
 	}
 
 	// Read the dependencies defined in the `go.mod` file
-	g.deps, err = gomodule.ResolveDependencies(modFile)
+	g.deps, err = gomodule.ResolveDependencies(modFile, false)
 	if err != nil {
 		return err
 	}

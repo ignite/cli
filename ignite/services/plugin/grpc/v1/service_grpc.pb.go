@@ -289,3 +289,95 @@ var InterfaceService_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "ignite/services/plugin/grpc/v1/service.proto",
 }
+
+const (
+	ClientAPIService_GetChainInfo_FullMethodName = "/ignite.services.plugin.grpc.v1.ClientAPIService/GetChainInfo"
+)
+
+// ClientAPIServiceClient is the client API for ClientAPIService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type ClientAPIServiceClient interface {
+	// GetChainInfo returns basic chain info for the configured app
+	GetChainInfo(ctx context.Context, in *GetChainInfoRequest, opts ...grpc.CallOption) (*GetChainInfoResponse, error)
+}
+
+type clientAPIServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewClientAPIServiceClient(cc grpc.ClientConnInterface) ClientAPIServiceClient {
+	return &clientAPIServiceClient{cc}
+}
+
+func (c *clientAPIServiceClient) GetChainInfo(ctx context.Context, in *GetChainInfoRequest, opts ...grpc.CallOption) (*GetChainInfoResponse, error) {
+	out := new(GetChainInfoResponse)
+	err := c.cc.Invoke(ctx, ClientAPIService_GetChainInfo_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ClientAPIServiceServer is the server API for ClientAPIService service.
+// All implementations must embed UnimplementedClientAPIServiceServer
+// for forward compatibility
+type ClientAPIServiceServer interface {
+	// GetChainInfo returns basic chain info for the configured app
+	GetChainInfo(context.Context, *GetChainInfoRequest) (*GetChainInfoResponse, error)
+	mustEmbedUnimplementedClientAPIServiceServer()
+}
+
+// UnimplementedClientAPIServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedClientAPIServiceServer struct {
+}
+
+func (UnimplementedClientAPIServiceServer) GetChainInfo(context.Context, *GetChainInfoRequest) (*GetChainInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetChainInfo not implemented")
+}
+func (UnimplementedClientAPIServiceServer) mustEmbedUnimplementedClientAPIServiceServer() {}
+
+// UnsafeClientAPIServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ClientAPIServiceServer will
+// result in compilation errors.
+type UnsafeClientAPIServiceServer interface {
+	mustEmbedUnimplementedClientAPIServiceServer()
+}
+
+func RegisterClientAPIServiceServer(s grpc.ServiceRegistrar, srv ClientAPIServiceServer) {
+	s.RegisterService(&ClientAPIService_ServiceDesc, srv)
+}
+
+func _ClientAPIService_GetChainInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetChainInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientAPIServiceServer).GetChainInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientAPIService_GetChainInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientAPIServiceServer).GetChainInfo(ctx, req.(*GetChainInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// ClientAPIService_ServiceDesc is the grpc.ServiceDesc for ClientAPIService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var ClientAPIService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "ignite.services.plugin.grpc.v1.ClientAPIService",
+	HandlerType: (*ClientAPIServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetChainInfo",
+			Handler:    _ClientAPIService_GetChainInfo_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "ignite/services/plugin/grpc/v1/service.proto",
+}

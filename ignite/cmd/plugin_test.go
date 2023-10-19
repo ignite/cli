@@ -95,8 +95,9 @@ func TestLinkPluginCmds(t *testing.T) {
 					fmt.Println(cmd.Use == execCmd.Use, cmd.Use, execCmd.Use)
 					return cmd.Use == execCmd.Use
 				}),
+				mock.Anything,
 			).
-			Run(func(_ context.Context, execCmd *plugin.ExecutedCommand) {
+			Run(func(_ context.Context, execCmd *plugin.ExecutedCommand, _ plugin.ClientAPI) {
 				// Assert execCmd is populated correctly
 				assert.True(t, strings.HasSuffix(execCmd.Path, cmd.Use), "wrong path %s", execCmd.Path)
 				assert.Equal(t, args, execCmd.Args)
@@ -418,8 +419,8 @@ func TestLinkPluginHooks(t *testing.T) {
 						hook.PlaceHookOn == execHook.Hook.PlaceHookOn
 				})
 			}
-			asserter := func(hook *plugin.Hook) func(_ context.Context, hook *plugin.ExecutedHook) {
-				return func(_ context.Context, execHook *plugin.ExecutedHook) {
+			asserter := func(hook *plugin.Hook) func(_ context.Context, hook *plugin.ExecutedHook, _ plugin.ClientAPI) {
+				return func(_ context.Context, execHook *plugin.ExecutedHook, _ plugin.ClientAPI) {
 					assert.True(t, strings.HasSuffix(execHook.ExecutedCommand.Path, hook.PlaceHookOn), "wrong path %q want %q", execHook.ExecutedCommand.Path, hook.PlaceHookOn)
 					assert.Equal(t, args, execHook.ExecutedCommand.Args)
 					assertFlags(t, expectedFlags, execHook.ExecutedCommand)
@@ -429,7 +430,7 @@ func TestLinkPluginHooks(t *testing.T) {
 			var lastPre *mock.Call
 			for _, hook := range hooks {
 				pre := p.EXPECT().
-					ExecuteHookPre(ctx, matcher(hook)).
+					ExecuteHookPre(ctx, matcher(hook), mock.Anything).
 					Run(asserter(hook)).
 					Return(nil).
 					Call
@@ -440,12 +441,12 @@ func TestLinkPluginHooks(t *testing.T) {
 			}
 			for _, hook := range hooks {
 				post := p.EXPECT().
-					ExecuteHookPost(ctx, matcher(hook)).
+					ExecuteHookPost(ctx, matcher(hook), mock.Anything).
 					Run(asserter(hook)).
 					Return(nil).
 					Call
 				cleanup := p.EXPECT().
-					ExecuteHookCleanUp(ctx, matcher(hook)).
+					ExecuteHookCleanUp(ctx, matcher(hook), mock.Anything).
 					Run(asserter(hook)).
 					Return(nil).
 					Call
