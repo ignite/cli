@@ -1,4 +1,30 @@
-# Ignite CLI
+<div align="center">
+  <h1> Ignite </h1>
+</div>
+
+<div align="center">
+  <a href="https://github.com/ignite/cli/blob/main/LICENSE">
+    <img alt="License: Apache-2.0" src="https://img.shields.io/github/license/cosmos/cosmos-sdk.svg" />
+  </a>
+  <a href="https://pkg.go.dev/github.com/ignite/cli?tab=doc">
+    <img alt="GoDoc" src="https://pkg.go.dev/badge/github.com/ignite/cli.svg" />
+  </a>
+  <a href="https://goreportcard.com/report/github.com/ignite/cli">
+    <img alt="Go report card" src="https://goreportcard.com/badge/github.com/ignite/cli" />
+  </a>
+<!--
+  <a href="https://codecov.io/gh/ignite/cli">
+    <img alt="Code Coverage" src="https://codecov.io/gh/ignite/cli/branch/main/graph/badge.svg" />
+  </a>
+-->
+</div>
+<div align="center">
+  <a href="https://github.com/ignite/cli">
+    <img alt="Lines Of Code" src="https://tokei.rs/b1/github/ignite/cli" />
+  </a>
+    <img alt="Test Status" src="https://github.com/ignite/cli/workflows/Test/badge.svg" />
+    <img alt="Lint Status" src="https://github.com/ignite/cli/workflows/Lint/badge.svg" />
+</div>
 
 ![Ignite CLI](./assets/ignite-cli.png)
 
