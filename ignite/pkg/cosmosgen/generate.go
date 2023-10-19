@@ -158,7 +158,7 @@ func (g *generator) setup() (err error) {
 func (g *generator) getProtoIncludeFolders(modPath string) []string {
 	// Add default protoDir and default includeDirs
 	includePaths := []string{filepath.Join(modPath, g.protoDir)}
-	for _, dir := range g.o.includeDirs {
+	for _, dir := range g.opts.includeDirs {
 		includePaths = append(includePaths, filepath.Join(modPath, dir))
 	}
 	return includePaths
@@ -183,7 +183,7 @@ func (g *generator) findBufPath(modpath string) (string, error) {
 }
 
 func (g *generator) generateBufIncludeFolder(modpath string) (string, error) {
-	protoPath, err := os.MkdirTemp("", "")
+	protoPath, err := os.MkdirTemp("", "includeFolder")
 	if err != nil {
 		return "", err
 	}

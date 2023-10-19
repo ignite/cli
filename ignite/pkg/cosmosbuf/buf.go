@@ -98,7 +98,7 @@ func (b Buf) Export(ctx context.Context, protoDir, output string) error {
 		// Use the SDK copy to resolve SDK proto files
 		protoDir = filepath.Join(b.sdkProtoDir, paths[1])
 	}
-	specs, err := xos.FindFiles(protoDir, "proto")
+	specs, err := xos.FindFiles(protoDir, xos.ProtoFile)
 	if err != nil {
 		return err
 	}
@@ -231,7 +231,7 @@ func (b Buf) generateCommand(
 	return command, nil
 }
 
-// FindSDKProtoPath finds the Cosmos SDK proto folder path.
+// findSDKProtoPath finds the Cosmos SDK proto folder path.
 func findSDKProtoPath(protoDir string) (string, error) {
 	paths := strings.Split(protoDir, "@")
 	if len(paths) < 2 {
@@ -241,7 +241,7 @@ func findSDKProtoPath(protoDir string) (string, error) {
 	return fmt.Sprintf("%s@%s/proto", paths[0], version), nil
 }
 
-// CopySDKProtoDir copies Cosmos SDK proto folder to a temporary directory.
+// copySDKProtoDir copies the Cosmos SDK proto folder to a temporary directory.
 // The temporary directory must be removed by the caller.
 func copySDKProtoDir(protoDir string) (string, error) {
 	tmpDir, err := os.MkdirTemp("", "proto-sdk")

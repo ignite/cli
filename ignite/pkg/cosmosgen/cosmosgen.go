@@ -111,7 +111,7 @@ type generator struct {
 	appPath             string
 	protoDir            string
 	gomodPath           string
-	o                   *generateOptions
+	opts                *generateOptions
 	sdkImport           string
 	deps                []gomodule.Version
 	appModules          []module.Module
@@ -144,7 +144,7 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		appPath:             appPath,
 		protoDir:            protoDir,
 		gomodPath:           gomodPath,
-		o:                   &generateOptions{},
+		opts:                &generateOptions{},
 		thirdModules:        make(map[string][]module.Module),
 		thirdModuleIncludes: make(map[string][]string),
 		cacheStorage:        cacheStorage,
@@ -153,7 +153,7 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 	defer g.cleanup()
 
 	for _, apply := range options {
-		apply(g.o)
+		apply(g.opts)
 	}
 
 	if err := g.setup(); err != nil {
@@ -162,30 +162,30 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 
 	// Go generation must run first so the types are created before other
 	// generated code that requires sdk.Msg implementations to be defined
-	if g.o.isGoEnabled {
+	if g.opts.isGoEnabled {
 		if err := g.generateGo(); err != nil {
 			return err
 		}
 	}
-	if g.o.isPulsarEnabled {
+	if g.opts.isPulsarEnabled {
 		if err := g.generatePulsar(); err != nil {
 			return err
 		}
 	}
 
-	if g.o.specOut != "" {
+	if g.opts.specOut != "" {
 		if err := g.generateOpenAPISpec(); err != nil {
 			return err
 		}
 	}
 
-	if g.o.jsOut != nil {
+	if g.opts.jsOut != nil {
 		if err := g.generateTS(); err != nil {
 			return err
 		}
 	}
 
-	if g.o.vuexOut != nil {
+	if g.opts.vuexOut != nil {
 		if err := g.generateVuex(); err != nil {
 			return err
 		}
@@ -206,7 +206,7 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 
 	}
 
-	if g.o.composablesRootPath != "" {
+	if g.opts.composablesRootPath != "" {
 		if err := g.generateComposables("vue"); err != nil {
 			return err
 		}
@@ -218,7 +218,7 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 			return err
 		}
 	}
-	if g.o.hooksRootPath != "" {
+	if g.opts.hooksRootPath != "" {
 		if err := g.generateComposables("react"); err != nil {
 			return err
 		}

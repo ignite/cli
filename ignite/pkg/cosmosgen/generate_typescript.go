@@ -106,12 +106,12 @@ func (g *tsGenerator) generateModuleTemplates() error {
 
 			gg.Go(func() error {
 				cacheKey := m.Pkg.Path
-				paths := append([]string{m.Pkg.Path, g.g.o.jsOut(m)}, g.g.o.includeDirs...)
+				paths := append([]string{m.Pkg.Path, g.g.opts.jsOut(m)}, g.g.opts.includeDirs...)
 
 				// Always generate module templates by default unless cache is enabled, in which
 				// case the module template is generated when one or more files were changed in
 				// the module since the last generation.
-				if g.g.o.useCache {
+				if g.g.opts.useCache {
 					changed, err := dirchange.HasDirChecksumChanged(dirCache, cacheKey, sourcePath, paths...)
 					if err != nil {
 						return err
@@ -156,7 +156,7 @@ func (g *tsGenerator) generateModuleTemplate(
 	includePaths []string,
 ) error {
 	var (
-		out      = g.g.o.jsOut(m)
+		out      = g.g.opts.jsOut(m)
 		typesOut = filepath.Join(out, "types")
 	)
 	if err := os.MkdirAll(typesOut, 0o766); err != nil {
@@ -206,7 +206,7 @@ func (g *tsGenerator) generateModuleTemplate(
 }
 
 func (g *tsGenerator) generateRootTemplates(p generatePayload) error {
-	outDir := g.g.o.tsClientRootPath
+	outDir := g.g.opts.tsClientRootPath
 	if err := os.MkdirAll(outDir, 0o766); err != nil {
 		return err
 	}

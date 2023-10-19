@@ -58,7 +58,7 @@ func (g *generator) generateOpenAPISpec() error {
 			return err
 		}
 
-		checksumPaths := append([]string{m.Pkg.Path}, g.o.includeDirs...)
+		checksumPaths := append([]string{m.Pkg.Path}, g.opts.includeDirs...)
 		checksum, err := dirchange.ChecksumFromPaths(src, checksumPaths...)
 		if err != nil {
 			return err
@@ -134,7 +134,7 @@ func (g *generator) generateOpenAPISpec() error {
 		}
 	}
 
-	out := g.o.specOut
+	out := g.opts.specOut
 
 	if !hasAnySpecChanged {
 		// In case the generated output has been changed
