@@ -100,7 +100,9 @@ func (c Chain) appTOML(homePath string, cfg *chainconfig.Config) error {
 	appConfig.Set("minimum-gas-prices", gas.String())
 
 	// Update config values with the validator's Cosmos SDK app config
-	updateTomlTreeValues(appConfig, validator.App)
+	if err := updateTomlTreeValues(appConfig, validator.App); err != nil {
+		return err
+	}
 
 	// Make sure the API address have the protocol prefix
 	appConfig.Set("api.address", apiAddr)
@@ -150,7 +152,9 @@ func (c Chain) configTOML(homePath string, cfg *chainconfig.Config) error {
 	tmConfig.Set("consensus.timeout_propose", "1s")
 
 	// Update config values with the validator's Tendermint config
-	updateTomlTreeValues(tmConfig, validator.Config)
+	if err := updateTomlTreeValues(tmConfig, validator.Config); err != nil {
+		return err
+	}
 
 	// Make sure the addresses have the protocol prefix
 	tmConfig.Set("rpc.laddr", rpcAddr)
@@ -187,7 +191,9 @@ func (c Chain) clientTOML(homePath string, cfg *chainconfig.Config) error {
 	tmConfig.Set("broadcast-mode", "sync")
 
 	// Update config values with the validator's client config
-	updateTomlTreeValues(tmConfig, validator.Client)
+	if err := updateTomlTreeValues(tmConfig, validator.Client); err != nil {
+		return err
+	}
 
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0o644)
 	if err != nil {

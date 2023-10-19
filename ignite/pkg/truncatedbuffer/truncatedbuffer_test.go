@@ -1,7 +1,7 @@
 package truncatedbuffer
 
 import (
-	"math/rand"
+	"crypto/rand"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -9,9 +9,12 @@ import (
 
 func TestWriter(t *testing.T) {
 	ranBytes10 := make([]byte, 10)
-	rand.Read(ranBytes10)
+	_, err := rand.Read(ranBytes10)
+	require.NoError(t, err)
+
 	ranBytes1000 := make([]byte, 1000)
-	rand.Read(ranBytes1000)
+	_, err = rand.Read(ranBytes1000)
+	require.NoError(t, err)
 
 	// TruncatedBuffer has a max capacity
 	b := NewTruncatedBuffer(100)

@@ -39,7 +39,10 @@ func (w Walker) walkDir(wl packd.WalkFunc, path string) error {
 
 	for _, entry := range entries {
 		if entry.IsDir() {
-			w.walkDir(wl, filepath.Join(path, entry.Name()))
+			err := w.walkDir(wl, filepath.Join(path, entry.Name()))
+			if err != nil {
+				return err
+			}
 			continue
 		}
 
@@ -57,7 +60,9 @@ func (w Walker) walkDir(wl packd.WalkFunc, path string) error {
 			return err
 		}
 
-		wl(trimPath, f)
+		if err := wl(trimPath, f); err != nil {
+			return err
+		}
 	}
 
 	return nil
