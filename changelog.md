@@ -16,6 +16,7 @@
 - [#3559](https://github.com/ignite/cli/pull/3559) Bump network plugin version to `v0.1.1`
 - [#3581](https://github.com/ignite/cli/pull/3581) Bump cometbft and cometbft-db in the template
 - [#3522](https://github.com/ignite/cli/pull/3522) Remove indentation from `chain serve` output
+- [#3346](https://github.com/ignite/cli/issues/3346) Improve scaffold query --help
 - [#3601](https://github.com/ignite/cli/pull/3601) Update ts-relayer version to `0.10.0`
 - [#3658](https://github.com/ignite/cli/pull/3658) Rename Marshaler to Codec in EncodingConfig
 - [#3653](https://github.com/ignite/cli/pull/3653) Add "app" extension to plugin binaries
@@ -26,6 +27,7 @@
 
 ### Fixes
 
+- [#3386](https://github.com/ignite/cli/issues/3386) Prevent scaffolding of default module called "ibc"
 - [#3592](https://github.com/ignite/cli/pull/3592) Fix `pkg/protoanalysis` to support HTTP rule parameter arguments
 - [#3598](https://github.com/ignite/cli/pull/3598) Fix consensus param keeper constructor key in `app.go`
 - [#3610](https://github.com/ignite/cli/pull/3610) Fix overflow issue of cosmos faucet in `pkg/cosmosfaucet/transfer.go` and `pkg/cosmosfaucet/cosmosfaucet.go`

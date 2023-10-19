@@ -1,6 +1,8 @@
 package ignitecmd
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/services/scaffolder"
@@ -9,8 +11,10 @@ import (
 // NewScaffoldType returns a new command to scaffold a type.
 func NewScaffoldType() *cobra.Command {
 	c := &cobra.Command{
-		Use:     "type NAME [field]...",
+		Use:     "type NAME [field:type] ...",
 		Short:   "Type definition",
+		Long:    fmt.Sprintf("Type information\n%s\n", supportFieldTypes),
+		Example: "  ignite scaffold type todo-item priority:int desc:string tags:array.string done:bool",
 		Args:    cobra.MinimumNArgs(1),
 		PreRunE: migrationPreRunHandler,
 		RunE:    scaffoldTypeHandler,
