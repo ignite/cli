@@ -1,3 +1,4 @@
+//nolint:unused
 package network_test
 
 import (
