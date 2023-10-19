@@ -13,7 +13,7 @@ const flagSigner = "signer"
 // NewScaffoldMessage returns the command to scaffold messages.
 func NewScaffoldMessage() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "message [name] [field1] [field2] ...",
+		Use:   "message [name] [field1:type1] [field2:type2] ...",
 		Short: "Message to perform state transition on the blockchain",
 		Long: `Message scaffolding is useful for quickly adding functionality to your
 blockchain to handle specific Cosmos SDK messages.
@@ -37,6 +37,8 @@ to your chain. For example:
 The command above will create a new message MsgAddPool with three fields: amount
 (in tokens), denom (a string), and active (a boolean). The message will be added
 to the "dex" module.
+
+For detailed type information use ignite scaffold type --help
 
 By default, the message is defined as a proto message in the
 "proto/{app}/{module}/tx.proto" and registered in the "Msg" service. A CLI command to
