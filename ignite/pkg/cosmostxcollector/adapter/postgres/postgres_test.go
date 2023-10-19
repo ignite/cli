@@ -231,7 +231,8 @@ func TestQuery(t *testing.T) {
 	// Act
 	cr, err := adapter.Query(ctx, qry)
 	if cr.Next() {
-		cr.Scan(&rowValue)
+		err = cr.Scan(&rowValue)
+		require.NoError(t, err)
 	}
 
 	// Assert
