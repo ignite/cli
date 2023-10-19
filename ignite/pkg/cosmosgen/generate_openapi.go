@@ -26,7 +26,7 @@ func (g *generator) openAPITemplate() string {
 }
 
 func (g *generator) openAPITemplateForSTA() string {
-	return filepath.Join(g.appPath, g.protoDir, "buf.gen.swagger.yaml")
+	return filepath.Join(g.appPath, g.protoDir, "buf.gen.sta.yaml")
 }
 
 func (g *generator) generateOpenAPISpec() error {
