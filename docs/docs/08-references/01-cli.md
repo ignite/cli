@@ -3307,19 +3307,7 @@ array.coin. An example of using field types:
 
 	ignite scaffold list pool amount:coin tags:array.string height:int
 
-Supported types:
-
-| Type         | Alias   | Index | Code Type | Description                     |
-|--------------|---------|-------|-----------|---------------------------------|
-| string       | -       | yes   | string    | Text type                       |
-| array.string | strings | no    | []string  | List of text type               |
-| bool         | -       | yes   | bool      | Boolean type                    |
-| int          | -       | yes   | int32     | Integer type                    |
-| array.int    | ints    | no    | []int32   | List of integers types          |
-| uint         | -       | yes   | uint64    | Unsigned integer type           |
-| array.uint   | uints   | no    | []uint64  | List of unsigned integers types |
-| coin         | -       | no    | sdk.Coin  | Cosmos SDK coin type            |
-| array.coin   | coins   | no    | sdk.Coins | List of Cosmos SDK coin types   |
+For detailed type information use ignite scaffold type --help
 
 "Index" indicates whether the type can be used as an index in
 "ignite scaffold map".
@@ -3398,7 +3386,7 @@ incrementing integer, whereas "map" values are indexed by a user-provided value
 
 Let's use the same blog post example:
 
-	ignite scaffold map post title body
+	ignite scaffold map post title body:string
 
 This command scaffolds a "Post" type and CRUD functionality to create, read,
 updated, and delete posts. However, when creating a new post with your chain's
@@ -3426,6 +3414,8 @@ product values that have the same category but are using different GUIDs.
 Since the behavior of "list" and "map" scaffolding is very similar, you can use
 the "--no-message", "--module", "--signer" flags as well as the colon syntax for
 custom types.
+
+For detailed type information use ignite scaffold type --help
 
 
 ```
@@ -3480,6 +3470,8 @@ The command above will create a new message MsgAddPool with three fields: amount
 (in tokens), denom (a string), and active (a boolean). The message will be added
 to the "dex" module.
 
+For detailed type information use ignite scaffold type --help
+
 By default, the message is defined as a proto message in the
 "proto/{app}/{module}/tx.proto" and registered in the "Msg" service. A CLI command to
 create and broadcast a transaction with MsgAddPool is created in the module's
@@ -3503,7 +3495,7 @@ for details.
 
 
 ```
-ignite scaffold message [name] [field1] [field2] ... [flags]
+ignite scaffold message [name] [field1:type1] [field2:type2] ... [flags]
 ```
 
 **Options**
@@ -3648,8 +3640,14 @@ ignite scaffold packet [packetName] [field1] [field2] ... --module [moduleName] 
 
 Query for fetching data from a blockchain
 
+**Synopsis**
+
+Query for fetching data from a blockchain.
+		
+For detailed type information use ignite scaffold type --help.
+
 ```
-ignite scaffold query [name] [request_field1] [request_field2] ... [flags]
+ignite scaffold query [name] [field1:type1] [field2:type2] ... [flags]
 ```
 
 **Options**
@@ -3695,8 +3693,20 @@ ignite scaffold react [flags]
 
 CRUD for data stored in a single location
 
+**Synopsis**
+
+CRUD for data stored in a single location.
+		
+For detailed type information use ignite scaffold type --help.
+
 ```
-ignite scaffold single NAME [field]... [flags]
+ignite scaffold single NAME [field:type]... [flags]
+```
+
+**Examples**
+
+```
+  ignite scaffold single todo-single title:string done:bool
 ```
 
 **Options**
@@ -3721,8 +3731,40 @@ ignite scaffold single NAME [field]... [flags]
 
 Type definition
 
+**Synopsis**
+
+Type information
+
+Currently supports: 
+
+| Type         | Alias   | Index | Code Type | Description                     |
+|--------------|---------|-------|-----------|---------------------------------|
+| string       | -       | yes   | string    | Text type                       |
+| array.string | strings | no    | []string  | List of text type               |
+| bool         | -       | yes   | bool      | Boolean type                    |
+| int          | -       | yes   | int32     | Integer type                    |
+| array.int    | ints    | no    | []int32   | List of integers types          |
+| uint         | -       | yes   | uint64    | Unsigned integer type           |
+| array.uint   | uints   | no    | []uint64  | List of unsigned integers types |
+| coin         | -       | no    | sdk.Coin  | Cosmos SDK coin type            |
+| array.coin   | coins   | no    | sdk.Coins | List of Cosmos SDK coin types   |
+
+Field Usage:
+    - fieldName
+    - fieldName:fieldType
+
+If no :fieldType, default (string) is used
+
+
+
 ```
-ignite scaffold type NAME [field]... [flags]
+ignite scaffold type NAME [field:type] ... [flags]
+```
+
+**Examples**
+
+```
+  ignite scaffold type todo-item priority:int desc:string tags:array.string done:bool
 ```
 
 **Options**
