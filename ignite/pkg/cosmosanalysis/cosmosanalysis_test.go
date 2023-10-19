@@ -166,10 +166,12 @@ func TestFindImplementationNotFound(t *testing.T) {
 
 	// No implementation
 	found, err := cosmosanalysis.FindImplementation(tmpDir1, expectedInterface)
+	require.NoError(t, err)
 	require.Len(t, found, 0)
 
 	// Partial implementation
 	found, err = cosmosanalysis.FindImplementation(tmpDir2, expectedInterface)
+	require.NoError(t, err)
 	require.Len(t, found, 0)
 }
 
@@ -199,7 +201,7 @@ func TestFindAppFilePath(t *testing.T) {
 	appTestFilePath := filepath.Join(secondaryAppFolder, "my_own_app_test.go")
 	err = os.WriteFile(appTestFilePath, appTestFile, 0o644)
 	require.NoError(t, err)
-	pathFound, err = cosmosanalysis.FindAppFilePath(tmpDir)
+	_, err = cosmosanalysis.FindAppFilePath(tmpDir)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "cannot locate your app.go")
 

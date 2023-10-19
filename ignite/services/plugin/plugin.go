@@ -187,7 +187,7 @@ func (p *Plugin) KillClient() {
 	}
 
 	if p.isHost {
-		deleteConfCache(p.Path)
+		_ = deleteConfCache(p.Path)
 		p.isHost = false
 	}
 }

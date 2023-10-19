@@ -21,5 +21,5 @@ type openAPIData struct {
 }
 
 func (f Faucet) openAPISpecHandler(w http.ResponseWriter, _ *http.Request) {
-	tmplOpenAPISpec.Execute(w, f.openAPIData)
+	_ = tmplOpenAPISpec.Execute(w, f.openAPIData)
 }
