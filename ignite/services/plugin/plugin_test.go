@@ -503,7 +503,8 @@ func scaffoldPlugin(t *testing.T, dir, name string, sharedHost bool) string {
 	modpath, err := gocmd.Env(gocmd.EnvGOMOD)
 	require.NoError(err)
 	modpath = filepath.Dir(modpath)
-	gomod.AddReplace("github.com/ignite/cli", "", modpath, "")
+	err = gomod.AddReplace("github.com/ignite/cli", "", modpath, "")
+	require.NoError(err)
 	// Save go.mod
 	data, err := gomod.Format()
 	require.NoError(err)

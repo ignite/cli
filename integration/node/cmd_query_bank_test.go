@@ -37,7 +37,7 @@ func assertBankBalanceOutput(t *testing.T, output string, balances string) {
 		table = append(table, []string{c.Amount.String(), c.Denom})
 	}
 	var expectedBalances strings.Builder
-	entrywriter.MustWrite(&expectedBalances, []string{"Amount", "Denom"}, table...)
+	_ = entrywriter.MustWrite(&expectedBalances, []string{"Amount", "Denom"}, table...)
 	assert.Contains(t, output, expectedBalances.String())
 }
 
