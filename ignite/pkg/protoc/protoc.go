@@ -148,6 +148,8 @@ func Generate(ctx context.Context, outDir, protoPath string, includePaths, proto
 		command = cmd.Command()
 		includes = cmd.Includes()
 	}
+	// See: https://github.com/ignite/cli/issues/3698
+	command = append(command, "--experimental_allow_proto3_optional")
 
 	// add plugin if set.
 	if c.pluginPath != "" {
