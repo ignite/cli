@@ -151,7 +151,8 @@ func (g *tsGenerator) generateModuleTemplate(
 	ctx context.Context,
 	protocCmd protoc.Cmd,
 	staCmd sta.Cmd,
-	tsprotoPluginPath, appPath string,
+	tsprotoPluginPath,
+	appPath string,
 	m module.Module,
 	includePaths []string,
 ) error {
