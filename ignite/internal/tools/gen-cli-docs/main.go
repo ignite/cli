@@ -123,7 +123,7 @@ func generateCmd(cmd *cobra.Command, w io.Writer) error {
 			continue
 		}
 
-		io.WriteString(w, "\n")
+		_, _ = io.WriteString(w, "\n")
 
 		if err := generateCmd(cmd, w); err != nil {
 			return err

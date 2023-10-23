@@ -93,7 +93,7 @@ func (s *Spinner) SetCharset(charset []string) *Spinner {
 
 // SetColor sets the prefix for spinner.
 func (s *Spinner) SetColor(color string) *Spinner {
-	s.sp.Color(color)
+	_ = s.sp.Color(color)
 	return s
 }
 
@@ -107,7 +107,7 @@ func (s *Spinner) Start() *Spinner {
 func (s *Spinner) Stop() *Spinner {
 	s.sp.Stop()
 	s.sp.Prefix = ""
-	s.sp.Color(spinnerColor)
+	_ = s.sp.Color(spinnerColor)
 	s.sp.UpdateCharSet(charset)
 	s.sp.Stop()
 	return s
