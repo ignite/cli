@@ -1,6 +1,8 @@
 module github.com/ignite/cli
 
-go 1.21
+go 1.21.1
+
+toolchain go1.21.3
 
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
@@ -48,7 +50,8 @@ require (
 	github.com/hashicorp/go-hclog v1.5.0
 	github.com/hashicorp/go-plugin v1.4.10
 	github.com/iancoleman/strcase v0.3.0
-	github.com/ignite/ignite-files/nodetime v0.0.1
+	github.com/ignite/ignite-files/nodetime v0.0.2
+	github.com/ignite/ignite-files/protoc v0.0.1
 	github.com/ignite/web v0.4.3
 	github.com/imdario/mergo v0.3.15
 	github.com/jpillora/chisel v1.8.1
@@ -105,6 +108,7 @@ require (
 	github.com/GaijinEntertainment/go-exhaustruct/v2 v2.3.0 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
+	github.com/Microsoft/hcsshim v0.11.2 // indirect
 	github.com/OneOfOne/xxhash v1.2.8 // indirect
 	github.com/OpenPeeDeeP/depguard v1.1.1 // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20230217124315-7d5c6f04bbb8 // indirect

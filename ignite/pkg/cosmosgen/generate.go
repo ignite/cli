@@ -2,6 +2,8 @@ package cosmosgen
 
 import (
 	"bytes"
+	"io/fs"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -11,17 +13,26 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/ignite/pkg/cosmosbuf"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
+	"github.com/ignite/cli/ignite/pkg/xfilepath"
 )
 
 const (
-	moduleCacheNamespace = "generate.setup.module"
+	moduleCacheNamespace       = "generate.setup.module"
+	includeProtoCacheNamespace = "generator.includes.proto"
+)
+
+var protocGlobalInclude = xfilepath.List(
+	xfilepath.JoinFromHome(xfilepath.Path("local/include")),
+	xfilepath.JoinFromHome(xfilepath.Path(".local/include")),
 )
 
 type ModulesInPath struct {
-	Path    string
-	Modules []module.Module
+	Path     string
+	Modules  []module.Module
+	Includes []string
 }
 
 func (g *generator) setup() (err error) {
@@ -59,7 +70,7 @@ func (g *generator) setup() (err error) {
 	}
 
 	// Read the dependencies defined in the `go.mod` file
-	g.deps, err = gomodule.ResolveDependencies(modFile)
+	g.deps, err = gomodule.ResolveDependencies(modFile, false)
 	if err != nil {
 		return err
 	}
@@ -69,7 +80,10 @@ func (g *generator) setup() (err error) {
 	if err != nil {
 		return err
 	}
-
+	g.appIncludes, err = g.resolveIncludes(g.appPath)
+	if err != nil {
+		return err
+	}
 	// Go through the Go dependencies of the user's app within go.mod, some of them might be hosting Cosmos SDK modules
 	// that could be in use by user's blockchain.
 	//
@@ -105,9 +119,19 @@ func (g *generator) setup() (err error) {
 				return err
 			}
 
+			var includes []string
+			if len(modules) > 0 {
+				// For versioning issues, we do dependency/includes resolution per module
+				includes, err = g.resolveIncludes(path)
+				if err != nil {
+					return err
+				}
+			}
+
 			modulesInPath = ModulesInPath{
-				Path:    path,
-				Modules: modules,
+				Path:     path,
+				Modules:  modules,
+				Includes: includes,
 			}
 
 			if err := moduleCache.Put(cacheKey, modulesInPath); err != nil {
@@ -115,10 +139,106 @@ func (g *generator) setup() (err error) {
 			}
 		}
 
-		g.thirdModules[modulesInPath.Path] = append(g.thirdModules[modulesInPath.Path], modulesInPath.Modules...)
+		g.thirdModules[modulesInPath.Path] = append(
+			g.thirdModules[modulesInPath.Path],
+			modulesInPath.Modules...,
+		)
+
+		if modulesInPath.Includes != nil {
+			g.thirdModuleIncludes[modulesInPath.Path] = append(
+				g.thirdModuleIncludes[modulesInPath.Path],
+				modulesInPath.Includes...,
+			)
+		}
 	}
 
 	return nil
+}
+
+func (g *generator) getProtoIncludeFolders(modPath string) []string {
+	// Add default protoDir and default includeDirs
+	includePaths := []string{filepath.Join(modPath, g.protoDir)}
+	for _, dir := range g.opts.includeDirs {
+		includePaths = append(includePaths, filepath.Join(modPath, dir))
+	}
+	return includePaths
+}
+
+func (g *generator) findBufPath(modpath string) (string, error) {
+	var bufPath string
+	err := filepath.WalkDir(modpath, func(path string, _ fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if filepath.Base(path) == "buf.yaml" {
+			bufPath = path
+			return filepath.SkipAll
+		}
+		return nil
+	})
+	if err != nil {
+		return "", err
+	}
+	return bufPath, nil
+}
+
+func (g *generator) generateBufIncludeFolder(modpath string) (string, error) {
+	protoPath, err := os.MkdirTemp("", "includeFolder")
+	if err != nil {
+		return "", err
+	}
+
+	g.tmpDirs = append(g.tmpDirs, protoPath)
+
+	err = g.buf.Export(g.ctx, modpath, protoPath)
+	if err != nil {
+		return "", err
+	}
+	return protoPath, nil
+}
+
+func (g *generator) resolveIncludes(path string) (paths []string, err error) {
+	// Init paths with the global include paths for protoc
+	paths, err = protocGlobalInclude()
+	if err != nil {
+		return nil, err
+	}
+
+	// Check that the app proto directory exists
+	protoPath := filepath.Join(path, g.protoDir)
+	fi, err := os.Stat(protoPath)
+	if err != nil && !os.IsNotExist(err) {
+		return nil, err
+	} else if !fi.IsDir() {
+		// Just return the global includes when a proto directory doesn't exist
+		return paths, nil
+	}
+
+	// Add app's proto path to the list of proto paths
+	paths = append(paths, protoPath)
+
+	// Check if a Buf config file is present
+	bufPath, err := g.findBufPath(protoPath)
+	if err != nil {
+		return nil, err
+	}
+
+	// When a Buf config exists export all protos needed
+	// to build the modules to a temporary include folder.
+	if bufPath != "" {
+		includePath, err := g.generateBufIncludeFolder(protoPath)
+		if err != nil && !errors.Is(err, cosmosbuf.ErrProtoFilesNotFound) {
+			return nil, err
+		}
+
+		// Use exported files only when the path contains ".proto" files
+		if includePath != "" {
+			return append(paths, includePath), nil
+		}
+	}
+
+	// By default use the configured directories
+	return append(paths, g.getProtoIncludeFolders(path)...), nil
 }
 
 func (g *generator) discoverModules(path, protoDir string) ([]module.Module, error) {
