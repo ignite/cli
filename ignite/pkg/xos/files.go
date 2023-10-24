@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	JSONFile = "json"
+	JSONFile  = "json"
+	ProtoFile = "proto"
 )
 
 func FindFiles(directory, extension string) ([]string, error) {

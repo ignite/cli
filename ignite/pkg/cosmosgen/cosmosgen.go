@@ -2,6 +2,7 @@ package cosmosgen
 
 import (
 	"context"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -35,8 +36,6 @@ type generateOptions struct {
 
 	specOut string
 }
-
-// TODO add WithInstall.
 
 // ModulePathFunc defines a function type that returns a path based on a Cosmos SDK module.
 type ModulePathFunc func(module.Module) string
@@ -106,17 +105,27 @@ func IncludeDirs(dirs []string) Option {
 
 // generator generates code for sdk and sdk apps.
 type generator struct {
-	ctx          context.Context
-	buf          cosmosbuf.Buf
-	cacheStorage cache.Storage
-	appPath      string
-	protoDir     string
-	gomodPath    string
-	o            *generateOptions
-	sdkImport    string
-	deps         []gomodule.Version
-	appModules   []module.Module
-	thirdModules map[string][]module.Module // app dependency-modules pair.
+	ctx                 context.Context
+	buf                 cosmosbuf.Buf
+	cacheStorage        cache.Storage
+	appPath             string
+	protoDir            string
+	gomodPath           string
+	opts                *generateOptions
+	sdkImport           string
+	deps                []gomodule.Version
+	appModules          []module.Module
+	appIncludes         []string
+	thirdModules        map[string][]module.Module
+	thirdModuleIncludes map[string][]string
+	tmpDirs             []string
+}
+
+func (g *generator) cleanup() {
+	// Remove temporary directories created during generation
+	for _, path := range g.tmpDirs {
+		_ = os.RemoveAll(path)
+	}
 }
 
 // Generate generates code from protoDir of an SDK app residing at appPath with given options.
@@ -127,19 +136,24 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		return err
 	}
 
+	defer b.Cleanup()
+
 	g := &generator{
-		ctx:          ctx,
-		buf:          b,
-		appPath:      appPath,
-		protoDir:     protoDir,
-		gomodPath:    gomodPath,
-		o:            &generateOptions{},
-		thirdModules: make(map[string][]module.Module),
-		cacheStorage: cacheStorage,
+		ctx:                 ctx,
+		buf:                 b,
+		appPath:             appPath,
+		protoDir:            protoDir,
+		gomodPath:           gomodPath,
+		opts:                &generateOptions{},
+		thirdModules:        make(map[string][]module.Module),
+		thirdModuleIncludes: make(map[string][]string),
+		cacheStorage:        cacheStorage,
 	}
 
+	defer g.cleanup()
+
 	for _, apply := range options {
-		apply(g.o)
+		apply(g.opts)
 	}
 
 	if err := g.setup(); err != nil {
@@ -148,24 +162,30 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 
 	// Go generation must run first so the types are created before other
 	// generated code that requires sdk.Msg implementations to be defined
-	if g.o.isGoEnabled {
+	if g.opts.isGoEnabled {
 		if err := g.generateGo(); err != nil {
 			return err
 		}
 	}
-	if g.o.isPulsarEnabled {
+	if g.opts.isPulsarEnabled {
 		if err := g.generatePulsar(); err != nil {
 			return err
 		}
 	}
 
-	if g.o.jsOut != nil {
+	if g.opts.specOut != "" {
+		if err := g.generateOpenAPISpec(); err != nil {
+			return err
+		}
+	}
+
+	if g.opts.jsOut != nil {
 		if err := g.generateTS(); err != nil {
 			return err
 		}
 	}
 
-	if g.o.vuexOut != nil {
+	if g.opts.vuexOut != nil {
 		if err := g.generateVuex(); err != nil {
 			return err
 		}
@@ -186,7 +206,7 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 
 	}
 
-	if g.o.composablesRootPath != "" {
+	if g.opts.composablesRootPath != "" {
 		if err := g.generateComposables("vue"); err != nil {
 			return err
 		}
@@ -198,7 +218,7 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 			return err
 		}
 	}
-	if g.o.hooksRootPath != "" {
+	if g.opts.hooksRootPath != "" {
 		if err := g.generateComposables("react"); err != nil {
 			return err
 		}
@@ -207,12 +227,6 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		// This update is required to link the "ts-client" folder so the
 		// package is available during development before publishing it.
 		if err := g.updateComposableDependencies("react"); err != nil {
-			return err
-		}
-	}
-
-	if g.o.specOut != "" {
-		if err := g.generateOpenAPISpec(); err != nil {
 			return err
 		}
 	}
