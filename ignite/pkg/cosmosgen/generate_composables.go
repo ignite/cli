@@ -50,7 +50,7 @@ func (g *generator) updateComposableDependencies(frontendType string) error {
 	}
 
 	// Make sure the TS client path is absolute
-	tsClientPath, err := filepath.Abs(g.o.tsClientRootPath)
+	tsClientPath, err := filepath.Abs(g.opts.tsClientRootPath)
 	if err != nil {
 		return fmt.Errorf("failed to read the absolute typescript client path: %w", err)
 	}
@@ -131,9 +131,9 @@ func (g *composablesGenerator) generateComposableTemplates(p generatePayload) er
 func (g *composablesGenerator) generateComposableTemplate(m module.Module, p generatePayload) error {
 	var outDir string
 	if g.frontendType == "vue" {
-		outDir = g.g.o.composablesOut(m)
+		outDir = g.g.opts.composablesOut(m)
 	} else {
-		outDir = g.g.o.hooksOut(m)
+		outDir = g.g.opts.hooksOut(m)
 	}
 
 	if err := os.MkdirAll(outDir, 0o766); err != nil {
@@ -154,9 +154,9 @@ func (g *composablesGenerator) generateComposableTemplate(m module.Module, p gen
 func (g *composablesGenerator) generateRootTemplates(p generatePayload) error {
 	var outDir string
 	if g.frontendType == "vue" {
-		outDir = g.g.o.composablesRootPath
+		outDir = g.g.opts.composablesRootPath
 	} else {
-		outDir = g.g.o.hooksRootPath
+		outDir = g.g.opts.hooksRootPath
 	}
 	if err := os.MkdirAll(outDir, 0o766); err != nil {
 		return err

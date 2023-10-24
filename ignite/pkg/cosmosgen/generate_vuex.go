@@ -50,7 +50,7 @@ func (g *generator) updateVueDependencies() error {
 	}
 
 	// Make sure the TS client path is absolute
-	tsClientPath, err := filepath.Abs(g.o.tsClientRootPath)
+	tsClientPath, err := filepath.Abs(g.opts.tsClientRootPath)
 	if err != nil {
 		return fmt.Errorf("failed to read the absolute typescript client path: %w", err)
 	}
@@ -93,7 +93,7 @@ func (g *generator) updateVueDependencies() error {
 
 func (g *generator) updateVuexDependencies() error {
 	// Init the path to the "vuex" folders inside the app
-	vuexPackagesPath := filepath.Join(g.o.vuexRootPath, "package.json")
+	vuexPackagesPath := filepath.Join(g.opts.vuexRootPath, "package.json")
 
 	if _, err := os.Stat(vuexPackagesPath); errors.Is(err, os.ErrNotExist) {
 		return nil
@@ -117,7 +117,7 @@ func (g *generator) updateVuexDependencies() error {
 	}
 
 	// Make sure the TS client path is absolute
-	tsClientPath, err := filepath.Abs(g.o.tsClientRootPath)
+	tsClientPath, err := filepath.Abs(g.opts.tsClientRootPath)
 	if err != nil {
 		return fmt.Errorf("failed to read the absolute typescript client path: %w", err)
 	}
@@ -126,7 +126,7 @@ func (g *generator) updateVuexDependencies() error {
 	appModulePath := gomodulepath.ExtractAppPath(chainPath.RawPath)
 	tsClientNS := strings.ReplaceAll(appModulePath, "/", "-")
 	tsClientName := fmt.Sprintf("%s-client-ts", tsClientNS)
-	tsClientVuexRelPath, err := filepath.Rel(g.o.vuexRootPath, tsClientPath)
+	tsClientVuexRelPath, err := filepath.Rel(g.opts.vuexRootPath, tsClientPath)
 	if err != nil {
 		return err
 	}
@@ -197,7 +197,7 @@ func (g *vuexGenerator) generateVueTemplates(p generatePayload) error {
 }
 
 func (g *vuexGenerator) generateVueTemplate(m module.Module, p generatePayload) error {
-	outDir := g.g.o.vuexOut(m)
+	outDir := g.g.opts.vuexOut(m)
 	if err := os.MkdirAll(outDir, 0o766); err != nil {
 		return err
 	}
@@ -212,7 +212,7 @@ func (g *vuexGenerator) generateVueTemplate(m module.Module, p generatePayload) 
 }
 
 func (g *vuexGenerator) generateRootTemplates(p generatePayload) error {
-	outDir := g.g.o.vuexRootPath
+	outDir := g.g.opts.vuexRootPath
 	if err := os.MkdirAll(outDir, 0o766); err != nil {
 		return err
 	}
