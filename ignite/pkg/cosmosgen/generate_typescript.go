@@ -7,7 +7,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/iancoleman/strcase"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
@@ -15,11 +14,14 @@ import (
 	"github.com/ignite/cli/ignite/pkg/dirchange"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/nodetime/programs/sta"
-	swaggercombine "github.com/ignite/cli/ignite/pkg/nodetime/programs/swagger-combine"
-	"github.com/ignite/cli/ignite/pkg/xos"
+	tsproto "github.com/ignite/cli/ignite/pkg/nodetime/programs/ts-proto"
+	"github.com/ignite/cli/ignite/pkg/protoc"
 )
 
-var dirchangeCacheNamespace = "generate.typescript.dirchange"
+var (
+	dirchangeCacheNamespace = "generate.typescript.dirchange"
+	tsOut                   = []string{"--ts_proto_out=."}
+)
 
 type tsGenerator struct {
 	g *generator
@@ -75,32 +77,41 @@ func (g *generator) generateTS() error {
 	return tsg.generateRootTemplates(data)
 }
 
-func (g *tsGenerator) tsTemplate() string {
-	return filepath.Join(g.g.appPath, g.g.protoDir, "buf.gen.ts.yaml")
-}
-
 func (g *tsGenerator) generateModuleTemplates() error {
+	protocCmd, cleanupProtoc, err := protoc.Command()
+	if err != nil {
+		return err
+	}
+
+	defer cleanupProtoc()
+
+	tsprotoPluginPath, cleanupPlugin, err := tsproto.BinaryPath()
+	if err != nil {
+		return err
+	}
+
+	defer cleanupPlugin()
+
 	staCmd, cleanupSTA, err := sta.Command()
 	if err != nil {
 		return err
 	}
 
 	defer cleanupSTA()
-
 	gg := &errgroup.Group{}
 	dirCache := cache.New[[]byte](g.g.cacheStorage, dirchangeCacheNamespace)
-	add := func(sourcePath string, modules []module.Module) {
+	add := func(sourcePath string, modules []module.Module, includes []string) {
 		for _, m := range modules {
 			m := m
 
 			gg.Go(func() error {
 				cacheKey := m.Pkg.Path
-				paths := append([]string{m.Pkg.Path, g.g.o.jsOut(m)}, g.g.o.includeDirs...)
+				paths := append([]string{m.Pkg.Path, g.g.opts.jsOut(m)}, g.g.opts.includeDirs...)
 
 				// Always generate module templates by default unless cache is enabled, in which
 				// case the module template is generated when one or more files were changed in
 				// the module since the last generation.
-				if g.g.o.useCache {
+				if g.g.opts.useCache {
 					changed, err := dirchange.HasDirChecksumChanged(dirCache, cacheKey, sourcePath, paths...)
 					if err != nil {
 						return err
@@ -111,7 +122,7 @@ func (g *tsGenerator) generateModuleTemplates() error {
 					}
 				}
 
-				err = g.generateModuleTemplate(g.g.ctx, staCmd, sourcePath, m)
+				err = g.generateModuleTemplate(g.g.ctx, protocCmd, staCmd, tsprotoPluginPath, sourcePath, m, includes)
 				if err != nil {
 					return err
 				}
@@ -121,7 +132,7 @@ func (g *tsGenerator) generateModuleTemplates() error {
 		}
 	}
 
-	add(g.g.appPath, g.g.appModules)
+	add(g.g.appPath, g.g.appModules, g.g.appIncludes)
 
 	// Always generate third party modules; This is required because not generating them might
 	// lead to issues with the module registration in the root template. The root template must
@@ -129,7 +140,8 @@ func (g *tsGenerator) generateModuleTemplates() error {
 	// is available and not generated it would lead to the registration of a new not generated
 	// 3rd party module.
 	for sourcePath, modules := range g.g.thirdModules {
-		add(sourcePath, modules)
+		includes := g.g.thirdModuleIncludes[sourcePath]
+		add(sourcePath, modules, append(g.g.appIncludes, includes...))
 	}
 
 	return gg.Wait()
@@ -137,74 +149,50 @@ func (g *tsGenerator) generateModuleTemplates() error {
 
 func (g *tsGenerator) generateModuleTemplate(
 	ctx context.Context,
+	protocCmd protoc.Cmd,
 	staCmd sta.Cmd,
+	tsprotoPluginPath,
 	appPath string,
 	m module.Module,
+	includePaths []string,
 ) error {
 	var (
-		out      = g.g.o.jsOut(m)
+		out      = g.g.opts.jsOut(m)
 		typesOut = filepath.Join(out, "types")
-		conf     = swaggercombine.Config{
-			Swagger: "2.0",
-			Info: swaggercombine.Info{
-				Title: "HTTP API Console",
-			},
-		}
 	)
-
 	if err := os.MkdirAll(typesOut, 0o766); err != nil {
 		return err
 	}
 
 	// generate ts-proto types
-	if err := g.g.buf.Generate(
+	err := protoc.Generate(
 		ctx,
-		m.Pkg.Path,
 		typesOut,
-		g.tsTemplate(),
-		"module.proto",
-	); err != nil {
-		return err
-	}
-
-	// generate OpenAPI spec
-	tmp, err := os.MkdirTemp("", "gen-js-openapi-module-spec")
-	if err != nil {
-		return err
-	}
-
-	defer os.RemoveAll(tmp)
-
-	if err := g.g.buf.Generate(
-		ctx,
 		m.Pkg.Path,
-		tmp,
-		g.g.openAPITemplate(),
-		"module.proto",
-	); err != nil {
-		return err
-	}
-
-	// combine all swagger files
-	specs, err := xos.FindFiles(tmp, xos.JSONFile)
+		includePaths,
+		tsOut,
+		protoc.Plugin(tsprotoPluginPath, "--ts_proto_opt=snakeToCamel=true", "--ts_proto_opt=esModuleInterop=true"),
+		protoc.Env("NODE_OPTIONS="), // unset nodejs options to avoid unexpected issues with vercel "pkg"
+		protoc.WithCommand(protocCmd),
+	)
 	if err != nil {
 		return err
 	}
 
-	for _, spec := range specs {
-		if err := conf.AddSpec(strcase.ToCamel(m.Pkg.Name), spec); err != nil {
-			return err
-		}
-	}
+	specPath := filepath.Join(out, "api.swagger.yml")
 
-	// combine specs into one and save to out.
-	srcSpec := filepath.Join(tmp, "apidocs.swagger.json")
-	if err := swaggercombine.Combine(ctx, conf, srcSpec); err != nil {
+	err = g.g.generateModuleOpenAPISpec(m, specPath)
+
+	if err != nil {
 		return err
 	}
-
 	// generate the REST client from the OpenAPI spec
-	outREST := filepath.Join(out, "rest.ts")
+
+	var (
+		srcSpec = specPath
+		outREST = filepath.Join(out, "rest.ts")
+	)
+
 	if err := sta.Generate(ctx, outREST, srcSpec, sta.WithCommand(staCmd)); err != nil {
 		return err
 	}
@@ -219,7 +207,7 @@ func (g *tsGenerator) generateModuleTemplate(
 }
 
 func (g *tsGenerator) generateRootTemplates(p generatePayload) error {
-	outDir := g.g.o.tsClientRootPath
+	outDir := g.g.opts.tsClientRootPath
 	if err := os.MkdirAll(outDir, 0o766); err != nil {
 		return err
 	}

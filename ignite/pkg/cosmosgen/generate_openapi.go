@@ -25,6 +25,10 @@ func (g *generator) openAPITemplate() string {
 	return filepath.Join(g.appPath, g.protoDir, "buf.gen.swagger.yaml")
 }
 
+func (g *generator) openAPITemplateForSTA() string {
+	return filepath.Join(g.appPath, g.protoDir, "buf.gen.sta.yaml")
+}
+
 func (g *generator) generateOpenAPISpec() error {
 	var (
 		specDirs []string
@@ -54,7 +58,7 @@ func (g *generator) generateOpenAPISpec() error {
 			return err
 		}
 
-		checksumPaths := append([]string{m.Pkg.Path}, g.o.includeDirs...)
+		checksumPaths := append([]string{m.Pkg.Path}, g.opts.includeDirs...)
 		checksum, err := dirchange.ChecksumFromPaths(src, checksumPaths...)
 		if err != nil {
 			return err
@@ -70,7 +74,7 @@ func (g *generator) generateOpenAPISpec() error {
 			if err := os.WriteFile(specPath, existingSpec, 0o644); err != nil {
 				return err
 			}
-			return conf.AddSpec(strcase.ToCamel(m.Pkg.Name), specPath)
+			return conf.AddSpec(strcase.ToCamel(m.Pkg.Name), specPath, true)
 		}
 
 		hasAnySpecChanged = true
@@ -97,7 +101,7 @@ func (g *generator) generateOpenAPISpec() error {
 			if err := specCache.Put(cacheKey, f); err != nil {
 				return err
 			}
-			if err := conf.AddSpec(strcase.ToCamel(m.Pkg.Name), spec); err != nil {
+			if err := conf.AddSpec(strcase.ToCamel(m.Pkg.Name), spec, true); err != nil {
 				return err
 			}
 		}
@@ -130,7 +134,8 @@ func (g *generator) generateOpenAPISpec() error {
 		}
 	}
 
-	out := g.o.specOut
+	out := g.opts.specOut
+
 	if !hasAnySpecChanged {
 		// In case the generated output has been changed
 		changed, err := dirchange.HasDirChecksumChanged(specCache, out, g.appPath, out)
@@ -157,4 +162,87 @@ func (g *generator) generateOpenAPISpec() error {
 	}
 
 	return dirchange.SaveDirChecksum(specCache, out, g.appPath, out)
+}
+
+func (g *generator) generateModuleOpenAPISpec(m module.Module, out string) error {
+	var (
+		specDirs []string
+		conf     = swaggercombine.Config{
+			Swagger: "2.0",
+			Info: swaggercombine.Info{
+				Title: "HTTP API Console " + m.Pkg.Name,
+			},
+		}
+	)
+
+	defer func() {
+		for _, dir := range specDirs {
+			os.RemoveAll(dir)
+		}
+	}()
+
+	// gen generates a spec for a module where it's source code resides at src.
+	// and adds needed swaggercombine configure for it.
+	gen := func(m module.Module) (err error) {
+		dir, err := os.MkdirTemp("", "gen-openapi-module-spec")
+		if err != nil {
+			return err
+		}
+
+		if err := g.buf.Generate(
+			g.ctx,
+			m.Pkg.Path,
+			dir,
+			g.openAPITemplateForSTA(),
+			"module.proto",
+		); err != nil {
+			return err
+		}
+
+		specs, err := xos.FindFiles(dir, xos.JSONFile)
+		if err != nil {
+			return err
+		}
+
+		for _, spec := range specs {
+			if err != nil {
+				return err
+			}
+			if err := conf.AddSpec(strcase.ToCamel(m.Pkg.Name), spec, false); err != nil {
+				return err
+			}
+		}
+		specDirs = append(specDirs, dir)
+
+		return nil
+	}
+
+	// generate specs for each module and persist them in the file system
+	// after add their path and config to swaggercombine.Config so we can combine them
+	// into a single spec.
+
+	add := func(modules []module.Module) error {
+		for _, m := range modules {
+			if err := gen(m); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+
+	// protoc openapi generator acts weird on concurrent run, so do not use goroutines here.
+	if err := add([]module.Module{m}); err != nil {
+		return err
+	}
+
+	sort.Slice(conf.APIs, func(a, b int) bool { return conf.APIs[a].ID < conf.APIs[b].ID })
+
+	// ensure out dir exists.
+	outDir := filepath.Dir(out)
+	if err := os.MkdirAll(outDir, 0o766); err != nil {
+		return err
+	}
+
+	// combine specs into one and save to out.
+	return swaggercombine.Combine(g.ctx, conf, out)
 }
