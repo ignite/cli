@@ -40,7 +40,7 @@ type OperationIDs struct {
 var opReg = regexp.MustCompile(`(?m)operationId.+?(\w+)`)
 
 // AddSpec adds a new OpenAPI spec to Config by path in the fs and unique id of spec.
-func (c *Config) AddSpec(id, path string) error {
+func (c *Config) AddSpec(id, path string, makeUnique bool) error {
 	// make operationId fields unique.
 	f, err := os.Open(path)
 	if err != nil {
@@ -58,7 +58,11 @@ func (c *Config) AddSpec(id, path string) error {
 
 	for _, op := range ops {
 		o := op[1]
-		rename[o] = id + o
+		if makeUnique {
+			rename[o] = id + o
+		} else {
+			rename[o] = o
+		}
 	}
 
 	// add api with replaced operation ids.
