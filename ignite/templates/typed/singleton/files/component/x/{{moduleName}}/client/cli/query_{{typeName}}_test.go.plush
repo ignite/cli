@@ -20,16 +20,17 @@ func (s *IntegrationTestSuite) networkWith<%= TypeName.UpperCamel %>Objects() (t
 	<%= TypeName.LowerCamel %> := &types.<%= TypeName.UpperCamel %>{}
 	nullify.Fill(&<%= TypeName.LowerCamel %>)
 	state.<%= TypeName.UpperCamel %> = <%= TypeName.LowerCamel %>
-	buf, err := s.network.Config.Codec.MarshalJSON(&state)
+	buf, err := s.cfg.Codec.MarshalJSON(&state)
 	s.Require().NoError(err)
-	s.network.Config.GenesisState[types.ModuleName] = buf
+	s.cfg.GenesisState[types.ModuleName] = buf
 	return *state.<%= TypeName.UpperCamel %>
 }
 
 func (s *IntegrationTestSuite) TestShow<%= TypeName.UpperCamel %>() {
 	var (
 		obj    = s.networkWith<%= TypeName.UpperCamel %>Objects()
-		ctx    = s.network.Validators[0].ClientCtx
+		net    = s.network()
+		ctx    = net.Validators[0].ClientCtx
 		common = []string{
 			fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 		}
@@ -58,7 +59,7 @@ func (s *IntegrationTestSuite) TestShow<%= TypeName.UpperCamel %>() {
 			}
             require.NoError(t, err)
             var resp types.QueryGet<%= TypeName.UpperCamel %>Response
-            require.NoError(t, s.network.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
+            require.NoError(t, s.cfg.Codec.UnmarshalJSON(out.Bytes(), &resp))
             require.NotNil(t, resp.<%= TypeName.UpperCamel %>)
             require.Equal(t,
                 nullify.Fill(&tc.obj),

@@ -17,7 +17,8 @@ import (
 
 func (s *IntegrationTestSuite) TestCreate<%= TypeName.UpperCamel %>() {
 	var (
-		val = s.network.Validators[0]
+		net = s.Network()
+		val = net.Validators[0]
 		ctx = val.ClientCtx
 	)
 
@@ -34,14 +35,12 @@ func (s *IntegrationTestSuite) TestCreate<%= TypeName.UpperCamel %>() {
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.network.Config.BondDenom, sdkmath.NewInt(10))).String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.config.BondDenom, sdkmath.NewInt(10))).String()),
 			},
 		},
 	}
 	for _, tc := range tests {
 		s.T().Run(tc.desc, func(t *testing.T) {
-            require.NoError(t, s.network.WaitForNextBlock())
-
             args := append([]string{}, fields...)
             args = append(args, tc.args...)
 			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdCreate<%= TypeName.UpperCamel %>(), args)
@@ -53,14 +52,15 @@ func (s *IntegrationTestSuite) TestCreate<%= TypeName.UpperCamel %>() {
 
 			var resp sdk.TxResponse
 			require.NoError(t, ctx.Codec.UnmarshalJSON(out.Bytes(), &resp))
-			require.NoError(t, clitestutil.CheckTxCode(s.network, ctx, resp.TxHash, tc.code))
+			require.NoError(t, clitestutil.CheckTxCode(net, ctx, resp.TxHash, tc.code))
 		})
 	}
 }
 
 func (s *IntegrationTestSuite) TestUpdate<%= TypeName.UpperCamel %>() {
 	var (
-		val = s.network.Validators[0]
+		net = s.Network()
+		val = net.Validators[0]
 		ctx = val.ClientCtx
 	)
 
@@ -69,12 +69,13 @@ func (s *IntegrationTestSuite) TestUpdate<%= TypeName.UpperCamel %>() {
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.network.Config.BondDenom, sdkmath.NewInt(10))).String()),
+		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.config.BondDenom, sdkmath.NewInt(10))).String()),
 	}
 	args := append([]string{}, fields...)
 	args = append(args, common...)
 	_, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdCreate<%= TypeName.UpperCamel %>(), args)
 	s.Require().NoError(err)
+	s.waitForNextBlock()
 
 	tests := []struct {
 		desc string
@@ -102,8 +103,6 @@ func (s *IntegrationTestSuite) TestUpdate<%= TypeName.UpperCamel %>() {
 	}
 	for _, tc := range tests {
 		s.T().Run(tc.desc, func(t *testing.T) {
-            require.NoError(t, s.network.WaitForNextBlock())
-
             args := append([]string{}, fields...)
             args = append(args, tc.args...)
 			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdUpdate<%= TypeName.UpperCamel %>(), args)
@@ -115,14 +114,15 @@ func (s *IntegrationTestSuite) TestUpdate<%= TypeName.UpperCamel %>() {
 
 			var resp sdk.TxResponse
 			require.NoError(t, ctx.Codec.UnmarshalJSON(out.Bytes(), &resp))
-			require.NoError(t, clitestutil.CheckTxCode(s.network, ctx, resp.TxHash, tc.code))
+			require.NoError(t, clitestutil.CheckTxCode(net, ctx, resp.TxHash, tc.code))
 		})
 	}
 }
 
 func (s *IntegrationTestSuite) TestDelete<%= TypeName.UpperCamel %>() {
 	var (
-		val = s.network.Validators[0]
+		net = s.Network()
+		val = net.Validators[0]
 		ctx = val.ClientCtx
 	)
 
@@ -131,7 +131,7 @@ func (s *IntegrationTestSuite) TestDelete<%= TypeName.UpperCamel %>() {
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.network.Config.BondDenom, sdkmath.NewInt(10))).String()),
+		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.config.BondDenom, sdkmath.NewInt(10))).String()),
 	}
     args := append([]string{}, fields...)
 	args = append(args, common...)
@@ -164,8 +164,6 @@ func (s *IntegrationTestSuite) TestDelete<%= TypeName.UpperCamel %>() {
 	}
 	for _, tc := range tests {
 		s.T().Run(tc.desc, func(t *testing.T) {
-            require.NoError(t, s.network.WaitForNextBlock())
-
 			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdDelete<%= TypeName.UpperCamel %>(), append([]string{tc.id}, tc.args...))
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)

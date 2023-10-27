@@ -31,16 +31,17 @@ func (s *IntegrationTestSuite) networkWith<%= TypeName.UpperCamel %>Objects(n in
 		nullify.Fill(&<%= TypeName.LowerCamel %>)
 		state.<%= TypeName.UpperCamel %>List = append(state.<%= TypeName.UpperCamel %>List, <%= TypeName.LowerCamel %>)
 	}
-	buf, err := s.network.Config.Codec.MarshalJSON(&state)
+	buf, err := s.cfg.Codec.MarshalJSON(&state)
 	s.Require().NoError(err)
-	s.network.Config.GenesisState[types.ModuleName] = buf
+	s.cfg.GenesisState[types.ModuleName] = buf
 	return state.<%= TypeName.UpperCamel %>List
 }
 
 func (s *IntegrationTestSuite) TestShow<%= TypeName.UpperCamel %>() {
 	var (
 		objs   = s.networkWith<%= TypeName.UpperCamel %>Objects(2)
-		ctx    = s.network.Validators[0].ClientCtx
+		net    = s.network()
+		ctx    = net.Validators[0].ClientCtx
 		common = []string{
 			fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 		}
@@ -84,7 +85,7 @@ func (s *IntegrationTestSuite) TestShow<%= TypeName.UpperCamel %>() {
 			}
             require.NoError(t, err)
             var resp types.QueryGet<%= TypeName.UpperCamel %>Response
-            require.NoError(t, s.network.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
+            require.NoError(t, s.cfg.Codec.UnmarshalJSON(out.Bytes(), &resp))
             require.NotNil(t, resp.<%= TypeName.UpperCamel %>)
             require.Equal(t,
                 nullify.Fill(&tc.obj),
@@ -97,7 +98,8 @@ func (s *IntegrationTestSuite) TestShow<%= TypeName.UpperCamel %>() {
 func (s *IntegrationTestSuite) TestList<%= TypeName.UpperCamel %>() {
 	var (
 		objs   = s.networkWith<%= TypeName.UpperCamel %>Objects(5)
-		ctx    = s.network.Validators[0].ClientCtx
+		net    = s.network()
+		ctx    = net.Validators[0].ClientCtx
 	)
 	request := func(next []byte, offset, limit uint64, total bool) []string {
 		args := []string{
@@ -121,7 +123,7 @@ func (s *IntegrationTestSuite) TestList<%= TypeName.UpperCamel %>() {
 			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdList<%= TypeName.UpperCamel %>(), args)
 			require.NoError(t, err)
 			var resp types.QueryAll<%= TypeName.UpperCamel %>Response
-			require.NoError(t, s.network.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
+			require.NoError(t, s.cfg.Codec.UnmarshalJSON(out.Bytes(), &resp))
 			require.LessOrEqual(t, len(resp.<%= TypeName.UpperCamel %>), step)
 			require.Subset(t,
             	nullify.Fill(objs),
@@ -137,7 +139,7 @@ func (s *IntegrationTestSuite) TestList<%= TypeName.UpperCamel %>() {
 			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdList<%= TypeName.UpperCamel %>(), args)
 			require.NoError(t, err)
 			var resp types.QueryAll<%= TypeName.UpperCamel %>Response
-			require.NoError(t, s.network.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
+			require.NoError(t, s.cfg.Codec.UnmarshalJSON(out.Bytes(), &resp))
 			require.LessOrEqual(t, len(resp.<%= TypeName.UpperCamel %>), step)
 			require.Subset(t,
             	nullify.Fill(objs),
@@ -151,7 +153,7 @@ func (s *IntegrationTestSuite) TestList<%= TypeName.UpperCamel %>() {
 		out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdList<%= TypeName.UpperCamel %>(), args)
 		require.NoError(t, err)
 		var resp types.QueryAll<%= TypeName.UpperCamel %>Response
-		require.NoError(t, s.network.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
+		require.NoError(t, s.cfg.Codec.UnmarshalJSON(out.Bytes(), &resp))
 		require.NoError(t, err)
 		require.Equal(t, len(objs), int(resp.Pagination.Total))
 		require.ElementsMatch(t,
