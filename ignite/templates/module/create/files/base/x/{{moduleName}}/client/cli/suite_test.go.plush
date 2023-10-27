@@ -11,12 +11,14 @@ import (
 type IntegrationTestSuite struct {
 	suite.Suite
 
-	net *network.Network
-	cfg network.Config
+	locked bool
+	net    *network.Network
+	cfg    network.Config
 }
 
 func (s *IntegrationTestSuite) network() *network.Network {
 	s.net = network.New(s.T(), s.cfg)
+	s.locked = true
 	return s.net
 }
 
@@ -32,8 +34,9 @@ func (s *IntegrationTestSuite) SetupSuite() {
 
 func (s *IntegrationTestSuite) TearDownTest() {
 	s.T().Log("tearing down test")
-	if s.net != nil {
+	if s.net != nil && s.locked {
 		s.net.Cleanup()
+		s.locked = false
 	}
 }
 

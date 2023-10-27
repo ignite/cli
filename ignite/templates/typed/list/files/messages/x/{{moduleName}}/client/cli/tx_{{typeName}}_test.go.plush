@@ -103,7 +103,7 @@ func (s *IntegrationTestSuite) TestUpdate<%= TypeName.UpperCamel %>() {
 	}
 	for _, tc := range tests {
 		s.T().Run(tc.desc, func(t *testing.T) {
-            args := append([]string{}, fields...)
+            args := append([]string{tc.id}, fields...)
             args = append(args, tc.args...)
 			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdUpdate<%= TypeName.UpperCamel %>(), args)
 			if tc.err != nil {
