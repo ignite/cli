@@ -17,7 +17,7 @@ import (
 
 func (s *IntegrationTestSuite) TestCreate<%= TypeName.UpperCamel %>() {
 	var (
-		net = s.Network()
+		net = s.network()
 		val = net.Validators[0]
 		ctx = val.ClientCtx
 	)
@@ -35,7 +35,7 @@ func (s *IntegrationTestSuite) TestCreate<%= TypeName.UpperCamel %>() {
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.config.BondDenom, sdkmath.NewInt(10))).String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdkmath.NewInt(10))).String()),
 			},
 		},
 	}
@@ -59,7 +59,7 @@ func (s *IntegrationTestSuite) TestCreate<%= TypeName.UpperCamel %>() {
 
 func (s *IntegrationTestSuite) TestUpdate<%= TypeName.UpperCamel %>() {
 	var (
-		net = s.Network()
+		net = s.network()
 		val = net.Validators[0]
 		ctx = val.ClientCtx
 	)
@@ -69,7 +69,7 @@ func (s *IntegrationTestSuite) TestUpdate<%= TypeName.UpperCamel %>() {
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.config.BondDenom, sdkmath.NewInt(10))).String()),
+		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdkmath.NewInt(10))).String()),
 	}
 	args := append([]string{}, fields...)
 	args = append(args, common...)
@@ -121,7 +121,7 @@ func (s *IntegrationTestSuite) TestUpdate<%= TypeName.UpperCamel %>() {
 
 func (s *IntegrationTestSuite) TestDelete<%= TypeName.UpperCamel %>() {
 	var (
-		net = s.Network()
+		net = s.network()
 		val = net.Validators[0]
 		ctx = val.ClientCtx
 	)
@@ -131,7 +131,7 @@ func (s *IntegrationTestSuite) TestDelete<%= TypeName.UpperCamel %>() {
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.config.BondDenom, sdkmath.NewInt(10))).String()),
+		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdkmath.NewInt(10))).String()),
 	}
     args := append([]string{}, fields...)
 	args = append(args, common...)
@@ -173,7 +173,7 @@ func (s *IntegrationTestSuite) TestDelete<%= TypeName.UpperCamel %>() {
 
 			var resp sdk.TxResponse
 			require.NoError(t, ctx.Codec.UnmarshalJSON(out.Bytes(), &resp))
-			require.NoError(t, clitestutil.CheckTxCode(s.network, ctx, resp.TxHash, tc.code))
+			require.NoError(t, clitestutil.CheckTxCode(net, ctx, resp.TxHash, tc.code))
 		})
 	}
 }
