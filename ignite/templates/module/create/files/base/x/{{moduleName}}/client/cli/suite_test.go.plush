@@ -27,6 +27,11 @@ func (s *IntegrationTestSuite) waitForNextBlock() {
 	s.Require().NoError(s.net.WaitForNextBlock())
 }
 
+func (s *IntegrationTestSuite) SetupTest() {
+	s.T().Log("setting up test")
+	s.cfg = network.DefaultConfig()
+}
+
 func (s *IntegrationTestSuite) SetupSuite() {
 	s.T().Log("setting up integration test suite")
 	s.cfg = network.DefaultConfig()
