@@ -32,7 +32,7 @@ func (s *IntegrationTestSuite) networkWith<%= TypeName.UpperCamel %>Objects(n in
 	return state.<%= TypeName.UpperCamel %>List
 }
 
-func (s *IntegrationTestSuite) TestShow<%= TypeName.UpperCamel %>(t *testing.T) {
+func (s *IntegrationTestSuite) TestShow<%= TypeName.UpperCamel %>() {
 	var (
 		objs   = s.networkWith<%= TypeName.UpperCamel %>Objects(2)
 		net    = s.network()
@@ -83,7 +83,7 @@ func (s *IntegrationTestSuite) TestShow<%= TypeName.UpperCamel %>(t *testing.T) 
 	}
 }
 
-func (s *IntegrationTestSuite) TestList<%= TypeName.UpperCamel %>(t *testing.T) {
+func (s *IntegrationTestSuite) TestList<%= TypeName.UpperCamel %>() {
 	var (
 		objs   = s.networkWith<%= TypeName.UpperCamel %>Objects(5)
 		net    = s.network()
