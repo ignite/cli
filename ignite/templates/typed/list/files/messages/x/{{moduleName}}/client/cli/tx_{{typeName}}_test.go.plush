@@ -137,6 +137,7 @@ func (s *IntegrationTestSuite) TestDelete<%= TypeName.UpperCamel %>() {
 	args = append(args, common...)
 	_, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdCreate<%= TypeName.UpperCamel %>(), args)
 	s.Require().NoError(err)
+	s.waitForNextBlock()
 
 	tests := []struct {
 		desc string
