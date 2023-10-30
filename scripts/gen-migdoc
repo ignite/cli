@@ -33,7 +33,7 @@ scaffold_chain() {
     local ignite_cmd="$1" scaffold_path="$2"
 
     for cmd in "${SCAFFOLD_CMDS[@]}"; do
-        $ignite_cmd scaffold $cmd --path $scaffold_path || (echo "Failed at scaffolding $cmd"; exit 1)
+        $ignite_cmd scaffold $cmd --path $scaffold_path > /dev/null || (echo "Failed at scaffolding $cmd"; exit 1)
     done
 }
 
@@ -56,7 +56,7 @@ main() {
     # Gets the latest version and the previous version
     versions=$(git tag --list --sort=version:refname 'v*')
     new_version=$(echo "${versions}" | tail -n 1); mkdir -p "$tmp_dir/$new_version"
-    previous_version=$(echo "${versions}" | tail -n 3 | head -n 1); mkdir -p "$tmp_dir/$previous_version"
+    previous_version=$(echo "${versions}" | tail -n 2 | head -n 1); mkdir -p "$tmp_dir/$previous_version"
     echo "Generating migration documentation: ${previous_version} -> ${new_version}"
 
     checkout_and_build_ignite "$tmp_dir/ignite" "$previous_version"
