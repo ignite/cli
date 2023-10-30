@@ -115,9 +115,9 @@ type generator struct {
 	sdkImport           string
 	deps                []gomodule.Version
 	appModules          []module.Module
-	appIncludes         []string
+	appIncludes         protoIncludes
 	thirdModules        map[string][]module.Module
-	thirdModuleIncludes map[string][]string
+	thirdModuleIncludes map[string]protoIncludes
 	tmpDirs             []string
 }
 
@@ -146,7 +146,7 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		gomodPath:           gomodPath,
 		opts:                &generateOptions{},
 		thirdModules:        make(map[string][]module.Module),
-		thirdModuleIncludes: make(map[string][]string),
+		thirdModuleIncludes: make(map[string]protoIncludes),
 		cacheStorage:        cacheStorage,
 	}
 

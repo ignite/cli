@@ -29,10 +29,30 @@ var protocGlobalInclude = xfilepath.List(
 	xfilepath.JoinFromHome(xfilepath.Path(".local/include")),
 )
 
-type ModulesInPath struct {
-	Path     string
-	Modules  []module.Module
-	Includes []string
+// protoIncludes contains proto include paths for a package.
+type protoIncludes struct {
+	// Paths is a list of proto include paths.
+	Paths []string
+
+	// BufPath is the path to the Buf config file when it exists.
+	BufPath string
+
+	// ProtoPath contains the path to the package's proto directory.
+	ProtoPath string
+}
+
+// protoAnalysis contains proto module analysis data for a Go package dependency.
+type protoAnalysis struct {
+	// Path is the full path to the Go dependency
+	Path string
+
+	// Modules contains the proto modules analysis data.
+	// The list is empty when the Go package has no proto files.
+	Modules []module.Module
+
+	// Includes contain proto include paths.
+	// These paths should be used when generating code.
+	Includes protoIncludes
 }
 
 func (g *generator) setup() (err error) {
@@ -80,27 +100,30 @@ func (g *generator) setup() (err error) {
 	if err != nil {
 		return err
 	}
+
 	g.appIncludes, err = g.resolveIncludes(g.appPath)
 	if err != nil {
 		return err
 	}
-	// Go through the Go dependencies of the user's app within go.mod, some of them might be hosting Cosmos SDK modules
-	// that could be in use by user's blockchain.
+
+	// Go through the Go dependencies of the user's app within go.mod, some of them
+	// might be hosting Cosmos SDK modules that could be in use by user's blockchain.
 	//
-	// Cosmos SDK is a dependency of all blockchains, so it's absolute that we'll be discovering all modules of the
-	// SDK as well during this process.
+	// Cosmos SDK is a dependency of all blockchains, so it's absolute that we'll be
+	// discovering all modules of the SDK as well during this process.
 	//
-	// Even if a dependency contains some SDK modules, not all of these modules could be used by user's blockchain.
-	// this is fine, we can still generate TS clients for those non modules, it is up to user to use (import in typescript)
-	// not use generated modules.
+	// Even if a dependency contains some SDK modules, not all of these modules could
+	// be used by user's blockchain. This is fine, we can still generate TS clients
+	// for those non modules, it is up to user to use (import in typescript) not use
+	// generated modules.
 	//
-	// TODO: we can still implement some sort of smart filtering to detect non used modules by the user's blockchain
-	// at some point, it is a nice to have.
-	moduleCache := cache.New[ModulesInPath](g.cacheStorage, moduleCacheNamespace)
+	// TODO: we can still implement some sort of smart filtering to detect non used
+	// modules by the user's blockchain at some point, it is a nice to have.
+	moduleCache := cache.New[protoAnalysis](g.cacheStorage, moduleCacheNamespace)
 	for _, dep := range g.deps {
 		// Try to get the cached list of modules for the current dependency package
 		cacheKey := cache.Key(dep.Path, dep.Version)
-		modulesInPath, err := moduleCache.Get(cacheKey)
+		depInfo, err := moduleCache.Get(cacheKey)
 		if err != nil && !errors.Is(err, cache.ErrorNotFound) {
 			return err
 		}
@@ -119,37 +142,28 @@ func (g *generator) setup() (err error) {
 				return err
 			}
 
-			var includes []string
+			// Dependency/includes resolution per module is done to solve versioning issues
+			var includes protoIncludes
 			if len(modules) > 0 {
-				// For versioning issues, we do dependency/includes resolution per module
 				includes, err = g.resolveIncludes(path)
 				if err != nil {
 					return err
 				}
 			}
 
-			modulesInPath = ModulesInPath{
+			depInfo = protoAnalysis{
 				Path:     path,
 				Modules:  modules,
 				Includes: includes,
 			}
 
-			if err := moduleCache.Put(cacheKey, modulesInPath); err != nil {
+			if err := moduleCache.Put(cacheKey, depInfo); err != nil {
 				return err
 			}
 		}
 
-		g.thirdModules[modulesInPath.Path] = append(
-			g.thirdModules[modulesInPath.Path],
-			modulesInPath.Modules...,
-		)
-
-		if modulesInPath.Includes != nil {
-			g.thirdModuleIncludes[modulesInPath.Path] = append(
-				g.thirdModuleIncludes[modulesInPath.Path],
-				modulesInPath.Includes...,
-			)
-		}
+		g.thirdModules[depInfo.Path] = depInfo.Modules
+		g.thirdModuleIncludes[depInfo.Path] = depInfo.Includes
 	}
 
 	return nil
@@ -170,7 +184,8 @@ func (g *generator) findBufPath(modpath string) (string, error) {
 		if err != nil {
 			return err
 		}
-		if filepath.Base(path) == "buf.yaml" {
+		base := filepath.Base(path)
+		if base == "buf.yaml" || base == "buf.yml" {
 			bufPath = path
 			return filepath.SkipAll
 		}
@@ -197,48 +212,58 @@ func (g *generator) generateBufIncludeFolder(modpath string) (string, error) {
 	return protoPath, nil
 }
 
-func (g *generator) resolveIncludes(path string) (paths []string, err error) {
+func (g *generator) resolveIncludes(path string) (protoIncludes, error) {
 	// Init paths with the global include paths for protoc
-	paths, err = protocGlobalInclude()
+	paths, err := protocGlobalInclude()
 	if err != nil {
-		return nil, err
+		return protoIncludes{}, err
 	}
 
-	// Check that the app proto directory exists
+	includes := protoIncludes{Paths: paths}
+
+	// Check that the app/package proto directory exists
 	protoPath := filepath.Join(path, g.protoDir)
 	fi, err := os.Stat(protoPath)
 	if err != nil && !os.IsNotExist(err) {
-		return nil, err
+		return protoIncludes{}, err
 	} else if !fi.IsDir() {
 		// Just return the global includes when a proto directory doesn't exist
-		return paths, nil
+		return includes, nil
 	}
 
 	// Add app's proto path to the list of proto paths
-	paths = append(paths, protoPath)
+	includes.Paths = append(includes.Paths, protoPath)
+	includes.ProtoPath = protoPath
 
 	// Check if a Buf config file is present
 	bufPath, err := g.findBufPath(protoPath)
 	if err != nil {
-		return nil, err
+		return includes, err
 	}
 
-	// When a Buf config exists export all protos needed
-	// to build the modules to a temporary include folder.
 	if bufPath != "" {
-		includePath, err := g.generateBufIncludeFolder(protoPath)
+		includes.BufPath = bufPath
+
+		// When a Buf config exists export all protos needed
+		// to build the modules to a temporary include folder.
+		// TODO: Should this be optional and not done for the app includes? Duplicates proto folder.
+		bufProtoPath, err := g.generateBufIncludeFolder(protoPath)
 		if err != nil && !errors.Is(err, cosmosbuf.ErrProtoFilesNotFound) {
-			return nil, err
+			return protoIncludes{}, err
 		}
 
 		// Use exported files only when the path contains ".proto" files
-		if includePath != "" {
-			return append(paths, includePath), nil
+		if bufProtoPath != "" {
+			includes.Paths = append(includes.Paths, bufProtoPath)
+			return includes, nil
 		}
 	}
 
-	// By default use the configured directories
-	return append(paths, g.getProtoIncludeFolders(path)...), nil
+	// When there is no Buf config add the configured directories
+	// instead to keep the legacy (non Buf) behavior.
+	includes.Paths = append(includes.Paths, g.getProtoIncludeFolders(path)...)
+
+	return includes, nil
 }
 
 func (g *generator) discoverModules(path, protoDir string) ([]module.Module, error) {

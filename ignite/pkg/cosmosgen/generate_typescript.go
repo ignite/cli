@@ -132,7 +132,7 @@ func (g *tsGenerator) generateModuleTemplates() error {
 		}
 	}
 
-	add(g.g.appPath, g.g.appModules, g.g.appIncludes)
+	add(g.g.appPath, g.g.appModules, g.g.appIncludes.Paths)
 
 	// Always generate third party modules; This is required because not generating them might
 	// lead to issues with the module registration in the root template. The root template must
@@ -140,8 +140,9 @@ func (g *tsGenerator) generateModuleTemplates() error {
 	// is available and not generated it would lead to the registration of a new not generated
 	// 3rd party module.
 	for sourcePath, modules := range g.g.thirdModules {
-		includes := g.g.thirdModuleIncludes[sourcePath]
-		add(sourcePath, modules, append(g.g.appIncludes, includes...))
+		// TODO: Skip modules without proto files?
+		thirdIncludes := g.g.thirdModuleIncludes[sourcePath]
+		add(sourcePath, modules, append(g.g.appIncludes.Paths, thirdIncludes.Paths...))
 	}
 
 	return gg.Wait()
