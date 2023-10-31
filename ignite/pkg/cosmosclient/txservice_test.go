@@ -7,7 +7,6 @@ import (
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -45,7 +44,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 	}
 	tests := []struct {
 		name             string
-		msg              sdk.Msg
+		msg              sdktypes.Msg
 		opts             []cosmosclient.Option
 		expectedResponse *sdktypes.TxResponse
 		expectedError    string

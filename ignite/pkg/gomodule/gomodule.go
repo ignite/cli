@@ -52,7 +52,7 @@ func FilterVersions(dependencies []module.Version, paths ...string) []module.Ver
 	return filtered
 }
 
-func ResolveDependencies(f *modfile.File) ([]module.Version, error) {
+func ResolveDependencies(f *modfile.File, includeIndirect bool) ([]module.Version, error) {
 	var versions []module.Version
 
 	isReplacementAdded := func(rv module.Version) bool {
@@ -68,7 +68,7 @@ func ResolveDependencies(f *modfile.File) ([]module.Version, error) {
 	}
 
 	for _, req := range f.Require {
-		if req.Indirect {
+		if req.Indirect && !includeIndirect {
 			continue
 		}
 		if !isReplacementAdded(req.Mod) {
