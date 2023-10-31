@@ -233,7 +233,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook plugin.Hook) 
 			}
 		}()
 
-		if preRun != nil {
+		if postCmd != nil {
 			err := postCmd(cmd, args)
 			if err != nil {
 				// dont return the error, log it and let execution continue to `Run`
