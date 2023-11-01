@@ -37,7 +37,7 @@ func newTSGenerator(g *generator) *tsGenerator {
 	return &tsGenerator{g}
 }
 
-func (g *generator) generateTS() error {
+func (g *generator) generateTS(ctx context.Context) error {
 	chainPath, _, err := gomodulepath.Find(g.appPath)
 	if err != nil {
 		return err
@@ -70,14 +70,14 @@ func (g *generator) generateTS() error {
 	})
 
 	tsg := newTSGenerator(g)
-	if err := tsg.generateModuleTemplates(); err != nil {
+	if err := tsg.generateModuleTemplates(ctx); err != nil {
 		return err
 	}
 
 	return tsg.generateRootTemplates(data)
 }
 
-func (g *tsGenerator) generateModuleTemplates() error {
+func (g *tsGenerator) generateModuleTemplates(ctx context.Context) error {
 	protocCmd, cleanupProtoc, err := protoc.Command()
 	if err != nil {
 		return err
@@ -122,7 +122,7 @@ func (g *tsGenerator) generateModuleTemplates() error {
 					}
 				}
 
-				err = g.generateModuleTemplate(g.g.ctx, protocCmd, staCmd, tsprotoPluginPath, sourcePath, m, includes)
+				err = g.generateModuleTemplate(ctx, protocCmd, staCmd, tsprotoPluginPath, sourcePath, m, includes)
 				if err != nil {
 					return err
 				}
@@ -182,9 +182,7 @@ func (g *tsGenerator) generateModuleTemplate(
 
 	specPath := filepath.Join(out, "api.swagger.yml")
 
-	err = g.g.generateModuleOpenAPISpec(m, specPath)
-
-	if err != nil {
+	if err = g.g.generateModuleOpenAPISpec(ctx, m, specPath); err != nil {
 		return err
 	}
 	// generate the REST client from the OpenAPI spec

@@ -2,6 +2,7 @@ package cosmosgen
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io/fs"
 	"os"
@@ -64,7 +65,7 @@ func newBufConfigError(path string, cause error) error {
 	return fmt.Errorf("invalid Buf config: %s: %w", path, cause)
 }
 
-func (g *generator) setup() (err error) {
+func (g *generator) setup(ctx context.Context) (err error) {
 	// Cosmos SDK hosts proto files of own x/ modules and some third party ones needed by itself and
 	// blockchain apps. Generate should be aware of these and make them available to the blockchain
 	// app that wants to generate code for its own proto.
@@ -78,7 +79,7 @@ func (g *generator) setup() (err error) {
 		New(
 			cmdrunner.DefaultStderr(&errb),
 			cmdrunner.DefaultWorkdir(g.appPath),
-		).Run(g.ctx, step.New(step.Exec("go", "mod", "download"))); err != nil {
+		).Run(ctx, step.New(step.Exec("go", "mod", "download"))); err != nil {
 		return errors.Wrap(err, errb.String())
 	}
 
@@ -105,12 +106,12 @@ func (g *generator) setup() (err error) {
 	}
 
 	// Discover any custom modules defined by the user's app
-	g.appModules, err = g.discoverModules(g.appPath, g.protoDir)
+	g.appModules, err = g.discoverModules(ctx, g.appPath, g.protoDir)
 	if err != nil {
 		return err
 	}
 
-	g.appIncludes, err = g.resolveIncludes(g.appPath)
+	g.appIncludes, err = g.resolveIncludes(ctx, g.appPath)
 	if err != nil {
 		return err
 	}
@@ -140,13 +141,13 @@ func (g *generator) setup() (err error) {
 		// Discover the modules of the dependency package when they are not cached
 		if errors.Is(err, cache.ErrorNotFound) {
 			// Get the absolute path to the package's directory
-			path, err := gomodule.LocatePath(g.ctx, g.cacheStorage, g.appPath, dep)
+			path, err := gomodule.LocatePath(ctx, g.cacheStorage, g.appPath, dep)
 			if err != nil {
 				return err
 			}
 
 			// Discover any modules defined by the package
-			modules, err := g.discoverModules(path, "")
+			modules, err := g.discoverModules(ctx, path, "")
 			if err != nil {
 				return err
 			}
@@ -154,7 +155,7 @@ func (g *generator) setup() (err error) {
 			// Dependency/includes resolution per module is done to solve versioning issues
 			var includes protoIncludes
 			if len(modules) > 0 {
-				includes, err = g.resolveIncludes(path)
+				includes, err = g.resolveIncludes(ctx, path)
 				if err != nil {
 					return err
 				}
@@ -206,7 +207,7 @@ func (g *generator) findBufPath(modpath string) (string, error) {
 	return bufPath, nil
 }
 
-func (g *generator) generateBufIncludeFolder(modpath string) (string, error) {
+func (g *generator) generateBufIncludeFolder(ctx context.Context, modpath string) (string, error) {
 	protoPath, err := os.MkdirTemp("", "includeFolder")
 	if err != nil {
 		return "", err
@@ -214,14 +215,14 @@ func (g *generator) generateBufIncludeFolder(modpath string) (string, error) {
 
 	g.tmpDirs = append(g.tmpDirs, protoPath)
 
-	err = g.buf.Export(g.ctx, modpath, protoPath)
+	err = g.buf.Export(ctx, modpath, protoPath)
 	if err != nil {
 		return "", err
 	}
 	return protoPath, nil
 }
 
-func (g *generator) resolveIncludes(path string) (protoIncludes, error) {
+func (g *generator) resolveIncludes(ctx context.Context, path string) (protoIncludes, error) {
 	// Init paths with the global include paths for protoc
 	paths, err := protocGlobalInclude()
 	if err != nil {
@@ -256,7 +257,7 @@ func (g *generator) resolveIncludes(path string) (protoIncludes, error) {
 		// When a Buf config exists export all protos needed
 		// to build the modules to a temporary include folder.
 		// TODO: Should this be optional and not done for the app includes? Duplicates proto folder.
-		bufProtoPath, err := g.generateBufIncludeFolder(protoPath)
+		bufProtoPath, err := g.generateBufIncludeFolder(ctx, protoPath)
 		if err != nil && !errors.Is(err, cosmosbuf.ErrProtoFilesNotFound) {
 			return protoIncludes{}, err
 		}
@@ -275,10 +276,10 @@ func (g *generator) resolveIncludes(path string) (protoIncludes, error) {
 	return includes, nil
 }
 
-func (g *generator) discoverModules(path, protoDir string) ([]module.Module, error) {
+func (g *generator) discoverModules(ctx context.Context, path, protoDir string) ([]module.Module, error) {
 	var filteredModules []module.Module
 
-	modules, err := module.Discover(g.ctx, g.appPath, path, protoDir)
+	modules, err := module.Discover(ctx, g.appPath, path, protoDir)
 	if err != nil {
 		return nil, err
 	}
@@ -296,7 +297,7 @@ func (g *generator) discoverModules(path, protoDir string) ([]module.Module, err
 	return filteredModules, nil
 }
 
-func (g generator) updateBufConfig() error {
+func (g generator) updateBufConfig(ctx context.Context) error {
 	for pkgPath, includes := range g.thirdModuleIncludes {
 		// Skip third party dependencies without proto files
 		if includes.ProtoPath == "" {
@@ -314,7 +315,7 @@ func (g generator) updateBufConfig() error {
 		// When a Buf config with name is available add it to app's dependencies
 		// or otherwise export the proto files to a vendor directory.
 		if includes.BufPath != "" {
-			if err := g.resolveBufDependency(pkgName, includes.BufPath); err != nil {
+			if err := g.resolveBufDependency(ctx, pkgName, includes.BufPath); err != nil {
 				return err
 			}
 		} else {
@@ -326,7 +327,7 @@ func (g generator) updateBufConfig() error {
 	return nil
 }
 
-func (g generator) resolveBufDependency(pkgName, bufPath string) error {
+func (g generator) resolveBufDependency(ctx context.Context, pkgName, bufPath string) error {
 	// Open the dependency Buf config to find the BSR package name
 	f, err := os.Open(bufPath)
 	if err != nil {
@@ -345,14 +346,14 @@ func (g generator) resolveBufDependency(pkgName, bufPath string) error {
 	// When dependency package has a Buf config name try to add it to app's
 	// dependencies. Name is optional and defines the BSR package name.
 	if cfg.Name != "" {
-		return g.addBufDependency(cfg.Name)
+		return g.addBufDependency(ctx, cfg.Name)
 	}
 	// By default just vendor the proto package
 	return g.vendorProtoPackage(pkgName, filepath.Dir(bufPath))
 }
 
-// TODO: Check BSR before adding the dependency to app's Buf deps
-func (g generator) addBufDependency(depName string) error {
+func (g generator) addBufDependency(ctx context.Context, depName string) error {
+	// TODO: Check BSR before adding the dependency to app's Buf deps
 	// Read app's Buf config
 	path := g.appIncludes.BufPath
 	bz, err := os.ReadFile(path)
@@ -394,7 +395,7 @@ func (g generator) addBufDependency(depName string) error {
 	}
 
 	// Update Buf lock so it contains the new dependency
-	return g.buf.Update(g.ctx, filepath.Dir(path), depName)
+	return g.buf.Update(ctx, filepath.Dir(path), depName)
 }
 
 func (g generator) vendorProtoPackage(pkgName, protoPath string) error {

@@ -105,7 +105,6 @@ func IncludeDirs(dirs []string) Option {
 
 // generator generates code for sdk and sdk apps.
 type generator struct {
-	ctx                 context.Context
 	buf                 cosmosbuf.Buf
 	cacheStorage        cache.Storage
 	appPath             string
@@ -138,9 +137,7 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 
 	defer b.Cleanup()
 
-	// TODO: Move context to be a func/method argument instead of an instance one
 	g := &generator{
-		ctx:                 ctx,
 		buf:                 b,
 		appPath:             appPath,
 		protoDir:            protoDir,
@@ -157,7 +154,7 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		apply(g.opts)
 	}
 
-	if err := g.setup(); err != nil {
+	if err := g.setup(ctx); err != nil {
 		return err
 	}
 
@@ -166,7 +163,7 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 	// optionally be using Buf, so for those cases the discovered proto
 	// files should be available before code generation.
 	if g.opts.isGoEnabled || g.opts.isPulsarEnabled {
-		if err := g.updateBufConfig(); err != nil {
+		if err := g.updateBufConfig(ctx); err != nil {
 			return err
 		}
 	}
@@ -174,24 +171,24 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 	// Go generation must run first so the types are created before other
 	// generated code that requires sdk.Msg implementations to be defined
 	if g.opts.isGoEnabled {
-		if err := g.generateGo(); err != nil {
+		if err := g.generateGo(ctx); err != nil {
 			return err
 		}
 	}
 	if g.opts.isPulsarEnabled {
-		if err := g.generatePulsar(); err != nil {
+		if err := g.generatePulsar(ctx); err != nil {
 			return err
 		}
 	}
 
 	if g.opts.specOut != "" {
-		if err := g.generateOpenAPISpec(); err != nil {
+		if err := g.generateOpenAPISpec(ctx); err != nil {
 			return err
 		}
 	}
 
 	if g.opts.jsOut != nil {
-		if err := g.generateTS(); err != nil {
+		if err := g.generateTS(ctx); err != nil {
 			return err
 		}
 	}
