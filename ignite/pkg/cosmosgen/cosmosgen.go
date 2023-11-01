@@ -138,6 +138,7 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 
 	defer b.Cleanup()
 
+	// TODO: Move context to be a func/method argument instead of an instance one
 	g := &generator{
 		ctx:                 ctx,
 		buf:                 b,
@@ -158,6 +159,16 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 
 	if err := g.setup(); err != nil {
 		return err
+	}
+
+	// Update app's Buf config for third party discovered proto modules.
+	// Go dependency packages might contain proto files which could also
+	// optionally be using Buf, so for those cases the discovered proto
+	// files should be available before code generation.
+	if g.opts.isGoEnabled || g.opts.isPulsarEnabled {
+		if err := g.updateBufConfig(); err != nil {
+			return err
+		}
 	}
 
 	// Go generation must run first so the types are created before other

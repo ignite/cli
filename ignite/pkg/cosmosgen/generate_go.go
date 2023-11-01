@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/otiai10/copy"
+
 	"github.com/pkg/errors"
 )
 
@@ -29,13 +30,8 @@ func (g *generator) generateGo() error {
 	protoPath := filepath.Join(g.appPath, g.protoDir)
 
 	// code generate for each module.
-	if err := g.buf.Generate(
-		g.ctx,
-		protoPath,
-		tmp,
-		g.gogoTemplate(),
-		"module.proto",
-	); err != nil {
+	err = g.buf.Generate(g.ctx, protoPath, tmp, g.gogoTemplate(), "module.proto")
+	if err != nil {
 		return err
 	}
 
@@ -68,12 +64,8 @@ func (g *generator) generatePulsar() error {
 	protoPath := filepath.Join(g.appPath, g.protoDir)
 
 	// code generate for each module.
-	if err := g.buf.Generate(
-		g.ctx,
-		protoPath,
-		tmp,
-		g.pulsarTemplate(),
-	); err != nil {
+	err = g.buf.Generate(g.ctx, protoPath, tmp, g.pulsarTemplate())
+	if err != nil {
 		return err
 	}
 

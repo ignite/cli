@@ -2,12 +2,15 @@ package cosmosgen
 
 import (
 	"bytes"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v2"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner"
@@ -53,6 +56,10 @@ type protoAnalysis struct {
 	// Includes contain proto include paths.
 	// These paths should be used when generating code.
 	Includes protoIncludes
+}
+
+func newBufConfigError(path string, cause error) error {
+	return fmt.Errorf("invalid Buf config: %s: %w", path, cause)
 }
 
 func (g *generator) setup() (err error) {
@@ -285,4 +292,115 @@ func (g *generator) discoverModules(path, protoDir string) ([]module.Module, err
 	}
 
 	return filteredModules, nil
+}
+
+func (g generator) updateBufConfig() error {
+	for pkgPath, includes := range g.thirdModuleIncludes {
+		// Skip third party dependencies without proto files
+		if includes.ProtoPath == "" {
+			continue
+		}
+
+		// Resolve the Go package and use the module name as the proto vendor directory name
+		modFile, err := gomodule.ParseAt(pkgPath)
+		if err != nil {
+			return err
+		}
+
+		pkgName := modFile.Module.Mod.Path
+
+		// When a Buf config with name is available add it to app's dependencies
+		// or otherwise export the proto files to a vendor directory.
+		if includes.BufPath != "" {
+			if err := g.resolveBufDependency(pkgName, includes.BufPath); err != nil {
+				return err
+			}
+		} else {
+			if err := g.vendorProtoPackage(pkgName, includes.ProtoPath); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (g generator) resolveBufDependency(pkgName, bufPath string) error {
+	// Open the dependency Buf config to find the BSR package name
+	f, err := os.Open(bufPath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	cfg := struct {
+		Name string `yaml:"name"`
+	}{}
+
+	if err := yaml.NewDecoder(f).Decode(&cfg); err != nil {
+		return newBufConfigError(bufPath, err)
+	}
+
+	// When dependency package has a Buf config name try to add it to app's
+	// dependencies. Name is optional and defines the BSR package name.
+	if cfg.Name != "" {
+		return g.addBufDependency(cfg.Name)
+	}
+	// By defaoult just vendor the proto package
+	return g.vendorBufDependency(pkgName, bufPath)
+}
+
+// TODO: Check BSR before adding the dependency to app's Buf deps
+func (g generator) addBufDependency(depName string) error {
+	// Read app's Buf config
+	path := g.appIncludes.BufPath
+	bz, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+
+	// Check if the proto dependency is already present in app's Buf config
+	cfg := struct {
+		Deps []string `yaml:"deps"`
+	}{}
+	if err := yaml.Unmarshal(bz, &cfg); err != nil {
+		return newBufConfigError(path, err)
+	}
+
+	if slices.Contains(cfg.Deps, depName) {
+		return nil
+	}
+
+	// Add the new dependency and update app's Buf config
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC, 0o644)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	var rawCfg map[string]interface{}
+	if err := yaml.Unmarshal(bz, &rawCfg); err != nil {
+		return newBufConfigError(path, err)
+	}
+
+	rawCfg["deps"] = append(cfg.Deps, depName)
+
+	enc := yaml.NewEncoder(f)
+	defer enc.Close()
+
+	if err := enc.Encode(rawCfg); err != nil {
+		return err
+	}
+
+	// Update Buf lock so it contains the new dependency
+	return g.buf.Update(g.ctx, filepath.Dir(path), depName)
+}
+
+func (g generator) vendorBufDependency(pkgName, bufPath string) error {
+	// TODO: Implement
+	return nil
+}
+
+func (g generator) vendorProtoPackage(pkgName, pkgProtoPath string) error {
+	// TODO: Implement
+	return nil
 }
