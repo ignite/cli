@@ -710,7 +710,7 @@ func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) e
 	// request coins from the faucet.
 	faucetResp, err := c.faucetClient.Transfer(ctx, cosmosfaucet.TransferRequest{AccountAddress: address})
 	if err != nil {
-		return errors.Wrap(errCannotRetrieveFundsFromFaucet, err.Error())
+		return errors.Join(errCannotRetrieveFundsFromFaucet, err)
 	}
 	if faucetResp.Error != "" {
 		return errors.Wrap(errCannotRetrieveFundsFromFaucet, faucetResp.Error)
