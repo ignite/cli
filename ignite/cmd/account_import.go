@@ -1,7 +1,6 @@
 package ignitecmd
 
 import (
-	"errors"
 	"os"
 
 	"github.com/cosmos/go-bip39"
@@ -9,6 +8,7 @@ import (
 
 	"github.com/ignite/cli/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 const flagSecret = "secret"

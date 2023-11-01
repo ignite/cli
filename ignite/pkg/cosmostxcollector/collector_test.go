@@ -2,7 +2,6 @@ package cosmostxcollector_test
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/mock"
@@ -11,6 +10,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector"
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/mocks"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 func TestCollector(t *testing.T) {

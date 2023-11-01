@@ -11,11 +11,11 @@ import (
 	"time"
 
 	"github.com/cenkalti/backoff"
-	"github.com/pkg/errors"
 
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 // Start starts the blockchain.

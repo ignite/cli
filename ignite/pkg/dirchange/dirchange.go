@@ -3,11 +3,11 @@ package dirchange
 import (
 	"bytes"
 	"crypto/md5"
-	"errors"
 	"os"
 	"path/filepath"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 var ErrNoFile = errors.New("no file in specified paths")

@@ -3,7 +3,6 @@ package cliquiz
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -11,6 +10,8 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/spf13/pflag"
+
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 // ErrConfirmationFailed is returned when second answer is not the same with first one.

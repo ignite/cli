@@ -1,7 +1,6 @@
 package cosmoserror_test
 
 import (
-	"errors"
 	"fmt"
 	"testing"
 
@@ -10,6 +9,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/ignite/cli/ignite/pkg/cosmoserror"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 func TestUnwrap(t *testing.T) {

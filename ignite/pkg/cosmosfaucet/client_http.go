@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
+
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 // ErrTransferRequest is an error that occurs when a transfer request fails.

@@ -3,9 +3,10 @@ package tarball
 import (
 	"archive/tar"
 	"compress/gzip"
-	"errors"
 	"io"
 	"path/filepath"
+
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 var (

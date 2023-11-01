@@ -1,12 +1,13 @@
 package gomodulepath
 
 import (
-	"errors"
 	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 	"golang.org/x/mod/module"
+
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 func TestParse(t *testing.T) {

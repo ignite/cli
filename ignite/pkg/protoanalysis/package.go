@@ -3,7 +3,7 @@ package protoanalysis
 import (
 	"strings"
 
-	"github.com/pkg/errors"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 type Packages []Package

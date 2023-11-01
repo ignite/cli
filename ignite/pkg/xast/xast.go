@@ -6,7 +6,7 @@ import (
 	"go/token"
 	"strings"
 
-	"github.com/pkg/errors"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 var ErrStop = errors.New("ast stop")

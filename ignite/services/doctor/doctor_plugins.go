@@ -2,7 +2,6 @@ package doctor
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -15,6 +14,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/events"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 // MigratePluginsConfig migrates plugins config to Ignite App config if required.

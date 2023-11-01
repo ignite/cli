@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"io"
 
@@ -14,6 +13,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/nodetime"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 // Call calls a method in the ts relayer wrapper lib with args and fills reply from the returned value.

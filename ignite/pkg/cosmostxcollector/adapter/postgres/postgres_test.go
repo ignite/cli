@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"testing"
 	"testing/fstest"
@@ -19,6 +18,7 @@ import (
 
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 var (

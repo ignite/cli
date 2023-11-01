@@ -2,9 +2,10 @@ package xhttp
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"time"
+
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 // ShutdownTimeout is the timeout for waiting all requests to complete.

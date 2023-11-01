@@ -1,7 +1,6 @@
 package plugins
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -10,6 +9,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/ignite/cli/ignite/pkg/gomodule"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 type Config struct {

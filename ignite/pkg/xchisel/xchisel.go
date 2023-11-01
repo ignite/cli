@@ -2,13 +2,14 @@ package xchisel
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"time"
 
 	chclient "github.com/jpillora/chisel/client"
 	chserver "github.com/jpillora/chisel/server"
+
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 var DefaultServerPort = "7575"

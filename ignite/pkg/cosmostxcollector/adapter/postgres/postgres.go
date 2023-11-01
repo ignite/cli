@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"embed"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/url"
 
@@ -14,6 +13,7 @@ import (
 
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 const (

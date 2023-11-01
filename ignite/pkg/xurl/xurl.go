@@ -1,11 +1,12 @@
 package xurl
 
 import (
-	"errors"
 	"fmt"
 	"net"
 	"net/url"
 	"strings"
+
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 const (

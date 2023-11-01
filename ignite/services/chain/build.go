@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/moby/moby/pkg/archive"
-	"github.com/pkg/errors"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/checksum"
@@ -21,6 +20,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 	"github.com/ignite/cli/ignite/pkg/xstrings"
 )
 

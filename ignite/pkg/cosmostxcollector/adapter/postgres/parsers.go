@@ -1,11 +1,11 @@
 package postgres
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 const (

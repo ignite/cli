@@ -13,13 +13,13 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	hplugin "github.com/hashicorp/go-plugin"
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 func TestNewPlugin(t *testing.T) {

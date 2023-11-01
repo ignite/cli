@@ -3,7 +3,6 @@ package relayer
 import (
 	"context"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"strings"
 	"sync"
@@ -19,6 +18,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/ctxticker"
 	tsrelayer "github.com/ignite/cli/ignite/pkg/nodetime/programs/ts-relayer"
 	relayerconf "github.com/ignite/cli/ignite/pkg/relayer/config"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 )
 

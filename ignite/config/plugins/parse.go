@@ -1,13 +1,14 @@
 package plugins
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 
 	"gopkg.in/yaml.v2"
+
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 // ParseDir expects to find a plugin config file in dir. If dir is not a folder,

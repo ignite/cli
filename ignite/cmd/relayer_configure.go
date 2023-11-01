@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/gookit/color"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
@@ -13,6 +12,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/relayer"
 	relayerconfig "github.com/ignite/cli/ignite/pkg/relayer/config"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 const (

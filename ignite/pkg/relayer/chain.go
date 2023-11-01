@@ -2,7 +2,6 @@ package relayer
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,6 +11,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
 	relayerconfig "github.com/ignite/cli/ignite/pkg/relayer/config"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 const (

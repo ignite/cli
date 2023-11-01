@@ -3,12 +3,12 @@ package chaincmdrunner
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"strings"
 
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 var (

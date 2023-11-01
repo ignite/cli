@@ -2,9 +2,10 @@ package xhttp
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
+
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 // ResponseJSON writes a JSON response to w by using status as http status and data

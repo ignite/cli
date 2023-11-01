@@ -15,9 +15,9 @@ import (
 	"time"
 
 	"github.com/buger/jsonparser"
-	"github.com/pkg/errors"
 
 	"github.com/ignite/cli/ignite/pkg/tarball"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 const (

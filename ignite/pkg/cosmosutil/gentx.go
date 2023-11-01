@@ -3,16 +3,15 @@ package cosmosutil
 import (
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 
 	sdkmath "cosmossdk.io/math"
 	"github.com/cometbft/cometbft/crypto/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-)
 
-const GentxFilename = "gentx.json"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
+)
 
 type (
 	// GentxInfo represents the basic info about gentx file.

@@ -2,11 +2,12 @@ package ctxticker
 
 import (
 	"context"
-	"errors"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/require"
+
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 func TestDoNow(t *testing.T) {

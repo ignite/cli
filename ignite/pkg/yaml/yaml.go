@@ -2,11 +2,12 @@ package yaml
 
 import (
 	"context"
-	"errors"
 	"strings"
 
 	"github.com/goccy/go-yaml"
 	"github.com/goccy/go-yaml/parser"
+
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 // Marshal converts an object to a string in a YAML format and transforms

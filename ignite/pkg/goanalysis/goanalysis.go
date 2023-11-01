@@ -2,7 +2,6 @@
 package goanalysis
 
 import (
-	"errors"
 	"fmt"
 	"go/ast"
 	"go/format"
@@ -13,6 +12,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 const (

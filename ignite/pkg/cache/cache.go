@@ -3,13 +3,14 @@ package cache
 import (
 	"bytes"
 	"encoding/gob"
-	"errors"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
 	bolt "go.etcd.io/bbolt"
+
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 var ErrorNotFound = errors.New("no value was found with the provided key")

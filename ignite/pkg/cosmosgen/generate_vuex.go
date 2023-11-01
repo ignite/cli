@@ -2,7 +2,6 @@ package cosmosgen
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -14,6 +13,7 @@ import (
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 type vuexGenerator struct {

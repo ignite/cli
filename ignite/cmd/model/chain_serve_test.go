@@ -1,7 +1,6 @@
 package cmdmodel_test
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 	"testing"
@@ -16,6 +15,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	cliuimodel "github.com/ignite/cli/ignite/pkg/cliui/model"
 	"github.com/ignite/cli/ignite/pkg/events"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 var chainServeActions = colors.Faint("Press the 'q' key to stop serve")

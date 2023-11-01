@@ -34,10 +34,10 @@ import (
 	gogogrpc "github.com/cosmos/gogoproto/grpc"
 	"github.com/cosmos/gogoproto/proto"
 	prototypes "github.com/cosmos/gogoproto/types"
-	"github.com/pkg/errors"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 var (

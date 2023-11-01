@@ -8,9 +8,10 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
-	"github.com/pkg/errors"
 
 	"github.com/gobuffalo/packd"
+
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 // Walker implements packd.Walker for Go embed's fs.FS.

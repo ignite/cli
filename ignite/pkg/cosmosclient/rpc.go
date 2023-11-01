@@ -7,7 +7,8 @@ import (
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cometbft/cometbft/types"
-	"github.com/pkg/errors"
+
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 // rpcWrapper is a rpclient.Client but with more contextualized errors.

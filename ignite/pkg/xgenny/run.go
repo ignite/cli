@@ -2,7 +2,6 @@ package xgenny
 
 import (
 	"context"
-	"errors"
 	"os"
 	"strings"
 
@@ -12,6 +11,7 @@ import (
 
 	"github.com/ignite/cli/ignite/pkg/placeholder"
 	"github.com/ignite/cli/ignite/pkg/validation"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 var _ validation.Error = (*dryRunError)(nil)

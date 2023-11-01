@@ -8,10 +8,9 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/pkg/errors"
-
 	"github.com/ignite/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 // ExitError is an alias to exec.ExitError.

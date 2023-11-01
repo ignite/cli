@@ -2,12 +2,12 @@
 package multiformatname
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/iancoleman/strcase"
 
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 	"github.com/ignite/cli/ignite/pkg/xstrings"
 )
 

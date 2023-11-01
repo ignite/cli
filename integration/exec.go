@@ -3,7 +3,6 @@ package envtest
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -13,6 +12,7 @@ import (
 
 	"github.com/ignite/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 type execOptions struct {

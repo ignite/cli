@@ -2,7 +2,6 @@ package chain
 
 import (
 	"context"
-	"errors"
 	"os"
 	"path/filepath"
 
@@ -18,6 +17,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/pkg/repoversion"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 	"github.com/ignite/cli/ignite/pkg/xexec"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 	igniteversion "github.com/ignite/cli/ignite/version"

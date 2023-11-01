@@ -2,7 +2,6 @@ package app_test
 
 import (
 	_ "embed"
-	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -10,6 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/app"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 var (

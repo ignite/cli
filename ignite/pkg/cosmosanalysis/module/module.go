@@ -2,7 +2,6 @@ package module
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"path"
 	"path/filepath"
@@ -14,6 +13,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/app"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
 	"github.com/ignite/cli/ignite/pkg/protoanalysis"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 // Msgs is a module import path-sdk msgs pair.

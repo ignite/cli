@@ -1,7 +1,6 @@
 package cmdmodel_test
 
 import (
-	"errors"
 	"fmt"
 	"testing"
 
@@ -14,6 +13,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	cliuimodel "github.com/ignite/cli/ignite/pkg/cliui/model"
 	"github.com/ignite/cli/ignite/pkg/events"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 func TestChainDebugErrorView(t *testing.T) {

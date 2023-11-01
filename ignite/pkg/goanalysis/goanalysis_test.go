@@ -2,7 +2,6 @@ package goanalysis_test
 
 import (
 	"bytes"
-	"errors"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -16,6 +15,7 @@ import (
 
 	"github.com/ignite/cli/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/ignite/pkg/xast"
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 var MainFile = []byte(`package main`)

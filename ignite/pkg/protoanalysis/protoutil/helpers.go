@@ -1,10 +1,11 @@
 package protoutil
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/emicklei/proto"
+
+	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 // AddAfterSyntax tries to add the given Visitee after the 'syntax' statement.
