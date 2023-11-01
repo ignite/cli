@@ -20,11 +20,13 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
+	"github.com/ignite/cli/ignite/pkg/xos"
 )
 
 const (
 	moduleCacheNamespace       = "generate.setup.module"
 	includeProtoCacheNamespace = "generator.includes.proto"
+	workFilename               = "buf.work.yaml"
 )
 
 var protocGlobalInclude = xfilepath.List(
@@ -345,8 +347,8 @@ func (g generator) resolveBufDependency(pkgName, bufPath string) error {
 	if cfg.Name != "" {
 		return g.addBufDependency(cfg.Name)
 	}
-	// By defaoult just vendor the proto package
-	return g.vendorBufDependency(pkgName, bufPath)
+	// By default just vendor the proto package
+	return g.vendorProtoPackage(pkgName, filepath.Dir(bufPath))
 }
 
 // TODO: Check BSR before adding the dependency to app's Buf deps
@@ -395,12 +397,52 @@ func (g generator) addBufDependency(depName string) error {
 	return g.buf.Update(g.ctx, filepath.Dir(path), depName)
 }
 
-func (g generator) vendorBufDependency(pkgName, bufPath string) error {
-	// TODO: Implement
-	return nil
-}
+func (g generator) vendorProtoPackage(pkgName, protoPath string) error {
+	// Check that the dependency vendor directory doesn't exist
+	vendorRelPath := filepath.Join("proto_vendor", pkgName)
+	vendorPath := filepath.Join(g.appPath, vendorRelPath)
+	_, err := os.Stat(vendorPath)
+	if err != nil && !os.IsNotExist(err) {
+		return err
+	}
 
-func (g generator) vendorProtoPackage(pkgName, pkgProtoPath string) error {
-	// TODO: Implement
-	return nil
+	// Skip vendoring when the dependency is already vendored
+	if !os.IsNotExist(err) {
+		return nil
+	}
+
+	if err = os.MkdirAll(vendorPath, 0o777); err != nil {
+		return err
+	}
+
+	if err = xos.CopyFolder(protoPath, vendorPath); err != nil {
+		return err
+	}
+
+	path := filepath.Join(g.appPath, workFilename)
+	bz, err := os.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("error reading Buf workspace file: %s: %w", path, err)
+	}
+
+	ws := struct {
+		Version     string   `yaml:"version"`
+		Directories []string `yaml:"directories"`
+	}{}
+	if err := yaml.Unmarshal(bz, &ws); err != nil {
+		return err
+	}
+
+	ws.Directories = append(ws.Directories, vendorRelPath)
+
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC, 0o644)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	enc := yaml.NewEncoder(f)
+	defer enc.Close()
+
+	return enc.Encode(ws)
 }
