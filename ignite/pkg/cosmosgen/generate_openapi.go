@@ -13,6 +13,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/dirchange"
+	"github.com/ignite/cli/ignite/pkg/nodetime"
 	swaggercombine "github.com/ignite/cli/ignite/pkg/nodetime/programs/swagger-combine"
 	"github.com/ignite/cli/ignite/pkg/xos"
 )
@@ -40,7 +41,11 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 			},
 		}
 	)
-
+	command, cleanup, err := nodetime.Command(nodetime.CommandSwaggerCombine)
+	if err != nil {
+		return err
+	}
+	defer cleanup()
 	defer func() {
 		for _, dir := range specDirs {
 			os.RemoveAll(dir)
@@ -153,7 +158,7 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 	}
 
 	// combine specs into one and save to out.
-	if err := swaggercombine.Combine(ctx, conf, out); err != nil {
+	if err := swaggercombine.Combine(ctx, conf, command, out); err != nil {
 		return err
 	}
 
@@ -170,6 +175,11 @@ func (g *generator) generateModuleOpenAPISpec(ctx context.Context, m module.Modu
 			},
 		}
 	)
+	command, cleanup, err := nodetime.Command(nodetime.CommandSwaggerCombine)
+	if err != nil {
+		return err
+	}
+	defer cleanup()
 
 	defer func() {
 		for _, dir := range specDirs {
@@ -233,7 +243,6 @@ func (g *generator) generateModuleOpenAPISpec(ctx context.Context, m module.Modu
 	if err := os.MkdirAll(outDir, 0o766); err != nil {
 		return err
 	}
-
 	// combine specs into one and save to out.
-	return swaggercombine.Combine(ctx, conf, out)
+	return swaggercombine.Combine(ctx, conf, command, out)
 }
