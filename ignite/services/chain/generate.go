@@ -160,6 +160,7 @@ func (c *Chain) Generate(
 	c.ev.Send("Building proto...", events.ProgressUpdate())
 
 	options := []cosmosgen.Option{
+		cosmosgen.CollectEvents(c.ev),
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
 	}
 

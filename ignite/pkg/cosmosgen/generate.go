@@ -14,11 +14,14 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/cosmosbuf"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
 	"github.com/ignite/cli/ignite/pkg/xfilepath"
 	"github.com/ignite/cli/ignite/pkg/xos"
@@ -394,15 +397,20 @@ func (g generator) addBufDependency(ctx context.Context, depName string) error {
 		return err
 	}
 
+	g.opts.ev.Send(
+		fmt.Sprintf("New Buf dependency added: %s", colors.Name(depName)),
+		events.Icon(icons.OK),
+	)
+
 	// Update Buf lock so it contains the new dependency
 	return g.buf.Update(ctx, filepath.Dir(path), depName)
 }
 
-func (g generator) vendorProtoPackage(pkgName, protoPath string) error {
+func (g generator) vendorProtoPackage(pkgName, protoPath string) (err error) {
 	// Check that the dependency vendor directory doesn't exist
 	vendorRelPath := filepath.Join("proto_vendor", pkgName)
 	vendorPath := filepath.Join(g.appPath, vendorRelPath)
-	_, err := os.Stat(vendorPath)
+	_, err = os.Stat(vendorPath)
 	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
@@ -415,6 +423,13 @@ func (g generator) vendorProtoPackage(pkgName, protoPath string) error {
 	if err = os.MkdirAll(vendorPath, 0o777); err != nil {
 		return err
 	}
+
+	// Make sure that the vendor folder is removed on error
+	defer func() {
+		if err != nil {
+			_ = os.RemoveAll(vendorPath)
+		}
+	}()
 
 	if err = xos.CopyFolder(protoPath, vendorPath); err != nil {
 		return err
@@ -444,6 +459,14 @@ func (g generator) vendorProtoPackage(pkgName, protoPath string) error {
 
 	enc := yaml.NewEncoder(f)
 	defer enc.Close()
+	if err = enc.Encode(ws); err != nil {
+		return err
+	}
 
-	return enc.Encode(ws)
+	g.opts.ev.Send(
+		fmt.Sprintf("New Buf vendored dependency added: %s", colors.Name(vendorRelPath)),
+		events.Icon(icons.OK),
+	)
+
+	return nil
 }

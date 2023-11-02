@@ -12,6 +12,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/cosmosbuf"
+	"github.com/ignite/cli/ignite/pkg/events"
 )
 
 // generateOptions used to configure code generation.
@@ -19,6 +20,7 @@ type generateOptions struct {
 	includeDirs     []string
 	useCache        bool
 	updateBufModule bool
+	ev              events.Bus
 
 	isGoEnabled     bool
 	isPulsarEnabled bool
@@ -110,6 +112,13 @@ func IncludeDirs(dirs []string) Option {
 func UpdateBufModule() Option {
 	return func(o *generateOptions) {
 		o.updateBufModule = true
+	}
+}
+
+// CollectEvents sets an event bus for sending generation feedback events.
+func CollectEvents(ev events.Bus) Option {
+	return func(c *generateOptions) {
+		c.ev = ev
 	}
 }
 
