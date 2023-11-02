@@ -259,7 +259,6 @@ func (g *generator) resolveIncludes(ctx context.Context, path string) (protoIncl
 
 		// When a Buf config exists export all protos needed
 		// to build the modules to a temporary include folder.
-		// TODO: Should this be optional and not done for the app includes? Duplicates proto folder.
 		bufProtoPath, err := g.generateBufIncludeFolder(ctx, protoPath)
 		if err != nil && !errors.Is(err, cosmosbuf.ErrProtoFilesNotFound) {
 			return protoIncludes{}, err
@@ -356,7 +355,6 @@ func (g generator) resolveBufDependency(ctx context.Context, pkgName, bufPath st
 }
 
 func (g generator) addBufDependency(ctx context.Context, depName string) error {
-	// TODO: Check BSR before adding the dependency to app's Buf deps
 	// Read app's Buf config
 	path := g.appIncludes.BufPath
 	bz, err := os.ReadFile(path)
