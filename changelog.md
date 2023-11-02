@@ -37,6 +37,7 @@
 - [#3661](https://github.com/ignite/cli/pull/3661) Change `pkg/cosmosanalysis` to find Cosmos SDK runtime app registered modules
 - [#3716](https://github.com/ignite/cli/pull/3716) Fix invalid plugin hook check
 - [#3725](https://github.com/ignite/cli/pull/3725) Fix flaky TS client generation issues on linux
+- [#3726](https://github.com/ignite/cli/pull/3726) Update TS client dependencies. Bump vue/react template versions
 
 ## [`v0.27.0`](https://github.com/ignite/cli/releases/tag/v0.27.0)
 
