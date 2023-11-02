@@ -15,7 +15,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "NODE_OPTIONS='--max-old-space-size=16384' tsc"
+    "build": "NODE_OPTIONS='--max-old-space-size=16384' tsc",
+    "postinstall": "npm run build"
   },
   "dependencies": {    
     "@cosmjs/proto-signing": "0.31.1",
