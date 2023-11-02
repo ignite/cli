@@ -2,6 +2,11 @@ package ignitecmd
 
 import (
 	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
+)
+
+const (
+	flagUpdateBufModule = "update-buf-module"
 )
 
 // NewGenerate returns a command that groups code generation related sub commands.
@@ -33,4 +38,15 @@ meant to be edited by hand.
 	c.AddCommand(NewGenerateOpenAPI())
 
 	return c
+}
+
+func flagSetUpdateBufModule() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.Bool(flagUpdateBufModule, false, "update Buf config with missing proto dependencies")
+	return fs
+}
+
+func flagGetUpdateBufModule(cmd *cobra.Command) bool {
+	skip, _ := cmd.Flags().GetBool(flagUpdateBufModule)
+	return skip
 }

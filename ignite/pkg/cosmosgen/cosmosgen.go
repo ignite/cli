@@ -16,8 +16,9 @@ import (
 
 // generateOptions used to configure code generation.
 type generateOptions struct {
-	includeDirs []string
-	useCache    bool
+	includeDirs     []string
+	useCache        bool
+	updateBufModule bool
 
 	isGoEnabled     bool
 	isPulsarEnabled bool
@@ -103,6 +104,15 @@ func IncludeDirs(dirs []string) Option {
 	}
 }
 
+// UpdateBufModule enables Buf config proto dependencies update.
+// This option updates app's Buf config when proto packages or
+// Buf modules are found within the Go dependencies.
+func UpdateBufModule() Option {
+	return func(o *generateOptions) {
+		o.updateBufModule = true
+	}
+}
+
 // generator generates code for sdk and sdk apps.
 type generator struct {
 	buf                 cosmosbuf.Buf
@@ -162,8 +172,8 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 	// Go dependency packages might contain proto files which could also
 	// optionally be using Buf, so for those cases the discovered proto
 	// files should be available before code generation.
-	if g.opts.isGoEnabled || g.opts.isPulsarEnabled {
-		if err := g.updateBufConfig(ctx); err != nil {
+	if g.opts.updateBufModule && (g.opts.isGoEnabled || g.opts.isPulsarEnabled) {
+		if err := g.updateBufModule(ctx); err != nil {
 			return err
 		}
 	}

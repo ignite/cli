@@ -16,6 +16,7 @@ import (
 
 type generateOptions struct {
 	useCache             bool
+	updateBufModule      bool
 	isGoEnabled          bool
 	isPulsarEnabled      bool
 	isTSClientEnabled    bool
@@ -33,16 +34,18 @@ type generateOptions struct {
 type GenerateTarget func(*generateOptions)
 
 // GenerateGo enables generating proto based Go code needed for the chain's source code.
-func GenerateGo() GenerateTarget {
+func GenerateGo(updateBufModule bool) GenerateTarget {
 	return func(o *generateOptions) {
 		o.isGoEnabled = true
+		o.updateBufModule = updateBufModule
 	}
 }
 
 // GeneratePulsar enables generating proto based Go code needed for the chain's source code.
-func GeneratePulsar() GenerateTarget {
+func GeneratePulsar(updateBufModule bool) GenerateTarget {
 	return func(o *generateOptions) {
 		o.isPulsarEnabled = true
+		o.updateBufModule = updateBufModule
 	}
 }
 
@@ -129,7 +132,7 @@ func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Stora
 	}
 
 	// Generate proto based code for Go and optionally for any optional targets
-	return c.Generate(ctx, cacheStorage, GenerateGo(), targets...)
+	return c.Generate(ctx, cacheStorage, GenerateGo(false), targets...)
 }
 
 // Generate makes code generation from proto files for given target and additionalTargets.
@@ -166,6 +169,10 @@ func (c *Chain) Generate(
 
 	if targetOptions.isPulsarEnabled {
 		options = append(options, cosmosgen.WithPulsarGeneration())
+	}
+
+	if targetOptions.updateBufModule {
+		options = append(options, cosmosgen.UpdateBufModule())
 	}
 
 	var (

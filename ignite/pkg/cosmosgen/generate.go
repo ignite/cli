@@ -297,7 +297,7 @@ func (g *generator) discoverModules(ctx context.Context, path, protoDir string) 
 	return filteredModules, nil
 }
 
-func (g generator) updateBufConfig(ctx context.Context) error {
+func (g generator) updateBufModule(ctx context.Context) error {
 	for pkgPath, includes := range g.thirdModuleIncludes {
 		// Skip third party dependencies without proto files
 		if includes.ProtoPath == "" {

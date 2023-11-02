@@ -16,6 +16,7 @@ func NewGenerateGo() *cobra.Command {
 	}
 
 	c.Flags().AddFlagSet(flagSetYes())
+	c.Flags().AddFlagSet(flagSetUpdateBufModule())
 
 	return c
 }
@@ -39,7 +40,9 @@ func generateGoHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	if err := c.Generate(cmd.Context(), cacheStorage, chain.GenerateGo()); err != nil {
+	updateBufModule := flagGetUpdateBufModule(cmd)
+	err = c.Generate(cmd.Context(), cacheStorage, chain.GenerateGo(updateBufModule))
+	if err != nil {
 		return err
 	}
 

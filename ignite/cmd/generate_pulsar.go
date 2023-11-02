@@ -16,6 +16,7 @@ func NewGeneratePulsar() *cobra.Command {
 	}
 
 	c.Flags().AddFlagSet(flagSetYes())
+	c.Flags().AddFlagSet(flagSetUpdateBufModule())
 
 	return c
 }
@@ -39,7 +40,9 @@ func generatePulsarHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	if err := c.Generate(cmd.Context(), cacheStorage, chain.GeneratePulsar()); err != nil {
+	updateBufModule := flagGetUpdateBufModule(cmd)
+	err = c.Generate(cmd.Context(), cacheStorage, chain.GeneratePulsar(updateBufModule))
+	if err != nil {
 		return err
 	}
 
