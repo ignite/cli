@@ -114,7 +114,7 @@ func (g *generator) setup(ctx context.Context) (err error) {
 		return err
 	}
 
-	g.appIncludes, err = g.resolveIncludes(ctx, g.appPath)
+	g.appIncludes, _, err = g.resolveIncludes(ctx, g.appPath)
 	if err != nil {
 		return err
 	}
@@ -156,9 +156,12 @@ func (g *generator) setup(ctx context.Context) (err error) {
 			}
 
 			// Dependency/includes resolution per module is done to solve versioning issues
-			var includes protoIncludes
+			var (
+				includes  protoIncludes
+				cacheable = true
+			)
 			if len(modules) > 0 {
-				includes, err = g.resolveIncludes(ctx, path)
+				includes, cacheable, err = g.resolveIncludes(ctx, path)
 				if err != nil {
 					return err
 				}
@@ -170,8 +173,10 @@ func (g *generator) setup(ctx context.Context) (err error) {
 				Includes: includes,
 			}
 
-			if err := moduleCache.Put(cacheKey, depInfo); err != nil {
-				return err
+			if cacheable {
+				if err = moduleCache.Put(cacheKey, depInfo); err != nil {
+					return err
+				}
 			}
 		}
 
@@ -225,11 +230,11 @@ func (g *generator) generateBufIncludeFolder(ctx context.Context, modpath string
 	return protoPath, nil
 }
 
-func (g *generator) resolveIncludes(ctx context.Context, path string) (protoIncludes, error) {
+func (g *generator) resolveIncludes(ctx context.Context, path string) (protoIncludes, bool, error) {
 	// Init paths with the global include paths for protoc
 	paths, err := protocGlobalInclude()
 	if err != nil {
-		return protoIncludes{}, err
+		return protoIncludes{}, false, err
 	}
 
 	includes := protoIncludes{Paths: paths}
@@ -238,10 +243,10 @@ func (g *generator) resolveIncludes(ctx context.Context, path string) (protoIncl
 	protoPath := filepath.Join(path, g.protoDir)
 	fi, err := os.Stat(protoPath)
 	if err != nil && !os.IsNotExist(err) {
-		return protoIncludes{}, err
+		return protoIncludes{}, false, err
 	} else if !fi.IsDir() {
 		// Just return the global includes when a proto directory doesn't exist
-		return includes, nil
+		return includes, true, nil
 	}
 
 	// Add app's proto path to the list of proto paths
@@ -251,7 +256,7 @@ func (g *generator) resolveIncludes(ctx context.Context, path string) (protoIncl
 	// Check if a Buf config file is present
 	bufPath, err := g.findBufPath(protoPath)
 	if err != nil {
-		return includes, err
+		return includes, false, err
 	}
 
 	if bufPath != "" {
@@ -261,13 +266,13 @@ func (g *generator) resolveIncludes(ctx context.Context, path string) (protoIncl
 		// to build the modules to a temporary include folder.
 		bufProtoPath, err := g.generateBufIncludeFolder(ctx, protoPath)
 		if err != nil && !errors.Is(err, cosmosbuf.ErrProtoFilesNotFound) {
-			return protoIncludes{}, err
+			return protoIncludes{}, false, err
 		}
 
 		// Use exported files only when the path contains ".proto" files
 		if bufProtoPath != "" {
 			includes.Paths = append(includes.Paths, bufProtoPath)
-			return includes, nil
+			return includes, false, nil
 		}
 	}
 
@@ -275,7 +280,7 @@ func (g *generator) resolveIncludes(ctx context.Context, path string) (protoIncl
 	// instead to keep the legacy (non Buf) behavior.
 	includes.Paths = append(includes.Paths, g.getProtoIncludeFolders(path)...)
 
-	return includes, nil
+	return includes, true, nil
 }
 
 func (g *generator) discoverModules(ctx context.Context, path, protoDir string) ([]module.Module, error) {
