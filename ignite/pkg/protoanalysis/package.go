@@ -1,12 +1,42 @@
 package protoanalysis
 
 import (
+	"errors"
+	"regexp"
 	"strings"
 
-	"github.com/pkg/errors"
+	"golang.org/x/mod/semver"
 )
 
-type Packages []Package
+type (
+	// Packages represents slice of Package.
+	Packages []Package
+
+	PkgName string
+
+	// Package represents a proto pkg.
+	Package struct {
+		// Name of the proto pkg.
+		Name PkgName
+
+		// Path of the package in the fs.
+		Path string
+
+		// Files is a list of .proto files in the package.
+		Files Files
+
+		// GoImportName is the go package name of proto package.
+		GoImportName string
+
+		// Messages is a list of proto messages defined in the package.
+		Messages []Message
+
+		// Services is a list of RPC services.
+		Services []Service
+	}
+)
+
+var regexBetaVersion = regexp.MustCompile("^(v)([0-9]+)(beta|alpha)([0-9]+)")
 
 func (p Packages) Files() Files {
 	var files []File
@@ -16,43 +46,16 @@ func (p Packages) Files() Files {
 	return files
 }
 
-// Package represents a proto pkg.
-type Package struct {
-	// Name of the proto pkg.
-	Name string
-
-	// Path of the package in the fs.
-	Path string
-
-	// Files is a list of .proto files in the package.
-	Files Files
-
-	// GoImportName is the go package name of proto package.
-	GoImportName string
-
-	// Messages is a list of proto messages defined in the package.
-	Messages []Message
-
-	// Services is a list of RPC services.
-	Services []Service
-}
-
-type Files []File
-
-type File struct {
-	// Path of the file.
-	Path string
-
-	// Dependencies is a list of imported .proto files in this package.
-	Dependencies []string
-}
-
-func (f Files) Paths() []string {
-	var paths []string
-	for _, ff := range f {
-		paths = append(paths, ff.Path)
+// Name retrieves the single name of the package.
+func (p PkgName) Name() (name string) {
+	names := strings.Split(p.String(), ".")
+	for i := len(names) - 1; i >= 0; i-- {
+		name = names[i]
+		if !semver.IsValid(name) && !regexBetaVersion.MatchString(name) {
+			break
+		}
 	}
-	return paths
+	return
 }
 
 // MessageByName finds a message by its name inside Package.
@@ -70,59 +73,86 @@ func (p Package) GoImportPath() string {
 	return strings.Split(p.GoImportName, ";")[0]
 }
 
-// Message represents a proto message.
-type Message struct {
-	// Name of the message.
-	Name string
-
-	// Path of the file where message is defined at.
-	Path string
-
-	// HighestFieldNumber is the highest field number among fields of the message
-	// This allows to determine new field number when writing to proto message
-	HighestFieldNumber int
-
-	// Fields contains message's field names and types
-	Fields map[string]string
+// String retrieves the string value.
+func (p PkgName) String() string {
+	return string(p)
 }
 
-// Service is an RPC service.
-type Service struct {
-	// Name of the services.
-	Name string
+type (
+	Files []File
 
-	// RPC is a list of RPC funcs of the service.
-	RPCFuncs []RPCFunc
+	File struct {
+		// Path of the file.
+		Path string
+
+		// Dependencies is a list of imported .proto files in this package.
+		Dependencies []string
+	}
+)
+
+func (f Files) Paths() []string {
+	var paths []string
+	for _, ff := range f {
+		paths = append(paths, ff.Path)
+	}
+	return paths
 }
 
-// RPCFunc is an RPC func.
-type RPCFunc struct {
-	// Name of the RPC func.
-	Name string
+type (
+	// Message represents a proto message.
+	Message struct {
+		// Name of the message.
+		Name string
 
-	// RequestType is the request type of RPC func.
-	RequestType string
+		// Path of the file where message is defined at.
+		Path string
 
-	// ReturnsType is the response type of RPC func.
-	ReturnsType string
+		// HighestFieldNumber is the highest field number among fields of the message
+		// This allows to determine new field number when writing to proto message
+		HighestFieldNumber int
 
-	// HTTPRules keeps info about http rules of an RPC func.
-	// spec:
-	//   https://github.com/googleapis/googleapis/blob/master/google/api/http.proto.
-	HTTPRules []HTTPRule
+		// Fields contains message's field names and types
+		Fields map[string]string
+	}
 
-	// Paginated indicates that the RPC function is using pagination.
-	Paginated bool
-}
+	// Service is an RPC service.
+	Service struct {
+		// Name of the services.
+		Name string
 
-// HTTPRule keeps info about a configured http rule of an RPC func.
-type HTTPRule struct {
-	// Params is a list of parameters defined in the http endpoint itself.
-	Params []string
+		// RPC is a list of RPC funcs of the service.
+		RPCFuncs []RPCFunc
+	}
 
-	// HasQuery indicates if there is a request query.
-	HasQuery bool
+	// RPCFunc is an RPC func.
+	RPCFunc struct {
+		// Name of the RPC func.
+		Name string
 
-	// HasBody indicates if there is a request payload.
-	HasBody bool
-}
+		// RequestType is the request type of RPC func.
+		RequestType string
+
+		// ReturnsType is the response type of RPC func.
+		ReturnsType string
+
+		// HTTPRules keeps info about http rules of an RPC func.
+		// spec:
+		//   https://github.com/googleapis/googleapis/blob/master/google/api/http.proto.
+		HTTPRules []HTTPRule
+
+		// Paginated indicates that the RPC function is using pagination.
+		Paginated bool
+	}
+
+	// HTTPRule keeps info about a configured http rule of an RPC func.
+	HTTPRule struct {
+		// Params is a list of parameters defined in the http endpoint itself.
+		Params []string
+
+		// HasQuery indicates if there is a request query.
+		HasQuery bool
+
+		// HasBody indicates if there is a request payload.
+		HasBody bool
+	}
+)

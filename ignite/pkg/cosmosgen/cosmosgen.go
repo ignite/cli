@@ -238,7 +238,7 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 // The root path is used as prefix for the generated paths.
 func TypescriptModulePath(rootPath string) ModulePathFunc {
 	return func(m module.Module) string {
-		return filepath.Join(rootPath, m.Pkg.Name)
+		return filepath.Join(rootPath, m.Pkg.Name.String())
 	}
 }
 
@@ -247,7 +247,7 @@ func TypescriptModulePath(rootPath string) ModulePathFunc {
 func ComposableModulePath(rootPath string) ModulePathFunc {
 	return func(m module.Module) string {
 		replacer := strings.NewReplacer("-", "_", ".", "_")
-		modPath := strcase.ToCamel(replacer.Replace(m.Pkg.Name))
+		modPath := strcase.ToCamel(replacer.Replace(m.Pkg.Name.String()))
 		return filepath.Join(rootPath, "use"+modPath)
 	}
 }

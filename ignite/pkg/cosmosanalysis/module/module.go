@@ -229,9 +229,8 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 		return Module{}, nil
 	}
 
-	namesplit := strings.Split(pkg.Name, ".")
 	m := Module{
-		Name:         namesplit[len(namesplit)-1],
+		Name:         pkg.Name.Name(),
 		GoModulePath: d.basegopath,
 		Pkg:          pkg,
 	}

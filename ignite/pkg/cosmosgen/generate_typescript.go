@@ -57,7 +57,7 @@ func (g *generator) generateTS() error {
 	for _, modules := range g.thirdModules {
 		data.Modules = append(data.Modules, modules...)
 		for _, m := range modules {
-			if strings.HasPrefix(m.Pkg.Name, "interchain_security.ccv.consumer") {
+			if strings.HasPrefix(m.Pkg.Name.String(), "interchain_security.ccv.consumer") {
 				data.IsConsumerChain = true
 			}
 		}

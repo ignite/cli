@@ -49,7 +49,7 @@ func TestTypescriptModulePath(t *testing.T) {
 			m := module.Module{
 				GoModulePath: tt.goModulePath,
 				Pkg: protoanalysis.Package{
-					Name: tt.protoPkgName,
+					Name: protoanalysis.PkgName(tt.protoPkgName),
 				},
 			}
 
