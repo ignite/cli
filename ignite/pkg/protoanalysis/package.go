@@ -17,7 +17,7 @@ type (
 	// Package represents a proto pkg.
 	Package struct {
 		// Name of the proto pkg.
-		Name PkgName
+		Name string
 
 		// Path of the package in the fs.
 		Path string
@@ -46,9 +46,9 @@ func (p Packages) Files() Files {
 	return files
 }
 
-// Name retrieves the single name of the package.
-func (p PkgName) Name() (name string) {
-	names := strings.Split(p.String(), ".")
+// ModuleName retrieves the single module name of the package.
+func (p Package) ModuleName() (name string) {
+	names := strings.Split(p.Name, ".")
 	for i := len(names) - 1; i >= 0; i-- {
 		name = names[i]
 		if !semver.IsValid(name) && !regexBetaVersion.MatchString(name) {
@@ -71,11 +71,6 @@ func (p Package) MessageByName(name string) (Message, error) {
 // GoImportPath retrieves the Go import path.
 func (p Package) GoImportPath() string {
 	return strings.Split(p.GoImportName, ";")[0]
-}
-
-// String retrieves the string value.
-func (p PkgName) String() string {
-	return string(p)
 }
 
 type (

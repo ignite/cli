@@ -17,7 +17,7 @@ func build(p protoPackage) Package {
 	br := builder{p}
 
 	pk := Package{
-		Name:     PkgName(p.name),
+		Name:     p.name,
 		Path:     p.dir,
 		Files:    br.buildFiles(),
 		Messages: br.buildMessages(),

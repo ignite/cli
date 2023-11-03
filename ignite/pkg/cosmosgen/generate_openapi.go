@@ -79,7 +79,7 @@ func (g *generator) generateOpenAPISpec() error {
 			if err := os.WriteFile(specPath, existingSpec, 0o644); err != nil {
 				return err
 			}
-			return conf.AddSpec(strcase.ToCamel(m.Pkg.Name.String()), specPath, true)
+			return conf.AddSpec(strcase.ToCamel(m.Pkg.Name), specPath, true)
 		}
 
 		hasAnySpecChanged = true
@@ -106,7 +106,7 @@ func (g *generator) generateOpenAPISpec() error {
 			if err := specCache.Put(cacheKey, f); err != nil {
 				return err
 			}
-			if err := conf.AddSpec(strcase.ToCamel(m.Pkg.Name.String()), spec, true); err != nil {
+			if err := conf.AddSpec(strcase.ToCamel(m.Pkg.Name), spec, true); err != nil {
 				return err
 			}
 		}
@@ -175,7 +175,7 @@ func (g *generator) generateModuleOpenAPISpec(m module.Module, out string) error
 		conf     = swaggercombine.Config{
 			Swagger: "2.0",
 			Info: swaggercombine.Info{
-				Title: "HTTP API Console " + m.Pkg.Name.String(),
+				Title: "HTTP API Console " + m.Pkg.Name,
 			},
 		}
 	)
@@ -218,7 +218,7 @@ func (g *generator) generateModuleOpenAPISpec(m module.Module, out string) error
 			if err != nil {
 				return err
 			}
-			if err := conf.AddSpec(strcase.ToCamel(m.Pkg.Name.String()), spec, false); err != nil {
+			if err := conf.AddSpec(strcase.ToCamel(m.Pkg.Name), spec, false); err != nil {
 				return err
 			}
 		}

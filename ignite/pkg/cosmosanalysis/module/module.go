@@ -230,7 +230,7 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 	}
 
 	m := Module{
-		Name:         pkg.Name.Name(),
+		Name:         pkg.ModuleName(),
 		GoModulePath: d.basegopath,
 		Pkg:          pkg,
 	}

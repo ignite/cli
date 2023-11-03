@@ -57,7 +57,7 @@ func (g *generator) generateTS() error {
 	for _, modules := range g.thirdModules {
 		data.Modules = append(data.Modules, modules...)
 		for _, m := range modules {
-			if strings.HasPrefix(m.Pkg.Name.String(), "interchain_security.ccv.consumer") {
+			if strings.HasPrefix(m.Pkg.Name, "interchain_security.ccv.consumer") {
 				data.IsConsumerChain = true
 			}
 		}
@@ -66,7 +66,7 @@ func (g *generator) generateTS() error {
 	// and module registration order consistent so the generated
 	// files are not changed.
 	sort.SliceStable(data.Modules, func(i, j int) bool {
-		return data.Modules[i].Pkg.Name.String() < data.Modules[j].Pkg.Name.String()
+		return data.Modules[i].Pkg.Name < data.Modules[j].Pkg.Name
 	})
 
 	tsg := newTSGenerator(g)
