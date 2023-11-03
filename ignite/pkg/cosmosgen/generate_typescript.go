@@ -66,7 +66,7 @@ func (g *generator) generateTS() error {
 	// and module registration order consistent so the generated
 	// files are not changed.
 	sort.SliceStable(data.Modules, func(i, j int) bool {
-		return data.Modules[i].Pkg.Name < data.Modules[j].Pkg.Name
+		return data.Modules[i].Pkg.Name.String() < data.Modules[j].Pkg.Name.String()
 	})
 
 	tsg := newTSGenerator(g)
