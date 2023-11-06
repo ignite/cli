@@ -9,6 +9,7 @@
 - [#3536](https://github.com/ignite/cli/pull/3536) Change app.go to v2 and add AppWiring feature
 - [#3670](https://github.com/ignite/cli/pull/3670) Remove nodetime binaries
 - [#3723](https://github.com/ignite/cli/pull/3723) Create a wrapper for errors
+- [#3715](https://github.com/ignite/cli/pull/3715) Add test suite for the cli tests
 
 ### Changes
 
