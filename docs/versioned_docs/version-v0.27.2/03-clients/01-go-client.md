@@ -157,7 +157,7 @@ func main() {
 	}
 
 	// Broadcast a transaction from account `alice` with the message
-	// to create a post store response in txResp
+	// to create a post and store the response in txResp
 	txResp, err := client.BroadcastTx(ctx, account, msg)
 	if err != nil {
 		log.Fatal(err)
