@@ -114,7 +114,7 @@ require (
 	github.com/ashanbrown/forbidigo v1.3.0 // indirect
 	github.com/ashanbrown/makezero v1.1.1 // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
-	github.com/aymanbagabas/go-osc52 v1.0.3 // indirect
+	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bgentry/speakeasy v0.1.1-0.20220910012023-760eaf8b6816 // indirect
@@ -143,7 +143,6 @@ require (
 	github.com/confio/ics23/go v0.9.0 // indirect
 	github.com/containerd/console v1.0.3 // indirect
 	github.com/containerd/containerd v1.7.0-beta.2 // indirect
-	github.com/containerd/continuity v0.4.3 // indirect
 	github.com/cosiner/argv v0.1.0 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/cosmos-proto v1.0.0-beta.2 // indirect
@@ -164,7 +163,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/dgryski/go-farm v0.0.0-20200201041132-a6ae2369ad13 // indirect
 	github.com/dlclark/regexp2 v1.2.0 // indirect
-	github.com/docker/docker v23.0.3+incompatible // indirect
+	github.com/docker/docker v24.0.7+incompatible // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
@@ -277,7 +276,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
-	github.com/mattn/go-runewidth v0.0.14 // indirect
+	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/mbilski/exhaustivestruct v1.2.0 // indirect
 	github.com/meowgorithm/babyenv v1.3.1 // indirect
@@ -297,7 +296,7 @@ require (
 	github.com/muesli/gitcha v0.2.0 // indirect
 	github.com/muesli/go-app-paths v0.2.1 // indirect
 	github.com/muesli/sasquatch v0.0.0-20200811221207-66979d92330a // indirect
-	github.com/muesli/termenv v0.13.0 // indirect
+	github.com/muesli/termenv v0.15.1 // indirect
 	github.com/nakabonne/nestif v0.3.1 // indirect
 	github.com/nbutton23/zxcvbn-go v0.0.0-20210217022336-fa2cb2858354 // indirect
 	github.com/nishanths/exhaustive v0.8.3 // indirect
