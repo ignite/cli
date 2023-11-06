@@ -94,7 +94,7 @@ The successful execution of this command will be confirmed with a message indica
 
 ### Defining Denom Data Structure
 
-To manage denoms within your token factory, define their structure using a Ignite map. This will store the data as key-value pairs. Run this command:
+To manage denoms within your token factory, define their structure using an Ignite map. This will store the data as key-value pairs. Run this command:
 
 ```bash
 ignite scaffold map Denom description:string ticker:string precision:int url:string maxSupply:int supply:int canChangeMaxSupply:bool --signer owner --index denom --module tokenfactory
