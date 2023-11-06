@@ -36,7 +36,7 @@ type (
 	}
 )
 
-var regexBetaVersion = regexp.MustCompile("^(v)([0-9]+)(beta|alpha)([0-9]+)")
+var regexBetaVersion = regexp.MustCompile("^v[0-9]+(beta|alpha)[0-9]+")
 
 func (p Packages) Files() Files {
 	var files []File
