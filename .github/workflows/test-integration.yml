@@ -39,6 +39,7 @@ jobs:
           PATTERNS: |
             **/*.go
             **/*.plush
+            **/*.tpl
             go.mod
             go.sum
             **/testdata/**
