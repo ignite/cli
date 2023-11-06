@@ -4,4 +4,5 @@
 *       @ilgooz @jeronimoalbi @Pantani @julienrbrt @Ehsan-saradar
 
 # Docs
-*.md    @ilgooz
+*.md    @salmad3 @toschdev
+docs/*   @salmad3 @toschdev
