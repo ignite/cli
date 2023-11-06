@@ -204,7 +204,7 @@ In the `x/tokenfactory/client/cli/tx_denom.go` file, update the client applicati
 
 **For `CmdUpdateDenom()`:**
 
-- Reduce the number of arguments to 5, excluding supply, precision, and ticker, and modify the usage descriptions accordingly.
+- Reduce the number of arguments to 5, excluding `supply`, `precision`, and `ticker`, and modify the usage descriptions accordingly.
 
 Also, update the tests in `x/tokenfactory/client/cli/tx_denom_test.go` to reflect these changes.
 
@@ -276,7 +276,7 @@ func (k msgServer) UpdateDenom(goCtx context.Context, msg *types.MsgUpdateDenom)
         msg.Denom,
     )
     if !isFound {
-        return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "index not set")
+        return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "Denom to update not found")
     }
 
     // Checks if the the msg owner is the same as the current owner
@@ -331,6 +331,7 @@ type AccountKeeper interface {
 type BankKeeper interface {
     SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
     MintCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
+    SpendableCoins(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
 }
 ```
 
