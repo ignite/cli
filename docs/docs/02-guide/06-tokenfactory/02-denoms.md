@@ -30,7 +30,3 @@ One of the primary uses of IBC is the transfer of tokens between blockchains. Th
 - **Native vs. Voucher Tokens:** With IBC, a native token on one blockchain can be referenced as a `voucher` token on another. These tokens are differentiated by their `denom` names.
 
 For a comprehensive understanding of IBC denoms and their application, refer to [Understand IBC Denoms with Gaia](https://tutorials.cosmos.network/tutorials/6-ibc-dev/), which provides detailed insights into the format and utilization of voucher tokens in the IBC context.
-
----
-
-By revising the chapter in this format, it becomes more structured and informative, enhancing the reader's comprehension of denoms and their significance in the Cosmos ecosystem.
