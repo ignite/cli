@@ -8,7 +8,6 @@ import (
 	"regexp"
 
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/ignite/pkg/nodetime"
 )
 
 // Config represent swagger-combine config.
@@ -81,13 +80,7 @@ func (c *Config) AddSpec(id, path string, makeUnique bool) error {
 
 // Combine combines openapi specs into one and saves to out path.
 // specs is a spec id-fs path pair.
-func Combine(ctx context.Context, c Config, out string) error {
-	command, cleanup, err := nodetime.Command(nodetime.CommandSwaggerCombine)
-	if err != nil {
-		return err
-	}
-	defer cleanup()
-
+func Combine(ctx context.Context, c Config, command []string, out string) error {
 	f, err := os.CreateTemp("", "*.json")
 	if err != nil {
 		return err
