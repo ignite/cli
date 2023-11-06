@@ -17,7 +17,7 @@ Digital assets, characterized by their uniqueness and scarcity, are fundamental 
 
 ## Understanding the Module Design
 
-The Token Factory module empowers you to create and manage native denoms on your blockchain. In the Cosmos ecosystem and with Ignite CLI, a denom represents the name of a token that is universally usable. To learn more, see [Denom](./02_denoms.md).
+The Token Factory module empowers you to create and manage native denoms on your blockchain. In the Cosmos ecosystem and with Ignite CLI, a denom represents the name of a token that is universally usable. To learn more, see [Denom](./02-denoms.md).
 
 ## What is a Denom?
 
