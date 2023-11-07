@@ -179,7 +179,7 @@ func (c *Chain) Generate(
 			openAPIPath = chainconfig.DefaultOpenAPIPath
 		}
 
-		// Non absolute OpenAPI paths must be treated as relative to the app directory
+		// Non-absolute OpenAPI paths must be treated as relative to the app directory
 		if !filepath.IsAbs(openAPIPath) {
 			openAPIPath = filepath.Join(c.app.Path, openAPIPath)
 		}
@@ -200,7 +200,7 @@ func (c *Chain) Generate(
 			}
 		}
 
-		// Non absolute TS client output paths must be treated as relative to the app directory
+		// Non-absolute TS client output paths must be treated as relative to the app directory
 		if !filepath.IsAbs(tsClientPath) {
 			tsClientPath = filepath.Join(c.app.Path, tsClientPath)
 		}
@@ -225,7 +225,7 @@ func (c *Chain) Generate(
 			updateConfig = true
 		}
 
-		// Non absolute Vuex output paths must be treated as relative to the app directory
+		// Non-absolute Vuex output paths must be treated as relative to the app directory
 		if !filepath.IsAbs(vuexPath) {
 			vuexPath = filepath.Join(c.app.Path, vuexPath)
 		}
@@ -251,7 +251,7 @@ func (c *Chain) Generate(
 			}
 		}
 
-		// Non absolute Composables output paths must be treated as relative to the app directory
+		// Non-absolute Composables output paths must be treated as relative to the app directory
 		if !filepath.IsAbs(composablesPath) {
 			composablesPath = filepath.Join(c.app.Path, composablesPath)
 		}
@@ -275,7 +275,7 @@ func (c *Chain) Generate(
 			}
 		}
 
-		// Non absolute Hooks output paths must be treated as relative to the app directory
+		// Non-absolute Hooks output paths must be treated as relative to the app directory
 		if !filepath.IsAbs(hooksPath) {
 			hooksPath = filepath.Join(c.app.Path, hooksPath)
 		}
