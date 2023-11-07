@@ -33,7 +33,7 @@ require (
 	github.com/cosmos/gogoproto v1.4.11
 	github.com/cosmos/ibc-go/modules/capability v1.0.0-rc6
 	github.com/cosmos/ibc-go/v8 v8.0.0-beta.1
-	github.com/emicklei/proto v1.11.2
+	github.com/emicklei/proto v1.12.1
 	github.com/emicklei/proto-contrib v0.14.0
 	github.com/go-delve/delve v1.20.2
 	github.com/go-git/go-git/v5 v5.6.1
