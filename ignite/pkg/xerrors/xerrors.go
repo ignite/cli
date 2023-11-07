@@ -1,5 +1,5 @@
-// Package xerrors provides a helpers for error creation, avoiding using different
-// packages for error.
+// Package xerrors provides helpers for error creation, avoiding
+// using different packages for errors.
 //
 // e.g.:
 // import errors "github.com/ignite/cli/ignite/pkg/xerrors"
