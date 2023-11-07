@@ -42,7 +42,6 @@ func New(t *testing.T, configs ...Config) *Network {
 	require.NoError(t, err)
 	_, err = net.WaitForHeight(1)
 	require.NoError(t, err)
-	t.Cleanup(net.Cleanup)
 	return net
 }
 
