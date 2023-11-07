@@ -94,7 +94,7 @@ Your package will import two dependencies:
 * `ignite` for the `cosmosclient` package
 
 The `replace` directive uses the package from the local `blog` directory and is
-specified as a relative path to the `blogclient` directory.
+specified as a relative path to the `blogclient` directory. 
 
 Cosmos SDK uses a custom version of the `protobuf` package, so use the `replace`
 directive to specify the correct dependency.
@@ -210,6 +210,36 @@ package documentation for
 [`cosmosclient`](https://pkg.go.dev/github.com/ignite/cli/ignite/pkg/cosmosclient).
 This documentation provides information on how to use the `Client` type with
 `Options` and `KeyringBackend`.
+
+## Blockchain and Client app not on the same machine
+
+If the blockchain and the client app is not on the same machine replace ../blog with the github
+repository pointing to your blog node:
+
+dependencies for your package
+
+`go.mod` file:
+
+```text title="blogclient/go.mod"
+...
+replace blog => github.com/<github-user-name>/blog/x/blog/types v0.0.0-00010101000000-000000000000
+...
+```
+
+and `main.go` file:
+
+```go title="blogclient/main.go"
+	// Importing the types package of your blog blockchain
+	"github.com/<github-user-name>/blog/x/blog/types"
+```
+then update the dependencies again: 
+
+```bash
+go mod tidy
+```
+You will also have to export the blockchains accounts and import
+
+
 
 ## Run the blockchain and the client
 
