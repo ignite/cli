@@ -30,7 +30,7 @@ require (
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.10
 	github.com/cosmos/ibc-go/v7 v7.1.0
-	github.com/emicklei/proto v1.11.2
+	github.com/emicklei/proto v1.12.1
 	github.com/emicklei/proto-contrib v0.14.0
 	github.com/go-delve/delve v1.20.2
 	github.com/go-git/go-git/v5 v5.6.1
