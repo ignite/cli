@@ -39,6 +39,7 @@
 - [#3716](https://github.com/ignite/cli/pull/3716) Fix invalid plugin hook check
 - [#3725](https://github.com/ignite/cli/pull/3725) Fix flaky TS client generation issues on linux
 - [#3726](https://github.com/ignite/cli/pull/3726) Update TS client dependencies. Bump vue/react template versions
+- [#3728](https://github.com/ignite/cli/pull/3728) Fix wrong parser for proto package names
 - [#3729](https://github.com/ignite/cli/pull/3729) Fix broken generator due to caching /tmp include folders
 
 ## [`v0.27.0`](https://github.com/ignite/cli/releases/tag/v0.27.0)
