@@ -40,10 +40,6 @@ type (
 	}
 )
 
-func init() {
-	gaclient = gacli.New(gaid)
-}
-
 func addCmdMetric(m metric) {
 	envDoNotTrackVar := os.Getenv(envDoNotTrack)
 	if envDoNotTrackVar == "1" || strings.ToLower(envDoNotTrackVar) == "true" {

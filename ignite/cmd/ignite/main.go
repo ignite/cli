@@ -18,6 +18,7 @@ import (
 )
 
 func main() {
+	gaclient = gacli.New(gaid)
 	os.Exit(run())
 }
 
@@ -37,7 +38,6 @@ func run() int {
 			os.Exit(exitCodeError)
 		}
 	}()
-	gaclient = gacli.New(gaid)
 
 	if len(os.Args) > 1 {
 		addCmdMetric(metric{
