@@ -237,8 +237,38 @@ then update the dependencies again:
 ```bash
 go mod tidy
 ```
-You will also have to export the blockchains accounts and import
+## Using the test keyring backend
 
+***Only for testing***
+
+Export the blockchains account keys from the user you want to be sign the transaction and move them
+to a folder in root directory of your client app named keyring-test. You will need both .info and .address
+to sign, encode and broadcast the transaction.
+
+After moving the key to the local client app keyring-test directory path: test/keyring-test define the path inside main.go
+
+```go title="blogclient/main.go"
+.
+.
+.
+func main() {
+    ctx := context.Background()
+    addressPrefix := "cosmos"
+
+    // Create a Cosmos client instance
+    client, err := cosmosclient.New(ctx, cosmosclient.WithAddressPrefix(addressPrefix),
+     cosmosclient.WithKeyringBackend("test"), cosmosclient.WithKeyringDir("test") )
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    // Account `alice` was initialized during `ignite chain serve` 
+    accountName :=""
+.
+.
+.
+```
+in the root directory you should see folder test/keyring-test 
 
 
 ## Run the blockchain and the client
