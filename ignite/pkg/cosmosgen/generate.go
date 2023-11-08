@@ -258,14 +258,12 @@ func (g *generator) resolveIncludes(ctx context.Context, path string) (protoIncl
 	includes.ProtoPath = protoPath
 
 	// Check if a Buf config file is present
-	bufPath, err := g.findBufPath(protoPath)
+	includes.BufPath, err = g.findBufPath(protoPath)
 	if err != nil {
 		return includes, false, err
 	}
 
-	if bufPath != "" {
-		includes.BufPath = bufPath
-
+	if includes.BufPath != "" {
 		// When a Buf config exists export all protos needed
 		// to build the modules to a temporary include folder.
 		bufProtoPath, err := g.generateBufIncludeFolder(ctx, protoPath)
