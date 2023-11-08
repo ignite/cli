@@ -12,7 +12,7 @@ Welcome to the Ignite Developer Tutorials, your gateway to mastering blockchain 
 
 - **Getting Started with Ignite CLI**: Install the Ignite CLI and set up your development environment. This foundational step is necessary for all the tutorials that follow.
 
-- **Creating and Running Your First Blockchain**: Learn to create and run your own blockchain, understanding how to start and manage a node locally for development purposes.
+- **Create and Run Your First Blockchain**: Learn to create and run your own blockchain, understanding how to start and manage a node locally for development purposes.
 
 - **Hello World Tutorial**: Engage in the excitement of blockchain development by making your blockchain respond with "Hello, World!" This includes learning to scaffold a Cosmos SDK query and modify keeper methods.
 
