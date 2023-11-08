@@ -39,8 +39,12 @@ func generateGoHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	updateBufModule := flagGetUpdateBufModule(cmd)
-	err = c.Generate(cmd.Context(), cacheStorage, chain.GenerateGo(updateBufModule))
+	var opts []chain.GenerateTarget
+	if flagGetUpdateBufModule(cmd) {
+		opts = append(opts, chain.GenerateProtoVendor())
+	}
+
+	err = c.Generate(cmd.Context(), cacheStorage, chain.GenerateGo(), opts...)
 	if err != nil {
 		return err
 	}

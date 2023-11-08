@@ -16,7 +16,7 @@ import (
 
 type generateOptions struct {
 	useCache             bool
-	updateBufModule      bool
+	isProtoVendorEnabled bool
 	isGoEnabled          bool
 	isPulsarEnabled      bool
 	isTSClientEnabled    bool
@@ -34,31 +34,28 @@ type generateOptions struct {
 type GenerateTarget func(*generateOptions)
 
 // GenerateGo enables generating proto based Go code needed for the chain's source code.
-func GenerateGo(updateBufModule bool) GenerateTarget {
+func GenerateGo() GenerateTarget {
 	return func(o *generateOptions) {
 		o.isGoEnabled = true
-		o.updateBufModule = updateBufModule
 	}
 }
 
 // GeneratePulsar enables generating proto based Go code needed for the chain's source code.
-func GeneratePulsar(updateBufModule bool) GenerateTarget {
+func GeneratePulsar() GenerateTarget {
 	return func(o *generateOptions) {
 		o.isPulsarEnabled = true
-		o.updateBufModule = updateBufModule
 	}
 }
 
 // GenerateTSClient enables generating proto based Typescript Client.
 // The path assigns the output path to use for the generated Typescript client
 // overriding the configured or default path. Path can be an empty string.
-func GenerateTSClient(path string, useCache, updateBufModule bool) GenerateTarget {
+func GenerateTSClient(path string, useCache bool) GenerateTarget {
 	return func(o *generateOptions) {
 		o.isOpenAPIEnabled = true
 		o.isTSClientEnabled = true
 		o.tsClientPath = path
 		o.useCache = useCache
-		o.updateBufModule = updateBufModule
 	}
 }
 
@@ -99,6 +96,18 @@ func GenerateOpenAPI() GenerateTarget {
 	}
 }
 
+// GenerateProtoVendor enables `proto_vendor` folder generation.
+// Proto vendor is generated from Go dependencies that contain proto files that
+// are not included in the app's Buf config.
+// Enabling proto vendoring might update Buf config with missing dependencies
+// if a Go dependency contains proto files and a Buf config with a name that is
+// not listed in the Buf dependencies.
+func GenerateProtoVendor() GenerateTarget {
+	return func(o *generateOptions) {
+		o.isProtoVendorEnabled = true
+	}
+}
+
 // generateFromConfig makes code generation from proto files from the given config.
 func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Storage, generateClients bool) error {
 	conf, err := c.Config()
@@ -115,7 +124,7 @@ func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Stora
 
 	if generateClients {
 		if p := conf.Client.Typescript.Path; p != "" {
-			targets = append(targets, GenerateTSClient(p, true, false))
+			targets = append(targets, GenerateTSClient(p, true))
 		}
 
 		//nolint:staticcheck //ignore SA1019 until vuex config option is removed
@@ -133,7 +142,7 @@ func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Stora
 	}
 
 	// Generate proto based code for Go and optionally for any optional targets
-	return c.Generate(ctx, cacheStorage, GenerateGo(false), targets...)
+	return c.Generate(ctx, cacheStorage, GenerateGo(), targets...)
 }
 
 // Generate makes code generation from proto files for given target and additionalTargets.
@@ -173,7 +182,7 @@ func (c *Chain) Generate(
 		options = append(options, cosmosgen.WithPulsarGeneration())
 	}
 
-	if targetOptions.updateBufModule {
+	if targetOptions.isProtoVendorEnabled {
 		options = append(options, cosmosgen.UpdateBufModule())
 	}
 
