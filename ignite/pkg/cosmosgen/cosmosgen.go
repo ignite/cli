@@ -181,7 +181,7 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 	// Go dependency packages might contain proto files which could also
 	// optionally be using Buf, so for those cases the discovered proto
 	// files should be available before code generation.
-	if g.opts.updateBufModule && (g.opts.isGoEnabled || g.opts.isPulsarEnabled) {
+	if g.opts.updateBufModule {
 		if err := g.updateBufModule(ctx); err != nil {
 			return err
 		}

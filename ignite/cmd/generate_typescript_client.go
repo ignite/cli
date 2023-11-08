@@ -73,7 +73,12 @@ func generateTSClientHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	err = c.Generate(cmd.Context(), cacheStorage, chain.GenerateTSClient(output, useCache))
+	updateBufModule := flagGetUpdateBufModule(cmd)
+	err = c.Generate(
+		cmd.Context(),
+		cacheStorage,
+		chain.GenerateTSClient(output, useCache, updateBufModule),
+	)
 	if err != nil {
 		return err
 	}

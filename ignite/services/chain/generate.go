@@ -52,12 +52,13 @@ func GeneratePulsar(updateBufModule bool) GenerateTarget {
 // GenerateTSClient enables generating proto based Typescript Client.
 // The path assigns the output path to use for the generated Typescript client
 // overriding the configured or default path. Path can be an empty string.
-func GenerateTSClient(path string, useCache bool) GenerateTarget {
+func GenerateTSClient(path string, useCache, updateBufModule bool) GenerateTarget {
 	return func(o *generateOptions) {
 		o.isOpenAPIEnabled = true
 		o.isTSClientEnabled = true
 		o.tsClientPath = path
 		o.useCache = useCache
+		o.updateBufModule = updateBufModule
 	}
 }
 
@@ -114,7 +115,7 @@ func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Stora
 
 	if generateClients {
 		if p := conf.Client.Typescript.Path; p != "" {
-			targets = append(targets, GenerateTSClient(p, true))
+			targets = append(targets, GenerateTSClient(p, true, false))
 		}
 
 		//nolint:staticcheck //ignore SA1019 until vuex config option is removed
