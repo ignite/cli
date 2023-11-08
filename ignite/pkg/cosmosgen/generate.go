@@ -33,9 +33,13 @@ const (
 	workFilename               = "buf.work.yaml"
 )
 
-var protocGlobalInclude = xfilepath.List(
-	xfilepath.JoinFromHome(xfilepath.Path("local/include")),
-	xfilepath.JoinFromHome(xfilepath.Path(".local/include")),
+var (
+	ErrBufConfig = errors.New("invalid Buf config")
+
+	protocGlobalInclude = xfilepath.List(
+		xfilepath.JoinFromHome(xfilepath.Path("local/include")),
+		xfilepath.JoinFromHome(xfilepath.Path(".local/include")),
+	)
 )
 
 // protoIncludes contains proto include paths for a package.
@@ -65,7 +69,7 @@ type protoAnalysis struct {
 }
 
 func newBufConfigError(path string, cause error) error {
-	return fmt.Errorf("invalid Buf config: %s: %w", path, cause)
+	return fmt.Errorf("%w: %s: %w", ErrBufConfig, path, cause)
 }
 
 func (g *generator) setup(ctx context.Context) (err error) {
