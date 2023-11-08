@@ -10,7 +10,7 @@ Welcome to the Ignite Developer Tutorials, your gateway to mastering blockchain 
 
 ## What You Will Learn
 
-- **Getting Started with Ignite CLI**: Install the Ignite CLI and set up your development environment. This foundational step is crucial for all the tutorials that follow.
+- **Getting Started with Ignite CLI**: Install the Ignite CLI and set up your development environment. This foundational step is necessary for all the tutorials that follow.
 
 - **Creating and Running Your First Blockchain**: Learn to create and run your own blockchain, understanding how to start and manage a node locally for development purposes.
 
