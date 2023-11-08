@@ -16,7 +16,6 @@ func NewGenerateGo() *cobra.Command {
 	}
 
 	c.Flags().AddFlagSet(flagSetYes())
-	c.Flags().AddFlagSet(flagSetUpdateBufModule())
 
 	return c
 }

@@ -27,8 +27,11 @@ meant to be edited by hand.
 		PersistentPreRunE: migrationPreRunHandler,
 	}
 
+	c.PersistentFlags().AddFlagSet(flagSetUpdateBufModule())
+
 	flagSetPath(c)
 	flagSetClearCache(c)
+
 	c.AddCommand(NewGenerateGo())
 	c.AddCommand(NewGeneratePulsar())
 	c.AddCommand(NewGenerateTSClient())
