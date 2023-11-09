@@ -81,8 +81,10 @@ func TestSignTxWithDashedAppName(t *testing.T) {
 				"dashedapp",
 				"create-item",
 				"helloworld",
+				"--chain-id", "dashedapp",
 				"--from", "alice",
 				"--node", nodeAddr,
+				"--log_format", "json",
 				"--yes",
 			),
 			step.PostExec(func(execErr error) error {
@@ -203,6 +205,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 						"--keyring-backend", "test",
 						"--chain-id", appname,
 						"--node", nodeAddr,
+						"--log_format", "json",
 						"--yes",
 					),
 					step.PreExec(func() error {
