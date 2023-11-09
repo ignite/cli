@@ -1,6 +1,7 @@
 package network
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/testutil/network"
@@ -42,25 +43,25 @@ func DefaultConfig() network.Config {
 	if err != nil {
 		panic(err)
 	}
-	addresses, err := FreeAddresses(3)
+	ports, err := FreePorts(3)
 	if err != nil {
 		panic(err)
 	}
-	cfg.APIAddress = addresses[0]
-	cfg.RPCAddress = addresses[1]
-	cfg.GRPCAddress = addresses[2]
+	cfg.APIAddress = fmt.Sprintf("tcp://0.0.0.0:%s", ports[0])
+	cfg.RPCAddress = fmt.Sprintf("tcp://0.0.0.0:%s", ports[1])
+	cfg.GRPCAddress = fmt.Sprintf("0.0.0.0:%s", ports[2])
 	return cfg
 }
 
-func FreeAddresses(n int) ([]string, error) {
+func FreePorts(n int) ([]string, error) {
 	closeFns := make([]func() error, n)
-	addresses := make([]string, n)
+	ports := make([]string, n)
 	for i := 0; i < n; i++ {
-		addr, _, closeFn, err := network.FreeTCPAddr()
+		_, port, closeFn, err := network.FreeTCPAddr()
 		if err != nil {
 			return nil, err
 		}
-		addresses[i] = addr
+		ports[i] = port
 		closeFns[i] = closeFn
 	}
 	for _, closeFn := range closeFns {
@@ -68,5 +69,5 @@ func FreeAddresses(n int) ([]string, error) {
 			return nil, err
 		}
 	}
-	return addresses, nil
+	return ports, nil
 }
