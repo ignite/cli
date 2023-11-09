@@ -13,8 +13,8 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
 	cliuimodel "github.com/ignite/cli/ignite/pkg/cliui/model"
 	"github.com/ignite/cli/ignite/pkg/debugger"
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/events"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 	"github.com/ignite/cli/ignite/services/chain"
 )

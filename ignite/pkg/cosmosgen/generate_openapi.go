@@ -11,9 +11,9 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/dirchange"
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/nodetime"
 	swaggercombine "github.com/ignite/cli/ignite/pkg/nodetime/programs/swagger-combine"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 	"github.com/ignite/cli/ignite/pkg/xos"
 )
 

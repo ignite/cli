@@ -16,8 +16,8 @@ import (
 
 	"github.com/buger/jsonparser"
 
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/tarball"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 const (

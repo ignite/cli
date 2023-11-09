@@ -10,8 +10,8 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
+	"github.com/ignite/cli/ignite/pkg/errors"
 	relayerconfig "github.com/ignite/cli/ignite/pkg/relayer/config"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 const (

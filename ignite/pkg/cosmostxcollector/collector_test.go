@@ -10,7 +10,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector"
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/mocks"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
+	"github.com/ignite/cli/ignite/pkg/errors"
 )
 
 func TestCollector(t *testing.T) {

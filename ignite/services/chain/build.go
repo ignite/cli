@@ -17,10 +17,10 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/dirchange"
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/events"
 	"github.com/ignite/cli/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 	"github.com/ignite/cli/ignite/pkg/xstrings"
 )
 

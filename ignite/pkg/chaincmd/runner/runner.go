@@ -12,8 +12,8 @@ import (
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/truncatedbuffer"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 // Runner provides high level access to a blockchain's commands.

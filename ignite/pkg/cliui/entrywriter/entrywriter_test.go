@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
+	"github.com/ignite/cli/ignite/pkg/errors"
 )
 
 type WriterWithError struct{}

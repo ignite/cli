@@ -16,9 +16,9 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/ctxticker"
+	"github.com/ignite/cli/ignite/pkg/errors"
 	tsrelayer "github.com/ignite/cli/ignite/pkg/nodetime/programs/ts-relayer"
 	relayerconf "github.com/ignite/cli/ignite/pkg/relayer/config"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 )
 

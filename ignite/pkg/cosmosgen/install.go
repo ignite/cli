@@ -4,9 +4,9 @@ import (
 	"context"
 	"go/ast"
 
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 // DepTools necessary tools to build and run the chain.

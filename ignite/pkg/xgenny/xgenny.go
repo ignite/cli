@@ -11,7 +11,7 @@ import (
 
 	"github.com/gobuffalo/packd"
 
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
+	"github.com/ignite/cli/ignite/pkg/errors"
 )
 
 // Walker implements packd.Walker for Go embed's fs.FS.

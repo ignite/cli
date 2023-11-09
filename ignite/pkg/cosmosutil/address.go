@@ -3,7 +3,7 @@ package cosmosutil
 import (
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
+	"github.com/ignite/cli/ignite/pkg/errors"
 )
 
 // ChangeAddressPrefix returns the address with another prefix.

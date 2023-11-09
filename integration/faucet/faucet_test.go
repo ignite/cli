@@ -15,7 +15,7 @@ import (
 
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/xurl"
 	envtest "github.com/ignite/cli/integration"
 )

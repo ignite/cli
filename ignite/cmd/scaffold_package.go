@@ -4,8 +4,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 	"github.com/ignite/cli/ignite/services/scaffolder"
 )
 

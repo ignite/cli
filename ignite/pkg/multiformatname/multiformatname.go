@@ -7,7 +7,7 @@ import (
 
 	"github.com/iancoleman/strcase"
 
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/xstrings"
 )
 

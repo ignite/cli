@@ -7,8 +7,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 func TestIsInstallError(t *testing.T) {

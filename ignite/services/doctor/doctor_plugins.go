@@ -13,8 +13,8 @@ import (
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/events"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 // MigratePluginsConfig migrates plugins config to Ignite App config if required.

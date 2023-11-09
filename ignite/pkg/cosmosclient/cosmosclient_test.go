@@ -26,7 +26,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosclient/mocks"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient/testutil"
 	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
+	"github.com/ignite/cli/ignite/pkg/errors"
 )
 
 const (

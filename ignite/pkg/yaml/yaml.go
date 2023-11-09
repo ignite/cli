@@ -7,7 +7,7 @@ import (
 	"github.com/goccy/go-yaml"
 	"github.com/goccy/go-yaml/parser"
 
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
+	"github.com/ignite/cli/ignite/pkg/errors"
 )
 
 // Marshal converts an object to a string in a YAML format and transforms

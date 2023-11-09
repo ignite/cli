@@ -8,7 +8,7 @@ import (
 
 	"github.com/ignite/cli/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
+	"github.com/ignite/cli/ignite/pkg/errors"
 )
 
 const flagSecret = "secret"

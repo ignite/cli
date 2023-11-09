@@ -8,8 +8,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/xast"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 func TestInspect(t *testing.T) {

@@ -5,7 +5,7 @@ import (
 	"io"
 	"text/tabwriter"
 
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/xstrings"
 )
 

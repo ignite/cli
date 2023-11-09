@@ -6,7 +6,7 @@ import (
 
 	"github.com/otiai10/copy"
 
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
+	"github.com/ignite/cli/ignite/pkg/errors"
 )
 
 func (g *generator) gogoTemplate() string {

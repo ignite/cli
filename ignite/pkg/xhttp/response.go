@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
+	"github.com/ignite/cli/ignite/pkg/errors"
 )
 
 // ResponseJSON writes a JSON response to w by using status as http status and data

@@ -11,8 +11,8 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 type composablesGenerator struct {

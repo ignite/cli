@@ -9,7 +9,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
+	"github.com/ignite/cli/ignite/pkg/errors"
 )
 
 func TestResponseJSON(t *testing.T) {

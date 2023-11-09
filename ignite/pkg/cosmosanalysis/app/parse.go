@@ -4,9 +4,9 @@ import (
 	"go/ast"
 	"go/build"
 
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/ignite/pkg/xast"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 func parseAppModulesFromIdent(n *ast.Ident, pkgDir string) ([]string, error) {

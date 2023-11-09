@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
+	"github.com/ignite/cli/ignite/pkg/errors"
 )
 
 // ErrImportNotFound returned when proto file import cannot be found.

@@ -6,7 +6,7 @@ import (
 	"reflect"
 
 	"github.com/ignite/cli/ignite/pkg/confile"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
+	"github.com/ignite/cli/ignite/pkg/errors"
 )
 
 const SupportVersion = "2"

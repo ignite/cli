@@ -6,8 +6,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/events"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 func TestBusSend(t *testing.T) {

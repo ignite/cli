@@ -1,15 +1,16 @@
-// Package xerrors provides helpers for error creation, avoiding
+// Package errors provides helpers for error creation, avoiding
 // using different packages for errors.
 //
 // e.g.:
-// import errors "github.com/ignite/cli/ignite/pkg/xerrors"
+//
+//	import "github.com/ignite/cli/ignite/pkg/errors"
 //
 //	func main() {
 //	 err1 := errors.New("error new")
 //	 err2 := errors.Errorf("%s: error", foo)
 //	 err3 := errors.Wrap(errFoo, errBar)
 //	}
-package xerrors
+package errors
 
 import (
 	"github.com/cockroachdb/errors"

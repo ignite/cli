@@ -8,8 +8,8 @@ import (
 	"golang.org/x/exp/slices"
 	"gopkg.in/yaml.v2"
 
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 type Config struct {

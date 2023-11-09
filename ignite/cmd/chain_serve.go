@@ -11,8 +11,8 @@ import (
 	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
 	cliuimodel "github.com/ignite/cli/ignite/pkg/cliui/model"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/events"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 	"github.com/ignite/cli/ignite/services/chain"
 )
 

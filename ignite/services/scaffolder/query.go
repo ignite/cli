@@ -6,9 +6,9 @@ import (
 	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 	"github.com/ignite/cli/ignite/pkg/xgenny"
 	"github.com/ignite/cli/ignite/templates/field"
 	"github.com/ignite/cli/ignite/templates/query"

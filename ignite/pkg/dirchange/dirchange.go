@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
+	"github.com/ignite/cli/ignite/pkg/errors"
 )
 
 var ErrNoFile = errors.New("no file in specified paths")

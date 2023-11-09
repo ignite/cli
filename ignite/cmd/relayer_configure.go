@@ -10,9 +10,9 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/relayer"
 	relayerconfig "github.com/ignite/cli/ignite/pkg/relayer/config"
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
 )
 
 const (

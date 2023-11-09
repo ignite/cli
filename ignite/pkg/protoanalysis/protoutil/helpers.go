@@ -5,7 +5,7 @@ import (
 
 	"github.com/emicklei/proto"
 
-	errors "github.com/ignite/cli/ignite/pkg/xerrors"
+	"github.com/ignite/cli/ignite/pkg/errors"
 )
 
 // AddAfterSyntax tries to add the given Visitee after the 'syntax' statement.
