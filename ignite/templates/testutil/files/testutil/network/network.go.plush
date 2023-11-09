@@ -43,17 +43,24 @@ func DefaultConfig() network.Config {
 	if err != nil {
 		panic(err)
 	}
-	ports, err := FreePorts(3)
+	ports, err := freePorts(3)
 	if err != nil {
 		panic(err)
 	}
-	cfg.APIAddress = fmt.Sprintf("tcp://0.0.0.0:%s", ports[0])
-	cfg.RPCAddress = fmt.Sprintf("tcp://0.0.0.0:%s", ports[1])
-	cfg.GRPCAddress = fmt.Sprintf("0.0.0.0:%s", ports[2])
+	if cfg.APIAddress == "" {
+		cfg.APIAddress = fmt.Sprintf("tcp://0.0.0.0:%s", ports[0])
+	}
+	if cfg.RPCAddress == "" {
+		cfg.RPCAddress = fmt.Sprintf("tcp://0.0.0.0:%s", ports[1])
+	}
+	if cfg.GRPCAddress == "" {
+		cfg.GRPCAddress = fmt.Sprintf("0.0.0.0:%s", ports[2])
+	}
 	return cfg
 }
 
-func FreePorts(n int) ([]string, error) {
+// freePorts return the available ports based on the number of requested ports.
+func freePorts(n int) ([]string, error) {
 	closeFns := make([]func() error, n)
 	ports := make([]string, n)
 	for i := 0; i < n; i++ {
