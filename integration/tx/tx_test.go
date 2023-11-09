@@ -161,6 +161,8 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 				"keys",
 				"list",
 				"--keyring-backend", "test",
+				"--output", "json",
+				"--log_format", "json",
 			),
 			step.PostExec(func(execErr error) error {
 				if execErr != nil {
