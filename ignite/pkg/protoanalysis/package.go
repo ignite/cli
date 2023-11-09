@@ -1,7 +1,6 @@
 package protoanalysis
 
 import (
-	"errors"
 	"regexp"
 	"strings"
 
