@@ -45,7 +45,7 @@ func generateComposablesHandler(cmd *cobra.Command, _ []string) error {
 	}
 
 	var opts []chain.GenerateTarget
-	if flagGetUpdateBufModule(cmd) {
+	if flagGetEnableProtoVendor(cmd) {
 		opts = append(opts, chain.GenerateProtoVendor())
 	}
 

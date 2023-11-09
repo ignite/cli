@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	flagUpdateBufModule = "update-buf-module"
+	flagEnableProtoVendor = "enable-proto-vendor"
 )
 
 // NewGenerate returns a command that groups code generation related sub commands.
@@ -27,7 +27,7 @@ meant to be edited by hand.
 		PersistentPreRunE: migrationPreRunHandler,
 	}
 
-	c.PersistentFlags().AddFlagSet(flagSetUpdateBufModule())
+	c.PersistentFlags().AddFlagSet(flagSetEnableProtoVendor())
 
 	flagSetPath(c)
 	flagSetClearCache(c)
@@ -43,13 +43,13 @@ meant to be edited by hand.
 	return c
 }
 
-func flagSetUpdateBufModule() *flag.FlagSet {
+func flagSetEnableProtoVendor() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.Bool(flagUpdateBufModule, false, "update Buf config with missing proto dependencies")
+	fs.Bool(flagEnableProtoVendor, false, "enable proto package vendor for missing Buf dependencies")
 	return fs
 }
 
-func flagGetUpdateBufModule(cmd *cobra.Command) bool {
-	skip, _ := cmd.Flags().GetBool(flagUpdateBufModule)
+func flagGetEnableProtoVendor(cmd *cobra.Command) bool {
+	skip, _ := cmd.Flags().GetBool(flagEnableProtoVendor)
 	return skip
 }
