@@ -43,7 +43,6 @@ func (s *IntegrationTestSuite) TestShow<%= TypeName.UpperCamel %>() {
 			fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 		}
 	)
-	defer net.Cleanup()
 	tests := []struct {
 		desc string
 		<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %> <%= index.DataType() %>
@@ -98,7 +97,6 @@ func (s *IntegrationTestSuite) TestList<%= TypeName.UpperCamel %>() {
 		net, objs = s.networkWith<%= TypeName.UpperCamel %>Objects(5)
 		ctx       = net.Validators[0].ClientCtx
 	)
-	defer net.Cleanup()
 	request := func(next []byte, offset, limit uint64, total bool) []string {
 		args := []string{
 			fmt.Sprintf("--%s=json", tmcli.OutputFlag),

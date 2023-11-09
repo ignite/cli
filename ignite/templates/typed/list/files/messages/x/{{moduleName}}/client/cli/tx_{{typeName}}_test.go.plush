@@ -22,7 +22,7 @@ func (s *IntegrationTestSuite) TestCreate<%= TypeName.UpperCamel %>() {
 		ctx = val.ClientCtx
         fields = []string{<%= for (field) in Fields { %> "<%= field.DefaultTestValue() %>", <% } %>}
 	)
-	defer net.Cleanup()
+
 	tests := []struct {
 		desc string
 		args []string
@@ -72,7 +72,7 @@ func (s *IntegrationTestSuite) TestUpdate<%= TypeName.UpperCamel %>() {
 	    args = append([]string{}, fields...)
 	)
     args = append(args, common...)
-	defer net.Cleanup()
+
 	_, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdCreate<%= TypeName.UpperCamel %>(), args)
 	s.Require().NoError(err)
 	s.Require().NoError(net.WaitForNextBlock())
@@ -134,7 +134,7 @@ func (s *IntegrationTestSuite) TestDelete<%= TypeName.UpperCamel %>() {
         args = append([]string{}, fields...)
 	)
     args = append(args, common...)
-	defer net.Cleanup()
+
 	_, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdCreate<%= TypeName.UpperCamel %>(), args)
 	s.Require().NoError(err)
 	s.Require().NoError(net.WaitForNextBlock())

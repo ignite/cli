@@ -32,7 +32,6 @@ func (s *IntegrationTestSuite) TestShow<%= TypeName.UpperCamel %>() {
 			fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 		}
 	)
-	defer net.Cleanup()
 	tests := []struct {
 		desc string
 		args []string

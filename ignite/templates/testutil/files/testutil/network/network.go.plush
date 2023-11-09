@@ -17,6 +17,7 @@ type (
 // New creates instance with fully configured cosmos network.
 // Accepts optional config, that will be used in place of the DefaultConfig() if provided.
 func New(t *testing.T, configs ...Config) *Network {
+	t.Helper()
 	if len(configs) > 1 {
 		panic("at most one config should be provided")
 	}
@@ -30,6 +31,7 @@ func New(t *testing.T, configs ...Config) *Network {
 	require.NoError(t, err)
 	_, err = net.WaitForHeight(1)
 	require.NoError(t, err)
+	t.Cleanup(net.Cleanup)
 	return net
 }
 
@@ -40,5 +42,31 @@ func DefaultConfig() network.Config {
 	if err != nil {
 		panic(err)
 	}
+	addresses, err := FreeAddresses(3)
+	if err != nil {
+		panic(err)
+	}
+	cfg.APIAddress = addresses[0]
+	cfg.RPCAddress = addresses[1]
+	cfg.GRPCAddress = addresses[2]
 	return cfg
+}
+
+func FreeAddresses(n int) ([]string, error) {
+	closeFns := make([]func() error, n)
+	addresses := make([]string, n)
+	for i := 0; i < n; i++ {
+		addr, _, closeFn, err := network.FreeTCPAddr()
+		if err != nil {
+			return nil, err
+		}
+		addresses[i] = addr
+		closeFns[i] = closeFn
+	}
+	for _, closeFn := range closeFns {
+		if err := closeFn(); err != nil {
+			return nil, err
+		}
+	}
+	return addresses, nil
 }
