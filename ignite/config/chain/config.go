@@ -15,7 +15,6 @@ import (
 )
 
 var (
-
 	// ConfigFilenames is a list of recognized names as Ignite's chain config file.
 	ConfigFilenames = []string{"config.yml", "config.yaml"}
 
