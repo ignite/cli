@@ -105,7 +105,7 @@ func ChainID(id string) Option {
 	}
 }
 
-// FeeAmount sets a fee that it will be paid during the transaction
+// FeeAmount sets a fee that it will be paid during the transaction.
 func FeeAmount(amount sdkmath.Int, denom string) Option {
 	return func(f *Faucet) {
 		f.feeAmount = sdk.NewCoin(denom, amount)
