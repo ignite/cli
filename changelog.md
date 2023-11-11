@@ -4,6 +4,17 @@
 
 ### Features
 
+- [#3544](https://github.com/ignite/cli/pull/3544) Add bidirectional communication to plugin system
+- [#3561](https://github.com/ignite/cli/pull/3561) Add GetChainInfo method to plugin system API
+
+### Changes
+
+- [#3529](https://github.com/ignite/cli/pull/3529) Refactor plugin system to use gRPC
+
+## [`v0.27.1`](https://github.com/ignite/cli/releases/tag/v0.27.1)
+
+### Features
+
 - [#3476](https://github.com/ignite/cli/pull/3476) Use `buf.build` binary to code generate from proto files
 - [#3614](https://github.com/ignite/cli/pull/3614) feat: use DefaultBaseappOptions for app.New method
 - [#3536](https://github.com/ignite/cli/pull/3536) Change app.go to v2 and add AppWiring feature
@@ -39,6 +50,7 @@
 - [#3661](https://github.com/ignite/cli/pull/3661) Change `pkg/cosmosanalysis` to find Cosmos SDK runtime app registered modules
 - [#3716](https://github.com/ignite/cli/pull/3716) Fix invalid plugin hook check
 - [#3725](https://github.com/ignite/cli/pull/3725) Fix flaky TS client generation issues on linux
+- [#3726](https://github.com/ignite/cli/pull/3726) Update TS client dependencies. Bump vue/react template versions
 - [#3728](https://github.com/ignite/cli/pull/3728) Fix wrong parser for proto package names
 - [#3729](https://github.com/ignite/cli/pull/3729) Fix broken generator due to caching /tmp include folders
 

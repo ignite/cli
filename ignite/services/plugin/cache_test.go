@@ -14,7 +14,7 @@ func TestReadWriteConfigCache(t *testing.T) {
 		unixFD, _ := net.ResolveUnixAddr("unix", "/var/folders/5k/sv4bxrs102n_6rr7430jc7j80000gn/T/plugin193424090")
 
 		rc := hplugin.ReattachConfig{
-			Protocol:        hplugin.ProtocolNetRPC,
+			Protocol:        hplugin.ProtocolGRPC,
 			ProtocolVersion: hplugin.CoreProtocolVersion,
 			Addr:            unixFD,
 			Pid:             24464,
@@ -31,7 +31,7 @@ func TestReadWriteConfigCache(t *testing.T) {
 	t.Run("Should error writing bad plugin config to cache", func(t *testing.T) {
 		const path = "/path/to/awesome/plugin"
 		rc := hplugin.ReattachConfig{
-			Protocol:        hplugin.ProtocolNetRPC,
+			Protocol:        hplugin.ProtocolGRPC,
 			ProtocolVersion: hplugin.CoreProtocolVersion,
 			Addr:            nil,
 			Pid:             24464,
@@ -44,7 +44,7 @@ func TestReadWriteConfigCache(t *testing.T) {
 	t.Run("Should error with invalid plugin path", func(t *testing.T) {
 		const path = ""
 		rc := hplugin.ReattachConfig{
-			Protocol:        hplugin.ProtocolNetRPC,
+			Protocol:        hplugin.ProtocolGRPC,
 			ProtocolVersion: hplugin.CoreProtocolVersion,
 			Addr:            nil,
 			Pid:             24464,
@@ -61,7 +61,7 @@ func TestDeleteConfCache(t *testing.T) {
 		unixFD, _ := net.ResolveUnixAddr("unix", "/var/folders/5k/sv4bxrs102n_6rr7430jc7j80000gn/T/plugin193424090")
 
 		rc := hplugin.ReattachConfig{
-			Protocol:        hplugin.ProtocolNetRPC,
+			Protocol:        hplugin.ProtocolGRPC,
 			ProtocolVersion: hplugin.CoreProtocolVersion,
 			Addr:            unixFD,
 			Pid:             24464,
@@ -90,7 +90,7 @@ func TestCheckConfCache(t *testing.T) {
 	unixFD, _ := net.ResolveUnixAddr("unix", "/var/folders/5k/sv4bxrs102n_6rr7430jc7j80000gn/T/plugin193424090")
 
 	rc := hplugin.ReattachConfig{
-		Protocol:        hplugin.ProtocolNetRPC,
+		Protocol:        hplugin.ProtocolGRPC,
 		ProtocolVersion: hplugin.CoreProtocolVersion,
 		Addr:            unixFD,
 		Pid:             24464,

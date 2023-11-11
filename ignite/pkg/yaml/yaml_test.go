@@ -50,7 +50,7 @@ func TestMarshal(t *testing.T) {
 	}{
 		{
 			name: "parse nil obj",
-			want: "null",
+			want: "null\n",
 		},
 		{
 			name: "parse map without byte slice",
@@ -61,7 +61,8 @@ func TestMarshal(t *testing.T) {
 				},
 			},
 			want: `field1: field1
-field2: field2`,
+field2: field2
+`,
 		},
 		{
 			name: "parse map with byte slice",
@@ -76,7 +77,8 @@ field2: field2`,
 				},
 			},
 			want: `field1: field1
-field2: field2`,
+field2: field2
+`,
 		},
 		{
 			name: "parse struct without byte slice",
@@ -84,7 +86,8 @@ field2: field2`,
 				obj: sParser,
 			},
 			want: `field1: field1
-field2: field2`,
+field2: field2
+`,
 		},
 		{
 			name: "parse struct with byte slice",
@@ -102,7 +105,8 @@ field2:
     field1: field1
     field2: field2
   field3: field3
-field3: field3`,
+field3: field3
+`,
 		},
 		{
 			name: "parse struct with byte slice and wrong path",
@@ -132,7 +136,8 @@ field2:
     - 49
     field2: field2
   field3: field3
-field3: field3`,
+field3: field3
+`,
 		},
 	}
 	for _, tt := range tests {

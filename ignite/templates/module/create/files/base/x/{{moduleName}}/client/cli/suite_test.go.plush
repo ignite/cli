@@ -3,46 +3,38 @@ package cli_test
 import (
 	"testing"
 
+	"github.com/cosmos/gogoproto/proto"
 	"github.com/stretchr/testify/suite"
 
 	"<%= modulePath %>/testutil/network"
+	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
 type IntegrationTestSuite struct {
 	suite.Suite
-
-	locked bool
-	net    *network.Network
-	cfg    network.Config
 }
 
-func (s *IntegrationTestSuite) network() *network.Network {
-	s.net = network.New(s.T(), s.cfg)
-	s.locked = true
-	return s.net
-}
-
-func (s *IntegrationTestSuite) waitForNextBlock() {
-	s.T().Log("wait for next block")
-	s.Require().NoError(s.net.WaitForNextBlock())
+func (s *IntegrationTestSuite) network(state proto.Message) *network.Network {
+	s.T().Helper()
+	cfg := network.DefaultConfig()
+	if state != nil {
+		buf, err := cfg.Codec.MarshalJSON(state)
+		s.Require().NoError(err)
+		cfg.GenesisState[types.ModuleName] = buf
+	}
+	return network.New(s.T(), cfg)
 }
 
 func (s *IntegrationTestSuite) SetupTest() {
 	s.T().Log("setting up test")
-	s.cfg = network.DefaultConfig()
 }
 
 func (s *IntegrationTestSuite) SetupSuite() {
 	s.T().Log("setting up integration test suite")
-	s.cfg = network.DefaultConfig()
 }
 
 func (s *IntegrationTestSuite) TearDownTest() {
 	s.T().Log("tearing down test")
-	if s.net != nil && s.locked {
-		s.net.Cleanup()
-		s.locked = false
-	}
 }
 
 func (s *IntegrationTestSuite) TearDownSuite() {
