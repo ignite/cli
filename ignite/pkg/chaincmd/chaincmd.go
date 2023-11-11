@@ -478,7 +478,7 @@ type BankSendOption func([]string) []string
 // BankSendWithFees sets fees to pay along with transaction for the bank send command.
 func BankSendWithFees(fee sdk.Coin) BankSendOption {
 	return func(command []string) []string {
-		if !fee.IsZero() {
+		if !fee.IsNil() {
 			return append(command, optionFees, fee.String())
 		}
 		return command
