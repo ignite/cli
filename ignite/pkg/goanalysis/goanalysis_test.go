@@ -111,13 +111,14 @@ func TestDiscoverOneMain(t *testing.T) {
 			require.NoError(t, err)
 
 			actual, err := goanalysis.DiscoverOneMain(tmpDir)
-
-			require.Equal(t, tt.err, err)
-
-			if tt.err == nil {
-				require.Equal(t, 1, len(want))
-				require.Equal(t, want[0], actual)
+			if tt.err != nil {
+				require.Error(t, err)
+				require.True(t, errors.Is(tt.err, err))
+				return
 			}
+			require.NoError(t, err)
+			require.Equal(t, 1, len(want))
+			require.Equal(t, want[0], actual)
 		})
 	}
 }
