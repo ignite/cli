@@ -3,7 +3,7 @@
 ## Create a blog post by Alice
 
 ```
-blogd tx blog create-post hello world --from alice
+blogd tx blog create-post hello world --from alice --chain-id blog
 ```
 
 ## Show a blog post
@@ -23,7 +23,7 @@ post:
 ## Create a blog post by Bob
 
 ```
-blogd tx blog create-post foo bar --from bob
+blogd tx blog create-post foo bar --from bob --chain-id blog
 ```
 
 ## List all blog posts with pagination
@@ -50,7 +50,7 @@ post:
 ## Update a blog post
 
 ```
-blogd tx blog update-post hello cosmos 0 --from alice
+blogd tx blog update-post hello cosmos 0 --from alice --chain-id blog
 ```
 
 ```
@@ -68,7 +68,7 @@ post:
 ## Delete a blog post
 
 ```
-blogd tx blog delete-post 0 --from alice
+blogd tx blog delete-post 0 --from alice --chain-id blog
 ```
 
 ```
@@ -89,7 +89,7 @@ post:
 ## Delete a blog post unsuccessfully
 
 ```
-blogd tx blog delete-post 1 --from alice
+blogd tx blog delete-post 1 --from alice --chain-id blog
 ```
 
 ```yml

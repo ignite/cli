@@ -23,6 +23,7 @@ import (
 	"context"
 	"strconv"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -33,13 +34,13 @@ func (k msgServer) LiquidateLoan(goCtx context.Context, msg *types.MsgLiquidateL
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	loan, found := k.GetLoan(ctx, msg.Id)
 	if !found {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrKeyNotFound, "key %d doesn't exist", msg.Id)
+		return nil, errorsmod.Wrapf(sdkerrors.ErrKeyNotFound, "key %d doesn't exist", msg.Id)
 	}
 	if loan.Lender != msg.Creator {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Cannot liquidate: not the lender")
+		return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "Cannot liquidate: not the lender")
 	}
 	if loan.State != "approved" {
-		return nil, sdkerrors.Wrapf(types.ErrWrongLoanState, "%v", loan.State)
+		return nil, errorsmod.Wrapf(types.ErrWrongLoanState, "%v", loan.State)
 	}
 	lender, _ := sdk.AccAddressFromBech32(loan.Lender)
 	collateral, _ := sdk.ParseCoinsNormalized(loan.Collateral)
@@ -48,7 +49,7 @@ func (k msgServer) LiquidateLoan(goCtx context.Context, msg *types.MsgLiquidateL
 		panic(err)
 	}
 	if ctx.BlockHeight() < deadline {
-		return nil, sdkerrors.Wrap(types.ErrDeadline, "Cannot liquidate before deadline")
+		return nil, errorsmod.Wrap(types.ErrDeadline, "Cannot liquidate before deadline")
 	}
 	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, lender, collateral)
 	if err != nil {
@@ -62,15 +63,15 @@ func (k msgServer) LiquidateLoan(goCtx context.Context, msg *types.MsgLiquidateL
 
 `LiquidateLoan` takes in a context and a `types.MsgLiquidateLoan` message as input and returns a types.MsgLiquidateLoanResponse message and an error as output.
 
-The function first retrieves a loan using the `GetLoan` method and the `Id` field of the input message. If the loan is not found, it returns an error using the `sdkerrors.Wrap` function and the `sdkerrors.ErrKeyNotFound` error code.
+The function first retrieves a loan using the `GetLoan` method and the `Id` field of the input message. If the loan is not found, it returns an error using the `errorsmod.Wrap` function and the `sdkerrors.ErrKeyNotFound` error code.
 
-Next, the function checks that the `Creator` field of the input message is the same as the `Lender` field of the loan. If they are not the same, it returns an error using the `sdkerrors.Wrap` function and the `sdkerrors.ErrUnauthorized` error code.
+Next, the function checks that the `Creator` field of the input message is the same as the `Lender` field of the loan. If they are not the same, it returns an error using the `errorsmod.Wrap` function and the `sdkerrors.ErrUnauthorized` error code.
 
-The function then checks that the State field of the loan is equal to "approved". If it is not, it returns an error using the `sdkerrors.Wrapf` function and the `types.ErrWrongLoanState` error code.
+The function then checks that the State field of the loan is equal to "approved". If it is not, it returns an error using the `errorsmod.Wrapf` function and the `types.ErrWrongLoanState` error code.
 
 The function then converts the Lender field of the loan to an address using the `sdk.AccAddressFromBech32` function and the `Collateral` field to coins using the `sdk.ParseCoinsNormalized` function. It also converts the `Deadline` field to an integer using the `strconv.ParseInt` function. If this function returns an error, it panics.
 
-Finally, the function checks that the current block height is greater than or equal to the deadline. If it is not, it returns an error using the `sdkerrors.Wrap` function and the `types.ErrDeadline` error code. If all checks pass, the function uses the `bankKeeper.SendCoinsFromModuleToAccount` method to transfer the collateral from the module account to the lender's account and updates the `State` field of the loan to `"liquidated"`. It then stores the updated loan using the `SetLoan` method and returns a `types.MsgLiquidateLoanResponse` message with no error.
+Finally, the function checks that the current block height is greater than or equal to the deadline. If it is not, it returns an error using the `errorsmod.Wrap` function and the `types.ErrDeadline` error code. If all checks pass, the function uses the `bankKeeper.SendCoinsFromModuleToAccount` method to transfer the collateral from the module account to the lender's account and updates the `State` field of the loan to `"liquidated"`. It then stores the updated loan using the `SetLoan` method and returns a `types.MsgLiquidateLoanResponse` message with no error.
 
 ## Register a custom error
 

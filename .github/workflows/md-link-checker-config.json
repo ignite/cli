@@ -17,6 +17,9 @@
     },
     {
       "pattern": "^index.md"
+    },
+    {
+      "pattern": "^https://docs.starport.network"
     }
   ],
   "replacementPatterns": [

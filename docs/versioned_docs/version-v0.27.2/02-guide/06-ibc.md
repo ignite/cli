@@ -291,7 +291,7 @@ acknowledgment.
 Append the type instance as `PostID` on receiving the packet:
 
 - The context `ctx` is an [immutable data
-  structure](https://docs.cosmos.network/main/core/context.html#go-context-package)
+  structure](https://docs.cosmos.network/main/learn/advanced/context#go-context-package)
   that has header data from the transaction. See [how the context is
   initiated](https://github.com/cosmos/cosmos-sdk/blob/main/types/context.go#L71)
 - The identifier format that you defined earlier

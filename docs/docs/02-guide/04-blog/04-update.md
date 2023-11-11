@@ -15,7 +15,8 @@ Implement the `GetPost` keeper method in `post.go`:
 
 ```go title="x/blog/keeper/post.go"
 func (k Keeper) GetPost(ctx sdk.Context, id uint64) (val types.Post, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PostKey))
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.KeyPrefix(types.PostKey))
 	b := store.Get(GetPostIDBytes(id))
 	if b == nil {
 		return val, false
@@ -48,7 +49,8 @@ Implement the `SetPost` keeper method in `post.go`:
 
 ```go title="x/blog/keeper/post.go"
 func (k Keeper) SetPost(ctx sdk.Context, post types.Post) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PostKey))
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.KeyPrefix(types.PostKey))
 	b := k.cdc.MustMarshal(&post)
 	store.Set(GetPostIDBytes(post.Id), b)
 }
@@ -78,6 +80,7 @@ import (
 
 	"blog/x/blog/types"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -92,10 +95,10 @@ func (k msgServer) UpdatePost(goCtx context.Context, msg *types.MsgUpdatePost) (
 	}
 	val, found := k.GetPost(ctx, msg.Id)
 	if !found {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
+		return nil, errorsmod.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
 	}
 	if msg.Creator != val.Creator {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
+		return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
 	}
 	k.SetPost(ctx, post)
 	return &types.MsgUpdatePostResponse{}, nil
