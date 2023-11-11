@@ -222,23 +222,23 @@ Implement basic input validation in `x/tokenfactory/types/messages_denom.go`:
 - Ensure the ticker length is between 3 and 10 characters.
 ```go
 func (msg *MsgCreateDenom) ValidateBasic() error {
-    _, err := sdk.AccAddressFromBech32(msg.Owner)
-    if err != nil {
-        return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid owner address (%s)", err)
-    }
+	_, err := sdk.AccAddressFromBech32(msg.Owner)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid owner address (%s)", err)
+	}
 
-    tickerLength := len(msg.Ticker)
-    if tickerLength < 3 {
-        return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "Ticker length must be at least 3 chars long")
-    }
-    if tickerLength > 10 {
-        return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "Ticker length must be 10 chars long maximum")
-    }
-    if msg.MaxSupply == 0 {
-        return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "Max Supply must be greater than 0")
-    }
-    
-    return nil
+	tickerLength := len(msg.Ticker)
+	if tickerLength < 3 {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "Ticker length must be at least 3 chars long")
+	}
+	if tickerLength > 10 {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "Ticker length must be 10 chars long maximum")
+	}
+	if msg.MaxSupply == 0 {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "Max Supply must be greater than 0")
+	}
+
+	return nil
 }
 ```
 
@@ -246,14 +246,14 @@ func (msg *MsgCreateDenom) ValidateBasic() error {
 
 ```go
 func (msg *MsgUpdateDenom) ValidateBasic() error {
-    _, err := sdk.AccAddressFromBech32(msg.Owner)
-    if err != nil {
-        return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid owner address (%s)", err)
-    }
-    if msg.MaxSupply == 0 {
-        return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "Max Supply must be greater than 0")
-    }
-    return nil
+	_, err := sdk.AccAddressFromBech32(msg.Owner)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid owner address (%s)", err)
+	}
+	if msg.MaxSupply == 0 {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "Max Supply must be greater than 0")
+	}
+	return nil
 }
 ```
 
@@ -268,43 +268,43 @@ The keeper is where you define the business logic for manipulating the database 
 
 ```go
 func (k msgServer) UpdateDenom(goCtx context.Context, msg *types.MsgUpdateDenom) (*types.MsgUpdateDenomResponse, error) {
-    ctx := sdk.UnwrapSDKContext(goCtx)
+	ctx := sdk.UnwrapSDKContext(goCtx)
 
-    // Check if the value exists
-    valFound, isFound := k.GetDenom(
-        ctx,
-        msg.Denom,
-    )
-    if !isFound {
-        return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "Denom to update not found")
-    }
+	// Check if the value exists
+	valFound, isFound := k.GetDenom(
+		ctx,
+		msg.Denom,
+	)
+	if !isFound {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "Denom to update not found")
+	}
 
-    // Checks if the the msg owner is the same as the current owner
-    if msg.Owner != valFound.Owner {
-        return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
-    }
+	// Checks if the the msg owner is the same as the current owner
+	if msg.Owner != valFound.Owner {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
+	}
 
-    if !valFound.CanChangeMaxSupply && valFound.MaxSupply != msg.MaxSupply {
-        return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "cannot change maxsupply")
-    }
-    if !valFound.CanChangeMaxSupply && msg.CanChangeMaxSupply {
-        return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Cannot revert change maxsupply flag")
-    }
-    var denom = types.Denom{
-        Owner:              msg.Owner,
-        Denom:              msg.Denom,
-        Description:        msg.Description,
-        Ticker:             valFound.Ticker,
-        Precision:          valFound.Precision,
-        Url:                msg.Url,
-        MaxSupply:          msg.MaxSupply,
-        Supply:             valFound.Supply,
-        CanChangeMaxSupply: msg.CanChangeMaxSupply,
-    }
+	if !valFound.CanChangeMaxSupply && valFound.MaxSupply != msg.MaxSupply {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "cannot change maxsupply")
+	}
+	if !valFound.CanChangeMaxSupply && msg.CanChangeMaxSupply {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Cannot revert change maxsupply flag")
+	}
+	var denom = types.Denom{
+		Owner:              msg.Owner,
+		Denom:              msg.Denom,
+		Description:        msg.Description,
+		Ticker:             valFound.Ticker,
+		Precision:          valFound.Precision,
+		Url:                msg.Url,
+		MaxSupply:          msg.MaxSupply,
+		Supply:             valFound.Supply,
+		CanChangeMaxSupply: msg.CanChangeMaxSupply,
+	}
 
-    k.SetDenom(ctx, denom)
+	k.SetDenom(ctx, denom)
 
-    return &types.MsgUpdateDenomResponse{}, nil
+	return &types.MsgUpdateDenomResponse{}, nil
 }
 ```
 
@@ -318,20 +318,20 @@ Replace the existing code in `expected_keepers.go` with the updated definitions 
 package types
 
 import (
-    sdk "github.com/cosmos/cosmos-sdk/types"
-    authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
 type AccountKeeper interface {
-    GetAccount(ctx sdk.Context, addr sdk.AccAddress) authtypes.AccountI
-    GetModuleAddress(name string) sdk.AccAddress
-    GetModuleAccount(ctx sdk.Context, moduleName string) authtypes.ModuleAccountI
+	GetAccount(ctx sdk.Context, addr sdk.AccAddress) authtypes.AccountI
+	GetModuleAddress(name string) sdk.AccAddress
+	GetModuleAccount(ctx sdk.Context, moduleName string) authtypes.ModuleAccountI
 }
 
 type BankKeeper interface {
-    SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
-    MintCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
-    SpendableCoins(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
+	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
+	MintCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
+	SpendableCoins(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
 }
 ```
 
@@ -399,67 +399,67 @@ Found in `x/tokenfactory/keeper/msg_server_update_owner.go`, this function allow
 package keeper
 
 import (
-    "context"
+	"context"
 
-    sdk "github.com/cosmos/cosmos-sdk/types"
-    sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-    "tokenfactory/x/tokenfactory/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"tokenfactory/x/tokenfactory/types"
 )
 
 func (k msgServer) MintAndSendTokens(goCtx context.Context, msg *types.MsgMintAndSendTokens) (*types.MsgMintAndSendTokensResponse, error) {
-    ctx := sdk.UnwrapSDKContext(goCtx)
+	ctx := sdk.UnwrapSDKContext(goCtx)
 
-    // Check if the value exists
-    valFound, isFound := k.GetDenom(
-        ctx,
-        msg.Denom,
-    )
-    if !isFound {
-        return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "denom does not exist")
-    }
+	// Check if the value exists
+	valFound, isFound := k.GetDenom(
+		ctx,
+		msg.Denom,
+	)
+	if !isFound {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "denom does not exist")
+	}
 
-    // Checks if the the msg owner is the same as the current owner
-    if msg.Owner != valFound.Owner {
-        return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
-    }
+	// Checks if the the msg owner is the same as the current owner
+	if msg.Owner != valFound.Owner {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
+	}
 
-    if valFound.Supply+msg.Amount > valFound.MaxSupply {
-        return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Cannot mint more than Max Supply")
-    }
-    moduleAcct := k.accountKeeper.GetModuleAddress(types.ModuleName)
+	if valFound.Supply+msg.Amount > valFound.MaxSupply {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Cannot mint more than Max Supply")
+	}
+	moduleAcct := k.accountKeeper.GetModuleAddress(types.ModuleName)
 
-    recipientAddress, err := sdk.AccAddressFromBech32(msg.Recipient)
-    if err != nil {
-        return nil, err
-    }
+	recipientAddress, err := sdk.AccAddressFromBech32(msg.Recipient)
+	if err != nil {
+		return nil, err
+	}
 
-    var mintCoins sdk.Coins
+	var mintCoins sdk.Coins
 
-    mintCoins = mintCoins.Add(sdk.NewCoin(msg.Denom, sdk.NewInt(int64(msg.Amount))))
-    if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, mintCoins); err != nil {
-        return nil, err
-    }
-    if err := k.bankKeeper.SendCoins(ctx, moduleAcct, recipientAddress, mintCoins); err != nil {
-        return nil, err
-    }
+	mintCoins = mintCoins.Add(sdk.NewCoin(msg.Denom, sdk.NewInt(int64(msg.Amount))))
+	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, mintCoins); err != nil {
+		return nil, err
+	}
+	if err := k.bankKeeper.SendCoins(ctx, moduleAcct, recipientAddress, mintCoins); err != nil {
+		return nil, err
+	}
 
-    var denom = types.Denom{
-        Owner:              valFound.Owner,
-        Denom:              valFound.Denom,
-        Description:        valFound.Description,
-        MaxSupply:          valFound.MaxSupply,
-        Supply:             valFound.Supply + msg.Amount,
-        Precision:          valFound.Precision,
-        Ticker:             valFound.Ticker,
-        Url:                valFound.Url,
-        CanChangeMaxSupply: valFound.CanChangeMaxSupply,
-    }
+	var denom = types.Denom{
+		Owner:              valFound.Owner,
+		Denom:              valFound.Denom,
+		Description:        valFound.Description,
+		MaxSupply:          valFound.MaxSupply,
+		Supply:             valFound.Supply + msg.Amount,
+		Precision:          valFound.Precision,
+		Ticker:             valFound.Ticker,
+		Url:                valFound.Url,
+		CanChangeMaxSupply: valFound.CanChangeMaxSupply,
+	}
 
-    k.SetDenom(
-        ctx,
-        denom,
-    )
-    return &types.MsgMintAndSendTokensResponse{}, nil
+	k.SetDenom(
+		ctx,
+		denom,
+	)
+	return &types.MsgMintAndSendTokensResponse{}, nil
 }
 ```
 
@@ -469,48 +469,48 @@ func (k msgServer) MintAndSendTokens(goCtx context.Context, msg *types.MsgMintAn
 package keeper
 
 import (
-    "context"
+	"context"
 
-    sdk "github.com/cosmos/cosmos-sdk/types"
-    sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-    "tokenfactory/x/tokenfactory/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"tokenfactory/x/tokenfactory/types"
 )
 
 func (k msgServer) UpdateOwner(goCtx context.Context, msg *types.MsgUpdateOwner) (*types.MsgUpdateOwnerResponse, error) {
-    ctx := sdk.UnwrapSDKContext(goCtx)
+	ctx := sdk.UnwrapSDKContext(goCtx)
 
-    // Check if the value exists
-    valFound, isFound := k.GetDenom(
-        ctx,
-        msg.Denom,
-    )
-    if !isFound {
-        return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "denom does not exist")
-    }
+	// Check if the value exists
+	valFound, isFound := k.GetDenom(
+		ctx,
+		msg.Denom,
+	)
+	if !isFound {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "denom does not exist")
+	}
 
-    // Checks if the the msg owner is the same as the current owner
-    if msg.Owner != valFound.Owner {
-        return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
-    }
+	// Checks if the the msg owner is the same as the current owner
+	if msg.Owner != valFound.Owner {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
+	}
 
-    var denom = types.Denom{
-        Owner:              msg.NewOwner,
-        Denom:              msg.Denom,
-        Description:        valFound.Description,
-        MaxSupply:          valFound.MaxSupply,
-        Supply:             valFound.Supply,
-        Precision:          valFound.Precision,
-        Ticker:             valFound.Ticker,
-        Url:                valFound.Url,
-        CanChangeMaxSupply: valFound.CanChangeMaxSupply,
-    }
+	var denom = types.Denom{
+		Owner:              msg.NewOwner,
+		Denom:              msg.Denom,
+		Description:        valFound.Description,
+		MaxSupply:          valFound.MaxSupply,
+		Supply:             valFound.Supply,
+		Precision:          valFound.Precision,
+		Ticker:             valFound.Ticker,
+		Url:                valFound.Url,
+		CanChangeMaxSupply: valFound.CanChangeMaxSupply,
+	}
 
-    k.SetDenom(
-        ctx,
-        denom,
-    )
+	k.SetDenom(
+		ctx,
+		denom,
+	)
 
-    return &types.MsgUpdateOwnerResponse{}, nil
+	return &types.MsgUpdateOwnerResponse{}, nil
 }
 ```
 
