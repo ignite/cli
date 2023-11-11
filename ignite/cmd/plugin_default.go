@@ -90,7 +90,7 @@ func newPluginInstallCmd(dp defaultPlugin) *cobra.Command {
 			// Remove this command before call to linkPlugins because a plugin is
 			// usually not allowed to override an existing command.
 			rootCmd.RemoveCommand(cmd)
-			if err := linkPlugins(rootCmd, plugins); err != nil {
+			if err := linkPlugins(cmd.Context(), rootCmd, plugins); err != nil {
 				return err
 			}
 			// Execute the command
