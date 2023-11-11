@@ -4,24 +4,54 @@
 
 ### Features
 
-- [#3476](https://github.com/ignite/cli/pull/3476) Use `buf.build` binary to code generate from proto files
-- [#3614](https://github.com/ignite/cli/pull/3614) feat: use DefaultBaseappOptions for app.New method
-- [#3536](https://github.com/ignite/cli/pull/3536) Change app.go to v2 and add AppWiring feature
+- [#3544](https://github.com/ignite/cli/pull/3544) Add bidirectional communication to plugin system
+- [#3561](https://github.com/ignite/cli/pull/3561) Add GetChainInfo method to plugin system API
 
 ### Changes
 
-- [#3581](https://github.com/ignite/cli/pull/3581) Bump cometbft and cometbft-db in the template
+- [#3529](https://github.com/ignite/cli/pull/3529) Refactor plugin system to use gRPC
+
+## [`v0.27.1`](https://github.com/ignite/cli/releases/tag/v0.27.1)
+
+### Features
+
+- [#3476](https://github.com/ignite/cli/pull/3476) Use `buf.build` binary to code generate from proto files
+- [#3614](https://github.com/ignite/cli/pull/3614) feat: use DefaultBaseappOptions for app.New method
+- [#3536](https://github.com/ignite/cli/pull/3536) Change app.go to v2 and add AppWiring feature
+- [#3670](https://github.com/ignite/cli/pull/3670) Remove nodetime binaries
+- [#3715](https://github.com/ignite/cli/pull/3715) Add test suite for the cli tests
+
+### Changes
+
+- [#3701](https://github.com/ignite/cli/pull/3701) Bump `go` version to 1.21
+- [#3621](https://github.com/ignite/cli/pull/3621) Change `pkg/availableport` to allow custom parameters in `Find` function and handle duplicated ports
 - [#3559](https://github.com/ignite/cli/pull/3559) Bump network plugin version to `v0.1.1`
+- [#3581](https://github.com/ignite/cli/pull/3581) Bump cometbft and cometbft-db in the template
 - [#3522](https://github.com/ignite/cli/pull/3522) Remove indentation from `chain serve` output
+- [#3346](https://github.com/ignite/cli/issues/3346) Improve scaffold query --help
 - [#3601](https://github.com/ignite/cli/pull/3601) Update ts-relayer version to `0.10.0`
+- [#3658](https://github.com/ignite/cli/pull/3658) Rename Marshaler to Codec in EncodingConfig
+- [#3653](https://github.com/ignite/cli/pull/3653) Add "app" extension to plugin binaries
+- [#3656](https://github.com/ignite/cli/pull/3656) Disable Go toolchain download
+- [#3662](https://github.com/ignite/cli/pull/3662) Refactor CLI "plugin" command to "app"
+- [#3669](https://github.com/ignite/cli/pull/3669) Rename `plugins` config file to `igniteapps`
+- [#3683](https://github.com/ignite/cli/pull/3683) Resolve `--dep auth` as `--dep account` in `scaffold module`
 
 ### Fixes
 
+- [#3386](https://github.com/ignite/cli/issues/3386) Prevent scaffolding of default module called "ibc"
 - [#3592](https://github.com/ignite/cli/pull/3592) Fix `pkg/protoanalysis` to support HTTP rule parameter arguments
 - [#3598](https://github.com/ignite/cli/pull/3598) Fix consensus param keeper constructor key in `app.go`
 - [#3610](https://github.com/ignite/cli/pull/3610) Fix overflow issue of cosmos faucet in `pkg/cosmosfaucet/transfer.go` and `pkg/cosmosfaucet/cosmosfaucet.go`
 - [#3618](https://github.com/ignite/cli/pull/3618) Fix TS client generation import path issue
 - [#3631](https://github.com/ignite/cli/pull/3631) Fix unnecessary vue import in hooks/composables template
+- [#3655](https://github.com/ignite/cli/pull/3655) Re-enable TS client generation
+- [#3661](https://github.com/ignite/cli/pull/3661) Change `pkg/cosmosanalysis` to find Cosmos SDK runtime app registered modules
+- [#3716](https://github.com/ignite/cli/pull/3716) Fix invalid plugin hook check
+- [#3725](https://github.com/ignite/cli/pull/3725) Fix flaky TS client generation issues on linux
+- [#3726](https://github.com/ignite/cli/pull/3726) Update TS client dependencies. Bump vue/react template versions
+- [#3728](https://github.com/ignite/cli/pull/3728) Fix wrong parser for proto package names
+- [#3729](https://github.com/ignite/cli/pull/3729) Fix broken generator due to caching /tmp include folders
 
 ## [`v0.27.0`](https://github.com/ignite/cli/releases/tag/v0.27.0)
 
@@ -35,6 +65,7 @@
 - [#3446](https://github.com/ignite/cli/pull/3446) Add `gas-adjustment` flag to the cosmos client.
 - [#3439](https://github.com/ignite/cli/pull/3439) Add `--build.tags` flag for `chain serve` and `chain build` commands.
 - [#3524](https://github.com/ignite/cli/pull/3524) Apply auto tools migration to other commands
+- [#3636](https://github.com/ignite/cli/pull/3626) Add logging levels to relayer
 - Added compatibility check and auto migration features and interactive guidelines for the latest versions of the SDK
 
 ### Changes
@@ -610,7 +641,7 @@ Our new name is **Ignite CLI**!
   automatically take care of building proto files without a need of script in the app's source code.
 - Integrated third-party proto-files used by Cosmos SDK modules into Ignite CLI
 - Added ability to customize binary name with `build.binary` in `config.yml`
-- Added ability to change path to home directory with ` .home` in `config.yml`
+- Added ability to change path to home directory with `.home` in `config.yml`
 - Added ability to add accounts by `address` with in `config.yml`
 - Added faucet functionality available on port 4500 and configurable with `faucet` in `config.yml`
 - Added `starport faucet [address] [coins]` command

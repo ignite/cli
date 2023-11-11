@@ -42,7 +42,6 @@ func New(t *testing.T, configs ...Config) *Network {
 	require.NoError(t, err)
 	_, err = net.WaitForHeight(1)
 	require.NoError(t, err)
-	t.Cleanup(net.Cleanup)
 	return net
 }
 
@@ -54,7 +53,7 @@ func DefaultConfig() network.Config {
 		chainID  = "chain-" + tmrand.NewRand().Str(6)
 	)
 	return network.Config{
-		Codec:             encoding.Marshaler,
+		Codec:             encoding.Codec,
 		TxConfig:          encoding.TxConfig,
 		LegacyAmino:       encoding.Amino,
 		InterfaceRegistry: encoding.InterfaceRegistry,
@@ -71,7 +70,7 @@ func DefaultConfig() network.Config {
 				baseapp.SetChainID(chainID),
 			)
 		},
-		GenesisState:    app.ModuleBasics.DefaultGenesis(encoding.Marshaler),
+		GenesisState:    app.ModuleBasics.DefaultGenesis(encoding.Codec),
 		TimeoutCommit:   2 * time.Second,
 		ChainID:         chainID,
 		NumValidators:   1,

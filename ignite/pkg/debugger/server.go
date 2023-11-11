@@ -124,7 +124,7 @@ func Start(ctx context.Context, binaryPath string, options ...Option) (err error
 		return fmt.Errorf("failed to run debug server: %w", err)
 	}
 
-	defer server.Stop()
+	defer server.Stop() //nolint:errcheck
 
 	// Wait until the context is done or the connected client disconnects
 	select {

@@ -7,7 +7,7 @@ To ensure you have a successful experience working with our Developer Tutorials 
 
 ## Setting up Visual Studio Code
 
-1. Install [Visual Studio Code](https://vscode-docs.readthedocs.io/en/latest/editor/setup).
+1. Install [Visual Studio Code](https://vscode-docs.readthedocs.io/en/latest/editor/setup/).
 1. Click **Extensions** in the sidebar.
 1. Install this extension:
     - Go for VS Code The official Go extension for Visual Studio Code

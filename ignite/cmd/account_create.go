@@ -35,6 +35,6 @@ func accountCreateHandler(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("unable to create account: %w", err)
 	}
 
-	fmt.Printf("Account %q created, keep your mnemonic in a secret place:\n\n%s\n", name, mnemonic)
+	cmd.Printf("Account %q created, keep your mnemonic in a secret place:\n\n%s\n", name, mnemonic)
 	return nil
 }

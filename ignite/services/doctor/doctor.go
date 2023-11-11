@@ -55,7 +55,7 @@ func (d *Doctor) MigrateConfig(_ context.Context) error {
 		return fmt.Errorf("doctor migrate config: %w", err)
 	}
 
-	d.ev.Send("Checking chain config file:", events.ProgressFinish())
+	d.ev.Send("Checking chain config file:")
 
 	configPath, err := chainconfig.LocateDefault(".")
 	if err != nil {
@@ -76,8 +76,10 @@ func (d *Doctor) MigrateConfig(_ context.Context) error {
 	status := "OK"
 
 	if version != chainconfig.LatestVersion {
-		f.Seek(0, 0)
-
+		_, err := f.Seek(0, 0)
+		if err != nil {
+			return errf(fmt.Errorf("failed to reset the file: %w", err))
+		}
 		// migrate config file
 		// Convert the current config to the latest version and update the YAML file
 		var buf bytes.Buffer
@@ -95,6 +97,7 @@ func (d *Doctor) MigrateConfig(_ context.Context) error {
 	d.ev.Send(
 		fmt.Sprintf("config file %s", colors.Success(status)),
 		events.Icon(icons.OK),
+		events.Indent(1),
 		events.ProgressFinish(),
 	)
 
@@ -109,7 +112,7 @@ func (d *Doctor) FixDependencyTools(ctx context.Context) error {
 		return fmt.Errorf("doctor fix dependency tools: %w", err)
 	}
 
-	d.ev.Send("Checking dependency tools:", events.ProgressFinish())
+	d.ev.Send("Checking dependency tools:")
 
 	_, err := os.Stat(ToolsFile)
 
@@ -118,7 +121,7 @@ func (d *Doctor) FixDependencyTools(ctx context.Context) error {
 		d.ev.Send(
 			fmt.Sprintf("%s %s", ToolsFile, colors.Success("exists")),
 			events.Icon(icons.OK),
-			events.ProgressUpdate(),
+			events.Indent(1),
 		)
 
 		updated, err := d.ensureDependencyImports(ToolsFile)
@@ -134,6 +137,7 @@ func (d *Doctor) FixDependencyTools(ctx context.Context) error {
 		d.ev.Send(
 			fmt.Sprintf("tools file %s", colors.Success(status)),
 			events.Icon(icons.OK),
+			events.Indent(1),
 			events.ProgressFinish(),
 		)
 
@@ -141,6 +145,12 @@ func (d *Doctor) FixDependencyTools(ctx context.Context) error {
 		if err := d.createToolsFile(ctx, ToolsFile); err != nil {
 			return errf(err)
 		}
+
+		d.ev.Send(
+			fmt.Sprintf("tools file %s", colors.Success("created")),
+			events.Icon(icons.OK),
+			events.Indent(1),
+		)
 
 	default:
 		return errf(err)
@@ -177,10 +187,10 @@ func (d Doctor) createToolsFile(ctx context.Context, toolsFilename string) error
 	d.ev.Send(
 		fmt.Sprintf("%s %s", toolsFilename, colors.Success("created")),
 		events.Icon(icons.OK),
-		events.ProgressFinish(),
+		events.Indent(1),
 	)
 
-	d.ev.Send("Installing dependency tools", events.ProgressStart())
+	d.ev.Send("Installing dependency tools", events.ProgressUpdate())
 	if err := cosmosgen.InstallDepTools(ctx, "."); err != nil {
 		return err
 	}
@@ -189,7 +199,7 @@ func (d Doctor) createToolsFile(ctx context.Context, toolsFilename string) error
 		d.ev.Send(
 			fmt.Sprintf("%s %s", path.Base(dep), colors.Success("installed")),
 			events.Icon(icons.OK),
-			events.ProgressFinish(),
+			events.Indent(1),
 		)
 	}
 
@@ -224,6 +234,13 @@ func (d Doctor) ensureDependencyImports(toolsFilename string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
+	d.ev.Send(
+		fmt.Sprintf("tools dependencies  %s", colors.Success("OK")),
+		events.Icon(icons.OK),
+		events.Indent(1),
+		events.ProgressFinish(),
+	)
 
 	return true, nil
 }

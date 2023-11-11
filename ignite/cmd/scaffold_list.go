@@ -55,19 +55,7 @@ array.coin. An example of using field types:
 
 	ignite scaffold list pool amount:coin tags:array.string height:int
 
-Supported types:
-
-| Type         | Alias   | Index | Code Type | Description                     |
-|--------------|---------|-------|-----------|---------------------------------|
-| string       | -       | yes   | string    | Text type                       |
-| array.string | strings | no    | []string  | List of text type               |
-| bool         | -       | yes   | bool      | Boolean type                    |
-| int          | -       | yes   | int32     | Integer type                    |
-| array.int    | ints    | no    | []int32   | List of integers types          |
-| uint         | -       | yes   | uint64    | Unsigned integer type           |
-| array.uint   | uints   | no    | []uint64  | List of unsigned integers types |
-| coin         | -       | no    | sdk.Coin  | Cosmos SDK coin type            |
-| array.coin   | coins   | no    | sdk.Coins | List of Cosmos SDK coin types   |
+For detailed type information use ignite scaffold type --help
 
 "Index" indicates whether the type can be used as an index in
 "ignite scaffold map".

@@ -51,6 +51,7 @@ func GeneratePulsar() GenerateTarget {
 // overriding the configured or default path. Path can be an empty string.
 func GenerateTSClient(path string, useCache bool) GenerateTarget {
 	return func(o *generateOptions) {
+		o.isOpenAPIEnabled = true
 		o.isTSClientEnabled = true
 		o.tsClientPath = path
 		o.useCache = useCache
@@ -60,6 +61,7 @@ func GenerateTSClient(path string, useCache bool) GenerateTarget {
 // GenerateVuex enables generating proto based Typescript Client and Vuex Stores.
 func GenerateVuex(path string) GenerateTarget {
 	return func(o *generateOptions) {
+		o.isOpenAPIEnabled = true
 		o.isTSClientEnabled = true
 		o.isVuexEnabled = true
 		o.vuexPath = path
@@ -69,6 +71,7 @@ func GenerateVuex(path string) GenerateTarget {
 // GenerateComposables enables generating proto based Typescript Client and Vue 3 composables.
 func GenerateComposables(path string) GenerateTarget {
 	return func(o *generateOptions) {
+		o.isOpenAPIEnabled = true
 		o.isTSClientEnabled = true
 		o.isComposablesEnabled = true
 		o.composablesPath = path
@@ -78,6 +81,7 @@ func GenerateComposables(path string) GenerateTarget {
 // GenerateHooks enables generating proto based Typescript Client and React composables.
 func GenerateHooks(path string) GenerateTarget {
 	return func(o *generateOptions) {
+		o.isOpenAPIEnabled = true
 		o.isTSClientEnabled = true
 		o.isHooksEnabled = true
 		o.hooksPath = path
@@ -101,6 +105,10 @@ func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Stora
 	// Additional code generation targets
 	var targets []GenerateTarget
 
+	if conf.Client.OpenAPI.Path != "" {
+		targets = append(targets, GenerateOpenAPI())
+	}
+
 	if generateClients {
 		if p := conf.Client.Typescript.Path; p != "" {
 			targets = append(targets, GenerateTSClient(p, true))
@@ -118,10 +126,6 @@ func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Stora
 		if p := conf.Client.Hooks.Path; p != "" {
 			targets = append(targets, GenerateHooks(p))
 		}
-	}
-
-	if conf.Client.OpenAPI.Path != "" {
-		targets = append(targets, GenerateOpenAPI())
 	}
 
 	// Generate proto based code for Go and optionally for any optional targets
@@ -169,6 +173,20 @@ func (c *Chain) Generate(
 		updateConfig                                                    bool
 	)
 
+	if targetOptions.isOpenAPIEnabled {
+		openAPIPath = conf.Client.OpenAPI.Path
+		if openAPIPath == "" {
+			openAPIPath = chainconfig.DefaultOpenAPIPath
+		}
+
+		// Non-absolute OpenAPI paths must be treated as relative to the app directory
+		if !filepath.IsAbs(openAPIPath) {
+			openAPIPath = filepath.Join(c.app.Path, openAPIPath)
+		}
+
+		options = append(options, cosmosgen.WithOpenAPIGeneration(openAPIPath))
+	}
+
 	if targetOptions.isTSClientEnabled {
 		tsClientPath = targetOptions.tsClientPath
 		if tsClientPath == "" {
@@ -182,7 +200,7 @@ func (c *Chain) Generate(
 			}
 		}
 
-		// Non absolute TS client output paths must be treated as relative to the app directory
+		// Non-absolute TS client output paths must be treated as relative to the app directory
 		if !filepath.IsAbs(tsClientPath) {
 			tsClientPath = filepath.Join(c.app.Path, tsClientPath)
 		}
@@ -207,7 +225,7 @@ func (c *Chain) Generate(
 			updateConfig = true
 		}
 
-		// Non absolute Vuex output paths must be treated as relative to the app directory
+		// Non-absolute Vuex output paths must be treated as relative to the app directory
 		if !filepath.IsAbs(vuexPath) {
 			vuexPath = filepath.Join(c.app.Path, vuexPath)
 		}
@@ -233,7 +251,7 @@ func (c *Chain) Generate(
 			}
 		}
 
-		// Non absolute Composables output paths must be treated as relative to the app directory
+		// Non-absolute Composables output paths must be treated as relative to the app directory
 		if !filepath.IsAbs(composablesPath) {
 			composablesPath = filepath.Join(c.app.Path, composablesPath)
 		}
@@ -257,7 +275,7 @@ func (c *Chain) Generate(
 			}
 		}
 
-		// Non absolute Hooks output paths must be treated as relative to the app directory
+		// Non-absolute Hooks output paths must be treated as relative to the app directory
 		if !filepath.IsAbs(hooksPath) {
 			hooksPath = filepath.Join(c.app.Path, hooksPath)
 		}
@@ -268,20 +286,6 @@ func (c *Chain) Generate(
 				hooksPath,
 			),
 		)
-	}
-
-	if targetOptions.isOpenAPIEnabled {
-		openAPIPath = conf.Client.OpenAPI.Path
-		if openAPIPath == "" {
-			openAPIPath = chainconfig.DefaultOpenAPIPath
-		}
-
-		// Non absolute OpenAPI paths must be treated as relative to the app directory
-		if !filepath.IsAbs(openAPIPath) {
-			openAPIPath = filepath.Join(c.app.Path, openAPIPath)
-		}
-
-		options = append(options, cosmosgen.WithOpenAPIGeneration(openAPIPath))
 	}
 
 	if err := cosmosgen.Generate(

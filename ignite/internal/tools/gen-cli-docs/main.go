@@ -58,7 +58,7 @@ func run(outPath string) error {
 	if err != nil {
 		return err
 	}
-	cfg.Plugins = append(cfg.Plugins, pluginsconfig.Plugin{
+	cfg.Apps = append(cfg.Apps, pluginsconfig.Plugin{
 		// Add network plugin
 		Path: ignitecmd.PluginNetworkPath,
 	})
@@ -104,7 +104,7 @@ func generateCmd(cmd *cobra.Command, w io.Writer) error {
 	}
 
 	// here we change sub titles to bold styling. Otherwise, these titles will get
-	// printed in the right menu of docs.starport.network which is unpleasant because
+	// printed in the right menu of docs.ignite.com which is unpleasant because
 	// we only want to see a list of all available commands without the extra noise.
 	sc := bufio.NewScanner(b)
 	for sc.Scan() {
@@ -123,7 +123,7 @@ func generateCmd(cmd *cobra.Command, w io.Writer) error {
 			continue
 		}
 
-		io.WriteString(w, "\n")
+		_, _ = io.WriteString(w, "\n")
 
 		if err := generateCmd(cmd, w); err != nil {
 			return err

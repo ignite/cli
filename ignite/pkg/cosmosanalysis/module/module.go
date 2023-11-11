@@ -22,57 +22,58 @@ type Msgs map[string][]string
 // Module keeps metadata about a Cosmos SDK module.
 type Module struct {
 	// Name of the module.
-	Name string
+	Name string `json:"name,omitempty"`
 
 	// GoModulePath of the app where the module is defined.
-	GoModulePath string
+	GoModulePath string `json:"go_module_path,omitempty"`
 
 	// Pkg holds the proto package info.
-	Pkg protoanalysis.Package
+	Pkg protoanalysis.Package `json:"package,omitempty"`
 
-	// Msg is a list of sdk.Msg implementation of the module.
-	Msgs []Msg
+	// Msgs is a list of sdk.Msg implementation of the module.
+	Msgs []Msg `json:"messages,omitempty"`
 
 	// HTTPQueries is a list of module queries.
-	HTTPQueries []HTTPQuery
+	HTTPQueries []HTTPQuery `json:"http_queries,omitempty"`
 
 	// Types is a list of proto types that might be used by module.
-	Types []Type
+	Types []Type `json:"types,omitempty"`
 }
 
 // Msg keeps metadata about an sdk.Msg implementation.
 type Msg struct {
 	// Name of the type.
-	Name string
+	Name string `json:"name,omitempty"`
 
 	// URI of the type.
-	URI string
+	URI string `json:"uri,omitempty"`
 
-	// FilePath is the path of the .proto file where message is defined at.
-	FilePath string
+	// FilePath is the path of the proto file where message is defined.
+	FilePath string `json:"file_path,omitempty"`
 }
 
 // HTTPQuery is an sdk Query.
 type HTTPQuery struct {
 	// Name of the RPC func.
-	Name string
+	Name string `json:"name,omitempty"`
 
 	// FullName of the query with service name and rpc func name.
-	FullName string
+	FullName string `json:"full_name,omitempty"`
 
-	// HTTPAnnotations keeps info about http annotations of query.
-	Rules []protoanalysis.HTTPRule
+	// Rules keeps info about configured HTTP rules of RPC functions.
+	Rules []protoanalysis.HTTPRule `json:"rules,omitempty"`
 
 	// Paginated indicates that the query is using pagination.
-	Paginated bool
+	Paginated bool `json:"paginated,omitempty"`
 }
 
 // Type is a proto type that might be used by module.
 type Type struct {
-	Name string
+	// Name of the type.
+	Name string `json:"name,omitempty"`
 
 	// FilePath is the path of the .proto file where message is defined at.
-	FilePath string
+	FilePath string `json:"file_path,omitempty"`
 }
 
 type moduleDiscoverer struct {
@@ -229,9 +230,8 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 		return Module{}, nil
 	}
 
-	namesplit := strings.Split(pkg.Name, ".")
 	m := Module{
-		Name:         namesplit[len(namesplit)-1],
+		Name:         pkg.ModuleName(),
 		GoModulePath: d.basegopath,
 		Pkg:          pkg,
 	}

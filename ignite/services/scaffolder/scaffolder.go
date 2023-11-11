@@ -64,7 +64,8 @@ func New(appPath string) (Scaffolder, error) {
 }
 
 func finish(ctx context.Context, cacheStorage cache.Storage, path, gomodPath string) error {
-	if err := protoc(ctx, cacheStorage, path, gomodPath); err != nil {
+	err := protoc(ctx, cacheStorage, path, gomodPath)
+	if err != nil {
 		return err
 	}
 

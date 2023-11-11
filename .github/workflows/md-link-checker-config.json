@@ -10,7 +10,7 @@
       "pattern": "^https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax"
     },
     {
-      "pattern": "^https://docs.starport.network"
+      "pattern": "^https://docs.ignite.com/"
     },
     {
       "pattern": "^http://localhost"

@@ -21,6 +21,7 @@ jobs:
         with:
           PATTERNS: |
             **/*.go
+            **/*.plush
             go.mod
             go.sum
             **/testdata/**
@@ -28,7 +29,7 @@ jobs:
       - uses: actions/setup-go@v4
         if: env.GIT_DIFF
         with:
-          go-version: '1.20'
+          go-version: '1.21'
           cache: true
           cache-dependency-path: go.sum
 
