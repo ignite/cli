@@ -10,6 +10,7 @@
 ### Changes
 
 - [#3529](https://github.com/ignite/cli/pull/3529) Refactor plugin system to use gRPC
+- [#3745](https://github.com/ignite/cli/pull/3745) Set tx fee amount as option
 
 ## [`v0.27.1`](https://github.com/ignite/cli/releases/tag/v0.27.1)
 
