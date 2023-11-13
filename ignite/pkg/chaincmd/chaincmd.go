@@ -103,8 +103,8 @@ func (c ChainCmd) Copy(options ...Option) ChainCmd {
 type Option func(*ChainCmd)
 
 func applyOptions(c *ChainCmd, options []Option) {
-	for _, applyOption := range options {
-		applyOption(c)
+	for _, apply := range options {
+		apply(c)
 	}
 }
 
@@ -416,8 +416,8 @@ func (c ChainCmd) GentxCommand(
 	}
 
 	// Apply the options provided by the user
-	for _, applyOption := range options {
-		command = applyOption(command)
+	for _, apply := range options {
+		command = apply(command)
 	}
 
 	command = c.attachChainID(command)
@@ -502,8 +502,8 @@ func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string, options
 	)
 
 	// Apply the options provided by the user
-	for _, applyOption := range options {
-		command = applyOption(command)
+	for _, apply := range options {
+		command = apply(command)
 	}
 
 	command = c.attachChainID(command)
