@@ -2814,7 +2814,7 @@ Make requests to a live blockchain node
 
 ```
   -h, --help          help for node
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
 ```
 
 **SEE ALSO**
@@ -2837,7 +2837,7 @@ Querying subcommands
 **Options inherited from parent commands**
 
 ```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory/cosmoshub:443")
 ```
 
 **SEE ALSO**
@@ -2860,7 +2860,7 @@ Querying commands for the bank module
 **Options inherited from parent commands**
 
 ```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory/cosmoshub:443")
 ```
 
 **SEE ALSO**
@@ -2896,7 +2896,7 @@ ignite node query bank balances [from_account_or_address] [flags]
 **Options inherited from parent commands**
 
 ```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory/cosmoshub:443")
 ```
 
 **SEE ALSO**
@@ -2921,7 +2921,7 @@ ignite node query tx [hash] [flags]
 **Options inherited from parent commands**
 
 ```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory/cosmoshub:443")
 ```
 
 **SEE ALSO**
@@ -2951,7 +2951,7 @@ Transactions subcommands
 **Options inherited from parent commands**
 
 ```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory/cosmoshub:443")
 ```
 
 **SEE ALSO**
@@ -2982,7 +2982,7 @@ Bank transaction subcommands
       --home string              directory where the blockchain node is initialized
       --keyring-backend string   keyring backend to store your account keys (default "test")
       --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
-      --node string              <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+      --node string              <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory/cosmoshub:443")
 ```
 
 **SEE ALSO**
@@ -3017,7 +3017,7 @@ ignite node tx bank send [from_account_or_address] [to_account_or_address] [amou
       --home string              directory where the blockchain node is initialized
       --keyring-backend string   keyring backend to store your account keys (default "test")
       --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
-      --node string              <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+      --node string              <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory/cosmoshub:443")
 ```
 
 **SEE ALSO**

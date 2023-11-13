@@ -51,7 +51,7 @@ const (
 	dbName = "cosmos"
 
 	// Cosmos RPC address
-	rpcAddr = "https://rpc.cosmos.network:443"
+	rpcAddr = "https://rpc.cosmos.directory:443/cosmoshub"
 )
 
 func collect(ctx context.Context, db postgres.Adapter) error {
