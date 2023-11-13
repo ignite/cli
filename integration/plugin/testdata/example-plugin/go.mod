@@ -2,8 +2,6 @@ module example-plugin
 
 go 1.21.1
 
-toolchain go1.21.4
-
 require (
 	github.com/hashicorp/go-plugin v1.4.9
 	github.com/ignite/cli v0.27.1
