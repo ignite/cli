@@ -10,6 +10,7 @@
 ### Changes
 
 - [#3529](https://github.com/ignite/cli/pull/3529) Refactor plugin system to use gRPC
+- [#3750](https://github.com/ignite/cli/pull/3750) Update default Ignite network app to `v0.2.0`
 
 ## [`v0.27.1`](https://github.com/ignite/cli/releases/tag/v0.27.1)
 
