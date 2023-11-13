@@ -203,7 +203,7 @@ func extractRelPath(pkgGoImportPath, baseGoPath string) (string, error) {
 		return strings.TrimPrefix(pkgGoImportPath, p), nil
 	}
 
-	return "", fmt.Errorf("proto go import %s is not relative to %s", pkgGoImportPath, baseGoPath)
+	return "", errors.Errorf("proto go import %s is not relative to %s", pkgGoImportPath, baseGoPath)
 }
 
 // discover discovers and sdk module by a proto pkg.

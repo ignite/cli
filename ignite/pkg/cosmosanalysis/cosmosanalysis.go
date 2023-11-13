@@ -200,7 +200,7 @@ func ValidateGoMod(module *modfile.File) error {
 		delete(moduleCheck, r.Mod.Path)
 	}
 	for m := range moduleCheck {
-		return fmt.Errorf("invalid go module, missing %s package dependency", m)
+		return errors.Errorf("invalid go module, missing %s package dependency", m)
 	}
 	return nil
 }

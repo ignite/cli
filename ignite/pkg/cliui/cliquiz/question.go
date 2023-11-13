@@ -179,7 +179,7 @@ func ValuesFromFlagsOrAsk(fset *pflag.FlagSet, title string, flags ...Flag) (val
 	for _, f := range flags {
 		flag := fset.Lookup(f.Name)
 		if flag == nil {
-			return nil, fmt.Errorf("flag %q is not defined", f.Name)
+			return nil, errors.Errorf("flag %q is not defined", f.Name)
 		}
 		if value, _ := fset.GetString(f.Name); value != "" {
 			values[f.Name] = value

@@ -22,6 +22,8 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
+	"github.com/ignite/cli/ignite/pkg/errors"
+
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -281,7 +283,7 @@ func NewOsmosisApp(
 			wasmkeeper.NewWasmSnapshotter(app.CommitMultiStore(), app.WasmKeeper),
 		)
 		if err != nil {
-			panic(fmt.Errorf("failed to register snapshot extension: %w", err))
+			panic(errors.Errorf("failed to register snapshot extension: %w", err))
 		}
 	}
 

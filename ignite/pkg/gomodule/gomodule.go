@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/fs"
 	"os"
@@ -132,5 +131,5 @@ func LocatePath(ctx context.Context, cacheStorage cache.Storage, src string, pkg
 		}
 	}
 
-	return "", fmt.Errorf("module %q not found", pkg.Path)
+	return "", errors.Errorf("module %q not found", pkg.Path)
 }

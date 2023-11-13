@@ -1,8 +1,6 @@
 package protoutil
 
 import (
-	"fmt"
-
 	"github.com/emicklei/proto"
 
 	"github.com/ignite/cli/ignite/pkg/errors"
@@ -185,7 +183,7 @@ func GetMessageByName(f *proto.Proto, name string) (node *proto.Message, err err
 	if found {
 		return
 	}
-	return nil, fmt.Errorf("message %s not found", name)
+	return nil, errors.Errorf("message %s not found", name)
 }
 
 // GetServiceByName returns the service with the given name or nil if not found.
@@ -216,7 +214,7 @@ func GetServiceByName(f *proto.Proto, name string) (node *proto.Service, err err
 	if found {
 		return
 	}
-	return nil, fmt.Errorf("service %s not found", name)
+	return nil, errors.Errorf("service %s not found", name)
 }
 
 // GetImportByPath returns the import with the given path or nil if not found.
@@ -247,7 +245,7 @@ func GetImportByPath(f *proto.Proto, path string) (node *proto.Import, err error
 	if found {
 		return
 	}
-	return nil, fmt.Errorf("import %s not found", path)
+	return nil, errors.Errorf("import %s not found", path)
 }
 
 // HasMessage returns true if the given message is found in the given file.

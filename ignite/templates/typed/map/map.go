@@ -7,9 +7,9 @@ import (
 	"strings"
 
 	"github.com/emicklei/proto"
-
 	"github.com/gobuffalo/genny/v2"
 
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
 	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
@@ -135,7 +135,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 		// Add initial import for the new type
 		gogoImport := protoutil.NewImport(typed.GoGoProtoImport)
 		if err = protoutil.AddImports(protoFile, true, gogoImport, opts.ProtoTypeImport()); err != nil {
-			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
+			return errors.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 
 		var protoIndexes []string
@@ -146,7 +146,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 		appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
 		serviceQuery, err := protoutil.GetServiceByName(protoFile, "Query")
 		if err != nil {
-			return fmt.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
+			return errors.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
 		}
 		typenameUpper, typenameSnake, typenameLower := opts.TypeName.UpperCamel, opts.TypeName.Snake, opts.TypeName.LowerCamel
 		rpcQueryGet := protoutil.NewRPC(typenameUpper, "QueryGet"+typenameUpper+"Request", "QueryGet"+typenameUpper+"Response",
@@ -192,7 +192,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 		// we already know an import exists, pass false for fallback.
 		if err = protoutil.AddImports(protoFile, false, protoImports...); err != nil {
 			// shouldn't really occur.
-			return fmt.Errorf("failed to add imports to %s: %w", path, err)
+			return errors.Errorf("failed to add imports to %s: %w", path, err)
 		}
 
 		// Add the messages.
@@ -271,12 +271,12 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 		// Add initial import for the new type
 		gogoImport := protoutil.NewImport(typed.GoGoProtoImport)
 		if err = protoutil.AddImports(protoFile, true, gogoImport, opts.ProtoTypeImport()); err != nil {
-			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
+			return errors.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 		// Get next available sequence number from GenesisState.
 		genesisState, err := protoutil.GetMessageByName(protoFile, typed.ProtoGenesisStateMessage)
 		if err != nil {
-			return fmt.Errorf("failed while looking up message '%s' in %s: %w", typed.ProtoGenesisStateMessage, path, err)
+			return errors.Errorf("failed while looking up message '%s' in %s: %w", typed.ProtoGenesisStateMessage, path, err)
 		}
 		seqNumber := protoutil.NextUniqueID(genesisState)
 
@@ -328,7 +328,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 for _, elem := range gs.%[3]vList {
 	index := %[4]v
 	if _, ok := %[2]vIndexMap[index]; ok {
-		return fmt.Errorf("duplicated index for %[2]v")
+		return errors.Errorf("duplicated index for %[2]v")
 	}
 	%[2]vIndexMap[index] = struct{}{}
 }
@@ -506,13 +506,13 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		}
 		// Add initial import for the new type
 		if err = protoutil.AddImports(protoFile, true, opts.ProtoTypeImport()); err != nil {
-			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
+			return errors.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 
 		// RPC service
 		serviceMsg, err := protoutil.GetServiceByName(protoFile, "Msg")
 		if err != nil {
-			return fmt.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
+			return errors.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
 		}
 		// better to append them altogether, single traversal.
 		typenameUpper := opts.TypeName.UpperCamel
@@ -544,7 +544,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		}
 		// we already know an import exists, pass false for fallback.
 		if err = protoutil.AddImports(protoFile, false, protoImports...); err != nil {
-			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
+			return errors.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 		commonFields := []*proto.NormalField{protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)}
 		commonFields = append(commonFields, indexes...)

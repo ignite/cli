@@ -2,13 +2,13 @@ package scaffolder
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/gocmd"
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
@@ -92,7 +92,7 @@ func (s *Scaffolder) AddOracle(
 		return sm, err
 	}
 	if !ok {
-		return sm, fmt.Errorf("the module %s doesn't implement IBC module interface", moduleName)
+		return sm, errors.Errorf("the module %s doesn't implement IBC module interface", moduleName)
 	}
 
 	// Generate the packet

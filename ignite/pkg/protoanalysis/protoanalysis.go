@@ -67,7 +67,7 @@ func HasMessages(ctx context.Context, path string, names ...string) error {
 				}
 			}
 		}
-		return fmt.Errorf("invalid proto message name %s", name)
+		return errors.Errorf("invalid proto message name %s", name)
 	}
 
 	for _, name := range names {

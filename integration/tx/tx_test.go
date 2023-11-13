@@ -91,7 +91,7 @@ func TestSignTxWithDashedAppName(t *testing.T) {
 				}
 				err := json.Unmarshal(output.Bytes(), &txResponse)
 				if err != nil {
-					return fmt.Errorf("unmarshling tx response: %w", err)
+					return errors.Errorf("unmarshling tx response: %w", err)
 				}
 				return nil
 			}),

@@ -2,7 +2,6 @@ package cosmosfaucet
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -11,6 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/ignite/pkg/errors"
 )
 
 // transferMutex is a mutex used for keeping transfer requests in a queue so checking account balance and sending tokens is atomic.
@@ -68,7 +68,7 @@ func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sd
 		coinMax, found := f.coinsMax[c.Denom]
 		if found && !coinMax.IsNil() && !coinMax.Equal(sdkmath.NewInt(0)) {
 			if totalSent.GTE(coinMax) {
-				return fmt.Errorf(
+				return errors.Errorf(
 					"account has reached to the max. allowed amount (%d) for %q denom",
 					coinMax,
 					c.Denom,
@@ -76,7 +76,7 @@ func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sd
 			}
 
 			if (totalSent.Add(c.Amount)).GT(coinMax) {
-				return fmt.Errorf(
+				return errors.Errorf(
 					`ask less amount for %q denom. account is reaching to the limit (%d) that faucet can tolerate`,
 					c.Denom,
 					coinMax,

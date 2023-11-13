@@ -1,7 +1,6 @@
 package plugins
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -116,7 +115,7 @@ func (c Config) Path() string {
 // Must be writable.
 func (c *Config) Save() error {
 	errf := func(err error) error {
-		return fmt.Errorf("plugin config save: %w", err)
+		return errors.Errorf("plugin config save: %w", err)
 	}
 	if c.path == "" {
 		return errf(errors.New("empty path"))

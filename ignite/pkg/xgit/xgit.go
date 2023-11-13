@@ -2,7 +2,6 @@ package xgit
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -31,34 +30,34 @@ func InitAndCommit(path string) error {
 	repo, err := git.PlainOpenWithOptions(path, &defaultOpenOpts)
 	if err != nil {
 		if !errors.Is(err, git.ErrRepositoryNotExists) {
-			return fmt.Errorf("open git repo %s: %w", path, err)
+			return errors.Errorf("open git repo %s: %w", path, err)
 		}
 		// not a git repo, creates a new one
 		repo, err = git.PlainInit(path, false)
 		if err != nil {
-			return fmt.Errorf("init git repo %s: %w", path, err)
+			return errors.Errorf("init git repo %s: %w", path, err)
 		}
 	}
 	wt, err := repo.Worktree()
 	if err != nil {
-		return fmt.Errorf("worktree %s: %w", path, err)
+		return errors.Errorf("worktree %s: %w", path, err)
 	}
 	// wt.Add(path) takes only relative path, we need to turn path relative to
 	// repo path.
 	repoPath := wt.Filesystem.Root()
 	path, err = filepath.Rel(repoPath, path)
 	if err != nil {
-		return fmt.Errorf("find relative path %s %s: %w", repoPath, path, err)
+		return errors.Errorf("find relative path %s %s: %w", repoPath, path, err)
 	}
 	if _, err := wt.Add(path); err != nil {
-		return fmt.Errorf("git add %s: %w", path, err)
+		return errors.Errorf("git add %s: %w", path, err)
 	}
 	_, err = wt.Commit(commitMsg, &git.CommitOptions{
 		All:    true,
 		Author: devXAuthor,
 	})
 	if err != nil {
-		return fmt.Errorf("git commit %s: %w", path, err)
+		return errors.Errorf("git commit %s: %w", path, err)
 	}
 	return nil
 }
@@ -101,7 +100,7 @@ func Clone(ctx context.Context, urlRef, dir string) error {
 	// git.PlainCloneContext below will create it).
 	files, _ := os.ReadDir(dir)
 	if len(files) > 0 {
-		return fmt.Errorf("clone: target directory %q is not empty", dir)
+		return errors.Errorf("clone: target directory %q is not empty", dir)
 	}
 	// Split urlRef
 	var (

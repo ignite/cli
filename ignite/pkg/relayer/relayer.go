@@ -3,7 +3,6 @@ package relayer
 import (
 	"context"
 	"encoding/hex"
-	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -83,7 +82,7 @@ func (r Relayer) Link(
 	}
 
 	if path.Src.ChannelID != "" {
-		return conf, fmt.Errorf("%w: %s", ErrLinkedPath, path.ID)
+		return conf, errors.Errorf("%w: %s", ErrLinkedPath, path.ID)
 	}
 
 	if path, err = r.call(ctx, conf, path, "link"); err != nil {
@@ -198,7 +197,7 @@ func (r Relayer) prepare(ctx context.Context, conf relayerconf.Config, chainID s
 		return relayerconf.Chain{}, "", err
 	}
 
-	errMissingBalance := fmt.Errorf(`account "%s(%s)" on %q chain does not have enough balances`,
+	errMissingBalance := errors.Errorf(`account "%s(%s)" on %q chain does not have enough balances`,
 		addr,
 		chain.Account,
 		chain.ID,
@@ -233,7 +232,7 @@ func (r Relayer) prepare(ctx context.Context, conf relayerconf.Config, chainID s
 
 	// Check the algorithm because the TS relayer expects a secp256k1 private key
 	if algo != algoSecp256k1 {
-		return relayerconf.Chain{}, "", fmt.Errorf("private key algorithm must be secp256k1 instead of %s", algo)
+		return relayerconf.Chain{}, "", errors.Errorf("private key algorithm must be secp256k1 instead of %s", algo)
 	}
 
 	return chain, hex.EncodeToString(priv.Bytes()), nil

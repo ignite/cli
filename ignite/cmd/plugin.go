@@ -76,7 +76,7 @@ func parseLocalPlugins(cmd *cobra.Command) (*pluginsconfig.Config, error) {
 	_ = cmd
 	wd, err := os.Getwd()
 	if err != nil {
-		return nil, fmt.Errorf("parse local apps: %w", err)
+		return nil, errors.Errorf("parse local apps: %w", err)
 	}
 	if err := cosmosanalysis.IsChainPath(wd); err != nil {
 		return nil, err
@@ -213,7 +213,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 		}
 		err = p.Interface.ExecuteHookPre(ctx, execHook, plugin.NewClientAPI(c))
 		if err != nil {
-			return fmt.Errorf("app %q ExecuteHookPre() error: %w", p.Path, err)
+			return errors.Errorf("app %q ExecuteHookPre() error: %w", p.Path, err)
 		}
 		return nil
 	}
@@ -270,7 +270,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 
 		err = p.Interface.ExecuteHookPost(ctx, execHook, plugin.NewClientAPI(c))
 		if err != nil {
-			return fmt.Errorf("app %q ExecuteHookPost() error : %w", p.Path, err)
+			return errors.Errorf("app %q ExecuteHookPost() error : %w", p.Path, err)
 		}
 		return nil
 	}
@@ -472,7 +472,7 @@ Respects key value pairs declared after the app path to be added to the generate
 
 			for _, p := range conf.Apps {
 				if p.Path == args[0] {
-					return fmt.Errorf("app %s is already installed", args[0])
+					return errors.Errorf("app %s is already installed", args[0])
 				}
 			}
 
@@ -494,7 +494,7 @@ Respects key value pairs declared after the app path to be added to the generate
 			for _, pa := range pluginArgs {
 				kv := strings.Split(pa, "=")
 				if len(kv) != 2 {
-					return fmt.Errorf("malformed key=value arg: %s", pa)
+					return errors.Errorf("malformed key=value arg: %s", pa)
 				}
 				p.With[kv[0]] = kv[1]
 			}
@@ -507,7 +507,7 @@ Respects key value pairs declared after the app path to be added to the generate
 			defer plugins[0].KillClient()
 
 			if plugins[0].Error != nil {
-				return fmt.Errorf("error while loading app %q: %w", args[0], plugins[0].Error)
+				return errors.Errorf("error while loading app %q: %w", args[0], plugins[0].Error)
 			}
 			session.Println(icons.OK, "Done loading apps")
 			conf.Apps = append(conf.Apps, p)
@@ -563,7 +563,7 @@ func NewAppUninstall() *cobra.Command {
 
 			if !removed {
 				// return if no matching plugin path found
-				return fmt.Errorf("app %s not found", args[0])
+				return errors.Errorf("app %s not found", args[0])
 			}
 
 			if err := conf.Save(); err != nil {
@@ -643,7 +643,7 @@ func NewAppDescribe() *cobra.Command {
 				if p.Path == args[0] {
 					manifest, err := p.Interface.Manifest(ctx)
 					if err != nil {
-						return fmt.Errorf("error while loading app manifest: %w", err)
+						return errors.Errorf("error while loading app manifest: %w", err)
 					}
 
 					if len(manifest.Commands) > 0 {
@@ -697,7 +697,7 @@ func printPlugins(ctx context.Context, session *cliui.Session) error {
 	}
 
 	if err := session.PrintTable([]string{"Path", "Config", "Status"}, entries...); err != nil {
-		return fmt.Errorf("error while printing apps: %w", err)
+		return errors.Errorf("error while printing apps: %w", err)
 	}
 	return nil
 }

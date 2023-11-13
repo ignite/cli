@@ -2,7 +2,6 @@ package chain
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"time"
 
@@ -74,7 +73,7 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 
 	apiAddress, err = xurl.HTTP(apiAddress)
 	if err != nil {
-		return cosmosfaucet.Faucet{}, fmt.Errorf("invalid host api address format: %w", err)
+		return cosmosfaucet.Faucet{}, errors.Errorf("invalid host api address format: %w", err)
 	}
 
 	faucetOptions := []cosmosfaucet.Option{
@@ -87,7 +86,7 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 	for _, coin := range conf.Faucet.Coins {
 		parsedCoin, err := sdk.ParseCoinNormalized(coin)
 		if err != nil {
-			return cosmosfaucet.Faucet{}, fmt.Errorf("%w: %s", err, coin)
+			return cosmosfaucet.Faucet{}, errors.Errorf("%w: %s", err, coin)
 		}
 
 		var amountMax sdkmath.Int
@@ -96,7 +95,7 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 		for _, coinMax := range conf.Faucet.CoinsMax {
 			parsedMax, err := sdk.ParseCoinNormalized(coinMax)
 			if err != nil {
-				return cosmosfaucet.Faucet{}, fmt.Errorf("%w: %s", err, coin)
+				return cosmosfaucet.Faucet{}, errors.Errorf("%w: %s", err, coin)
 			}
 			if parsedMax.Denom == parsedCoin.Denom {
 				amountMax = parsedMax.Amount
@@ -110,7 +109,7 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 	if conf.Faucet.RateLimitWindow != "" {
 		rateLimitWindow, err := time.ParseDuration(conf.Faucet.RateLimitWindow)
 		if err != nil {
-			return cosmosfaucet.Faucet{}, fmt.Errorf("%w: %s", err, conf.Faucet.RateLimitWindow)
+			return cosmosfaucet.Faucet{}, errors.Errorf("%w: %s", err, conf.Faucet.RateLimitWindow)
 		}
 
 		faucetOptions = append(faucetOptions, cosmosfaucet.RefreshWindow(rateLimitWindow))

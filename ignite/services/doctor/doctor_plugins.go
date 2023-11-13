@@ -20,7 +20,7 @@ import (
 // MigratePluginsConfig migrates plugins config to Ignite App config if required.
 func (d Doctor) MigratePluginsConfig() error {
 	errf := func(err error) error {
-		return fmt.Errorf("doctor migrate plugins config: %w", err)
+		return errors.Errorf("doctor migrate plugins config: %w", err)
 	}
 
 	d.ev.Send("Checking for legacy plugin config files:")

@@ -17,6 +17,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/gitpod"
 	"github.com/ignite/cli/ignite/pkg/xexec"
 )
@@ -190,7 +191,7 @@ func Long(ctx context.Context) string {
 // AssertSupportedCosmosSDKVersion asserts that a Cosmos SDK version is supported by Ignite CLI.
 func AssertSupportedCosmosSDKVersion(v cosmosver.Version) error {
 	if v.LT(cosmosver.StargateFortySevenTwoVersion) {
-		return fmt.Errorf(errOldCosmosSDKVersion, v)
+		return errors.Errorf(errOldCosmosSDKVersion, v)
 	}
 	return nil
 }

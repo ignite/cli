@@ -7,6 +7,7 @@ import (
 
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/ignite/pkg/errors"
 )
 
 const (
@@ -596,5 +597,5 @@ func KeyringBackendFromString(kb string) (KeyringBackend, error) {
 	if _, ok := existingKeyringBackend[KeyringBackend(kb)]; ok {
 		return KeyringBackend(kb), nil
 	}
-	return KeyringBackendUnspecified, fmt.Errorf("unrecognized keyring backend: %s", kb)
+	return KeyringBackendUnspecified, errors.Errorf("unrecognized keyring backend: %s", kb)
 }

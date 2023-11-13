@@ -15,6 +15,8 @@ import (
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
 
+	"github.com/ignite/cli/ignite/pkg/errors"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
@@ -758,7 +760,7 @@ func NewApp(
 		},
 	)
 	if err != nil {
-		panic(fmt.Errorf("failed to create AnteHandler: %s", err))
+		panic(errors.Errorf("failed to create AnteHandler: %s", err))
 	}
 
 	app.SetAnteHandler(anteHandler)

@@ -2,7 +2,6 @@ package app
 
 import (
 	"bytes"
-	"fmt"
 	"go/ast"
 	"go/format"
 	"go/parser"
@@ -33,7 +32,7 @@ func CheckKeeper(path, keeperName string) error {
 		return err
 	}
 	if len(appImpl) != 1 {
-		return fmt.Errorf("app.go should contain a single app (got %d)", len(appImpl))
+		return errors.Errorf("app.go should contain a single app (got %d)", len(appImpl))
 	}
 	appTypeName := appImpl[0]
 
@@ -74,7 +73,7 @@ func CheckKeeper(path, keeperName string) error {
 	}
 
 	if !found {
-		return fmt.Errorf("app doesn't contain %s", keeperName)
+		return errors.Errorf("app doesn't contain %s", keeperName)
 	}
 	return nil
 }
@@ -207,9 +206,9 @@ func exprToString(n ast.Expr) (string, error) {
 func newExprError(msg string, n ast.Expr) error {
 	s, err := exprToString(n)
 	if err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return errors.Errorf("%s: %w", msg, err)
 	}
-	return fmt.Errorf("%s: %s", msg, s)
+	return errors.Errorf("%s: %s", msg, s)
 }
 
 func newUnexpectedTypeErr(n any) error {

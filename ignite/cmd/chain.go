@@ -239,7 +239,7 @@ func configMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, ap
 			session.Println(prefix)
 			if err := session.AskConfirm(question); err != nil {
 				if errors.Is(err, promptui.ErrAbort) {
-					return fmt.Errorf("stopping because config version v%d is required to run the command", chainconfig.LatestVersion)
+					return errors.Errorf("stopping because config version v%d is required to run the command", chainconfig.LatestVersion)
 				}
 
 				return err
@@ -260,7 +260,7 @@ func configMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, ap
 		}
 
 		if err := os.WriteFile(configPath, buf.Bytes(), 0o755); err != nil {
-			return fmt.Errorf("config file migration failed: %w", err)
+			return errors.Errorf("config file migration failed: %w", err)
 		}
 	}
 

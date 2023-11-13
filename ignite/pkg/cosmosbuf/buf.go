@@ -92,7 +92,7 @@ func (b Buf) Export(ctx context.Context, protoDir, output string) error {
 		// Split absolute path into an absolute prefix and a relative suffix
 		paths := strings.Split(protoDir, "/proto")
 		if len(paths) < 2 {
-			return fmt.Errorf("invalid Cosmos SDK mod path: %s", protoDir)
+			return errors.Errorf("invalid Cosmos SDK mod path: %s", protoDir)
 		}
 
 		// Use the SDK copy to resolve SDK proto files
@@ -103,7 +103,7 @@ func (b Buf) Export(ctx context.Context, protoDir, output string) error {
 		return err
 	}
 	if len(specs) == 0 {
-		return fmt.Errorf("%w: %s", ErrProtoFilesNotFound, protoDir)
+		return errors.Errorf("%w: %s", ErrProtoFilesNotFound, protoDir)
 	}
 	flags := map[string]string{
 		flagOutput: output,
@@ -152,7 +152,7 @@ func (b Buf) Generate(
 		}
 		dirs := strings.Split(protoDir, "/proto/")
 		if len(dirs) < 2 {
-			return fmt.Errorf("invalid Cosmos SDK mod path: %s", dirs)
+			return errors.Errorf("invalid Cosmos SDK mod path: %s", dirs)
 		}
 		protoDir = filepath.Join(b.sdkProtoDir, dirs[1])
 	}
@@ -214,7 +214,7 @@ func (b Buf) generateCommand(
 	args ...string,
 ) ([]string, error) {
 	if _, ok := commands[c]; !ok {
-		return nil, fmt.Errorf("%w: %s", ErrInvalidCommand, c)
+		return nil, errors.Errorf("%w: %s", ErrInvalidCommand, c)
 	}
 
 	command := []string{
@@ -235,7 +235,7 @@ func (b Buf) generateCommand(
 func findSDKProtoPath(protoDir string) (string, error) {
 	paths := strings.Split(protoDir, "@")
 	if len(paths) < 2 {
-		return "", fmt.Errorf("invalid sdk mod dir: %s", protoDir)
+		return "", errors.Errorf("invalid sdk mod dir: %s", protoDir)
 	}
 	version := strings.Split(paths[1], "/")[0]
 	return fmt.Sprintf("%s@%s/proto", paths[0], version), nil

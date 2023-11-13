@@ -1,7 +1,6 @@
 package relayerconf
 
 import (
-	"fmt"
 	"os"
 	"reflect"
 
@@ -85,7 +84,7 @@ func Get() (Config, error) {
 		return c, err
 	}
 	if !reflect.DeepEqual(c, Config{}) && c.Version != SupportVersion {
-		return c, fmt.Errorf("your relayer setup is outdated. run 'rm %s' and configure relayer again", configPath)
+		return c, errors.Errorf("your relayer setup is outdated. run 'rm %s' and configure relayer again", configPath)
 	}
 	return c, nil
 }

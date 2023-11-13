@@ -17,6 +17,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cliui"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/gitpod"
 	"github.com/ignite/cli/ignite/pkg/goenv"
 	"github.com/ignite/cli/ignite/pkg/xgenny"
@@ -85,7 +86,7 @@ To get started, create a blockchain:
 
 	// Load plugins if any
 	if err := LoadPlugins(ctx, c); err != nil {
-		return nil, nil, fmt.Errorf("error while loading apps: %w", err)
+		return nil, nil, errors.Errorf("error while loading apps: %w", err)
 	}
 	return c, UnloadPlugins, nil
 }

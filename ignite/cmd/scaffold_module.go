@@ -173,7 +173,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 
 		for _, name := range dependencies {
 			if !isValid(name) {
-				return fmt.Errorf("invalid module dependency name format '%s'", name)
+				return errors.Errorf("invalid module dependency name format '%s'", name)
 			}
 
 			if alias, ok := moduleNameKeeperAlias[strings.ToLower(name)]; ok {

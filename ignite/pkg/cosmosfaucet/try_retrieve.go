@@ -50,7 +50,7 @@ func TryRetrieve(
 		return errors.Wrap(err, "faucet is not operational")
 	}
 	if resp.Error != "" {
-		return fmt.Errorf("faucet is not operational: %s", resp.Error)
+		return errors.Errorf("faucet is not operational: %s", resp.Error)
 	}
 
 	return nil

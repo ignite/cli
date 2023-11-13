@@ -225,7 +225,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 					}
 
 					// Change error message to add a link to the configuration docs
-					err = fmt.Errorf("%w\nsee: https://github.com/ignite/cli#configure", err)
+					err = errors.Errorf("%w\nsee: https://github.com/ignite/cli#configure", err)
 
 					c.ev.SendView(errorview.NewError(err), events.ProgressFinish(), events.Group(events.GroupError))
 				case errors.As(err, &buildErr):
@@ -249,7 +249,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 						)
 						command := colors.SprintFunc(colors.White)("ignite chain serve --reset-once")
 
-						return fmt.Errorf("cannot run %s\n\n%s\n%s", startErr.AppName, info, command)
+						return errors.Errorf("cannot run %s\n\n%s\n%s", startErr.AppName, info, command)
 					}
 
 					// return the clear parsed error

@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/ignite/pkg/errors"
 	"github.com/ignite/cli/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
 	"github.com/ignite/cli/ignite/pkg/xgenny"
@@ -178,7 +179,7 @@ func checkForbiddenMessageField(name string) error {
 	}
 
 	if mfName.LowerCase == datatype.TypeCustom {
-		return fmt.Errorf("%s is used by the message scaffolder", name)
+		return errors.Errorf("%s is used by the message scaffolder", name)
 	}
 
 	return checkGoReservedWord(name)
