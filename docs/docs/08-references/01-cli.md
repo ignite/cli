@@ -2837,7 +2837,7 @@ Querying subcommands
 **Options inherited from parent commands**
 
 ```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory/cosmoshub:443")
+      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
 ```
 
 **SEE ALSO**
