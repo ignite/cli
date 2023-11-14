@@ -1,0 +1,31 @@
+name: Protobuf Files
+
+on:
+  pull_request:
+    paths:
+      - "proto/**"
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v3
+      - uses: bufbuild/buf-setup-action@v1.22.0
+      - uses: bufbuild/buf-lint-action@v1
+        with:
+          input: "proto"
+
+  # TODO: Uncomment after PR#3529 is merged
+  # break-check:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: bufbuild/buf-setup-action@v1.22.0
+  #     - uses: bufbuild/buf-breaking-action@v1
+  #       with:
+  #         input: "proto"
+  #         against: "https://github.com/${{ github.repository }}.git#branch=${{ github.event.pull_request.base.ref }},ref=HEAD~1,subdir=proto"
