@@ -17,6 +17,7 @@ import (
 
 type generateOptions struct {
 	useCache             bool
+	isProtoVendorEnabled bool
 	isGoEnabled          bool
 	isPulsarEnabled      bool
 	isTSClientEnabled    bool
@@ -96,6 +97,18 @@ func GenerateOpenAPI() GenerateTarget {
 	}
 }
 
+// GenerateProtoVendor enables `proto_vendor` folder generation.
+// Proto vendor is generated from Go dependencies that contain proto files that
+// are not included in the app's Buf config.
+// Enabling proto vendoring might update Buf config with missing dependencies
+// if a Go dependency contains proto files and a Buf config with a name that is
+// not listed in the Buf dependencies.
+func GenerateProtoVendor() GenerateTarget {
+	return func(o *generateOptions) {
+		o.isProtoVendorEnabled = true
+	}
+}
+
 // generateFromConfig makes code generation from proto files from the given config.
 func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Storage, generateClients bool) error {
 	conf, err := c.Config()
@@ -158,6 +171,7 @@ func (c *Chain) Generate(
 	c.ev.Send("Building proto...", events.ProgressUpdate())
 
 	options := []cosmosgen.Option{
+		cosmosgen.CollectEvents(c.ev),
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
 	}
 
@@ -167,6 +181,10 @@ func (c *Chain) Generate(
 
 	if targetOptions.isPulsarEnabled {
 		options = append(options, cosmosgen.WithPulsarGeneration())
+	}
+
+	if targetOptions.isProtoVendorEnabled {
+		options = append(options, cosmosgen.UpdateBufModule())
 	}
 
 	var (
