@@ -142,10 +142,10 @@ func (r Runner) Status(ctx context.Context) (NodeStatus, error) {
 }
 
 // BankSend sends amount from fromAccount to toAccount.
-func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount string) (string, error) {
+func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount string, options ...chaincmd.BankSendOption) (string, error) {
 	b := newBuffer()
 	opt := []step.Option{
-		r.chainCmd.BankSendCommand(fromAccount, toAccount, amount),
+		r.chainCmd.BankSendCommand(fromAccount, toAccount, amount, options...),
 	}
 
 	if r.chainCmd.KeyringPassword() != "" {

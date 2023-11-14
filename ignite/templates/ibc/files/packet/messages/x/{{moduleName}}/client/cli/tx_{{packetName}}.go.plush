@@ -14,7 +14,10 @@ import (
 
 var _ = strconv.Itoa(0)
 
+// This command does not use AutoCLI because it gives a better UX to do not.
 func CmdSend<%= packetName.UpperCamel %>() *cobra.Command {
+	flagPacketTimeoutTimestamp := "packet-timeout-timestamp"
+
 	cmd := &cobra.Command{
 		Use:   "send-<%= packetName.Kebab %> [src-port] [src-channel]<%= fields.String() %>",
 		Short: "Send a <%= packetName.Original %> over IBC",
