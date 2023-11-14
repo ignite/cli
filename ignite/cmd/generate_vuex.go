@@ -45,7 +45,13 @@ func generateVuexHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	if err := c.Generate(cmd.Context(), cacheStorage, chain.GenerateVuex(output)); err != nil {
+	var opts []chain.GenerateTarget
+	if flagGetEnableProtoVendor(cmd) {
+		opts = append(opts, chain.GenerateProtoVendor())
+	}
+
+	err = c.Generate(cmd.Context(), cacheStorage, chain.GenerateVuex(output), opts...)
+	if err != nil {
 		return err
 	}
 

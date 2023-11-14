@@ -37,7 +37,7 @@ func newTSGenerator(g *generator) *tsGenerator {
 	return &tsGenerator{g}
 }
 
-func (g *generator) generateTS() error {
+func (g *generator) generateTS(ctx context.Context) error {
 	chainPath, _, err := gomodulepath.Find(g.appPath)
 	if err != nil {
 		return err
@@ -70,14 +70,14 @@ func (g *generator) generateTS() error {
 	})
 
 	tsg := newTSGenerator(g)
-	if err := tsg.generateModuleTemplates(); err != nil {
+	if err := tsg.generateModuleTemplates(ctx); err != nil {
 		return err
 	}
 
 	return tsg.generateRootTemplates(data)
 }
 
-func (g *tsGenerator) generateModuleTemplates() error {
+func (g *tsGenerator) generateModuleTemplates(ctx context.Context) error {
 	protocCmd, cleanupProtoc, err := protoc.Command()
 	if err != nil {
 		return err
@@ -122,7 +122,7 @@ func (g *tsGenerator) generateModuleTemplates() error {
 					}
 				}
 
-				err = g.generateModuleTemplate(g.g.ctx, protocCmd, staCmd, tsprotoPluginPath, sourcePath, m, includes)
+				err = g.generateModuleTemplate(ctx, protocCmd, staCmd, tsprotoPluginPath, sourcePath, m, includes)
 				if err != nil {
 					return err
 				}
@@ -132,7 +132,7 @@ func (g *tsGenerator) generateModuleTemplates() error {
 		}
 	}
 
-	add(g.g.appPath, g.g.appModules, g.g.appIncludes)
+	add(g.g.appPath, g.g.appModules, g.g.appIncludes.Paths)
 
 	// Always generate third party modules; This is required because not generating them might
 	// lead to issues with the module registration in the root template. The root template must
@@ -140,8 +140,9 @@ func (g *tsGenerator) generateModuleTemplates() error {
 	// is available and not generated it would lead to the registration of a new not generated
 	// 3rd party module.
 	for sourcePath, modules := range g.g.thirdModules {
-		includes := g.g.thirdModuleIncludes[sourcePath]
-		add(sourcePath, modules, append(g.g.appIncludes, includes...))
+		// TODO: Skip modules without proto files?
+		thirdIncludes := g.g.thirdModuleIncludes[sourcePath]
+		add(sourcePath, modules, append(g.g.appIncludes.Paths, thirdIncludes.Paths...))
 	}
 
 	return gg.Wait()
@@ -181,9 +182,7 @@ func (g *tsGenerator) generateModuleTemplate(
 
 	specPath := filepath.Join(out, "api.swagger.yml")
 
-	err = g.g.generateModuleOpenAPISpec(m, specPath)
-
-	if err != nil {
+	if err = g.g.generateModuleOpenAPISpec(ctx, m, specPath); err != nil {
 		return err
 	}
 	// generate the REST client from the OpenAPI spec

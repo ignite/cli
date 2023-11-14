@@ -44,7 +44,13 @@ func generateComposablesHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	if err := c.Generate(cmd.Context(), cacheStorage, chain.GenerateComposables(output)); err != nil {
+	var opts []chain.GenerateTarget
+	if flagGetEnableProtoVendor(cmd) {
+		opts = append(opts, chain.GenerateProtoVendor())
+	}
+
+	err = c.Generate(cmd.Context(), cacheStorage, chain.GenerateComposables(output), opts...)
+	if err != nil {
 		return err
 	}
 
