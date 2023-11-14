@@ -11,6 +11,7 @@
 
 - [#3529](https://github.com/ignite/cli/pull/3529) Refactor plugin system to use gRPC
 - [#3750](https://github.com/ignite/cli/pull/3750) Update default Ignite network app to `v0.2.0`
+- [#3751](https://github.com/ignite/cli/pull/3751) Rename label to skip changelog check
 - [#3745](https://github.com/ignite/cli/pull/3745) Set tx fee amount as option
 
 ## [`v0.27.1`](https://github.com/ignite/cli/releases/tag/v0.27.1)
