@@ -8,7 +8,7 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/ignite/pkg/errors"
 )
@@ -92,7 +92,7 @@ func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sd
 	if err != nil {
 		return err
 	}
-	txHash, err := f.runner.BankSend(ctx, fromAccount.Address, toAccountAddress, strings.Join(coinsStr, ","))
+	txHash, err := f.runner.BankSend(ctx, fromAccount.Address, toAccountAddress, strings.Join(coinsStr, ","), chaincmd.BankSendWithFees(f.feeAmount))
 	if err != nil {
 		return err
 	}
