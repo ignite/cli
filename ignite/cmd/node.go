@@ -10,7 +10,7 @@ import (
 
 const (
 	flagNode         = "node"
-	cosmosRPCAddress = "https://rpc.cosmos.network:443"
+	cosmosRPCAddress = "https://rpc.cosmos.directory:443/cosmoshub"
 )
 
 func NewNode() *cobra.Command {
