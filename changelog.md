@@ -10,8 +10,7 @@
 ### Changes
 
 - [#3529](https://github.com/ignite/cli/pull/3529) Refactor plugin system to use gRPC
-- [#3751](https://github.com/ignite/cli/pull/3751) Rename label to skip changelog check
-- [#3745](https://github.com/ignite/cli/pull/3745) Set tx fee amount as option
+- [#3748](https://github.com/ignite/cli/pull/3748) Change default rpc endpoint to a working one
 
 ## [`v0.27.1`](https://github.com/ignite/cli/releases/tag/v0.27.1)
 
@@ -25,7 +24,6 @@
 
 ### Changes
 
-- [#3529](https://github.com/ignite/cli/pull/3529) Refactor plugin system to use gRPC
 - [#3701](https://github.com/ignite/cli/pull/3701) Bump `go` version to 1.21
 - [#3621](https://github.com/ignite/cli/pull/3621) Change `pkg/availableport` to allow custom parameters in `Find` function and handle duplicated ports
 - [#3559](https://github.com/ignite/cli/pull/3559) Bump network plugin version to `v0.1.1`
@@ -39,7 +37,6 @@
 - [#3662](https://github.com/ignite/cli/pull/3662) Refactor CLI "plugin" command to "app"
 - [#3669](https://github.com/ignite/cli/pull/3669) Rename `plugins` config file to `igniteapps`
 - [#3683](https://github.com/ignite/cli/pull/3683) Resolve `--dep auth` as `--dep account` in `scaffold module`
-- [#3748](https://github.com/ignite/cli/pull/3748) Change default rpc endpoint to a working one
 
 ### Fixes
 
