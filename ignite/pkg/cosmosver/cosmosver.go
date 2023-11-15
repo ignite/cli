@@ -22,6 +22,7 @@ var (
 	StargateFortyFourVersion      = newVersion("0.44.0-alpha")
 	StargateFortyFiveThreeVersion = newVersion("0.45.3")
 	StargateFortySevenTwoVersion  = newVersion("0.47.2")
+	StargateFiftyVersion          = newVersion("0.50.0")
 )
 
 var (
