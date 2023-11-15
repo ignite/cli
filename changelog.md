@@ -6,20 +6,6 @@
 
 - [#3544](https://github.com/ignite/cli/pull/3544) Add bidirectional communication to plugin system
 - [#3561](https://github.com/ignite/cli/pull/3561) Add GetChainInfo method to plugin system API
-- [#3756](https://github.com/ignite/cli/pull/3756) Add faucet compatibility for latest sdk chains.
-
-### Changes
-
-- [#3529](https://github.com/ignite/cli/pull/3529) Refactor plugin system to use gRPC
-- [#3750](https://github.com/ignite/cli/pull/3750) Update default Ignite network app to `v0.2.0`
-- [#3751](https://github.com/ignite/cli/pull/3751) Rename label to skip changelog check
-- [#3745](https://github.com/ignite/cli/pull/3745) Set tx fee amount as option
-- [#3748](https://github.com/ignite/cli/pull/3748) Change default rpc endpoint to a working one
-
-## [`v0.27.1`](https://github.com/ignite/cli/releases/tag/v0.27.1)
-
-### Features
-
 - [#3626](https://github.com/ignite/cli/pull/3626) Add logging levels to relayer
 - [#3476](https://github.com/ignite/cli/pull/3476) Use `buf.build` binary to code generate from proto files
 - [#3614](https://github.com/ignite/cli/pull/3614) feat: use DefaultBaseappOptions for app.New method
@@ -27,6 +13,7 @@
 - [#3670](https://github.com/ignite/cli/pull/3670) Remove nodetime binaries
 - [#3724](https://github.com/ignite/cli/pull/3724) Add or vendor proto packages from Go dependencies
 - [#3715](https://github.com/ignite/cli/pull/3715) Add test suite for the cli tests
+- [#3756](https://github.com/ignite/cli/pull/3756) Add faucet compatibility for latest sdk chains
 
 ### Changes
 
