@@ -547,6 +547,22 @@ func (c ChainCmd) QueryTxEventsCommand(query string) step.Option {
 	return c.cliCommand(command)
 }
 
+// QueryTxQueryCommand returns the command to query tx.
+func (c ChainCmd) QueryTxQueryCommand(query string) step.Option {
+	command := []string{
+		commandQuery,
+		"txs",
+		"--query",
+		query,
+		"--page", "1",
+		"--limit", "1000",
+		"--output", "json",
+	}
+
+	command = c.attachNode(command)
+	return c.cliCommand(command)
+}
+
 // StatusCommand returns the command that fetches node's status.
 func (c ChainCmd) StatusCommand() step.Option {
 	command := []string{

@@ -268,25 +268,46 @@ type EventAttribute struct {
 	Value string
 }
 
-// QueryTxEvents queries tx events by event selectors.
-func (r Runner) QueryTxEvents(
+// QueryTxByEvents queries tx events by event selectors.
+func (r Runner) QueryTxByEvents(
 	ctx context.Context,
-	selector EventSelector,
-	moreSelectors ...EventSelector,
+	selectors ...EventSelector,
 ) ([]Event, error) {
-	// prepare the selector.
-	var list []string
+	if len(selectors) == 0 {
+		return nil, errors.New("event selector list should be greater than zero")
+	}
+	list := make([]string, len(selectors))
+	for i, event := range selectors {
+		list[i] = fmt.Sprintf("%s.%s=%s", event.typ, event.attr, event.value)
+	}
+	query := strings.Join(list, "&")
+	return r.QueryTx(ctx, r.chainCmd.QueryTxEventsCommand(query))
+}
 
-	eventsSelectors := append([]EventSelector{selector}, moreSelectors...)
-
-	for _, event := range eventsSelectors {
-		list = append(list, fmt.Sprintf("%s.%s='%s'", event.typ, event.attr, event.value))
+// QueryTxByQuery queries tx events by event selectors.
+func (r Runner) QueryTxByQuery(
+	ctx context.Context,
+	selectors ...EventSelector,
+) ([]Event, error) {
+	if len(selectors) == 0 {
+		return nil, errors.New("event selector list should be greater than zero")
+	}
+	list := make([]string, len(selectors))
+	for i, query := range selectors {
+		list[i] = fmt.Sprintf("%s.%s='%s'", query.typ, query.attr, query.value)
 	}
 	query := strings.Join(list, " AND ")
+	return r.QueryTx(ctx, r.chainCmd.QueryTxQueryCommand(query))
+}
 
+// QueryTx queries tx events/query selectors.
+func (r Runner) QueryTx(
+	ctx context.Context,
+	option ...step.Option,
+) ([]Event, error) {
 	// execute the command and parse the output.
 	b := newBuffer()
-	if err := r.run(ctx, runOptions{stdout: b}, r.chainCmd.QueryTxEventsCommand(query)); err != nil {
+	if err := r.run(ctx, runOptions{stdout: b}, option...); err != nil {
 		return nil, err
 	}
 
