@@ -100,10 +100,11 @@ var (
 		vestingtypes.ModuleName,
 		circuittypes.ModuleName,
 	    // ibc modules
-		// capabilitytypes.ModuleName,
-		// ibcexported.ModuleName,
-		// ibctransfertypes.ModuleName,
-		// icatypes.ModuleName,
+		capabilitytypes.ModuleName,
+		ibcexported.ModuleName,
+		ibctransfertypes.ModuleName,
+		icatypes.ModuleName,
+		ibcfeetypes.ModuleName,
 		// chain modules
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	}
