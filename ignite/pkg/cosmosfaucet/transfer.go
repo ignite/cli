@@ -11,6 +11,7 @@ import (
 
 	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/errors"
 )
 
@@ -24,11 +25,22 @@ func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, de
 		return sdkmath.NewInt(0), err
 	}
 
-	events, err := f.runner.QueryTxEvents(ctx,
+	opts := []chaincmdrunner.EventSelector{
 		chaincmdrunner.NewEventSelector("message", "sender", fromAccount.Address),
-		chaincmdrunner.NewEventSelector("transfer", "recipient", toAccountAddress))
-	if err != nil {
-		return sdkmath.NewInt(0), err
+		chaincmdrunner.NewEventSelector("transfer", "recipient", toAccountAddress),
+	}
+
+	var events []chaincmdrunner.Event
+	if f.version.GTE(cosmosver.StargateFiftyVersion) {
+		events, err = f.runner.QueryTxByQuery(ctx, opts...)
+		if err != nil {
+			return sdkmath.NewInt(0), err
+		}
+	} else {
+		events, err = f.runner.QueryTxByEvents(ctx, opts...)
+		if err != nil {
+			return sdkmath.NewInt(0), err
+		}
 	}
 
 	totalAmount = sdkmath.NewInt(0)

@@ -80,6 +80,7 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 		cosmosfaucet.Account(*conf.Faucet.Name, "", ""),
 		cosmosfaucet.ChainID(id),
 		cosmosfaucet.OpenAPI(apiAddress),
+		cosmosfaucet.Version(c.Version),
 	}
 
 	// parse coins to pass to the faucet as coins.
