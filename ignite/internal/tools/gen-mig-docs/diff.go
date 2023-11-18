@@ -13,6 +13,9 @@ import (
 var diffExceptions = []string{
 	"*.md",
 	"go.sum",
+	"*_test.go",
+	"*.pb.go",
+	"*.pb.gw.go",
 }
 
 // Diff returns unified diff between all files in two directories recursively.

@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -27,7 +26,47 @@ var scaffoldCommands = map[string][]string{
 	"module": {"chain example --skip-git"},
 	"list": {
 		"chain example --skip-git",
-		"list list1 field1:string field2:int --module example",
+		"list list1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --module example",
+		"map map1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --module example",
+	},
+	"map": {
+		"chain example --skip-git",
+		"map map1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --module example",
+	},
+	"single": {
+		"chain example --skip-git",
+		"single single1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --module example",
+	},
+	"type": {
+		"chain example --skip-git",
+		"type type1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --module example",
+	},
+	"message": {
+		"chain example --skip-git",
+		"message message1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --module example",
+	},
+	// "query": {
+	// 	"chain example --skip-git",
+	// 	"query query1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --module example",
+	// },
+	"packet": {
+		"chain example --no-module --skip-git",
+		"module example --ibc",
+		"chain example --skip-git",
+		"packet packet1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --module example",
+	},
+	"band": {
+		"chain example --no-module --skip-git",
+		"module example --ibc",
+		"band band1 --module example --yes",
+	},
+	"vue": {
+		"chain example --skip-git",
+		"vue",
+	},
+	"react": {
+		"chain example --skip-git",
+		"react",
 	},
 }
 
@@ -169,15 +208,21 @@ func main() {
 	if err != nil {
 		logger.Fatalln(err)
 	}
+	outf, err := os.Create(fmt.Sprintf("migdoc-%s-%s.diff", fromVer, toVer))
+	if err != nil {
+		logger.Fatalln(err)
+	}
+	defer outf.Close()
 	for _, diff := range diffs {
-		fmt.Println(diff)
+		outf.WriteString(fmt.Sprint(diff))
+		outf.WriteString("\n")
 	}
 }
 
 func runCommand(dir, name string, args ...string) error {
 	cmd := exec.Command(name, args...)
 	cmd.Dir = dir
-	cmd.Stdout = io.Discard
+	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
 }
