@@ -73,7 +73,12 @@ func generateTSClientHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	err = c.Generate(cmd.Context(), cacheStorage, chain.GenerateTSClient(output, useCache))
+	var opts []chain.GenerateTarget
+	if flagGetEnableProtoVendor(cmd) {
+		opts = append(opts, chain.GenerateProtoVendor())
+	}
+
+	err = c.Generate(cmd.Context(), cacheStorage, chain.GenerateTSClient(output, useCache), opts...)
 	if err != nil {
 		return err
 	}

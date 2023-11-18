@@ -1,10 +1,12 @@
 package cosmosgen
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 
 	"github.com/otiai10/copy"
+
 	"github.com/pkg/errors"
 )
 
@@ -16,7 +18,7 @@ func (g *generator) pulsarTemplate() string {
 	return filepath.Join(g.appPath, g.protoDir, "buf.gen.pulsar.yaml")
 }
 
-func (g *generator) generateGo() error {
+func (g *generator) generateGo(ctx context.Context) error {
 	// create a temporary dir to locate generated code under which later only some of them will be moved to the
 	// app's source code. this also prevents having leftover files in the app's source code or its parent dir - when
 	// command executed directly there - in case of an interrupt.
@@ -29,13 +31,8 @@ func (g *generator) generateGo() error {
 	protoPath := filepath.Join(g.appPath, g.protoDir)
 
 	// code generate for each module.
-	if err := g.buf.Generate(
-		g.ctx,
-		protoPath,
-		tmp,
-		g.gogoTemplate(),
-		"module.proto",
-	); err != nil {
+	err = g.buf.Generate(ctx, protoPath, tmp, g.gogoTemplate(), "module.proto")
+	if err != nil {
 		return err
 	}
 
@@ -55,7 +52,7 @@ func (g *generator) generateGo() error {
 	return nil
 }
 
-func (g *generator) generatePulsar() error {
+func (g *generator) generatePulsar(ctx context.Context) error {
 	// create a temporary dir to locate generated code under which later only some of them will be moved to the
 	// app's source code. this also prevents having leftover files in the app's source code or its parent dir - when
 	// command executed directly there - in case of an interrupt.
@@ -68,12 +65,8 @@ func (g *generator) generatePulsar() error {
 	protoPath := filepath.Join(g.appPath, g.protoDir)
 
 	// code generate for each module.
-	if err := g.buf.Generate(
-		g.ctx,
-		protoPath,
-		tmp,
-		g.pulsarTemplate(),
-	); err != nil {
+	err = g.buf.Generate(ctx, protoPath, tmp, g.pulsarTemplate())
+	if err != nil {
 		return err
 	}
 

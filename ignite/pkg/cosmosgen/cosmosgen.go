@@ -12,12 +12,15 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cache"
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/ignite/pkg/cosmosbuf"
+	"github.com/ignite/cli/ignite/pkg/events"
 )
 
 // generateOptions used to configure code generation.
 type generateOptions struct {
-	includeDirs []string
-	useCache    bool
+	includeDirs     []string
+	useCache        bool
+	updateBufModule bool
+	ev              events.Bus
 
 	isGoEnabled     bool
 	isPulsarEnabled bool
@@ -103,9 +106,24 @@ func IncludeDirs(dirs []string) Option {
 	}
 }
 
+// UpdateBufModule enables Buf config proto dependencies update.
+// This option updates app's Buf config when proto packages or
+// Buf modules are found within the Go dependencies.
+func UpdateBufModule() Option {
+	return func(o *generateOptions) {
+		o.updateBufModule = true
+	}
+}
+
+// CollectEvents sets an event bus for sending generation feedback events.
+func CollectEvents(ev events.Bus) Option {
+	return func(c *generateOptions) {
+		c.ev = ev
+	}
+}
+
 // generator generates code for sdk and sdk apps.
 type generator struct {
-	ctx                 context.Context
 	buf                 cosmosbuf.Buf
 	cacheStorage        cache.Storage
 	appPath             string
@@ -115,9 +133,9 @@ type generator struct {
 	sdkImport           string
 	deps                []gomodule.Version
 	appModules          []module.Module
-	appIncludes         []string
+	appIncludes         protoIncludes
 	thirdModules        map[string][]module.Module
-	thirdModuleIncludes map[string][]string
+	thirdModuleIncludes map[string]protoIncludes
 	tmpDirs             []string
 }
 
@@ -139,14 +157,13 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 	defer b.Cleanup()
 
 	g := &generator{
-		ctx:                 ctx,
 		buf:                 b,
 		appPath:             appPath,
 		protoDir:            protoDir,
 		gomodPath:           gomodPath,
 		opts:                &generateOptions{},
 		thirdModules:        make(map[string][]module.Module),
-		thirdModuleIncludes: make(map[string][]string),
+		thirdModuleIncludes: make(map[string]protoIncludes),
 		cacheStorage:        cacheStorage,
 	}
 
@@ -156,31 +173,41 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		apply(g.opts)
 	}
 
-	if err := g.setup(); err != nil {
+	if err := g.setup(ctx); err != nil {
 		return err
+	}
+
+	// Update app's Buf config for third party discovered proto modules.
+	// Go dependency packages might contain proto files which could also
+	// optionally be using Buf, so for those cases the discovered proto
+	// files should be available before code generation.
+	if g.opts.updateBufModule {
+		if err := g.updateBufModule(ctx); err != nil {
+			return err
+		}
 	}
 
 	// Go generation must run first so the types are created before other
 	// generated code that requires sdk.Msg implementations to be defined
 	if g.opts.isGoEnabled {
-		if err := g.generateGo(); err != nil {
+		if err := g.generateGo(ctx); err != nil {
 			return err
 		}
 	}
 	if g.opts.isPulsarEnabled {
-		if err := g.generatePulsar(); err != nil {
+		if err := g.generatePulsar(ctx); err != nil {
 			return err
 		}
 	}
 
 	if g.opts.specOut != "" {
-		if err := g.generateOpenAPISpec(); err != nil {
+		if err := g.generateOpenAPISpec(ctx); err != nil {
 			return err
 		}
 	}
 
 	if g.opts.jsOut != nil {
-		if err := g.generateTS(); err != nil {
+		if err := g.generateTS(ctx); err != nil {
 			return err
 		}
 	}

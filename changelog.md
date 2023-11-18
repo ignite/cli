@@ -4,31 +4,26 @@
 
 ### Features
 
+- [#3694](https://github.com/ignite/cli/pull/3694) Query and Tx AutoCLI support
 - [#3544](https://github.com/ignite/cli/pull/3544) Add bidirectional communication to plugin system
 - [#3561](https://github.com/ignite/cli/pull/3561) Add GetChainInfo method to plugin system API
-
-### Changes
-
-- [#3529](https://github.com/ignite/cli/pull/3529) Refactor plugin system to use gRPC
-- [#3751](https://github.com/ignite/cli/pull/3751) Rename label to skip changelog check
-- [#3745](https://github.com/ignite/cli/pull/3745) Set tx fee amount as option
-- [#3748](https://github.com/ignite/cli/pull/3748) Change default rpc endpoint to a working one
-- [#3694](https://github.com/ignite/cli/pull/3694) Query and Tx AutoCLI support
-
-## [`v0.27.1`](https://github.com/ignite/cli/releases/tag/v0.27.1)
-
-### Features
-
+- [#3626](https://github.com/ignite/cli/pull/3626) Add logging levels to relayer
 - [#3476](https://github.com/ignite/cli/pull/3476) Use `buf.build` binary to code generate from proto files
 - [#3614](https://github.com/ignite/cli/pull/3614) feat: use DefaultBaseappOptions for app.New method
 - [#3536](https://github.com/ignite/cli/pull/3536) Change app.go to v2 and add AppWiring feature
 - [#3659](https://github.com/ignite/cli/pull/3659) cosmos-sdk `v0.50.x`
 - [#3670](https://github.com/ignite/cli/pull/3670) Remove nodetime binaries
+- [#3724](https://github.com/ignite/cli/pull/3724) Add or vendor proto packages from Go dependencies
 - [#3715](https://github.com/ignite/cli/pull/3715) Add test suite for the cli tests
+- [#3756](https://github.com/ignite/cli/pull/3756) Add faucet compatibility for latest sdk chains
 
 ### Changes
 
-- [#3701](https://github.com/ignite/cli/pull/3701) Bump `go` version to 1.21
+- [#3529](https://github.com/ignite/cli/pull/3529) Refactor plugin system to use gRPC
+- [#3750](https://github.com/ignite/cli/pull/3750) Update default Ignite network app to `v0.2.0`
+- [#3751](https://github.com/ignite/cli/pull/3751) Rename label to skip changelog check
+- [#3745](https://github.com/ignite/cli/pull/3745) Set tx fee amount as option
+- [#3748](https://github.com/ignite/cli/pull/3748) Change default rpc endpoint to a working one
 - [#3621](https://github.com/ignite/cli/pull/3621) Change `pkg/availableport` to allow custom parameters in `Find` function and handle duplicated ports
 - [#3559](https://github.com/ignite/cli/pull/3559) Bump network plugin version to `v0.1.1`
 - [#3581](https://github.com/ignite/cli/pull/3581) Bump cometbft and cometbft-db in the template
@@ -58,11 +53,16 @@
 - [#3728](https://github.com/ignite/cli/pull/3728) Fix wrong parser for proto package names
 - [#3729](https://github.com/ignite/cli/pull/3729) Fix broken generator due to caching /tmp include folders
 
-## [`v0.27.0`](https://github.com/ignite/cli/releases/tag/v0.27.0)
+## [`v0.27.2`](https://github.com/ignite/cli/releases/tag/v0.27.2)
+
+### Changes
+
+- [#3701](https://github.com/ignite/cli/pull/3701) Bump `go` version to 1.21
+
+## [`v0.27.1`](https://github.com/ignite/cli/releases/tag/v0.27.1)
 
 ### Features
 
--
 - [#3505](https://github.com/ignite/cli/pull/3505) Auto migrate dependency tools
 - [#3538](https://github.com/ignite/cli/pull/3538) bump sdk to `v0.47.3` and ibc to `v7.1.0`
 - [#2736](https://github.com/ignite/cli/issues/2736) Add `--skip-git` flag to skip git repository initialization.
@@ -70,7 +70,6 @@
 - [#3446](https://github.com/ignite/cli/pull/3446) Add `gas-adjustment` flag to the cosmos client.
 - [#3439](https://github.com/ignite/cli/pull/3439) Add `--build.tags` flag for `chain serve` and `chain build` commands.
 - [#3524](https://github.com/ignite/cli/pull/3524) Apply auto tools migration to other commands
-- [#3636](https://github.com/ignite/cli/pull/3626) Add logging levels to relayer
 - Added compatibility check and auto migration features and interactive guidelines for the latest versions of the SDK
 
 ### Changes

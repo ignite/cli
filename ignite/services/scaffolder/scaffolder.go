@@ -92,6 +92,7 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 	options := []cosmosgen.Option{
 		cosmosgen.WithGoGeneration(),
 		cosmosgen.WithPulsarGeneration(),
+		cosmosgen.UpdateBufModule(),
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
 	}
 
