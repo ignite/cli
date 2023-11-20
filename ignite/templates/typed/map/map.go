@@ -349,7 +349,7 @@ for _, elem := range gs.%[3]vList {
 
 func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "genesis.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -385,7 +385,7 @@ for _, elem := range genState.%[3]vList {
 
 func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "genesis_test.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/genesis_test.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -546,22 +546,31 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		if err = protoutil.AddImports(protoFile, false, protoImports...); err != nil {
 			return errors.Errorf("failed while adding imports in %s: %w", path, err)
 		}
-		commonFields := []*proto.NormalField{protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)}
+
+		creator := protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)
+		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.LowerCamel)
+		commonFields := []*proto.NormalField{creator}
 		commonFields = append(commonFields, indexes...)
 
 		msgCreate := protoutil.NewMessage(
 			"MsgCreate"+typenameUpper,
 			protoutil.WithFields(append(commonFields, fields...)...),
+			protoutil.WithMessageOptions(creatorOpt),
 		)
 		msgCreateResponse := protoutil.NewMessage("MsgCreate" + typenameUpper + "Response")
 
 		msgUpdate := protoutil.NewMessage(
 			"MsgUpdate"+typenameUpper,
 			protoutil.WithFields(append(commonFields, fields...)...),
+			protoutil.WithMessageOptions(creatorOpt),
 		)
 		msgUpdateResponse := protoutil.NewMessage("MsgUpdate" + typenameUpper + "Response")
 
-		msgDelete := protoutil.NewMessage("MsgDelete"+typenameUpper, protoutil.WithFields(commonFields...))
+		msgDelete := protoutil.NewMessage(
+			"MsgDelete"+typenameUpper,
+			protoutil.WithFields(commonFields...),
+			protoutil.WithMessageOptions(creatorOpt),
+		)
 		msgDeleteResponse := protoutil.NewMessage("MsgDelete" + typenameUpper + "Response")
 		protoutil.Append(protoFile,
 			msgCreate, msgCreateResponse, msgUpdate, msgUpdateResponse, msgDelete, msgDeleteResponse,
@@ -603,19 +612,6 @@ func typesCodecModify(replacer placeholder.Replacer, opts *typed.Options) genny.
 		// Import
 		replacementImport := `sdk "github.com/cosmos/cosmos-sdk/types"`
 		content = replacer.ReplaceOnce(content, typed.Placeholder, replacementImport)
-
-		// Concrete
-		templateConcrete := `cdc.RegisterConcrete(&MsgCreate%[2]v{}, "%[3]v/Create%[2]v", nil)
-cdc.RegisterConcrete(&MsgUpdate%[2]v{}, "%[3]v/Update%[2]v", nil)
-cdc.RegisterConcrete(&MsgDelete%[2]v{}, "%[3]v/Delete%[2]v", nil)
-%[1]v`
-		replacementConcrete := fmt.Sprintf(
-			templateConcrete,
-			typed.Placeholder2,
-			opts.TypeName.UpperCamel,
-			opts.ModuleName,
-		)
-		content = replacer.Replace(content, typed.Placeholder2, replacementConcrete)
 
 		// Interface
 		templateInterface := `registry.RegisterImplementations((*sdk.Msg)(nil),

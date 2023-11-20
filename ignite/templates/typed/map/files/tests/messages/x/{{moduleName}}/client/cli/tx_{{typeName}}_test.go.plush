@@ -20,12 +20,11 @@ var _ = strconv.IntSize
 
 func (s *IntegrationTestSuite) TestCreate<%= TypeName.UpperCamel %>() {
 	var (
-		net = s.network()
+		net = s.network(nil)
 		val = net.Validators[0]
 		ctx = val.ClientCtx
+        fields = []string{<%= for (field) in Fields { %> "<%= field.DefaultTestValue() %>", <% } %>}
 	)
-
-    fields := []string{<%= for (field) in Fields { %> "<%= field.DefaultTestValue() %>", <% } %>}
 	tests := []struct {
 		desc string
         <%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %> <%= index.DataType() %>
@@ -42,7 +41,7 @@ func (s *IntegrationTestSuite) TestCreate<%= TypeName.UpperCamel %>() {
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdkmath.NewInt(10))).String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(net.Config.BondDenom, sdkmath.NewInt(10))).String()),
 			},
 		},
 	}
@@ -70,27 +69,27 @@ func (s *IntegrationTestSuite) TestCreate<%= TypeName.UpperCamel %>() {
 
 func (s *IntegrationTestSuite) TestUpdate<%= TypeName.UpperCamel %>() {
 	var (
-		net = s.network()
+		net = s.network(nil)
 		val = net.Validators[0]
 		ctx = val.ClientCtx
+        fields = []string{<%= for (field) in Fields { %> "<%= field.DefaultTestValue() %>", <% } %>}
+        common = []string{
+            fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+            fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+            fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
+            fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(net.Config.BondDenom, sdkmath.NewInt(10))).String()),
+        }
+        args = []string{
+            <%= for (i, index) in Indexes { %>"0",
+            <% } %>
+        }
 	)
+    args = append(args, fields...)
+    args = append(args, common...)
 
-    fields := []string{<%= for (field) in Fields { %> "<%= field.DefaultTestValue() %>", <% } %>}
-	common := []string{
-		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
-		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdkmath.NewInt(10))).String()),
-	}
-    args := []string{
-        <%= for (i, index) in Indexes { %>"0",
-        <% } %>
-    }
-	args = append(args, fields...)
-	args = append(args, common...)
 	_, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdCreate<%= TypeName.UpperCamel %>(), args)
 	s.Require().NoError(err)
-	s.waitForNextBlock()
+	s.Require().NoError(net.WaitForNextBlock())
 
 	tests := []struct {
 		desc string
@@ -138,27 +137,27 @@ func (s *IntegrationTestSuite) TestUpdate<%= TypeName.UpperCamel %>() {
 
 func (s *IntegrationTestSuite) TestDelete<%= TypeName.UpperCamel %>() {
 	var (
-		net = s.network()
+		net = s.network(nil)
 		val = net.Validators[0]
 		ctx = val.ClientCtx
+        fields = []string{<%= for (field) in Fields { %> "<%= field.DefaultTestValue() %>", <% } %>}
+        common = []string{
+            fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+            fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+            fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
+            fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(net.Config.BondDenom, sdkmath.NewInt(10))).String()),
+        }
+        args = []string{
+            <%= for (i, index) in Indexes { %>"0",
+            <% } %>
+        }
 	)
+    args = append(args, fields...)
+    args = append(args, common...)
 
-	fields := []string{<%= for (field) in Fields { %> "<%= field.DefaultTestValue() %>", <% } %>}
-	common := []string{
-		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
-		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdkmath.NewInt(10))).String()),
-	}
-    args := []string{
-        <%= for (i, index) in Indexes { %>"0",
-        <% } %>
-    }
-	args = append(args, fields...)
-	args = append(args, common...)
 	_, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdCreate<%= TypeName.UpperCamel %>(), args)
 	s.Require().NoError(err)
-	s.waitForNextBlock()
+	s.Require().NoError(net.WaitForNextBlock())
 
 	tests := []struct {
 		desc string

@@ -24,6 +24,6 @@ func SimulateMsg<%= MsgName.UpperCamel %>(
 
 		// TODO: Handling the <%= MsgName.UpperCamel %> simulation
 
-		return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "<%= MsgName.UpperCamel %> simulation not implemented"), nil, nil
+		return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= MsgName.UpperCamel %> simulation not implemented"), nil, nil
 	}
 }

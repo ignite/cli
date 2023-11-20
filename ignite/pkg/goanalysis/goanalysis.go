@@ -197,6 +197,18 @@ func getCallExprName(expr ast.Expr) (string, error) {
 	return x.String() + "." + sel.Sel.String(), nil
 }
 
+// FindBlankImports find all blank imports ('_') into a file.
+func FindBlankImports(node *ast.File) []string {
+	// Iterate through the import declarations and find the blank imports.
+	blankImports := make([]string, 0)
+	for _, imp := range node.Imports {
+		if imp.Name != nil && imp.Name.Name == "_" {
+			blankImports = append(blankImports, strings.ReplaceAll(imp.Path.Value, `"`, ""))
+		}
+	}
+	return blankImports
+}
+
 // FormatImports translate f.Imports into a map where name -> package.
 // Name is the alias if declared, or the last element of the package path.
 func FormatImports(f *ast.File) map[string]string {

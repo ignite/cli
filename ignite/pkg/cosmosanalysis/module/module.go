@@ -110,13 +110,12 @@ func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Mo
 
 	// Go import path of the app module
 	basegopath := gm.Module.Mod.Path
-	rootgopath := RootGoImportPath(basegopath)
 
 	// Keep the custom app's modules and filter out the third
 	// party ones that are not defined within the app.
 	appModules := make([]string, 0)
 	for _, m := range registeredModules {
-		if strings.HasPrefix(m, rootgopath) {
+		if strings.HasPrefix(m, basegopath) {
 			appModules = append(appModules, m)
 		}
 	}

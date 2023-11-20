@@ -197,28 +197,6 @@ func (s Scaffolder) AddType(
 		return sm, err
 	}
 
-	gens, err = supportGenesisTests(
-		gens,
-		opts.AppPath,
-		opts.AppName,
-		opts.ModulePath,
-		opts.ModuleName,
-		opts.IsIBC,
-	)
-	if err != nil {
-		return sm, err
-	}
-
-	gens, err = supportSimulation(
-		gens,
-		opts.AppPath,
-		opts.ModulePath,
-		opts.ModuleName,
-	)
-	if err != nil {
-		return sm, err
-	}
-
 	// create the type generator depending on the model
 	switch {
 	case o.isList:

@@ -24,7 +24,7 @@ const ServeTimeout = time.Minute * 15
 
 const (
 	defaultConfigFileName = "config.yml"
-	defaultTestTimeout    = 20 * time.Minute // Go's default is 10m
+	defaultTestTimeout    = 30 * time.Minute // Go's default is 10m
 )
 
 // Hosts contains the "hostname:port" addresses for different service hosts.

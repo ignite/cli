@@ -87,7 +87,7 @@ type Gasometer interface {
 //
 //go:generate mockery --srcpkg . --name Signer --filename signer.go --with-expecter
 type Signer interface {
-	Sign(txf tx.Factory, name string, txBuilder client.TxBuilder, overwriteSig bool) error
+	Sign(ctx context.Context, txf tx.Factory, name string, txBuilder client.TxBuilder, overwriteSig bool) error
 }
 
 // Client is a client to access your chain by querying and broadcasting transactions.

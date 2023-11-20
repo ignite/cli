@@ -3,8 +3,8 @@ package keeper
 import (
 	"context"
 
-	"github.com/cosmos/cosmos-sdk/store/prefix"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/store/prefix"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
@@ -12,15 +12,14 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (k Keeper) <%= TypeName.UpperCamel %>All(goCtx context.Context, req *types.QueryAll<%= TypeName.UpperCamel %>Request) (*types.QueryAll<%= TypeName.UpperCamel %>Response, error) {
+func (k Keeper) <%= TypeName.UpperCamel %>All(ctx context.Context, req *types.QueryAll<%= TypeName.UpperCamel %>Request) (*types.QueryAll<%= TypeName.UpperCamel %>Response, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
 	var <%= TypeName.LowerCamel %>s []types.<%= TypeName.UpperCamel %>
-	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	store := ctx.KVStore(k.storeKey)
+    store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	<%= TypeName.LowerCamel %>Store := prefix.NewStore(store, types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
 
 	pageRes, err := query.Paginate(<%= TypeName.LowerCamel %>Store, req.Pagination, func(key []byte, value []byte) error {
@@ -40,12 +39,11 @@ func (k Keeper) <%= TypeName.UpperCamel %>All(goCtx context.Context, req *types.
 	return &types.QueryAll<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: <%= TypeName.LowerCamel %>s, Pagination: pageRes}, nil
 }
 
-func (k Keeper) <%= TypeName.UpperCamel %>(goCtx context.Context, req *types.QueryGet<%= TypeName.UpperCamel %>Request) (*types.QueryGet<%= TypeName.UpperCamel %>Response, error) {
+func (k Keeper) <%= TypeName.UpperCamel %>(ctx context.Context, req *types.QueryGet<%= TypeName.UpperCamel %>Request) (*types.QueryGet<%= TypeName.UpperCamel %>Response, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
-	ctx := sdk.UnwrapSDKContext(goCtx)
 	<%= TypeName.LowerCamel %>, found := k.Get<%= TypeName.UpperCamel %>(ctx, req.Id)
 	if !found {
 		return nil, sdkerrors.ErrKeyNotFound

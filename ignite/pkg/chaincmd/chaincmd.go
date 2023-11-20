@@ -15,10 +15,11 @@ const (
 	commandStart             = "start"
 	commandInit              = "init"
 	commandKeys              = "keys"
+	commandGenesis           = "genesis"
 	commandAddGenesisAccount = "add-genesis-account"
 	commandGentx             = "gentx"
 	commandCollectGentxs     = "collect-gentxs"
-	commandValidateGenesis   = "validate-genesis"
+	commandValidateGenesis   = "validate"
 	commandShowNodeID        = "show-node-id"
 	commandStatus            = "status"
 	commandTx                = "tx"
@@ -258,6 +259,7 @@ func (c ChainCmd) ListKeysCommand() step.Option {
 // AddGenesisAccountCommand returns the command to add a new account in the genesis file of the chain.
 func (c ChainCmd) AddGenesisAccountCommand(address, coins string) step.Option {
 	command := []string{
+		commandGenesis,
 		commandAddGenesisAccount,
 		address,
 		coins,
@@ -269,6 +271,7 @@ func (c ChainCmd) AddGenesisAccountCommand(address, coins string) step.Option {
 // AddVestingAccountCommand returns the command to add a delayed vesting account in the genesis file of the chain.
 func (c ChainCmd) AddVestingAccountCommand(address, originalCoins, vestingCoins string, vestingEndTime int64) step.Option {
 	command := []string{
+		commandGenesis,
 		commandAddGenesisAccount,
 		address,
 		originalCoins,
@@ -399,6 +402,7 @@ func (c ChainCmd) GentxCommand(
 	options ...GentxOption,
 ) step.Option {
 	command := []string{
+		commandGenesis,
 		commandGentx,
 	}
 
@@ -430,6 +434,7 @@ func (c ChainCmd) GentxCommand(
 // CollectGentxsCommand returns the command to gather the gentxs in /gentx dir into the genesis file of the chain.
 func (c ChainCmd) CollectGentxsCommand() step.Option {
 	command := []string{
+		commandGenesis,
 		commandCollectGentxs,
 	}
 	return c.daemonCommand(command)
@@ -438,6 +443,7 @@ func (c ChainCmd) CollectGentxsCommand() step.Option {
 // ValidateGenesisCommand returns the command to check the validity of the chain genesis.
 func (c ChainCmd) ValidateGenesisCommand() step.Option {
 	command := []string{
+		commandGenesis,
 		commandValidateGenesis,
 	}
 	return c.daemonCommand(command)
@@ -531,10 +537,11 @@ func (c ChainCmd) QueryTxEventsCommand(query string) step.Option {
 	command := []string{
 		commandQuery,
 		"txs",
-		"--events",
+		"--query",
 		query,
 		"--page", "1",
 		"--limit", "1000",
+		"--output", "json",
 	}
 
 	command = c.attachNode(command)

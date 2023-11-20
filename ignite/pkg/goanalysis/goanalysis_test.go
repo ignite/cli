@@ -239,6 +239,29 @@ func TestFuncVarExists(t *testing.T) {
 	}
 }
 
+func TestFindBlankImports(t *testing.T) {
+	tests := []struct {
+		name     string
+		testfile string
+		want     []string
+	}{
+		{
+			name:     "test a declaration inside a method success",
+			testfile: "testdata/varexist",
+			want:     []string{"embed", "mvdan.cc/gofumpt"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			appPkg, _, err := xast.ParseFile(tt.testfile)
+			require.NoError(t, err)
+
+			got := goanalysis.FindBlankImports(appPkg)
+			require.Equal(t, tt.want, got)
+		})
+	}
+}
+
 func TestFormatImports(t *testing.T) {
 	tests := []struct {
 		name  string

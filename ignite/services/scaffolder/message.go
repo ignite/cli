@@ -148,16 +148,6 @@ func (s Scaffolder) AddMessage(
 		return sm, err
 	}
 
-	gens, err = supportSimulation(
-		gens,
-		opts.AppPath,
-		opts.ModulePath,
-		opts.ModuleName,
-	)
-	if err != nil {
-		return sm, err
-	}
-
 	// Scaffold
 	g, err = message.NewGenerator(tracer, opts)
 	if err != nil {

@@ -33,13 +33,17 @@ func (s TxService) Broadcast(ctx context.Context) (Response, error) {
 
 	// validate msgs.
 	for _, msg := range s.txBuilder.GetTx().GetMsgs() {
+		msg, ok := msg.(sdktypes.HasValidateBasic)
+		if !ok {
+			continue
+		}
 		if err := msg.ValidateBasic(); err != nil {
 			return Response{}, errors.WithStack(err)
 		}
 	}
 
 	accountName := s.clientContext.GetFromName()
-	if err := s.client.signer.Sign(s.txFactory, accountName, s.txBuilder, true); err != nil {
+	if err := s.client.signer.Sign(ctx, s.txFactory, accountName, s.txBuilder, true); err != nil {
 		return Response{}, errors.WithStack(err)
 	}
 

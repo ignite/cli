@@ -19,6 +19,7 @@ import (
 	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
 	"github.com/ignite/cli/ignite/templates/module"
 	"github.com/ignite/cli/ignite/templates/testutil"
+	"github.com/ignite/cli/ignite/templates/typed"
 )
 
 var (
@@ -102,7 +103,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 
 func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module_ibc.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/module_ibc.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -317,9 +318,14 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 			protoutil.NewField("channelID", "string", 3),
 			protoutil.NewField("timeoutTimestamp", "uint64", 4),
 		)
+		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.LowerCamel)
 
 		// Create MsgSend, MsgSendResponse and add to file.
-		msgSend := protoutil.NewMessage("MsgSend"+typenameUpper, protoutil.WithFields(sendFields...))
+		msgSend := protoutil.NewMessage(
+			"MsgSend"+typenameUpper,
+			protoutil.WithFields(sendFields...),
+			protoutil.WithMessageOptions(creatorOpt),
+		)
 		msgSendResponse := protoutil.NewMessage("MsgSend" + typenameUpper + "Response")
 		protoutil.Append(protoFile, msgSend, msgSendResponse)
 
@@ -368,17 +374,6 @@ func codecModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 		// Set import if not set yet
 		replacement := `sdk "github.com/cosmos/cosmos-sdk/types"`
 		content := replacer.ReplaceOnce(f.String(), module.Placeholder, replacement)
-
-		// Register the module packet
-		templateRegistry := `cdc.RegisterConcrete(&MsgSend%[2]v{}, "%[3]v/Send%[2]v", nil)
-%[1]v`
-		replacementRegistry := fmt.Sprintf(
-			templateRegistry,
-			module.Placeholder2,
-			opts.PacketName.UpperCamel,
-			opts.ModuleName,
-		)
-		content = replacer.Replace(content, module.Placeholder2, replacementRegistry)
 
 		// Register the module packet interface
 		templateInterface := `registry.RegisterImplementations((*sdk.Msg)(nil),

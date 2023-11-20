@@ -33,7 +33,7 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(
 
 		_, found := k.Get<%= TypeName.UpperCamel %>(ctx <%= for (index) in Indexes { %>, msg.<%= index.Name.UpperCamel %><% } %>)
 		if found {
-			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "<%= TypeName.UpperCamel %> already exist"), nil, nil
+			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.UpperCamel %> already exist"), nil, nil
 		}
 
 		txCtx := simulation.OperationInput{
@@ -42,7 +42,6 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(
 			TxGen:           moduletestutil.MakeTestEncodingConfig().TxConfig,
 			Cdc:             nil,
 			Msg:             msg,
-			MsgType:         msg.Type(),
 			Context:         ctx,
 			SimAccount:      simAccount,
 			ModuleName:      types.ModuleName,
@@ -76,7 +75,7 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 			}
 		}
 		if !found {
-			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found"), nil, nil
+			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found"), nil, nil
 		}
 		msg.<%= MsgSigner.UpperCamel %> = simAccount.Address.String()
 		<%= for (i, index) in Indexes { %>
@@ -88,7 +87,6 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 			TxGen:           moduletestutil.MakeTestEncodingConfig().TxConfig,
 			Cdc:             nil,
 			Msg:             msg,
-			MsgType:         msg.Type(),
 			Context:         ctx,
 			SimAccount:      simAccount,
 			ModuleName:      types.ModuleName,
@@ -122,7 +120,7 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 			}
 		}
 		if !found {
-			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found"), nil, nil
+			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found"), nil, nil
 		}
 		msg.<%= MsgSigner.UpperCamel %> = simAccount.Address.String()
 		<%= for (i, index) in Indexes { %>
@@ -134,7 +132,6 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 			TxGen:           moduletestutil.MakeTestEncodingConfig().TxConfig,
 			Cdc:             nil,
 			Msg:             msg,
-			MsgType:         msg.Type(),
 			Context:         ctx,
 			SimAccount:      simAccount,
 			ModuleName:      types.ModuleName,

@@ -14,8 +14,7 @@ simulation methods for each scaffolded message.
 ## Module simulation
 
 Every new module that is scaffolded with Ignite CLI implements the Cosmos SDK
-[Module
-Simulation](https://docs.cosmos.network/main/building-modules/simulator.html).
+[Module Simulation](https://docs.cosmos.network/main/learn/advanced/simulation).
 
 - Each new message creates a file with the simulation methods required for the
   tests.
@@ -105,7 +104,7 @@ according to call the function.
 ## Invariants
 
 Simulating a chain can help you prevent [chain invariants
-errors](https://docs.cosmos.network/main/building-modules/invariants.html). An
+errors](https://docs.cosmos.network/main/build/building-modules/invariants). An
 invariant is a function called by the chain to check if something broke,
 invalidating the chain data. To create a new invariant and check the chain
 integrity, you must create a method to validate the invariants and register all
