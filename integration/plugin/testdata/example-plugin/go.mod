@@ -5,7 +5,7 @@ go 1.21.1
 toolchain go1.21.4
 
 require (
-	github.com/hashicorp/go-plugin v1.6.0
+	github.com/hashicorp/go-plugin v1.5.2
 	github.com/ignite/cli v0.27.1
 )
 

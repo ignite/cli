@@ -53,7 +53,7 @@ require (
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/rpc v1.2.1
 	github.com/hashicorp/go-hclog v1.5.0
-	github.com/hashicorp/go-plugin v1.6.0
+	github.com/hashicorp/go-plugin v1.5.2
 	github.com/iancoleman/strcase v0.3.0
 	github.com/ignite/ignite-files/nodetime v0.0.2
 	github.com/ignite/ignite-files/protoc v0.0.1
