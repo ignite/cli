@@ -287,19 +287,16 @@ func (g *generator) resolveIncludes(ctx context.Context, path string) (protoIncl
 
 func (g *generator) discoverModules(ctx context.Context, path, protoDir string) ([]module.Module, error) {
 	var filteredModules []module.Module
-
 	modules, err := module.Discover(ctx, g.appPath, path, protoDir)
 	if err != nil {
 		return nil, err
 	}
 
 	protoPath := filepath.Join(path, g.protoDir)
-
 	for _, m := range modules {
 		if !strings.HasPrefix(m.Pkg.Path, protoPath) {
 			continue
 		}
-
 		filteredModules = append(filteredModules, m)
 	}
 

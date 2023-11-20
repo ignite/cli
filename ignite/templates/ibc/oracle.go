@@ -79,7 +79,7 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 // Deprecated: This function is no longer maintained.
 func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module_ibc.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/module_ibc.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -279,12 +279,6 @@ func codecOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny
 		// Set import if not set yet
 		replacement := `sdk "github.com/cosmos/cosmos-sdk/types"`
 		content := replacer.ReplaceOnce(f.String(), Placeholder, replacement)
-
-		// Register the module packet
-		templateRegistry := `cdc.RegisterConcrete(&Msg%[3]vData{}, "%[2]v/%[3]vData", nil)
-%[1]v`
-		replacementRegistry := fmt.Sprintf(templateRegistry, Placeholder2, opts.ModuleName, opts.QueryName.UpperCamel)
-		content = replacer.Replace(content, Placeholder2, replacementRegistry)
 
 		// Register the module packet interface
 		templateInterface := `registry.RegisterImplementations((*sdk.Msg)(nil),

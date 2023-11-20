@@ -10,6 +10,7 @@
 - [#3476](https://github.com/ignite/cli/pull/3476) Use `buf.build` binary to code generate from proto files
 - [#3614](https://github.com/ignite/cli/pull/3614) feat: use DefaultBaseappOptions for app.New method
 - [#3536](https://github.com/ignite/cli/pull/3536) Change app.go to v2 and add AppWiring feature
+- [#3659](https://github.com/ignite/cli/pull/3659) cosmos-sdk `v0.50.x`
 - [#3670](https://github.com/ignite/cli/pull/3670) Remove nodetime binaries
 - [#3724](https://github.com/ignite/cli/pull/3724) Add or vendor proto packages from Go dependencies
 - [#3715](https://github.com/ignite/cli/pull/3715) Add test suite for the cli tests

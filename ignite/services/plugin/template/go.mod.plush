@@ -3,6 +3,6 @@ module <%= ModuleName %>
 go 1.21
 
 require (
-	github.com/hashicorp/go-plugin v1.4.9
-	github.com/ignite/cli v0.27.2-0.20230905140057-d3918a77b607
+	github.com/hashicorp/go-plugin v1.5.0
+	github.com/ignite/cli v0.27.2
 )

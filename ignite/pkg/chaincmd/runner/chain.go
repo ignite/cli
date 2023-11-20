@@ -335,7 +335,6 @@ func (r Runner) QueryTx(
 	}
 
 	var events []Event
-
 	for _, tx := range out.Txs {
 		for _, log := range tx.Logs {
 			for _, e := range log.Events {

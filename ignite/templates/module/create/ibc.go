@@ -52,7 +52,7 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 
 func genesisModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "genesis.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -63,7 +63,7 @@ func genesisModify(replacer placeholder.Replacer, opts *CreateOptions) genny.Run
 k.SetPort(ctx, genState.PortId)
 // Only try to bind to port if it is not already bound, since we may already own
 // port capability from capability InitGenesis
-if !k.IsBound(ctx, genState.PortId) {
+if k.ShouldBound(ctx, genState.PortId) {
 	// module binds to the port on InitChain
 	// and claims the returned capability
 	err := k.BindPort(ctx, genState.PortId)
@@ -94,7 +94,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 		}
 
 		// Import
-		templateImport := `host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
+		templateImport := `host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
 %s`
 		replacementImport := fmt.Sprintf(templateImport, typed.PlaceholderGenesisTypesImport)
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisTypesImport, replacementImport)
@@ -189,7 +189,7 @@ func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunF
 
 		// Import
 		templateImport := `%[1]v
-%[2]vmodule "%[3]v/x/%[2]v"
+%[2]vmodule "%[3]v/x/%[2]v/module"
 %[2]vmoduletypes "%[3]v/x/%[2]v/types"`
 		replacementImport := fmt.Sprintf(templateImport, module.PlaceholderIBCImport, opts.ModuleName, opts.ModulePath)
 		content := replacer.Replace(f.String(), module.PlaceholderIBCImport, replacementImport)

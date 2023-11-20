@@ -25,6 +25,7 @@ package keeper
 import (
 	"context"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -35,15 +36,15 @@ func (k msgServer) RepayLoan(goCtx context.Context, msg *types.MsgRepayLoan) (*t
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	loan, found := k.GetLoan(ctx, msg.Id)
 	if !found {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrKeyNotFound, "key %d doesn't exist", msg.Id)
+		return nil, errorsmod.Wrapf(sdkerrors.ErrKeyNotFound, "key %d doesn't exist", msg.Id)
 	}
 	if loan.State != "approved" {
-		return nil, sdkerrors.Wrapf(types.ErrWrongLoanState, "%v", loan.State)
+		return nil, errorsmod.Wrapf(types.ErrWrongLoanState, "%v", loan.State)
 	}
 	lender, _ := sdk.AccAddressFromBech32(loan.Lender)
 	borrower, _ := sdk.AccAddressFromBech32(loan.Borrower)
 	if msg.Creator != loan.Borrower {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Cannot repay: not the borrower")
+		return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "Cannot repay: not the borrower")
 	}
 	amount, _ := sdk.ParseCoinsNormalized(loan.Amount)
 	fee, _ := sdk.ParseCoinsNormalized(loan.Fee)

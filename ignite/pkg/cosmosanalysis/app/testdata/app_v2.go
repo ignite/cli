@@ -135,6 +135,7 @@ type SimApp struct {
 	GroupKeeper           groupkeeper.Keeper
 	NFTKeeper             nftkeeper.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
+	FooKeeper             foo.keeper
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -337,8 +338,6 @@ func (app *SimApp) AutoCliOpts() autocli.AppOptions {
 }
 
 // GetKey returns the KVStoreKey for the provided store key.
-//
-// NOTE: This is solely to be used for testing purposes.
 func (app *SimApp) GetKey(storeKey string) *storetypes.KVStoreKey {
 	sk := app.UnsafeFindStoreKey(storeKey)
 	kvStoreKey, ok := sk.(*storetypes.KVStoreKey)
@@ -348,6 +347,17 @@ func (app *SimApp) GetKey(storeKey string) *storetypes.KVStoreKey {
 	return kvStoreKey
 }
 
+// GetMemKey returns the MemoryStoreKey for the provided store key.
+func (app *SimApp) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
+	key, ok := app.UnsafeFindStoreKey(storeKey).(*storetypes.MemoryStoreKey)
+	if !ok {
+		return nil
+	}
+
+	return key
+}
+
+// kvStoreKeys returns all the kv store keys registered inside App.
 func (app *SimApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
 	keys := make(map[string]*storetypes.KVStoreKey)
 	for _, k := range app.GetStoreKeys() {
@@ -360,8 +370,6 @@ func (app *SimApp) kvStoreKeys() map[string]*storetypes.KVStoreKey {
 }
 
 // GetSubspace returns a param subspace for a given module name.
-//
-// NOTE: This is solely to be used for testing purposes.
 func (app *SimApp) GetSubspace(moduleName string) paramstypes.Subspace {
 	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
 	return subspace
