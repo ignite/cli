@@ -44,7 +44,7 @@ func generatePulsarHandler(cmd *cobra.Command, _ []string) error {
 		opts = append(opts, chain.GenerateProtoVendor())
 	}
 
-	err = c.Generate(cmd.Context(), cacheStorage, chain.GeneratePulsar(), opts...)
+	err = c.Generate(cmd.Context(), cacheStorage, chain.GenerateGo(), opts...) // could be probably deprecated
 	if err != nil {
 		return err
 	}
