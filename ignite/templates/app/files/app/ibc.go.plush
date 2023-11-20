@@ -49,16 +49,6 @@ func (app *App) registerIBCModules() {
 		panic(err)
 	}
 
-	// set params subspaces
-	for _, m := range []string{
-		ibctransfertypes.ModuleName,
-		ibcexported.ModuleName,
-		icacontrollertypes.SubModuleName,
-		icahosttypes.SubModuleName,
-	} {
-		app.ParamsKeeper.Subspace(m)
-	}
-
 	// register the key tables for legacy param subspaces
 	keyTable := ibcclienttypes.ParamKeyTable()
 	keyTable.RegisterParamSet(&ibcconnectiontypes.Params{})
