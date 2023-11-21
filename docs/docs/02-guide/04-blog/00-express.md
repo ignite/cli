@@ -150,8 +150,9 @@ func (k msgServer) UpdatePost(goCtx context.Context, msg *types.MsgUpdatePost) (
 1. **Scaffold Delete Message:**
 
 ```bash
-This command enables the deletion of posts by their ID.
+ignite scaffold message delete-post id:uint
 ```
+This command enables the deletion of posts by their ID.
 
 2. **Delete Logic:**
  
