@@ -258,7 +258,7 @@ func (k msgServer) DeletePost(goCtx context.Context, msg *types.MsgDeletePost) (
 
 1. **Scaffold Query Messages:**
 
-```bash
+```bash title="proto/blog/blog/query.proto"
 ignite scaffold query show-post id:uint --response post:Post
 ignite scaffold query list-post --response post:Post --paginated
 ```
@@ -294,7 +294,7 @@ func (k Keeper) ShowPost(goCtx context.Context, req *types.QueryShowPostRequest)
         return nil, sdkerrors.ErrKeyNotFound
     }
 
-    return &types.QueryShowPostResponse{Post: &post}, nil
+    return &types.QueryShowPostResponse{Post: post}, nil
 }
 ```
 
@@ -310,7 +310,6 @@ import (
 
 	"cosmossdk.io/store/prefix"
 	"github.com/cosmos/cosmos-sdk/runtime"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -349,6 +348,10 @@ Add a `repeated` keyword to return a list of posts and include the option
 `[(gogoproto.nullable) = false]` to generate the field without a pointer.
 
 ```proto title="proto/blog/blog/query.proto"
+message QueryShowPostResponse {
+  Post post = 1 [(gogoproto.nullable) = false];
+}
+
 message QueryListPostResponse {
   // highlight-next-line
   repeated Post post = 1 [(gogoproto.nullable) = false];
@@ -361,7 +364,7 @@ message QueryListPostResponse {
 1. **Create a Post:**
 
 ```bash
-blogd tx blog create-post "Hello" "World" --from alice
+blogd tx blog create-post hello world --from alice --chain-id blog
 ```
 
 2. **View a Post:**
@@ -379,13 +382,13 @@ blogd q blog list-post
 4. **Update a Post:**
 
 ```bash
-blogd tx blog update-post "Hello" "Cosmos" 0 --from alice
+blogd tx blog update-post "Hello" "Cosmos" 0 --from alice --chain-id blog
 ```
 
 5. **Delete a Post:**
 
 ```bash
-blogd tx blog delete-post 0 --from alice
+blogd tx blog delete-post 0 --from alice  --chain-id blog
 ```
 
 **Summary**
