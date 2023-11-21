@@ -46,7 +46,7 @@ import (
 
 	"blog/x/blog/types"
 
-	"github.com/cosmos/cosmos-sdk/store/prefix"
+	"cosmossdk.io/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -67,9 +67,7 @@ func (k Keeper) GetPostCount(ctx sdk.Context) uint64 {
     if bz == nil {
         return 0
     }
-    return binary.BigEndi
-    
-    an.Uint64(bz)
+    return binary.BigEndian.Uint64(bz)
 }
 
 func GetPostIDBytes(id uint64) []byte {
@@ -85,6 +83,29 @@ func (k Keeper) SetPostCount(ctx sdk.Context, count uint64) {
     binary.BigEndian.PutUint64(bz, count)
     store.Set(byteKey, bz)
 }
+
+func (k Keeper) GetPost(ctx sdk.Context, id uint64) (val types.Post, found bool) {
+    store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PostKey))
+    b := store.Get(GetPostIDBytes(id))
+    if b == nil {
+        return val, false
+    }
+    k.cdc.MustUnmarshal(b, &val)
+    return val, true
+}
+```
+
+3. **Add Post key prefix:**
+
+Add the `PostKey` and `PostCountKey` to the `x/blog/types/keys.go` file:
+
+```go title="x/blog/types/keys.go"
+	// PostKey is used to uniquely identify posts within the system.
+	// It will be used as the beginning of the key for each post, followed bei their unique ID
+	PostKey = "Post/value/"
+
+    // This key will be used to keep track of the ID of the latest post added to the store.
+    PostCountKey = "Post/count/"
 ```
 
 **Updating Posts**
