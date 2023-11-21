@@ -105,9 +105,9 @@ func (k Keeper) GetPost(ctx sdk.Context, id uint64) (val types.Post, found bool)
 Add the `PostKey` and `PostCountKey` to the `x/blog/types/keys.go` file:
 
 ```go title="x/blog/types/keys.go"
-	// PostKey is used to uniquely identify posts within the system.
-	// It will be used as the beginning of the key for each post, followed bei their unique ID
-	PostKey = "Post/value/"
+    // PostKey is used to uniquely identify posts within the system.
+    // It will be used as the beginning of the key for each post, followed bei their unique ID
+    PostKey = "Post/value/"
 
     // This key will be used to keep track of the ID of the latest post added to the store.
     PostCountKey = "Post/count/"
