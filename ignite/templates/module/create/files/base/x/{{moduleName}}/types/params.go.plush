@@ -10,53 +10,62 @@ var _ paramtypes.ParamSet = (*Params)(nil)
 
 <%= for (param) in params { %>
 var (
-	Key<%= param.Name.UpperCamel %> = []byte("<%= param.Name.UpperCamel %>")<%= if (param.DataType() == "string") { %>
-	// TODO: Determine the default value
-	Default<%= param.Name.UpperCamel %> <%= param.DataType() %> = "<%= param.Name.Snake %>"<% } else { %>
-	// TODO: Determine the default value
-	Default<%= param.Name.UpperCamel %> <%= param.DataType() %> = <%= param.ValueIndex() %><% } %>
+	// Key<%= param.Name.UpperCamel %> represents the <%= param.Name.UpperCamel %> parameter.
+	Key<%= param.Name.UpperCamel %> = []byte("<%= param.Name.UpperCamel %>")
+	// TODO: Determine the default value.
+	// Default<%= param.Name.UpperCamel %> represents the <%= param.Name.UpperCamel %> default value.
+	Default<%= param.Name.UpperCamel %> <%= param.DataType() %> = <%= param.Value() %>
 )
 <% } %>
 
-// ParamKeyTable the param key table for launch module
+// this line is used by starport scaffolding # types/params/vars
+
+// ParamKeyTable the param key table for launch module.
 func ParamKeyTable() paramtypes.KeyTable {
 	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
 }
 
-// NewParams creates a new Params instance
+// NewParams creates a new Params instance.
 func NewParams(<%= for (param) in params { %>
 	<%= param.Name.LowerCamel %> <%= param.DataType() %>,<% } %>
+	// this line is used by starport scaffolding # types/params/new/parameter
 ) Params {
 	return Params{<%= for (param) in params { %>
         <%= param.Name.UpperCamel %>: <%= param.Name.LowerCamel %>,<% } %>
+        // this line is used by starport scaffolding # types/params/new/struct
 	}
 }
 
-// DefaultParams returns a default set of parameters
+// DefaultParams returns a default set of parameters.
 func DefaultParams() Params {
 	return NewParams(<%= for (param) in params { %>
         Default<%= param.Name.UpperCamel %>,<% } %>
+        // this line is used by starport scaffolding # types/params/default
 	)
 }
 
-// ParamSetPairs get the params.ParamSet
+// ParamSetPairs get the params.ParamSet.
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{<%= for (param) in params { %>
 		paramtypes.NewParamSetPair(Key<%= param.Name.UpperCamel %>, &p.<%= param.Name.UpperCamel %>, validate<%= param.Name.UpperCamel %>),<% } %>
+		// this line is used by starport scaffolding # types/params/setpairs
 	}
 }
 
-// Validate validates the set of params
+// Validate validates the set of params.
 func (p Params) Validate() error {<%= for (param) in params { %>
    	if err := validate<%= param.Name.UpperCamel %>(p.<%= param.Name.UpperCamel %>); err != nil {
    		return err
    	}
    	<% } %>
+
+   	// this line is used by starport scaffolding # types/params/validate
+
 	return nil
 }
 
 <%= for (param) in params { %>
-// validate<%= param.Name.UpperCamel %> validates the <%= param.Name.UpperCamel %> param
+// validate<%= param.Name.UpperCamel %> validates the <%= param.Name.UpperCamel %> parameter.
 func validate<%= param.Name.UpperCamel %>(v interface{}) error {
 	<%= param.Name.LowerCamel %>, ok := v.(<%= param.DataType() %>)
 	if !ok {
@@ -69,3 +78,5 @@ func validate<%= param.Name.UpperCamel %>(v interface{}) error {
 	return nil
 }
 <% } %>
+
+// this line is used by starport scaffolding # types/params/validation

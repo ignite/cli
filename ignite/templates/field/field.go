@@ -155,3 +155,11 @@ func (f Field) ProtoImports() []string {
 	}
 	return dt.ProtoImports
 }
+
+// Value returns the field assign value.
+func (f Field) Value() string {
+	if f.DataType() == "string" {
+		return f.Name.Snake
+	}
+	return f.ValueIndex()
+}

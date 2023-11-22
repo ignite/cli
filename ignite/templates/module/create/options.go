@@ -9,6 +9,13 @@ import (
 )
 
 type (
+	// ParamsOptions represents the options to scaffold a Cosmos SDK module parameters.
+	ParamsOptions struct {
+		ModuleName string
+		AppPath    string
+		Params     field.Fields
+	}
+
 	// CreateOptions represents the options to scaffold a Cosmos SDK module.
 	CreateOptions struct {
 		ModuleName string
