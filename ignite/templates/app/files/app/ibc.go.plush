@@ -181,7 +181,7 @@ func (app *App) registerIBCModules() {
 	}
 }
 
-// AddIBCModuleManager add the missing ibc modules into the module manager.
+// AddIBCModuleManager adds the missing IBC modules into the module manager.
 func AddIBCModuleManager(moduleManager module.BasicManager) {
 	moduleManager[ibcexported.ModuleName] = ibc.AppModule{}
 	moduleManager[ibctransfertypes.ModuleName] = ibctransfer.AppModule{}
