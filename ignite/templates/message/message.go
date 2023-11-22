@@ -203,7 +203,6 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn
 			Short: "Send a %[4]v tx",
 			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
 		},
-
 		%[1]v`
 
 		replacement := fmt.Sprintf(

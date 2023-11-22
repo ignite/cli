@@ -258,7 +258,6 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 			Short: "Shows a %[4]v",
 			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%s},
 		},
-
 		%[1]v`
 		replacement := fmt.Sprintf(
 			template,
@@ -635,7 +634,6 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 			Use: "delete-%[3]v",
 			Short: "Delete %[4]v",
 		},
-
 		%[1]v`
 
 		replacement := fmt.Sprintf(

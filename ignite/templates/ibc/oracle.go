@@ -251,7 +251,6 @@ func clientCliQueryOracleModify(replacer placeholder.Replacer, opts *OracleOptio
 			Use: "last-%[3]v-id",
 			Short: "Query the last request id returned by %[2]v ack packet",
 		},
-
 		%[1]v`
 
 		replacement := fmt.Sprintf(template,
