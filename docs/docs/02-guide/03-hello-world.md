@@ -7,7 +7,7 @@ title: Hello World
 
 **Introduction**
 
-In this tutorial, you'll build a simple blockchain using Ignite CLI that responds to a custom query with "Hello %s!", where %s is a name provided in the query. 
+In this tutorial, you'll build a simple blockchain using Ignite CLI that responds to a custom query with "Hello %s!", where "%s" is a name passed in the query. 
 This will enhance your understanding of creating custom queries in a Cosmos SDK blockchain.
 
 ## Setup and Scaffold
