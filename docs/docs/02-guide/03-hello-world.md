@@ -32,7 +32,7 @@ cd hello
 ignite scaffold query say-hello name --response name
 ```
 
-This command generates code for a new query, `say-hello`, which accepts a name, an input and returns it in the response.
+This command generates code for a new query, `say-hello`, which accepts a name, an input, and returns it in the response.
 
 - **Understanding the Scaffolded Code:**
 
