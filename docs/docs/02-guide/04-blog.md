@@ -344,8 +344,8 @@ func (k Keeper) ListPost(ctx context.Context, req *types.QueryListPostRequest) (
 
 3. **Proto Implementation:** 
 
-Add a `repeated` keyword to return a list of posts and include the option
-`[(gogoproto.nullable) = false]` to generate the field without a pointer.
+Add a `repeated` keyword to return a list of posts in `QueryListPostResponse` and include the option
+`[(gogoproto.nullable) = false]` in `QueryShowPostResponse` and `QueryListPostResponse` to generate the field without a pointer.
 
 ```proto title="proto/blog/blog/query.proto"
 message QueryShowPostResponse {
