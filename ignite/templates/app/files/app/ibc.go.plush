@@ -169,7 +169,7 @@ func (app *App) registerIBCModules() {
 	ibctm.AppModuleBasic{}.RegisterInterfaces(app.interfaceRegistry)
 	solomachine.AppModuleBasic{}.RegisterInterfaces(app.interfaceRegistry)
 
-    // register IBC modules
+	// register IBC modules
 	if err := app.RegisterModules(
 		ibc.NewAppModule(app.IBCKeeper),
 		ibctransfer.NewAppModule(app.TransferKeeper),
