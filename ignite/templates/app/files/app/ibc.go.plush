@@ -165,10 +165,6 @@ func (app *App) registerIBCModules() {
 	app.ScopedICAHostKeeper = scopedICAHostKeeper
 	app.ScopedICAControllerKeeper = scopedICAControllerKeeper
 
-	// register additional types
-	ibctm.AppModuleBasic{}.RegisterInterfaces(app.interfaceRegistry)
-	solomachine.AppModuleBasic{}.RegisterInterfaces(app.interfaceRegistry)
-
 	// register IBC modules
 	if err := app.RegisterModules(
 		ibc.NewAppModule(app.IBCKeeper),
@@ -176,6 +172,8 @@ func (app *App) registerIBCModules() {
 		ibcfee.NewAppModule(app.IBCFeeKeeper),
 		icamodule.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper),
 		capability.NewAppModule(app.appCodec, *app.CapabilityKeeper, false),
+		ibctm.AppModule{},
+		solomachine.AppModule{},
 	); err != nil {
 		panic(err)
 	}
