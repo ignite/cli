@@ -29,7 +29,7 @@ curl https://get.ignite.com/cli! | bash
 
 ## Embracing the Cosmos Ecosystem
 
-Ignite CLI is your entry point into the vibrant Cosmos ecosystem, a hub of innovation where you can explore a plethora of applications, from wallets and explorers to smart contracts and DEXes, all powered by CometBFT and the Cosmos SDK.
+Ignite CLI is your entry point into the vibrant Cosmos ecosystem, a hub of innovation where you can explore a range of applications, from wallets and explorers to smart contracts and DEXes, all powered by CometBFT and the Cosmos SDK.
 This ecosystem is home to over [$50 billion worth of blockchain projects](https://cosmos.network/ecosystem/tokens/), showcasing the scalability and versatility of the technologies at play.
 
 ## Projects using Tendermint and Cosmos SDK
