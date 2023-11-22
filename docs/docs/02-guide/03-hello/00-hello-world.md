@@ -43,10 +43,25 @@ This command generates code for a new query, `say-hello`, which accepts a name, 
 
 ## Customizing the Query Response
 
-- **Modify `query_say_hello.go`:
-Update the `SayHello` function in `x/hello/keeper/query_say_hello.go` to return a personalized greeting.
+In the Cosmos SDK, queries are requests for information from the blockchain, used to access data like the ledger's current state or transaction details. While the SDK offers several built-in query methods, developers can also craft custom queries for specific data retrieval or complex operations. 
+
+- **Modify `query_say_hello.go`:**
+  
+Update the `SayHello` function in `x/hello/keeper/query_say_hello.go` to return a personalized greeting query.
 
 ```go title="x/hello/keeper/query_say_hello.go"
+package keeper
+
+import (
+	"context"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"hello/x/hello/types"
+	"fmt"
+)
+
 func (k Keeper) SayHello(goCtx context.Context, req *types.QuerySayHelloRequest) (*types.QuerySayHelloResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
