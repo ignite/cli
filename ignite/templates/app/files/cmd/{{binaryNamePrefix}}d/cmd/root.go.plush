@@ -55,6 +55,7 @@ func NewRootCmd() *cobra.Command {
 	); err != nil {
 		panic(err)
 	}
+	app.AddIBCModuleManager(moduleBasicManager)
 
 	rootCmd := &cobra.Command{
 		Use:   app.Name + "d",

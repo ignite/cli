@@ -2,6 +2,7 @@ package app
 
 import (
 	storetypes "cosmossdk.io/store/types"
+	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
@@ -16,6 +17,7 @@ import (
 	icahost "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host"
 	icahostkeeper "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/types"
+	icatypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/types"
 	ibcfee "github.com/cosmos/ibc-go/v8/modules/apps/29-fee"
 	ibcfeekeeper "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/keeper"
 	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
@@ -32,6 +34,7 @@ import (
 	// this line is used by starport scaffolding # ibc/app/import
 )
 
+// registerIBCModules register IBC keepers and non dependency inject modules.
 func (app *App) registerIBCModules() {
 	// set up non depinject support modules store keys
 	if err := app.RegisterStores(
@@ -170,4 +173,13 @@ func (app *App) registerIBCModules() {
 	); err != nil {
 		panic(err)
 	}
+}
+
+// AddIBCModuleManager add the missing ibc modules into the module manager.
+func AddIBCModuleManager(moduleManager module.BasicManager) {
+	moduleManager[ibcexported.ModuleName] = ibc.AppModule{}
+	moduleManager[ibctransfertypes.ModuleName] = ibctransfer.AppModule{}
+	moduleManager[ibcfeetypes.ModuleName] = ibcfee.AppModule{}
+	moduleManager[icatypes.ModuleName] = icamodule.AppModule{}
+	moduleManager[capabilitytypes.ModuleName] = capability.AppModule{}
 }
