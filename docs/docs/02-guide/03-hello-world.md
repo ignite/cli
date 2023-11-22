@@ -1,5 +1,5 @@
 ---
-description: Build your first blockchain and your first Cosmos SDK module.
+description: Build your first blockchain and your first Cosmos SDK query.
 title: Hello World
 ---
 
