@@ -30,6 +30,8 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
+	solomachine "github.com/cosmos/ibc-go/v8/modules/light-clients/06-solomachine"
+	ibctm "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
 
 	// this line is used by starport scaffolding # ibc/app/import
 )
@@ -162,6 +164,10 @@ func (app *App) registerIBCModules() {
 	app.ScopedIBCTransferKeeper = scopedIBCTransferKeeper
 	app.ScopedICAHostKeeper = scopedICAHostKeeper
 	app.ScopedICAControllerKeeper = scopedICAControllerKeeper
+
+	// register additional types
+	ibctm.AppModuleBasic{}.RegisterInterfaces(app.interfaceRegistry)
+	solomachine.AppModuleBasic{}.RegisterInterfaces(app.interfaceRegistry)
 
     // register IBC modules
 	if err := app.RegisterModules(
