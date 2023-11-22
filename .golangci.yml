@@ -49,8 +49,8 @@ linters:
 linters-settings:
   forbidigo:
     forbid:
-      - p: '^fmt\.Errorf$'
-        msg: '"fmt.Errorf"' Should be replaced by '"github.com/ignite/cli/ignite/pkg/errors"'
+      - p: ^fmt\.Errorf$
+        msg: fmt.Errorf should be replaced by '"github.com/ignite/cli/ignite/pkg/errors"'
   depguard:
     rules:
       main:
