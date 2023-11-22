@@ -93,10 +93,10 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 %[2]vCount := gs.Get%[3]vCount()
 for _, elem := range gs.%[3]vList {
 	if _, ok := %[2]vIdMap[elem.Id]; ok {
-		return errors.Errorf("duplicated id for %[2]v")
+		return fmt.Errorf("duplicated id for %[2]v")
 	}
 	if elem.Id >= %[2]vCount {
-		return errors.Errorf("%[2]v id should be lower or equal than the last id")
+		return fmt.Errorf("%[2]v id should be lower or equal than the last id")
 	}
 	%[2]vIdMap[elem.Id] = true
 }

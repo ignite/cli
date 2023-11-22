@@ -328,7 +328,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 for _, elem := range gs.%[3]vList {
 	index := %[4]v
 	if _, ok := %[2]vIndexMap[index]; ok {
-		return errors.Errorf("duplicated index for %[2]v")
+		return fmt.Errorf("duplicated index for %[2]v")
 	}
 	%[2]vIndexMap[index] = struct{}{}
 }
