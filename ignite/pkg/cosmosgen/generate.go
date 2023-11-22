@@ -69,7 +69,7 @@ type protoAnalysis struct {
 }
 
 func newBufConfigError(path string, cause error) error {
-	return fmt.Errorf("%w: %s: %w", ErrBufConfig, path, cause)
+	return errors.Errorf("%w: %s: %w", ErrBufConfig, path, cause)
 }
 
 func (g *generator) setup(ctx context.Context) (err error) {
@@ -440,7 +440,7 @@ func (g generator) vendorProtoPackage(pkgName, protoPath string) (err error) {
 	path := filepath.Join(g.appPath, workFilename)
 	bz, err := os.ReadFile(path)
 	if err != nil {
-		return fmt.Errorf("error reading Buf workspace file: %s: %w", path, err)
+		return errors.Errorf("error reading Buf workspace file: %s: %w", path, err)
 	}
 
 	ws := struct {
