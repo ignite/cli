@@ -42,24 +42,24 @@ Scaffold the code for handling the messages for requesting, approving, repaying,
 ignite scaffold message request-loan amount fee collateral deadline
 ```
 
-- Approving and Liquidating Loans
+- Approving and Canceling Loans 
 
 ```bash
 ignite scaffold message approve-loan id:uint
 ```
 
 ```bash
+ignite scaffold message cancel-loan id:uint
+```
+
+- Repaying and Liquidating Loans
+
+```bash
 ignite scaffold message repay-loan id:uint
 ```
 
-- Repaying and Canceling Loans
-
 ```bash
 ignite scaffold message liquidate-loan id:uint
-```
-
-```bash
-ignite scaffold message cancel-loan id:uint
 ```
 
 ## Additional Features
