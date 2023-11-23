@@ -12,6 +12,7 @@ type (
 	// ParamsOptions represents the options to scaffold a Cosmos SDK module parameters.
 	ParamsOptions struct {
 		ModuleName string
+		AppName    string
 		AppPath    string
 		Params     field.Fields
 	}

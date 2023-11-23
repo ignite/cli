@@ -123,6 +123,7 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 		NewScaffoldMap(),
 		NewScaffoldSingle(),
 		NewScaffoldType(),
+		NewScaffoldParams(),
 		NewScaffoldMessage(),
 		NewScaffoldQuery(),
 		NewScaffoldPacket(),

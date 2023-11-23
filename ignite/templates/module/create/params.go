@@ -7,8 +7,54 @@ import (
 	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/ignite/pkg/placeholder"
+	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/ignite/templates/module"
 )
+
+// NewModuleParam returns the generator to scaffold a new parameter inside a module.
+func NewModuleParam(replacer placeholder.Replacer, opts ParamsOptions) (*genny.Generator, error) {
+	g := genny.New()
+	g.RunFn(paramsProtoModify(opts))
+	g.RunFn(paramsTypesModify(replacer, opts))
+	return g, nil
+}
+
+func paramsProtoModify(opts ParamsOptions) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "params.proto")
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+		protoFile, err := protoutil.ParseProtoFile(f)
+		if err != nil {
+			return err
+		}
+
+		params, err := protoutil.GetMessageByName(protoFile, "Params")
+		if err != nil {
+			return fmt.Errorf("couldn't find message 'GenesisState' in %s: %w", path, err)
+		}
+		for _, paramField := range opts.Params {
+			yamlOption := protoutil.NewOption(
+				"gogoproto.moretags",
+				fmt.Sprintf("yaml:\\\"%s\\\"",
+					paramField.Name.LowerCamel),
+				protoutil.Custom(),
+			)
+			param := protoutil.NewField(
+				paramField.Name.LowerCamel,
+				paramField.DataType(),
+				protoutil.NextUniqueID(params),
+				protoutil.WithFieldOptions(yamlOption),
+			)
+			protoutil.Append(params, param)
+		}
+
+		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
+		return r.File(newFile)
+	}
+}
 
 func paramsTypesModify(replacer placeholder.Replacer, opts ParamsOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
@@ -24,8 +70,8 @@ func paramsTypesModify(replacer placeholder.Replacer, opts ParamsOptions) genny.
 			templateVars := `var (
 	// Key%[2]v represents the %[2]v parameter.
 	Key%[2]v = []byte("%[2]v")
-	// TODO: Determine the default value
 	// Default%[2]v represents the %[2]v default value.
+	// TODO: Determine the default value
 	Default%[2]v %[3]v = %[4]v
 )
 
@@ -50,10 +96,11 @@ func paramsTypesModify(replacer placeholder.Replacer, opts ParamsOptions) genny.
 			content = replacer.Replace(content, module.PlaceholderParamsNewParam, replacementNewParam)
 
 			// add parameter to the struct into the new method.
-			templateNewStruct := "%[2]v,\n%[1]v"
+			templateNewStruct := "%[2]v: %[3]v,\n%[1]v"
 			replacementNewStruct := fmt.Sprintf(
 				templateNewStruct,
 				module.PlaceholderParamsNewStruct,
+				param.Name.UpperCamel,
 				param.Name.LowerCamel,
 			)
 			content = replacer.Replace(content, module.PlaceholderParamsNewStruct, replacementNewStruct)
@@ -95,7 +142,7 @@ func paramsTypesModify(replacer placeholder.Replacer, opts ParamsOptions) genny.
 func validate%[2]v(v interface{}) error {
 	%[3]v, ok := v.(%[4]v)
 	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", v)
+		return fmt.Errorf("invalid parameter type: %%T", v)
 	}
 
 	// TODO implement validation

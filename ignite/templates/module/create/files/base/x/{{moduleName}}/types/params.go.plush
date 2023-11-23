@@ -12,8 +12,8 @@ var _ paramtypes.ParamSet = (*Params)(nil)
 var (
 	// Key<%= param.Name.UpperCamel %> represents the <%= param.Name.UpperCamel %> parameter.
 	Key<%= param.Name.UpperCamel %> = []byte("<%= param.Name.UpperCamel %>")
-	// TODO: Determine the default value.
 	// Default<%= param.Name.UpperCamel %> represents the <%= param.Name.UpperCamel %> default value.
+	// TODO: Determine the default value.
 	Default<%= param.Name.UpperCamel %> <%= param.DataType() %> = <%= param.Value() %>
 )
 <% } %>

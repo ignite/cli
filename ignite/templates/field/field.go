@@ -159,7 +159,7 @@ func (f Field) ProtoImports() []string {
 // Value returns the field assign value.
 func (f Field) Value() string {
 	if f.DataType() == "string" {
-		return f.Name.Snake
+		return fmt.Sprintf("\"%s\"", f.Name.Snake)
 	}
 	return f.ValueIndex()
 }
