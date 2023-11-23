@@ -16,7 +16,7 @@ Beyond these, Ignite CLI has been instrumental in realizing diverse blockchain a
 - **Development with Live Reloading:** Start and test your blockchain node with real-time updates, enhancing your development workflow.
 - **Frontend Flexibility:** Utilize pre-built templates for Vue.js, React, Typescript or Go, catering to diverse frontend development needs.
 - **Inter-Blockchain Communication (IBC):** Seamlessly connect and interact with other blockchains using an integrated IBC relayer, a key feature of the Cosmos SDK.
-- **CometBFT Integration:** Built with the recently rebranded CometBFT (formerly Tendermint), ensuring robust consensus mechanisms in your blockchain solutions.
+- **CometBFT Integration:** Built with the CometBFT consensus engine (formerly Tendermint), ensuring robust consensus mechanisms in your blockchain solutions.
 - **Cross-Domain Applications:** Ideal for developing a wide range of blockchain applications in sectors like DeFi, NFTs, supply chain management, smart contracts (EVM or WASM), and decentralized exchanges (DEXes).
 
 ## Install Ignite CLI
