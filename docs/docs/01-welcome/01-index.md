@@ -17,7 +17,7 @@ Beyond these, Ignite has been instrumental in a wide array of blockchain applica
 - **Frontend Flexibility:** Utilize pre-built templates for Vue.js, React, Typescript or Go, catering to diverse frontend development needs.
 - **Inter-Blockchain Communication (IBC):** Seamlessly connect and interact with other blockchains using an integrated IBC relayer, a key feature of the Cosmos SDK.
 - **CometBFT Integration:** Built with the CometBFT consensus engine (formerly Tendermint), ensuring robust consensus mechanisms in your blockchain solutions.
-- **Cross-Domain Applications:** Ideal for developing a wide range of blockchain applications in sectors like DeFi, NFTs, supply chain management, smart contracts (EVM or WASM), and decentralized exchanges (DEXes).
+- **Cross-Domain Applications:** Ignite is perfectly suited for developing a diverse array of use cases across various sectors. These include DeFi, NFTs, supply chain management, smart contracts (both EVM and WASM), and decentralized exchanges (DEXes).
 
 ## Install Ignite CLI
 
