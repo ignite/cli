@@ -361,7 +361,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny
 				return err
 			}
 
-			if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
+			if err := os.WriteFile(filePath, []byte(content), 0o644); err != nil {
 				return err
 			}
 		}
