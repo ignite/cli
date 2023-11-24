@@ -41,7 +41,7 @@ ignite scaffold module blog --ibc
 ```
 
 A new directory with the code for an IBC module is created in `planet/x/blog`.
-Modules scaffolded with the `--ibc` flag include all the necesary logic for IBC to work.
+Modules scaffolded with the `--ibc` flag include all the necessary logic for IBC to work.
 
 3. **Generate CRUD Actions:**
 
@@ -147,11 +147,7 @@ import (
 
 Then modify the `OnRecvIbcPostPacket` keeper function with the following code:
 
-```go
-package keeper
-
-// ...
-
+```go title="x/blog/keeper/ibc_post.go"
 func (k Keeper) OnRecvIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData) (packetAck types.IbcPostPacketAck, err error) {
 	// validate packet data upon receiving
 	if err := data.ValidateBasic(); err != nil {
@@ -179,11 +175,6 @@ On the sending blockchain, store a `sentPost` so you know that the post has been
 received on the target chain.
 
 ```go title="x/blog/keeper/ibc_post.go"
-package keeper
-
-// ...
-
-// x/blog/keeper/ibc_post.go
 func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData, ack channeltypes.Acknowledgement) error {
 	switch dispatchedAck := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
@@ -245,7 +236,7 @@ Start two blockchain networks on the same machine. Both blockchains use the same
 
 One blockchain is named `earth` and the other blockchain is named `mars`.
 
-Setup the `earth.yml` and `mars.yml` files:
+Create and setup the `earth.yml` and `mars.yml` files:
 
 ```yaml title="earth.yml"
 version: 1
