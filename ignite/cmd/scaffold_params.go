@@ -75,7 +75,7 @@ func scaffoldParamsHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	session.Println(modificationsStr)
-	session.Printf("\n🎉 New parameters added to the module:\n- %s.\n\n", moduleName, strings.Join(params, "\n- "))
+	session.Printf("\n🎉 New parameters added to the module:\n\n- %s\n\n", strings.Join(params, "\n- "))
 
 	return nil
 }
