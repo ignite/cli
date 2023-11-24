@@ -67,6 +67,7 @@ ignite scaffold message liquidate-loan id:uint
 - **Extend the BankKeeper:**
 
 Ignite takes care of adding the `bank` keeper, but you still need to tell the loan module which bank methods you will be using. You will be using three methods: `SendCoins`, `SendCoinsFromAccountToModule`, and `SendCoinsFromModuleToAccount`. 
+Remove the `SpendableCoins` from the `BankKeeper`.
 Add these to the `Bankkeeper` interface.
 
 ```go title="x/loan/types/expected_keepers.go"
@@ -77,7 +78,6 @@ import (
 )
 
 type BankKeeper interface {
-    SpendableCoins(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
     SendCoins(ctx context.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
     SendCoinsFromAccountToModule(ctx context.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
     SendCoinsFromModuleToAccount(ctx context.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
@@ -89,8 +89,6 @@ type BankKeeper interface {
 When a loan is created, a certain message input validation is required. You want to throw error messages in case the end user tries impossible inputs.
 
 ```go title="x/loan/types/message_request_loan.go"
-package types
-
 import (
     "strconv"
 
@@ -358,7 +356,7 @@ Add the custom errors `ErrWrongLoanState` and `ErrDeadline`:
 package types
 
 import (
-    sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+    sdkerrors "cosmossdk.io/errors"
 )
 
 var (
