@@ -207,14 +207,14 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn
 
 		replacement := fmt.Sprintf(
 			template,
-			typed.Placeholder2,
+			typed.PlaceholderAutoCLITx,
 			opts.MsgName.UpperCamel,
 			strings.TrimSpace(fmt.Sprintf("%s%s", opts.MsgName.Kebab, opts.Fields.String())),
 			opts.MsgName.Original,
 			strings.TrimSpace(positionalArgs),
 		)
 
-		content := replacer.Replace(f.String(), typed.Placeholder2, replacement)
+		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLITx, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

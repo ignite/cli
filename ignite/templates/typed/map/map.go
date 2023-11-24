@@ -261,13 +261,13 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 		%[1]v`
 		replacement := fmt.Sprintf(
 			template,
-			typed.Placeholder,
+			typed.PlaceholderAutoCLIQuery,
 			opts.TypeName.UpperCamel,
 			opts.TypeName.Kebab,
 			opts.TypeName.Original,
 			strings.TrimSpace(positionalArgs),
 		)
-		content := replacer.Replace(f.String(), typed.Placeholder, replacement)
+		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLIQuery, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
@@ -638,14 +638,14 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 
 		replacement := fmt.Sprintf(
 			template,
-			typed.Placeholder2,
+			typed.PlaceholderAutoCLITx,
 			opts.TypeName.UpperCamel,
 			opts.TypeName.Kebab,
 			opts.TypeName.Original,
 			strings.TrimSpace(positionalArgs),
 		)
 
-		content := replacer.Replace(f.String(), typed.Placeholder2, replacement)
+		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLITx, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

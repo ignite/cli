@@ -254,11 +254,11 @@ func clientCliQueryOracleModify(replacer placeholder.Replacer, opts *OracleOptio
 		%[1]v`
 
 		replacement := fmt.Sprintf(template,
-			Placeholder,
+			PlaceholderAutoCLIQuery,
 			opts.QueryName.UpperCamel,
 			opts.QueryName.Kebab,
 		)
-		content := replacer.Replace(f.String(), Placeholder, replacement)
+		content := replacer.Replace(f.String(), PlaceholderAutoCLIQuery, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
@@ -291,11 +291,11 @@ func clientCliTxOracleModify(replacer placeholder.Replacer, opts *OracleOptions)
 
 		replacement := fmt.Sprintf(
 			template,
-			Placeholder2,
+			PlaceholderAutoCLITx,
 			opts.QueryName.UpperCamel,
 			opts.QueryName.Kebab,
 		)
-		content := replacer.Replace(f.String(), Placeholder, replacement)
+		content := replacer.Replace(f.String(), PlaceholderAutoCLITx, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
