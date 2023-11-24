@@ -377,7 +377,7 @@ blogd q blog show-post 0
 
 ```bash
 blogd q blog list-post
-````
+```
 
 4. **Update a Post:**
 
