@@ -1,205 +1,85 @@
 ---
 sidebar_position: 7
-description: Build an understanding of how to create and send packets across blockchains and navigate between blockchains.
-title: "Inter-Blockchain Communication: Basics"
+description: Explore the essentials of blockchain interoperability with our tutorial on creating and transmitting packets between networks using the Inter-Blockchain Communication protocol.
+title: "Mastering IBC: Inter-Blockchain Connectivity Essentials"
 ---
 
-# Inter-Blockchain Communication: Basics
+# Mastering IBC: Inter-Blockchain Connectivity Essentials
 
-The Inter-Blockchain Communication protocol (IBC) is an important part of the
-Cosmos SDK ecosystem. The Hello World tutorial is a time-honored tradition in
-computer programming. This tutorial builds an understanding of how to create and
-send packets across blockchain. This foundational knowledge helps you navigate
-between blockchains with the Cosmos SDK.
+The Inter-Blockchain Communication protocol (IBC) is an important part of the Cosmos SDK ecosystem. The Hello World tutorial is a time-honored tradition in computer programming. This tutorial builds an understanding of how to create and send packets across blockchain. This foundational knowledge helps you navigate between blockchains with the Cosmos SDK.
 
 **You will learn how to**
 
-- Use IBC to create and send packets between blockchains.
-- Navigate between blockchains using the Cosmos SDK and the Ignite CLI Relayer.
-- Create a basic blog post and save the post on another blockchain.
+- Master IBC for packet creation and inter-blockchain transmission.
+- Navigate and link blockchains with Cosmos SDK and Ignite App Hermes Relayer.
+- Create and manage basic blog posts, and transfer them to another blockchain.
 
 ## What is IBC?
 
-The Inter-Blockchain Communication protocol (IBC) allows blockchains to talk to
-each other. IBC handles transport across different sovereign blockchains. This
-end-to-end, connection-oriented, stateful protocol provides reliable, ordered,
-and authenticated communication between heterogeneous blockchains.
+IBC stands for [Inter-Blockchain Communication protocol]((https://ibc.cosmos.network/main/ibc/overview.html)), a core component for enabling blockchains to communicate with each other. This protocol manages transport and authentication, ensuring reliable and ordered data exchange between heterogeneous blockchains.
 
-The [IBC protocol in the Cosmos
-SDK](https://ibc.cosmos.network/main/ibc/overview.html) is the standard for the
-interaction between two blockchains. The IBCmodule interface defines how packets
-and messages are constructed to be interpreted by the sending and the receiving
-blockchain.
+## Tutorial Overview
 
-The IBC relayer lets you connect between sets of IBC-enabled chains. This
-tutorial teaches you how to create two blockchains and then start and use the
-relayer with Ignite CLI to connect two blockchains.
+- **Build and Connect Blockchains:** Learn to set up two interconnected blockchains and understand the mechanics of sending and acknowledging packets via IBC.
+- **Modules and Lifecycle of IBC Packets:** Explore the modules, packet lifecycle, and essential elements like IBC packets, relayer, and more.
+- **Practical Application:** Create a simple blog module capable of posting "Hello World" messages, demonstrating the practical use of IBC in sending data across blockchains.
 
-This tutorial covers essentials like modules, IBC packets, relayer, and the
-lifecycle of packets routed through IBC.
+## Steps to Implement IBC
 
-## Create a blockchain
+1. **Scaffold the Blockchain:**
 
-Create a blockchain app with a blog module to write posts on other blockchains
-that contain the Hello World message. For this tutorial, you can write posts for
-the Cosmos SDK universe that contain Hello Mars, Hello Cosmos, and Hello Earth
-messages.
-
-For this simple example, create an app that contains a blog module that has a
-post transaction with title and text.
-
-After you define the logic, run two blockchains that have this module installed.
-
-- The chains can send posts between each other using IBC.
-
-- On the sending chain, save the `acknowledged` and `timed out` posts.
-
-After the transaction is acknowledged by the receiving chain, you know that the
-post is saved on both blockchains.
-
-- The sending chain has the additional data `postID`.
-
-- Sent posts that are acknowledged and timed out contain the title and the
-  target chain of the post. These identifiers
-- are visible on the parameter `chain`. The following chart shows the lifecycle
-  of a packet that travels through IBC.
-
-![The Lifecycle of an IBC packet](./images/packet_sendpost.png)
-
-## Build your blockchain app
-
-Use Ignite CLI to scaffold the blockchain app and the blog module.
-
-### Build a new blockchain
-
-To scaffold a new blockchain named `planet`:
+Use Ignite CLI to create the blockchain app named `planet`
 
 ```bash
-ignite scaffold chain planet --no-module
-cd planet
+ignite scaffold chain planet --no-module && cd planet
 ```
 
-A new directory named `planet` is created in your home directory. The `planet`
-directory contains a working blockchain app.
-
-### Scaffold the blog module inside your blockchain
-
-Next, use Ignite CLI to scaffold a blog module with IBC capabilities. The blog
-module contains the logic for creating blog posts and routing them through IBC
-to the second blockchain.
-
-To scaffold a module named `blog`:
+2. **Build the Blog Module:**
 
 ```bash
 ignite scaffold module blog --ibc
 ```
 
 A new directory with the code for an IBC module is created in `planet/x/blog`.
-Modules scaffolded with the `--ibc` flag include all the logic for the
-scaffolded IBC module.
+Modules scaffolded with the `--ibc` flag include all the necesary logic for IBC to work.
 
-### Generate CRUD actions for types
+1. **Generate CRUD Actions:**
 
-Next, create the CRUD actions for the blog module types.
-
-Use the `ignite scaffold list` command to scaffold the boilerplate code for the
-create, read, update, and delete (CRUD) actions.
-
-These `ignite scaffold list` commands create CRUD code for the following
-transactions:
-
-- Creating blog posts
+- **Create Blog Posts:**
 
   ```bash
   ignite scaffold list post title content creator --no-message --module blog
   ```
 
-- Processing acknowledgments for sent posts
+- **Process Acknowledgments Posts:**
 
   ```bash
   ignite scaffold list sentPost postID title chain creator --no-message --module blog
   ```
 
-- Managing post timeouts
+- **Manage Post Timeouts:**
 
   ```bash
   ignite scaffold list timedoutPost title chain creator --no-message --module blog
   ```
 
-The scaffolded code includes proto files for defining data structures, messages,
-messages handlers, keepers for modifying the state, and CLI commands.
+Learn more about the [`ignite scaffold list` command](https://docs.ignite.com/nightly/references/cli#ignite-scaffold-list).
 
-### Ignite CLI Scaffold List Command Overview
+### Craft IBC Packets
 
-```
-ignite scaffold list [typeName] [field1] [field2] ... [flags]
-```
+1. **Scaffold a packet named `ibcPost`:**
 
-The first argument of the `ignite scaffold list [typeName]` command specifies
-the name of the type being created. For the blog app, you created `post`,
-`sentPost`, and `timedoutPost` types.
-
-The next arguments define the fields that are associated with the type. For the
-blog app, you created `title`, `content`, `postID`, and `chain` fields.
-
-The `--module` flag defines which module the new transaction type is added to.
-This optional flag lets you manage multiple modules within your Ignite CLI app.
-When the flag is not present, the type is scaffolded in the module that matches
-the name of the repo.
-
-When a new type is scaffolded, the default behavior is to scaffold messages that
-can be sent by users for CRUD operations. The `--no-message` flag disables this
-feature. Disable the messages option for the app since you want the posts to be
-created upon reception of IBC packets and not directly created from a user's
-messages.
-
-### Scaffold a sendable and interpretable IBC packet
-
-You must generate code for a packet that contains the title and the content of
-the blog post.
-
-The `ignite packet` command creates the logic for an IBC packet that can be sent
-to another blockchain.
-
-- The `title` and `content` are stored on the target chain.
-
-- The `postID` is acknowledged on the sending chain.
-
-To scaffold a sendable and interpretable IBC packet:
+The `title` and `content` are stored on the target chain.
+The `postID` is acknowledged on the sending chain.
 
 ```bash
 ignite scaffold packet ibcPost title content --ack postID --module blog
 ```
 
-Notice the fields in the `ibcPost` packet match the fields in the `post` type
-that you created earlier.
 
-- The `--ack` flag defines which identifier is returned to the sending
-  blockchain.
-
-- The `--module` flag specifies to create the packet in a particular IBC module.
-
-The `ignite packet` command also scaffolds the CLI command that is capable of
-sending an IBC packet:
-
-```bash
-planetd tx blog send-ibcPost [portID] [channelID] [title] [content]
-```
-
-## Modify the source code
-
-After you create the types and transactions, you must manually insert the logic
-to manage updates in the database. Modify the source code to save the data as
-specified earlier in this tutorial.
-
-### Add creator to the blog post packet
+2. **Add creator to the blog post packet:**
 
 Start with the proto file that defines the structure of the IBC packet.
-
-To identify the creator of the post in the receiving blockchain, add the
-`creator` field inside the packet. This field was not specified directly in the
-command because it would automatically become a parameter in the `SendIbcPost`
-CLI command.
 
 ```protobuf title="proto/planet/blog/packet.proto"
 message IbcPostPacketData {
@@ -210,14 +90,7 @@ message IbcPostPacketData {
 }
 ```
 
-To make sure the receiving chain has content on the creator of a blog post, add
-the `msg.Creator` value to the IBC `packet`.
-
-- The content of the `sender` of the message is automatically included in
-  `SendIbcPost` message.
-- The sender is verified as the signer of the message, so you can add the
-  `msg.Sender` as the creator to the new packet
-- before it is sent over IBC.
+To make sure the receiving chain has content on the creator of a blog post, add the `msg.Creator` value to the IBC `packet`.
 
 ```go title="x/blog/keeper/msg_server_ibc_post.go"
 package keeper
@@ -257,46 +130,7 @@ func (k msgServer) SendIbcPost(goCtx context.Context, msg *types.MsgSendIbcPost)
 }
 ```
 
-### Receive the post
-
-The methods for primary transaction logic are in the `x/blog/keeper/ibc_post.go`
-file. Use these methods to manage IBC packets:
-
-- `TransmitIbcPostPacket` is called manually to send the packet over IBC. This
-  method also defines the logic before the packet is sent over IBC to another
-  blockchain app.
-- `OnRecvIbcPostPacket` hook is automatically called when a packet is received
-  on the chain. This method defines the packet reception logic.
-- `OnAcknowledgementIbcPostPacket` hook is called when a sent packet is
-  acknowledged on the source chain. This method defines the logic when the
-  packet has been received.
-- `OnTimeoutIbcPostPacket` hook is called when a sent packet times out. This
-  method defines the logic when the packet is not received on the target chain
-
-You must modify the source code to add the logic inside those functions so that
-the data tables are modified accordingly.
-
-On reception of the post message, create a new post with the title and the
-content on the receiving chain.
-
-To identify the blockchain app that a message is originating from and who
-created the message, use an identifier in the following format:
-
-`<portID>-<channelID>-<creatorAddress>`
-
-Finally, the Ignite CLI-generated AppendPost function returns the ID of the new
-appended post. You can return this value to the source chain through
-acknowledgment.
-
-Append the type instance as `PostId` on receiving the packet:
-
-- The context `ctx` is an [immutable data
-  structure](https://docs.cosmos.network/main/core/context#go-context-package)
-  that has header data from the transaction. See [how the context is
-  initiated](https://github.com/cosmos/cosmos-sdk/blob/main/types/context.go#L71)
-- The identifier format that you defined earlier
-- The `title` is the Title of the blog post
-- The `content` is the Content of the blog post
+3. **Receive the Post:**
 
 In the `x/blog/keeper/ibc_post.go` file, make sure to import `"strconv"` below
 `"errors"`:
@@ -339,17 +173,10 @@ func (k Keeper) OnRecvIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet,
 }
 ```
 
-### Receive the post acknowledgement
+4. **Receive the Post Acknowledgement:**
 
 On the sending blockchain, store a `sentPost` so you know that the post has been
 received on the target chain.
-
-Store the title and the target to identify the post.
-
-When a packet is scaffolded, the default type for the received acknowledgment
-data is a type that identifies if the packet treatment has failed. The
-`Acknowledgement_Error` type is set if `OnRecvIbcPostPacket` returns an error
-from the packet.
 
 ```go title="x/blog/keeper/ibc_post.go"
 package keeper
@@ -388,7 +215,7 @@ func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channelty
 }
 ```
 
-### Store information about the timed-out packet
+5. **Store Information About the Timed-Out Packet:**
 
 Store posts that have not been received by target chains in `timedoutPost`
 posts. This logic follows the same format as `sentPost`.
@@ -412,20 +239,13 @@ func (k Keeper) OnTimeoutIbcPostPacket(ctx sdk.Context, packet channeltypes.Pack
 This last step completes the basic `blog` module setup. The blockchain is now
 ready!
 
-## Use the IBC modules
+## Relayer Configuration
 
-You can now spin up the blockchain and send a blog post from one blockchain app
-to the other. Multiple terminal windows are required to complete these next
-steps.
-
-### Test the IBC modules
-
-To test the IBC module, start two blockchain networks on the same machine. Both
-blockchains use the same source code. Each blockchain has a unique chain ID.
+Start two blockchain networks on the same machine. Both blockchains use the same source code. Each blockchain has a unique chain ID.
 
 One blockchain is named `earth` and the other blockchain is named `mars`.
 
-The `earth.yml` and `mars.yml` files are required in the project directory:
+Setup the `earth.yml` and `mars.yml` files:
 
 ```yaml title="earth.yml"
 version: 1
@@ -502,103 +322,31 @@ validators:
   home: $HOME/.mars
 ```
 
-Open a terminal window and run the following command to start the `earth`
-blockchain:
+Start the `earth` blockchain:
 
 ```bash
 ignite chain serve -c earth.yml
 ```
 
-Open a different terminal window and run the following command to start the
-`mars` blockchain:
+Start the `mars` blockchain:
 
 ```bash
 ignite chain serve -c mars.yml
 ```
 
-### Remove Existing Relayer and Ignite CLI Configurations
-
-If you previously used the relayer, follow these steps to remove exiting relayer
-and Ignite CLI configurations:
-
-- Stop your blockchains and delete previous configuration files:
-
-  ```bash
-  rm -rf ~/.ignite/relayer
-  ```
-
-If existing relayer configurations do not exist, the command returns `no matches
-found` and no action is taken.
-
-### Configure and start the relayer
-
-First, configure the relayer. Use the Ignite CLI `configure` command with the
-`--advanced` option:
+- **Install the Hermes Relayer App:**
 
 ```bash
-ignite relayer configure -a \
-  --source-rpc "http://0.0.0.0:26657" \
-  --source-faucet "http://0.0.0.0:4500" \
-  --source-port "blog" \
-  --source-version "blog-1" \
-  --source-gasprice "0.0000025stake" \
-  --source-prefix "cosmos" \
-  --source-gaslimit 300000 \
-  --target-rpc "http://0.0.0.0:26659" \
-  --target-faucet "http://0.0.0.0:4501" \
-  --target-port "blog" \
-  --target-version "blog-1" \
-  --target-gasprice "0.0000025stake" \
-  --target-prefix "cosmos" \
-  --target-gaslimit 300000
+ignite app add -g ($GOPATH)/src/github.com/ignite/apps/hermes
 ```
 
-When prompted, press Enter to accept the default values for `Source Account` and
-`Target Account`.
-
-The output looks like:
-
-```
----------------------------------------------
-Setting up chains
----------------------------------------------
-
-🔐  Account on "source" is "cosmos1xcxgzq75yrxzd0tu2kwmwajv7j550dkj7m00za"
-
- |· received coins from a faucet
- |· (balance: 100000stake,5token)
-
-🔐  Account on "target" is "cosmos1nxg8e4mfp5v7sea6ez23a65rvy0j59kayqr8cx"
-
- |· received coins from a faucet
- |· (balance: 100000stake,5token)
-
-⛓  Configured chains: earth-mars
-```
-
-In a new terminal window, start the relayer process:
+- **Configure the Relayer:**
 
 ```bash
-ignite relayer connect
+ignite relayer hermes configure "earth" "http://localhost:26657" "http://localhost:9090" "mars" "http://localhost:26659" "http://localhost:9092"
 ```
 
-Results:
-
-```
-------
-Paths
-------
-
-earth-mars:
-    earth > (port: blog) (channel: channel-0)
-    mars  > (port: blog) (channel: channel-0)
-
-------
-Listening and relaying packets between chains...
-------
-```
-
-### Send packets
+### Interact and Test
 
 You can now send packets and verify the received posts:
 
@@ -698,13 +446,6 @@ pagination:
 
 ## Congratulations 🎉
 
-By completing this tutorial, you've learned to use the Inter-Blockchain
-Communication protocol (IBC).
+By completing this tutorial, you've gained valuable insights into using IBC with Ignite CLI. You've learned how to set up interconnected blockchains, manage data transmission, and understand the practical applications of IBC in the Cosmos ecosystem.
 
-Here's what you accomplished in this tutorial:
-
-- Built two Hello blockchain apps as IBC modules
-- Modified the generated code to add CRUD action logic
-- Configured and used the Ignite CLI relayer to connect two blockchains with
-  each other
-- Transferred IBC packets from one blockchain to another
+Congratulations on embarking on this journey into the world of blockchain interoperability with Ignite CLI and Cosmos SDK! 🎉
