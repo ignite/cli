@@ -327,8 +327,22 @@ ignite chain serve -c mars.yml
 
 - **Install the Hermes Relayer App:**
 
+1. **Clone Ignite Apps:**
+
 ```bash
-ignite app add -g ($GOPATH)/src/github.com/ignite/apps/hermes
+https://github.com/ignite/apps && cd apps
+```
+
+2. **Install Ignite Apps**
+
+```bash
+make
+```
+
+3. **Install Hermes:**
+
+```bash
+ignite app install -g $PWD
 ```
 
 - **Configure the Relayer:**
