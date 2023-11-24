@@ -71,7 +71,7 @@ func paramsTypesModify(replacer placeholder.Replacer, opts ParamsOptions) genny.
 	// Key%[2]v represents the %[2]v parameter.
 	Key%[2]v = []byte("%[2]v")
 	// Default%[2]v represents the %[2]v default value.
-	// TODO: Determine the default value
+	// TODO: Determine the default value.
 	Default%[2]v %[3]v = %[4]v
 )
 

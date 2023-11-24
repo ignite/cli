@@ -1,12 +1,15 @@
 package types
 
 import (
-	<%= if (len(params) > 0) { %>"fmt"<% } %>
+	"fmt"
 
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
-var _ paramtypes.ParamSet = (*Params)(nil)
+var (
+	_                     = fmt.Errorf
+	_ paramtypes.ParamSet = (*Params)(nil)
+)
 
 <%= for (param) in params { %>
 var (
@@ -14,7 +17,7 @@ var (
 	Key<%= param.Name.UpperCamel %> = []byte("<%= param.Name.UpperCamel %>")
 	// Default<%= param.Name.UpperCamel %> represents the <%= param.Name.UpperCamel %> default value.
 	// TODO: Determine the default value.
-	Default<%= param.Name.UpperCamel %> <%= param.DataType() %> = <%= param.Value() %>
+	Default<%= param.Name.UpperCamel %> <%= param.DataType() %> = <%= if (param.DataType() == "string") { %>"<%= param.Name.Snake %>"<% } else { %><%= param.ValueIndex() %><% } %>
 )
 <% } %>
 
