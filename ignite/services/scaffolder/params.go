@@ -47,13 +47,13 @@ func (s Scaffolder) CreateParams(
 		return sm, fmt.Errorf("the module %v not exist", moduleName)
 	}
 
-	if err := checkParamCreated(s.path, moduleName, params...); err != nil {
-		return sm, err
-	}
-
 	// Parse params with the associated type
 	paramsFields, err := field.ParseFields(params, checkForbiddenTypeIndex)
 	if err != nil {
+		return sm, err
+	}
+
+	if err := checkParamCreated(s.path, moduleName, paramsFields); err != nil {
 		return sm, err
 	}
 
@@ -79,7 +79,7 @@ func (s Scaffolder) CreateParams(
 }
 
 // checkParamCreated checks if the parameter has been already created.
-func checkParamCreated(appPath, moduleName string, params ...string) (err error) {
+func checkParamCreated(appPath, moduleName string, params field.Fields) (err error) {
 	absPath, err := filepath.Abs(filepath.Join(appPath, "x", moduleName, "types"))
 	if err != nil {
 		return err
@@ -92,11 +92,7 @@ func checkParamCreated(appPath, moduleName string, params ...string) (err error)
 
 	paramsName := make(map[string]struct{})
 	for _, param := range params {
-		paramSplit := strings.Split(param, ":")
-		if len(paramSplit) == 0 || len(paramSplit) > 2 {
-			return fmt.Errorf("invalid param format: %s", param)
-		}
-		paramsName[strings.ToLower(paramSplit[0])] = struct{}{}
+		paramsName[param.Name.LowerCase] = struct{}{}
 	}
 
 	for _, pkg := range all {
@@ -122,14 +118,15 @@ func checkParamCreated(appPath, moduleName string, params ...string) (err error)
 				// Iterate through the fields of the struct.
 				for _, paramField := range structType.Fields.List {
 					for _, fieldName := range paramField.Names {
-						if _, ok := paramsName[strings.ToLower(fieldName.Name)]; ok {
-							err = fmt.Errorf(
-								"param field '%s' already exist for module %s",
-								fieldName.Name,
-								moduleName,
-							)
-							return false
+						if _, ok := paramsName[strings.ToLower(fieldName.Name)]; !ok {
+							continue
 						}
+						err = fmt.Errorf(
+							"param field '%s' already exist for module %s",
+							fieldName.Name,
+							moduleName,
+						)
+						return false
 					}
 				}
 				return true
