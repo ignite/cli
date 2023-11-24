@@ -43,7 +43,7 @@ ignite scaffold module blog --ibc
 A new directory with the code for an IBC module is created in `planet/x/blog`.
 Modules scaffolded with the `--ibc` flag include all the necesary logic for IBC to work.
 
-1. **Generate CRUD Actions:**
+3. **Generate CRUD Actions:**
 
 - **Create Blog Posts:**
 
