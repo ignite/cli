@@ -54,8 +54,12 @@ format:
 
 ## lint: Run Golang CI Lint.
 lint:
-	@echo Running gocilint...
+	@echo Running golangci-lint...
 	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run --out-format=tab --issues-exit-code=0
+
+lint-fix:
+	@echo Running golangci-lint...
+	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run --fix --out-format=tab --issues-exit-code=0
 
 .PHONY: govet format lint
 

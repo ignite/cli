@@ -9,7 +9,7 @@ import (
 	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/gocmd"
+	"github.com/ignite/cli/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/ignite/pkg/placeholder"
 	"github.com/ignite/cli/ignite/pkg/xgit"
@@ -116,6 +116,10 @@ func generate(
 		return err
 	}
 
+	if err := cosmosgen.InstallDepTools(ctx, absRoot); err != nil {
+		return err
+	}
+
 	// generate module template
 	if !noDefaultModule {
 		opts := &modulecreate.CreateOptions{
@@ -143,5 +147,6 @@ func generate(
 		}
 
 	}
-	return gocmd.ModTidy(ctx, absRoot)
+
+	return nil
 }

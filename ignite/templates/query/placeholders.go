@@ -1,5 +1,3 @@
 package query
 
-const (
-	Placeholder = "// this line is used by starport scaffolding # 1"
-)
+const PlaceholderAutoCLIQuery = "// this line is used by ignite scaffolding # autocli/query"

@@ -2,7 +2,9 @@ package ibc
 
 import (
 	"embed"
+	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/emicklei/proto"
@@ -347,10 +349,25 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 	}
 }
 
+//go:embed templates/packet/tx.tpl
+var txTemplate string
+
+// clientCliTxModify does not use AutoCLI here, because it as a better UX as it is.
 func clientCliTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/tx.go")
-		f, err := r.Disk.Find(path)
+		filePath := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/tx.go")
+		if _, err := os.Stat(filePath); errors.Is(err, os.ErrNotExist) {
+			content := fmt.Sprintf(txTemplate, opts.ModulePath, opts.ModuleName)
+			if err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
+				return err
+			}
+
+			if err := os.WriteFile(filePath, []byte(content), 0o644); err != nil {
+				return err
+			}
+		}
+
+		f, err := r.Disk.Find(filePath)
 		if err != nil {
 			return err
 		}
@@ -358,7 +375,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny
 %[1]v`
 		replacement := fmt.Sprintf(template, Placeholder, opts.PacketName.UpperCamel)
 		content := replacer.Replace(f.String(), Placeholder, replacement)
-		newFile := genny.NewFileS(path, content)
+		newFile := genny.NewFileS(filePath, content)
 		return r.File(newFile)
 	}
 }
