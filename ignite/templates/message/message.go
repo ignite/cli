@@ -4,6 +4,7 @@ import (
 	"embed"
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	"github.com/emicklei/proto"
 	"github.com/gobuffalo/genny/v2"
@@ -185,15 +186,35 @@ func typesCodecModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 
 func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/tx.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
-		template := `cmd.AddCommand(Cmd%[2]v())
-%[1]v`
-		replacement := fmt.Sprintf(template, Placeholder, opts.MsgName.UpperCamel)
-		content := replacer.Replace(f.String(), Placeholder, replacement)
+
+		var positionalArgs string
+		for _, field := range opts.Fields {
+			positionalArgs += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
+		}
+
+		template := `{
+			RpcMethod: "%[2]v",
+			Use: "%[3]v",
+			Short: "Send a %[4]v tx",
+			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
+		},
+		%[1]v`
+
+		replacement := fmt.Sprintf(
+			template,
+			typed.PlaceholderAutoCLITx,
+			opts.MsgName.UpperCamel,
+			strings.TrimSpace(fmt.Sprintf("%s%s", opts.MsgName.Kebab, opts.Fields.String())),
+			opts.MsgName.Original,
+			strings.TrimSpace(positionalArgs),
+		)
+
+		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLITx, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
