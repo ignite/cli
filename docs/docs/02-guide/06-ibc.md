@@ -327,28 +327,129 @@ ignite chain serve -c mars.yml
 
 - **Install the Hermes Relayer App:**
 
-1. **Clone Ignite Apps:**
+1. **Install Rustup:**
+
+Make sure to have [rustup installed](https://www.rust-lang.org/tools/install) .
+
+If you already do, upgrade to the latest version
 
 ```bash
-https://github.com/ignite/apps && cd apps
+rustup update
 ```
 
-2. **Install Ignite Apps**
+2. **Install Hermes:**
 
 ```bash
-make
+cargo install ibc-relayer-cli --bin hermes --locked
 ```
 
-3. **Install Hermes:**
+If you don't want to install Rust, there's alternative installation ways on the [Hermes documentation](https://hermes.informal.systems/).
+
+3. **Confirm Installation:**
 
 ```bash
-ignite app install -g $PWD
+hermes version // prints "hermes 1.7.1" or higher
 ```
 
 - **Configure the Relayer:**
 
+Create a `config.toml` file for configuring your relayer.
+
+```toml title="config.toml"
+[global]
+log_level = 'info'
+[mode]
+[mode.clients]
+enabled = true
+refresh = true
+misbehaviour = true
+[mode.connections]
+enabled = true
+[mode.channels]
+enabled = true
+[mode.packets]
+enabled = true
+[mode.packets.recv]
+enabled = true
+clear_interval = 100
+clear_on_start = true
+filter = false
+max_tx_size = 50000
+max_msg_num = 30
+tx_fee = '0.003stake'
+[mode.packets.ack]
+enabled = true
+clear_interval = 100
+clear_on_start = true
+filter = false
+max_tx_size = 50000
+max_msg_num = 30
+tx_fee = '0.003stake'
+[mode.packets.timeout]
+enabled = true
+clear_interval = 100
+clear_on_start = true
+filter = false
+max_tx_size = 50000
+max_msg_num = 30
+tx_fee = '0.003stake'
+[mode.packets.cleanup]
+enabled = true
+clear_interval = 100
+clear_on_start = true
+filter = false
+max_tx_size = 50000
+max_msg_num = 30
+tx_fee = '0.003stake'
+[telemetry]
+enabled = true
+host = '127.0.0.1'
+port = 3001
+service_name = ''
+
+[[chains]]
+id = 'earth'
+rpc_addr = 'http://localhost:26657'
+grpc_addr = 'http://localhost:9090'
+websocket_addr = ''
+rpc_timeout = '10s'
+account_prefix = 'cosmos'
+key_name = 'alice'
+store_prefix = 'ibc'
+max_gas = 300000
+gas_price = { price = 0.025, denom = 'stake' }
+gas_multiplier = 1.2
+default_max_msg_num = 30
+default_max_tx_size = 200000
+clock_drift = '5s'
+trusting_period = '14days'
+
+[[chains]]
+id = 'mars'
+rpc_addr = 'http://localhost:26659'
+grpc_addr = 'http://localhost:9092'
+websocket_addr = ''
+rpc_timeout = '10s'
+account_prefix = 'cosmos'
+key_name = 'alice'
+store_prefix = 'ibc'
+max_gas = 300000
+gas_price = { price = 0.025, denom = 'stake' }
+gas_multiplier = 1.2
+default_max_msg_num = 30
+default_max_tx_size = 200000
+clock_drift = '5s'
+trusting_period = '14days'
+```
+
 ```bash
-ignite relayer hermes configure "earth" "http://localhost:26657" "http://localhost:9090" "mars" "http://localhost:26659" "http://localhost:9092"
+hermes create client --host-chain ibc-1 --reference-chain ibc-0
+```
+
+Start Hermes
+
+```bash
+hermes start
 ```
 
 ### Interact and Test
