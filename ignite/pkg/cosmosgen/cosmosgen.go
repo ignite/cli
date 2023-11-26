@@ -22,8 +22,7 @@ type generateOptions struct {
 	updateBufModule bool
 	ev              events.Bus
 
-	isGoEnabled     bool
-	isPulsarEnabled bool
+	generateProtobuf bool
 
 	jsOut            func(module.Module) string
 	tsClientRootPath string
@@ -77,17 +76,10 @@ func WithHooksGeneration(out ModulePathFunc, hooksRootPath string) Option {
 	}
 }
 
-// WithGoGeneration adds Go code generation.
+// WithGoGeneration adds protobuf (gogoproto and pulsar) code generation.
 func WithGoGeneration() Option {
 	return func(o *generateOptions) {
-		o.isGoEnabled = true
-	}
-}
-
-// WithPulsarGeneration adds Go pulsar code generation.
-func WithPulsarGeneration() Option {
-	return func(o *generateOptions) {
-		o.isPulsarEnabled = true
+		o.generateProtobuf = true
 	}
 }
 
@@ -189,12 +181,11 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 
 	// Go generation must run first so the types are created before other
 	// generated code that requires sdk.Msg implementations to be defined
-	if g.opts.isGoEnabled {
-		if err := g.generateGo(ctx); err != nil {
+	if g.opts.generateProtobuf {
+		if err := g.generateGoGo(ctx); err != nil {
 			return err
 		}
-	}
-	if g.opts.isPulsarEnabled {
+
 		if err := g.generatePulsar(ctx); err != nil {
 			return err
 		}
