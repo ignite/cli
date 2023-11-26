@@ -2,7 +2,7 @@ name: Release Binaries
 
 on:
   release:
-    types: [ published ]
+    types: [published]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -10,10 +10,13 @@ concurrency:
 
 jobs:
   binary:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     env:
       working-directory: go/src/github.com/ignite/cli
-    
+
     steps:
       - name: Set up Go
         uses: actions/setup-go@v4
