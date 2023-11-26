@@ -310,17 +310,46 @@ func typesCodecModify(replacer placeholder.Replacer, opts *typed.Options) genny.
 
 func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/tx.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
-		template := `cmd.AddCommand(CmdCreate%[2]v())
-	cmd.AddCommand(CmdUpdate%[2]v())
-	cmd.AddCommand(CmdDelete%[2]v())
-%[1]v`
-		replacement := fmt.Sprintf(template, typed.Placeholder, opts.TypeName.UpperCamel)
-		content := replacer.Replace(f.String(), typed.Placeholder, replacement)
+
+		var positionalArgs string
+		for _, field := range opts.Fields {
+			positionalArgs += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
+		}
+
+		template := `{
+			RpcMethod: "Create%[2]v",
+			Use: "create-%[3]v",
+			Short: "Create %[4]v",
+			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
+		},
+		{
+			RpcMethod: "Update%[2]v",
+			Use: "update-%[3]v",
+			Short: "Update %[4]v",
+			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
+		},
+		{
+			RpcMethod: "Delete%[2]v",
+			Use: "delete-%[3]v",
+			Short: "Delete %[4]v",
+		},
+		%[1]v`
+
+		replacement := fmt.Sprintf(
+			template,
+			typed.PlaceholderAutoCLITx,
+			opts.TypeName.UpperCamel,
+			opts.TypeName.Kebab,
+			opts.TypeName.Original,
+			strings.TrimSpace(positionalArgs),
+		)
+
+		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLITx, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
@@ -328,18 +357,32 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 
 func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/query.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
-		template := `cmd.AddCommand(CmdList%[2]v())
-	cmd.AddCommand(CmdShow%[2]v())
-%[1]v`
-		replacement := fmt.Sprintf(template, typed.Placeholder,
+
+		template := `{
+			RpcMethod: "%[2]vAll",
+			Use: "list-%[3]v",
+			Short: "List all %[4]v",
+		},
+		{
+			RpcMethod: "%[2]v",
+			Use: "show-%[3]v [id]",
+			Short: "Shows a %[4]v by id",
+			PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "id"}},
+		},
+		%[1]v`
+		replacement := fmt.Sprintf(
+			template,
+			typed.PlaceholderAutoCLIQuery,
 			opts.TypeName.UpperCamel,
+			opts.TypeName.Kebab,
+			opts.TypeName.Original,
 		)
-		content := replacer.Replace(f.String(), typed.Placeholder, replacement)
+		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLIQuery, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

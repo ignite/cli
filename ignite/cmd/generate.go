@@ -33,7 +33,6 @@ meant to be edited by hand.
 	flagSetClearCache(c)
 
 	c.AddCommand(NewGenerateGo())
-	c.AddCommand(NewGeneratePulsar())
 	c.AddCommand(NewGenerateTSClient())
 	c.AddCommand(NewGenerateVuex())
 	c.AddCommand(NewGenerateComposables())
