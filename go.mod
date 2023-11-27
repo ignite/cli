@@ -67,7 +67,6 @@ require (
 	github.com/muesli/reflow v0.3.0
 	github.com/nqd/flat v0.2.0
 	github.com/otiai10/copy v1.14.0
-	github.com/ozgur-yalcin/google-analytics v0.0.0-20230220005025-ed55dad8f7a1
 	github.com/pelletier/go-toml v1.9.5
 	github.com/pkg/errors v0.9.1
 	github.com/radovskyb/watcher v1.0.7
