@@ -17,7 +17,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/spf13/cobra"
 	<%= if (isIBC) { %>porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"<% } %>
@@ -25,7 +24,6 @@ import (
 	// this line is used by starport scaffolding # 1
 
 	modulev1 "<%= modulePath %>/api/<%= appName %>/<%= moduleName %>/module"
-	"<%= modulePath %>/x/<%= moduleName %>/client/cli"
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
@@ -93,17 +91,12 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *r
 	}
 }
 
-// GetTxCmd returns the root Tx command for the module. The subcommands of
-// this root command are used by end-users to generate new transactions
-// containing messages defined in the module.
-func (a AppModuleBasic) GetTxCmd() *cobra.Command {
-    return cli.GetTxCmd()
-}
-
-// GetQueryCmd returns the root query command for the module. The subcommands of this root command are used by end-users to generate new queries to the subset of the state defined by the module
-func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-    return cli.GetQueryCmd()
-}
+// GetTxCmd returns the root Tx command for the module.
+// These commands enrich the AutoCLI tx commands.
+// When creating non AutoCLI commands, add the following:
+// func (a AppModuleBasic) GetTxCmd() *cobra.Command {
+//    return cli.GetTxCmd()
+// }
 
 // ----------------------------------------------------------------------------
 // AppModule
@@ -190,7 +183,7 @@ func init() {
 	)
 }
 
-type <%= title(moduleName) %>Inputs struct {
+type ModuleInputs struct {
 	depinject.In
 
 	StoreService store.KVStoreService
@@ -206,14 +199,14 @@ type <%= title(moduleName) %>Inputs struct {
     CapabilityScopedFn func(string) capabilitykeeper.ScopedKeeper `optional:"true"`<% } %>
 }
 
-type <%= title(moduleName) %>Outputs struct {
+type ModuleOutputs struct {
 	depinject.Out
 
 	<%= title(moduleName) %>Keeper keeper.Keeper
 	Module appmodule.AppModule
 }
 
-func ProvideModule(in <%= title(moduleName) %>Inputs) <%= title(moduleName) %>Outputs {
+func ProvideModule(in ModuleInputs) ModuleOutputs {
 	// default to governance authority if not provided
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
 	if in.Config.Authority != "" {
@@ -235,5 +228,5 @@ func ProvideModule(in <%= title(moduleName) %>Inputs) <%= title(moduleName) %>Ou
 	    in.BankKeeper,
 	)
 
-	return <%= title(moduleName) %>Outputs{<%= title(moduleName) %>Keeper: k, Module: m}
+	return ModuleOutputs{<%= title(moduleName) %>Keeper: k, Module: m}
 }

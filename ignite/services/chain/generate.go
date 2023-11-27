@@ -18,7 +18,6 @@ type generateOptions struct {
 	useCache             bool
 	isProtoVendorEnabled bool
 	isGoEnabled          bool
-	isPulsarEnabled      bool
 	isTSClientEnabled    bool
 	isComposablesEnabled bool
 	isHooksEnabled       bool
@@ -37,13 +36,6 @@ type GenerateTarget func(*generateOptions)
 func GenerateGo() GenerateTarget {
 	return func(o *generateOptions) {
 		o.isGoEnabled = true
-	}
-}
-
-// GeneratePulsar enables generating proto based Go code needed for the chain's source code.
-func GeneratePulsar() GenerateTarget {
-	return func(o *generateOptions) {
-		o.isPulsarEnabled = true
 	}
 }
 
@@ -176,10 +168,6 @@ func (c *Chain) Generate(
 
 	if targetOptions.isGoEnabled {
 		options = append(options, cosmosgen.WithGoGeneration())
-	}
-
-	if targetOptions.isPulsarEnabled {
-		options = append(options, cosmosgen.WithPulsarGeneration())
 	}
 
 	if targetOptions.isProtoVendorEnabled {
