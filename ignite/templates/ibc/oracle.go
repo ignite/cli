@@ -234,17 +234,31 @@ message Msg%[2]vDataResponse {
 // Deprecated: This function is no longer maintained.
 func clientCliQueryOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/query.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
-		template := `
-	cmd.AddCommand(Cmd%[2]vResult())
-	cmd.AddCommand(CmdLast%[2]vID())
-%[1]v`
-		replacement := fmt.Sprintf(template, Placeholder, opts.QueryName.UpperCamel)
-		content := replacer.Replace(f.String(), Placeholder, replacement)
+
+		template := `{
+			RpcMethod: "%[2]vResult",
+			Use: "%[3]v-result [request-id]",
+			Short: "Query the %[2]v result data by id",
+			PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "request_id"}},
+		},
+		{
+			RpcMethod: "Last%[2]vId",
+			Use: "last-%[3]v-id",
+			Short: "Query the last request id returned by %[2]v ack packet",
+		},
+		%[1]v`
+
+		replacement := fmt.Sprintf(template,
+			PlaceholderAutoCLIQuery,
+			opts.QueryName.UpperCamel,
+			opts.QueryName.Kebab,
+		)
+		content := replacer.Replace(f.String(), PlaceholderAutoCLIQuery, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
@@ -253,15 +267,35 @@ func clientCliQueryOracleModify(replacer placeholder.Replacer, opts *OracleOptio
 // Deprecated: This function is no longer maintained.
 func clientCliTxOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/tx.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
-		template := `cmd.AddCommand(CmdRequest%[2]vData())
+
+		template := `{
+			RpcMethod: "%[2]v",
+			Use: "%[3]v-data [oracle-script-id] [requested-validator-count] [sufficient-validator-count]",
+			Short: "Make a new %[2]v query request via an existing BandChain oracle script",
+			PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "oracle_script_id"}, {ProtoField: "ask_count"}, {ProtoField: "min_count"}},
+			FlagOptions: map[string]*autocliv1.FlagOptions{
+				"source_channel": {Name: "channel", Usage: "The channel id"},
+				"calldata": {Name: "calldata", DefaultValue: '{"multiplier": 1000000, symbols: []}', Usage: "Symbols and multiplier used in calling the oracle script"},
+				"fee_limit": {Name: "fee-limit", Usage: "The maximum tokens that will be paid to all data source providers"},
+				"prepare_gas": {Name: "prepare-gas", DefaultValue: "200000", Usage: "Prepare gas used in fee counting for prepare request"},
+				"execute_gas": {Name: "execute-gas", DefaultValue: "200000", Usage: "Execute gas used in fee counting for execute request"},
+			},
+		},
+
 %[1]v`
-		replacement := fmt.Sprintf(template, Placeholder, opts.QueryName.UpperCamel)
-		content := replacer.Replace(f.String(), Placeholder, replacement)
+
+		replacement := fmt.Sprintf(
+			template,
+			PlaceholderAutoCLITx,
+			opts.QueryName.UpperCamel,
+			opts.QueryName.Kebab,
+		)
+		content := replacer.Replace(f.String(), PlaceholderAutoCLITx, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
