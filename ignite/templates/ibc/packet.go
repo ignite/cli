@@ -2,7 +2,6 @@ package ibc
 
 import (
 	"embed"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
