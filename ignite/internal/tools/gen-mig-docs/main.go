@@ -58,16 +58,7 @@ var scaffoldCommands = map[string][]string{
 	"packet": {
 		"chain example --no-module",
 		"module example --ibc",
-		"chain example",
 		"packet packet1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --module example --yes",
-	},
-	"vue": {
-		"chain example",
-		"vue",
-	},
-	"react": {
-		"chain example",
-		"react",
 	},
 }
 
@@ -78,6 +69,11 @@ var diffExceptions = []string{
 	"*.pb.go",
 	"*.pb.gw.go",
 	"openapi.yml", // FIXME: For some reason removing this file from exceptions causes too much memory usage and OS kills the process
+	".gitignore",
+	"*.html",
+	"*.css",
+	"*.js",
+	"*.ts",
 }
 
 func main() {
@@ -122,8 +118,7 @@ func run(fromVer, toVer *semver.Version, logger *log.Logger) error {
 	logger.Println("Cloning", igniteCliRepository)
 	repoDir := filepath.Join(tmpdir, igniteRepoPath)
 	repo, err := git.PlainClone(repoDir, false, &git.CloneOptions{
-		URL:      igniteCliRepository,
-		Progress: os.Stdout,
+		URL: igniteCliRepository,
 	})
 	if err != nil {
 		return err
@@ -243,7 +238,7 @@ func validateVersionRange(fromVer, toVer *semver.Version, versions semver.Collec
 		}
 	}
 
-	// Picking deafult values for fromVer and toVer such that:
+	// Picking default values for fromVer and toVer such that:
 	// If both fromVer and toVer are not provided, then generate migration document for second last and last semver tags
 	// If only fromVer is not provided, then use the tag before toVer as fromVer
 	// If only toVer is not provided, then use the last tag as toVer
@@ -336,8 +331,10 @@ func executeScaffoldCommands(ignitePath, outputDir string, ver *semver.Version) 
 func removeGitDirectories(outputDir string) error {
 	paths := make([]string, 0)
 	err := filepath.WalkDir(outputDir, func(path string, d fs.DirEntry, err error) error {
-		if d.IsDir() && d.Name() == ".git" {
-			paths = append(paths, path)
+		if d.IsDir() {
+			if d.Name() == ".git" || d.Name() == ".github" {
+				paths = append(paths, path)
+			}
 		}
 		return nil
 	})
