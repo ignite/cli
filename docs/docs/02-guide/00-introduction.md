@@ -20,7 +20,7 @@ Welcome to the Ignite Developer Tutorials, your gateway to mastering blockchain 
 
 - **DeFi Loan Tutorial**: Dive into Decentralized Finance (DeFi) by building a blockchain for managing loans. Gain insights into CRUD logic, module method integration, and token transaction management.
 
-**Token Factory Tutorial**: Master the creation and management of digital assets on your blockchain by building a token factory module, learning module development, CRUD operations without delete functionality, and native denomination integration.
+- **Token Factory Tutorial**: Master the creation and management of digital assets on your blockchain by building a token factory module, learning module development, CRUD operations without delete functionality, and native denomination integration.
 
 - **Inter-blockchain Communication (IBC) Basics**: Explore the interconnected world of blockchains with the IBC protocol. Learn how to scaffold an IBC-enabled module, manage IBC packets, and configure a built-in IBC relayer.
 
