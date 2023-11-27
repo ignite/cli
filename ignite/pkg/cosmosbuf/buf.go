@@ -35,17 +35,20 @@ const (
 	flagOutput      = "output"
 	flagErrorFormat = "error-format"
 	flagLogFormat   = "log-format"
+	flagOnly        = "only"
 	fmtJSON         = "json"
 
 	// CMDGenerate generate command.
 	CMDGenerate Command = "generate"
 	CMDExport   Command = "export"
+	CMDMod      Command = "mod"
 )
 
 var (
 	commands = map[Command]struct{}{
 		CMDGenerate: {},
 		CMDExport:   {},
+		CMDMod:      {},
 	}
 
 	// ErrInvalidCommand indicates an invalid command name.
@@ -70,6 +73,24 @@ func New() (Buf, error) {
 // String returns the command name.
 func (c Command) String() string {
 	return string(c)
+}
+
+// Update updates module dependencies.
+// By default updates all dependencies unless one or more dependencies are specified.
+func (b Buf) Update(ctx context.Context, modDir string, dependencies ...string) error {
+	var flags map[string]string
+	if dependencies != nil {
+		flags = map[string]string{
+			flagOnly: strings.Join(dependencies, ","),
+		}
+	}
+
+	cmd, err := b.generateCommand(CMDMod, flags, "update", modDir)
+	if err != nil {
+		return err
+	}
+
+	return b.runCommand(ctx, cmd...)
 }
 
 // Export runs the buf Export command for the files in the proto directory.

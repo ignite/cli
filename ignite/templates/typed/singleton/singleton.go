@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"path/filepath"
+	"strings"
 
 	"github.com/emicklei/proto"
 
@@ -157,17 +158,26 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 
 func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/query.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
-		template := `cmd.AddCommand(CmdShow%[2]v())
-%[1]v`
-		replacement := fmt.Sprintf(template, typed.Placeholder,
+
+		template := `{
+			RpcMethod: "%[2]v",
+			Use: "show-%[3]v",
+			Short: "show %[4]v",
+		},
+		%[1]v`
+		replacement := fmt.Sprintf(
+			template,
+			typed.PlaceholderAutoCLIQuery,
 			opts.TypeName.UpperCamel,
+			opts.TypeName.Kebab,
+			opts.TypeName.Original,
 		)
-		content := replacer.Replace(f.String(), typed.Placeholder, replacement)
+		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLIQuery, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
@@ -238,7 +248,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 
 func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "genesis_test.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/genesis_test.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -307,7 +317,7 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 
 func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "genesis.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -395,20 +405,27 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 
 		// Add the messages
 		creator := protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)
+		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.LowerCamel)
 		fields := []*proto.NormalField{creator}
 		for i, field := range opts.Fields {
 			fields = append(fields, field.ToProtoField(i+3))
 		}
 		msgCreate := protoutil.NewMessage(
-			"MsgCreate"+name, protoutil.WithFields(fields...),
+			"MsgCreate"+name,
+			protoutil.WithFields(fields...),
+			protoutil.WithMessageOptions(creatorOpt),
 		)
 		msgCreateResponse := protoutil.NewMessage("MsgCreate" + name + "Response")
 		msgUpdate := protoutil.NewMessage(
-			"MsgUpdate"+name, protoutil.WithFields(fields...),
+			"MsgUpdate"+name,
+			protoutil.WithFields(fields...),
+			protoutil.WithMessageOptions(creatorOpt),
 		)
 		msgUpdateResponse := protoutil.NewMessage("MsgUpdate" + name + "Response")
 		msgDelete := protoutil.NewMessage(
-			"MsgDelete"+name, protoutil.WithFields(creator),
+			"MsgDelete"+name,
+			protoutil.WithFields(creator),
+			protoutil.WithMessageOptions(creatorOpt),
 		)
 		msgDeleteResponse := protoutil.NewMessage("MsgDelete" + name + "Response")
 		protoutil.Append(protoFile,
@@ -422,17 +439,46 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 
 func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/tx.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
-		template := `cmd.AddCommand(CmdCreate%[2]v())
-	cmd.AddCommand(CmdUpdate%[2]v())
-	cmd.AddCommand(CmdDelete%[2]v())
-%[1]v`
-		replacement := fmt.Sprintf(template, typed.Placeholder, opts.TypeName.UpperCamel)
-		content := replacer.Replace(f.String(), typed.Placeholder, replacement)
+
+		var positionalArgs string
+		for _, field := range opts.Fields {
+			positionalArgs += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
+		}
+
+		template := `{
+			RpcMethod: "Create%[2]v",
+			Use: "create-%[3]v",
+			Short: "Create %[4]v",
+			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
+		},
+		{
+			RpcMethod: "Update%[2]v",
+			Use: "update-%[3]v",
+			Short: "Update %[4]v",
+			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
+		},
+		{
+			RpcMethod: "Delete%[2]v",
+			Use: "delete-%[3]v",
+			Short: "Delete %[4]v",
+		},
+		%[1]v`
+
+		replacement := fmt.Sprintf(
+			template,
+			typed.PlaceholderAutoCLITx,
+			opts.TypeName.UpperCamel,
+			opts.TypeName.Kebab,
+			opts.TypeName.Original,
+			strings.TrimSpace(positionalArgs),
+		)
+
+		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLITx, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
@@ -451,19 +497,6 @@ func typesCodecModify(replacer placeholder.Replacer, opts *typed.Options) genny.
 		// Import
 		replacementImport := `sdk "github.com/cosmos/cosmos-sdk/types"`
 		content = replacer.ReplaceOnce(content, typed.Placeholder, replacementImport)
-
-		// Concrete
-		templateConcrete := `cdc.RegisterConcrete(&MsgCreate%[2]v{}, "%[3]v/Create%[2]v", nil)
-cdc.RegisterConcrete(&MsgUpdate%[2]v{}, "%[3]v/Update%[2]v", nil)
-cdc.RegisterConcrete(&MsgDelete%[2]v{}, "%[3]v/Delete%[2]v", nil)
-%[1]v`
-		replacementConcrete := fmt.Sprintf(
-			templateConcrete,
-			typed.Placeholder2,
-			opts.TypeName.UpperCamel,
-			opts.ModuleName,
-		)
-		content = replacer.Replace(content, typed.Placeholder2, replacementConcrete)
 
 		// Interface
 		templateInterface := `registry.RegisterImplementations((*sdk.Msg)(nil),

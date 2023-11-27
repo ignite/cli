@@ -2,6 +2,11 @@ package ignitecmd
 
 import (
 	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
+)
+
+const (
+	flagEnableProtoVendor = "enable-proto-vendor"
 )
 
 // NewGenerate returns a command that groups code generation related sub commands.
@@ -22,10 +27,12 @@ meant to be edited by hand.
 		PersistentPreRunE: migrationPreRunHandler,
 	}
 
+	c.PersistentFlags().AddFlagSet(flagSetEnableProtoVendor())
+
 	flagSetPath(c)
 	flagSetClearCache(c)
+
 	c.AddCommand(NewGenerateGo())
-	c.AddCommand(NewGeneratePulsar())
 	c.AddCommand(NewGenerateTSClient())
 	c.AddCommand(NewGenerateVuex())
 	c.AddCommand(NewGenerateComposables())
@@ -33,4 +40,15 @@ meant to be edited by hand.
 	c.AddCommand(NewGenerateOpenAPI())
 
 	return c
+}
+
+func flagSetEnableProtoVendor() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.Bool(flagEnableProtoVendor, false, "enable proto package vendor for missing Buf dependencies")
+	return fs
+}
+
+func flagGetEnableProtoVendor(cmd *cobra.Command) bool {
+	skip, _ := cmd.Flags().GetBool(flagEnableProtoVendor)
+	return skip
 }

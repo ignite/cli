@@ -110,7 +110,7 @@ func TestSave(t *testing.T) {
 			Hash:   h,
 			Height: 1,
 			Index:  0,
-			TxResult: abci.ResponseDeliverTx{
+			TxResult: abci.ExecTxResult{
 				Events: []abci.Event{evt},
 			},
 		},

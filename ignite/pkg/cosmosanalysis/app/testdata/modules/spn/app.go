@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/cosmos/cosmos-sdk/server"
+
 	"cosmossdk.io/client/v2/autocli"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
@@ -1019,3 +1021,85 @@ func (app *App) SimulationManager() *module.SimulationManager {
 func (app *App) InterfaceRegistry() codectypes.InterfaceRegistry { return nil }
 func (app *App) TxConfig() client.TxConfig                       { return nil }
 func (app *App) AutoCliOpts() autocli.AppOptions                 { return autocli.AppOptions{} }
+
+// GetKey returns the KVStoreKey for the provided store key.
+func (app *App) GetKey(storeKey string) *storetypes.KVStoreKey {
+	sk := app.UnsafeFindStoreKey(storeKey)
+	kvStoreKey, ok := sk.(*storetypes.KVStoreKey)
+	if !ok {
+		return nil
+	}
+	return kvStoreKey
+}
+
+// GetMemKey returns the MemoryStoreKey for the provided store key.
+func (app *App) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
+	key, ok := app.UnsafeFindStoreKey(storeKey).(*storetypes.MemoryStoreKey)
+	if !ok {
+		return nil
+	}
+
+	return key
+}
+
+// kvStoreKeys returns all the kv store keys registered inside App.
+func (app *App) kvStoreKeys() map[string]*storetypes.KVStoreKey {
+	keys := make(map[string]*storetypes.KVStoreKey)
+	for _, k := range app.GetStoreKeys() {
+		if kv, ok := k.(*storetypes.KVStoreKey); ok {
+			keys[kv.Name()] = kv
+		}
+	}
+
+	return keys
+}
+
+// GetSubspace returns a param subspace for a given module name.
+func (app *App) GetSubspace(moduleName string) paramstypes.Subspace {
+	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
+	return subspace
+}
+
+// SimulationManager implements the SimulationApp interface
+func (app *App) SimulationManager() *module.SimulationManager {
+	return app.sm
+}
+
+// RegisterAPIRoutes registers all application module routes with the provided
+// API server.
+func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+	app.App.RegisterAPIRoutes(apiSvr, apiConfig)
+	// register swagger API in app.go so that other applications can override easily
+	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
+		panic(err)
+	}
+}
+
+// GetMaccPerms returns a copy of the module account permissions
+//
+// NOTE: This is solely to be used for testing purposes.
+func GetMaccPerms() map[string][]string {
+	dup := make(map[string][]string)
+	for _, perms := range moduleAccPerms {
+		dup[perms.Account] = perms.Permissions
+	}
+
+	return dup
+}
+
+// BlockedAddresses returns all the app's blocked account addresses.
+func BlockedAddresses() map[string]bool {
+	result := make(map[string]bool)
+
+	if len(blockAccAddrs) > 0 {
+		for _, addr := range blockAccAddrs {
+			result[addr] = true
+		}
+	} else {
+		for addr := range GetMaccPerms() {
+			result[addr] = true
+		}
+	}
+
+	return result
+}

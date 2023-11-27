@@ -76,10 +76,6 @@ func finish(ctx context.Context, cacheStorage cache.Storage, path, gomodPath str
 }
 
 func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodPath string) error {
-	if err := cosmosgen.InstallDepTools(ctx, projectPath); err != nil {
-		return err
-	}
-
 	confpath, err := chainconfig.LocateDefault(projectPath)
 	if err != nil {
 		return err
@@ -90,8 +86,8 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 	}
 
 	options := []cosmosgen.Option{
+		cosmosgen.UpdateBufModule(),
 		cosmosgen.WithGoGeneration(),
-		cosmosgen.WithPulsarGeneration(),
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
 	}
 

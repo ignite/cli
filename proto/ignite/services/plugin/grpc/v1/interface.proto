@@ -1,0 +1,147 @@
+syntax = "proto3";
+
+package ignite.services.plugin.grpc.v1;
+
+option go_package = "github.com/ignite/cli/ignite/services/plugin/grpc/v1";
+
+// ExecutedCommand represents a plugin command under execution.
+message ExecutedCommand {
+  // Use is the one-line usage message.
+  string use = 1;
+
+  // Path contains the command path, e.g. `ignite scaffold foo`.
+  string path = 2;
+
+  // Args are the command arguments.
+  repeated string args = 3;
+
+  // Full list of args taken from the command line.
+  repeated string os_args = 4;
+
+  // With contains the plugin config parameters.
+  map<string, string> with = 5;
+
+  // Flags holds the list of command flags.
+  repeated Flag flags = 6;
+}
+
+// ExecutedHook represents a plugin hook under execution.
+message ExecutedHook {
+  // Hook is a copy of the original Hook defined in the Manifest.
+  Hook hook = 1;
+
+  // ExecutedCommand gives access to the command attached by the hook.
+  ExecutedCommand executed_command = 2;
+}
+
+// Manifest represents the plugin behavior.
+message Manifest {
+  // Plugin name.
+  string name = 1;
+
+  // Commands contains the commands that will be added to the list of ignite commands.
+  // Each commands are independent, for nested commands use the inner Commands field.
+  bool shared_host = 2;
+
+  // Hooks contains the hooks that will be attached to the existing ignite commands.
+  repeated Command commands = 3;
+
+  // Enables sharing a single plugin server across all running instances of a plugin.
+  // Useful if a plugin adds or extends long running commands.
+  //
+  // Example: if a plugin defines a hook on `ignite chain serve`, a plugin server is
+  // instanciated when the command is run. Now if you want to interact with that instance
+  // from commands defined in that plugin, you need to enable shared host, or else the
+  // commands will just instantiate separate plugin servers.
+  //
+  // When enabled, all plugins of the same path loaded from the same configuration will
+  // attach it's RPC client to a an existing RPC server.
+  //
+  // If a plugin instance has no other running plugin servers, it will create one and it
+  // will be the host.
+  repeated Hook hooks = 4;
+}
+
+// Command represents a plugin command.
+message Command {
+  // Use is the one-line usage message.
+  //
+  // Recommended syntax is as follow:
+  //   [ ] identifies an optional argument. Arguments that are not enclosed in brackets are required.
+  //   ... indicates that you can specify multiple values for the previous argument.
+  //   |   indicates mutually exclusive information. You can use the argument to the left of the separator or the
+  //       argument to the right of the separator. You cannot use both arguments in a single use of the command.
+  //   { } delimits a set of mutually exclusive arguments when one of the arguments is required. If the arguments are
+  //       optional, they are enclosed in brackets ([ ]).
+  //
+  // Example: add [-F file | -D dir]... [-f format] profile
+  string use = 1;
+
+  // Aliases is an array of aliases that can be used instead of the first word in Use.
+  repeated string aliases = 2;
+
+  // Short is the short description shown in the 'help' output.
+  string short = 3;
+
+  // Long is the long message shown in the 'help <this-command>' output.
+  string long = 4;
+
+  // Hidden defines, if this command is hidden and should NOT show up in the list of available commands.
+  bool hidden = 5;
+
+  // Flags holds the list of command flags.
+  repeated Flag flags = 6;
+
+  // Indicates where the command should be placed.
+  // For instance `ignite scaffold` will place the command at the `scaffold` command.
+  // An empty value is interpreted as `ignite` (==root).
+  string place_command_under = 7;
+
+  // List of sub commands.
+  repeated Command commands = 8;
+}
+
+// Flag represents of a command line flag.
+message Flag {
+  // Type represents the flag type.
+  enum Type {
+    TYPE_FLAG_STRING_UNSPECIFIED = 0;
+    TYPE_FLAG_INT = 1;
+    TYPE_FLAG_UINT = 2;
+    TYPE_FLAG_INT64 = 3;
+    TYPE_FLAG_UINT64 = 4;
+    TYPE_FLAG_BOOL = 5;
+    TYPE_FLAG_STRING_SLICE = 6;
+  }
+
+  // Name as it appears in the command line.
+  string name = 1;
+
+  // One letter abbreviation of the flag.
+  string shorthand = 2;
+
+  // Help message.
+  string usage = 3;
+
+  // Default flag value.
+  string default_value = 4;
+
+  // Flag type.
+  Type type = 5;
+
+  // Flag value.
+  string value = 6;
+
+  // Indicates wether or not the flag is propagated on children commands.
+  bool persistent = 7;
+}
+
+// Hook represents a user defined action within a plugin.
+message Hook {
+  // Identifies the hook for the client to invoke the correct hook.
+  // It must be unique.
+  string name = 1;
+
+  // Indicates the command where to register the hooks.
+  string place_hook_on = 2;
+}

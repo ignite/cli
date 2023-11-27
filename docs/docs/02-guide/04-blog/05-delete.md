@@ -7,7 +7,8 @@ message.
 
 ```go title="x/blog/keeper/post.go"
 func (k Keeper) RemovePost(ctx sdk.Context, id uint64) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PostKey))
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.KeyPrefix(types.PostKey))
 	store.Delete(GetPostIDBytes(id))
 }
 ```
@@ -32,6 +33,7 @@ import (
 
 	"blog/x/blog/types"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -40,10 +42,10 @@ func (k msgServer) DeletePost(goCtx context.Context, msg *types.MsgDeletePost) (
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	val, found := k.GetPost(ctx, msg.Id)
 	if !found {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
+		return nil, errorsmod.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
 	}
 	if msg.Creator != val.Creator {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
+		return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
 	}
 	k.RemovePost(ctx, msg.Id)
 	return &types.MsgDeletePostResponse{}, nil
@@ -57,7 +59,7 @@ a pointer to a message of type `*types.MsgDeletePostResponse` and an `error`.
 Inside the function, the context is unwrapped using the `sdk.UnwrapSDKContext`
 function and the value of the post with the ID specified in the message is
 retrieved using the `GetPost` function. If the post is not found, an error is
-returned using the `sdkerrors.Wrap` function. If the creator of the message does
+returned using the `errorsmod.Wrap` function. If the creator of the message does
 not match the creator of the post, another error is returned. If both of these
 checks pass, the `RemovePost` function is called with the context and the ID of
 the post to delete the post. Finally, the function returns a response message

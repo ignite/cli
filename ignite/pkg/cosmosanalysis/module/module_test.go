@@ -164,10 +164,10 @@ func TestDiscover(t *testing.T) {
 	}
 }
 
-func TestDiscoverWithVersionedApp(t *testing.T) {
+func TestDiscoverWithAppV2(t *testing.T) {
 	ctx := context.Background()
-	sourcePath := "testdata/planet_v2"
-	testModule := newModule(sourcePath, "github.com/tendermint/planet/v2")
+	sourcePath := "testdata/earth"
+	testModule := newModule(sourcePath, "github.com/tendermint/planet")
 
 	tests := []struct {
 		name, protoDir string

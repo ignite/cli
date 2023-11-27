@@ -41,7 +41,7 @@ Request a loan of `1000token` with `100token` as a fee and `1000foocoin` as a
 collateral from Alice's account. The deadline is set to `500` blocks:
 
 ```
-loand tx loan request-loan 1000token 100token 1000foocoin 500 --from alice
+loand tx loan request-loan 1000token 100token 1000foocoin 500 --from alice --chain-id loan
 ```
 
 ```
@@ -65,7 +65,7 @@ Please be aware that the addresses displayed in your terminal window (such as th
 Approve the loan from Bob's account:
 
 ```
-loand tx loan approve-loan 0 --from bob
+loand tx loan approve-loan 0 --from bob --chain-id loan
 ```
 
 ```
@@ -132,7 +132,7 @@ balances:
 Repay the loan from Alice's account:
 
 ```
-loand tx loan repay-loan 0 --from alice
+loand tx loan repay-loan 0 --from alice --chain-id loan
 ```
 
 ```
@@ -204,7 +204,7 @@ deadline is set to a very small value, so that the loan can be quickly
 liquidated in the next step: 
 
 ```
-loand tx loan request-loan 1000token 100token 1000foocoin 20 --from alice
+loand tx loan request-loan 1000token 100token 1000foocoin 20 --from alice --chain-id loan
 ```
 
 ```
@@ -238,13 +238,13 @@ Loan:
 Approve the loan from Bob's account:
 
 ```
-loand tx loan approve-loan 1 --from bob
+loand tx loan approve-loan 1 --from bob --chain-id loan
 ```
 
 Liquidate the loan from Bob's account:
 
 ```
-loand tx loan liquidate-loan 1 --from bob
+loand tx loan liquidate-loan 1 --from bob --chain-id loan
 ```
 
 ```

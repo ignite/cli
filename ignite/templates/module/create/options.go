@@ -24,7 +24,7 @@ type (
 		IBCOrdering string
 
 		// Dependencies of the module
-		Dependencies []Dependency
+		Dependencies Dependencies
 	}
 
 	// Dependency represents a module dependency of a module.
@@ -47,6 +47,21 @@ type (
 // NewDependency returns a new dependency.
 func NewDependency(name string) Dependency {
 	return Dependency{Name: strcase.ToCamel(name)}
+}
+
+// Contains returns true if contains dependency name.
+func (d Dependencies) Contains(name string) bool {
+	for _, dep := range d {
+		if dep.Name == name {
+			return true
+		}
+	}
+	return false
+}
+
+// Len returns the length of dependencies.
+func (d Dependencies) Len() int {
+	return len(d)
 }
 
 // KeeperName returns the keeper's name for the dependency module.
