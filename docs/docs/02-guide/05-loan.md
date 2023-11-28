@@ -8,6 +8,17 @@ A DeFi loan represents a financial contract where the borrower is granted a cert
 In return, the borrower agrees to pay an additional fee and repay the loan within a set period of time.
 To secure a loan, the borrower provides collateral that the lender can claim in the event of default.
 
+## You will learn
+
+In this tutorial you will learn how to:
+
+- **Scaffold a DeFi Module:**  Learn how to use Ignite CLI to scaffold the basic structure of a DeFi module tailored for loan services.
+- **Implement Loan Transactions:** Walk through coding the logic for initiating, managing, and closing loans.
+- **Create Custom Tokens:** Understand how to create and manage custom tokens within your DeFi ecosystem, vital for lending and borrowing mechanisms.
+- **Integrate Interest Rate Models:** Dive into implementing interest rate models to calculate loan interests dynamically.
+- **Ensure Security and Compliance:** Focus on security, ensure your DeFi module is resistent to common vulnerabilites by validating inputs.
+- **Test and Debug:** Learn effective strategies for testing your DeFi module and debugging issues that arise during development.
+
 ## Setup and Scaffold
 
 1. **Create a New Blockchain:**
@@ -15,6 +26,8 @@ To secure a loan, the borrower provides collateral that the lender can claim in 
 ```bash
 ignite scaffold chain loan --no-module && cd loan
 ```
+
+Notice the `--no-module` flag, in the next step we make sure the `bank` dependency is included with scaffolding the module.
 
 2. **Create a Module:**
    
@@ -67,7 +80,7 @@ ignite scaffold message liquidate-loan id:uint
 - **Extend the BankKeeper:**
 
 Ignite takes care of adding the `bank` keeper, but you still need to tell the loan module which bank methods you will be using. You will be using three methods: `SendCoins`, `SendCoinsFromAccountToModule`, and `SendCoinsFromModuleToAccount`. 
-Remove the `SpendableCoins` from the `BankKeeper`.
+Remove the `SpendableCoins` function from the `BankKeeper`.
 
 Add these to the `Bankkeeper` interface.
 
@@ -75,13 +88,29 @@ Add these to the `Bankkeeper` interface.
 package types
 
 import (
-    sdk "github.com/cosmos/cosmos-sdk/types"
+	"context"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// AccountKeeper defines the expected interface for the Account module.
+type AccountKeeper interface {
+	GetAccount(context.Context, sdk.AccAddress) sdk.AccountI // only used for simulation
+	// Methods imported from account should be defined here
+}
+
+// BankKeeper defines the expected interface for the Bank module.
 type BankKeeper interface {
-    SendCoins(ctx context.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
-    SendCoinsFromAccountToModule(ctx context.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
-    SendCoinsFromModuleToAccount(ctx context.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
+	// SpendableCoins(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
+	SendCoins(ctx context.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
+	SendCoinsFromAccountToModule(ctx context.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
+	SendCoinsFromModuleToAccount(ctx context.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
+}
+
+// ParamSubspace defines the expected Subspace interface for parameters.
+type ParamSubspace interface {
+	Get(context.Context, []byte, interface{})
+	Set(context.Context, []byte, interface{})
 }
 ```
 
@@ -137,6 +166,8 @@ func (msg *MsgRequestLoan) ValidateBasic() error {
 1. **As a Borrower:**
 
 Implement `RequestLoan` keeper method that will be called whenever a user requests a loan. `RequestLoan` creates a new loan; Set terms like amount, fee, collateral, and repayment deadline. The collateral from the borrower's account is sent to a module account, and adds the loan to the blockchain's store.
+
+Replace your scaffolded templates with the following code.
 
 ```go title="x/loan/keeper/msg_server_request_loan.go"
 package keeper
@@ -402,6 +433,8 @@ validators:
 ```bash
 ignite chain serve
 ```
+
+If everything works successful, you should see the `Blockchain is running` message in the Terminal.
 
 - **Request a loan:**
 
