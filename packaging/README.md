@@ -10,5 +10,6 @@ Ignite CLI is distributed on multiple platforms and package managers. This docum
 
 * <https://snapcraft.io/docs/snapcraft-overview>
 * <https://snapcraft.io/docs/go-plugin#heading--core22>
+* [github action](../.github/workflows/release-binary.yml)
 
 ## HomeBrew
