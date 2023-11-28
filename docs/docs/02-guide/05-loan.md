@@ -118,6 +118,8 @@ type ParamSubspace interface {
 
 When a loan is created, a certain message input validation is required. You want to throw error messages in case the end user tries impossible inputs.
 
+The `ValidateBasic` function plays a crucial role in maintaining the security and compliance of loan input parameters. By implementing comprehensive input validations, you enhance the security of your application. It's important to rigorously verify all user inputs to ensure they align with the established standards and rules of your platform.
+
 ```go title="x/loan/types/message_request_loan.go"
 import (
     "strconv"
