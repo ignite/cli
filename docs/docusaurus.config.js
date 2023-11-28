@@ -51,6 +51,9 @@ const config = {
           },
           sidebarPath: require.resolve("./sidebars.js"),
           routeBasePath: "/",
+          editUrl: ({ docPath }) => {
+            return `https://holocron.so/github/pr/ignite/cli/main/editor/docs/docs/${docPath}`
+          },
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
