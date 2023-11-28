@@ -4,7 +4,7 @@
 
 Decentralized finance (DeFi) is a rapidly growing sector that is transforming the way we think about financial instruments and provides an array of inventive financial products and services. These include lending, borrowing, spot trading, margin trading, and flash loans, all of which are available to anyone possessing an internet connection.
 
-A DeFi loan represents a financial contract in which the borrower receives a specific asset, such as currency or digital tokens.
+A DeFi loan represents a financial contract where the borrower is granted a certain asset, like currency or digital tokens.
 In return, you agree to pay an additional fee and repay the loan within a set period of time.
 To secure a loan, the borrower provides collateral that the lender can claim in the event of default.
 
