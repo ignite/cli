@@ -18,7 +18,7 @@ ignite scaffold chain loan --no-module && cd loan
 
 2. **Create a Module:**
    
-Create a module with a dependency on the standard Cosmos SDK `bank` module.
+Create a new "loan" module that is based on the standard Cosmos SDK `bank` module.
 
 ```bash
 ignite scaffold module loan --dep bank
