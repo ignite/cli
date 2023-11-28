@@ -85,6 +85,9 @@ func TestFindRegisteredModules(t *testing.T) {
 		"github.com/cosmos/cosmos-sdk/x/staking",
 		"github.com/cosmos/cosmos-sdk/x/gov",
 		"github.com/username/test/x/foo",
+		"github.com/cosmos/cosmos-sdk/x/auth/tx",
+		"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+		"github.com/cosmos/cosmos-sdk/client/grpc/node",
 	}
 
 	cases := []struct {
@@ -125,6 +128,8 @@ func TestFindRegisteredModules(t *testing.T) {
 				"github.com/ignite/mars/x/mars",
 				"github.com/cosmos/cosmos-sdk/x/gov",
 				"github.com/username/test/x/foo",
+				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+				"github.com/cosmos/cosmos-sdk/client/grpc/node",
 			},
 		},
 		{
@@ -239,6 +244,9 @@ func TestFindRegisteredModules(t *testing.T) {
 				"github.com/cosmos/cosmos-sdk/x/authz",
 				"github.com/CosmWasm/wasmd/x/wasm",
 				"github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts",
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+				"github.com/cosmos/cosmos-sdk/client/grpc/node",
 			},
 		},
 	}
@@ -252,13 +260,16 @@ func TestFindRegisteredModules(t *testing.T) {
 	}
 }
 
-func TestFindKeepersModules(t *testing.T) {
+func TestDiscoverModules(t *testing.T) {
 	basicModules := []string{
 		"github.com/cosmos/cosmos-sdk/x/auth",
 		"github.com/cosmos/cosmos-sdk/x/bank",
 		"github.com/cosmos/cosmos-sdk/x/staking",
 		"github.com/cosmos/cosmos-sdk/x/gov",
 		"github.com/username/test/x/foo",
+		"github.com/cosmos/cosmos-sdk/x/auth/tx",
+		"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+		"github.com/cosmos/cosmos-sdk/client/grpc/node",
 	}
 
 	cases := []struct {
@@ -391,6 +402,9 @@ func TestFindKeepersModules(t *testing.T) {
 				"github.com/cosmos/cosmos-sdk/x/authz",
 				"github.com/CosmWasm/wasmd/x/wasm",
 				"github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts",
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+				"github.com/cosmos/cosmos-sdk/client/grpc/node",
 			},
 		},
 	}
@@ -403,7 +417,7 @@ func TestFindKeepersModules(t *testing.T) {
 			got := make([]string, 0)
 			for _, f := range appPkg.Files {
 				fileImports := goanalysis.FormatImports(f)
-				modules, err := FindKeepersModules(f, fileImports)
+				modules, err := DiscoverModules(f, tt.path, fileImports)
 				require.NoError(t, err)
 				if modules != nil {
 					got = append(got, modules...)
