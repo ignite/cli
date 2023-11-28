@@ -55,14 +55,7 @@ func (c Client) Send(metric Metric) error {
 		v.Set("an", metric.Version)
 		v.Set("av", metric.Version)
 	}
-	// Create an HTTP client and send the hit
-	client := &http.Client{}
-	req, err := http.NewRequest("POST", endpoint, nil)
-	if err != nil {
-		return err
-	}
-	req.URL.RawQuery = v.Encode()
-	resp, err := client.Do(req)
+	resp, err := http.PostForm(endpoint, v)
 	if err != nil {
 		return err
 	}
