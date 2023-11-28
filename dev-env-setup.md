@@ -5,9 +5,11 @@ technical requirements.
 
 Ignite CLI is supported for the following operating systems:
 
-* GNU/Linux
-* macOS
-* Windows Subsystem for Linux (WSL)
+- GNU/Linux
+- macOS
+- Windows Subsystem for Linux (WSL)
+
+test
 
 ## Install Go
 
@@ -35,7 +37,7 @@ Before you install a new version of Ignite CLI, remove all existing installation
 
 1. Remove the Ignite CLI binary with `rm $(which ignite)`
 
-    Depending on your user permissions, run the command with or without `sudo`.
+   Depending on your user permissions, run the command with or without `sudo`.
 
 2. Repeat this step until all Ignite CLI installations are removed from your system.
 
