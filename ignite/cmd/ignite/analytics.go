@@ -14,13 +14,13 @@ import (
 )
 
 const (
-	gaid               = "<GA_TRACK_ID>"
+	gaid               = "UA-290147351-1"
 	envDoNotTrack      = "DO_NOT_TRACK"
 	igniteDir          = ".ignite"
 	igniteAnonIdentity = "anon"
 )
 
-var gaclient *gacli.Client
+var gaclient gacli.Client
 
 type (
 	// metric represents an analytics metric.
