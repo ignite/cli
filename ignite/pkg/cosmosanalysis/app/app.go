@@ -163,7 +163,7 @@ func DiscoverModules(n ast.Node, chainRoot string, fileImports map[string]string
 			// The modules registered by Cosmos SDK `rumtime.App` are included
 			// when the app registers API modules though the `App` instance.
 			if isRuntimeAppCalled(x) {
-				m, err := discoverRuntimeAppModules(x, chainRoot)
+				m, err := discoverRuntimeAppModules(chainRoot)
 				if err != nil {
 					return nil, err
 				}
@@ -231,7 +231,7 @@ func discoverKeeperModules(d *ast.GenDecl, appTypeName string, imports map[strin
 	return modules
 }
 
-func discoverRuntimeAppModules(fn *ast.FuncDecl, chainRoot string) ([]string, error) {
+func discoverRuntimeAppModules(chainRoot string) ([]string, error) {
 	// Resolve the absolute path to the Cosmos SDK module
 	cosmosPath, err := resolveCosmosPackagePath(chainRoot)
 	if err != nil {
