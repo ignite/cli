@@ -68,6 +68,7 @@ ignite scaffold message liquidate-loan id:uint
 
 Ignite takes care of adding the `bank` keeper, but you still need to tell the loan module which bank methods you will be using. You will be using three methods: `SendCoins`, `SendCoinsFromAccountToModule`, and `SendCoinsFromModuleToAccount`. 
 Remove the `SpendableCoins` from the `BankKeeper`.
+
 Add these to the `Bankkeeper` interface.
 
 ```go title="x/loan/types/expected_keepers.go"
