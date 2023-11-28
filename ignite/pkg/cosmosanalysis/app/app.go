@@ -291,7 +291,7 @@ func resolveCosmosPackagePath(chainRoot string) (string, error) {
 	}
 
 	if pkg == "" {
-		return "", errors.New("Cosmos SDK package version not found")
+		return "", errors.New("cosmos SDK package version not found")
 	}
 
 	// Check path of the package directory within Go's module cache
