@@ -36,15 +36,14 @@ type Metric struct {
 
 // Send sends metrics to GA.
 func (c Client) Send(metric Metric) error {
-	v := url.Values{
-		"v":   {"1"},
-		"tid": {c.id},
-		"cid": {metric.User},
-		"t":   {"event"},
-		"ec":  {metric.Category},
-		"ea":  {metric.Action},
-		"ua":  {"Opera/9.80 (Windows NT 6.0) Presto/2.12.388 Version/12.14"},
-	}
+	v := url.Values{}
+	v.Set("v", "1")
+	v.Set("tid", c.id)
+	v.Set("cid", metric.User)
+	v.Set("t", "event")
+	v.Set("ec", metric.Category)
+	v.Set("ea", metric.Action)
+	v.Set("ua", "Opera/9.80 (Windows NT 6.0) Presto/2.12.388 Version/12.14")
 	if metric.Label != "" {
 		v.Set("el", metric.Label)
 	}
