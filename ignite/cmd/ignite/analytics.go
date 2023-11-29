@@ -14,8 +14,8 @@ import (
 )
 
 const (
-	gaSecret           = "G-<ID>"
-	gaID               = "<API_SECRET>"
+	gaID               = "G-<ID>"
+	gaSecret           = "<API_SECRET>"
 	envDoNotTrack      = "DO_NOT_TRACK"
 	igniteDir          = ".ignite"
 	igniteAnonIdentity = "anon"

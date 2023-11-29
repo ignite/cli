@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	endpoint = "https://www.google-analytics.com/mp/collect"
+	endpoint = "https://www.google-analytics.com/mp/collect?measurement_id=%s&api_secret=%s"
 )
 
 type (
@@ -59,7 +59,8 @@ func (c Client) Send(body Body) error {
 	}
 
 	// Create an HTTP request with the payload
-	resp, err := http.Post(endpoint, "application/json", bytes.NewBuffer(encoded))
+	url := fmt.Sprintf(endpoint, c.id, c.secret)
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(encoded))
 	if err != nil {
 		return fmt.Errorf("error creating HTTP request: %w", err)
 	}
