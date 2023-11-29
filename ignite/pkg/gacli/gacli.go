@@ -2,65 +2,72 @@
 package gacli
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
 )
 
 const (
-	endpoint = "https://www.google-analytics.com/collect"
+	endpoint = "https://www.google-analytics.com/mp/collect"
 )
 
-// Client is an analytics client.
-type Client struct {
-	id string // Google Analytics ID
-}
+type (
+	// Client is an analytics client.
+	Client struct {
+		id     string // Google Analytics ID
+		secret string // Google Analytics API Secret
+	}
+	// Body analytics metrics body.
+	Body struct {
+		ClientId string  `json:"client_id"`
+		Events   []Event `json:"events"`
+	}
+	// Event analytics event.
+	Event struct {
+		Name   string `json:"name"`
+		Params Params `json:"params"`
+	}
+	// Params analytics parameters.
+	Params struct {
+		CampaignId         string `json:"campaign_id,omitempty"`
+		Campaign           string `json:"campaign,omitempty"`
+		Source             string `json:"source,omitempty"`
+		Medium             string `json:"medium,omitempty"`
+		Term               string `json:"term,omitempty"`
+		Content            string `json:"content,omitempty"`
+		SessionId          string `json:"session_id,omitempty"`
+		EngagementTimeMsec string `json:"engagement_time_msec,omitempty"`
+	}
+)
 
-// New creates a new analytics client for Segment.io with Segment's
-// endpoint and access key.
-func New(id string) Client {
+// New creates a new analytics client with
+// measure id and secret key.
+func New(id, secret string) Client {
 	return Client{
-		id: id,
+		secret: secret,
+		id:     id,
 	}
 }
 
-// Metric represents a data point.
-type Metric struct {
-	Category string
-	Action   string
-	Label    string
-	Value    string
-	User     string
-	Version  string
-}
-
-// Send sends metrics to GA.
-func (c Client) Send(metric Metric) error {
-	v := url.Values{}
-	v.Set("v", "1")
-	v.Set("tid", c.id)
-	v.Set("cid", metric.User)
-	v.Set("t", "event")
-	v.Set("ec", metric.Category)
-	v.Set("ea", metric.Action)
-	v.Set("ua", "Opera/9.80 (Windows NT 6.0) Presto/2.12.388 Version/12.14")
-	if metric.Label != "" {
-		v.Set("el", metric.Label)
-	}
-	if metric.Value != "" {
-		v.Set("ev", metric.Value)
-	}
-	if metric.Version != "" {
-		v.Set("an", metric.Version)
-		v.Set("av", metric.Version)
-	}
-	resp, err := http.PostForm(endpoint, v)
+// Send sends metrics to analytics.
+func (c Client) Send(body Body) error {
+	// encode body
+	encoded, err := json.Marshal(body)
 	if err != nil {
 		return err
 	}
+
+	// Create an HTTP request with the payload
+	resp, err := http.Post(endpoint, "application/json", bytes.NewBuffer(encoded))
+	if err != nil {
+		return fmt.Errorf("error creating HTTP request: %w", err)
+	}
 	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("invalid gacli status code: %d", resp.StatusCode)
+
+	if resp.StatusCode != http.StatusOK &&
+		resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("Error sending event. Status code: %d\n", resp.StatusCode)
 	}
 	return nil
 }
