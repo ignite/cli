@@ -28,10 +28,10 @@ IBC stands for [Inter-Blockchain Communication protocol]((https://ibc.cosmos.net
 
 1. **Scaffold the Blockchain:**
 
-Use Ignite CLI to create the blockchain app named `planet`
+Use Ignite CLI to create the blockchain app named `ibctransfer`
 
 ```bash
-ignite scaffold chain planet --no-module && cd planet
+ignite scaffold chain ibctransfer --no-module && cd ibctransfer
 ```
 
 2. **Build the Blog Module:**
@@ -40,7 +40,7 @@ ignite scaffold chain planet --no-module && cd planet
 ignite scaffold module blog --ibc
 ```
 
-A new directory with the code for an IBC module is created in `planet/x/blog`.
+A new directory with the code for an IBC module is created in `ibctransfer/x/blog`.
 Modules scaffolded with the `--ibc` flag include all the necessary logic for IBC to work.
 
 3. **Generate CRUD Actions:**
@@ -234,66 +234,52 @@ ready!
 
 Start two blockchain networks on the same machine. Both blockchains use the same source code. Each blockchain has a unique chain ID.
 
-One blockchain is named `earth` and the other blockchain is named `mars`.
+One blockchain is named `chain1` and the other blockchain is named `chain2`.
 
-Create and setup the `earth.yml` and `mars.yml` files:
+Create and setup the `chain1.yml` and `chain2.yml` files:
 
-```yaml title="earth.yml"
+```yaml title="chain1.yml"
 version: 1
-build:
-  proto:
-    path: proto
-    third_party_paths:
-    - third_party/proto
-    - proto_vendor
 accounts:
 - name: alice
-  coins:
-  - 1000token
-  - 100000000stake
+  coins: ['1000token', '1000000000stake']
+  mnemonic: taste ceiling salon elder junk dynamic unaware lamp defense name lesson night fatigue joke mammal mercy gallery lucky girl human hazard cute joke recall
 - name: bob
-  coins:
-  - 500token
-  - 100000000stake
+  coins: ['500token', '100000000stake']
+  mnemonic: sing police patch chaos burst uncover recall pole mail asthma make security thank wrestle stock bike crop item accuse height pumpkin guess train elevator
+- name: relayer
+  coins: ['20000token', '200000000stake']
+  mnemonic: cargo ramp supreme review change various throw air figure humble soft steel slam pole betray inhale already dentist enough away office apple sample glue
 faucet:
   name: bob
-  coins:
-  - 5token
-  - 100000stake
+  coins: ['5token', '100000stake']
   host: 0.0.0.0:4500
 genesis:
-  chain_id: earth
+  chain_id: chain1
 validators:
 - name: alice
   bonded: 100000000stake
-  home: $HOME/.earth
+  home: $HOME/.chain1
 ```
 
 ```yaml title="mars.yml"
 version: 1
-build:
-  proto:
-    path: proto
-    third_party_paths:
-    - third_party/proto
-    - proto_vendor
 accounts:
 - name: alice
-  coins:
-  - 1000token
-  - 1000000000stake
+  coins: ['1000token', '10000000000stake']
+  mnemonic: dragon cook patient witness cancel equip obey viable deer vessel avoid panda require use possible develop wonder belt girl extra devote forum junior black
 - name: bob
-  coins:
-  - 500token
-  - 100000000stake
+  coins: ['500token', '100000000stake']
+  mnemonic: finger reduce length dog south jazz toast afford luggage egg valley top object muscle tag other measure ugly unusual company marine room wool cart
+- name: relayer
+  coins: ['20000token', '200000000stake']
+  mnemonic: cargo ramp supreme review change various throw air figure humble soft steel slam pole betray inhale already dentist enough away office apple sample glue
 faucet:
   name: bob
-  coins:
-  - 5token
-  - 100000stake
+  coins: ['5token', '100000stake']
   host: :4501
 genesis:
-  chain_id: mars
+  chain_id: chain2
 validators:
 - name: alice
   bonded: 100000000stake
@@ -310,19 +296,19 @@ validators:
     rpc:
       laddr: :26659
       pprof_laddr: :6061
-  home: $HOME/.mars
+  home: $HOME/.chain2
 ```
 
-Start the `earth` blockchain:
+Start the `chain1` blockchain:
 
 ```bash
-ignite chain serve -c earth.yml
+ignite chain serve -c chain1.yml
 ```
 
-Start the `mars` blockchain:
+Start the `chain2` blockchain:
 
 ```bash
-ignite chain serve -c mars.yml
+ignite chain serve -c chain2.yml
 ```
 
 - **Install the Hermes Relayer App:**
@@ -342,7 +328,7 @@ ignite app install -g ($GOPATH)/src/github.com/ignite/apps/hermes
 3. **Configure Ignite Hermes:**
 
 ```bash
-ignite relayer hermes configure "earth" "http://localhost:26657" "http://localhost:9090" "mars" "http://localhost:26659" "http://localhost:9092"
+ignite relayer hermes configure "chain1" "http://localhost:26657" "http://localhost:9090" "chain2" "http://localhost:26659" "http://localhost:9092"
 ```
 
 ### Interact and Test
@@ -350,13 +336,13 @@ ignite relayer hermes configure "earth" "http://localhost:26657" "http://localho
 You can now send packets and verify the received posts:
 
 ```bash
-planetd tx blog send-ibc-post blog channel-0 "Hello" "Hello Mars, I'm Alice from Earth" --from alice --chain-id earth --home ~/.earth
+ibctransferd tx blog send-ibc-post blog channel-0 "Hello" "Hello Mars, I'm Alice from Earth" --from alice --chain-id chain1 --home ~/.chain1
 ```
 
 To verify that the post has been received on Mars:
 
 ```bash
-planetd q blog list-post --node tcp://localhost:26659
+ibctransferd q blog list-post --node tcp://localhost:26659
 ```
 
 The packet has been received:
@@ -375,7 +361,7 @@ pagination:
 To check if the packet has been acknowledged on Earth:
 
 ```bash
-planetd q blog list-sent-post
+ibctransferd q blog list-sent-post
 ```
 
 Output:
@@ -396,13 +382,13 @@ To test timeout, set the timeout time of a packet to 1 nanosecond, verify that
 the packet is timed out, and check the timed-out posts:
 
 ```bash
-planetd tx blog send-ibc-post blog channel-0 "Sorry" "Sorry Mars, you will never see this post" --from alice --chain-id earth --home ~/.earth --packet-timeout-timestamp 1
+ibctransferd tx blog send-ibc-post blog channel-0 "Sorry" "Sorry Mars, you will never see this post" --from alice --chain-id chain1 --home ~/.chain1 --packet-timeout-timestamp 1
 ```
 
 Check the timed-out posts:
 
 ```bash
-planetd q blog list-timedout-post
+ibctransferd q blog list-timedout-post
 ```
 
 Results:
@@ -421,13 +407,13 @@ pagination:
 You can also send a post from Mars:
 
 ```bash
-planetd tx blog send-ibc-post blog channel-0 "Hello" "Hello Earth, I'm Alice from Mars" --from alice --chain-id mars --home ~/.mars --node tcp://localhost:26659
+ibctransferd tx blog send-ibc-post blog channel-0 "Hello" "Hello Earth, I'm Alice from Mars" --from alice --chain-id chain2 --home ~/.chain2 --node tcp://localhost:26659
 ```
 
 List post on Earth:
 
 ```bash
-planetd q blog list-post
+ibctransferd q blog list-post
 ```
 
 Results:
