@@ -8,7 +8,7 @@ A DeFi loan represents a financial contract where the borrower is granted a cert
 In return, the borrower agrees to pay an additional fee and repay the loan within a set period of time.
 To secure a loan, the borrower provides collateral that the lender can claim in the event of default.
 
-## You will learn
+## You Will Learn
 
 In this tutorial you will learn how to:
 
