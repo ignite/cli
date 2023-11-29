@@ -81,7 +81,7 @@ ignite scaffold packet ibcPost title content --ack postID --module blog
 
 Start with the proto file that defines the structure of the IBC packet.
 
-```protobuf title="proto/planet/blog/packet.proto"
+```protobuf title="proto/ibctransfer/blog/packet.proto"
 message IbcPostPacketData {
   string title = 1;
   string content = 2;
@@ -97,7 +97,7 @@ package keeper
 
 import (
 	// ...
-	"planet/x/blog/types"
+	"ibctransfer/x/blog/types"
 )
 
 func (k msgServer) SendIbcPost(goCtx context.Context, msg *types.MsgSendIbcPost) (*types.MsgSendIbcPostResponse, error) {
@@ -227,8 +227,7 @@ func (k Keeper) OnTimeoutIbcPostPacket(ctx sdk.Context, packet channeltypes.Pack
 
 ```
 
-This last step completes the basic `blog` module setup. The blockchain is now
-ready!
+This last step completes the basic `blog` module setup. The blockchain is now ready!
 
 ## Relayer Configuration
 
@@ -240,16 +239,25 @@ Create and setup the `chain1.yml` and `chain2.yml` files:
 
 ```yaml title="chain1.yml"
 version: 1
+build:
+  proto:
+    path: proto
+    third_party_paths:
+    - third_party/proto
+    - proto_vendor
 accounts:
 - name: alice
   coins: ['1000token', '1000000000stake']
   mnemonic: taste ceiling salon elder junk dynamic unaware lamp defense name lesson night fatigue joke mammal mercy gallery lucky girl human hazard cute joke recall
+  address: cosmos1k2vfdmtvefawk0wycy8jam62maxnjcqnmecs4g
 - name: bob
   coins: ['500token', '100000000stake']
   mnemonic: sing police patch chaos burst uncover recall pole mail asthma make security thank wrestle stock bike crop item accuse height pumpkin guess train elevator
+  address: cosmos1fmxjt0t9yxfu8y8vgrzplr6kpmkg89j35kxp6g
 - name: relayer
   coins: ['20000token', '200000000stake']
   mnemonic: cargo ramp supreme review change various throw air figure humble soft steel slam pole betray inhale already dentist enough away office apple sample glue
+  address: cosmos1s39200s6v4c96ml2xzuh389yxpd0guk2mzn3mz
 faucet:
   name: bob
   coins: ['5token', '100000stake']
@@ -262,26 +270,35 @@ validators:
   home: $HOME/.chain1
 ```
 
-```yaml title="mars.yml"
+```yaml title="chain2.yml"
 version: 1
+build:
+  proto:
+    path: proto
+    third_party_paths:
+    - third_party/proto
+    - proto_vendor
 accounts:
-- name: alice
+- name: charlie
   coins: ['1000token', '10000000000stake']
   mnemonic: dragon cook patient witness cancel equip obey viable deer vessel avoid panda require use possible develop wonder belt girl extra devote forum junior black
-- name: bob
+  address: cosmos1jl4kgw9z5sy3hwppxamvddsdx9mf4mmamsx6ne
+- name: dan
   coins: ['500token', '100000000stake']
   mnemonic: finger reduce length dog south jazz toast afford luggage egg valley top object muscle tag other measure ugly unusual company marine room wool cart
+  address: cosmos1lswmtqwu72q32nhsgd8ewc2ddhnkp80k0nwd34
 - name: relayer
   coins: ['20000token', '200000000stake']
   mnemonic: cargo ramp supreme review change various throw air figure humble soft steel slam pole betray inhale already dentist enough away office apple sample glue
+  address: cosmos1s39200s6v4c96ml2xzuh389yxpd0guk2mzn3mz
 faucet:
-  name: bob
+  name: charlie
   coins: ['5token', '100000stake']
   host: :4501
 genesis:
   chain_id: chain2
 validators:
-- name: alice
+- name: charlie
   bonded: 100000000stake
   app:
     api:
@@ -329,6 +346,12 @@ ignite app install -g ($GOPATH)/src/github.com/ignite/apps/hermes
 
 ```bash
 ignite relayer hermes configure "chain1" "http://localhost:26657" "http://localhost:9090" "chain2" "http://localhost:26659" "http://localhost:9092"
+```
+
+4. **Start Hermes Relayer:**
+
+```bash
+ignite relayer hermes start chain1 chain2
 ```
 
 ### Interact and Test
