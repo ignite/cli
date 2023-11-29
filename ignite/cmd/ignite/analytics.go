@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	gaid           = "UA-290147351-1"
+	gaID           = "G-<ID>"
+	gaSecret       = "<API_SECRET>"
 	envDoNotTrack  = "DO_NOT_TRACK"
 	igniteDir      = ".ignite"
 	igniteIdentity = "identity.json"
@@ -32,7 +33,7 @@ type (
 
 	// identity represents an analytics identity file.
 	identity struct {
-		// name represents the user name.
+		// name represents the username.
 		Name string `json:"name" yaml:"name"`
 		// doNotTrack represents the user track choice.
 		DoNotTrack bool `json:"doNotTrack" yaml:"doNotTrack"`
@@ -55,26 +56,26 @@ func addCmdMetric(m metric) {
 	}
 
 	met := gacli.Metric{
-		Action:  m.command,
+		FullCmd: m.command,
 		User:    dntInfo.Name,
 		Version: version.Version,
 	}
 
 	switch {
 	case m.err == nil:
-		met.Category = "success"
+		met.Status = "success"
 	case m.err != nil:
-		met.Category = "error"
-		met.Value = m.err.Error()
+		met.Status = "error"
+		met.Error = m.err.Error()
 	}
 
 	cmds := strings.Split(m.command, " ")
-	met.Label = cmds[0]
+	met.Cmd = cmds[0]
 	if len(cmds) > 0 {
-		met.Label = cmds[1]
+		met.Cmd = cmds[1]
 	}
 
-	go gaclient.Send(met)
+	go gaclient.SendMetric(met)
 }
 
 func checkDNT() (identity, error) {
