@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Pallinder/go-randomdata"
 	"github.com/manifoldco/promptui"
 
 	"github.com/ignite/cli/ignite/pkg/gacli"
@@ -14,11 +13,11 @@ import (
 )
 
 const (
-	gaID               = "G-<ID>"
-	gaSecret           = "<API_SECRET>"
-	envDoNotTrack      = "DO_NOT_TRACK"
-	igniteDir          = ".ignite"
-	igniteAnonIdentity = "anon"
+	gaID           = "G-<ID>"
+	gaSecret       = "<API_SECRET>"
+	envDoNotTrack  = "DO_NOT_TRACK"
+	igniteDir      = ".ignite"
+	igniteIdentity = "identity.json"
 )
 
 var gaclient gacli.Client
@@ -51,14 +50,14 @@ func addCmdMetric(m metric) {
 		return
 	}
 
-	ident, err := prepareMetrics()
-	if err != nil {
+	dntInfo, err := checkDNT()
+	if err != nil || dntInfo.DoNotTrack {
 		return
 	}
 
 	met := gacli.Metric{
 		FullCmd: m.command,
-		User:    ident.Name,
+		User:    dntInfo.Name,
 		Version: version.Version,
 	}
 
@@ -75,12 +74,11 @@ func addCmdMetric(m metric) {
 	if len(cmds) > 0 {
 		met.Cmd = cmds[1]
 	}
-	go func() {
-		gaclient.SendMetric(met)
-	}()
+
+	go gaclient.SendMetric(met)
 }
 
-func prepareMetrics() (identity, error) {
+func checkDNT() (identity, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return identity{}, err
@@ -88,29 +86,38 @@ func prepareMetrics() (identity, error) {
 	if err := os.Mkdir(filepath.Join(home, igniteDir), 0o700); err != nil && !os.IsExist(err) {
 		return identity{}, err
 	}
-	anonPath := filepath.Join(home, igniteDir, igniteAnonIdentity)
-	data, err := os.ReadFile(anonPath)
+	identityPath := filepath.Join(home, igniteDir, igniteIdentity)
+	data, err := os.ReadFile(identityPath)
 	if err != nil && !os.IsNotExist(err) {
 		return identity{}, err
 	}
 
-	i := identity{
-		Name:       randomdata.SillyName(),
-		DoNotTrack: false,
-	}
-	if len(data) > 0 {
-		return i, json.Unmarshal(data, &i)
+	var i identity
+	if err := json.Unmarshal(data, &i); err == nil {
+		return i, nil
 	}
 
-	prompt := promptui.Prompt{
-		Label: "Ignite would like to collect metrics about command usage. " +
-			"All data will be anonymous and helps to improve Ignite. " +
+	hostname, err := os.Hostname()
+	if err != nil {
+		hostname = "unknown"
+	}
+	i.Name = hostname
+	i.DoNotTrack = false
+
+	prompt := promptui.Select{
+		Label: "Ignite collects metrics about command usage. " +
+			"All data is anonymous and helps to improve Ignite. " +
 			"Ignite respect the DNT rules (consoledonottrack.com). " +
 			"Would you agree to share these metrics with us?",
-		IsConfirm: true,
+		Items: []string{"Yes", "No"},
 	}
-	if _, err := prompt.Run(); err != nil {
+	resultID, _, err := prompt.Run()
+	if err != nil {
 		return identity{}, err
+	}
+
+	if resultID != 0 {
+		i.DoNotTrack = true
 	}
 
 	data, err = json.Marshal(&i)
@@ -118,5 +125,5 @@ func prepareMetrics() (identity, error) {
 		return i, err
 	}
 
-	return i, os.WriteFile(anonPath, data, 0o700)
+	return i, os.WriteFile(identityPath, data, 0o700)
 }
