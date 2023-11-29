@@ -479,4 +479,5 @@ loand q bank balances $(loand keys show alice -a)
 ```
 
 ## Conclusion
+
 This tutorial outlines the process of setting up a decentralized platform for digital asset loans using blockchain technology. By following these steps, you can create a DeFi platform that allows users to engage in secure and transparent lending and borrowing activities.
