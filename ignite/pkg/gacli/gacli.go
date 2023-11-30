@@ -50,7 +50,7 @@ func New(id, secret string) Client {
 		secret: secret,
 		id:     id,
 		httpClient: http.Client{
-			Timeout: 300 * time.Millisecond,
+			Timeout: 1500 * time.Millisecond,
 		},
 	}
 }
@@ -73,7 +73,7 @@ func (c Client) Send(body Body) error {
 
 	if resp.StatusCode != http.StatusOK &&
 		resp.StatusCode != http.StatusNoContent {
-		return fmt.Errorf("error sending event. Status code: %d\n", resp.StatusCode)
+		return fmt.Errorf("error sending event. Status code: %d", resp.StatusCode)
 	}
 	return nil
 }
