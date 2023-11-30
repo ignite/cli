@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 
 	ignitecmd "github.com/ignite/cli/ignite/cmd"
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
@@ -23,29 +24,24 @@ func main() {
 }
 
 func run() int {
-	const (
-		exitCodeOK    = 0
-		exitCodeError = 1
-	)
+	const exitCodeOK, exitCodeError = 0, 1
+	var wg sync.WaitGroup
+
+	osArgs := strings.Join(os.Args, " ")
 
 	defer func() {
 		if r := recover(); r != nil {
-			addCmdMetric(metric{
-				err:     fmt.Errorf("%v", r),
-				command: strings.Join(os.Args, " "),
-			})
+			sendMetric(&wg, metric{err: fmt.Errorf("%v", r), command: osArgs})
 			fmt.Println(r)
 			os.Exit(exitCodeError)
 		}
 	}()
 
 	if len(os.Args) > 1 {
-		addCmdMetric(metric{
-			command: strings.Join(os.Args, " "),
-		})
+		sendMetric(&wg, metric{command: osArgs})
 	}
-	ctx := clictx.From(context.Background())
 
+	ctx := clictx.From(context.Background())
 	cmd, cleanUp, err := ignitecmd.New(ctx)
 	if err != nil {
 		fmt.Printf("%v\n", err)
@@ -54,7 +50,6 @@ func run() int {
 	defer cleanUp()
 
 	err = cmd.ExecuteContext(ctx)
-
 	if errors.Is(ctx.Err(), context.Canceled) || errors.Is(err, context.Canceled) {
 		fmt.Println("aborted")
 		return exitCodeOK
@@ -84,5 +79,8 @@ func run() int {
 
 		return exitCodeError
 	}
+
+	wg.Wait() // waits for all metrics to be sent
+
 	return exitCodeOK
 }
