@@ -65,7 +65,7 @@ func (c Client) Send(body Body) error {
 
 	// Create an HTTP request with the payload
 	url := fmt.Sprintf(endpoint, c.id, c.secret)
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(encoded))
+	resp, err := c.httpClient.Post(url, "application/json", bytes.NewBuffer(encoded))
 	if err != nil {
 		return fmt.Errorf("error creating HTTP request: %w", err)
 	}
@@ -73,7 +73,7 @@ func (c Client) Send(body Body) error {
 
 	if resp.StatusCode != http.StatusOK &&
 		resp.StatusCode != http.StatusNoContent {
-		return fmt.Errorf("Error sending event. Status code: %d\n", resp.StatusCode)
+		return fmt.Errorf("error sending event. Status code: %d\n", resp.StatusCode)
 	}
 	return nil
 }
