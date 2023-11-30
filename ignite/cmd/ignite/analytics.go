@@ -8,10 +8,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/Pallinder/go-randomdata"
 	"github.com/manifoldco/promptui"
 
 	"github.com/ignite/cli/ignite/pkg/gacli"
+	"github.com/ignite/cli/ignite/pkg/randstr"
 	"github.com/ignite/cli/ignite/version"
 )
 
@@ -106,7 +106,7 @@ func checkDNT() (identity, error) {
 		return i, nil
 	}
 
-	i.Name = randomdata.SillyName()
+	i.Name = randstr.Runes(10)
 	i.DoNotTrack = false
 
 	prompt := promptui.Select{
