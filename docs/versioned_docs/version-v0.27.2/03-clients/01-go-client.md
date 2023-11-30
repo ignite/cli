@@ -77,11 +77,11 @@ To import dependencies for your package, you can add the following code to the
 ```text title="blogclient/go.mod"
 module blogclient
 
-go 1.19
+go 1.20
 
 require (
 	blog v0.0.0-00010101000000-000000000000
-	github.com/ignite/cli v0.25.2
+	github.com/ignite/cli v0.27.2
 )
 
 replace blog => ../blog
@@ -222,7 +222,7 @@ dependencies for your package
 
 ```text title="blogclient/go.mod"
 ...
-replace blog => github.com/<github-user-name>/blog/x/blog/types v0.0.0-00010101000000-000000000000
+replace blog => github.com/<github-user-name>/blog v0.0.0-00010101000000-000000000000
 ...
 ```
 
@@ -237,13 +237,17 @@ then update the dependencies again:
 ```bash
 go mod tidy
 ```
+
 ## Using the test keyring backend
 
 ***Only for testing***
 
-Export the blockchains account keys from the user you want to be sign the transaction and move them
-to a folder in root directory of your client app named keyring-test. You will need both .info and .address
-to sign, encode and broadcast the transaction.
+Export the blockchains account keys from the user you want to be sign and broadcast the transaction and move them
+to a folder in root directory of your client app named keyring-test. You can use ignite account import command
+
+```bash
+ignite account import alice --keyring-dir /path/to/client/blogclient/keyring-test
+```
 
 After moving the key to the local client app keyring-test directory path: test/keyring-test define the path inside main.go
 
@@ -257,7 +261,7 @@ func main() {
 
     // Create a Cosmos client instance
     client, err := cosmosclient.New(ctx, cosmosclient.WithAddressPrefix(addressPrefix),
-     cosmosclient.WithKeyringBackend("test"), cosmosclient.WithKeyringDir("test") )
+     cosmosclient.WithKeyringBackend("test"), cosmosclient.WithKeyringDir(".") ) 
     if err != nil {
         log.Fatal(err)
     }
@@ -268,7 +272,7 @@ func main() {
 .
 .
 ```
-in the root directory you should see folder test/keyring-test 
+in the root directory you should see folder keyring-test 
 
 
 ## Run the blockchain and the client
