@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
 
 	"github.com/Pallinder/go-randomdata"
 	"github.com/manifoldco/promptui"
@@ -42,7 +43,7 @@ type (
 	}
 )
 
-func addCmdMetric(m metric) {
+func sendMetric(wg *sync.WaitGroup, m metric) {
 	envDoNotTrackVar := os.Getenv(envDoNotTrack)
 	if envDoNotTrackVar == "1" || strings.ToLower(envDoNotTrackVar) == "true" {
 		return
@@ -79,7 +80,11 @@ func addCmdMetric(m metric) {
 		met.Cmd = cmds[1]
 	}
 
-	go gaclient.SendMetric(met)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		gaclient.SendMetric(met)
+	}()
 }
 
 func checkDNT() (identity, error) {

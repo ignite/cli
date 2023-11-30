@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 const (
@@ -14,8 +15,9 @@ const (
 type (
 	// Client is an analytics client.
 	Client struct {
-		id     string // Google Analytics measurement ID.
-		secret string // Google Analytics API secret.
+		id         string // Google Analytics measurement ID.
+		secret     string // Google Analytics API secret.
+		httpClient http.Client
 	}
 	// Body analytics metrics body.
 	Body struct {
@@ -47,6 +49,9 @@ func New(id, secret string) Client {
 	return Client{
 		secret: secret,
 		id:     id,
+		httpClient: http.Client{
+			Timeout: 300 * time.Millisecond,
+		},
 	}
 }
 
