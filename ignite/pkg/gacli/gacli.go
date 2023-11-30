@@ -5,19 +5,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"time"
 )
 
 const (
-	endpoint = "https://www.google-analytics.com/mp/collect?measurement_id=%s&api_secret=%s"
+	endpoint = "https://telemetry-cli.ignite.com"
 )
 
 type (
 	// Client is an analytics client.
 	Client struct {
-		id         string // Google Analytics measurement ID.
-		secret     string // Google Analytics API secret.
-		httpClient http.Client
+		measurementID string // Google Analytics measurement ID.
+		apiSecret     string // Google Analytics API secret.
+		httpClient    http.Client
 	}
 	// Body analytics metrics body.
 	Body struct {
@@ -43,16 +44,36 @@ type (
 	}
 )
 
+// Option configures code generation.
+type Option func(*Client)
+
+// WithMeasurementID adds an analytics measurement ID.
+func WithMeasurementID(measurementID string) Option {
+	return func(c *Client) {
+		c.measurementID = measurementID
+	}
+}
+
+// WithAPISecret adds an analytics API secret.
+func WithAPISecret(secret string) Option {
+	return func(c *Client) {
+		c.apiSecret = secret
+	}
+}
+
 // New creates a new analytics client with
 // measure id and secret key.
-func New(id, secret string) Client {
-	return Client{
-		secret: secret,
-		id:     id,
+func New(opts ...Option) Client {
+	c := Client{
 		httpClient: http.Client{
 			Timeout: 1500 * time.Millisecond,
 		},
 	}
+	// apply user options.
+	for _, o := range opts {
+		o(&c)
+	}
+	return c
 }
 
 // Send sends metrics to analytics.
@@ -63,9 +84,21 @@ func (c Client) Send(body Body) error {
 		return err
 	}
 
+	requestURL, err := url.Parse(endpoint)
+	if err != nil {
+		return err
+	}
+	v := requestURL.Query()
+	if c.measurementID != "" {
+		v.Set("measurement_id", c.measurementID)
+	}
+	if c.apiSecret != "" {
+		v.Set("api_secret", c.apiSecret)
+	}
+	requestURL.RawQuery = v.Encode()
+
 	// Create an HTTP request with the payload
-	url := fmt.Sprintf(endpoint, c.id, c.secret)
-	resp, err := c.httpClient.Post(url, "application/json", bytes.NewBuffer(encoded))
+	resp, err := c.httpClient.Post(requestURL.String(), "application/json", bytes.NewBuffer(encoded))
 	if err != nil {
 		return fmt.Errorf("error creating HTTP request: %w", err)
 	}

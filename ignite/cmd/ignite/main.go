@@ -19,7 +19,7 @@ import (
 )
 
 func main() {
-	gaclient = gacli.New(gaID, gaSecret)
+	gaclient = gacli.New()
 	os.Exit(run())
 }
 
