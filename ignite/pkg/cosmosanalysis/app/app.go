@@ -90,10 +90,10 @@ func FindRegisteredModules(chainRoot string) ([]string, error) {
 		return nil, err
 	}
 
-	// Loop on package's files
-	var blankImports, discovered []string
+	// Search the app for the imported SDK modules
+	var discovered []string
 	for _, f := range appPkg.Files {
-		blankImports = append(blankImports, goanalysis.FindBlankImports(f)...)
+		discovered = append(discovered, goanalysis.FindBlankImports(f)...)
 		fileImports := goanalysis.FormatImports(f)
 		d, err := DiscoverModules(f, chainRoot, fileImports)
 		if err != nil {
@@ -114,40 +114,20 @@ func FindRegisteredModules(chainRoot string) ([]string, error) {
 		discovered = append(discovered, m...)
 	}
 
-	return mergeImports(blankImports, discovered), nil
-}
-
-// mergeImports merge all discovered imports into the blank imports found in the app files.
-func mergeImports(blankImports, discovered []string) []string {
-	imports := make([]string, len(blankImports))
-	copy(imports, blankImports)
-	for i, m := range discovered {
-		split := strings.Split(m, "/")
-
-		j := len(split)
-		maxTrim := len(split) - 3
-	LoopBack:
-		for j > maxTrim {
-			j--
-			// x path means we are reaching the root of the module
-			if split[j] == "x" {
-				j = maxTrim
-				goto LoopBack
-			}
-			for _, imp := range blankImports {
-				// check if the import exist into the blank imports
-				if strings.Contains(imp, m) {
-					j = -1
-					goto LoopBack
-				}
-			}
-			m = strings.TrimSuffix(m, "/"+split[j])
+	// Remove duplicated entries
+	var (
+		modules []string
+		seen    = make(map[string]struct{})
+	)
+	for _, m := range discovered {
+		if _, ok := seen[m]; ok {
+			continue
 		}
-		if j == maxTrim {
-			imports = append(imports, discovered[i])
-		}
+
+		seen[m] = struct{}{}
+		modules = append(modules, m)
 	}
-	return imports
+	return modules, nil
 }
 
 // DiscoverModules find a map of import modules based on the configured app.
