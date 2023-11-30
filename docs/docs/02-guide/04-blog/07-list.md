@@ -22,25 +22,24 @@ import (
 
 	"blog/x/blog/types"
 
-	"github.com/cosmos/cosmos-sdk/store/prefix"
+	"cosmossdk.io/store/prefix"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-func (k Keeper) ListPost(goCtx context.Context, req *types.QueryListPostRequest) (*types.QueryListPostResponse, error) {
+func (k Keeper) ListPost(ctx context.Context, req *types.QueryListPostRequest) (*types.QueryListPostResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.KeyPrefix(types.PostKey))
+
 	var posts []types.Post
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	store := ctx.KVStore(k.storeKey)
-	postStore := prefix.NewStore(store, types.KeyPrefix(types.PostKey))
-
-	pageRes, err := query.Paginate(postStore, req.Pagination, func(key []byte, value []byte) error {
+	pageRes, err := query.Paginate(store, req.Pagination, func(key []byte, value []byte) error {
 		var post types.Post
 		if err := k.cdc.Unmarshal(value, &post); err != nil {
 			return err
@@ -63,14 +62,12 @@ func (k Keeper) ListPost(goCtx context.Context, req *types.QueryListPostRequest)
 `QueryListPostResponse` and an error.
 
 The function first checks if the request object is `nil` and returns an error
-with a `InvalidArgument` code if it is. It then initializes an empty slice of
-`Post` objects and unwraps the context object.
+with a `InvalidArgument` code if it is.
 
-It retrieves a key-value store from the context using the `storeKey` field of
-the keeper struct and creates a new store using a prefix of the `PostKey`. It
-then calls the `Paginate` function from the `query` package on the store and the
-pagination information in the request object. The function passed as an argument
-to Paginate iterates over the key-value pairs in the store and unmarshals the
+It creates a new store using a prefix of the `PostKey` and then calls the
+`Paginate` function from the `query` package on the store and the pagination
+information in the request object. The function passed as an argument to
+Paginate iterates over the key-value pairs in the store and unmarshals the
 values into `Post` objects, which are then appended to the `posts` slice.
 
 If an error occurs during pagination, the function returns an `Internal error`

@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package ignite.services.plugin.grpc.v1;
+
+import "ignite/services/plugin/grpc/v1/client_api.proto";
+import "ignite/services/plugin/grpc/v1/interface.proto";
+
+option go_package = "github.com/ignite/cli/ignite/services/plugin/grpc/v1";
+
+// InterfaceService defines the interface that must be implemented by all plugins.
+service InterfaceService {
+  // Manifest declares the plugin's Command(s) and Hook(s).
+  rpc Manifest(ManifestRequest) returns (ManifestResponse);
+
+  // Execute will be invoked by ignite when a plugin Command is executed.
+  // It is global for all commands declared in Manifest, if you have declared
+  // multiple commands, use cmd.Path to distinguish them.
+  rpc Execute(ExecuteRequest) returns (ExecuteResponse);
+
+  // ExecuteHookPre is invoked by ignite when a command specified by the Hook
+  // path is invoked.
+  // It is global for all hooks declared in Manifest, if you have declared
+  // multiple hooks, use hook.Name to distinguish them.
+  rpc ExecuteHookPre(ExecuteHookPreRequest) returns (ExecuteHookPreResponse);
+
+  // ExecuteHookPost is invoked by ignite when a command specified by the hook
+  // path is invoked.
+  // It is global for all hooks declared in Manifest, if you have declared
+  // multiple hooks, use hook.Name to distinguish them.
+  rpc ExecuteHookPost(ExecuteHookPostRequest) returns (ExecuteHookPostResponse);
+
+  // ExecuteHookCleanUp is invoked by ignite when a command specified by the
+  // hook path is invoked. Unlike ExecuteHookPost, it is invoked regardless of
+  // execution status of the command and hooks.
+  // It is global for all hooks declared in Manifest, if you have declared
+  // multiple hooks, use hook.Name to distinguish them.
+  rpc ExecuteHookCleanUp(ExecuteHookCleanUpRequest) returns (ExecuteHookCleanUpResponse);
+}
+
+message ManifestRequest {}
+
+message ManifestResponse {
+  Manifest manifest = 1;
+}
+
+message ExecuteRequest {
+  ExecutedCommand cmd = 1;
+  uint32 client_api = 2;
+}
+
+message ExecuteResponse {}
+
+message ExecuteHookPreRequest {
+  ExecutedHook hook = 1;
+  uint32 client_api = 2;
+}
+
+message ExecuteHookPreResponse {}
+
+message ExecuteHookPostRequest {
+  ExecutedHook hook = 1;
+  uint32 client_api = 2;
+}
+
+message ExecuteHookPostResponse {}
+
+message ExecuteHookCleanUpRequest {
+  ExecutedHook hook = 1;
+  uint32 client_api = 2;
+}
+
+message ExecuteHookCleanUpResponse {}
+
+// ClientAPIService defines the interface that allows plugins to get chain app analysis info.
+service ClientAPIService {
+  // GetChainInfo returns basic chain info for the configured app
+  rpc GetChainInfo(GetChainInfoRequest) returns (GetChainInfoResponse);
+}
+
+message GetChainInfoRequest {}
+
+message GetChainInfoResponse {
+  ChainInfo chain_info = 1;
+}

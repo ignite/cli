@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	"github.com/cometbft/cometbft/p2p"
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	tmtypes "github.com/cometbft/cometbft/types"
@@ -431,7 +432,7 @@ func TestClientCreateTx(t *testing.T) {
 				FromAddress: "from",
 				ToAddress:   "to",
 				Amount: sdktypes.NewCoins(
-					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(1)),
+					sdktypes.NewCoin("token", math.NewIntFromUint64(1)),
 				),
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"300000","payer":"","granter":""},"tip":null},"signatures":[]}`,
@@ -448,7 +449,7 @@ func TestClientCreateTx(t *testing.T) {
 				FromAddress: "from",
 				ToAddress:   "to",
 				Amount: sdktypes.NewCoins(
-					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(1)),
+					sdktypes.NewCoin("token", math.NewIntFromUint64(1)),
 				),
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"300000","payer":"","granter":""},"tip":null},"signatures":[]}`,
@@ -467,7 +468,7 @@ func TestClientCreateTx(t *testing.T) {
 				FromAddress: "from",
 				ToAddress:   "to",
 				Amount: sdktypes.NewCoins(
-					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(1)),
+					sdktypes.NewCoin("token", math.NewIntFromUint64(1)),
 				),
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"300000","payer":"","granter":""},"tip":null},"signatures":[]}`,
@@ -485,7 +486,7 @@ func TestClientCreateTx(t *testing.T) {
 				FromAddress: "from",
 				ToAddress:   "to",
 				Amount: sdktypes.NewCoins(
-					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(1)),
+					sdktypes.NewCoin("token", math.NewIntFromUint64(1)),
 				),
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[{"denom":"token","amount":"10"}],"gas_limit":"300000","payer":"","granter":""},"tip":null},"signatures":[]}`,
@@ -503,7 +504,7 @@ func TestClientCreateTx(t *testing.T) {
 				FromAddress: "from",
 				ToAddress:   "to",
 				Amount: sdktypes.NewCoins(
-					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(1)),
+					sdktypes.NewCoin("token", math.NewIntFromUint64(1)),
 				),
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[{"denom":"token","amount":"900000"}],"gas_limit":"300000","payer":"","granter":""},"tip":null},"signatures":[]}`,
@@ -522,7 +523,7 @@ func TestClientCreateTx(t *testing.T) {
 				FromAddress: "from",
 				ToAddress:   "to",
 				Amount: sdktypes.NewCoins(
-					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(1)),
+					sdktypes.NewCoin("token", math.NewIntFromUint64(1)),
 				),
 			},
 			expectedError: "cannot provide both fees and gas prices",
@@ -539,7 +540,7 @@ func TestClientCreateTx(t *testing.T) {
 				FromAddress: "from",
 				ToAddress:   "to",
 				Amount: sdktypes.NewCoins(
-					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(1)),
+					sdktypes.NewCoin("token", math.NewIntFromUint64(1)),
 				),
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"20042","payer":"","granter":""},"tip":null},"signatures":[]}`,
@@ -559,7 +560,7 @@ func TestClientCreateTx(t *testing.T) {
 				FromAddress: "from",
 				ToAddress:   "to",
 				Amount: sdktypes.NewCoins(
-					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(1)),
+					sdktypes.NewCoin("token", math.NewIntFromUint64(1)),
 				),
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"20042","payer":"","granter":""},"tip":null},"signatures":[]}`,
@@ -579,7 +580,7 @@ func TestClientCreateTx(t *testing.T) {
 				FromAddress: "from",
 				ToAddress:   "to",
 				Amount: sdktypes.NewCoins(
-					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(1)),
+					sdktypes.NewCoin("token", math.NewIntFromUint64(1)),
 				),
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"300000","payer":"","granter":""},"tip":null},"signatures":[]}`,
@@ -597,7 +598,7 @@ func TestClientCreateTx(t *testing.T) {
 				FromAddress: "from",
 				ToAddress:   "to",
 				Amount: sdktypes.NewCoins(
-					sdktypes.NewCoin("token", sdktypes.NewIntFromUint64(1)),
+					sdktypes.NewCoin("token", math.NewIntFromUint64(1)),
 				),
 			},
 			expectedJSONTx: `{"body":{"messages":[{"@type":"/cosmos.bank.v1beta1.MsgSend","from_address":"from","to_address":"to","amount":[{"denom":"token","amount":"1"}]}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"20042","payer":"","granter":""},"tip":null},"signatures":[]}

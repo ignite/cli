@@ -15,6 +15,7 @@ package keeper
 import (
 	"context"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -25,13 +26,13 @@ func (k msgServer) CancelLoan(goCtx context.Context, msg *types.MsgCancelLoan) (
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	loan, found := k.GetLoan(ctx, msg.Id)
 	if !found {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrKeyNotFound, "key %d doesn't exist", msg.Id)
+		return nil, errorsmod.Wrapf(sdkerrors.ErrKeyNotFound, "key %d doesn't exist", msg.Id)
 	}
 	if loan.Borrower != msg.Creator {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Cannot cancel: not the borrower")
+		return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "Cannot cancel: not the borrower")
 	}
 	if loan.State != "requested" {
-		return nil, sdkerrors.Wrapf(types.ErrWrongLoanState, "%v", loan.State)
+		return nil, errorsmod.Wrapf(types.ErrWrongLoanState, "%v", loan.State)
 	}
 	borrower, _ := sdk.AccAddressFromBech32(loan.Borrower)
 	collateral, _ := sdk.ParseCoinsNormalized(loan.Collateral)
@@ -53,16 +54,16 @@ The function begins by using the `sdk.UnwrapSDKContext` method to get the
 `sdk.Context` from the `context.Context` object. It then uses the `GetLoan`
 method of the `msgServer` type to retrieve a loan identified by the `Id` field
 of the `msg` argument. If the loan is not found, the function returns an error
-using the `sdk.ErrKeyNotFound` error wrapped with the `sdk.Wrap` method.
+using the `sdk.ErrKeyNotFound` error wrapped with the `errorsmod.Wrap` method.
 
 Next, the function checks if the `Creator` field of the msg argument is the same
 as the `Borrower` field of the loan. If they are not the same, the function
 returns an error using the `sdk.ErrUnauthorized` error wrapped with the
-`sdk.Wrap` method.
+`errorsmod.Wrap` method.
 
 The function then checks if the `State` field of the loan is equal to the string
 `"requested"`. If it is not, the function returns an error using the
-types.`ErrWrongLoanState` error wrapped with the `sdk.Wrapf` method.
+types.`ErrWrongLoanState` error wrapped with the `errorsmod.Wrapf` method.
 
 If the loan has the correct state and the creator of the message is the borrower
 of the loan, the function proceeds to send the collateral coins held in the

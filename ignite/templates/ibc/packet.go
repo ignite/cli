@@ -2,11 +2,12 @@ package ibc
 
 import (
 	"embed"
+	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/emicklei/proto"
-
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
 
@@ -19,6 +20,7 @@ import (
 	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
 	"github.com/ignite/cli/ignite/templates/module"
 	"github.com/ignite/cli/ignite/templates/testutil"
+	"github.com/ignite/cli/ignite/templates/typed"
 )
 
 var (
@@ -102,7 +104,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 
 func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module_ibc.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/module_ibc.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -317,9 +319,14 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 			protoutil.NewField("channelID", "string", 3),
 			protoutil.NewField("timeoutTimestamp", "uint64", 4),
 		)
+		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.LowerCamel)
 
 		// Create MsgSend, MsgSendResponse and add to file.
-		msgSend := protoutil.NewMessage("MsgSend"+typenameUpper, protoutil.WithFields(sendFields...))
+		msgSend := protoutil.NewMessage(
+			"MsgSend"+typenameUpper,
+			protoutil.WithFields(sendFields...),
+			protoutil.WithMessageOptions(creatorOpt),
+		)
 		msgSendResponse := protoutil.NewMessage("MsgSend" + typenameUpper + "Response")
 		protoutil.Append(protoFile, msgSend, msgSendResponse)
 
@@ -341,10 +348,25 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 	}
 }
 
+//go:embed templates/packet/tx.tpl
+var txTemplate string
+
+// clientCliTxModify does not use AutoCLI here, because it as a better UX as it is.
 func clientCliTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/tx.go")
-		f, err := r.Disk.Find(path)
+		filePath := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/tx.go")
+		if _, err := os.Stat(filePath); errors.Is(err, os.ErrNotExist) {
+			content := fmt.Sprintf(txTemplate, opts.ModulePath, opts.ModuleName)
+			if err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
+				return err
+			}
+
+			if err := os.WriteFile(filePath, []byte(content), 0o644); err != nil {
+				return err
+			}
+		}
+
+		f, err := r.Disk.Find(filePath)
 		if err != nil {
 			return err
 		}
@@ -352,7 +374,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny
 %[1]v`
 		replacement := fmt.Sprintf(template, Placeholder, opts.PacketName.UpperCamel)
 		content := replacer.Replace(f.String(), Placeholder, replacement)
-		newFile := genny.NewFileS(path, content)
+		newFile := genny.NewFileS(filePath, content)
 		return r.File(newFile)
 	}
 }
@@ -368,17 +390,6 @@ func codecModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 		// Set import if not set yet
 		replacement := `sdk "github.com/cosmos/cosmos-sdk/types"`
 		content := replacer.ReplaceOnce(f.String(), module.Placeholder, replacement)
-
-		// Register the module packet
-		templateRegistry := `cdc.RegisterConcrete(&MsgSend%[2]v{}, "%[3]v/Send%[2]v", nil)
-%[1]v`
-		replacementRegistry := fmt.Sprintf(
-			templateRegistry,
-			module.Placeholder2,
-			opts.PacketName.UpperCamel,
-			opts.ModuleName,
-		)
-		content = replacer.Replace(content, module.Placeholder2, replacementRegistry)
 
 		// Register the module packet interface
 		templateInterface := `registry.RegisterImplementations((*sdk.Msg)(nil),

@@ -241,7 +241,7 @@ func (k msgServer) SendIbcPost(goCtx context.Context, msg *types.MsgSendIbcPost)
 	packet.Creator = msg.Creator
 
 	// Transmit the packet
-	err := k.TransmitIbcPostPacket(
+	_, err := k.TransmitIbcPostPacket(
 		ctx,
 		packet,
 		msg.Port,
@@ -288,7 +288,7 @@ Finally, the Ignite CLI-generated AppendPost function returns the ID of the new
 appended post. You can return this value to the source chain through
 acknowledgment.
 
-Append the type instance as `PostID` on receiving the packet:
+Append the type instance as `PostId` on receiving the packet:
 
 - The context `ctx` is an [immutable data
   structure](https://docs.cosmos.network/main/core/context#go-context-package)
@@ -333,7 +333,7 @@ func (k Keeper) OnRecvIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet,
 		},
 	)
 
-	packetAck.PostID = strconv.FormatUint(id, 10)
+	packetAck.PostId = strconv.FormatUint(id, 10)
 
 	return packetAck, nil
 }
@@ -375,7 +375,7 @@ func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channelty
 			ctx,
 			types.SentPost{
 				Creator: data.Creator,
-				PostID:  packetAck.PostID,
+				PostId:  packetAck.PostId,
 				Title:   data.Title,
 				Chain:   packet.DestinationPort + "-" + packet.DestinationChannel,
 			},

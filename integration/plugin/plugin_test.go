@@ -1,6 +1,7 @@
 package plugin_test
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,11 +15,10 @@ import (
 
 func TestAddRemovePlugin(t *testing.T) {
 	var (
-		require    = require.New(t)
-		assert     = assert.New(t)
-		env        = envtest.New(t)
-		app        = env.Scaffold("github.com/test/blog")
-		pluginRepo = "github.com/ignite/example-plugin"
+		require = require.New(t)
+		assert  = assert.New(t)
+		env     = envtest.New(t)
+		app     = env.Scaffold("github.com/test/blog")
 
 		assertPlugins = func(expectedLocalPlugins, expectedGlobalPlugins []pluginsconfig.Plugin) {
 			localCfg, err := pluginsconfig.ParseDir(app.SourcePath())
@@ -36,7 +36,11 @@ func TestAddRemovePlugin(t *testing.T) {
 	// no plugins expected
 	assertPlugins(nil, nil)
 
-	env.Must(env.Exec("install plugin locally",
+	// Note: Originally plugin repo was "github.com/ignite/example-plugin" instead of a local one
+	pluginRepo, err := filepath.Abs("testdata/example-plugin")
+	require.NoError(err)
+
+	env.Must(env.Exec("add plugin locally",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp, "app", "install", pluginRepo, "k1=v1", "k2=v2"),
 			step.Workdir(app.SourcePath()),

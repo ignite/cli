@@ -10,7 +10,9 @@ import (
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/ignite/cli/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/ignite/pkg/cosmosver"
 )
 
 // transferMutex is a mutex used for keeping transfer requests in a queue so checking account balance and sending tokens is atomic.
@@ -23,11 +25,22 @@ func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, de
 		return sdkmath.NewInt(0), err
 	}
 
-	events, err := f.runner.QueryTxEvents(ctx,
+	opts := []chaincmdrunner.EventSelector{
 		chaincmdrunner.NewEventSelector("message", "sender", fromAccount.Address),
-		chaincmdrunner.NewEventSelector("transfer", "recipient", toAccountAddress))
-	if err != nil {
-		return sdkmath.NewInt(0), err
+		chaincmdrunner.NewEventSelector("transfer", "recipient", toAccountAddress),
+	}
+
+	var events []chaincmdrunner.Event
+	if f.version.GTE(cosmosver.StargateFiftyVersion) {
+		events, err = f.runner.QueryTxByQuery(ctx, opts...)
+		if err != nil {
+			return sdkmath.NewInt(0), err
+		}
+	} else {
+		events, err = f.runner.QueryTxByEvents(ctx, opts...)
+		if err != nil {
+			return sdkmath.NewInt(0), err
+		}
 	}
 
 	totalAmount = sdkmath.NewInt(0)
@@ -92,7 +105,7 @@ func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sd
 	if err != nil {
 		return err
 	}
-	txHash, err := f.runner.BankSend(ctx, fromAccount.Address, toAccountAddress, strings.Join(coinsStr, ","))
+	txHash, err := f.runner.BankSend(ctx, fromAccount.Address, toAccountAddress, strings.Join(coinsStr, ","), chaincmd.BankSendWithFees(f.feeAmount))
 	if err != nil {
 		return err
 	}

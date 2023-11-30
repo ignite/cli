@@ -16,8 +16,8 @@ import (
 
 type generateOptions struct {
 	useCache             bool
+	isProtoVendorEnabled bool
 	isGoEnabled          bool
-	isPulsarEnabled      bool
 	isTSClientEnabled    bool
 	isComposablesEnabled bool
 	isHooksEnabled       bool
@@ -36,13 +36,6 @@ type GenerateTarget func(*generateOptions)
 func GenerateGo() GenerateTarget {
 	return func(o *generateOptions) {
 		o.isGoEnabled = true
-	}
-}
-
-// GeneratePulsar enables generating proto based Go code needed for the chain's source code.
-func GeneratePulsar() GenerateTarget {
-	return func(o *generateOptions) {
-		o.isPulsarEnabled = true
 	}
 }
 
@@ -92,6 +85,18 @@ func GenerateHooks(path string) GenerateTarget {
 func GenerateOpenAPI() GenerateTarget {
 	return func(o *generateOptions) {
 		o.isOpenAPIEnabled = true
+	}
+}
+
+// GenerateProtoVendor enables `proto_vendor` folder generation.
+// Proto vendor is generated from Go dependencies that contain proto files that
+// are not included in the app's Buf config.
+// Enabling proto vendoring might update Buf config with missing dependencies
+// if a Go dependency contains proto files and a Buf config with a name that is
+// not listed in the Buf dependencies.
+func GenerateProtoVendor() GenerateTarget {
+	return func(o *generateOptions) {
+		o.isProtoVendorEnabled = true
 	}
 }
 
@@ -157,6 +162,7 @@ func (c *Chain) Generate(
 	c.ev.Send("Building proto...", events.ProgressUpdate())
 
 	options := []cosmosgen.Option{
+		cosmosgen.CollectEvents(c.ev),
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
 	}
 
@@ -164,8 +170,8 @@ func (c *Chain) Generate(
 		options = append(options, cosmosgen.WithGoGeneration())
 	}
 
-	if targetOptions.isPulsarEnabled {
-		options = append(options, cosmosgen.WithPulsarGeneration())
+	if targetOptions.isProtoVendorEnabled {
+		options = append(options, cosmosgen.UpdateBufModule())
 	}
 
 	var (

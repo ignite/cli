@@ -10,6 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/ignite/pkg/cosmosver"
 )
 
 const (
@@ -56,10 +57,16 @@ type Faucet struct {
 	// it holds the maximum amounts of coins that can be sent to a single account.
 	coinsMax map[string]sdkmath.Int
 
+	// fee to pay along with the transaction
+	feeAmount sdk.Coin
+
 	limitRefreshWindow time.Duration
 
 	// openAPIData holds template data customizations for serving OpenAPI page & spec.
 	openAPIData openAPIData
+
+	// version holds the cosmos-sdk version.
+	version cosmosver.Version
 }
 
 // Option configures the faucetOptions.
@@ -102,10 +109,24 @@ func ChainID(id string) Option {
 	}
 }
 
+// FeeAmount sets a fee that it will be paid during the transaction.
+func FeeAmount(amount sdkmath.Int, denom string) Option {
+	return func(f *Faucet) {
+		f.feeAmount = sdk.NewCoin(denom, amount)
+	}
+}
+
 // OpenAPI configures how to serve Open API page and spec.
 func OpenAPI(apiAddress string) Option {
 	return func(f *Faucet) {
 		f.openAPIData.APIAddress = apiAddress
+	}
+}
+
+// Version configures the cosmos-sdk version.
+func Version(version cosmosver.Version) Option {
+	return func(f *Faucet) {
+		f.version = version
 	}
 }
 

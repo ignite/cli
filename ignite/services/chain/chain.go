@@ -314,6 +314,11 @@ func (c *Chain) Home() (string, error) {
 	return home, nil
 }
 
+// AppPath returns the configured App's path.
+func (c *Chain) AppPath() string {
+	return c.app.Path
+}
+
 // DefaultHome returns the blockchain node's default home dir when not specified in the app.
 func (c *Chain) DefaultHome() (string, error) {
 	// check if home is defined in config

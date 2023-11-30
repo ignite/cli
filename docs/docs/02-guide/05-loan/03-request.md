@@ -76,6 +76,7 @@ import (
 	// highlight-next-line
 	"strconv"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -83,33 +84,33 @@ import (
 func (msg *MsgRequestLoan) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Creator)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
 	}
 	// highlight-start
 	amount, _ := sdk.ParseCoinsNormalized(msg.Amount)
 	if !amount.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "amount is not a valid Coins object")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "amount is not a valid Coins object")
 	}
 	if amount.Empty() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "amount is empty")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "amount is empty")
 	}
 	fee, _ := sdk.ParseCoinsNormalized(msg.Fee)
 	if !fee.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "fee is not a valid Coins object")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "fee is not a valid Coins object")
 	}
 	deadline, err := strconv.ParseInt(msg.Deadline, 10, 64)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "deadline is not an integer")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "deadline is not an integer")
 	}
 	if deadline <= 0 {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "deadline should be a positive integer")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "deadline should be a positive integer")
 	}
 	collateral, _ := sdk.ParseCoinsNormalized(msg.Collateral)
 	if !collateral.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "collateral is not a valid Coins object")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "collateral is not a valid Coins object")
 	}
 	if collateral.Empty() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "collateral is empty")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "collateral is empty")
 	}
 	// highlight-end
 	return nil
