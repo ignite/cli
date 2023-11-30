@@ -242,14 +242,14 @@ go mod tidy
 
 ***Only for testing***
 
-Export the blockchains account keys from the user you want to be sign and broadcast the transaction and move them
-to a folder in root directory of your client app named keyring-test. You can use ignite account import command
+Create a new directory inside the blog client named keyring-test. Export the blockchains account keys from the user you want to be sign and broadcast the transaction. Import the keys
+to the keyring-test dir you just created in root directory of your client app. You can use ignite account import command
 
 ```bash
 ignite account import alice --keyring-dir /path/to/client/blogclient/keyring-test
 ```
 
-After moving the key to the local client app keyring-test directory path: test/keyring-test define the path inside main.go
+define the path inside main.go
 
 ```go title="blogclient/main.go"
 .
@@ -267,13 +267,11 @@ func main() {
     }
 
     // Account `alice` was initialized during `ignite chain serve` 
-    accountName :=""
+    accountName :="aliceAddress"
 .
 .
 .
 ```
-in the root directory you should see folder keyring-test 
-
 
 ## Run the blockchain and the client
 
