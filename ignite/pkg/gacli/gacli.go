@@ -14,8 +14,8 @@ const (
 type (
 	// Client is an analytics client.
 	Client struct {
-		id     string // Google Analytics ID
-		secret string // Google Analytics API Secret
+		id     string // Google Analytics measurement ID.
+		secret string // Google Analytics API secret.
 	}
 	// Body analytics metrics body.
 	Body struct {
@@ -25,16 +25,17 @@ type (
 	// Event analytics event.
 	Event struct {
 		Name   string `json:"name"`
-		Params Params `json:"params"`
+		Params Metric `json:"params"`
 	}
-	// Params analytics parameters.
-	Params struct {
-		CampaignId         string `json:"campaign_id,omitempty"`
-		Campaign           string `json:"campaign,omitempty"`
-		Source             string `json:"source,omitempty"`
-		Medium             string `json:"medium,omitempty"`
-		Term               string `json:"term,omitempty"`
-		Content            string `json:"content,omitempty"`
+	// Metric represents a data point.
+	Metric struct {
+		Status             string `json:"status,omitempty"`
+		OS                 string `json:"os,omitempty"`
+		Arch               string `json:"arch,omitempty"`
+		FullCmd            string `json:"full_command,omitempty"`
+		Cmd                string `json:"command,omitempty"`
+		Error              string `json:"error,omitempty"`
+		Version            string `json:"version,omitempty"`
 		SessionId          string `json:"session_id,omitempty"`
 		EngagementTimeMsec string `json:"engagement_time_msec,omitempty"`
 	}
@@ -70,4 +71,15 @@ func (c Client) Send(body Body) error {
 		return fmt.Errorf("Error sending event. Status code: %d\n", resp.StatusCode)
 	}
 	return nil
+}
+
+func (c Client) SendMetric(metric Metric) error {
+	metric.EngagementTimeMsec = "100"
+	return c.Send(Body{
+		ClientId: metric.SessionId,
+		Events: []Event{{
+			Name:   metric.Cmd,
+			Params: metric,
+		}},
+	})
 }

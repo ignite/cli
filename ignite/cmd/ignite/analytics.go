@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
+	"github.com/Pallinder/go-randomdata"
 	"github.com/manifoldco/promptui"
 
 	"github.com/ignite/cli/ignite/pkg/gacli"
@@ -56,9 +58,11 @@ func addCmdMetric(m metric) {
 	}
 
 	met := gacli.Metric{
-		FullCmd: m.command,
-		User:    dntInfo.Name,
-		Version: version.Version,
+		OS:        runtime.GOOS,
+		Arch:      runtime.GOARCH,
+		FullCmd:   m.command,
+		SessionId: dntInfo.Name,
+		Version:   version.Version,
 	}
 
 	switch {
@@ -97,11 +101,7 @@ func checkDNT() (identity, error) {
 		return i, nil
 	}
 
-	hostname, err := os.Hostname()
-	if err != nil {
-		hostname = "unknown"
-	}
-	i.Name = hostname
+	i.Name = randomdata.SillyName()
 	i.DoNotTrack = false
 
 	prompt := promptui.Select{
