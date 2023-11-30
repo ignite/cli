@@ -21,7 +21,7 @@ type (
 	}
 	// Body analytics metrics body.
 	Body struct {
-		ClientId string  `json:"client_id"`
+		ClientID string  `json:"client_id"`
 		Events   []Event `json:"events"`
 	}
 	// Event analytics event.
@@ -38,7 +38,7 @@ type (
 		Cmd                string `json:"command,omitempty"`
 		Error              string `json:"error,omitempty"`
 		Version            string `json:"version,omitempty"`
-		SessionId          string `json:"session_id,omitempty"`
+		SessionID          string `json:"session_id,omitempty"`
 		EngagementTimeMsec string `json:"engagement_time_msec,omitempty"`
 	}
 )
@@ -81,7 +81,7 @@ func (c Client) Send(body Body) error {
 func (c Client) SendMetric(metric Metric) error {
 	metric.EngagementTimeMsec = "100"
 	return c.Send(Body{
-		ClientId: metric.SessionId,
+		ClientID: metric.SessionID,
 		Events: []Event{{
 			Name:   metric.Cmd,
 			Params: metric,

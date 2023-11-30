@@ -62,7 +62,7 @@ func sendMetric(wg *sync.WaitGroup, m metric) {
 		OS:        runtime.GOOS,
 		Arch:      runtime.GOARCH,
 		FullCmd:   m.command,
-		SessionId: dntInfo.Name,
+		SessionID: dntInfo.Name,
 		Version:   version.Version,
 	}
 
@@ -83,7 +83,7 @@ func sendMetric(wg *sync.WaitGroup, m metric) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		gaclient.SendMetric(met)
+		_ = gaclient.SendMetric(met)
 	}()
 }
 
