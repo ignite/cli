@@ -214,7 +214,7 @@ This documentation provides information on how to use the `Client` type with
 ## Blockchain and Client app not on the same machine
 
 If the blockchain and the client app is not on the same machine replace ../blog with the github
-repository pointing to your blog node:
+repository pointing to your blog github repository:
 
 dependencies for your package
 
