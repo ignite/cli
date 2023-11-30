@@ -101,6 +101,19 @@ func FindRegisteredModules(chainRoot string) ([]string, error) {
 		}
 		discovered = append(discovered, d...)
 	}
+
+	// Discover IBC wired modules
+	// TODO: This can be removed once IBC modules use dependency injection
+	ibcPath := filepath.Join(chainRoot, "app", "ibc.go")
+	if _, err := os.Stat(ibcPath); err == nil {
+		m, err := discoverIBCModules(ibcPath)
+		if err != nil {
+			return nil, err
+		}
+
+		discovered = append(discovered, m...)
+	}
+
 	return mergeImports(blankImports, discovered), nil
 }
 
@@ -138,20 +151,15 @@ func mergeImports(blankImports, discovered []string) []string {
 }
 
 // DiscoverModules find a map of import modules based on the configured app.
-func DiscoverModules(n ast.Node, chainRoot string, fileImports map[string]string) ([]string, error) {
+func DiscoverModules(file *ast.File, chainRoot string, fileImports map[string]string) ([]string, error) {
 	// find app type
-	appImpl := cosmosanalysis.FindImplementationInFile(n, cosmosanalysis.AppImplementation)
+	appImpl := cosmosanalysis.FindImplementationInFile(file, cosmosanalysis.AppImplementation)
 	appTypeName := "App"
 	switch {
 	case len(appImpl) > 1:
 		return nil, fmt.Errorf("app.go should contain only a single app (got %d)", len(appImpl))
 	case len(appImpl) == 1:
 		appTypeName = appImpl[0]
-	}
-
-	file, ok := n.(*ast.File)
-	if !ok {
-		return nil, nil
 	}
 
 	var discovered []string
@@ -267,6 +275,64 @@ func discoverRuntimeAppModules(chainRoot string) ([]string, error) {
 
 	if err != nil {
 		return nil, err
+	}
+	return modules, nil
+}
+
+func discoverIBCModules(ibcPath string) ([]string, error) {
+	f, _, err := xast.ParseFile(ibcPath)
+	if err != nil {
+		return nil, err
+	}
+
+	var (
+		names   []string
+		imports = goanalysis.FormatImports(f)
+	)
+	err = xast.Inspect(f, func(n ast.Node) error {
+		fn, _ := n.(*ast.FuncDecl)
+		if fn == nil {
+			return nil
+		}
+
+		if fn.Name.Name != "AddIBCModuleManager" {
+			return nil
+		}
+
+		for _, stmt := range fn.Body.List {
+			x, _ := stmt.(*ast.AssignStmt)
+			if x == nil {
+				continue
+			}
+
+			if len(x.Rhs) == 0 {
+				continue
+			}
+
+			c, _ := x.Rhs[0].(*ast.CompositeLit)
+			if c == nil {
+				continue
+			}
+
+			s, _ := c.Type.(*ast.SelectorExpr)
+			if s == nil || s.Sel.Name != "AppModule" {
+				continue
+			}
+
+			if m, _ := s.X.(*ast.Ident); m != nil {
+				names = append(names, m.Name)
+			}
+		}
+
+		return xast.ErrStop
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var modules []string
+	for _, n := range names {
+		modules = append(modules, imports[n])
 	}
 	return modules, nil
 }
