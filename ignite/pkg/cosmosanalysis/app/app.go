@@ -114,20 +114,7 @@ func FindRegisteredModules(chainRoot string) ([]string, error) {
 		discovered = append(discovered, m...)
 	}
 
-	// Remove duplicated entries
-	var (
-		modules []string
-		seen    = make(map[string]struct{})
-	)
-	for _, m := range discovered {
-		if _, ok := seen[m]; ok {
-			continue
-		}
-
-		seen[m] = struct{}{}
-		modules = append(modules, m)
-	}
-	return modules, nil
+	return removeDuplicateEntries(discovered), nil
 }
 
 // DiscoverModules find a map of import modules based on the configured app.
@@ -159,21 +146,20 @@ func DiscoverModules(file *ast.File, chainRoot string, fileImports map[string]st
 			}
 		}
 	}
+	return removeDuplicateEntries(discovered), nil
+}
 
-	// Add discovered modules to a list without duplicates
-	var (
-		modules []string
-		skip    = make(map[string]struct{})
-	)
-	for _, name := range discovered {
-		if _, ok := skip[name]; ok {
+func removeDuplicateEntries(entries []string) (res []string) {
+	seen := make(map[string]struct{})
+	for _, e := range entries {
+		if _, ok := seen[e]; ok {
 			continue
 		}
 
-		skip[name] = struct{}{}
-		modules = append(modules, name)
+		seen[e] = struct{}{}
+		res = append(res, e)
 	}
-	return modules, nil
+	return
 }
 
 func discoverKeeperModules(d *ast.GenDecl, appTypeName string, imports map[string]string) []string {
