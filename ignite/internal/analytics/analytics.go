@@ -1,4 +1,4 @@
-package main
+package analytics
 
 import (
 	"encoding/json"
@@ -26,11 +26,9 @@ var gaclient gacli.Client
 
 type (
 	// metric represents an analytics metric.
-	metric struct {
+	options struct {
 		// err sets metrics type as an error metric.
 		err error
-		// command is the command name.
-		command string
 	}
 
 	// anonIdentity represents an analytics identity file.
@@ -42,15 +40,42 @@ type (
 	}
 )
 
-func sendMetric(wg *sync.WaitGroup, m metric) {
+func init() {
+	gaclient = gacli.New(telemetryEndpoint)
+}
+
+// Option configures ChainCmd.
+type Option func(*options)
+
+// WithError with application command error.
+func WithError(error error) Option {
+	return func(m *options) {
+		m.err = error
+	}
+}
+
+func SendMetric(wg *sync.WaitGroup, args []string, opts ...Option) {
+	// only the app name
+	if len(args) <= 1 {
+		return
+	}
+
+	// apply analytics options.
+	var opt options
+	for _, o := range opts {
+		o(&opt)
+	}
+
 	envDoNotTrackVar := os.Getenv(envDoNotTrack)
 	if envDoNotTrackVar == "1" || strings.ToLower(envDoNotTrackVar) == "true" {
 		return
 	}
 
-	if m.command == "ignite version" {
+	if args[1] == "version" {
 		return
 	}
+
+	fullCmd := strings.Join(args[1:], " ")
 
 	dntInfo, err := checkDNT()
 	if err != nil || dntInfo.DoNotTrack {
@@ -60,24 +85,19 @@ func sendMetric(wg *sync.WaitGroup, m metric) {
 	met := gacli.Metric{
 		OS:        runtime.GOOS,
 		Arch:      runtime.GOARCH,
-		FullCmd:   m.command,
+		FullCmd:   fullCmd,
 		SessionID: dntInfo.Name,
 		Version:   version.Version,
 	}
 
 	switch {
-	case m.err == nil:
+	case opt.err == nil:
 		met.Status = "success"
-	case m.err != nil:
+	case opt.err != nil:
 		met.Status = "error"
-		met.Error = m.err.Error()
+		met.Error = opt.err.Error()
 	}
-
-	cmds := strings.Split(m.command, " ")
-	met.Cmd = cmds[0]
-	if len(cmds) > 0 {
-		met.Cmd = cmds[1]
-	}
+	met.Cmd = args[1]
 
 	wg.Add(1)
 	go func() {

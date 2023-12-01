@@ -5,21 +5,19 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strings"
 	"sync"
 
 	ignitecmd "github.com/ignite/cli/ignite/cmd"
 	chainconfig "github.com/ignite/cli/ignite/config/chain"
+	"github.com/ignite/cli/ignite/internal/analytics"
 	"github.com/ignite/cli/ignite/pkg/clictx"
 	"github.com/ignite/cli/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite/cli/ignite/pkg/gacli"
 	"github.com/ignite/cli/ignite/pkg/validation"
 	"github.com/ignite/cli/ignite/pkg/xstrings"
 )
 
 func main() {
-	gaclient = gacli.New(telemetryEndpoint)
 	os.Exit(run())
 }
 
@@ -27,18 +25,16 @@ func run() int {
 	const exitCodeOK, exitCodeError = 0, 1
 	var wg sync.WaitGroup
 
-	osArgs := strings.Join(os.Args, " ")
-
 	defer func() {
 		if r := recover(); r != nil {
-			sendMetric(&wg, metric{err: fmt.Errorf("%v", r), command: osArgs})
+			analytics.SendMetric(&wg, os.Args, analytics.WithError(fmt.Errorf("%v", r)))
 			fmt.Println(r)
 			os.Exit(exitCodeError)
 		}
 	}()
 
 	if len(os.Args) > 1 {
-		sendMetric(&wg, metric{command: osArgs})
+		analytics.SendMetric(&wg, os.Args)
 	}
 
 	ctx := clictx.From(context.Background())

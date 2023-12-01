@@ -67,7 +67,7 @@ func New(endpoint string, opts ...Option) Client {
 			Timeout: 1500 * time.Millisecond,
 		},
 	}
-	// apply user options.
+	// apply analytics options.
 	for _, o := range opts {
 		o(&c)
 	}
