@@ -27,7 +27,7 @@ func run() int {
 
 	defer func() {
 		if r := recover(); r != nil {
-			analytics.SendMetric(&wg, os.Args, analytics.WithError(fmt.Errorf("%v", r)))
+			analytics.SendMetric(&wg, os.Args, analytics.WithError(errors.Errorf("%v", r)))
 			fmt.Println(r)
 			os.Exit(exitCodeError)
 		}
