@@ -19,7 +19,7 @@ import (
 )
 
 func main() {
-	gaclient = gacli.New()
+	gaclient = gacli.New(telemetryEndpoint)
 	os.Exit(run())
 }
 

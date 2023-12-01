@@ -9,13 +9,10 @@ import (
 	"time"
 )
 
-const (
-	endpoint = "https://telemetry-cli.ignite.com"
-)
-
 type (
 	// Client is an analytics client.
 	Client struct {
+		endpoint      string
 		measurementID string // Google Analytics measurement ID.
 		apiSecret     string // Google Analytics API secret.
 		httpClient    http.Client
@@ -63,8 +60,9 @@ func WithAPISecret(secret string) Option {
 
 // New creates a new analytics client with
 // measure id and secret key.
-func New(opts ...Option) Client {
+func New(endpoint string, opts ...Option) Client {
 	c := Client{
+		endpoint: endpoint,
 		httpClient: http.Client{
 			Timeout: 1500 * time.Millisecond,
 		},
@@ -84,7 +82,7 @@ func (c Client) Send(body Body) error {
 		return err
 	}
 
-	requestURL, err := url.Parse(endpoint)
+	requestURL, err := url.Parse(c.endpoint)
 	if err != nil {
 		return err
 	}

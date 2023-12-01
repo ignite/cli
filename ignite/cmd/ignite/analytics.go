@@ -16,9 +16,10 @@ import (
 )
 
 const (
-	envDoNotTrack  = "DO_NOT_TRACK"
-	igniteDir      = ".ignite"
-	igniteIdentity = "identity.json"
+	telemetryEndpoint  = "https://telemetry-cli.ignite.com"
+	envDoNotTrack      = "DO_NOT_TRACK"
+	igniteDir          = ".ignite"
+	igniteAnonIdentity = "anonIdentity.json"
 )
 
 var gaclient gacli.Client
@@ -32,8 +33,8 @@ type (
 		command string
 	}
 
-	// identity represents an analytics identity file.
-	identity struct {
+	// anonIdentity represents an analytics identity file.
+	anonIdentity struct {
 		// name represents the username.
 		Name string `json:"name" yaml:"name"`
 		// doNotTrack represents the user track choice.
@@ -85,21 +86,21 @@ func sendMetric(wg *sync.WaitGroup, m metric) {
 	}()
 }
 
-func checkDNT() (identity, error) {
+func checkDNT() (anonIdentity, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return identity{}, err
+		return anonIdentity{}, err
 	}
 	if err := os.Mkdir(filepath.Join(home, igniteDir), 0o700); err != nil && !os.IsExist(err) {
-		return identity{}, err
+		return anonIdentity{}, err
 	}
-	identityPath := filepath.Join(home, igniteDir, igniteIdentity)
+	identityPath := filepath.Join(home, igniteDir, igniteAnonIdentity)
 	data, err := os.ReadFile(identityPath)
 	if err != nil && !os.IsNotExist(err) {
-		return identity{}, err
+		return anonIdentity{}, err
 	}
 
-	var i identity
+	var i anonIdentity
 	if err := json.Unmarshal(data, &i); err == nil {
 		return i, nil
 	}
@@ -116,7 +117,7 @@ func checkDNT() (identity, error) {
 	}
 	resultID, _, err := prompt.Run()
 	if err != nil {
-		return identity{}, err
+		return anonIdentity{}, err
 	}
 
 	if resultID != 0 {
