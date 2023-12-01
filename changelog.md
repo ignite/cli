@@ -9,6 +9,7 @@
 - [#3561](https://github.com/ignite/cli/pull/3561) Add GetChainInfo method to plugin system API
 - [#3626](https://github.com/ignite/cli/pull/3626) Add logging levels to relayer
 - [#3476](https://github.com/ignite/cli/pull/3476) Use `buf.build` binary to code generate from proto files
+- [#3599](https://github.com/ignite/cli/pull/3599) Add google analytics
 - [#3614](https://github.com/ignite/cli/pull/3614) feat: use DefaultBaseappOptions for app.New method
 - [#3536](https://github.com/ignite/cli/pull/3536) Change app.go to v2 and add AppWiring feature
 - [#3659](https://github.com/ignite/cli/pull/3659) cosmos-sdk `v0.50.x`
