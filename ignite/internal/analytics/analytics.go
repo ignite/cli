@@ -19,7 +19,7 @@ const (
 	telemetryEndpoint  = "https://telemetry-cli.ignite.com"
 	envDoNotTrack      = "DO_NOT_TRACK"
 	igniteDir          = ".ignite"
-	igniteAnonIdentity = "anonIdentity.json"
+	igniteAnonIdentity = "anon_identity.json"
 )
 
 var gaclient gacli.Client
