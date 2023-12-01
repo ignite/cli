@@ -8,7 +8,6 @@ import (
 	"path"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -57,7 +56,7 @@ func New(t *testing.T) Env {
 	// set an other one thanks to env var.
 	cfgDir := path.Join(t.TempDir(), ".ignite")
 	env.SetConfigDir(cfgDir)
-	enableDoNotTrackEnv()
+	enableDoNotTrackEnv(t)
 
 	t.Cleanup(cancel)
 	compileBinaryOnce.Do(func() {
@@ -169,15 +168,9 @@ func (e Env) RequireExpectations() {
 }
 
 // enableDoNotTrackEnv set true the DO_NOT_TRACK env var.
-func enableDoNotTrackEnv() {
+func enableDoNotTrackEnv(t *testing.T) {
 	err := os.Setenv(envDoNotTrack, "true")
-	if err != nil {
-		panic(fmt.Sprintf("error set %s env: %v", envDoNotTrack, err))
-	}
-}
-
-func Contains(s, partial string) bool {
-	return strings.Contains(s, strings.TrimSpace(partial))
+	require.NoError(t, err)
 }
 
 func HasTestVerboseFlag() bool {
