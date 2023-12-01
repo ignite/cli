@@ -169,8 +169,8 @@ func (e Env) RequireExpectations() {
 
 // enableDoNotTrackEnv set true the DO_NOT_TRACK env var.
 func enableDoNotTrackEnv(t *testing.T) {
-	err := os.Setenv(envDoNotTrack, "true")
-	require.NoError(t, err)
+	t.Helper()
+	t.Setenv(envDoNotTrack, "true")
 }
 
 func HasTestVerboseFlag() bool {
