@@ -1,63 +1,121 @@
-// Package gacli is a client for Google Analytics to send data points for hint-type=event.
 package gacli
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
+	"time"
 )
 
-const (
-	endpoint = "https://www.google-analytics.com/collect"
+type (
+	// Client is an analytics client.
+	Client struct {
+		endpoint      string
+		measurementID string // Google Analytics measurement ID.
+		apiSecret     string // Google Analytics API secret.
+		httpClient    http.Client
+	}
+	// Body analytics metrics body.
+	Body struct {
+		ClientID string  `json:"client_id"`
+		Events   []Event `json:"events"`
+	}
+	// Event analytics event.
+	Event struct {
+		Name   string `json:"name"`
+		Params Metric `json:"params"`
+	}
+	// Metric represents a data point.
+	Metric struct {
+		Status             string `json:"status,omitempty"`
+		OS                 string `json:"os,omitempty"`
+		Arch               string `json:"arch,omitempty"`
+		FullCmd            string `json:"full_command,omitempty"`
+		Cmd                string `json:"command,omitempty"`
+		Error              string `json:"error,omitempty"`
+		Version            string `json:"version,omitempty"`
+		SessionID          string `json:"session_id,omitempty"`
+		EngagementTimeMsec string `json:"engagement_time_msec,omitempty"`
+	}
 )
 
-// Client is an analytics client.
-type Client struct {
-	id string // Google Analytics ID
-}
+// Option configures code generation.
+type Option func(*Client)
 
-// New creates a new analytics client for Segment.io with Segment's
-// endpoint and access key.
-func New(id string) *Client {
-	return &Client{
-		id: id,
+// WithMeasurementID adds an analytics measurement ID.
+func WithMeasurementID(measurementID string) Option {
+	return func(c *Client) {
+		c.measurementID = measurementID
 	}
 }
 
-// Metric represents a data point.
-type Metric struct {
-	Category string
-	Action   string
-	Label    string
-	Value    string
-	User     string
-	Version  string
+// WithAPISecret adds an analytics API secret.
+func WithAPISecret(secret string) Option {
+	return func(c *Client) {
+		c.apiSecret = secret
+	}
 }
 
-// Send sends metrics to GA.
-func (c *Client) Send(metric Metric) error {
-	v := url.Values{
-		"v":   {"1"},
-		"tid": {c.id},
-		"cid": {metric.User},
-		"t":   {"event"},
-		"ec":  {metric.Category},
-		"ea":  {metric.Action},
-		"ua":  {"Opera/9.80 (Windows NT 6.0) Presto/2.12.388 Version/12.14"},
+// New creates a new analytics client with
+// measure id and secret key.
+func New(endpoint string, opts ...Option) Client {
+	c := Client{
+		endpoint: endpoint,
+		httpClient: http.Client{
+			Timeout: 1500 * time.Millisecond,
+		},
 	}
-	if metric.Label != "" {
-		v.Set("el", metric.Label)
+	// apply analytics options.
+	for _, o := range opts {
+		o(&c)
 	}
-	if metric.Value != "" {
-		v.Set("ev", metric.Value)
-	}
-	if metric.Version != "" {
-		v.Set("an", metric.Version)
-		v.Set("av", metric.Version)
-	}
-	resp, err := http.PostForm(endpoint, v)
+	return c
+}
+
+// Send sends metrics to analytics.
+func (c Client) Send(body Body) error {
+	// encode body
+	encoded, err := json.Marshal(body)
 	if err != nil {
 		return err
 	}
+
+	requestURL, err := url.Parse(c.endpoint)
+	if err != nil {
+		return err
+	}
+	v := requestURL.Query()
+	if c.measurementID != "" {
+		v.Set("measurement_id", c.measurementID)
+	}
+	if c.apiSecret != "" {
+		v.Set("api_secret", c.apiSecret)
+	}
+	requestURL.RawQuery = v.Encode()
+
+	// Create an HTTP request with the payload
+	resp, err := c.httpClient.Post(requestURL.String(), "application/json", bytes.NewBuffer(encoded))
+	if err != nil {
+		return fmt.Errorf("error creating HTTP request: %w", err)
+	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK &&
+		resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("error sending event. Status code: %d", resp.StatusCode)
+	}
 	return nil
+}
+
+func (c Client) SendMetric(metric Metric) error {
+	metric.EngagementTimeMsec = "100"
+	return c.Send(Body{
+		ClientID: metric.SessionID,
+		Events: []Event{{
+			Name:   metric.Cmd,
+			Params: metric,
+		}},
+	})
 }
