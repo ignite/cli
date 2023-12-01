@@ -14,10 +14,10 @@ import (
 
 	"github.com/ignite/ignite-files/protoc"
 
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/ignite/pkg/localfs"
-	"github.com/ignite/cli/ignite/pkg/protoanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/pkg/localfs"
+	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis"
 )
 
 // Option configures Generate configs.
@@ -148,7 +148,7 @@ func Generate(ctx context.Context, outDir, protoPath string, includePaths, proto
 		command = cmd.Command()
 		includes = cmd.Includes()
 	}
-	// See: https://github.com/ignite/cli/issues/3698
+	// See: https://github.com/ignite/cli/v28/issues/3698
 	command = append(command, "--experimental_allow_proto3_optional")
 
 	// add plugin if set.

@@ -8,10 +8,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ignite/cli/ignite/pkg/goanalysis"
-	"github.com/ignite/cli/ignite/pkg/xast"
+	"github.com/ignite/cli/v28/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/xast"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis"
 )
 
 // CheckKeeper checks for the existence of the keeper with the provided name in the app structure.

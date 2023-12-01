@@ -9,9 +9,9 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	v0 "github.com/ignite/cli/ignite/config/chain/v0"
-	v1 "github.com/ignite/cli/ignite/config/chain/v1"
-	"github.com/ignite/cli/ignite/config/chain/version"
+	v0 "github.com/ignite/cli/v28/ignite/config/chain/v0"
+	v1 "github.com/ignite/cli/v28/ignite/config/chain/v1"
+	"github.com/ignite/cli/v28/ignite/config/chain/version"
 )
 
 var (

@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
 )
 
 func TestNewMultiFormatName(t *testing.T) {

@@ -7,14 +7,14 @@ import (
 	"os"
 	"sync"
 
-	ignitecmd "github.com/ignite/cli/ignite/cmd"
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
-	"github.com/ignite/cli/ignite/internal/analytics"
-	"github.com/ignite/cli/ignite/pkg/clictx"
-	"github.com/ignite/cli/ignite/pkg/cliui/colors"
-	"github.com/ignite/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite/cli/ignite/pkg/validation"
-	"github.com/ignite/cli/ignite/pkg/xstrings"
+	ignitecmd "github.com/ignite/cli/v28/ignite/cmd"
+	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
+	"github.com/ignite/cli/v28/ignite/internal/analytics"
+	"github.com/ignite/cli/v28/ignite/pkg/clictx"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/v28/ignite/pkg/validation"
+	"github.com/ignite/cli/v28/ignite/pkg/xstrings"
 )
 
 func main() {

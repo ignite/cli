@@ -11,12 +11,12 @@ import (
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush/v4"
 
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
-	"github.com/ignite/cli/ignite/pkg/xgenny"
-	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
-	"github.com/ignite/cli/ignite/templates/testutil"
-	"github.com/ignite/cli/ignite/templates/typed"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v28/ignite/templates/field/plushhelpers"
+	"github.com/ignite/cli/v28/ignite/templates/testutil"
+	"github.com/ignite/cli/v28/ignite/templates/typed"
 )
 
 var (

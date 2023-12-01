@@ -9,11 +9,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cliui"
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/pkg/validation"
-	"github.com/ignite/cli/ignite/services/scaffolder"
-	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/validation"
+	"github.com/ignite/cli/v28/ignite/services/scaffolder"
+	modulecreate "github.com/ignite/cli/v28/ignite/templates/module/create"
 )
 
 // moduleNameKeeperAlias is a map of well known module names that have a different keeper name than the usual <module-name>Keeper.
@@ -214,7 +214,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 
 	// in previously scaffolded apps gov keeper is defined below the scaffolded module keeper definition
 	// therefore we must warn the user to manually move the definition if it's the case
-	// https://github.com/ignite/cli/issues/818#issuecomment-865736052
+	// https://github.com/ignite/cli/v28/issues/818#issuecomment-865736052
 	for _, name := range dependencies {
 		if name == "Gov" {
 			session.Print(govDependencyWarning)

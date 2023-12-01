@@ -14,9 +14,9 @@ import (
 	"golang.org/x/mod/modfile"
 	"golang.org/x/mod/module"
 
-	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
 )
 
 const pathCacheNamespace = "gomodule.path"

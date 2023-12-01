@@ -14,22 +14,22 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite/cli/ignite/config"
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
-	"github.com/ignite/cli/ignite/pkg/cache"
-	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
-	"github.com/ignite/cli/ignite/pkg/cliui/colors"
-	"github.com/ignite/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite/cli/ignite/pkg/cliui/view/accountview"
-	"github.com/ignite/cli/ignite/pkg/cliui/view/errorview"
-	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
-	"github.com/ignite/cli/ignite/pkg/dirchange"
-	"github.com/ignite/cli/ignite/pkg/events"
-	"github.com/ignite/cli/ignite/pkg/localfs"
-	"github.com/ignite/cli/ignite/pkg/xexec"
-	"github.com/ignite/cli/ignite/pkg/xfilepath"
-	"github.com/ignite/cli/ignite/pkg/xhttp"
-	"github.com/ignite/cli/ignite/pkg/xurl"
+	"github.com/ignite/cli/v28/ignite/config"
+	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
+	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	chaincmdrunner "github.com/ignite/cli/v28/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/view/accountview"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/view/errorview"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosfaucet"
+	"github.com/ignite/cli/v28/ignite/pkg/dirchange"
+	"github.com/ignite/cli/v28/ignite/pkg/events"
+	"github.com/ignite/cli/v28/ignite/pkg/localfs"
+	"github.com/ignite/cli/v28/ignite/pkg/xexec"
+	"github.com/ignite/cli/v28/ignite/pkg/xfilepath"
+	"github.com/ignite/cli/v28/ignite/pkg/xhttp"
+	"github.com/ignite/cli/v28/ignite/pkg/xurl"
 )
 
 const (
@@ -225,7 +225,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 					}
 
 					// Change error message to add a link to the configuration docs
-					err = fmt.Errorf("%w\nsee: https://github.com/ignite/cli#configure", err)
+					err = fmt.Errorf("%w\nsee: https://github.com/ignite/cli/v28#configure", err)
 
 					c.ev.SendView(errorview.NewError(err), events.ProgressFinish(), events.Group(events.GroupError))
 				case errors.As(err, &buildErr):
