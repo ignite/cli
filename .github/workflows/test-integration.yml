@@ -1,4 +1,5 @@
 name: Integration
+
 on:
   pull_request:
   push:
@@ -24,14 +25,15 @@ jobs:
         run: echo "matrix=$({ cd integration && find . -type d ! -name testdata -maxdepth 1 -print; } | tail -n +2 | cut -c 3- | jq -R . | jq -cs .)" >> $GITHUB_OUTPUT
 
   integration:
-    name: test ${{ matrix.test-path }}
-    runs-on: ubuntu-latest
+    name: test ${{ matrix.test-path }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     needs: pre-test
     if: fromJSON(needs.pre-test.outputs.matrix)[0] != null
     continue-on-error: false
     strategy:
       fail-fast: true
       matrix:
+        os: [ubuntu-latest, macos-latest]
         test-path: ${{fromJson(needs.pre-test.outputs.matrix)}}
     steps:
       - uses: actions/checkout@v3.4.0
