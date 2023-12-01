@@ -1,33 +1,33 @@
-":component:ci":
+"component:ci":
   - "!.github/labeler.yml"
   - "!.github/labels.json"
   - .github/**/*
 
-":component:docs":
+"component:docs":
   - assets/**/*
   - docs/**/*
 
-":component:tools":
+"component:tools":
   - .actions/**/*
   - .scripts/**/*
 
-":component:packages":
+"component:packages":
   - ignite/pkg/**/*
 
-":component:cmd":
+"component:cmd":
   - ignite/cmd/**/*
 
-":type:services":
+"type:services":
   - ignite/services/**/*
 
-":component:templates":
+"component:templates":
   - ignite/templates/**/*
 
-":type:internal":
+"type:internal":
   - ignite/config/**/*
   - ignite/internal/**/*
   - ignite/version/**/*
 
-":component:configs":
+"component:configs":
   - "!*.md"
   - "*"
