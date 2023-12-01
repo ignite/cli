@@ -341,6 +341,7 @@ func resolveCosmosPackagePath(chainRoot string) (string, error) {
 	}
 
 	// Check path of the package directory within Go's module cache
+	// TODO: Change to use "go mod download --json"
 	path := filepath.Join(goenv.GoModCache(), pkg)
 	info, err := os.Stat(path)
 	if os.IsNotExist(err) || !info.IsDir() {

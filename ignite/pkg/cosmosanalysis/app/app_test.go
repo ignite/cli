@@ -113,6 +113,8 @@ func TestFindRegisteredModules(t *testing.T) {
 				"cosmossdk.io/x/evidence",
 				"cosmossdk.io/x/feegrant/module",
 				"cosmossdk.io/x/upgrade",
+				"github.com/cosmos/cosmos-sdk/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
 				"github.com/cosmos/cosmos-sdk/x/auth/tx/config",
 				"github.com/cosmos/cosmos-sdk/x/auth/vesting",
 				"github.com/cosmos/cosmos-sdk/x/authz/module",
@@ -424,122 +426,6 @@ func TestDiscoverModules(t *testing.T) {
 				}
 			}
 			require.ElementsMatch(t, tt.expectedModules, got)
-		})
-	}
-}
-
-func Test_mergeImports(t *testing.T) {
-	tests := []struct {
-		name         string
-		blankImports []string
-		discovered   []string
-		want         []string
-	}{
-		{
-			name:         "test nil imports",
-			blankImports: nil,
-			discovered:   nil,
-			want:         nil,
-		},
-		{
-			name:         "test empty imports",
-			blankImports: []string{},
-			discovered:   []string{},
-			want:         []string{},
-		},
-		{
-			name:         "test only one blank import",
-			blankImports: []string{"github.com/cosmos/cosmos-sdk/x/auth"},
-			discovered:   []string{},
-			want:         []string{"github.com/cosmos/cosmos-sdk/x/auth"},
-		},
-		{
-			name:         "test only one discovered import",
-			blankImports: []string{},
-			discovered:   []string{"github.com/cosmos/cosmos-sdk/x/auth"},
-			want:         []string{"github.com/cosmos/cosmos-sdk/x/auth"},
-		},
-		{
-			name:         "test only one import",
-			blankImports: []string{"github.com/cosmos/cosmos-sdk/x/auth"},
-			discovered:   []string{"github.com/cosmos/cosmos-sdk/x/auth/keeper"},
-			want:         []string{"github.com/cosmos/cosmos-sdk/x/auth"},
-		},
-		{
-			name:         "test only one keeper import",
-			blankImports: []string{"github.com/cosmos/cosmos-sdk/x/auth/module"},
-			discovered:   []string{"github.com/cosmos/cosmos-sdk/x/auth/keeper"},
-			want:         []string{"github.com/cosmos/cosmos-sdk/x/auth/module"},
-		},
-		{
-			name: "test two keeper import",
-			blankImports: []string{
-				"github.com/cosmos/cosmos-sdk/x/auth/module",
-				"github.com/cosmos/cosmos-sdk/x/bank/module",
-			},
-			discovered: []string{
-				"github.com/cosmos/cosmos-sdk/x/auth/keeper",
-				"github.com/cosmos/cosmos-sdk/x/bank/keeper",
-			},
-			want: []string{
-				"github.com/cosmos/cosmos-sdk/x/auth/module",
-				"github.com/cosmos/cosmos-sdk/x/bank/module",
-			},
-		},
-		{
-			name: "test two keeper import",
-			blankImports: []string{
-				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts",
-			},
-			discovered: []string{
-				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/controller/keeper",
-				"github.com/cosmos/cosmos-sdk/x/bank/keeper",
-			},
-			want: []string{
-				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts",
-				"github.com/cosmos/cosmos-sdk/x/bank/keeper",
-			},
-		},
-		{
-			name: "test keeper imports",
-			blankImports: []string{
-				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts",
-				"cosmossdk.io/x/feegrant/module",
-			},
-			discovered: []string{
-				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/controller/keeper",
-				"github.com/cosmos/cosmos-sdk/x/bank/keeper",
-				"cosmossdk.io/x/feegrant/types",
-				"cosmossdk.io/x/feegrant",
-				"cosmossdk.io/x/foo",
-			},
-			want: []string{
-				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts",
-				"github.com/cosmos/cosmos-sdk/x/bank/keeper",
-				"cosmossdk.io/x/feegrant/module",
-				"cosmossdk.io/x/foo",
-			},
-		},
-		{
-			name: "test three keeper import",
-			blankImports: []string{
-				"github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts",
-				"github.com/cosmos/ibc-go/modules/capability",
-			},
-			discovered: []string{
-				"github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts",
-				"github.com/cosmos/ibc-go/modules/capability",
-			},
-			want: []string{
-				"github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts",
-				"github.com/cosmos/ibc-go/modules/capability",
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := mergeImports(tt.blankImports, tt.discovered)
-			require.ElementsMatch(t, tt.want, got)
 		})
 	}
 }

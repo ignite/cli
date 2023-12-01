@@ -24,6 +24,9 @@ const pathCacheNamespace = "gomodule.path"
 // ErrGoModNotFound returned when go.mod file cannot be found for an app.
 var ErrGoModNotFound = errors.New("go.mod not found")
 
+// Version is an alias to the module version type.
+type Version = module.Version
+
 // ParseAt finds and parses go.mod at app's path.
 func ParseAt(path string) (*modfile.File, error) {
 	gomod, err := os.ReadFile(filepath.Join(path, "go.mod"))
@@ -37,8 +40,8 @@ func ParseAt(path string) (*modfile.File, error) {
 }
 
 // FilterVersions filters dependencies under require section by their paths.
-func FilterVersions(dependencies []module.Version, paths ...string) []module.Version {
-	var filtered []module.Version
+func FilterVersions(dependencies []Version, paths ...string) []Version {
+	var filtered []Version
 
 	for _, dep := range dependencies {
 		for _, path := range paths {
@@ -52,10 +55,10 @@ func FilterVersions(dependencies []module.Version, paths ...string) []module.Ver
 	return filtered
 }
 
-func ResolveDependencies(f *modfile.File, includeIndirect bool) ([]module.Version, error) {
-	var versions []module.Version
+func ResolveDependencies(f *modfile.File, includeIndirect bool) ([]Version, error) {
+	var versions []Version
 
-	isReplacementAdded := func(rv module.Version) bool {
+	isReplacementAdded := func(rv Version) bool {
 		for _, rep := range f.Replace {
 			if rv.Path == rep.Old.Path {
 				versions = append(versions, rep.New)
@@ -80,7 +83,7 @@ func ResolveDependencies(f *modfile.File, includeIndirect bool) ([]module.Versio
 }
 
 // LocatePath locates pkg's absolute path managed by 'go mod' on the local filesystem.
-func LocatePath(ctx context.Context, cacheStorage cache.Storage, src string, pkg module.Version) (path string, err error) {
+func LocatePath(ctx context.Context, cacheStorage cache.Storage, src string, pkg Version) (path string, err error) {
 	// can be a local package.
 	if pkg.Version == "" { // indicates that this is a local package.
 		if filepath.IsAbs(pkg.Path) {
