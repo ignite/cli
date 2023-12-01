@@ -33,7 +33,12 @@ func InitAndCommit(path string) error {
 			return errors.Errorf("open git repo %s: %w", path, err)
 		}
 		// not a git repo, creates a new one
-		repo, err = git.PlainInit(path, false)
+		repo, err = git.PlainInitWithOptions(path, &git.PlainInitOptions{
+			InitOptions: git.InitOptions{
+				DefaultBranch: plumbing.Main,
+			},
+			Bare: false,
+		})
 		if err != nil {
 			return errors.Errorf("init git repo %s: %w", path, err)
 		}
