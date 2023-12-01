@@ -75,7 +75,7 @@ func New(endpoint string, opts ...Option) Client {
 	return c
 }
 
-// Send sends metrics to analytics.
+// Send sends metric event to analytics.
 func (c Client) Send(body Body) error {
 	// encode body
 	encoded, err := json.Marshal(body)
@@ -110,6 +110,7 @@ func (c Client) Send(body Body) error {
 	return nil
 }
 
+// SendMetric build the metrics and send to analytics.
 func (c Client) SendMetric(metric Metric) error {
 	metric.EngagementTimeMsec = "100"
 	return c.Send(Body{

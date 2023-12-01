@@ -25,7 +25,7 @@ import (
 )
 
 const (
-	ConfigYML = "config.yml"
+	envDoNotTrack = "DO_NOT_TRACK"
 )
 
 var (
@@ -57,6 +57,7 @@ func New(t *testing.T) Env {
 	// set an other one thanks to env var.
 	cfgDir := path.Join(t.TempDir(), ".ignite")
 	env.SetConfigDir(cfgDir)
+	enableDoNotTrackEnv()
 
 	t.Cleanup(cancel)
 	compileBinaryOnce.Do(func() {
@@ -165,6 +166,14 @@ func (e Env) HasFailed() bool {
 
 func (e Env) RequireExpectations() {
 	e.Must(e.HasFailed())
+}
+
+// enableDoNotTrackEnv set true the DO_NOT_TRACK env var.
+func enableDoNotTrackEnv() {
+	err := os.Setenv(envDoNotTrack, "true")
+	if err != nil {
+		panic(fmt.Sprintf("error set %s env: %v", envDoNotTrack, err))
+	}
 }
 
 func Contains(s, partial string) bool {
