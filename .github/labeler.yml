@@ -1,33 +1,33 @@
-":robot: CI":
+":component:ci":
   - "!.github/labeler.yml"
   - "!.github/labels.json"
   - .github/**/*
 
-":book: docs":
+":component:docs":
   - assets/**/*
   - docs/**/*
 
-":hammer: tools":
+":component:tools":
   - .actions/**/*
   - .scripts/**/*
 
-":package: packages":
+":component:packages":
   - ignite/pkg/**/*
 
-":arrow_forward: cmd":
+":component:cmd":
   - ignite/cmd/**/*
 
-":taxi: services":
+":type:services":
   - ignite/services/**/*
 
-":bookmark: templates":
+":component:templates":
   - ignite/templates/**/*
 
-":door: internal":
+":type:internal":
   - ignite/config/**/*
   - ignite/internal/**/*
   - ignite/version/**/*
 
-":wrench: configs":
+":component:configs":
   - "!*.md"
   - "*"
