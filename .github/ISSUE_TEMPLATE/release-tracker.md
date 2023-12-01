@@ -33,7 +33,7 @@ versions of cli to guarantee that no regression is introduced -->
 
 - [ ] Update Ignite CLI version (see [#3793](https://github.com/ignite/cli/pull/3793) for example):
   - [ ] Rename module version in go.mod to `/vXX` (where `XX` is the new version number).
-  - [ ] Update plugins protos and re-generate them
+  - [ ] Update plugins go plush, protos and re-generate them
   - [ ] Update documentation links (docs/docs)
   - [ ] Update GitHub actions, goreleaser and other CI/CD scripts
 
