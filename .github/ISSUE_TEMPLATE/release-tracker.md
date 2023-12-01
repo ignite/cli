@@ -21,10 +21,9 @@ v                     without deliberation
 <!-- List of tests that need be performed with previous
 versions of cli to guarantee that no regression is introduced -->
 
-
 ### Other testing
 
-## Migration 
+## Migration
 
 <!-- Link to migration document -->
 
@@ -32,8 +31,11 @@ versions of cli to guarantee that no regression is introduced -->
 
 <!-- Remove any items that are not applicable. -->
 
-- [ ] Branch off main to create release branch in the form  of `release/vx.y.z`.
-- [ ] Add branch protection rules to new release branch.
+- [ ] Update Ignite CLI version (see [#3793](https://github.com/ignite/cli/pull/3793) for example):
+  - [ ] Rename module version in go.mod to `/vXX` (where `XX` is the new version number).
+  - [ ] Update plugins protos and re-generate them
+  - [ ] Update documentation links (docs/docs)
+  - [ ] Update GitHub actions, goreleaser and other CI/CD scripts
 
 ## Post-release checklist
 

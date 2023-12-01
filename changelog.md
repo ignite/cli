@@ -20,7 +20,7 @@
 
 ### Changes
 
-- [#3793](https://github.com/ignite/cli/pull/3793) Refactor Ignite to follow semantic versioning (prepares v28.0.0).
+- [#3793](https://github.com/ignite/cli/pull/3793) Refactor Ignite to follow semantic versioning (prepares v28.0.0). If you are using packages, do not forget to import the `/v28` version of the packages.
 - [#3529](https://github.com/ignite/cli/pull/3529) Refactor plugin system to use gRPC
 - [#3750](https://github.com/ignite/cli/pull/3750) Update default Ignite network app to `v0.2.0`
 - [#3751](https://github.com/ignite/cli/pull/3751) Rename label to skip changelog check
