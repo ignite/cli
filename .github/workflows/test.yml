@@ -15,7 +15,10 @@ concurrency:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v3.4.0
       - uses: technote-space/get-diff-action@v6.1.2
@@ -44,4 +47,3 @@ jobs:
           file: ./coverage.txt
           fail_ci_if_error: true
           verbose: true
-
