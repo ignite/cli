@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"go/ast"
@@ -13,7 +14,6 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/ignite/pkg/goanalysis"
-	"github.com/ignite/cli/ignite/pkg/goenv"
 	"github.com/ignite/cli/ignite/pkg/gomodule"
 	"github.com/ignite/cli/ignite/pkg/xast"
 )
@@ -340,14 +340,11 @@ func resolveCosmosPackagePath(chainRoot string) (string, error) {
 		return "", errors.New("cosmos SDK package version not found")
 	}
 
-	// Check path of the package directory within Go's module cache
-	// TODO: Change to use "go mod download --json"
-	path := filepath.Join(goenv.GoModCache(), pkg)
-	info, err := os.Stat(path)
-	if os.IsNotExist(err) || !info.IsDir() {
-		return "", errors.New("local path to Cosmos SDK package not found")
+	m, err := gomodule.FindModule(context.Background(), chainRoot, pkg)
+	if err != nil {
+		return "", err
 	}
-	return path, nil
+	return m.Dir, nil
 }
 
 func findRegisterAPIRoutesRegistrations(n ast.Node) []string {

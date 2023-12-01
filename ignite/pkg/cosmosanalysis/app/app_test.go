@@ -198,6 +198,9 @@ func TestFindRegisteredModules(t *testing.T) {
 			path: "testdata/modules/spn",
 			expectedModules: []string{
 				"github.com/cosmos/cosmos-sdk/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+				"github.com/cosmos/cosmos-sdk/client/grpc/node",
 				"github.com/cosmos/cosmos-sdk/x/bank",
 				"github.com/cosmos/cosmos-sdk/x/capability",
 				"github.com/cosmos/cosmos-sdk/x/staking",
@@ -356,6 +359,9 @@ func TestDiscoverModules(t *testing.T) {
 			path: "testdata/modules/spn",
 			expectedModules: []string{
 				"github.com/cosmos/cosmos-sdk/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+				"github.com/cosmos/cosmos-sdk/client/grpc/node",
 				"github.com/cosmos/cosmos-sdk/x/bank",
 				"github.com/cosmos/cosmos-sdk/x/capability",
 				"github.com/cosmos/cosmos-sdk/x/staking",
