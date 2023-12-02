@@ -37,6 +37,7 @@
 - [#3662](https://github.com/ignite/cli/pull/3662) Refactor CLI "plugin" command to "app"
 - [#3669](https://github.com/ignite/cli/pull/3669) Rename `plugins` config file to `igniteapps`
 - [#3683](https://github.com/ignite/cli/pull/3683) Resolve `--dep auth` as `--dep account` in `scaffold module`
+- [#3795](https://github.com/ignite/cli/pull/3795) Bump cometbft to `v0.38.2`
 
 ### Fixes
 
