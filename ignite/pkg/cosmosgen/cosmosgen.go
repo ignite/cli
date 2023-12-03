@@ -123,7 +123,7 @@ type generator struct {
 	gomodPath           string
 	opts                *generateOptions
 	sdkImport           string
-	sdkPath             string
+	sdkDir              string
 	deps                []gomodule.Version
 	appModules          []module.Module
 	appIncludes         protoIncludes

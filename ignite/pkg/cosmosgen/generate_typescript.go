@@ -200,7 +200,7 @@ func (g *tsGenerator) generateModuleTemplate(
 	// proto path which is where the proto files are stored.
 	var pp string
 	if module.IsCosmosSDKModulePkg(appPath) {
-		pp = filepath.Join(g.g.sdkPath, "proto")
+		pp = filepath.Join(g.g.sdkDir, "proto")
 	} else {
 		pp = filepath.Join(appPath, g.g.protoDir)
 	}

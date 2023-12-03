@@ -115,7 +115,13 @@ func (g *generator) setup(ctx context.Context) (err error) {
 
 	// Discover any custom modules defined by the user's app.
 	// Use the configured proto directory to locate app's proto files.
-	g.appModules, err = module.Discover(ctx, g.appPath, g.appPath, g.protoDir, g.sdkPath)
+	g.appModules, err = module.Discover(
+		ctx,
+		g.appPath,
+		g.appPath,
+		module.WithProtoDir(g.protoDir),
+		module.WithSDKDir(g.sdkDir),
+	)
 	if err != nil {
 		return err
 	}
@@ -133,7 +139,7 @@ func (g *generator) setup(ctx context.Context) (err error) {
 	// Find the full path to the Cosmos SDK Go package.
 	// The path is required to be able to discover proto packages for the
 	// set of "cosmossdk.io" packages that doesn't contain the proto files.
-	g.sdkPath, err = gomodule.LocatePath(ctx, g.cacheStorage, g.appPath, dep)
+	g.sdkDir, err = gomodule.LocatePath(ctx, g.cacheStorage, g.appPath, dep)
 	if err != nil {
 		return err
 	}
@@ -171,7 +177,7 @@ func (g *generator) setup(ctx context.Context) (err error) {
 			// Discover any modules defined by the package.
 			// Use an empty string for proto directory because it will be
 			// discovered automatically within the dependency package path.
-			modules, err := module.Discover(ctx, g.appPath, path, "", g.sdkPath)
+			modules, err := module.Discover(ctx, g.appPath, path, module.WithSDKDir(g.sdkDir))
 			if err != nil {
 				return err
 			}
@@ -264,7 +270,7 @@ func (g *generator) resolveIncludes(ctx context.Context, path string) (protoIncl
 	// where all proto files for there type of Go package are.
 	var protoPath string
 	if module.IsCosmosSDKModulePkg(path) {
-		protoPath = filepath.Join(g.sdkPath, "proto")
+		protoPath = filepath.Join(g.sdkDir, "proto")
 	} else {
 		// Check that the app/package proto directory exists
 		protoPath = filepath.Join(path, g.protoDir)

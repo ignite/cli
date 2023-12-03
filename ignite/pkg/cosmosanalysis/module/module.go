@@ -99,7 +99,12 @@ func IsCosmosSDKModulePkg(path string) bool {
 // 1. Getting all the registered Go modules from the app.
 // 2. Parsing the proto files to find services and messages.
 // 3. Check if the proto services are implemented in any of the registered modules.
-func Discover(ctx context.Context, chainRoot, sourcePath, protoDir, sdkPath string) ([]Module, error) {
+func Discover(ctx context.Context, chainRoot, sourcePath string, options ...DiscoverOption) ([]Module, error) {
+	var o discoverOptions
+	for _, apply := range options {
+		apply(&o)
+	}
+
 	// find out base Go import path of the blockchain.
 	gm, err := gomodule.ParseAt(sourcePath)
 	if err != nil {
@@ -135,10 +140,10 @@ func Discover(ctx context.Context, chainRoot, sourcePath, protoDir, sdkPath stri
 	// SDK package because the module packages doesn't contain the proto files. These
 	// files are only available from the Cosmos SDK package.
 	var protoPath string
-	if sdkPath != "" && IsCosmosSDKModulePkg(sourcePath) {
-		protoPath = switchCosmosSDKPackagePath(sourcePath, sdkPath)
+	if o.sdkDir != "" && IsCosmosSDKModulePkg(sourcePath) {
+		protoPath = switchCosmosSDKPackagePath(sourcePath, o.sdkDir)
 	} else {
-		protoPath = filepath.Join(sourcePath, protoDir)
+		protoPath = filepath.Join(sourcePath, o.protoDir)
 	}
 
 	md := &moduleDiscoverer{
@@ -438,10 +443,10 @@ func hasPagination(msg protoanalysis.Message) bool {
 	return false
 }
 
-func switchCosmosSDKPackagePath(srcPath, sdkPath string) string {
+func switchCosmosSDKPackagePath(srcPath, sdkDir string) string {
 	modName := xstrings.StringBetween(srcPath, "/x/", "@")
 	if modName == "" {
 		return srcPath
 	}
-	return filepath.Join(sdkPath, "proto", "cosmos", modName)
+	return filepath.Join(sdkDir, "proto", "cosmos", modName)
 }
