@@ -137,6 +137,10 @@ func LocatePath(ctx context.Context, cacheStorage cache.Storage, src string, pkg
 // Version is an empty string when the path doesn't contain a version suffix.
 // Versioned paths use the "path@version" format.
 func SplitPath(path string) (string, string) {
+	if len(path) == 0 || path[0] == '@' {
+		return "", ""
+	}
+
 	parts := strings.SplitN(path, "@", 2)
 	if len(parts) == 2 {
 		return parts[0], parts[1]
@@ -147,6 +151,14 @@ func SplitPath(path string) (string, string) {
 // JoinPath joins a Go import path URI to a version.
 // The result path have the "path@version" format.
 func JoinPath(path, version string) string {
+	if path == "" {
+		return ""
+	}
+
+	if version == "" {
+		return path
+	}
+
 	return fmt.Sprintf("%s@%s", path, version)
 }
 
@@ -162,7 +174,7 @@ func FindModule(ctx context.Context, rootDir, path string) (Module, error) {
 	dec := json.NewDecoder(&stdout)
 	p, version := SplitPath(path)
 
-	for {
+	for dec.More() {
 		var m Module
 		if dec.Decode(&m); err != nil {
 			if errors.Is(err, io.EOF) {
