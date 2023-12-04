@@ -35,7 +35,7 @@ sudo apt install snapd
 sudo snap install multipass
 multipass launch
 SNAPCRAFT_BUILD_ENVIRONMENT=multipass snapcraft
-snap install --dangerous ignite-cli_0.0.0_amd64.snap
+snap install ignite_0.0.0_amd64.snap --dangerous --classic
 ```
 
 A [github action](../.github/workflows/release-binary.yml) is used to build and publish the Snap at each released.
