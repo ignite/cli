@@ -8,8 +8,12 @@ command: ignite
 
 finish-args:
   - --share=network
-  - --device=dri
+  - --device=all
+  - --filesystem=host
 build-options:
+  append-path: /usr/lib/sdk/golang/bin
+  build-args:
+    - --share=network
   env:
     - GOBIN=/app/bin
     - GOROOT=/usr/lib/sdk/golang
@@ -18,12 +22,12 @@ modules:
   - name: ignite
     buildsystem: simple
     build-commands:
-      - $GOROOT/bin/go build -trimpath -o ignite
-      - install -Dm00755 ignite $FLATPAK_DEST/bin/ignite
+      - $GOROOT/bin/go build -mod=readonly -o ignt ./ignite/cmd/ignite
+      - install -Dm00755 ignt $FLATPAK_DEST/bin/ignite
       - install -Dm00644 packaging/flatpak/logo.svg $FLATPAK_DEST/share/icons/hicolor/scalable/apps/ignite.svg
       - install -Dm00644 packaging/flatpak/ignite.desktop $FLATPAK_DEST/share/applications/ignite.desktop
       - install -Dm00644 packaging/flatpak/ignite.metainfo.xml $FLATPAK_DEST/share/metainfo/ignite.metainfo.xml
     sources:
       - type: git
         url: "https://github.com/ignite/cli.git"
-        sha256: "e510a296195e3c8cf28dbbfaaae6de432e1553a2"
+        tag: "v0.27.2" ## TODO update to v28.0.0
