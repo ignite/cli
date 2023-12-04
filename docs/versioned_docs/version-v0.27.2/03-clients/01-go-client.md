@@ -211,10 +211,10 @@ package documentation for
 This documentation provides information on how to use the `Client` type with
 `Options` and `KeyringBackend`.
 
-## Blockchain and Client app not on the same machine
+## Blockchain and Client App Are on Different Machines
 
-If the blockchain and the client app is not on the same machine replace ../blog with the github
-repository pointing to your blog github repository:
+If the blockchain and the client app are not on the same machine, replace ../blog with the github
+repository pointing to your blog GitHub repository:
 
 dependencies for your package
 
@@ -232,7 +232,8 @@ and `main.go` file:
 	// Importing the types package of your blog blockchain
 	"github.com/<github-user-name>/blog/x/blog/types"
 ```
-then update the dependencies again: 
+
+Then, update the dependencies again: 
 
 ```bash
 go mod tidy
@@ -242,14 +243,14 @@ go mod tidy
 
 ***Only for testing***
 
-Create a new directory inside the blog client named keyring-test. Export the blockchains account keys from the user you want to be sign and broadcast the transaction. Import the keys
-to the keyring-test dir you just created in root directory of your client app. You can use ignite account import command
+Create a new directory inside the blog client named 'keyring-test'. Next, export the blockchain account keys from the user you want to be sign and broadcast the transaction too. After exporting, import the keys
+to the 'keyring-test' directory you just created in root directory of your client app. You can use the following `ignite account import` command:
 
 ```bash
 ignite account import alice --keyring-dir /path/to/client/blogclient/keyring-test
 ```
 
-define the path inside main.go
+Define the path inside 'main.go':
 
 ```go title="blogclient/main.go"
 .
