@@ -8,8 +8,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/cosmos/cosmos-sdk/server"
-
 	"cosmossdk.io/client/v2/autocli"
 	sdkerrors "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -1097,14 +1095,4 @@ func (GaiaApp) GetSubspace(moduleName string) paramstypes.Subspace {
 // SimulationManager implements the SimulationApp interface
 func (GaiaApp) SimulationManager() *module.SimulationManager {
 	return app.sm
-}
-
-// RegisterAPIRoutes registers all application module routes with the provided
-// API server.
-func (GaiaApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
-	app.App.RegisterAPIRoutes(apiSvr, apiConfig)
-	// register swagger API in app.go so that other applications can override easily
-	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
-		panic(err)
-	}
 }
