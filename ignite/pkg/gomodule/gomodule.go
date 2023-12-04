@@ -10,19 +10,41 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"golang.org/x/mod/modfile"
 	"golang.org/x/mod/module"
 
 	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner"
+	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/ignite/pkg/gocmd"
 )
 
 const pathCacheNamespace = "gomodule.path"
 
-// ErrGoModNotFound returned when go.mod file cannot be found for an app.
-var ErrGoModNotFound = errors.New("go.mod not found")
+var (
+	// ErrGoModNotFound returned when go.mod file cannot be found for an app.
+	ErrGoModNotFound = errors.New("go.mod not found")
+
+	// ErrModuleNotFound is returned when a Go module is not found.
+	ErrModuleNotFound = errors.New("module not found")
+)
+
+// Version is an alias to the module version type.
+type Version = module.Version
+
+// Module contains Go module info.
+type Module struct {
+	// Path is the Go module path.
+	Path string
+
+	// Version is the module version.
+	Version string
+
+	// Dir is the absolute path to the Go module.
+	Dir string
+}
 
 // ParseAt finds and parses go.mod at app's path.
 func ParseAt(path string) (*modfile.File, error) {
@@ -37,8 +59,8 @@ func ParseAt(path string) (*modfile.File, error) {
 }
 
 // FilterVersions filters dependencies under require section by their paths.
-func FilterVersions(dependencies []module.Version, paths ...string) []module.Version {
-	var filtered []module.Version
+func FilterVersions(dependencies []Version, paths ...string) []Version {
+	var filtered []Version
 
 	for _, dep := range dependencies {
 		for _, path := range paths {
@@ -52,10 +74,10 @@ func FilterVersions(dependencies []module.Version, paths ...string) []module.Ver
 	return filtered
 }
 
-func ResolveDependencies(f *modfile.File, includeIndirect bool) ([]module.Version, error) {
-	var versions []module.Version
+func ResolveDependencies(f *modfile.File, includeIndirect bool) ([]Version, error) {
+	var versions []Version
 
-	isReplacementAdded := func(rv module.Version) bool {
+	isReplacementAdded := func(rv Version) bool {
 		for _, rep := range f.Replace {
 			if rv.Path == rep.Old.Path {
 				versions = append(versions, rep.New)
@@ -80,7 +102,7 @@ func ResolveDependencies(f *modfile.File, includeIndirect bool) ([]module.Versio
 }
 
 // LocatePath locates pkg's absolute path managed by 'go mod' on the local filesystem.
-func LocatePath(ctx context.Context, cacheStorage cache.Storage, src string, pkg module.Version) (path string, err error) {
+func LocatePath(ctx context.Context, cacheStorage cache.Storage, src string, pkg Version) (path string, err error) {
 	// can be a local package.
 	if pkg.Version == "" { // indicates that this is a local package.
 		if filepath.IsAbs(pkg.Path) {
@@ -100,37 +122,72 @@ func LocatePath(ctx context.Context, cacheStorage cache.Storage, src string, pkg
 	}
 
 	// otherwise, it is hosted.
-	out := &bytes.Buffer{}
-
-	if err := cmdrunner.
-		New().
-		Run(ctx, step.New(
-			step.Exec("go", "mod", "download", "-json"),
-			step.Workdir(src),
-			step.Stdout(out),
-		)); err != nil {
+	m, err := FindModule(ctx, src, pkg.String())
+	if err != nil {
 		return "", err
 	}
 
-	d := json.NewDecoder(out)
+	if err = pathCache.Put(cacheKey, m.Dir); err != nil {
+		return "", err
+	}
+	return m.Dir, nil
+}
 
-	for {
-		var mod struct {
-			Path, Version, Dir string
-		}
-		if err := d.Decode(&mod); err != nil {
+// SplitPath splits a Go import path into an URI path and version.
+// Version is an empty string when the path doesn't contain a version suffix.
+// Versioned paths use the "path@version" format.
+func SplitPath(path string) (string, string) {
+	if len(path) == 0 || path[0] == '@' {
+		return "", ""
+	}
+
+	parts := strings.SplitN(path, "@", 2)
+	if len(parts) == 2 {
+		return parts[0], parts[1]
+	}
+	return parts[0], ""
+}
+
+// JoinPath joins a Go import path URI to a version.
+// The result path have the "path@version" format.
+func JoinPath(path, version string) string {
+	if path == "" {
+		return ""
+	}
+
+	if version == "" {
+		return path
+	}
+
+	return fmt.Sprintf("%s@%s", path, version)
+}
+
+// FindModule returns the Go module info for an import path.
+// The module is searched within the dependencies of the module defined in root dir.
+func FindModule(ctx context.Context, rootDir, path string) (Module, error) {
+	var stdout bytes.Buffer
+	err := gocmd.ModDownload(ctx, rootDir, true, exec.StepOption(step.Stdout(&stdout)))
+	if err != nil {
+		return Module{}, err
+	}
+
+	dec := json.NewDecoder(&stdout)
+	p, version := SplitPath(path)
+
+	for dec.More() {
+		var m Module
+		if dec.Decode(&m); err != nil {
 			if errors.Is(err, io.EOF) {
 				break
 			}
-			return "", err
+
+			return Module{}, err
 		}
-		if mod.Path == pkg.Path && mod.Version == pkg.Version {
-			if err := pathCache.Put(cacheKey, mod.Dir); err != nil {
-				return "", err
-			}
-			return mod.Dir, nil
+
+		if m.Path == p && (version == "" || version == m.Version) {
+			return m, nil
 		}
 	}
 
-	return "", fmt.Errorf("module %q not found", pkg.Path)
+	return Module{}, fmt.Errorf("%w: %s", ErrModuleNotFound, path)
 }
