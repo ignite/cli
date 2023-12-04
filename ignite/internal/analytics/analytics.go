@@ -54,6 +54,7 @@ func WithError(error error) Option {
 	}
 }
 
+// SendMetric send command metrics to analytics.
 func SendMetric(wg *sync.WaitGroup, args []string, opts ...Option) {
 	// only the app name
 	if len(args) <= 1 {
@@ -66,16 +67,9 @@ func SendMetric(wg *sync.WaitGroup, args []string, opts ...Option) {
 		o(&opt)
 	}
 
-	envDoNotTrackVar := os.Getenv(envDoNotTrack)
-	if envDoNotTrackVar == "1" || strings.ToLower(envDoNotTrackVar) == "true" {
-		return
-	}
-
 	if args[1] == "version" {
 		return
 	}
-
-	fullCmd := strings.Join(args[1:], " ")
 
 	dntInfo, err := checkDNT()
 	if err != nil || dntInfo.DoNotTrack {
@@ -85,7 +79,7 @@ func SendMetric(wg *sync.WaitGroup, args []string, opts ...Option) {
 	met := gacli.Metric{
 		OS:        runtime.GOOS,
 		Arch:      runtime.GOARCH,
-		FullCmd:   fullCmd,
+		FullCmd:   strings.Join(args[1:], " "),
 		SessionID: dntInfo.Name,
 		Version:   version.Version,
 	}
@@ -106,7 +100,14 @@ func SendMetric(wg *sync.WaitGroup, args []string, opts ...Option) {
 	}()
 }
 
+// checkDNT check if the user allow to track data or if the DO_NOT_TRACK
+// env var is set https://consoledonottrack.com/
 func checkDNT() (anonIdentity, error) {
+	envDoNotTrackVar := os.Getenv(envDoNotTrack)
+	if envDoNotTrackVar == "1" || strings.ToLower(envDoNotTrackVar) == "true" {
+		return anonIdentity{DoNotTrack: true}, nil
+	}
+
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return anonIdentity{}, err
