@@ -30,4 +30,4 @@ modules:
     sources:
       - type: git
         url: "https://github.com/ignite/cli.git"
-        tag: "v0.27.2" ## TODO update to v28.0.0
+        tag: "v28.0.0"

@@ -7,16 +7,18 @@ description: |
   Ignite CLI accelerates chain development by scaffolding everything you need so you can focus on business logic.
 
 grade: stable # must be 'stable' to release into candidate/stable channels
-confinement: devmode # use 'strict' once you have the right plugs and slots
-
-apps:
-  ignite:
-    command: bin/ignite
-    plugs: [home, network, network-bind, removable-media]
+confinement: strict # use 'strict' once you have the right plugs and slots
 
 parts:
   ignite:
     plugin: go
     source: https://github.com/ignite/cli.git
+    source-tag: v28.0.0
+    source-subdir: ignite/cmd/ignite
     build-snaps:
       - go
+
+apps:
+  ignite:
+    command: bin/ignite
+    plugs: [home, network, network-bind, removable-media]
