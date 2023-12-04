@@ -24,47 +24,23 @@ const (
 
 var gaclient gacli.Client
 
-type (
-	// metric represents an analytics metric.
-	options struct {
-		// err sets metrics type as an error metric.
-		err error
-	}
-
-	// anonIdentity represents an analytics identity file.
-	anonIdentity struct {
-		// name represents the username.
-		Name string `json:"name" yaml:"name"`
-		// doNotTrack represents the user track choice.
-		DoNotTrack bool `json:"doNotTrack" yaml:"doNotTrack"`
-	}
-)
+// anonIdentity represents an analytics identity file.
+type anonIdentity struct {
+	// name represents the username.
+	Name string `json:"name" yaml:"name"`
+	// doNotTrack represents the user track choice.
+	DoNotTrack bool `json:"doNotTrack" yaml:"doNotTrack"`
+}
 
 func init() {
 	gaclient = gacli.New(telemetryEndpoint)
 }
 
-// Option configures ChainCmd.
-type Option func(*options)
-
-// WithError with application command error.
-func WithError(error error) Option {
-	return func(m *options) {
-		m.err = error
-	}
-}
-
 // SendMetric send command metrics to analytics.
-func SendMetric(wg *sync.WaitGroup, args []string, opts ...Option) {
+func SendMetric(wg *sync.WaitGroup, args []string) {
 	// only the app name
 	if len(args) <= 1 {
 		return
-	}
-
-	// apply analytics options.
-	var opt options
-	for _, o := range opts {
-		o(&opt)
 	}
 
 	if args[1] == "version" {
@@ -82,14 +58,6 @@ func SendMetric(wg *sync.WaitGroup, args []string, opts ...Option) {
 		FullCmd:   strings.Join(args[1:], " "),
 		SessionID: dntInfo.Name,
 		Version:   version.Version,
-	}
-
-	switch {
-	case opt.err == nil:
-		met.Status = "success"
-	case opt.err != nil:
-		met.Status = "error"
-		met.Error = opt.err.Error()
 	}
 	met.Cmd = args[1]
 

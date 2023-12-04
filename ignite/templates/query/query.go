@@ -89,7 +89,10 @@ func protoQueryModify(opts *Options) genny.RunFn {
 		}
 
 		typenameUpper, appModulePath := opts.QueryName.UpperCamel, gomodulepath.ExtractAppPath(opts.ModulePath)
-		rpcSingle := protoutil.NewRPC(typenameUpper, "Query"+typenameUpper+"Request", "Query"+typenameUpper+"Response",
+		rpcSingle := protoutil.NewRPC(
+			typenameUpper,
+			fmt.Sprintf("Query%sRequest", typenameUpper),
+			fmt.Sprintf("Query%sResponse", typenameUpper),
 			protoutil.WithRPCOptions(
 				protoutil.NewOption(
 					"google.api.http",
