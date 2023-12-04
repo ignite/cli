@@ -128,7 +128,7 @@ func TestExtractAppPath(t *testing.T) {
 	}{
 		{
 			name: "github uri",
-			path: "github.com/ignite/cli/v28",
+			path: "github.com/ignite/cli",
 			want: "ignite/cli",
 		},
 		{
