@@ -17,6 +17,7 @@
 - [#3724](https://github.com/ignite/cli/pull/3724) Add or vendor proto packages from Go dependencies
 - [#3715](https://github.com/ignite/cli/pull/3715) Add test suite for the cli tests
 - [#3756](https://github.com/ignite/cli/pull/3756) Add faucet compatibility for latest sdk chains
+- [#3786](https://github.com/ignite/cli/pull/3786) Add artifacts for publishing Ignite to FlatHub and Snapcraft
 
 ### Changes
 
