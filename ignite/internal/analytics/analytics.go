@@ -58,7 +58,6 @@ func SendMetric(wg *sync.WaitGroup, cmd *cobra.Command) {
 		SessionID: dntInfo.Name,
 		Version:   version.Version,
 	}
-	met.Cmd = cmd.Name()
 
 	wg.Add(1)
 	go func() {
