@@ -24,15 +24,6 @@ func main() {
 func run() int {
 	const exitCodeOK, exitCodeError = 0, 1
 	var wg sync.WaitGroup
-
-	defer func() {
-		if r := recover(); r != nil {
-			analytics.SendMetric(&wg, os.Args, analytics.WithError(fmt.Errorf("%v", r)))
-			fmt.Println(r)
-			os.Exit(exitCodeError)
-		}
-	}()
-
 	if len(os.Args) > 1 {
 		analytics.SendMetric(&wg, os.Args)
 	}
