@@ -85,6 +85,9 @@ func TestFindRegisteredModules(t *testing.T) {
 		"github.com/cosmos/cosmos-sdk/x/staking",
 		"github.com/cosmos/cosmos-sdk/x/gov",
 		"github.com/username/test/x/foo",
+		"github.com/cosmos/cosmos-sdk/x/auth/tx",
+		"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+		"github.com/cosmos/cosmos-sdk/client/grpc/node",
 	}
 
 	cases := []struct {
@@ -110,6 +113,8 @@ func TestFindRegisteredModules(t *testing.T) {
 				"cosmossdk.io/x/evidence",
 				"cosmossdk.io/x/feegrant/module",
 				"cosmossdk.io/x/upgrade",
+				"github.com/cosmos/cosmos-sdk/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
 				"github.com/cosmos/cosmos-sdk/x/auth/tx/config",
 				"github.com/cosmos/cosmos-sdk/x/auth/vesting",
 				"github.com/cosmos/cosmos-sdk/x/authz/module",
@@ -125,6 +130,8 @@ func TestFindRegisteredModules(t *testing.T) {
 				"github.com/ignite/mars/x/mars",
 				"github.com/cosmos/cosmos-sdk/x/gov",
 				"github.com/username/test/x/foo",
+				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+				"github.com/cosmos/cosmos-sdk/client/grpc/node",
 			},
 		},
 		{
@@ -191,6 +198,9 @@ func TestFindRegisteredModules(t *testing.T) {
 			path: "testdata/modules/spn",
 			expectedModules: []string{
 				"github.com/cosmos/cosmos-sdk/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+				"github.com/cosmos/cosmos-sdk/client/grpc/node",
 				"github.com/cosmos/cosmos-sdk/x/bank",
 				"github.com/cosmos/cosmos-sdk/x/capability",
 				"github.com/cosmos/cosmos-sdk/x/staking",
@@ -239,6 +249,9 @@ func TestFindRegisteredModules(t *testing.T) {
 				"github.com/cosmos/cosmos-sdk/x/authz",
 				"github.com/CosmWasm/wasmd/x/wasm",
 				"github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts",
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+				"github.com/cosmos/cosmos-sdk/client/grpc/node",
 			},
 		},
 	}
@@ -252,13 +265,16 @@ func TestFindRegisteredModules(t *testing.T) {
 	}
 }
 
-func TestFindKeepersModules(t *testing.T) {
+func TestDiscoverModules(t *testing.T) {
 	basicModules := []string{
 		"github.com/cosmos/cosmos-sdk/x/auth",
 		"github.com/cosmos/cosmos-sdk/x/bank",
 		"github.com/cosmos/cosmos-sdk/x/staking",
 		"github.com/cosmos/cosmos-sdk/x/gov",
 		"github.com/username/test/x/foo",
+		"github.com/cosmos/cosmos-sdk/x/auth/tx",
+		"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+		"github.com/cosmos/cosmos-sdk/client/grpc/node",
 	}
 
 	cases := []struct {
@@ -343,6 +359,9 @@ func TestFindKeepersModules(t *testing.T) {
 			path: "testdata/modules/spn",
 			expectedModules: []string{
 				"github.com/cosmos/cosmos-sdk/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+				"github.com/cosmos/cosmos-sdk/client/grpc/node",
 				"github.com/cosmos/cosmos-sdk/x/bank",
 				"github.com/cosmos/cosmos-sdk/x/capability",
 				"github.com/cosmos/cosmos-sdk/x/staking",
@@ -391,6 +410,9 @@ func TestFindKeepersModules(t *testing.T) {
 				"github.com/cosmos/cosmos-sdk/x/authz",
 				"github.com/CosmWasm/wasmd/x/wasm",
 				"github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts",
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
+				"github.com/cosmos/cosmos-sdk/client/grpc/node",
 			},
 		},
 	}
@@ -403,129 +425,13 @@ func TestFindKeepersModules(t *testing.T) {
 			got := make([]string, 0)
 			for _, f := range appPkg.Files {
 				fileImports := goanalysis.FormatImports(f)
-				modules, err := FindKeepersModules(f, fileImports)
+				modules, err := DiscoverModules(f, tt.path, fileImports)
 				require.NoError(t, err)
 				if modules != nil {
 					got = append(got, modules...)
 				}
 			}
 			require.ElementsMatch(t, tt.expectedModules, got)
-		})
-	}
-}
-
-func Test_mergeImports(t *testing.T) {
-	tests := []struct {
-		name         string
-		blankImports []string
-		discovered   []string
-		want         []string
-	}{
-		{
-			name:         "test nil imports",
-			blankImports: nil,
-			discovered:   nil,
-			want:         nil,
-		},
-		{
-			name:         "test empty imports",
-			blankImports: []string{},
-			discovered:   []string{},
-			want:         []string{},
-		},
-		{
-			name:         "test only one blank import",
-			blankImports: []string{"github.com/cosmos/cosmos-sdk/x/auth"},
-			discovered:   []string{},
-			want:         []string{"github.com/cosmos/cosmos-sdk/x/auth"},
-		},
-		{
-			name:         "test only one discovered import",
-			blankImports: []string{},
-			discovered:   []string{"github.com/cosmos/cosmos-sdk/x/auth"},
-			want:         []string{"github.com/cosmos/cosmos-sdk/x/auth"},
-		},
-		{
-			name:         "test only one import",
-			blankImports: []string{"github.com/cosmos/cosmos-sdk/x/auth"},
-			discovered:   []string{"github.com/cosmos/cosmos-sdk/x/auth/keeper"},
-			want:         []string{"github.com/cosmos/cosmos-sdk/x/auth"},
-		},
-		{
-			name:         "test only one keeper import",
-			blankImports: []string{"github.com/cosmos/cosmos-sdk/x/auth/module"},
-			discovered:   []string{"github.com/cosmos/cosmos-sdk/x/auth/keeper"},
-			want:         []string{"github.com/cosmos/cosmos-sdk/x/auth/module"},
-		},
-		{
-			name: "test two keeper import",
-			blankImports: []string{
-				"github.com/cosmos/cosmos-sdk/x/auth/module",
-				"github.com/cosmos/cosmos-sdk/x/bank/module",
-			},
-			discovered: []string{
-				"github.com/cosmos/cosmos-sdk/x/auth/keeper",
-				"github.com/cosmos/cosmos-sdk/x/bank/keeper",
-			},
-			want: []string{
-				"github.com/cosmos/cosmos-sdk/x/auth/module",
-				"github.com/cosmos/cosmos-sdk/x/bank/module",
-			},
-		},
-		{
-			name: "test two keeper import",
-			blankImports: []string{
-				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts",
-			},
-			discovered: []string{
-				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/controller/keeper",
-				"github.com/cosmos/cosmos-sdk/x/bank/keeper",
-			},
-			want: []string{
-				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts",
-				"github.com/cosmos/cosmos-sdk/x/bank/keeper",
-			},
-		},
-		{
-			name: "test keeper imports",
-			blankImports: []string{
-				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts",
-				"cosmossdk.io/x/feegrant/module",
-			},
-			discovered: []string{
-				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/controller/keeper",
-				"github.com/cosmos/cosmos-sdk/x/bank/keeper",
-				"cosmossdk.io/x/feegrant/types",
-				"cosmossdk.io/x/feegrant",
-				"cosmossdk.io/x/foo",
-			},
-			want: []string{
-				"github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts",
-				"github.com/cosmos/cosmos-sdk/x/bank/keeper",
-				"cosmossdk.io/x/feegrant/module",
-				"cosmossdk.io/x/foo",
-			},
-		},
-		{
-			name: "test three keeper import",
-			blankImports: []string{
-				"github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts",
-				"github.com/cosmos/ibc-go/modules/capability",
-			},
-			discovered: []string{
-				"github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts",
-				"github.com/cosmos/ibc-go/modules/capability",
-			},
-			want: []string{
-				"github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts",
-				"github.com/cosmos/ibc-go/modules/capability",
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := mergeImports(tt.blankImports, tt.discovered)
-			require.ElementsMatch(t, tt.want, got)
 		})
 	}
 }
