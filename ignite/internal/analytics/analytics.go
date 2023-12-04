@@ -24,21 +24,13 @@ const (
 
 var gaclient gacli.Client
 
-type (
-	// metric represents an analytics metric.
-	options struct {
-		// err sets metrics type as an error metric.
-		err error
-	}
-
-	// anonIdentity represents an analytics identity file.
-	anonIdentity struct {
-		// name represents the username.
-		Name string `json:"name" yaml:"name"`
-		// doNotTrack represents the user track choice.
-		DoNotTrack bool `json:"doNotTrack" yaml:"doNotTrack"`
-	}
-)
+// anonIdentity represents an analytics identity file.
+type anonIdentity struct {
+	// name represents the username.
+	Name string `json:"name" yaml:"name"`
+	// doNotTrack represents the user track choice.
+	DoNotTrack bool `json:"doNotTrack" yaml:"doNotTrack"`
+}
 
 func init() {
 	gaclient = gacli.New(telemetryEndpoint)
