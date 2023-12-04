@@ -29,7 +29,6 @@ type (
 	}
 	// Metric represents a data point.
 	Metric struct {
-		Status             string `json:"status,omitempty"`
 		OS                 string `json:"os,omitempty"`
 		Arch               string `json:"arch,omitempty"`
 		FullCmd            string `json:"full_command,omitempty"`
