@@ -110,9 +110,21 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		// Create, update, delete rpcs. Better to append them altogether, single traversal.
 		typenameUpper := opts.TypeName.UpperCamel
 		protoutil.Append(serviceMsg,
-			protoutil.NewRPC("Create"+typenameUpper, "MsgCreate"+typenameUpper, "MsgCreate"+typenameUpper+"Response"),
-			protoutil.NewRPC("Update"+typenameUpper, "MsgUpdate"+typenameUpper, "MsgUpdate"+typenameUpper+"Response"),
-			protoutil.NewRPC("Delete"+typenameUpper, "MsgDelete"+typenameUpper, "MsgDelete"+typenameUpper+"Response"),
+			protoutil.NewRPC(
+				fmt.Sprintf("Create%s", typenameUpper),
+				fmt.Sprintf("MsgCreate%s", typenameUpper),
+				fmt.Sprintf("MsgCreate%sResponse", typenameUpper),
+			),
+			protoutil.NewRPC(
+				fmt.Sprintf("Update%s", typenameUpper),
+				fmt.Sprintf("MsgUpdate%s", typenameUpper),
+				fmt.Sprintf("MsgUpdate%sResponse", typenameUpper),
+			),
+			protoutil.NewRPC(
+				fmt.Sprintf("Delete%s", typenameUpper),
+				fmt.Sprintf("MsgDelete%s", typenameUpper),
+				fmt.Sprintf("MsgDelete%sResponse", typenameUpper),
+			),
 		)
 
 		// - Ensure custom types are imported
@@ -142,26 +154,26 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		}
 
 		msgCreate := protoutil.NewMessage(
-			"MsgCreate"+typenameUpper,
+			fmt.Sprintf("MsgCreate%s", typenameUpper),
 			protoutil.WithFields(createFields...),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
 		msgCreateResponse := protoutil.NewMessage(
-			"MsgCreate"+typenameUpper+"Response",
+			fmt.Sprintf("MsgCreate%sResponse", typenameUpper),
 			protoutil.WithFields(protoutil.NewField("id", "uint64", 1)),
 		)
 		msgUpdate := protoutil.NewMessage(
-			"MsgUpdate"+typenameUpper,
+			fmt.Sprintf("MsgUpdate%s", typenameUpper),
 			protoutil.WithFields(updateFields...),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
-		msgUpdateResponse := protoutil.NewMessage("MsgUpdate" + typenameUpper + "Response")
+		msgUpdateResponse := protoutil.NewMessage(fmt.Sprintf("MsgUpdate%sResponse", typenameUpper))
 		msgDelete := protoutil.NewMessage(
-			"MsgDelete"+typenameUpper,
+			fmt.Sprintf("MsgDelete%s", typenameUpper),
 			protoutil.WithFields(udfields...),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
-		msgDeleteResponse := protoutil.NewMessage("MsgDelete" + typenameUpper + "Response")
+		msgDeleteResponse := protoutil.NewMessage(fmt.Sprintf("MsgDelete%sResponse", typenameUpper))
 		protoutil.Append(
 			protoFile,
 			msgCreate,
@@ -205,7 +217,10 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 		}
 		appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
 		typenameUpper := opts.TypeName.UpperCamel
-		rpcQueryGet := protoutil.NewRPC(typenameUpper, "QueryGet"+typenameUpper+"Request", "QueryGet"+typenameUpper+"Response",
+		rpcQueryGet := protoutil.NewRPC(
+			typenameUpper,
+			fmt.Sprintf("QueryGet%sRequest", typenameUpper),
+			fmt.Sprintf("QueryGet%sResponse", typenameUpper),
 			protoutil.WithRPCOptions(
 				protoutil.NewOption(
 					"google.api.http",
@@ -220,7 +235,10 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 		)
 		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("Queries a %v by id.", typenameUpper))
 
-		rpcQueryAll := protoutil.NewRPC(typenameUpper+"All", "QueryAll"+typenameUpper+"Request", "QueryAll"+typenameUpper+"Response",
+		rpcQueryAll := protoutil.NewRPC(
+			fmt.Sprintf("%sAll", typenameUpper),
+			fmt.Sprintf("QueryAll%sRequest", typenameUpper),
+			fmt.Sprintf("QueryAll%sResponse", typenameUpper),
 			protoutil.WithRPCOptions(
 				protoutil.NewOption(
 					"google.api.http",
@@ -241,19 +259,19 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 		gogoOption := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
 
 		queryGetRequest := protoutil.NewMessage(
-			"QueryGet"+typenameUpper+"Request",
+			fmt.Sprintf("QueryGet%sRequest", typenameUpper),
 			protoutil.WithFields(protoutil.NewField("id", "uint64", 1)),
 		)
 		field := protoutil.NewField(typenameUpper, typenameUpper, 1, protoutil.WithFieldOptions(gogoOption))
-		queryGetResponse := protoutil.NewMessage("QueryGet"+typenameUpper+"Response", protoutil.WithFields(field))
+		queryGetResponse := protoutil.NewMessage("QueryGet%sResponse", protoutil.WithFields(field))
 
 		queryAllRequest := protoutil.NewMessage(
-			"QueryAll"+typenameUpper+"Request",
+			fmt.Sprintf("QueryAll%sRequest", typenameUpper),
 			protoutil.WithFields(protoutil.NewField(paginationName, paginationType+"Request", 1)),
 		)
 		field = protoutil.NewField(typenameUpper, typenameUpper, 1, protoutil.Repeated(), protoutil.WithFieldOptions(gogoOption))
 		queryAllResponse := protoutil.NewMessage(
-			"QueryAll"+typenameUpper+"Response",
+			fmt.Sprintf("QueryAll%sResponse", typenameUpper),
 			protoutil.WithFields(field, protoutil.NewField(paginationName, paginationType+"Response", 2)),
 		)
 		protoutil.Append(protoFile, queryGetRequest, queryGetResponse, queryAllRequest, queryAllResponse)
