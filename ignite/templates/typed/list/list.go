@@ -263,7 +263,9 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 			protoutil.WithFields(protoutil.NewField("id", "uint64", 1)),
 		)
 		field := protoutil.NewField(typenameUpper, typenameUpper, 1, protoutil.WithFieldOptions(gogoOption))
-		queryGetResponse := protoutil.NewMessage("QueryGet%sResponse", protoutil.WithFields(field))
+		queryGetResponse := protoutil.NewMessage(
+			fmt.Sprintf("QueryGet%sResponse", typenameUpper),
+			protoutil.WithFields(field))
 
 		queryAllRequest := protoutil.NewMessage(
 			fmt.Sprintf("QueryAll%sRequest", typenameUpper),
