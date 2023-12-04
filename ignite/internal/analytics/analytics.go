@@ -89,7 +89,6 @@ func SendMetric(wg *sync.WaitGroup, args []string, opts ...Option) {
 		met.Status = "success"
 	case opt.err != nil:
 		met.Status = "error"
-		met.Error = opt.err.Error()
 	}
 	met.Cmd = args[1]
 
