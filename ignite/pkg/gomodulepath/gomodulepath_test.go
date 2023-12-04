@@ -48,7 +48,7 @@ func TestParse(t *testing.T) {
 		{
 			name:    "invalid as go.mod module name",
 			rawpath: "github.com/a/b/c@",
-			err:     errors.New("app name is an invalid go module name: malformed module path \"github.com/a/b/c@\": invalid char '@'"),
+			err:     errors.New(`app name is an invalid go module name: malformed module path "github.com/a/b/c@": invalid char '@'`),
 		},
 		{
 			name:    "name starting with the letter v",
