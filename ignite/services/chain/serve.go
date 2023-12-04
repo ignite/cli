@@ -225,7 +225,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 					}
 
 					// Change error message to add a link to the configuration docs
-					err = fmt.Errorf("%w\nsee: https://github.com/ignite/cli/v28#configure", err)
+					err = fmt.Errorf("%w\nsee: https://github.com/ignite/cli#configure", err)
 
 					c.ev.SendView(errorview.NewError(err), events.ProgressFinish(), events.Group(events.GroupError))
 				case errors.As(err, &buildErr):
