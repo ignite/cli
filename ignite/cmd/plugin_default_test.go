@@ -24,7 +24,7 @@ func TestEnsureDefaultPlugins(t *testing.T) {
 			name: "should not add because already present in config",
 			cfg: &pluginsconfig.Config{
 				Apps: []pluginsconfig.Plugin{{
-					Path: "github.com/ignite/cli/v28-plugin-network@v42",
+					Path: "github.com/ignite/cli/cli-plugin-network@v42",
 				}},
 			},
 			expectAddedInCommand: false,

@@ -462,7 +462,7 @@ func (c Client) Context() client.Context {
 // SetConfigAddressPrefix sets the account prefix in the SDK global config.
 func (c Client) SetConfigAddressPrefix() {
 	// TODO find a better way if possible.
-	// https://github.com/ignite/cli/v28/issues/2744
+	// https://github.com/ignite/cli/issues/2744
 	mconf.Lock()
 	defer mconf.Unlock()
 	config := sdktypes.GetConfig()
@@ -507,7 +507,7 @@ func (r Response) Decode(message proto.Message) error {
 		resData := txMsgData.Data[0]
 		return prototypes.UnmarshalAny(&prototypes.Any{
 			// TODO get type url dynamically(basically remove `+ "Response"`) after the following issue has solved.
-			// https://github.com/ignite/cli/v28/issues/2098
+			// https://github.com/ignite/cli/issues/2098
 			// https://github.com/cosmos/cosmos-sdk/issues/10496
 			TypeUrl: resData.MsgType + "Response",
 			Value:   resData.Data,

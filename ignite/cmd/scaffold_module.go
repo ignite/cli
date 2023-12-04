@@ -214,7 +214,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 
 	// in previously scaffolded apps gov keeper is defined below the scaffolded module keeper definition
 	// therefore we must warn the user to manually move the definition if it's the case
-	// https://github.com/ignite/cli/v28/issues/818#issuecomment-865736052
+	// https://github.com/ignite/cli/issues/818#issuecomment-865736052
 	for _, name := range dependencies {
 		if name == "Gov" {
 			session.Print(govDependencyWarning)

@@ -11,7 +11,7 @@ import (
 const ProtoGenesisStateMessage = "GenesisState"
 
 // PatchGenesisTypeImport patches types/genesis.go content from the issue:
-// https://github.com/ignite/cli/v28/issues/992
+// https://github.com/ignite/cli/issues/992
 func PatchGenesisTypeImport(replacer placeholder.Replacer, content string) string {
 	patternToCheck := "import ("
 	replacement := fmt.Sprintf(`import (
