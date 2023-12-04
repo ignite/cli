@@ -238,7 +238,7 @@ then update the dependencies again:
 go mod tidy
 ```
 
-## Using the test keyring backend
+## Using the Test Keyring Backend
 
 ***Only for testing***
 
