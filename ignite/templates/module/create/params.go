@@ -6,9 +6,9 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
-	"github.com/ignite/cli/ignite/templates/module"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v28/ignite/templates/module"
 )
 
 // NewModuleParam returns the generator to scaffold a new parameter inside a module.
@@ -36,17 +36,10 @@ func paramsProtoModify(opts ParamsOptions) genny.RunFn {
 			return fmt.Errorf("couldn't find message 'GenesisState' in %s: %w", path, err)
 		}
 		for _, paramField := range opts.Params {
-			yamlOption := protoutil.NewOption(
-				"gogoproto.moretags",
-				fmt.Sprintf("yaml:\\\"%s\\\"",
-					paramField.Name.LowerCamel),
-				protoutil.Custom(),
-			)
 			param := protoutil.NewField(
 				paramField.Name.LowerCamel,
 				paramField.DataType(),
 				protoutil.NextUniqueID(params),
-				protoutil.WithFieldOptions(yamlOption),
 			)
 			protoutil.Append(params, param)
 		}
