@@ -7,10 +7,10 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite/cli/ignite/pkg/cosmostxcollector"
-	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/mocks"
-	"github.com/ignite/cli/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmostxcollector"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmostxcollector/mocks"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 func TestCollector(t *testing.T) {

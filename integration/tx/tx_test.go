@@ -13,12 +13,12 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/cmdrunner"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/ignite/pkg/errors"
-	"github.com/ignite/cli/ignite/pkg/randstr"
-	"github.com/ignite/cli/ignite/pkg/xurl"
-	envtest "github.com/ignite/cli/integration"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/randstr"
+	"github.com/ignite/cli/v28/ignite/pkg/xurl"
+	envtest "github.com/ignite/cli/v28/integration"
 )
 
 func TestSignTxWithDashedAppName(t *testing.T) {

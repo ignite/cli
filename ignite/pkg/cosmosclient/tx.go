@@ -6,7 +6,7 @@ import (
 
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 
-	"github.com/ignite/cli/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 // TX defines a block transaction.

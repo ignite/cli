@@ -7,8 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite/cli/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 func NewAccountExport() *cobra.Command {

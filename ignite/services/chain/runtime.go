@@ -9,11 +9,11 @@ import (
 	"github.com/nqd/flat"
 	"github.com/pelletier/go-toml"
 
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
-	"github.com/ignite/cli/ignite/pkg/chaincmd"
-	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
-	"github.com/ignite/cli/ignite/pkg/errors"
-	"github.com/ignite/cli/ignite/pkg/xurl"
+	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
+	"github.com/ignite/cli/v28/ignite/pkg/chaincmd"
+	chaincmdrunner "github.com/ignite/cli/v28/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/xurl"
 )
 
 // Gentx wraps the "testd gentx"  command for generating a gentx for a validator.

@@ -10,10 +10,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ignite/cli/ignite/pkg/errors"
-	"github.com/ignite/cli/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/ignite/pkg/protoanalysis"
-	"github.com/ignite/cli/ignite/templates/field/datatype"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis"
+	"github.com/ignite/cli/v28/ignite/templates/field/datatype"
 )
 
 const (

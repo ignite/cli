@@ -3,8 +3,8 @@ package chain
 import (
 	"fmt"
 
-	"github.com/ignite/cli/ignite/config/chain/version"
-	"github.com/ignite/cli/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/config/chain/version"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 // ErrConfigNotFound indicates that the config.yml can't be found.

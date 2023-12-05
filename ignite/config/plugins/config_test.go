@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
+	pluginsconfig "github.com/ignite/cli/v28/ignite/config/plugins"
 )
 
 func TestPluginIsGlobal(t *testing.T) {

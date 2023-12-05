@@ -5,8 +5,8 @@ import (
 	"io"
 	"text/tabwriter"
 
-	"github.com/ignite/cli/ignite/pkg/errors"
-	"github.com/ignite/cli/ignite/pkg/xstrings"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/xstrings"
 )
 
 const (

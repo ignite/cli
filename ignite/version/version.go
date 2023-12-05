@@ -13,13 +13,13 @@ import (
 	"github.com/blang/semver/v4"
 	"github.com/google/go-github/v48/github"
 
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/ignite/pkg/cosmosver"
-	"github.com/ignite/cli/ignite/pkg/errors"
-	"github.com/ignite/cli/ignite/pkg/gitpod"
-	"github.com/ignite/cli/ignite/pkg/xexec"
+	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/gitpod"
+	"github.com/ignite/cli/v28/ignite/pkg/xexec"
 )
 
 const (

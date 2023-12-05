@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/gomodule"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodule"
 )
 
 func TestSplitPath(t *testing.T) {

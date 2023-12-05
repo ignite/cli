@@ -4,8 +4,8 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/ignite/cli/ignite/pkg/confile"
-	"github.com/ignite/cli/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/confile"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 const SupportVersion = "2"

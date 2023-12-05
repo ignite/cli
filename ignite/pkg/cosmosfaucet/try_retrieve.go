@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ignite/cli/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 // faucetTimeout used to set a timeout while transferring coins from a faucet.

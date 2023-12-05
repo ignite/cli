@@ -11,9 +11,9 @@ import (
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/lib/pq"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
-	"github.com/ignite/cli/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmostxcollector/query"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 const (

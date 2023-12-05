@@ -6,7 +6,7 @@ toolchain go1.21.4
 
 require (
 	github.com/hashicorp/go-plugin v1.5.2
-	github.com/ignite/cli v0.27.1
+	github.com/ignite/cli/v28 v28.0.0
 )
 
 require (
@@ -18,9 +18,12 @@ require (
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/charmbracelet/lipgloss v0.6.0 // indirect
 	github.com/cloudflare/circl v1.3.3 // indirect
+<<<<<<< HEAD
 	github.com/cockroachdb/errors v1.11.1 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
 	github.com/cockroachdb/redact v1.1.5 // indirect
+=======
+>>>>>>> origin/main
 	github.com/cyphar/filepath-securejoin v0.2.4 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/fatih/color v1.15.0 // indirect
@@ -39,7 +42,10 @@ require (
 	github.com/gobuffalo/tags/v3 v3.1.4 // indirect
 	github.com/gobuffalo/validate/v3 v3.3.3 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
+<<<<<<< HEAD
 	github.com/gogo/protobuf v1.3.2 // indirect
+=======
+>>>>>>> origin/main
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
@@ -48,8 +54,11 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
+<<<<<<< HEAD
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
+=======
+>>>>>>> origin/main
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
@@ -88,4 +97,4 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
-replace github.com/ignite/cli => ../../../../
+replace github.com/ignite/cli/v28 => ../../../../

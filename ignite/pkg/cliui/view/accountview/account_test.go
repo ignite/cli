@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/ignite/cli/ignite/pkg/cliui/view/accountview"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/view/accountview"
 )
 
 func TestAccountString(t *testing.T) {

@@ -9,12 +9,12 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"github.com/ignite/cli/ignite/config"
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
-	"github.com/ignite/cli/ignite/pkg/cliui/colors"
-	"github.com/ignite/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite/cli/ignite/pkg/errors"
-	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/v28/ignite/config"
+	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/events"
 )
 
 // MigratePluginsConfig migrates plugins config to Ignite App config if required.

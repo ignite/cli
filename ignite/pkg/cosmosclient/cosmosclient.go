@@ -34,9 +34,9 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 	prototypes "github.com/cosmos/gogoproto/types"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
-	"github.com/ignite/cli/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosfaucet"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 var (

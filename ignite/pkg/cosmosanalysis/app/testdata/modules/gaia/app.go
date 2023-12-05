@@ -118,7 +118,7 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/ignite/cli/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 
 	gaiaante "github.com/cosmos/gaia/v8/ante"
 	gaiaappparams "github.com/cosmos/gaia/v8/app/params"

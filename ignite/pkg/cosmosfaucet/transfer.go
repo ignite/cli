@@ -9,10 +9,10 @@ import (
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/ignite/cli/ignite/pkg/chaincmd"
-	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
-	"github.com/ignite/cli/ignite/pkg/cosmosver"
-	"github.com/ignite/cli/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/chaincmd"
+	chaincmdrunner "github.com/ignite/cli/v28/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 // transferMutex is a mutex used for keeping transfer requests in a queue so checking account balance and sending tokens is atomic.

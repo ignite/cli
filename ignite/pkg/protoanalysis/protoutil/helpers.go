@@ -3,7 +3,7 @@ package protoutil
 import (
 	"github.com/emicklei/proto"
 
-	"github.com/ignite/cli/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 // AddAfterSyntax tries to add the given Visitee after the 'syntax' statement.

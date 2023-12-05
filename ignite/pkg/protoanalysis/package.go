@@ -6,7 +6,7 @@ import (
 
 	"golang.org/x/mod/semver"
 
-	"github.com/ignite/cli/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 type (

@@ -10,14 +10,14 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
-	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
-	"github.com/ignite/cli/ignite/pkg/clictx"
-	"github.com/ignite/cli/ignite/pkg/cliui"
-	"github.com/ignite/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
-	"github.com/ignite/cli/ignite/pkg/errors"
-	"github.com/ignite/cli/ignite/pkg/xgit"
-	"github.com/ignite/cli/ignite/services/plugin"
+	pluginsconfig "github.com/ignite/cli/v28/ignite/config/plugins"
+	"github.com/ignite/cli/v28/ignite/pkg/clictx"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/xgit"
+	"github.com/ignite/cli/v28/ignite/services/plugin"
 )
 
 const (
