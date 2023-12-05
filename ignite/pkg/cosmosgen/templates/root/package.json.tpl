@@ -18,16 +18,16 @@
     "build": "NODE_OPTIONS='--max-old-space-size=16384' tsc"
   },
   "dependencies": {    
-    "@cosmjs/proto-signing": "0.31.1",
-    "@cosmjs/stargate": "0.31.1",
-    "@keplr-wallet/types": "^0.11.3", 
+    "@cosmjs/proto-signing": "0.32.1",
+    "@cosmjs/stargate": "0.32.1",
+    "@keplr-wallet/types": "^0.12.44", 
     "axios": "0.21.4",
     "buffer": "^6.0.3",
     "events": "^3.3.0"
   },
   "peerDependencies": {
-    "@cosmjs/proto-signing": "0.31.1",
-    "@cosmjs/stargate": "0.31.1"
+    "@cosmjs/proto-signing": "0.32.1",
+    "@cosmjs/stargate": "0.32.1"
   }, 
   "devDependencies": {
     "@types/events": "^3.0.0",
