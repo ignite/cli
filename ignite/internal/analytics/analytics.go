@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"github.com/manifoldco/promptui"
+	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/ignite/pkg/gacli"
 	"github.com/ignite/cli/ignite/pkg/randstr"
@@ -37,13 +38,8 @@ func init() {
 }
 
 // SendMetric send command metrics to analytics.
-func SendMetric(wg *sync.WaitGroup, args []string) {
-	// only the app name
-	if len(args) <= 1 {
-		return
-	}
-
-	if args[1] == "version" {
+func SendMetric(wg *sync.WaitGroup, cmd *cobra.Command) {
+	if cmd.Name() == "version" {
 		return
 	}
 
@@ -52,14 +48,16 @@ func SendMetric(wg *sync.WaitGroup, args []string) {
 		return
 	}
 
+	path := cmd.CommandPath()
 	met := gacli.Metric{
+		Name:      cmd.Name(),
+		Cmd:       path,
+		Tag:       strings.ReplaceAll(path, " ", "+"),
 		OS:        runtime.GOOS,
 		Arch:      runtime.GOARCH,
-		FullCmd:   strings.Join(args[1:], " "),
 		SessionID: dntInfo.Name,
 		Version:   version.Version,
 	}
-	met.Cmd = args[1]
 
 	wg.Add(1)
 	go func() {

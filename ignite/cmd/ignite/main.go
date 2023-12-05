@@ -23,11 +23,6 @@ func main() {
 
 func run() int {
 	const exitCodeOK, exitCodeError = 0, 1
-	var wg sync.WaitGroup
-	if len(os.Args) > 1 {
-		analytics.SendMetric(&wg, os.Args)
-	}
-
 	ctx := clictx.From(context.Background())
 	cmd, cleanUp, err := ignitecmd.New(ctx)
 	if err != nil {
@@ -35,6 +30,15 @@ func run() int {
 		return exitCodeError
 	}
 	defer cleanUp()
+
+	// find command and send to analytics
+	subCmd, _, err := cmd.Find(os.Args[1:])
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		return exitCodeError
+	}
+	var wg sync.WaitGroup
+	analytics.SendMetric(&wg, subCmd)
 
 	err = cmd.ExecuteContext(ctx)
 	if errors.Is(ctx.Err(), context.Canceled) || errors.Is(err, context.Canceled) {
