@@ -97,13 +97,13 @@ func checkDNT() (anonIdentity, error) {
 
 	prompt := promptui.Select{
 		Label: "Ignite uses anonymized metrics to enhance the application, " +
-			   "focusing on features such as command usage. We do not collect " +
-			   "identifiable personal information. Your privacy is important to us. " +
-			   "For more details, please visit our Privacy Policy at https://ignite.com/privacy " +
-			   "and our Terms of Use at https://ignite.com/terms-of-use. " +
-			   "Do you consent to the collection of these usage metrics for analytics purposes?",
+			"focusing on features such as command usage. We do not collect " +
+			"identifiable personal information. Your privacy is important to us. " +
+			"For more details, please visit our Privacy Policy at https://ignite.com/privacy " +
+			"and our Terms of Use at https://ignite.com/terms-of-use. " +
+			"Do you consent to the collection of these usage metrics for analytics purposes?",
 		Items: []string{"Yes", "No"},
-	}	
+	}
 	resultID, _, err := prompt.Run()
 	if err != nil {
 		return anonIdentity{}, err
