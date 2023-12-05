@@ -1,62 +1,62 @@
-name: Release Docker Image
+#name: Release Docker Image
 
-on:
-  release:
-    types: [ published ]
-  push:
-    branches:
-      - main
+#on:
+  #release:
+    #types: [ published ]
+  #push:
+    #branches:
+      #- main
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+#concurrency:
+  #group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  #cancel-in-progress: true
 
-jobs:
-  consecutiveness:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: ignite/consecutive-workflow-action@main
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+#jobs:
+  #consecutiveness:
+    #runs-on: ubuntu-latest
+    #steps:
+    #- uses: ignite/consecutive-workflow-action@main
+      #with:
+        #token: ${{ secrets.GITHUB_TOKEN }}
 
-  docker:
-    name: Push Docker image to Docker Hub
-    runs-on: ubuntu-latest
-    needs: [ consecutiveness ]
+  #docker:
+    #name: Push Docker image to Docker Hub
+    #runs-on: ubuntu-latest
+    #needs: [ consecutiveness ]
 
-    steps:
-      - name: Check out the repo
-        uses: actions/checkout@v3
+    #steps:
+      #- name: Check out the repo
+        #uses: actions/checkout@v3
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+      #- name: Set up QEMU
+        #uses: docker/setup-qemu-action@v1
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+      #- name: Set up Docker Buildx
+        #uses: docker/setup-buildx-action@v1
 
-      - name: Login to DockerHub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      #- name: Login to DockerHub
+        #uses: docker/login-action@v2
+        #with:
+          #username: ${{ secrets.DOCKERHUB_USERNAME }}
+          #password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v4
-        with:
-          images: ignitehq/cli
-          # push to ignitehq/cli:latest on every push to master
-          # push to ignitehq/cli:vx.x.x on every release published
-          tags: |
-            type=raw,value=latest
-            type=semver,pattern=v{{version}}
+      #- name: Docker meta
+        #id: meta
+        #uses: docker/metadata-action@v4
+        #with:
+          #images: ignitehq/cli
+          ## push to ignitehq/cli:latest on every push to master
+          ## push to ignitehq/cli:vx.x.x on every release published
+          #tags: |
+            #type=raw,value=latest
+            #type=semver,pattern=v{{version}}
 
-      - name: Build and push
-        uses: docker/build-push-action@v3
-        with:
-          push: true
-          context: .
-          platforms: linux/amd64,linux/arm64
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+      #- name: Build and push
+        #uses: docker/build-push-action@v3
+        #with:
+          #push: true
+          #context: .
+          #platforms: linux/amd64,linux/arm64
+          #tags: ${{ steps.meta.outputs.tags }}
+          #labels: ${{ steps.meta.outputs.labels }}
 
