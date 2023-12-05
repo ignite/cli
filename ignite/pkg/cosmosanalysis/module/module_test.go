@@ -7,8 +7,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite/cli/ignite/pkg/protoanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis"
 )
 
 func newModule(relChainPath, goImportPath string) module.Module {
@@ -156,7 +156,7 @@ func TestDiscover(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			modules, err := module.Discover(ctx, sourcePath, tt.sourcePath, tt.protoDir)
+			modules, err := module.Discover(ctx, sourcePath, tt.sourcePath, module.WithProtoDir(tt.protoDir))
 
 			require.NoError(t, err)
 			require.Equal(t, tt.want, modules)
@@ -193,7 +193,7 @@ func TestDiscoverWithAppV2(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			modules, err := module.Discover(ctx, sourcePath, sourcePath, tt.protoDir)
+			modules, err := module.Discover(ctx, sourcePath, sourcePath, module.WithProtoDir(tt.protoDir))
 
 			require.NoError(t, err)
 			require.Equal(t, tt.want, modules)

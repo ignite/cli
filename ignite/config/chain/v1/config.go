@@ -6,9 +6,9 @@ import (
 	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v2"
 
-	"github.com/ignite/cli/ignite/config/chain/base"
-	"github.com/ignite/cli/ignite/config/chain/version"
-	"github.com/ignite/cli/ignite/pkg/xnet"
+	"github.com/ignite/cli/v28/ignite/config/chain/base"
+	"github.com/ignite/cli/v28/ignite/config/chain/version"
+	"github.com/ignite/cli/v28/ignite/pkg/xnet"
 )
 
 // DefaultConfig returns a config with default values.

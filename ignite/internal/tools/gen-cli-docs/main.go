@@ -17,10 +17,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 
-	ignitecmd "github.com/ignite/cli/ignite/cmd"
-	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
-	"github.com/ignite/cli/ignite/pkg/env"
-	"github.com/ignite/cli/ignite/services/plugin"
+	ignitecmd "github.com/ignite/cli/v28/ignite/cmd"
+	pluginsconfig "github.com/ignite/cli/v28/ignite/config/plugins"
+	"github.com/ignite/cli/v28/ignite/pkg/env"
+	"github.com/ignite/cli/v28/ignite/services/plugin"
 )
 
 const head = `---

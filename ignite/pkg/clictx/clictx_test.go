@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/clictx"
+	"github.com/ignite/cli/v28/ignite/pkg/clictx"
 )
 
 func TestDo(t *testing.T) {

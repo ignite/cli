@@ -70,3 +70,25 @@ func Title(s string) string {
 func ToUpperFirst(s string) string {
 	return strings.ToUpper(s[:1]) + s[1:]
 }
+
+// StringBetween returns the string between two other strings.
+// The comparison is not greedy so the between result includes the
+// string between the start value and the first match of the end value.
+func StringBetween(s, start, end string) string {
+	if s == "" || start == "" || end == "" {
+		return ""
+	}
+
+	i := strings.Index(s, start)
+	if i == -1 {
+		return ""
+	}
+
+	s = s[i+len(start):]
+	i = strings.Index(s, end)
+	if i == -1 {
+		return ""
+	}
+
+	return s[:i]
+}

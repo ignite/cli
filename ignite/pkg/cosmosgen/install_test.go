@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosgen"
 )
 
 func TestMissingTools(t *testing.T) {
