@@ -2,21 +2,21 @@
 
 ## Unreleased
 
+## [`v28.0.0`](https://github.com/ignite/cli/releases/tag/v28.0.0)
+
 ### Features
 
+- [#3659](https://github.com/ignite/cli/pull/3659) cosmos-sdk `v0.50.x` upgrade
 - [#3694](https://github.com/ignite/cli/pull/3694) Query and Tx AutoCLI support
-- [#3544](https://github.com/ignite/cli/pull/3544) Add bidirectional communication to plugin system
+- [#3536](https://github.com/ignite/cli/pull/3536) Change app.go to v2 and add AppWiring feature
+- [#3544](https://github.com/ignite/cli/pull/3544) Add bidirectional communication to app (plugin) system
+- [#3756](https://github.com/ignite/cli/pull/3756) Add faucet compatibility for latest sdk chains
+- [#3476](https://github.com/ignite/cli/pull/3476) Use `buf.build` binary to code generate from proto files
+- [#3724](https://github.com/ignite/cli/pull/3724) Add or vendor proto packages from Go dependencies
 - [#3561](https://github.com/ignite/cli/pull/3561) Add GetChainInfo method to plugin system API
 - [#3626](https://github.com/ignite/cli/pull/3626) Add logging levels to relayer
-- [#3476](https://github.com/ignite/cli/pull/3476) Use `buf.build` binary to code generate from proto files
-- [#3599](https://github.com/ignite/cli/pull/3599) Add google analytics
 - [#3614](https://github.com/ignite/cli/pull/3614) feat: use DefaultBaseappOptions for app.New method
-- [#3536](https://github.com/ignite/cli/pull/3536) Change app.go to v2 and add AppWiring feature
-- [#3659](https://github.com/ignite/cli/pull/3659) cosmos-sdk `v0.50.x`
-- [#3670](https://github.com/ignite/cli/pull/3670) Remove nodetime binaries
-- [#3724](https://github.com/ignite/cli/pull/3724) Add or vendor proto packages from Go dependencies
 - [#3715](https://github.com/ignite/cli/pull/3715) Add test suite for the cli tests
-- [#3756](https://github.com/ignite/cli/pull/3756) Add faucet compatibility for latest sdk chains
 
 ### Changes
 
@@ -38,6 +38,8 @@
 - [#3669](https://github.com/ignite/cli/pull/3669) Rename `plugins` config file to `igniteapps`
 - [#3683](https://github.com/ignite/cli/pull/3683) Resolve `--dep auth` as `--dep account` in `scaffold module`
 - [#3795](https://github.com/ignite/cli/pull/3795) Bump cometbft to `v0.38.2`
+- [#3599](https://github.com/ignite/cli/pull/3599) Add analytics as an option
+- [#3670](https://github.com/ignite/cli/pull/3670) Remove binaries
 
 ### Fixes
 
@@ -47,7 +49,6 @@
 - [#3610](https://github.com/ignite/cli/pull/3610) Fix overflow issue of cosmos faucet in `pkg/cosmosfaucet/transfer.go` and `pkg/cosmosfaucet/cosmosfaucet.go`
 - [#3618](https://github.com/ignite/cli/pull/3618) Fix TS client generation import path issue
 - [#3631](https://github.com/ignite/cli/pull/3631) Fix unnecessary vue import in hooks/composables template
-- [#3655](https://github.com/ignite/cli/pull/3655) Re-enable TS client generation
 - [#3661](https://github.com/ignite/cli/pull/3661) Change `pkg/cosmosanalysis` to find Cosmos SDK runtime app registered modules
 - [#3716](https://github.com/ignite/cli/pull/3716) Fix invalid plugin hook check
 - [#3725](https://github.com/ignite/cli/pull/3725) Fix flaky TS client generation issues on linux
