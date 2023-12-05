@@ -257,7 +257,6 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 		Pkg:          pkg,
 	}
 
-	// fill sdk Msgs.
 	for _, msg := range msgs {
 		pkgmsg, err := pkg.MessageByName(msg)
 		if err != nil {
@@ -290,13 +289,8 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 
 		// do not use if used as a request/return type of RPC.
 		for _, s := range pkg.Services {
-			for i, q := range s.RPCFuncs {
+			for _, q := range s.RPCFuncs {
 				if q.RequestType == protomsg.Name || q.ReturnsType == protomsg.Name {
-					// Check if the service response message is using pagination and
-					// update the RPC function. This is done here to avoid extra loops
-					// just to update the pagination property.
-					s.RPCFuncs[i].Paginated = hasPagination(protomsg)
-
 					return false
 				}
 			}
@@ -307,6 +301,17 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 
 	// fill types.
 	for _, protomsg := range pkg.Messages {
+		// Update pagination for RPC functions when a service response uses pagination
+		if hasPagination(protomsg) {
+			for _, s := range pkg.Services {
+				for i, q := range s.RPCFuncs {
+					if q.RequestType == protomsg.Name || q.ReturnsType == protomsg.Name {
+						s.RPCFuncs[i].Paginated = true
+					}
+				}
+			}
+		}
+
 		if !isType(protomsg) {
 			continue
 		}
