@@ -55,6 +55,7 @@
 - [#3728](https://github.com/ignite/cli/pull/3728) Fix wrong parser for proto package names
 - [#3729](https://github.com/ignite/cli/pull/3729) Fix broken generator due to caching /tmp include folders
 - [#3767](https://github.com/ignite/cli/pull/3767) Fix `v0.50` ibc genesis issue
+- [#3808](https://github.com/ignite/cli/pull/3808) Correct TS code generation to generate paginated fields
 
 ## [`v0.27.2`](https://github.com/ignite/cli/releases/tag/v0.27.2)
 
