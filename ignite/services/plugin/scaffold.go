@@ -11,8 +11,7 @@ import (
 	"github.com/gobuffalo/plush/v4"
 	"github.com/pkg/errors"
 
-	"github.com/ignite/cli/ignite/pkg/gocmd"
-	"github.com/ignite/cli/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 )
 
 //go:embed template/*
@@ -53,10 +52,6 @@ func Scaffold(ctx context.Context, dir, moduleName string, sharedHost bool) (str
 	}
 
 	if err := r.Run(); err != nil {
-		return "", errors.WithStack(err)
-	}
-
-	if err := gocmd.ModTidy(ctx, finalDir); err != nil {
 		return "", errors.WithStack(err)
 	}
 

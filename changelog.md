@@ -20,13 +20,13 @@
 
 ### Changes
 
+- [#3793](https://github.com/ignite/cli/pull/3793) Refactor Ignite to follow semantic versioning (prepares v28.0.0). If you are using packages, do not forget to import the `/v28` version of the packages.
 - [#3529](https://github.com/ignite/cli/pull/3529) Refactor plugin system to use gRPC
-- [#3750](https://github.com/ignite/cli/pull/3750) Update default Ignite network app to `v0.2.0`
 - [#3751](https://github.com/ignite/cli/pull/3751) Rename label to skip changelog check
 - [#3745](https://github.com/ignite/cli/pull/3745) Set tx fee amount as option
 - [#3748](https://github.com/ignite/cli/pull/3748) Change default rpc endpoint to a working one
 - [#3621](https://github.com/ignite/cli/pull/3621) Change `pkg/availableport` to allow custom parameters in `Find` function and handle duplicated ports
-- [#3559](https://github.com/ignite/cli/pull/3559) Bump network plugin version to `v0.1.1`
+- [#3810](https://github.com/ignite/cli/pull/3810) Bump network app version to `v0.2.1`
 - [#3581](https://github.com/ignite/cli/pull/3581) Bump cometbft and cometbft-db in the template
 - [#3522](https://github.com/ignite/cli/pull/3522) Remove indentation from `chain serve` output
 - [#3346](https://github.com/ignite/cli/issues/3346) Improve scaffold query --help
@@ -55,6 +55,7 @@
 - [#3728](https://github.com/ignite/cli/pull/3728) Fix wrong parser for proto package names
 - [#3729](https://github.com/ignite/cli/pull/3729) Fix broken generator due to caching /tmp include folders
 - [#3767](https://github.com/ignite/cli/pull/3767) Fix `v0.50` ibc genesis issue
+- [#3808](https://github.com/ignite/cli/pull/3808) Correct TS code generation to generate paginated fields
 
 ## [`v0.27.2`](https://github.com/ignite/cli/releases/tag/v0.27.2)
 
