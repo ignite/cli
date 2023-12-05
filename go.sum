@@ -883,8 +883,8 @@ github.com/ignite/ignite-files/nodetime v0.0.2 h1:9Aj0OEa7FWI22J/Zdq7M2JvsjgFLng
 github.com/ignite/ignite-files/nodetime v0.0.2/go.mod h1:GKDsXdeazHyhSBPdVLp7mNIo/m9LmZ6/h8RmQ0/CoaM=
 github.com/ignite/ignite-files/protoc v0.0.1 h1:wXxU1dzruUgSVl1diAuAOA+xv0NQKXJFsDWht2+tAP8=
 github.com/ignite/ignite-files/protoc v0.0.1/go.mod h1:cVCHJbEHPIeKHMPk3ZoPS0Xw4XQfUc76BAMAPU9Fwjg=
-github.com/ignite/web v0.5.1 h1:xGOt8wJG7WIrNO30e8Zbm669VFyo6sje/vWnusLPp6k=
-github.com/ignite/web v0.5.1/go.mod h1:WZWBaBYF8RazN7dE462BLpvXDY8ScacxcJ07BKwX/jY=
+github.com/ignite/web v0.6.1 h1:kHG+T7NnR8cCPjAGxEFQD+njVYM08toeG57iYRXzpwo=
+github.com/ignite/web v0.6.1/go.mod h1:WZWBaBYF8RazN7dE462BLpvXDY8ScacxcJ07BKwX/jY=
 github.com/imdario/mergo v0.3.12/go.mod h1:jmQim1M+e3UYxmgPu/WyfjB3N3VflVyUjjjwH0dnCYA=
 github.com/imdario/mergo v0.3.13 h1:lFzP57bqS/wsqKssCGmtLAb8A0wKjLGrve2q3PPVcBk=
 github.com/imdario/mergo v0.3.13/go.mod h1:4lJ1jqUDcsbIECGy0RUJAXNIhg+6ocWgb1ALK2O4oXg=
