@@ -17,7 +17,7 @@ type defaultPlugin struct {
 
 const (
 	PluginNetworkVersion = "v0.2.1"
-	PluginNetworkPath    = "github.com/ignite/cli/cli-plugin-network@" + PluginNetworkVersion
+	PluginNetworkPath    = "github.com/ignite/cli-plugin-network@" + PluginNetworkVersion
 )
 
 // defaultPlugins holds the plugin that are considered trustable and for which
