@@ -108,16 +108,6 @@ func paramsTypesModify(replacer placeholder.Replacer, opts ParamsOptions) genny.
 			)
 			content = replacer.Replace(content, module.PlaceholderParamsDefault, replacementDefault)
 
-			// add new param set pair.
-			templateSetPairs := `paramtypes.NewParamSetPair(Key%[2]v, &p.%[2]v, validate%[2]v),
-%[1]v`
-			replacementSetPairs := fmt.Sprintf(
-				templateSetPairs,
-				module.PlaceholderParamsSetPairs,
-				param.Name.UpperCamel,
-			)
-			content = replacer.Replace(content, module.PlaceholderParamsSetPairs, replacementSetPairs)
-
 			// add param field to the validate method.
 			templateValidate := `if err := validate%[2]v(p.%[2]v); err != nil {
    		return err

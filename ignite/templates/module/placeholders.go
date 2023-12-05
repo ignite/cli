@@ -33,7 +33,6 @@ const (
 	PlaceholderParamsNewParam   = "// this line is used by starport scaffolding # types/params/new/parameter"
 	PlaceholderParamsNewStruct  = "// this line is used by starport scaffolding # types/params/new/struct"
 	PlaceholderParamsDefault    = "// this line is used by starport scaffolding # types/params/default"
-	PlaceholderParamsSetPairs   = "// this line is used by starport scaffolding # types/params/setpairs"
 	PlaceholderParamsValidate   = "// this line is used by starport scaffolding # types/params/validate"
 	PlaceholderParamsValidation = "// this line is used by starport scaffolding # types/params/validation"
 )

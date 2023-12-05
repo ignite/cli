@@ -2,14 +2,9 @@ package types
 
 import (
 	"fmt"
-
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
-var (
-	_                     = fmt.Errorf
-	_ paramtypes.ParamSet = (*Params)(nil)
-)
+var _ = fmt.Errorf
 
 <%= for (param) in params { %>
 var (
@@ -22,11 +17,6 @@ var (
 <% } %>
 
 // this line is used by starport scaffolding # types/params/vars
-
-// ParamKeyTable the param key table for launch module.
-func ParamKeyTable() paramtypes.KeyTable {
-	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
-}
 
 // NewParams creates a new Params instance.
 func NewParams(<%= for (param) in params { %>
@@ -45,14 +35,6 @@ func DefaultParams() Params {
         Default<%= param.Name.UpperCamel %>,<% } %>
         // this line is used by starport scaffolding # types/params/default
 	)
-}
-
-// ParamSetPairs get the params.ParamSet.
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
-	return paramtypes.ParamSetPairs{<%= for (param) in params { %>
-		paramtypes.NewParamSetPair(Key<%= param.Name.UpperCamel %>, &p.<%= param.Name.UpperCamel %>, validate<%= param.Name.UpperCamel %>),<% } %>
-		// this line is used by starport scaffolding # types/params/setpairs
-	}
 }
 
 // Validate validates the set of params.
