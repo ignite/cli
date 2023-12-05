@@ -7,9 +7,9 @@ import (
 	"github.com/rogpeppe/go-internal/gotooltest"
 	"github.com/rogpeppe/go-internal/testscript"
 
-	"github.com/ignite/cli/ignite/config"
-	"github.com/ignite/cli/ignite/pkg/xfilepath"
-	envtest "github.com/ignite/cli/integration"
+	"github.com/ignite/cli/v28/ignite/config"
+	"github.com/ignite/cli/v28/ignite/pkg/xfilepath"
+	envtest "github.com/ignite/cli/v28/integration"
 )
 
 func TestDoctor(t *testing.T) {
