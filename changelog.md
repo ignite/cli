@@ -27,7 +27,7 @@
 - [#3745](https://github.com/ignite/cli/pull/3745) Set tx fee amount as option
 - [#3748](https://github.com/ignite/cli/pull/3748) Change default rpc endpoint to a working one
 - [#3621](https://github.com/ignite/cli/pull/3621) Change `pkg/availableport` to allow custom parameters in `Find` function and handle duplicated ports
-- [#3559](https://github.com/ignite/cli/pull/3559) Bump network plugin version to `v0.1.1`
+- [#3810](https://github.com/ignite/cli/pull/3810) Bump network app version to `v0.2.1`
 - [#3581](https://github.com/ignite/cli/pull/3581) Bump cometbft and cometbft-db in the template
 - [#3522](https://github.com/ignite/cli/pull/3522) Remove indentation from `chain serve` output
 - [#3346](https://github.com/ignite/cli/issues/3346) Improve scaffold query --help
