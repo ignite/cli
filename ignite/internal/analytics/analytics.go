@@ -101,6 +101,7 @@ func checkDNT() (anonIdentity, error) {
 		Label: "Ignite collects metrics about command usage. " +
 			"All data is anonymous and helps to improve Ignite. " +
 			"Ignite respect the DNT rules (consoledonottrack.com). " +
+			"To view our Privacy Policy: https://ignite.com/privacy " +
 			"Would you agree to share these metrics with us?",
 		Items: []string{"Yes", "No"},
 	}
