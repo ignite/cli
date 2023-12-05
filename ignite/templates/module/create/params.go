@@ -33,7 +33,7 @@ func paramsProtoModify(opts ParamsOptions) genny.RunFn {
 
 		params, err := protoutil.GetMessageByName(protoFile, "Params")
 		if err != nil {
-			return fmt.Errorf("couldn't find message 'GenesisState' in %s: %w", path, err)
+			return fmt.Errorf("couldn't find message 'Params' in %s: %w", path, err)
 		}
 		for _, paramField := range opts.Params {
 			param := protoutil.NewField(

@@ -9,6 +9,14 @@ import (
 )
 
 type (
+	// ConfigsOptions represents the options to scaffold a Cosmos SDK module configs.
+	ConfigsOptions struct {
+		ModuleName string
+		AppName    string
+		AppPath    string
+		Configs    field.Fields
+	}
+
 	// ParamsOptions represents the options to scaffold a Cosmos SDK module parameters.
 	ParamsOptions struct {
 		ModuleName string
@@ -24,6 +32,7 @@ type (
 		AppName    string
 		AppPath    string
 		Params     field.Fields
+		Configs    field.Fields
 
 		// True if the module should implement the IBC module interface
 		IsIBC bool

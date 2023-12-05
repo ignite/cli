@@ -80,6 +80,7 @@ about Cosmos SDK on https://docs.cosmos.network
 	c.Flags().StringP(flagPath, "p", "", "create a project in a specific path")
 	c.Flags().Bool(flagNoDefaultModule, false, "create a project without a default module")
 	c.Flags().StringSlice(flagParams, []string{}, "add default module parameters")
+	c.Flags().StringSlice(flagModuleConfigs, []string{}, "add module configs")
 	c.Flags().Bool(flagSkipGit, false, "skip Git repository initialization")
 
 	return c
@@ -101,7 +102,11 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	if noDefaultModule && len(params) > 0 {
+	moduleConfigs, err := cmd.Flags().GetStringSlice(flagModuleConfigs)
+	if err != nil {
+		return err
+	}
+	if noDefaultModule && (len(params) > 0 || len(moduleConfigs) > 0) {
 		return errors.New("params flag is only supported if the default module is enabled")
 	}
 
@@ -120,6 +125,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		noDefaultModule,
 		skipGit,
 		params,
+		moduleConfigs,
 	)
 	if err != nil {
 		return err

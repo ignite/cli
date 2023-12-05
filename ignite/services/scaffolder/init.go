@@ -26,7 +26,8 @@ func Init(
 	tracer *placeholder.Tracer,
 	root, name, addressPrefix string,
 	noDefaultModule, skipGit bool,
-	params []string,
+	params,
+	moduleConfigs []string,
 ) (path string, err error) {
 	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
@@ -46,7 +47,7 @@ func Init(
 	path = filepath.Join(root, appFolder)
 
 	// create the project
-	err = generate(ctx, tracer, pathInfo, addressPrefix, path, noDefaultModule, params)
+	err = generate(ctx, tracer, pathInfo, addressPrefix, path, noDefaultModule, params, moduleConfigs)
 	if err != nil {
 		return "", err
 	}
@@ -74,10 +75,17 @@ func generate(
 	addressPrefix,
 	absRoot string,
 	noDefaultModule bool,
-	params []string,
+	params,
+	moduleConfigs []string,
 ) error {
 	// Parse params with the associated type
 	paramsFields, err := field.ParseFields(params, checkForbiddenTypeIndex)
+	if err != nil {
+		return err
+	}
+
+	// Parse configs with the associated type
+	configsFields, err := field.ParseFields(moduleConfigs, checkForbiddenTypeIndex)
 	if err != nil {
 		return err
 	}
@@ -128,6 +136,7 @@ func generate(
 			AppName:    pathInfo.Package,
 			AppPath:    absRoot,
 			Params:     paramsFields,
+			Configs:    configsFields,
 			IsIBC:      false,
 		}
 		// Check if the module name is valid
