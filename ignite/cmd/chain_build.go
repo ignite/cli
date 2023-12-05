@@ -6,11 +6,11 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
-	"github.com/ignite/cli/ignite/pkg/chaincmd"
-	"github.com/ignite/cli/ignite/pkg/cliui"
-	"github.com/ignite/cli/ignite/pkg/cliui/colors"
-	"github.com/ignite/cli/ignite/pkg/cosmosver"
-	"github.com/ignite/cli/ignite/services/chain"
+	"github.com/ignite/cli/v28/ignite/pkg/chaincmd"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/services/chain"
 )
 
 const (

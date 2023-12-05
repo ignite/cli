@@ -11,12 +11,12 @@ import (
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush/v4"
 
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
-	"github.com/ignite/cli/ignite/pkg/xgenny"
-	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
-	"github.com/ignite/cli/ignite/templates/testutil"
-	"github.com/ignite/cli/ignite/templates/typed"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v28/ignite/templates/field/plushhelpers"
+	"github.com/ignite/cli/v28/ignite/templates/testutil"
+	"github.com/ignite/cli/v28/ignite/templates/typed"
 )
 
 var (
@@ -101,7 +101,14 @@ func protoTxRPCModify(opts *Options) genny.RunFn {
 			return fmt.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
 		}
 		typenameUpper := opts.MsgName.UpperCamel
-		protoutil.Append(serviceMsg, protoutil.NewRPC(typenameUpper, "Msg"+typenameUpper, "Msg"+typenameUpper+"Response"))
+		protoutil.Append(
+			serviceMsg,
+			protoutil.NewRPC(
+				typenameUpper,
+				fmt.Sprintf("Msg%s", typenameUpper),
+				fmt.Sprintf("Msg%sResponse", typenameUpper),
+			),
+		)
 
 		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
 		return r.File(newFile)

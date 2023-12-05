@@ -11,8 +11,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
-	envtest "github.com/ignite/cli/integration"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	envtest "github.com/ignite/cli/v28/integration"
 )
 
 func TestCliWithCaching(t *testing.T) {

@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/ignite/cli/ignite/pkg/cosmoserror"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmoserror"
 )
 
 func TestUnwrap(t *testing.T) {

@@ -3,9 +3,9 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
-	"github.com/ignite/cli/ignite/pkg/cliui"
-	"github.com/ignite/cli/ignite/services/plugin"
+	pluginsconfig "github.com/ignite/cli/v28/ignite/config/plugins"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui"
+	"github.com/ignite/cli/v28/ignite/services/plugin"
 )
 
 type defaultPlugin struct {
@@ -16,7 +16,7 @@ type defaultPlugin struct {
 }
 
 const (
-	PluginNetworkVersion = "v0.2.0"
+	PluginNetworkVersion = "v0.2.1"
 	PluginNetworkPath    = "github.com/ignite/cli-plugin-network@" + PluginNetworkVersion
 )
 

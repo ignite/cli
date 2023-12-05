@@ -9,10 +9,11 @@ import (
 	"sync"
 
 	"github.com/manifoldco/promptui"
+	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/gacli"
-	"github.com/ignite/cli/ignite/pkg/randstr"
-	"github.com/ignite/cli/ignite/version"
+	"github.com/ignite/cli/v28/ignite/pkg/gacli"
+	"github.com/ignite/cli/v28/ignite/pkg/randstr"
+	"github.com/ignite/cli/v28/ignite/version"
 )
 
 const (
@@ -24,50 +25,21 @@ const (
 
 var gaclient gacli.Client
 
-type (
-	// metric represents an analytics metric.
-	options struct {
-		// err sets metrics type as an error metric.
-		err error
-	}
-
-	// anonIdentity represents an analytics identity file.
-	anonIdentity struct {
-		// name represents the username.
-		Name string `json:"name" yaml:"name"`
-		// doNotTrack represents the user track choice.
-		DoNotTrack bool `json:"doNotTrack" yaml:"doNotTrack"`
-	}
-)
+// anonIdentity represents an analytics identity file.
+type anonIdentity struct {
+	// name represents the username.
+	Name string `json:"name" yaml:"name"`
+	// doNotTrack represents the user track choice.
+	DoNotTrack bool `json:"doNotTrack" yaml:"doNotTrack"`
+}
 
 func init() {
 	gaclient = gacli.New(telemetryEndpoint)
 }
 
-// Option configures ChainCmd.
-type Option func(*options)
-
-// WithError with application command error.
-func WithError(error error) Option {
-	return func(m *options) {
-		m.err = error
-	}
-}
-
 // SendMetric send command metrics to analytics.
-func SendMetric(wg *sync.WaitGroup, args []string, opts ...Option) {
-	// only the app name
-	if len(args) <= 1 {
-		return
-	}
-
-	// apply analytics options.
-	var opt options
-	for _, o := range opts {
-		o(&opt)
-	}
-
-	if args[1] == "version" {
+func SendMetric(wg *sync.WaitGroup, cmd *cobra.Command) {
+	if cmd.Name() == "version" {
 		return
 	}
 
@@ -76,22 +48,16 @@ func SendMetric(wg *sync.WaitGroup, args []string, opts ...Option) {
 		return
 	}
 
+	path := cmd.CommandPath()
 	met := gacli.Metric{
+		Name:      cmd.Name(),
+		Cmd:       path,
+		Tag:       strings.ReplaceAll(path, " ", "+"),
 		OS:        runtime.GOOS,
 		Arch:      runtime.GOARCH,
-		FullCmd:   strings.Join(args[1:], " "),
 		SessionID: dntInfo.Name,
 		Version:   version.Version,
 	}
-
-	switch {
-	case opt.err == nil:
-		met.Status = "success"
-	case opt.err != nil:
-		met.Status = "error"
-		met.Error = opt.err.Error()
-	}
-	met.Cmd = args[1]
 
 	wg.Add(1)
 	go func() {
@@ -130,10 +96,12 @@ func checkDNT() (anonIdentity, error) {
 	i.DoNotTrack = false
 
 	prompt := promptui.Select{
-		Label: "Ignite collects metrics about command usage. " +
-			"All data is anonymous and helps to improve Ignite. " +
-			"Ignite respect the DNT rules (consoledonottrack.com). " +
-			"Would you agree to share these metrics with us?",
+		Label: "Ignite uses anonymized metrics to enhance the application, " +
+			"focusing on features such as command usage. We do not collect " +
+			"identifiable personal information. Your privacy is important to us. " +
+			"For more details, please visit our Privacy Policy at https://ignite.com/privacy " +
+			"and our Terms of Use at https://ignite.com/terms-of-use. " +
+			"Do you consent to the collection of these usage metrics for analytics purposes?",
 		Items: []string{"Yes", "No"},
 	}
 	resultID, _, err := prompt.Run()

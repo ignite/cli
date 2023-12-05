@@ -6,12 +6,12 @@ import (
 	"os"
 	"path/filepath"
 
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
-	"github.com/ignite/cli/ignite/config/chain/base"
-	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite/cli/ignite/pkg/cosmosgen"
-	"github.com/ignite/cli/ignite/pkg/events"
+	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
+	"github.com/ignite/cli/v28/ignite/config/chain/base"
+	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/v28/ignite/pkg/events"
 )
 
 type generateOptions struct {
