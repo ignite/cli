@@ -48,22 +48,22 @@ func checkComponentValidity(appPath, moduleName string, compName multiformatname
 func checkComponentCreated(appPath, moduleName string, compName multiformatname.Name, noMessage bool) (err error) {
 	// associate the type to check with the component that scaffold this type
 	typesToCheck := map[string]string{
-		compName.UpperCamel:                          componentType,
-		"queryall" + compName.LowerCase + "request":  componentType,
-		"queryall" + compName.LowerCase + "response": componentType,
-		"queryget" + compName.LowerCase + "request":  componentType,
-		"queryget" + compName.LowerCase + "response": componentType,
-		"query" + compName.LowerCase + "request":     componentQuery,
-		"query" + compName.LowerCase + "response":    componentQuery,
-		compName.LowerCase + "packetdata":            componentPacket,
+		compName.UpperCamel: componentType,
+		fmt.Sprintf("queryall%srequest", compName.LowerCase):  componentType,
+		fmt.Sprintf("queryall%sresponse", compName.LowerCase): componentType,
+		fmt.Sprintf("queryget%srequest", compName.LowerCase):  componentType,
+		fmt.Sprintf("queryget%sresponse", compName.LowerCase): componentType,
+		fmt.Sprintf("query%srequest", compName.LowerCase):     componentQuery,
+		fmt.Sprintf("query%sresponse", compName.LowerCase):    componentQuery,
+		fmt.Sprintf("%spacketdata", compName.LowerCase):       componentPacket,
 	}
 
 	if !noMessage {
-		typesToCheck["msgcreate"+compName.LowerCase] = componentType
-		typesToCheck["msgupdate"+compName.LowerCase] = componentType
-		typesToCheck["msgdelete"+compName.LowerCase] = componentType
-		typesToCheck["msg"+compName.LowerCase] = componentMessage
-		typesToCheck["msgsend"+compName.LowerCase] = componentPacket
+		typesToCheck[fmt.Sprintf("msgcreate%s", compName.LowerCase)] = componentType
+		typesToCheck[fmt.Sprintf("msgupdate%s", compName.LowerCase)] = componentType
+		typesToCheck[fmt.Sprintf("msgdelete%s", compName.LowerCase)] = componentType
+		typesToCheck[fmt.Sprintf("msg%s", compName.LowerCase)] = componentMessage
+		typesToCheck[fmt.Sprintf("msgsend%s", compName.LowerCase)] = componentPacket
 	}
 
 	absPath, err := filepath.Abs(filepath.Join(appPath, "x", moduleName, "types"))

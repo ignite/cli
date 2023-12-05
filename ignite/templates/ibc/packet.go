@@ -191,7 +191,7 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		name := xstrings.Title(opts.ModuleName) + "PacketData"
+		name := fmt.Sprintf("%sPacketData", xstrings.Title(opts.ModuleName))
 		message, err := protoutil.GetMessageByName(protoFile, name)
 		if err != nil {
 			return fmt.Errorf("failed while looking up '%s' message in %s: %w", name, path, err)
@@ -305,7 +305,11 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 			return fmt.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
 		}
 		typenameUpper := opts.PacketName.UpperCamel
-		send := protoutil.NewRPC("Send"+typenameUpper, "MsgSend"+typenameUpper, "MsgSend"+typenameUpper+"Response")
+		send := protoutil.NewRPC(
+			fmt.Sprintf("Send%s", typenameUpper),
+			fmt.Sprintf("MsgSend%s", typenameUpper),
+			fmt.Sprintf("MsgSend%sResponse", typenameUpper),
+		)
 		protoutil.Append(serviceMsg, send)
 
 		// Create fields for MsgSend.
