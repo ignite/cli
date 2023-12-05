@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package ignite.services.plugin.grpc.v1;
 
-option go_package = "github.com/ignite/cli/ignite/services/plugin/grpc/v1";
+option go_package = "github.com/ignite/cli/v28/ignite/services/plugin/grpc/v1";
 
 // ExecutedCommand represents a plugin command under execution.
 message ExecutedCommand {

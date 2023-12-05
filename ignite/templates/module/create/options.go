@@ -5,7 +5,7 @@ import (
 
 	"github.com/iancoleman/strcase"
 
-	"github.com/ignite/cli/ignite/templates/field"
+	"github.com/ignite/cli/v28/ignite/templates/field"
 )
 
 type (

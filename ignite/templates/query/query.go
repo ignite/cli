@@ -12,11 +12,11 @@ import (
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush/v4"
 
-	"github.com/ignite/cli/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
-	"github.com/ignite/cli/ignite/pkg/xgenny"
-	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v28/ignite/templates/field/plushhelpers"
 )
 
 //go:embed files/* files/**/*
@@ -89,7 +89,10 @@ func protoQueryModify(opts *Options) genny.RunFn {
 		}
 
 		typenameUpper, appModulePath := opts.QueryName.UpperCamel, gomodulepath.ExtractAppPath(opts.ModulePath)
-		rpcSingle := protoutil.NewRPC(typenameUpper, "Query"+typenameUpper+"Request", "Query"+typenameUpper+"Response",
+		rpcSingle := protoutil.NewRPC(
+			typenameUpper,
+			fmt.Sprintf("Query%sRequest", typenameUpper),
+			fmt.Sprintf("Query%sResponse", typenameUpper),
 			protoutil.WithRPCOptions(
 				protoutil.NewOption(
 					"google.api.http",

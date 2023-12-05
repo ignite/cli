@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 
-	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
+	pluginsconfig "github.com/ignite/cli/v28/ignite/config/plugins"
 )
 
 func TestEnsureDefaultPlugins(t *testing.T) {
