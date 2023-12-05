@@ -2,8 +2,6 @@ name: Release nightly
 
 on:
   workflow_dispatch:
-    branches:
-      - main
   push:
     branches:
       - main
@@ -16,13 +14,13 @@ jobs:
   consecutiveness:
     runs-on: ubuntu-latest
     steps:
-    - uses: ignite/consecutive-workflow-action@main
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: ignite/consecutive-workflow-action@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   release-nightly:
     runs-on: ubuntu-latest
-    needs: [ consecutiveness ]
+    needs: [consecutiveness]
     env:
       working-directory: go/src/github.com/ignite/cli
 
@@ -70,5 +68,5 @@ jobs:
           release_name: "nightly"
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
-          ldflags: -s -w -X github.com/ignite/cli/ignite/version.Version=nightly
+          ldflags: -s -w -X github.com/ignite/cli/v28/ignite/version.Version=nightly
           retry: 10

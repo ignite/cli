@@ -9,7 +9,7 @@ import (
 	"golang.org/x/exp/slices"
 	"gopkg.in/yaml.v2"
 
-	"github.com/ignite/cli/ignite/pkg/gomodule"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodule"
 )
 
 type Config struct {

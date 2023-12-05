@@ -6,7 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/services/chain"
+	"github.com/ignite/cli/v28/ignite/services/chain"
 )
 
 const (

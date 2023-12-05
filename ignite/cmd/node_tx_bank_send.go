@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cliui"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui"
 )
 
 func NewNodeTxBankSend() *cobra.Command {

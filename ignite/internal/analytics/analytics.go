@@ -11,9 +11,9 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/gacli"
-	"github.com/ignite/cli/ignite/pkg/randstr"
-	"github.com/ignite/cli/ignite/version"
+	"github.com/ignite/cli/v28/ignite/pkg/gacli"
+	"github.com/ignite/cli/v28/ignite/pkg/randstr"
+	"github.com/ignite/cli/v28/ignite/version"
 )
 
 const (

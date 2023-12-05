@@ -6,9 +6,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
-	v0testdata "github.com/ignite/cli/ignite/config/chain/v0/testdata"
-	"github.com/ignite/cli/ignite/config/testdata"
+	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
+	v0testdata "github.com/ignite/cli/v28/ignite/config/chain/v0/testdata"
+	"github.com/ignite/cli/v28/ignite/config/testdata"
 )
 
 func TestConvertLatest(t *testing.T) {

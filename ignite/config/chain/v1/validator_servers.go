@@ -5,7 +5,7 @@ import (
 
 	"github.com/mitchellh/mapstructure"
 
-	baseconfig "github.com/ignite/cli/ignite/config/chain/base"
+	baseconfig "github.com/ignite/cli/v28/ignite/config/chain/base"
 )
 
 func DefaultServers() Servers {

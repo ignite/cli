@@ -5,7 +5,7 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 )
 
 //go:embed files/* files/**/*
