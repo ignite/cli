@@ -6,7 +6,7 @@ Ignite CLI is distributed on multiple platforms and package managers. This docum
 
 Read the folowing resources to understand Flatpak.
 
-* <https://docs.flathub.org/docs/for-app-authors>
+* <https://docs.flathub.org/docs/category/for-app-authors>
 * <https://docs.flatpak.org/en/latest/first-build.html>
 
 ```bash
@@ -38,7 +38,7 @@ SNAPCRAFT_BUILD_ENVIRONMENT=multipass snapcraft
 snap install ignite_0.0.0_amd64.snap --dangerous --classic
 ```
 
-A [github action](../.github/workflows/release-binary.yml) is used to build and publish the Snap at each released.
+A [github action](../.github/workflows/release-binary.yml) is used to build and publish the Snap at each release.
 
 ## HomeBrew
 
