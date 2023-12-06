@@ -3,6 +3,10 @@
 package ibc_test
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
 	"path/filepath"
 	"testing"
 
@@ -10,6 +14,7 @@ import (
 
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v28/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/xurl"
 	envtest "github.com/ignite/cli/v28/integration"
 )
 
@@ -88,9 +93,16 @@ func (k Keeper) OnTimeoutIbcPostPacket(ctx sdk.Context, packet channeltypes.Pack
 
 func TestBlogIBC(t *testing.T) {
 	var (
-		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/planet")
+		env     = envtest.New(t)
+		app     = env.Scaffold("github.com/test/planet")
+		servers = app.RandomizeServerPorts()
+		ctx     = env.Ctx()
 	)
+
+	nodeAddr, err := xurl.TCP(servers.RPC)
+	if err != nil {
+		t.Fatalf("cant read nodeAddr from host.RPC %v: %v", servers.RPC, err)
+	}
 
 	env.Must(env.Exec("create an IBC module",
 		step.NewSteps(step.New(
@@ -198,5 +210,82 @@ func TestBlogIBC(t *testing.T) {
 		funcOnTimeoutIbcPostPacket,
 	))
 
-	app.EnsureSteady()
+	// serve both chains
+	ctxEarth, cancelEarth := context.WithCancel(ctx)
+	go func() {
+		defer cancelEarth()
+		env.Must(app.Serve("should serve earth", envtest.ExecCtx(ctxEarth)))
+	}()
+	ctxMars, cancelMars := context.WithCancel(ctx)
+	go func() {
+		defer cancelMars()
+		env.Must(app.Serve("should serve mars", envtest.ExecCtx(ctxMars)))
+	}()
+
+	// check the chains is up
+	stepsCheck := step.NewSteps(
+		step.New(
+			step.Exec(
+				app.Binary(),
+				"config",
+				"output", "json",
+			),
+			step.PreExec(func() error {
+				// todo set chain configs
+				if err := env.IsAppServed(ctx, servers.API); err != nil {
+					return err
+				}
+				return env.IsAppServed(ctx, servers.API)
+			}),
+		),
+	)
+	env.Exec("waiting the chain is up", stepsCheck, envtest.ExecRetry())
+
+	var (
+		output     = &bytes.Buffer{}
+		txResponse struct {
+			Code   int
+			RawLog string `json:"raw_log"`
+		}
+	)
+	// sign tx to add an item to the list.
+	stepsTx := step.NewSteps(
+		step.New(
+			step.Stdout(output),
+			step.PreExec(func() error {
+				err := env.IsAppServed(ctx, servers.API)
+				return err
+			}),
+			step.Exec(
+				app.Binary(),
+				"tx",
+				"blog",
+				"send-ibc-post",
+				"channel-0",
+				"Hello",
+				"Hello Mars, I'm Alice from Earth",
+				"--chain-id", "blog",
+				"--from", "alice",
+				"--node", nodeAddr,
+				"--output", "json",
+				"--log_format", "json",
+				"--yes",
+			),
+			step.PostExec(func(execErr error) error {
+				if execErr != nil {
+					return execErr
+				}
+				err := json.Unmarshal(output.Bytes(), &txResponse)
+				if err != nil {
+					return fmt.Errorf("unmarshling tx response: %w", err)
+				}
+				return nil
+			}),
+		),
+	)
+	if !env.Exec("sign a tx", stepsTx, envtest.ExecRetry()) {
+		t.FailNow()
+	}
+	require.Equal(t, 0, txResponse.Code,
+		"tx failed code=%d log=%s", txResponse.Code, txResponse.RawLog)
 }
