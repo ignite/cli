@@ -3,9 +3,6 @@
 package ibc_test
 
 import (
-	"fmt"
-	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
-	"os"
 	"path/filepath"
 	"testing"
 
@@ -21,15 +18,10 @@ var (
 	funcSendIbcPost = `package keeper
 func (k msgServer) SendIbcPost(goCtx context.Context, msg *types.MsgSendIbcPost) (*types.MsgSendIbcPostResponse, error) {
     ctx := sdk.UnwrapSDKContext(goCtx)
-
-    // TODO: logic before transmitting the packet
-
     // Construct the packet
     var packet types.IbcPostPacketData
-
     packet.Title = msg.Title
     packet.Content = msg.Content
-
     // Transmit the packet
     _, err := k.TransmitIbcPostPacket(
         ctx,
@@ -39,11 +31,7 @@ func (k msgServer) SendIbcPost(goCtx context.Context, msg *types.MsgSendIbcPost)
         clienttypes.ZeroHeight(),
         msg.TimeoutTimestamp,
     )
-    if err != nil {
-        return nil, err
-    }
-
-    return &types.MsgSendIbcPostResponse{}, nil
+    return &types.MsgSendIbcPostResponse{}, err
 }`
 
 	nameOnRecvIbcPostPacket = "OnRecvIbcPostPacket"
@@ -53,17 +41,7 @@ func (k Keeper) OnRecvIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet,
     if err := data.ValidateBasic(); err != nil {
         return packetAck, err
     }
-
-    id := k.AppendPost(
-        ctx,
-        types.Post{
-            Title:   data.Title,
-            Content: data.Content,
-        },
-    )
-
-    packetAck.PostId = strconv.FormatUint(id, 10)
-
+    packetAck.PostId = k.AppendPost(ctx, types.Post{Title: data.Title, Content: data.Content})
     return packetAck, nil
 }`
 
@@ -77,21 +55,18 @@ func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channelty
     case *channeltypes.Acknowledgement_Result:
         // Decode the packet acknowledgment
         var packetAck types.IbcPostPacketAck
-
         if err := types.ModuleCdc.UnmarshalJSON(dispatchedAck.Result, &packetAck); err != nil {
             // The counter-party module doesn't implement the correct acknowledgment format
             return errors.New("cannot unmarshal acknowledgment")
         }
 
-        k.AppendSentPost(
-            ctx,
+        k.AppendSentPost(ctx,
             types.SentPost{
                 PostId:  packetAck.PostId,
                 Title:   data.Title,
                 Chain:   packet.DestinationPort + "-" + packet.DestinationChannel,
             },
         )
-
         return nil
     default:
         return errors.New("the counter-party module does not implement the correct acknowledgment format")
@@ -101,14 +76,12 @@ func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channelty
 	nameOnTimeoutIbcPostPacket = "OnTimeoutIbcPostPacket"
 	funcOnTimeoutIbcPostPacket = `package keeper
 func (k Keeper) OnTimeoutIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData) error {
-    k.AppendTimedoutPost(
-        ctx,
+    k.AppendTimedoutPost(ctx,
         types.TimedoutPost{
             Title:   data.Title,
             Chain:   packet.DestinationPort + "-" + packet.DestinationChannel,
         },
     )
-
     return nil
 }`
 )
@@ -141,7 +114,6 @@ func TestBlogIBC(t *testing.T) {
 				"post",
 				"title",
 				"content",
-				"creator",
 				"--no-message",
 				"--module",
 				"blog",
@@ -157,10 +129,9 @@ func TestBlogIBC(t *testing.T) {
 				"s",
 				"list",
 				"sentPost",
-				"postID",
+				"postID:uint",
 				"title",
 				"chain",
-				"creator",
 				"--no-message",
 				"--module",
 				"blog",
@@ -178,7 +149,6 @@ func TestBlogIBC(t *testing.T) {
 				"timedoutPost",
 				"title",
 				"chain",
-				"creator",
 				"--no-message",
 				"--module",
 				"blog",
@@ -197,7 +167,7 @@ func TestBlogIBC(t *testing.T) {
 				"title",
 				"content",
 				"--ack",
-				"postID",
+				"postID:uint",
 				"--module",
 				"blog",
 				"--yes",
@@ -205,9 +175,6 @@ func TestBlogIBC(t *testing.T) {
 			step.Workdir(app.SourcePath()),
 		)),
 	))
-
-	//protoPacketPath := filepath.Join(app.SourcePath(), "proto/planet/blog/packet.proto")
-	//require.NoError(t, addCreatorToPacket(protoPacketPath))
 
 	blogKeeperPath := filepath.Join(app.SourcePath(), "x/blog/keeper")
 	require.NoError(t, goanalysis.ReplaceCode(
@@ -232,37 +199,4 @@ func TestBlogIBC(t *testing.T) {
 	))
 
 	app.EnsureSteady()
-}
-
-func addCreatorToPacket(path string) error {
-	f, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC|os.O_APPEND, 0660)
-	if err != nil {
-		return err
-	}
-	protoFile, err := protoutil.ParseProtoFile(f)
-	if err != nil {
-		return err
-	}
-
-	IbcPostPacketData, err := protoutil.GetMessageByName(protoFile, "IbcPostPacketData")
-	if err != nil {
-		return fmt.Errorf("couldn't find message 'IbcPostPacketData' in %s: %w", path, err)
-	}
-	field := protoutil.NewField("creator", "string", protoutil.NextUniqueID(IbcPostPacketData))
-	protoutil.Append(IbcPostPacketData, field)
-
-	p := protoutil.Print(protoFile)
-	err = f.Truncate(0)
-	if err != nil {
-		return err
-	}
-	_, err = f.Seek(0, 0)
-	if err != nil {
-		return err
-	}
-	_, err = fmt.Fprintf(f, "%d", len(p))
-	if err != nil {
-		return err
-	}
-	return nil
 }
