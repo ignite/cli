@@ -6,12 +6,12 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/pkg/xgenny"
-	"github.com/ignite/cli/ignite/templates/field"
-	"github.com/ignite/cli/ignite/templates/query"
+	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v28/ignite/templates/field"
+	"github.com/ignite/cli/v28/ignite/templates/query"
 )
 
 // AddQuery adds a new query to scaffolded app.

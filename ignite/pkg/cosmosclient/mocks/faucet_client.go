@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	cosmosfaucet "github.com/ignite/cli/ignite/pkg/cosmosfaucet"
+	cosmosfaucet "github.com/ignite/cli/v28/ignite/pkg/cosmosfaucet"
 
 	mock "github.com/stretchr/testify/mock"
 )

@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/availableport"
+	"github.com/ignite/cli/v28/ignite/pkg/availableport"
 )
 
 func TestFind(t *testing.T) {

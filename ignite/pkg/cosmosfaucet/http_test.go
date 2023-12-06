@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosfaucet"
 )
 
 func TestServeHTTPCORS(t *testing.T) {

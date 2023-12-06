@@ -10,10 +10,11 @@ import (
 
 	"golang.org/x/mod/semver"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
-	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/app"
-	"github.com/ignite/cli/ignite/pkg/gomodule"
-	"github.com/ignite/cli/ignite/pkg/protoanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/app"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodule"
+	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/xstrings"
 )
 
 // Msgs is a module import path-sdk msgs pair.
@@ -83,6 +84,12 @@ type moduleDiscoverer struct {
 	registeredModules []string
 }
 
+// IsCosmosSDKModulePkg check if a Go import path is a Cosmos SDK package module.
+// These type of package have the "cosmossdk.io/x" prefix.
+func IsCosmosSDKModulePkg(path string) bool {
+	return strings.Contains(path, "cosmossdk.io/x/")
+}
+
 // Discover discovers and returns modules and their types that are registered in the app
 // chainRoot is the root path of the chain
 // sourcePath is the root path of the go module which the proto dir is from
@@ -92,7 +99,12 @@ type moduleDiscoverer struct {
 // 1. Getting all the registered Go modules from the app.
 // 2. Parsing the proto files to find services and messages.
 // 3. Check if the proto services are implemented in any of the registered modules.
-func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Module, error) {
+func Discover(ctx context.Context, chainRoot, sourcePath string, options ...DiscoverOption) ([]Module, error) {
+	var o discoverOptions
+	for _, apply := range options {
+		apply(&o)
+	}
+
 	// find out base Go import path of the blockchain.
 	gm, err := gomodule.ParseAt(sourcePath)
 	if err != nil {
@@ -124,8 +136,18 @@ func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Mo
 		return []Module{}, nil
 	}
 
+	// Switch the proto path for "cosmossdk.io" module packages to the official Cosmos
+	// SDK package because the module packages doesn't contain the proto files. These
+	// files are only available from the Cosmos SDK package.
+	var protoPath string
+	if o.sdkDir != "" && IsCosmosSDKModulePkg(sourcePath) {
+		protoPath = switchCosmosSDKPackagePath(sourcePath, o.sdkDir)
+	} else {
+		protoPath = filepath.Join(sourcePath, o.protoDir)
+	}
+
 	md := &moduleDiscoverer{
-		protoPath:         filepath.Join(sourcePath, protoDir),
+		protoPath:         protoPath,
 		sourcePath:        sourcePath,
 		basegopath:        basegopath,
 		registeredModules: appModules,
@@ -235,7 +257,6 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 		Pkg:          pkg,
 	}
 
-	// fill sdk Msgs.
 	for _, msg := range msgs {
 		pkgmsg, err := pkg.MessageByName(msg)
 		if err != nil {
@@ -268,13 +289,8 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 
 		// do not use if used as a request/return type of RPC.
 		for _, s := range pkg.Services {
-			for i, q := range s.RPCFuncs {
+			for _, q := range s.RPCFuncs {
 				if q.RequestType == protomsg.Name || q.ReturnsType == protomsg.Name {
-					// Check if the service response message is using pagination and
-					// update the RPC function. This is done here to avoid extra loops
-					// just to update the pagination property.
-					s.RPCFuncs[i].Paginated = hasPagination(protomsg)
-
 					return false
 				}
 			}
@@ -285,6 +301,17 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 
 	// fill types.
 	for _, protomsg := range pkg.Messages {
+		// Update pagination for RPC functions when a service response uses pagination
+		if hasPagination(protomsg) {
+			for _, s := range pkg.Services {
+				for i, q := range s.RPCFuncs {
+					if q.RequestType == protomsg.Name || q.ReturnsType == protomsg.Name {
+						s.RPCFuncs[i].Paginated = true
+					}
+				}
+			}
+		}
+
 		if !isType(protomsg) {
 			continue
 		}
@@ -419,4 +446,12 @@ func hasPagination(msg protoanalysis.Message) bool {
 	}
 
 	return false
+}
+
+func switchCosmosSDKPackagePath(srcPath, sdkDir string) string {
+	modName := xstrings.StringBetween(srcPath, "/x/", "@")
+	if modName == "" {
+		return srcPath
+	}
+	return filepath.Join(sdkDir, "proto", "cosmos", modName)
 }

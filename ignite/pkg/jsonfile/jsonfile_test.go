@@ -16,7 +16,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/tarball"
+	"github.com/ignite/cli/v28/ignite/pkg/tarball"
 )
 
 func TestJSONFile_Field(t *testing.T) {

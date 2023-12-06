@@ -9,13 +9,13 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite/cli/ignite/pkg/dirchange"
-	"github.com/ignite/cli/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/ignite/pkg/nodetime/programs/sta"
-	tsproto "github.com/ignite/cli/ignite/pkg/nodetime/programs/ts-proto"
-	"github.com/ignite/cli/ignite/pkg/protoc"
+	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/v28/ignite/pkg/dirchange"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v28/ignite/pkg/nodetime/programs/sta"
+	tsproto "github.com/ignite/cli/v28/ignite/pkg/nodetime/programs/ts-proto"
+	"github.com/ignite/cli/v28/ignite/pkg/protoc"
 )
 
 var (
@@ -196,7 +196,14 @@ func (g *tsGenerator) generateModuleTemplate(
 		return err
 	}
 
-	pp := filepath.Join(appPath, g.g.protoDir)
+	// All "cosmossdk.io" module packages must use SDK's
+	// proto path which is where the proto files are stored.
+	var pp string
+	if module.IsCosmosSDKModulePkg(appPath) {
+		pp = filepath.Join(g.g.sdkDir, "proto")
+	} else {
+		pp = filepath.Join(appPath, g.g.protoDir)
+	}
 
 	return templateTSClientModule.Write(out, pp, struct {
 		Module module.Module
