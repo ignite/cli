@@ -279,3 +279,59 @@ func createUnderscoreImport(imp string) *ast.ImportSpec {
 		},
 	}
 }
+
+// HasStructFieldsInPkg finds the struct into a package folder and checks
+// if the field exists inside the struct.
+func HasStructFieldsInPkg(pkgPath, structName string, fields []string) (bool, error) {
+	absPath, err := filepath.Abs(pkgPath)
+	if err != nil {
+		return false, err
+	}
+	fileSet := token.NewFileSet()
+	all, err := parser.ParseDir(fileSet, absPath, func(os.FileInfo) bool { return true }, parser.ParseComments)
+	if err != nil {
+		return false, err
+	}
+
+	fieldsNames := make(map[string]struct{})
+	for _, field := range fields {
+		fieldsNames[strings.ToLower(field)] = struct{}{}
+	}
+
+	exist := false
+	for _, pkg := range all {
+		for _, f := range pkg.Files {
+			ast.Inspect(f, func(x ast.Node) bool {
+				typeSpec, ok := x.(*ast.TypeSpec)
+				if !ok {
+					return true
+				}
+
+				if _, ok := typeSpec.Type.(*ast.StructType); !ok ||
+					typeSpec.Name.Name != structName ||
+					typeSpec.Type == nil {
+					return true
+				}
+
+				// Check if the struct has fields.
+				structType, ok := typeSpec.Type.(*ast.StructType)
+				if !ok {
+					return true
+				}
+
+				// Iterate through the fields of the struct.
+				for _, field := range structType.Fields.List {
+					for _, fieldName := range field.Names {
+						if _, ok := fieldsNames[strings.ToLower(fieldName.Name)]; !ok {
+							continue
+						}
+						exist = true
+						return false
+					}
+				}
+				return true
+			})
+		}
+	}
+	return exist, nil
+}
