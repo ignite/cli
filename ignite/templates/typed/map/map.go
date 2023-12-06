@@ -637,8 +637,8 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 			indexes += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
 			indexesStr += fmt.Sprintf("[%s] ", field.ProtoFieldName())
 		}
-		positionalArgs += indexes
-		positionalArgsStr += indexesStr
+		positionalArgs = indexes + positionalArgs
+		positionalArgsStr = indexesStr + positionalArgsStr
 
 		template := `{
 			RpcMethod: "Create%[2]v",

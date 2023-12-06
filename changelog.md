@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changes
+
+- [#3822](https://github.com/ignite/cli/pull/3822) Improve default scaffolded AutoCLI config
+
 ## [`v28.0.0`](https://github.com/ignite/cli/releases/tag/v28.0.0)
 
 ### Features
