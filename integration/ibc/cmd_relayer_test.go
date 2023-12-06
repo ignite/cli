@@ -241,6 +241,8 @@ func TestBlogIBC(t *testing.T) {
 	)
 	env.Exec("waiting the chain is up", stepsCheck, envtest.ExecRetry())
 
+	// TODO setup a relayer
+
 	var (
 		output     = &bytes.Buffer{}
 		txResponse struct {
