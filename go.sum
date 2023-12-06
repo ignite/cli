@@ -879,8 +879,8 @@ github.com/iancoleman/strcase v0.3.0/go.mod h1:iwCmte+B7n89clKwxIoIXy/HfoL7AsD47
 github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/ianlancetaylor/demangle v0.0.0-20200824232613-28f6c0f3b639/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/ianlancetaylor/demangle v0.0.0-20210905161508-09a460cdf81d/go.mod h1:aYm2/VgdVmcIU8iMfdMvDMsRAQjcfZSKFby6HOFvi/w=
-github.com/ignite/ignite-files/nodetime v0.0.2 h1:9Aj0OEa7FWI22J/Zdq7M2JvsjgFLngZSm7vB4i9X4t4=
-github.com/ignite/ignite-files/nodetime v0.0.2/go.mod h1:GKDsXdeazHyhSBPdVLp7mNIo/m9LmZ6/h8RmQ0/CoaM=
+github.com/ignite/ignite-files/nodetime v0.0.4 h1:4mA/lZTAWczsNBHZ543VSxpK+P6BAU0HsLglxUtRrMU=
+github.com/ignite/ignite-files/nodetime v0.0.4/go.mod h1:GKDsXdeazHyhSBPdVLp7mNIo/m9LmZ6/h8RmQ0/CoaM=
 github.com/ignite/ignite-files/protoc v0.0.1 h1:wXxU1dzruUgSVl1diAuAOA+xv0NQKXJFsDWht2+tAP8=
 github.com/ignite/ignite-files/protoc v0.0.1/go.mod h1:cVCHJbEHPIeKHMPk3ZoPS0Xw4XQfUc76BAMAPU9Fwjg=
 github.com/ignite/web v0.6.1 h1:kHG+T7NnR8cCPjAGxEFQD+njVYM08toeG57iYRXzpwo=
