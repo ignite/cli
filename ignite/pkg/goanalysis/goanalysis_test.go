@@ -532,7 +532,7 @@ func NewMethod1() {
 		{
 			name: "function fooTest",
 			args: args{
-				path:            "testdata/replace.go",
+				path:            "testdata",
 				oldFunctionName: "fooTest",
 				newFunction:     newFunction,
 			},
@@ -540,7 +540,7 @@ func NewMethod1() {
 		{
 			name: "function BazTest",
 			args: args{
-				path:            "testdata/replace.go",
+				path:            "testdata",
 				oldFunctionName: "BazTest",
 				newFunction:     newFunction,
 			},
@@ -548,7 +548,7 @@ func NewMethod1() {
 		{
 			name: "function invalidFunction",
 			args: args{
-				path:            "testdata/replace.go",
+				path:            "testdata",
 				oldFunctionName: "invalidFunction",
 				newFunction:     newFunction,
 			},
@@ -556,7 +556,7 @@ func NewMethod1() {
 		{
 			name: "invalid path",
 			args: args{
-				path:            "invalid_path/invalid.go",
+				path:            "invalid_path",
 				oldFunctionName: "invalidPath",
 				newFunction:     newFunction,
 			},

@@ -3,9 +3,10 @@ package testdata
 import "fmt"
 
 func fooTest() {
-	foo := 100
-	bar := fmt.Sprintf("test - %d", foo)
-	fmt.Println(bar)
+	n := "test new method"
+	bla := fmt.Sprintf("test new - %s", n)
+	fmt.
+		Println(bla)
 }
 
 func BazTest() {

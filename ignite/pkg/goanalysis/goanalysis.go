@@ -282,44 +282,56 @@ func createUnderscoreImport(imp string) *ast.ImportSpec {
 
 // ReplaceCode replace a function implementation into a package path. The method will find
 // the method signature and re-write the method implementation based in the new function.
-func ReplaceCode(path, oldFunctionName, newFunction string) (err error) {
-	absPath, err := filepath.Abs(path)
+func ReplaceCode(pkgPath, oldFunctionName, newFunction string) (err error) {
+	absPath, err := filepath.Abs(pkgPath)
 	if err != nil {
 		return err
 	}
 
-	// Parse the input Go source file into an AST.
-	fset := token.NewFileSet()
-	node, err := parser.ParseFile(fset, absPath, nil, parser.ParseComments)
+	fileSet := token.NewFileSet()
+	all, err := parser.ParseDir(fileSet, absPath, func(os.FileInfo) bool { return true }, parser.ParseComments)
 	if err != nil {
 		return err
 	}
 
-	// Traverse the AST to find and replace the function.
-	ast.Inspect(node, func(n ast.Node) bool {
-		// Check if the node is a function declaration.
-		if funcDecl, ok := n.(*ast.FuncDecl); ok {
-			// Check if the function has the name you want to replace.
-			if funcDecl.Name.Name == oldFunctionName {
-				// Replace the function body with the replacement code.
-				funcDecl.Body, err = parseReplacementCode(newFunction)
-				return false
+	for _, pkg := range all {
+		for _, f := range pkg.Files {
+			found := false
+			ast.Inspect(f, func(n ast.Node) bool {
+				// Check if the node is a function declaration.
+				if funcDecl, ok := n.(*ast.FuncDecl); ok {
+					// Check if the function has the name you want to replace.
+					if funcDecl.Name.Name == oldFunctionName {
+						// Replace the function body with the replacement code.
+						funcDecl.Body, err = parseReplacementCode(newFunction)
+						found = true
+						return false
+					}
+				}
+				return true
+			})
+			if err != nil {
+				return err
+			}
+			if !found {
+				continue
+			}
+			filePath := fileSet.Position(f.Package).Filename
+			outFile, err := os.Create(filePath)
+			if err != nil {
+				return err
+			}
+
+			// Format and write the modified AST to the output file.
+			if err := format.Node(outFile, fileSet, f); err != nil {
+				return err
+			}
+			if err := outFile.Close(); err != nil {
+				return err
 			}
 		}
-		return true
-	})
-	if err != nil {
-		return err
 	}
-
-	outFile, err := os.Create(absPath)
-	if err != nil {
-		return err
-	}
-	defer outFile.Close()
-
-	// Format and write the modified AST to the output file.
-	return format.Node(outFile, fset, node)
+	return nil
 }
 
 // parseReplacementCode parse the replacement code and create a *ast.BlockStmt.
