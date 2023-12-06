@@ -480,9 +480,8 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 		},
 		{
 			RpcMethod: "Delete%[2]v",
-			Use: "delete-%[3]v %[6]s",
+			Use: "delete-%[3]v",
 			Short: "Delete %[4]v",
-			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
 		},
 		%[1]v`
 

@@ -337,6 +337,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 		}
 
 		var positionalArgs, positionalArgsStr string
+		positionalArgs, positionalArgsStr = `{ProtoField: "id"},`, "[id] "
 		for _, field := range opts.Fields {
 			positionalArgs += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
 			positionalArgsStr += fmt.Sprintf("[%s] ", field.ProtoFieldName())
@@ -356,9 +357,9 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 		},
 		{
 			RpcMethod: "Delete%[2]v",
-			Use: "delete-%[3]v %[6]s",
+			Use: "delete-%[3]v [id]",
 			Short: "Delete %[4]v",
-			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
+			PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "id"}},
 		},
 		%[1]v`
 
