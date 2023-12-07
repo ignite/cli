@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changes
+
+- [#3829](https://github.com/ignite/cli/pull/3829) Support version prefix for cached values
+
 ## [`v28.0.0`](https://github.com/ignite/cli/releases/tag/v28.0.0)
 
 ### Features
