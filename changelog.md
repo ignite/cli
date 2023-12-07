@@ -21,7 +21,6 @@
 - [#3626](https://github.com/ignite/cli/pull/3626) Add logging levels to relayer
 - [#3614](https://github.com/ignite/cli/pull/3614) feat: use DefaultBaseappOptions for app.New method
 - [#3715](https://github.com/ignite/cli/pull/3715) Add test suite for the cli tests
-- [#3756](https://github.com/ignite/cli/pull/3756) Add faucet compatibility for latest sdk chains
 
 ### Changes
 
