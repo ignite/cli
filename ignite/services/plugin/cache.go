@@ -9,6 +9,7 @@ import (
 	hplugin "github.com/hashicorp/go-plugin"
 
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	"github.com/ignite/cli/v28/ignite/version"
 )
 
 const (
@@ -80,7 +81,10 @@ func newCache() (*cache.Cache[hplugin.ReattachConfig], error) {
 		return nil, err
 	}
 	if storageCache == nil {
-		storage, err := cache.NewStorage(path.Join(cacheRootDir, cacheFileName))
+		storage, err := cache.NewStorage(
+			path.Join(cacheRootDir, cacheFileName),
+			cache.WithVersion(version.Version),
+		)
 		if err != nil {
 			return nil, err
 		}
