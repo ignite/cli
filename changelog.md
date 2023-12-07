@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- [#3827](https://github.com/ignite/cli/pull/3827) Change ignite apps to be able to run in any directory
+
 ## [`v28.0.0`](https://github.com/ignite/cli/releases/tag/v28.0.0)
 
 ### Features
