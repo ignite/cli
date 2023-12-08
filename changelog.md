@@ -2,13 +2,17 @@
 
 ## Unreleased
 
-### Fixes
-
-- [#3825](https://github.com/ignite/cli/pull/3825) Fix a minor Keplr type-checking bug in TS client
-
 ### Features
 
 - [#3830](https://github.com/ignite/cli/pull/3830) Remove gRPC info from Ignite Apps errors
+
+### Changes
+
+- [#3723](https://github.com/ignite/cli/pull/3723) Create a wrapper for errors
+
+### Fixes
+
+- [#3825](https://github.com/ignite/cli/pull/3825) Fix a minor Keplr type-checking bug in TS client
 
 ## [`v28.0.0`](https://github.com/ignite/cli/releases/tag/v28.0.0)
 
@@ -24,11 +28,6 @@
 - [#3561](https://github.com/ignite/cli/pull/3561) Add GetChainInfo method to plugin system API
 - [#3626](https://github.com/ignite/cli/pull/3626) Add logging levels to relayer
 - [#3614](https://github.com/ignite/cli/pull/3614) feat: use DefaultBaseappOptions for app.New method
-- [#3536](https://github.com/ignite/cli/pull/3536) Change app.go to v2 and add AppWiring feature
-- [#3659](https://github.com/ignite/cli/pull/3659) cosmos-sdk `v0.50.x`
-- [#3670](https://github.com/ignite/cli/pull/3670) Remove nodetime binaries
-- [#3723](https://github.com/ignite/cli/pull/3723) Create a wrapper for errors
-- [#3724](https://github.com/ignite/cli/pull/3724) Add or vendor proto packages from Go dependencies
 - [#3715](https://github.com/ignite/cli/pull/3715) Add test suite for the cli tests
 
 ### Changes
