@@ -316,14 +316,14 @@ func resolveCosmosPackagePath(chainRoot string) (string, error) {
 
 	var pkg string
 	for _, dep := range deps {
-		if dep.Path == cosmosver.CosmosModulePath {
+		if cosmosver.CosmosSDKModulePathPattern.MatchString(dep.Path) {
 			pkg = dep.String()
 			break
 		}
 	}
 
 	if pkg == "" {
-		return "", errors.New("cosmos SDK package version not found")
+		return "", errors.New("cosmos-sdk package version not found")
 	}
 
 	m, err := gomodule.FindModule(context.Background(), chainRoot, pkg)

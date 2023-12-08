@@ -8,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
-	"strings"
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
@@ -35,7 +34,7 @@ const (
 
 var (
 	ErrBufConfig     = errors.New("invalid Buf config")
-	ErrMissingSDKDep = errors.New("cosmos SDK dependency not found")
+	ErrMissingSDKDep = errors.New("cosmos-sdk dependency not found")
 
 	protocGlobalInclude = xfilepath.List(
 		xfilepath.JoinFromHome(xfilepath.Path("local/include")),
@@ -97,7 +96,6 @@ func (g *generator) setup(ctx context.Context) (err error) {
 	}
 
 	g.sdkImport = cosmosver.CosmosModulePath
-
 	// Check if the Cosmos SDK import path points to a different path
 	// and if so change the default one to the new location.
 	for _, r := range modFile.Replace {
@@ -487,7 +485,7 @@ func (g generator) vendorProtoPackage(pkgName, protoPath string) (err error) {
 
 func filterCosmosSDKModule(versions []gomodule.Version) (gomodule.Version, bool) {
 	for _, v := range versions {
-		if strings.HasPrefix(v.Path, cosmosver.CosmosModulePath) {
+		if cosmosver.CosmosSDKModulePathPattern.MatchString(v.Path) {
 			return v, true
 		}
 	}

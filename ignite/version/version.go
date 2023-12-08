@@ -110,7 +110,7 @@ func Long(ctx context.Context) string {
 	)
 	if info, ok := debug.ReadBuildInfo(); ok {
 		for _, dep := range info.Deps {
-			if dep.Path == cosmosver.CosmosModulePath {
+			if cosmosver.CosmosSDKModulePathPattern.MatchString(dep.Path) {
 				sdkVersion = dep.Version
 				break
 			}
