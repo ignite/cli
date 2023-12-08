@@ -81,8 +81,8 @@ func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channelty
 	nameOnTimeoutIbcPostPacket = "OnTimeoutIbcPostPacket"
 	funcOnTimeoutIbcPostPacket = `package keeper
 func (k Keeper) OnTimeoutIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData) error {
-    k.AppendTimedoutPost(ctx,
-        types.TimedoutPost{
+    k.AppendTimeoutPost(ctx,
+        types.TimeoutPost{
             Title:   data.Title,
             Chain:   packet.DestinationPort + "-" + packet.DestinationChannel,
         },
@@ -153,12 +153,12 @@ func TestBlogIBC(t *testing.T) {
 		)),
 	))
 
-	env.Must(env.Exec("create a timedoutPost type list in an IBC module",
+	env.Must(env.Exec("create a timeoutPost type list in an IBC module",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp,
 				"s",
 				"list",
-				"timedoutPost",
+				"timeoutPost",
 				"title",
 				"chain",
 				"--no-message",
@@ -222,6 +222,39 @@ func TestBlogIBC(t *testing.T) {
 		env.Must(app.Serve("should serve mars", envtest.ExecCtx(ctxMars)))
 	}()
 
+	// configure and run the ts relayer.
+	env.Must(env.Exec("configure the ts relayer",
+		step.NewSteps(step.New(
+			step.Exec(envtest.IgniteApp,
+				"relayer",
+				"configure", "-a",
+				"--source-rpc", "http://0.0.0.0:26657",
+				"--source-faucet", "http://0.0.0.0:4500",
+				"--source-port", "planet",
+				"--source-version", "earth-1",
+				"--source-gasprice", "0.0000025stake",
+				"--source-prefix", "cosmos",
+				"--source-gaslimit", "300000",
+				"--target-rpc", "http://0.0.0.0:26659",
+				"--target-faucet", "http://0.0.0.0:4501",
+				"--target-port", "planet",
+				"--target-version", "mars-1",
+				"--target-gasprice", "0.0000025stake",
+				"--target-prefix", "cosmos",
+				"--target-gaslimit", "300000",
+			),
+			step.Workdir(app.SourcePath()),
+		)),
+	))
+	go func() {
+		env.Must(env.Exec("run the ts relayer",
+			step.NewSteps(step.New(
+				step.Exec(envtest.IgniteApp, "relayer", "connect"),
+				step.Workdir(app.SourcePath()),
+			)),
+		))
+	}()
+
 	// check the chains is up
 	stepsCheck := step.NewSteps(
 		step.New(
@@ -240,8 +273,6 @@ func TestBlogIBC(t *testing.T) {
 		),
 	)
 	env.Exec("waiting the chain is up", stepsCheck, envtest.ExecRetry())
-
-	// TODO setup a relayer
 
 	var (
 		output     = &bytes.Buffer{}
