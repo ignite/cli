@@ -6,6 +6,10 @@
 
 - [#3825](https://github.com/ignite/cli/pull/3825) Fix a minor Keplr type-checking bug in TS client
 
+### Features
+
+- [#3830](https://github.com/ignite/cli/pull/3830) Remove gRPC info from Ignite Apps errors
+
 ## [`v28.0.0`](https://github.com/ignite/cli/releases/tag/v28.0.0)
 
 ### Features
