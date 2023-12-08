@@ -6,6 +6,4 @@
 # Docs
 *.md    @salmad3 @toschdev @ilgooz
 docs/*   @salmad3 @toschdev @ilgooz
-
-# Do not gate keep the changelog
 changelog.md @ilgooz @salmad3 @toschdev @jeronimoalbi @Pantani @julienrbrt @Ehsan-saradar
