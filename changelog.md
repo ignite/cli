@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- [#3831](https://github.com/ignite/cli/pull/3831) Correct ignite app gRPC server stop memory issue
+
 ## [`v28.0.0`](https://github.com/ignite/cli/releases/tag/v28.0.0)
 
 ### Features
