@@ -316,6 +316,7 @@ func resolveCosmosPackagePath(chainRoot string) (string, error) {
 
 	var pkg string
 	for _, dep := range deps {
+		// dependencies are resolved, so we need to check for possible SDK forks
 		if cosmosver.CosmosSDKModulePathPattern.MatchString(dep.Path) {
 			pkg = dep.String()
 			break

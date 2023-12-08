@@ -95,20 +95,19 @@ func (g *generator) setup(ctx context.Context) (err error) {
 		return err
 	}
 
-	g.sdkImport = cosmosver.CosmosModulePath
-	// Check if the Cosmos SDK import path points to a different path
-	// and if so change the default one to the new location.
-	for _, r := range modFile.Replace {
-		if r.Old.Path == cosmosver.CosmosModulePath {
-			g.sdkImport = r.New.Path
-			break
-		}
-	}
-
 	// Read the dependencies defined in the `go.mod` file
 	g.deps, err = gomodule.ResolveDependencies(modFile, false)
 	if err != nil {
 		return err
+	}
+
+	// Dependencies are resolved, it is possible that the cosmos sdk has been replaced
+	g.sdkImport = cosmosver.CosmosModulePath
+	for _, dep := range g.deps {
+		if cosmosver.CosmosSDKModulePathPattern.MatchString(dep.Path) {
+			g.sdkImport = dep.Path
+			break
+		}
 	}
 
 	// Discover any custom modules defined by the user's app.
