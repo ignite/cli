@@ -19,7 +19,12 @@ func TestAssertSupportedCosmosSDKVersion(t *testing.T) {
 		{
 			"invalid",
 			cosmosver.Version{Version: "invalid"},
-			"your chain has been scaffolded with an older version of Cosmos SDK: invalid",
+			"Your chain has been scaffolded with an older version of Cosmos SDK: invalid",
+		},
+		{
+			"too old",
+			cosmosver.Version{Version: "v0.45.0", Semantic: semver.MustParse("0.45.0")},
+			"Your chain has been scaffolded with an older version of Cosmos SDK: v0.45.0",
 		},
 		{
 			"v0.47.3",
