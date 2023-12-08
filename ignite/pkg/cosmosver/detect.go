@@ -9,8 +9,6 @@ import (
 var (
 	// CosmosModulePath defines Cosmos SDK import path.
 	CosmosModulePath = "github.com/cosmos/cosmos-sdk"
-	// CosmosSDK defines Cosmos SDK repository name.
-	CosmosSDK = "cosmos-sdk"
 	// CosmosSDKModulePathPattern defines a regexp pattern for Cosmos SDK import path.
 	CosmosSDKModulePathPattern = regexp.MustCompile(`github\.com\/[^\/]+\/cosmos-sdk`)
 )
