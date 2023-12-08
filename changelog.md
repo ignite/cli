@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- [#3833](https://github.com/ignite/cli/pull/3833) Improve Cosmos SDK detection to support SDK forks
+
 ## [`v28.0.0`](https://github.com/ignite/cli/releases/tag/v28.0.0)
 
 ### Features
