@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"gopkg.in/yaml.v2"
 
 	"github.com/ignite/cli/v28/ignite/config/chain"
 	"github.com/ignite/cli/v28/ignite/config/chain/base"
@@ -21,52 +22,9 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/v28/ignite/pkg/randstr"
 	"github.com/ignite/cli/v28/ignite/pkg/xurl"
-	"github.com/ignite/cli/v28/ignite/pkg/yaml"
+	yamlmap "github.com/ignite/cli/v28/ignite/pkg/yaml"
 	envtest "github.com/ignite/cli/v28/integration"
 )
-
-func runChain(t *testing.T, env envtest.Env, app envtest.App, cfg v1.Config) string {
-	t.Helper()
-	var (
-		ctx      = env.Ctx()
-		tmpDir   = t.TempDir()
-		homePath = filepath.Join(tmpDir, randstr.Runes(10))
-		cfgPath  = filepath.Join(tmpDir, chain.ConfigFilenames[0])
-	)
-	t.Cleanup(func() {
-		require.NoError(t, os.RemoveAll(homePath))
-	})
-
-	genAddr := func(port uint) string {
-		return fmt.Sprintf("127.0.0.1:%d", port)
-	}
-
-	cfg.Validators[0].Home = homePath
-	ports, err := availableport.Find(7)
-	require.NoError(t, err)
-
-	cfg.Faucet.Host = genAddr(ports[0])
-	cfg.Validators[0].App["api"] = yaml.Map{"address": genAddr(ports[1])}
-	cfg.Validators[0].App["grpc"] = yaml.Map{"address": genAddr(ports[2])}
-	cfg.Validators[0].App["grpc-web"] = yaml.Map{"address": genAddr(ports[3])}
-	cfg.Validators[0].Config["p2p"] = yaml.Map{"laddr": genAddr(ports[4])}
-	cfg.Validators[0].Config["rpc"] = yaml.Map{
-		"laddr":       genAddr(ports[5]),
-		"pprof_laddr": genAddr(ports[6]),
-	}
-
-	err = chain.Save(cfg, cfgPath)
-	require.NoError(t, err)
-
-	app.SetConfigPath(cfgPath)
-
-	ctx, cancel := context.WithCancel(ctx)
-	go func() {
-		defer cancel()
-		env.Must(app.Serve("should serve chain", envtest.ExecCtx(ctx)))
-	}()
-	return genAddr(ports[5])
-}
 
 var (
 	bobName    = "bob"
@@ -87,20 +45,20 @@ var (
 				Coins: []string{"5token", "100000stake"},
 				Host:  ":4501",
 			},
-			Genesis: yaml.Map{"chain_id": "mars"},
+			Genesis: yamlmap.Map{"chain_id": "mars"},
 		},
 		Validators: []v1.Validator{
 			{
 				Name:   "alice",
 				Bonded: "100000000stake",
-				App: yaml.Map{
-					"api":      yaml.Map{"address": ":1318"},
-					"grpc":     yaml.Map{"address": ":9092"},
-					"grpc-web": yaml.Map{"address": ":9093"},
+				App: yamlmap.Map{
+					"api":      yamlmap.Map{"address": ":1318"},
+					"grpc":     yamlmap.Map{"address": ":9092"},
+					"grpc-web": yamlmap.Map{"address": ":9093"},
 				},
-				Config: yaml.Map{
-					"p2p": yaml.Map{"laddr": ":26658"},
-					"rpc": yaml.Map{"laddr": ":26658", "pprof_laddr": ":6061"},
+				Config: yamlmap.Map{
+					"p2p": yamlmap.Map{"laddr": ":26658"},
+					"rpc": yamlmap.Map{"laddr": ":26658", "pprof_laddr": ":6061"},
 				},
 				Home: "$HOME/.mars",
 			},
@@ -123,9 +81,24 @@ var (
 				Coins: []string{"5token", "100000stake"},
 				Host:  ":4500",
 			},
-			Genesis: yaml.Map{"chain_id": "earth"},
+			Genesis: yamlmap.Map{"chain_id": "earth"},
 		},
-		Validators: []v1.Validator{{Name: "alice", Bonded: "100000000stake", Home: "$HOME/.earth"}},
+		Validators: []v1.Validator{
+			{
+				Name:   "alice",
+				Bonded: "100000000stake",
+				App: yamlmap.Map{
+					"api":      yamlmap.Map{"address": ":1317"},
+					"grpc":     yamlmap.Map{"address": ":9090"},
+					"grpc-web": yamlmap.Map{"address": ":9091"},
+				},
+				Config: yamlmap.Map{
+					"p2p": yamlmap.Map{"laddr": ":26656"},
+					"rpc": yamlmap.Map{"laddr": ":26656", "pprof_laddr": ":6060"},
+				},
+				Home: "$HOME/.earth",
+			},
+		},
 	}
 
 	nameSendIbcPost = "SendIbcPost"
@@ -200,17 +173,57 @@ func (k Keeper) OnTimeoutIbcPostPacket(ctx sdk.Context, packet channeltypes.Pack
 }`
 )
 
+func runChain(t *testing.T, env envtest.Env, app envtest.App, cfg v1.Config) string {
+	t.Helper()
+	var (
+		tmpDir   = t.TempDir()
+		homePath = filepath.Join(tmpDir, randstr.Runes(10))
+		cfgPath  = filepath.Join(tmpDir, chain.ConfigFilenames[0])
+		ctx      = env.Ctx()
+	)
+	genAddr := func(port uint) string {
+		return fmt.Sprintf("0.0.0.0:%d", port)
+	}
+
+	cfg.Validators[0].Home = homePath
+	ports, err := availableport.Find(7)
+	require.NoError(t, err)
+
+	cfg.Faucet.Host = genAddr(ports[0])
+	cfg.Validators[0].App["api"] = yamlmap.Map{"address": genAddr(ports[1])}
+	cfg.Validators[0].App["grpc"] = yamlmap.Map{"address": genAddr(ports[2])}
+	cfg.Validators[0].App["grpc-web"] = yamlmap.Map{"address": genAddr(ports[3])}
+	cfg.Validators[0].Config["p2p"] = yamlmap.Map{"laddr": genAddr(ports[4])}
+	cfg.Validators[0].Config["rpc"] = yamlmap.Map{
+		"laddr":       genAddr(ports[5]),
+		"pprof_laddr": genAddr(ports[6]),
+	}
+
+	file, err := os.Create(cfgPath)
+	require.NoError(t, err)
+	require.NoError(t, yaml.NewEncoder(file).Encode(cfg))
+	require.NoError(t, file.Close())
+
+	app.SetConfigPath(cfgPath)
+
+	ctx, cancel := context.WithCancel(ctx)
+	t.Cleanup(func() {
+		cancel()
+		require.NoError(t, os.RemoveAll(homePath))
+	})
+
+	go func() {
+		env.Must(app.Serve("should serve chain", envtest.ExecCtx(ctx)))
+	}()
+	return genAddr(ports[5])
+}
+
 func TestBlogIBC(t *testing.T) {
 	var (
 		env = envtest.New(t)
 		app = env.Scaffold("github.com/test/planet")
 		ctx = env.Ctx()
 	)
-
-	//nodeAddr, err := xurl.TCP(servers.RPC)
-	//if err != nil {
-	//	t.Fatalf("cant read nodeAddr from host.RPC %v: %v", servers.RPC, err)
-	//}
 
 	env.Must(env.Exec("create an IBC module",
 		step.NewSteps(step.New(
