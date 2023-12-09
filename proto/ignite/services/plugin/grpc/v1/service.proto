@@ -5,7 +5,7 @@ package ignite.services.plugin.grpc.v1;
 import "ignite/services/plugin/grpc/v1/client_api.proto";
 import "ignite/services/plugin/grpc/v1/interface.proto";
 
-option go_package = "github.com/ignite/cli/ignite/services/plugin/grpc/v1";
+option go_package = "github.com/ignite/cli/v28/ignite/services/plugin/grpc/v1";
 
 // InterfaceService defines the interface that must be implemented by all plugins.
 service InterfaceService {

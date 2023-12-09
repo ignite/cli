@@ -77,11 +77,11 @@ To import dependencies for your package, you can add the following code to the
 ```text title="blogclient/go.mod"
 module blogclient
 
-go 1.19
+go 1.20
 
 require (
 	blog v0.0.0-00010101000000-000000000000
-	github.com/ignite/cli v0.25.2
+	github.com/ignite/cli v0.27.2
 )
 
 replace blog => ../blog
@@ -94,7 +94,7 @@ Your package will import two dependencies:
 * `ignite` for the `cosmosclient` package
 
 The `replace` directive uses the package from the local `blog` directory and is
-specified as a relative path to the `blogclient` directory.
+specified as a relative path to the `blogclient` directory. 
 
 Cosmos SDK uses a custom version of the `protobuf` package, so use the `replace`
 directive to specify the correct dependency.
@@ -210,6 +210,69 @@ package documentation for
 [`cosmosclient`](https://pkg.go.dev/github.com/ignite/cli/ignite/pkg/cosmosclient).
 This documentation provides information on how to use the `Client` type with
 `Options` and `KeyringBackend`.
+
+## Blockchain and Client App Are on Different Machines
+
+If the blockchain and the client app are not on the same machine, replace ../blog with the github
+repository pointing to your blog GitHub repository:
+
+dependencies for your package
+
+`go.mod` file:
+
+```text title="blogclient/go.mod"
+...
+replace blog => github.com/<github-user-name>/blog v0.0.0-00010101000000-000000000000
+...
+```
+
+and `main.go` file:
+
+```go title="blogclient/main.go"
+	// Importing the types package of your blog blockchain
+	"github.com/<github-user-name>/blog/x/blog/types"
+```
+
+Then, update the dependencies again: 
+
+```bash
+go mod tidy
+```
+
+## Using the Test Keyring Backend
+
+***Only for testing***
+
+Create a new directory inside the blog client named 'keyring-test'. Next, export the blockchain account keys from the user you want to be sign and broadcast the transaction too. After exporting, import the keys
+to the 'keyring-test' directory you just created in root directory of your client app. You can use the following `ignite account import` command:
+
+```bash
+ignite account import alice --keyring-dir /path/to/client/blogclient/keyring-test
+```
+
+Define the path inside 'main.go':
+
+```go title="blogclient/main.go"
+.
+.
+.
+func main() {
+    ctx := context.Background()
+    addressPrefix := "cosmos"
+
+    // Create a Cosmos client instance
+    client, err := cosmosclient.New(ctx, cosmosclient.WithAddressPrefix(addressPrefix),
+     cosmosclient.WithKeyringBackend("test"), cosmosclient.WithKeyringDir(".") ) 
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    // Account `alice` was initialized during `ignite chain serve` 
+    accountName :="aliceAddress"
+.
+.
+.
+```
 
 ## Run the blockchain and the client
 

@@ -49,7 +49,7 @@ govulncheck:
 format:
 	@echo Formatting...
 	@go run mvdan.cc/gofumpt -w .
-	@go run golang.org/x/tools/cmd/goimports -w -local github.com/ignite/cli .
+	@go run golang.org/x/tools/cmd/goimports -w -local github.com/ignite/cli/v28 .
 	@go run github.com/tbruyelle/mdgofmt/cmd/mdgofmt -w docs
 
 ## lint: Run Golang CI Lint.
@@ -64,7 +64,7 @@ lint-fix:
 .PHONY: govet format lint
 
 ## proto-all: Format, lint and generate code from proto files using buf.
-proto-all: proto-format proto-lint proto-gen
+proto-all: proto-format proto-lint proto-gen format
 
 ## proto-gen: Run buf generate.
 proto-gen:

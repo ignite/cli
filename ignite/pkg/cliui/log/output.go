@@ -4,10 +4,10 @@ import (
 	"io"
 	"os"
 
-	"github.com/ignite/cli/ignite/pkg/cliui/colors"
-	"github.com/ignite/cli/ignite/pkg/cliui/lineprefixer"
-	"github.com/ignite/cli/ignite/pkg/cliui/prefixgen"
-	"github.com/ignite/cli/ignite/pkg/xio"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/lineprefixer"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/prefixgen"
+	"github.com/ignite/cli/v28/ignite/pkg/xio"
 )
 
 const (
