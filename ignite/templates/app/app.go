@@ -18,7 +18,7 @@ var files embed.FS
 
 var (
 	ibcConfig        = "app/ibc.go"
-	minimalAppConfig = "app/minimal_app_config.go"
+	minimalAppConfig = "app/app_config_minimal.go"
 	appConfig        = "app/app_config.go"
 )
 
@@ -32,7 +32,7 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 	g := genny.New()
 
 	// always exclude minimal app config it will be created later
-	// minimal_app_config is only used for the minimal app template
+	// app_config_minimal is only used for the minimal app template
 	excludePrefix := []string{minimalAppConfig}
 	if opts.IsChainMinimal {
 		// minimal chain does not have ibc or classic app config
