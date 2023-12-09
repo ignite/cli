@@ -95,7 +95,7 @@ func (app *App) registerIBCModules() {
 		app.appCodec, app.GetKey(ibcfeetypes.StoreKey),
 		app.IBCKeeper.ChannelKeeper, // may be replaced with IBC middleware
 		app.IBCKeeper.ChannelKeeper,
-		app.IBCKeeper.PortKeeper, app.AccountKeeper, app.BankKeeper,
+		app.IBCKeeper.PortKeeper, app.AuthKeeper, app.BankKeeper,
 	)
 
 	// Create IBC transfer keeper
@@ -106,7 +106,7 @@ func (app *App) registerIBCModules() {
 		app.IBCFeeKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		app.IBCKeeper.PortKeeper,
-		app.AccountKeeper,
+		app.AuthKeeper,
 		app.BankKeeper,
 		scopedIBCTransferKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
@@ -120,7 +120,7 @@ func (app *App) registerIBCModules() {
 		app.IBCFeeKeeper, // use ics29 fee as ics4Wrapper in middleware stack
 		app.IBCKeeper.ChannelKeeper,
 		app.IBCKeeper.PortKeeper,
-		app.AccountKeeper,
+		app.AuthKeeper,
 		scopedICAHostKeeper,
 		app.MsgServiceRouter(),
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),

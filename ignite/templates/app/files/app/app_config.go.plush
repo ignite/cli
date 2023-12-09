@@ -85,7 +85,7 @@ var (
 		vestingtypes.ModuleName,
 		circuittypes.ModuleName,
 		group.ModuleName,
-		consensusparamtypes.ModuleName,
+		consensustypes.ModuleName,
 		circuittypes.ModuleName,
 		// chain modules
 		// this line is used by starport scaffolding # stargate/app/initGenesis
