@@ -159,11 +159,17 @@ type Config struct {
 	Faucet   Faucet          `yaml:"faucet,omitempty"`
 	Client   Client          `yaml:"client,omitempty"`
 	Genesis  xyaml.Map       `yaml:"genesis,omitempty"`
+	Minimal  bool            `yaml:"minimal,omitempty"`
 }
 
 // GetVersion returns the config version.
 func (c Config) GetVersion() version.Version {
 	return c.Version
+}
+
+// IsChainMinimal returns true if the chain is minimally scaffolded.
+func (c Config) IsChainMinimal() bool {
+	return c.Minimal
 }
 
 // SetDefaults assigns default values to empty config fields.

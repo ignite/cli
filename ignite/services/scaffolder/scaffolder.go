@@ -72,7 +72,12 @@ func finish(ctx context.Context, cacheStorage cache.Storage, path, gomodPath str
 	if err := gocmd.ModTidy(ctx, path); err != nil {
 		return err
 	}
-	return gocmd.Fmt(ctx, path)
+
+	if err := gocmd.Fmt(ctx, path); err != nil {
+		return err
+	}
+
+	return gocmd.GoImports(ctx, path)
 }
 
 func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodPath string) error {

@@ -55,10 +55,13 @@ func NewRootCmd() *cobra.Command {
 	); err != nil {
 		panic(err)
 	}
+
+<%= if (!IsChainMinimal) { %>
 	// Since the IBC modules don't support dependency injection, we need to
 	// manually add the modules to the basic manager on the client side.
 	// This needs to be removed after IBC supports App Wiring.
 	app.AddIBCModuleManager(moduleBasicManager)
+<% } %>
 
 	rootCmd := &cobra.Command{
 		Use:   app.Name + "d",
