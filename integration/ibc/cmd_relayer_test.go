@@ -391,18 +391,17 @@ func TestBlogIBC(t *testing.T) {
 				"--target-account", "default",
 			),
 			step.Workdir(app.SourcePath()),
+		)),
+	))
+
+	env.Must(env.Exec("run the ts relayer",
+		step.NewSteps(step.New(
+			step.Exec(envtest.IgniteApp, "relayer", "connect", "earth-mars"),
+			step.Workdir(app.SourcePath()),
 			step.Stdout(os.Stdout),
 			step.Stderr(os.Stderr),
 		)),
 	))
-	go func() {
-		env.Must(env.Exec("run the ts relayer",
-			step.NewSteps(step.New(
-				step.Exec(envtest.IgniteApp, "relayer", "connect"),
-				step.Workdir(app.SourcePath()),
-			)),
-		))
-	}()
 
 	var (
 		output     = &bytes.Buffer{}
