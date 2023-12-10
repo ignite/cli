@@ -30,6 +30,7 @@ var (
 	bobName    = "bob"
 	marsConfig = v1.Config{
 		Config: base.Config{
+			Version: 1,
 			Build: base.Build{
 				Proto: base.Proto{
 					Path:            "proto",
@@ -66,6 +67,7 @@ var (
 	}
 	earthConfig = v1.Config{
 		Config: base.Config{
+			Version: 1,
 			Build: base.Build{
 				Proto: base.Proto{
 					Path:            "proto",
@@ -173,16 +175,21 @@ func (k Keeper) OnTimeoutIbcPostPacket(ctx sdk.Context, packet channeltypes.Pack
 }`
 )
 
-func runChain(t *testing.T, env envtest.Env, app envtest.App, cfg v1.Config) string {
+func runChain(
+	t *testing.T,
+	env envtest.Env,
+	app envtest.App,
+	cfg v1.Config,
+) (api string, rpc string, faucet string) {
 	t.Helper()
 	var (
+		ctx      = env.Ctx()
 		tmpDir   = t.TempDir()
 		homePath = filepath.Join(tmpDir, randstr.Runes(10))
 		cfgPath  = filepath.Join(tmpDir, chain.ConfigFilenames[0])
-		ctx      = env.Ctx()
 	)
 	genAddr := func(port uint) string {
-		return fmt.Sprintf("0.0.0.0:%d", port)
+		return fmt.Sprintf("127.0.0.1:%d", port)
 	}
 
 	cfg.Validators[0].Home = homePath
@@ -204,18 +211,18 @@ func runChain(t *testing.T, env envtest.Env, app envtest.App, cfg v1.Config) str
 	require.NoError(t, yaml.NewEncoder(file).Encode(cfg))
 	require.NoError(t, file.Close())
 
-	app.SetConfigPath(cfgPath)
-
 	ctx, cancel := context.WithCancel(ctx)
 	t.Cleanup(func() {
 		cancel()
-		require.NoError(t, os.RemoveAll(homePath))
+		require.NoError(t, os.RemoveAll(tmpDir))
 	})
 
+	app.SetConfigPath(cfgPath)
+	app.SetHomePath(homePath)
 	go func() {
 		env.Must(app.Serve("should serve chain", envtest.ExecCtx(ctx)))
 	}()
-	return genAddr(ports[5])
+	return genAddr(ports[1]), genAddr(ports[5]), genAddr(ports[0])
 }
 
 func TestBlogIBC(t *testing.T) {
@@ -332,22 +339,22 @@ func TestBlogIBC(t *testing.T) {
 	))
 
 	// serve both chains.
-	earthRPC := runChain(t, env, app, earthConfig)
-	marsRPC := runChain(t, env, app, marsConfig)
+	earthAPI, earthRPC, earthFaucet := runChain(t, env, app, earthConfig)
+	marsAPI, marsRPC, marsFaucet := runChain(t, env, app, marsConfig)
 
 	// check the chains is up
 	stepsCheck := step.NewSteps(
 		step.New(
 			step.Exec(
 				app.Binary(),
-				"base",
+				"config",
 				"output", "json",
 			),
 			step.PreExec(func() error {
-				if err := env.IsAppServed(ctx, earthRPC); err != nil {
+				if err := env.IsAppServed(ctx, earthAPI); err != nil {
 					return err
 				}
-				return env.IsAppServed(ctx, marsRPC)
+				return env.IsAppServed(ctx, marsAPI)
 			}),
 		),
 	)
@@ -359,15 +366,15 @@ func TestBlogIBC(t *testing.T) {
 			step.Exec(envtest.IgniteApp,
 				"relayer",
 				"configure", "-a",
-				"--source-rpc", "http://0.0.0.0:26657",
-				"--source-faucet", "http://0.0.0.0:4500",
+				"--source-rpc", earthRPC,
+				"--source-faucet", earthFaucet,
 				"--source-port", "blog",
 				"--source-version", "blog-1",
 				"--source-gasprice", "0.0000025stake",
 				"--source-prefix", "cosmos",
 				"--source-gaslimit", "300000",
-				"--target-rpc", "http://0.0.0.0:26659",
-				"--target-faucet", "http://0.0.0.0:4501",
+				"--target-rpc", marsRPC,
+				"--target-faucet", marsFaucet,
 				"--target-port", "blog",
 				"--target-version", "blog-1",
 				"--target-gasprice", "0.0000025stake",
