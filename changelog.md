@@ -5,6 +5,7 @@
 ### Fixes
 
 - [#3825](https://github.com/ignite/cli/pull/3825) Fix a minor Keplr type-checking bug in TS client
+- [#3836](https://github.com/ignite/cli/pull/3836) Add missing IBC commands for scaffolded chain
 
 ### Features
 
