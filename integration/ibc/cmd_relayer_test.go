@@ -37,7 +37,7 @@ var (
 				},
 			},
 			Accounts: []base.Account{
-				{Name: "alice", Coins: []string{"1000token", "1000000000stake"}},
+				{Name: "alice", Coins: []string{"1000token", "100000000stake"}},
 				{Name: "bob", Coins: []string{"500token", "100000000stake"}},
 			},
 			Faucet: base.Faucet{
@@ -74,7 +74,7 @@ var (
 				},
 			},
 			Accounts: []base.Account{
-				{Name: "alice", Coins: []string{"1000token", "1000000000stake"}},
+				{Name: "alice", Coins: []string{"1000token", "100000000stake"}},
 				{Name: "bob", Coins: []string{"500token", "100000000stake"}},
 			},
 			Faucet: base.Faucet{
@@ -192,7 +192,7 @@ func runChain(
 		cfgPath  = filepath.Join(tmpDir, chain.ConfigFilenames[0])
 	)
 	genAddr := func(port uint) string {
-		return fmt.Sprintf("127.0.0.1:%d", port)
+		return fmt.Sprintf("0.0.0.0:%d", port)
 	}
 
 	cfg.Validators[0].Home = homePath
