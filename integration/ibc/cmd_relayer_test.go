@@ -350,7 +350,7 @@ func TestBlogIBC(t *testing.T) {
 	marsAPI, marsRPC, marsFaucet := runChain(t, env, app, marsConfig, ports[7:])
 
 	// check the chains is up
-	stepsCheck := step.NewSteps(
+	stepsCheckChains := step.NewSteps(
 		step.New(
 			step.Exec(
 				app.Binary(),
@@ -365,7 +365,7 @@ func TestBlogIBC(t *testing.T) {
 			}),
 		),
 	)
-	env.Exec("waiting the chain is up", stepsCheck, envtest.ExecRetry())
+	env.Exec("waiting the chain is up", stepsCheckChains, envtest.ExecRetry())
 
 	// configure and run the ts relayer.
 	env.Must(env.Exec("configure the ts relayer",
@@ -394,6 +394,7 @@ func TestBlogIBC(t *testing.T) {
 		)),
 	))
 
+	//go func() {
 	env.Must(env.Exec("run the ts relayer",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp, "relayer", "connect", "earth-mars"),
@@ -402,6 +403,25 @@ func TestBlogIBC(t *testing.T) {
 			step.Stderr(os.Stderr),
 		)),
 	))
+	//}()
+
+	stepsCheckRelayer := step.NewSteps(
+		step.New(
+			step.Exec(
+				// TODO query chain connection-id
+				app.Binary(),
+				"config",
+				"output", "json",
+			),
+			step.PreExec(func() error {
+				if err := env.IsAppServed(ctx, earthAPI); err != nil {
+					return err
+				}
+				return env.IsAppServed(ctx, marsAPI)
+			}),
+		),
+	))
+	env.Exec("run the ts relayer", stepsCheckRelayer, envtest.ExecRetry())
 
 	var (
 		output     = &bytes.Buffer{}
