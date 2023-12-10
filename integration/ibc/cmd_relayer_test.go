@@ -21,7 +21,6 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v28/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/v28/ignite/pkg/randstr"
-	"github.com/ignite/cli/v28/ignite/pkg/xurl"
 	yamlmap "github.com/ignite/cli/v28/ignite/pkg/yaml"
 	envtest "github.com/ignite/cli/v28/integration"
 )
@@ -222,7 +221,11 @@ func runChain(
 	go func() {
 		env.Must(app.Serve("should serve chain", envtest.ExecCtx(ctx)))
 	}()
-	return genAddr(ports[1]), genAddr(ports[5]), genAddr(ports[0])
+
+	genHTTPAddr := func(port uint) string {
+		return fmt.Sprintf("http://127.0.0.1:%d", port)
+	}
+	return genHTTPAddr(ports[1]), genHTTPAddr(ports[5]), genHTTPAddr(ports[0])
 }
 
 func TestBlogIBC(t *testing.T) {
@@ -373,6 +376,7 @@ func TestBlogIBC(t *testing.T) {
 				"--source-gasprice", "0.0000025stake",
 				"--source-prefix", "cosmos",
 				"--source-gaslimit", "300000",
+				"--source-account", "default",
 				"--target-rpc", marsRPC,
 				"--target-faucet", marsFaucet,
 				"--target-port", "blog",
@@ -380,8 +384,11 @@ func TestBlogIBC(t *testing.T) {
 				"--target-gasprice", "0.0000025stake",
 				"--target-prefix", "cosmos",
 				"--target-gaslimit", "300000",
+				"--target-account", "default",
 			),
 			step.Workdir(app.SourcePath()),
+			step.Stdout(os.Stdout),
+			step.Stderr(os.Stderr),
 		)),
 	))
 	go func() {
@@ -401,11 +408,6 @@ func TestBlogIBC(t *testing.T) {
 		}
 	)
 
-	nodeAddr, err := xurl.TCP(earthRPC)
-	if err != nil {
-		t.Fatalf("cant read nodeAddr from host.RPC %v: %v", earthRPC, err)
-	}
-
 	// sign tx to add an item to the list.
 	stepsTx := step.NewSteps(
 		step.New(
@@ -424,7 +426,7 @@ func TestBlogIBC(t *testing.T) {
 				"Hello Mars, I'm Alice from Earth",
 				"--chain-id", "blog",
 				"--from", "alice",
-				"--node", nodeAddr,
+				"--node", earthRPC,
 				"--output", "json",
 				"--log_format", "json",
 				"--yes",
