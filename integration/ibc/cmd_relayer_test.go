@@ -179,8 +179,12 @@ func runChain(
 	env envtest.Env,
 	app envtest.App,
 	cfg v1.Config,
+	ports []uint,
 ) (api string, rpc string, faucet string) {
 	t.Helper()
+	if len(ports) < 7 {
+		t.Fatalf("invalid number of ports %d", len(ports))
+	}
 	var (
 		ctx      = env.Ctx()
 		tmpDir   = t.TempDir()
@@ -192,8 +196,6 @@ func runChain(
 	}
 
 	cfg.Validators[0].Home = homePath
-	ports, err := availableport.Find(7)
-	require.NoError(t, err)
 
 	cfg.Faucet.Host = genAddr(ports[0])
 	cfg.Validators[0].App["api"] = yamlmap.Map{"address": genAddr(ports[1])}
@@ -342,8 +344,10 @@ func TestBlogIBC(t *testing.T) {
 	))
 
 	// serve both chains.
-	earthAPI, earthRPC, earthFaucet := runChain(t, env, app, earthConfig)
-	marsAPI, marsRPC, marsFaucet := runChain(t, env, app, marsConfig)
+	ports, err := availableport.Find(14)
+	require.NoError(t, err)
+	earthAPI, earthRPC, earthFaucet := runChain(t, env, app, earthConfig, ports[:7])
+	marsAPI, marsRPC, marsFaucet := runChain(t, env, app, marsConfig, ports[7:])
 
 	// check the chains is up
 	stepsCheck := step.NewSteps(
@@ -368,7 +372,7 @@ func TestBlogIBC(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp,
 				"relayer",
-				"configure", "-a",
+				"configure", "-a", "-r",
 				"--source-rpc", earthRPC,
 				"--source-faucet", earthFaucet,
 				"--source-port", "blog",
