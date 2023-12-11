@@ -73,9 +73,7 @@ func finish(ctx context.Context, cacheStorage cache.Storage, path, gomodPath str
 		return err
 	}
 
-	if err := gocmd.GoImports(ctx, path); err != nil {
-		return err
-	}
+	_ = gocmd.GoImports(ctx, path) // goimports installation could fail, so ignore the error
 
 	return gocmd.ModTidy(ctx, path)
 }
