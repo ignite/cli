@@ -105,7 +105,7 @@ func (c client) ExecuteHookCleanUp(ctx context.Context, h *ExecutedHook, api Cli
 	return err
 }
 
-func (c client) startClientAPIServer(api ClientAPI) (uint32, func() bool) {
+func (c client) startClientAPIServer(api ClientAPI) (uint32, func()) {
 	var (
 		srv      *grpc.Server
 		brokerID = c.broker.NextId()
@@ -117,12 +117,10 @@ func (c client) startClientAPIServer(api ClientAPI) (uint32, func() bool) {
 		return srv
 	})
 
-	stop := func() bool {
+	stop := func() {
 		if srv != nil {
 			srv.Stop()
-			return true
 		}
-		return false
 	}
 
 	return brokerID, stop
