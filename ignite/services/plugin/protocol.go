@@ -117,7 +117,13 @@ func (c client) startClientAPIServer(api ClientAPI) (uint32, func()) {
 		return srv
 	})
 
-	return brokerID, func() { srv.Stop() }
+	stop := func() {
+		if srv != nil {
+			srv.Stop()
+		}
+	}
+
+	return brokerID, stop
 }
 
 type server struct {
