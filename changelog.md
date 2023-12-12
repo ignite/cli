@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Fixes
+
+- [#3831](https://github.com/ignite/cli/pull/3831) Correct ignite app gRPC server stop memory issue
+- [#3825](https://github.com/ignite/cli/pull/3825) Fix a minor Keplr type-checking bug in TS client
+- [#3836](https://github.com/ignite/cli/pull/3836) Add missing IBC commands for scaffolded chain
+
 ### Features
 
 - [#3830](https://github.com/ignite/cli/pull/3830) Remove gRPC info from Ignite Apps errors
@@ -9,13 +15,6 @@
 ### Changes
 
 - [#3723](https://github.com/ignite/cli/pull/3723) Create a wrapper for errors
-
-### Fixes
-
-- [#3825](https://github.com/ignite/cli/pull/3825) Fix a minor Keplr type-checking bug in TS client
-- [#3831](https://github.com/ignite/cli/pull/3831) Correct ignite app gRPC server stop memory issue
-- [#3825](https://github.com/ignite/cli/pull/3825) Fix a minor Keplr type-checking bug in TS client
-- [#3836](https://github.com/ignite/cli/pull/3836) Add missing IBC commands for scaffolded chain
 
 ## [`v28.0.0`](https://github.com/ignite/cli/releases/tag/v28.0.0)
 
