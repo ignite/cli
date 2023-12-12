@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	errOldCosmosSDKVersion = `your chain has been scaffolded with an older version of Cosmos SDK: %s
+	errOldCosmosSDKVersionStr = `Your chain has been scaffolded with an older version of Cosmos SDK: %s
 
 Please, follow the migration guide to upgrade your chain to the latest version at https://docs.ignite.com/migration`
 
@@ -110,7 +110,7 @@ func Long(ctx context.Context) string {
 	)
 	if info, ok := debug.ReadBuildInfo(); ok {
 		for _, dep := range info.Deps {
-			if dep.Path == cosmosver.CosmosModulePath {
+			if cosmosver.CosmosSDKModulePathPattern.MatchString(dep.Path) {
 				sdkVersion = dep.Version
 				break
 			}
@@ -190,7 +190,7 @@ func Long(ctx context.Context) string {
 // AssertSupportedCosmosSDKVersion asserts that a Cosmos SDK version is supported by Ignite CLI.
 func AssertSupportedCosmosSDKVersion(v cosmosver.Version) error {
 	if v.LT(cosmosver.StargateFortySevenTwoVersion) {
-		return fmt.Errorf(errOldCosmosSDKVersion, v)
+		return fmt.Errorf(errOldCosmosSDKVersionStr, v) //nolint:stylecheck // gives a prettier error message
 	}
 	return nil
 }
