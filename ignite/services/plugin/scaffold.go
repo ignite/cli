@@ -10,6 +10,8 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
@@ -22,6 +24,7 @@ var fsPluginSource embed.FS
 func Scaffold(ctx context.Context, dir, moduleName string, sharedHost bool) (string, error) {
 	var (
 		name     = filepath.Base(moduleName)
+		title    = strings.ReplaceAll(strings.ReplaceAll(cases.Title(language.English).String(name), "_", ""), "-", "")
 		finalDir = path.Join(dir, name)
 		g        = genny.New()
 		template = xgenny.NewEmbedWalker(
@@ -43,7 +46,7 @@ func Scaffold(ctx context.Context, dir, moduleName string, sharedHost bool) (str
 	pctx := plush.NewContextWithContext(ctx)
 	pctx.Set("ModuleName", moduleName)
 	pctx.Set("Name", name)
-	pctx.Set("Title", strings.ToTitle(name))
+	pctx.Set("Title", title)
 	pctx.Set("SharedHost", sharedHost)
 
 	g.Transformer(xgenny.Transformer(pctx))

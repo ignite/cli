@@ -4,16 +4,15 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
-	"regexp"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/ignite/services/plugin"
-	envtest "github.com/ignite/cli/integration"
+	pluginsconfig "github.com/ignite/cli/v28/ignite/config/plugins"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/services/plugin"
+	envtest "github.com/ignite/cli/v28/integration"
 )
 
 func Test<%= Title %>(t *testing.T) {
