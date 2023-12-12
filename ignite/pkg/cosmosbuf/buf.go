@@ -96,7 +96,7 @@ func (b Buf) Update(ctx context.Context, modDir string, dependencies ...string) 
 // Export runs the buf Export command for the files in the proto directory.
 func (b Buf) Export(ctx context.Context, protoDir, output string) error {
 	// Check if the proto directory is the Cosmos SDK one
-	if strings.Contains(protoDir, cosmosver.CosmosModulePath) {
+	if cosmosver.CosmosSDKModulePathPattern.MatchString(protoDir) {
 		if b.sdkProtoDir == "" {
 			// Copy Cosmos SDK proto path without the Buf workspace.
 			// This is done because the workspace contains a reference to
@@ -164,7 +164,7 @@ func (b Buf) Generate(
 	// can't download this folder because is unused as a dependency. We need to
 	// change the workspace copying the files to another folder and generate the
 	// files.
-	if strings.Contains(protoDir, cosmosver.CosmosModulePath) {
+	if cosmosver.CosmosSDKModulePathPattern.MatchString(protoDir) {
 		if b.sdkProtoDir == "" {
 			b.sdkProtoDir, err = copySDKProtoDir(protoDir)
 			if err != nil {
