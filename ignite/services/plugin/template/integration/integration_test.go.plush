@@ -67,5 +67,5 @@ func Test<%= Title %>(t *testing.T) {
 			step.Stdout(buf),
 		)),
 	))
-	assert.Equal("Hello world!\n", buf.String())
+	assert.Equal("Hello, world!\n", buf.String())
 }
