@@ -9,6 +9,7 @@
 ### Changes
 
 - [#3838](https://github.com/ignite/cli/pull/3838) Scaffold chain with Cosmos SDK `v0.50.2`, and bump confix and x/upgrade to latest
+- [#3770](https://github.com/ignite/cli/pull/3770) Add `scaffold configs` and `scaffold params` commands
 
 ### Fixes
 
@@ -16,11 +17,6 @@
 - [#3831](https://github.com/ignite/cli/pull/3831) Correct ignite app gRPC server stop memory issue
 - [#3825](https://github.com/ignite/cli/pull/3825) Fix a minor Keplr type-checking bug in TS client
 - [#3836](https://github.com/ignite/cli/pull/3836) Add missing IBC commands for scaffolded chain
-
-### Features
-
-- [#3830](https://github.com/ignite/cli/pull/3830) Remove gRPC info from Ignite Apps errors
-- [#3684](https://github.com/ignite/cli/issues/3684) Add scaffold params command
 - [#3833](https://github.com/ignite/cli/pull/3833) Improve Cosmos SDK detection to support SDK forks
 
 ## [`v28.0.0`](https://github.com/ignite/cli/releases/tag/v28.0.0)
