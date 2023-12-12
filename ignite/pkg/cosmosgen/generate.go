@@ -8,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
-	"strings"
 
 	"gopkg.in/yaml.v2"
 
@@ -35,7 +34,7 @@ const (
 
 var (
 	ErrBufConfig     = errors.New("invalid Buf config")
-	ErrMissingSDKDep = errors.New("cosmos SDK dependency not found")
+	ErrMissingSDKDep = errors.New("cosmos-sdk dependency not found")
 
 	protocGlobalInclude = xfilepath.List(
 		xfilepath.JoinFromHome(xfilepath.Path("local/include")),
@@ -96,21 +95,19 @@ func (g *generator) setup(ctx context.Context) (err error) {
 		return err
 	}
 
-	g.sdkImport = cosmosver.CosmosModulePath
-
-	// Check if the Cosmos SDK import path points to a different path
-	// and if so change the default one to the new location.
-	for _, r := range modFile.Replace {
-		if r.Old.Path == cosmosver.CosmosModulePath {
-			g.sdkImport = r.New.Path
-			break
-		}
-	}
-
 	// Read the dependencies defined in the `go.mod` file
 	g.deps, err = gomodule.ResolveDependencies(modFile, false)
 	if err != nil {
 		return err
+	}
+
+	// Dependencies are resolved, it is possible that the cosmos sdk has been replaced
+	g.sdkImport = cosmosver.CosmosModulePath
+	for _, dep := range g.deps {
+		if cosmosver.CosmosSDKModulePathPattern.MatchString(dep.Path) {
+			g.sdkImport = dep.Path
+			break
+		}
 	}
 
 	// Discover any custom modules defined by the user's app.
@@ -487,7 +484,7 @@ func (g generator) vendorProtoPackage(pkgName, protoPath string) (err error) {
 
 func filterCosmosSDKModule(versions []gomodule.Version) (gomodule.Version, bool) {
 	for _, v := range versions {
-		if strings.HasPrefix(v.Path, cosmosver.CosmosModulePath) {
+		if cosmosver.CosmosSDKModulePathPattern.MatchString(v.Path) {
 			return v, true
 		}
 	}

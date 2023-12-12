@@ -74,6 +74,8 @@ func FilterVersions(dependencies []Version, paths ...string) []Version {
 	return filtered
 }
 
+// ResolveDependencies resolves dependencies from go.mod file.
+// It replaces direct dependencies with their replacements.
 func ResolveDependencies(f *modfile.File, includeIndirect bool) ([]Version, error) {
 	var versions []Version
 
