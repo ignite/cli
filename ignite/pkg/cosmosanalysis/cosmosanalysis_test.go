@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodule"
 )
 
 var (
@@ -227,5 +228,23 @@ func TestIsChainPath(t *testing.T) {
 	require.ErrorAs(t, err, &cosmosanalysis.ErrPathNotChain{})
 
 	err = cosmosanalysis.IsChainPath("testdata/chain")
+	require.NoError(t, err)
+
+	// testdata/chain-sdk-fork is a chain using a fork of the Cosmos SDK
+	// so it should still be considered as a chain as ValidateGoMod
+	// does not resolve the module file replacement.
+	err = cosmosanalysis.IsChainPath("testdata/chain-sdk-fork")
+	require.NoError(t, err)
+}
+
+func TestValidateGoMod(t *testing.T) {
+	modFile, err := gomodule.ParseAt("testdata/chain")
+	require.NoError(t, err)
+	err = cosmosanalysis.ValidateGoMod(modFile)
+	require.NoError(t, err)
+
+	modFile, err = gomodule.ParseAt("testdata/chain-sdk-fork")
+	require.NoError(t, err)
+	err = cosmosanalysis.ValidateGoMod(modFile)
 	require.NoError(t, err)
 }
