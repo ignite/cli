@@ -8,6 +8,7 @@
 
 ### Changes
 
+- [#3822](https://github.com/ignite/cli/pull/3822) Improve default scaffolded AutoCLI config
 - [#3838](https://github.com/ignite/cli/pull/3838) Scaffold chain with Cosmos SDK `v0.50.2`, and bump confix and x/upgrade to latest
 
 ### Fixes

@@ -627,30 +627,36 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 			return err
 		}
 
-		var positionalArgs string
+		var positionalArgs, positionalArgsStr string
+		var indexes, indexesStr string
 		for _, field := range opts.Fields {
 			positionalArgs += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
+			positionalArgsStr += fmt.Sprintf("[%s] ", field.ProtoFieldName())
 		}
 		for _, field := range opts.Indexes {
-			positionalArgs += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
+			indexes += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
+			indexesStr += fmt.Sprintf("[%s] ", field.ProtoFieldName())
 		}
+		positionalArgs = indexes + positionalArgs
+		positionalArgsStr = indexesStr + positionalArgsStr
 
 		template := `{
 			RpcMethod: "Create%[2]v",
-			Use: "create-%[3]v",
+			Use: "create-%[3]v %[6]s",
 			Short: "Create a new %[4]v",
 			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
 		},
 		{
 			RpcMethod: "Update%[2]v",
-			Use: "update-%[3]v",
+			Use: "update-%[3]v %[6]s",
 			Short: "Update %[4]v",
 			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
 		},
 		{
 			RpcMethod: "Delete%[2]v",
-			Use: "delete-%[3]v",
+			Use: "delete-%[3]v %[8]s",
 			Short: "Delete %[4]v",
+			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[7]s},
 		},
 		%[1]v`
 
@@ -661,6 +667,9 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 			opts.TypeName.Kebab,
 			opts.TypeName.Original,
 			strings.TrimSpace(positionalArgs),
+			strings.TrimSpace(positionalArgsStr),
+			strings.TrimSpace(indexes),
+			strings.TrimSpace(indexesStr),
 		)
 
 		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLITx, replacement)
