@@ -8,8 +8,10 @@
 
 ### Fixes
 
+- [#3827](https://github.com/ignite/cli/pull/3827) Change ignite apps to be able to run in any directory
 - [#3831](https://github.com/ignite/cli/pull/3831) Correct ignite app gRPC server stop memory issue
 - [#3825](https://github.com/ignite/cli/pull/3825) Fix a minor Keplr type-checking bug in TS client
+- [#3836](https://github.com/ignite/cli/pull/3836) Add missing IBC commands for scaffolded chain
 - [#3833](https://github.com/ignite/cli/pull/3833) Improve Cosmos SDK detection to support SDK forks
 
 ## [`v28.0.0`](https://github.com/ignite/cli/releases/tag/v28.0.0)
