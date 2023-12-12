@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
@@ -42,6 +43,7 @@ func Scaffold(ctx context.Context, dir, moduleName string, sharedHost bool) (str
 	pctx := plush.NewContextWithContext(ctx)
 	pctx.Set("ModuleName", moduleName)
 	pctx.Set("Name", name)
+	pctx.Set("Title", strings.ToTitle(name))
 	pctx.Set("SharedHost", sharedHost)
 
 	g.Transformer(xgenny.Transformer(pctx))

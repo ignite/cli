@@ -1,0 +1,3 @@
+<%= Name %>:
+  description: <%= Name %> is an awesome Ignite application!
+  path: ./
