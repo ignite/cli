@@ -16,6 +16,7 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodule"
 	"github.com/ignite/cli/v28/ignite/pkg/xgit"
 	"github.com/ignite/cli/v28/ignite/services/plugin"
 )
@@ -197,8 +198,6 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 
 	preRun := cmd.PreRunE
 	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
-		ctx := cmd.Context()
-
 		if preRun != nil {
 			err := preRun(cmd, args)
 			if err != nil {
@@ -206,12 +205,15 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 			}
 		}
 
-		execHook := newExecutedHook(hook, cmd, args)
+		// Get chain when the plugin runs inside an blockchain app
 		c, err := newChainWithHomeFlags(cmd)
-		if err != nil {
+		if err != nil && !errors.Is(err, gomodule.ErrGoModNotFound) {
 			return err
 		}
-		err = p.Interface.ExecuteHookPre(ctx, execHook, plugin.NewClientAPI(c))
+
+		ctx := cmd.Context()
+		execHook := newExecutedHook(hook, cmd, args)
+		err = p.Interface.ExecuteHookPre(ctx, execHook, plugin.NewClientAPI(plugin.WithChain(c)))
 		if err != nil {
 			return fmt.Errorf("app %q ExecuteHookPre() error: %w", p.Path, err)
 		}
@@ -225,13 +227,15 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 			err := runCmd(cmd, args)
 			// if the command has failed the `PostRun` will not execute. here we execute the cleanup step before returnning.
 			if err != nil {
-				ctx := cmd.Context()
-				execHook := newExecutedHook(hook, cmd, args)
+				// Get chain when the plugin runs inside an blockchain app
 				c, err := newChainWithHomeFlags(cmd)
-				if err != nil {
+				if err != nil && !errors.Is(err, gomodule.ErrGoModNotFound) {
 					return err
 				}
-				err = p.Interface.ExecuteHookCleanUp(ctx, execHook, plugin.NewClientAPI(c))
+
+				ctx := cmd.Context()
+				execHook := newExecutedHook(hook, cmd, args)
+				err = p.Interface.ExecuteHookCleanUp(ctx, execHook, plugin.NewClientAPI(plugin.WithChain(c)))
 				if err != nil {
 					cmd.Printf("app %q ExecuteHookCleanUp() error: %v", p.Path, err)
 				}
@@ -245,16 +249,17 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 
 	postCmd := cmd.PostRunE
 	cmd.PostRunE = func(cmd *cobra.Command, args []string) error {
-		ctx := cmd.Context()
-		execHook := newExecutedHook(hook, cmd, args)
-
+		// Get chain when the plugin runs inside an blockchain app
 		c, err := newChainWithHomeFlags(cmd)
-		if err != nil {
+		if err != nil && !errors.Is(err, gomodule.ErrGoModNotFound) {
 			return err
 		}
 
+		ctx := cmd.Context()
+		execHook := newExecutedHook(hook, cmd, args)
+
 		defer func() {
-			err := p.Interface.ExecuteHookCleanUp(ctx, execHook, plugin.NewClientAPI(c))
+			err := p.Interface.ExecuteHookCleanUp(ctx, execHook, plugin.NewClientAPI(plugin.WithChain(c)))
 			if err != nil {
 				cmd.Printf("app %q ExecuteHookCleanUp() error: %v", p.Path, err)
 			}
@@ -268,7 +273,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 			}
 		}
 
-		err = p.Interface.ExecuteHookPost(ctx, execHook, plugin.NewClientAPI(c))
+		err = p.Interface.ExecuteHookPost(ctx, execHook, plugin.NewClientAPI(plugin.WithChain(c)))
 		if err != nil {
 			return fmt.Errorf("app %q ExecuteHookPost() error : %w", p.Path, err)
 		}
@@ -331,6 +336,13 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd *plugin.C
 		newCmd.RunE = func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
 			return clictx.Do(ctx, func() error {
+				// Get chain when the plugin runs inside an blockchain app
+				c, err := newChainWithHomeFlags(cmd)
+				if err != nil && !errors.Is(err, gomodule.ErrGoModNotFound) {
+					return err
+				}
+
+				// Call the plugin Execute
 				execCmd := &plugin.ExecutedCommand{
 					Use:    cmd.Use,
 					Path:   cmd.CommandPath(),
@@ -339,12 +351,8 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd *plugin.C
 					With:   p.With,
 				}
 				execCmd.ImportFlags(cmd)
-				// Call the plugin Execute
-				c, err := newChainWithHomeFlags(cmd)
-				if err != nil {
-					return err
-				}
-				err = p.Interface.Execute(ctx, execCmd, plugin.NewClientAPI(c))
+				err = p.Interface.Execute(ctx, execCmd, plugin.NewClientAPI(plugin.WithChain(c)))
+
 				// NOTE(tb): This pause gives enough time for go-plugin to sync the
 				// output from stdout/stderr of the plugin. Without that pause, this
 				// output can be discarded and not printed in the user console.
