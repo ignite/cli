@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/adapter/postgres"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmostxcollector/adapter/postgres"
 )
 
 func TestFilter(t *testing.T) {

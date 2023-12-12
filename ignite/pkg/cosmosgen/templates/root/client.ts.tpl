@@ -8,7 +8,7 @@ import {
 import { SigningStargateClient, StdFee } from "@cosmjs/stargate";
 import { Env } from "./env";
 import { UnionToIntersection, Return, Constructor } from "./helpers";
-import { Module } from "./modules";
+import { IgntModule } from "./modules";
 import { EventEmitter } from "events";
 import { ChainInfo } from "@keplr-wallet/types";
 
@@ -18,11 +18,11 @@ const defaultFee = {
 };
 
 export class IgniteClient extends EventEmitter {
-	static plugins: Module[] = [];
+	static plugins: IgntModule[] = [];
   env: Env;
   signer?: OfflineSigner;
   registry: Array<[string, GeneratedType]> = [];
-  static plugin<T extends Module | Module[]>(plugin: T) {
+  static plugin<T extends IgntModule | IgntModule[]>(plugin: T) {
     const currentPlugins = this.plugins;
 
     class AugmentedClient extends this {
@@ -135,8 +135,6 @@ export class IgniteClient extends EventEmitter {
           return y;
         }) ?? [];
 
-      let coinType = 118;
-
       if (chainId) {
         const suggestOptions: ChainInfo = {
           chainId,
@@ -148,7 +146,6 @@ export class IgniteClient extends EventEmitter {
           bech32Config,
           currencies,
           feeCurrencies,
-          coinType,
           ...keplrChainInfo,
         };
         await window.keplr.experimentalSuggestChain(suggestOptions);

@@ -11,16 +11,16 @@ import (
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
 
-	"github.com/ignite/cli/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
-	"github.com/ignite/cli/ignite/pkg/xgenny"
-	"github.com/ignite/cli/ignite/pkg/xstrings"
-	"github.com/ignite/cli/ignite/templates/field"
-	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
-	"github.com/ignite/cli/ignite/templates/module"
-	"github.com/ignite/cli/ignite/templates/testutil"
-	"github.com/ignite/cli/ignite/templates/typed"
+	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v28/ignite/pkg/xstrings"
+	"github.com/ignite/cli/v28/ignite/templates/field"
+	"github.com/ignite/cli/v28/ignite/templates/field/plushhelpers"
+	"github.com/ignite/cli/v28/ignite/templates/module"
+	"github.com/ignite/cli/v28/ignite/templates/testutil"
+	"github.com/ignite/cli/v28/ignite/templates/typed"
 )
 
 var (
@@ -191,7 +191,7 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		name := xstrings.Title(opts.ModuleName) + "PacketData"
+		name := fmt.Sprintf("%sPacketData", xstrings.Title(opts.ModuleName))
 		message, err := protoutil.GetMessageByName(protoFile, name)
 		if err != nil {
 			return fmt.Errorf("failed while looking up '%s' message in %s: %w", name, path, err)
@@ -305,7 +305,11 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 			return fmt.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
 		}
 		typenameUpper := opts.PacketName.UpperCamel
-		send := protoutil.NewRPC("Send"+typenameUpper, "MsgSend"+typenameUpper, "MsgSend"+typenameUpper+"Response")
+		send := protoutil.NewRPC(
+			fmt.Sprintf("Send%s", typenameUpper),
+			fmt.Sprintf("MsgSend%s", typenameUpper),
+			fmt.Sprintf("MsgSend%sResponse", typenameUpper),
+		)
 		protoutil.Append(serviceMsg, send)
 
 		// Create fields for MsgSend.

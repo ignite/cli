@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/templates/field/datatype"
+	"github.com/ignite/cli/v28/ignite/templates/field/datatype"
 )
 
 func TestIsSupportedType(t *testing.T) {

@@ -6,7 +6,7 @@ import (
 	hplugin "github.com/hashicorp/go-plugin"
 	"google.golang.org/grpc"
 
-	v1 "github.com/ignite/cli/ignite/services/plugin/grpc/v1"
+	v1 "github.com/ignite/cli/v28/ignite/services/plugin/grpc/v1"
 )
 
 var handshakeConfig = hplugin.HandshakeConfig{
@@ -117,7 +117,13 @@ func (c client) startClientAPIServer(api ClientAPI) (uint32, func()) {
 		return srv
 	})
 
-	return brokerID, func() { srv.Stop() }
+	stop := func() {
+		if srv != nil {
+			srv.Stop()
+		}
+	}
+
+	return brokerID, stop
 }
 
 type server struct {

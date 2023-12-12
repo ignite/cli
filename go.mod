@@ -1,4 +1,4 @@
-module github.com/ignite/cli
+module github.com/ignite/cli/v28
 
 go 1.21.1
 
@@ -31,7 +31,7 @@ require (
 	github.com/charmbracelet/bubbletea v0.23.2
 	github.com/charmbracelet/glow v1.4.1
 	github.com/charmbracelet/lipgloss v0.6.0
-	github.com/cometbft/cometbft v0.38.0
+	github.com/cometbft/cometbft v0.38.2
 	github.com/cosmos/cosmos-sdk v0.50.1
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.11
@@ -54,9 +54,9 @@ require (
 	github.com/hashicorp/go-hclog v1.5.0
 	github.com/hashicorp/go-plugin v1.5.2
 	github.com/iancoleman/strcase v0.3.0
-	github.com/ignite/ignite-files/nodetime v0.0.2
+	github.com/ignite/ignite-files/nodetime v0.0.4
 	github.com/ignite/ignite-files/protoc v0.0.1
-	github.com/ignite/web v0.5.1
+	github.com/ignite/web v0.6.1
 	github.com/imdario/mergo v0.3.13
 	github.com/jpillora/chisel v1.9.1
 	github.com/lib/pq v1.10.9

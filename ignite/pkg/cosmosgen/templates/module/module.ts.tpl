@@ -119,7 +119,7 @@ class SDKModule {
 	}
 };
 
-const Module = (test: IgniteClient) => {
+const IgntModule = (test: IgniteClient) => {
 	return {
 		module: {
 			{{ camelCaseUpperSta .Module.Pkg.Name }}: new SDKModule(test)
@@ -127,4 +127,4 @@ const Module = (test: IgniteClient) => {
 		registry: msgTypes
   }
 }
-export default Module;
+export default IgntModule;

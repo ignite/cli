@@ -17,11 +17,11 @@ import (
 	"github.com/cenkalti/backoff"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
-	"github.com/ignite/cli/ignite/pkg/env"
-	"github.com/ignite/cli/ignite/pkg/gocmd"
-	"github.com/ignite/cli/ignite/pkg/httpstatuschecker"
-	"github.com/ignite/cli/ignite/pkg/xurl"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosfaucet"
+	"github.com/ignite/cli/v28/ignite/pkg/env"
+	"github.com/ignite/cli/v28/ignite/pkg/gocmd"
+	"github.com/ignite/cli/v28/ignite/pkg/httpstatuschecker"
+	"github.com/ignite/cli/v28/ignite/pkg/xurl"
 )
 
 const (
@@ -71,7 +71,7 @@ func compileBinary(ctx context.Context) {
 	if err != nil {
 		panic(fmt.Sprintf("unable to get working dir: %v", err))
 	}
-	pkgs, err := gocmd.List(ctx, wd, []string{"-m", "-f={{.Dir}}", "github.com/ignite/cli"})
+	pkgs, err := gocmd.List(ctx, wd, []string{"-m", "-f={{.Dir}}", "github.com/ignite/cli/v28"})
 	if err != nil {
 		panic(fmt.Sprintf("unable to list ignite cli package: %v", err))
 	}

@@ -29,12 +29,11 @@ type (
 	}
 	// Metric represents a data point.
 	Metric struct {
-		Status             string `json:"status,omitempty"`
+		Name               string `json:"name,omitempty"`
+		Cmd                string `json:"command,omitempty"`
+		Tag                string `json:"tag,omitempty"`
 		OS                 string `json:"os,omitempty"`
 		Arch               string `json:"arch,omitempty"`
-		FullCmd            string `json:"full_command,omitempty"`
-		Cmd                string `json:"command,omitempty"`
-		Error              string `json:"error,omitempty"`
 		Version            string `json:"version,omitempty"`
 		SessionID          string `json:"session_id,omitempty"`
 		EngagementTimeMsec string `json:"engagement_time_msec,omitempty"`

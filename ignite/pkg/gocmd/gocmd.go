@@ -9,9 +9,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/ignite/pkg/goenv"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/pkg/goenv"
 )
 
 const (
@@ -32,6 +32,9 @@ const (
 
 	// CommandModVerify represents go mod "verify" command.
 	CommandModVerify = "verify"
+
+	// CommandModDownload represents go mod "download" command.
+	CommandModDownload = "download"
 
 	// CommandFmt represents go "fmt" command.
 	CommandFmt = "fmt"
@@ -103,6 +106,15 @@ func ModTidy(ctx context.Context, path string, options ...exec.Option) error {
 // ModVerify runs go mod verify on path with options.
 func ModVerify(ctx context.Context, path string, options ...exec.Option) error {
 	return exec.Exec(ctx, []string{Name(), CommandMod, CommandModVerify}, append(options, exec.StepOption(step.Workdir(path)))...)
+}
+
+// ModDownload runs go mod download on a path with options.
+func ModDownload(ctx context.Context, path string, json bool, options ...exec.Option) error {
+	command := []string{Name(), CommandMod, CommandModDownload}
+	if json {
+		command = append(command, "-json")
+	}
+	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
 }
 
 // BuildPath runs go install on cmd folder with options.
