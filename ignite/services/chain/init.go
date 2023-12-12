@@ -8,19 +8,16 @@ import (
 	"strings"
 	"time"
 
-
-	commitmenttypes "github.com/cosmos/ibc-go/v7/modules/core/23-commitment/types"
-	ibctmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
-	"github.com/imdario/mergo"
-
 	cmtypes "github.com/cometbft/cometbft/abci/types"
 	cmprivval "github.com/cometbft/cometbft/privval"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-
+	commitmenttypes "github.com/cosmos/ibc-go/v8/modules/core/23-commitment/types"
+	ibctmtypes "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
 	ccvconsumertypes "github.com/cosmos/interchain-security/v3/x/ccv/consumer/types"
 	ccvtypes "github.com/cosmos/interchain-security/v3/x/ccv/types"
+	"github.com/imdario/mergo"
 
 	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
 	chaincmdrunner "github.com/ignite/cli/v28/ignite/pkg/chaincmd/runner"
