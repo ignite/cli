@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Features
+
+- [#3830](https://github.com/ignite/cli/pull/3830) Remove gRPC info from Ignite Apps errors
+
+### Changes
+
+- [#3838](https://github.com/ignite/cli/pull/3838) Scaffold chain with Cosmos SDK `v0.50.2`, and bump confix and x/upgrade to latest
+
 ### Fixes
 
 - [#3827](https://github.com/ignite/cli/pull/3827) Change ignite apps to be able to run in any directory
@@ -13,6 +21,7 @@
 
 - [#3830](https://github.com/ignite/cli/pull/3830) Remove gRPC info from Ignite Apps errors
 - [#3684](https://github.com/ignite/cli/issues/3684) Add scaffold params command
+- [#3833](https://github.com/ignite/cli/pull/3833) Improve Cosmos SDK detection to support SDK forks
 
 ## [`v28.0.0`](https://github.com/ignite/cli/releases/tag/v28.0.0)
 

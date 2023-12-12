@@ -233,6 +233,7 @@ func ValidateGoMod(module *modfile.File) error {
 		cosmosver.CosmosModulePath: true,
 		tendermintModulePath:       true,
 	}
+
 	for _, r := range module.Require {
 		delete(moduleCheck, r.Mod.Path)
 	}
