@@ -211,16 +211,16 @@ func (c *Chain) writeConsumerGenesis() error {
 			),
 			NextValidatorsHash: []byte("E30CE736441FB9101FADDAF7E578ABBE6DFDB67207112350A9A904D554E1F5BE"),
 		}
-		params = ccvconsumertypes.NewParams(
+		params = ccvtypes.NewParams(
 			true,
 			1000, // ignore distribution
 			"",   // ignore distribution
 			"",   // ignore distribution
 			ccvtypes.DefaultCCVTimeoutPeriod,
-			ccvconsumertypes.DefaultTransferTimeoutPeriod,
-			ccvconsumertypes.DefaultConsumerRedistributeFrac,
-			ccvconsumertypes.DefaultHistoricalEntries,
-			ccvconsumertypes.DefaultConsumerUnbondingPeriod,
+			ccvtypes.DefaultTransferTimeoutPeriod,
+			ccvtypes.DefaultConsumerRedistributeFrac,
+			ccvtypes.DefaultHistoricalEntries,
+			ccvtypes.DefaultConsumerUnbondingPeriod,
 			"0", // disable soft opt-out
 			[]string{},
 			[]string{},
@@ -242,7 +242,7 @@ func (c *Chain) writeConsumerGenesis() error {
 		cmtypes.UpdateValidator(pk.Bytes(), 1, pk.Type()),
 	}
 	// Build consumer genesis
-	consumerGen := ccvconsumertypes.NewInitialGenesisState(providerClientState, providerConsState, valUpdates, params)
+	consumerGen := ccvtypes.NewInitialGenesisState(providerClientState, providerConsState, valUpdates, params)
 	// Read genesis file
 	genPath, err := c.GenesisPath()
 	if err != nil {
@@ -315,7 +315,7 @@ func (c *Chain) IsInitialized() (bool, error) {
 			return false, nil
 		}
 		var (
-			consumerGenesis   ccvconsumertypes.GenesisState
+			consumerGenesis   ccvtypes.GenesisState
 			interfaceRegistry = codectypes.NewInterfaceRegistry()
 			codec             = codec.NewProtoCodec(interfaceRegistry)
 		)
