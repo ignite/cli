@@ -62,7 +62,6 @@ import (
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
 	"<%= ModulePath %>/docs"
-	appparams "<%= ModulePath %>/app/params"
 )
 
 const (
@@ -181,7 +180,6 @@ func New(
 	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
-	encodingConfig appparams.EncodingConfig,
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) (*App, error) {
@@ -341,25 +339,25 @@ func New(
 	app.sm.RegisterStoreDecoders()
 
 	<%= if (IsConsumerChain) { %>
-		// TODO theres probably a better way to SetAnteHandler with app wiring
-		anteHandler, err := NewAnteHandler(
-			HandlerOptions{
-				HandlerOptions: ante.HandlerOptions{
-					AccountKeeper:   app.AccountKeeper,
-					BankKeeper:      app.BankKeeper,
-					FeegrantKeeper:  app.FeeGrantKeeper,
-					SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
-					SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
-				},
-				IBCKeeper:      app.IBCKeeper,
-				ConsumerKeeper: app.ConsumerKeeper,
+	// TODO theres probably a better way to SetAnteHandler with app wiring
+	anteHandler, err := NewAnteHandler(
+		HandlerOptions{
+			HandlerOptions: ante.HandlerOptions{
+				AccountKeeper:   app.AccountKeeper,
+				BankKeeper:      app.BankKeeper,
+				FeegrantKeeper:  app.FeeGrantKeeper,
+				SignModeHandler: app.txConfig.SignModeHandler(),
+				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
-			app.Logger(),
-		)
-		if err != nil {
-			panic(fmt.Errorf("failed to create AnteHandler: %w", err))
-		}
-		app.SetAnteHandler(anteHandler)
+			IBCKeeper:      app.IBCKeeper,
+			ConsumerKeeper: app.ConsumerKeeper,
+		},
+		logger,
+	)
+	if err != nil {
+		panic(fmt.Errorf("failed to create AnteHandler: %w", err))
+	}
+	app.SetAnteHandler(anteHandler)
 	<% } %>
 
 	// A custom InitChainer can be set if extra pre-init-genesis logic is required.
@@ -485,10 +483,10 @@ func BlockedAddresses() map[string]bool {
 		}
 	}
 	<%= if (IsConsumerChain) { %>
-		// Remove the fee-pool from the group of blocked recipient addresses in bank
-		// this is required for the consumer chain to be able to send tokens to
-		// the provider chain
-		delete(result, authtypes.NewModuleAddress(ibcconsumertypes.ConsumerToSendToProviderName).String())
+	// Remove the fee-pool from the group of blocked recipient addresses in bank
+	// this is required for the consumer chain to be able to send tokens to
+	// the provider chain
+	delete(result, authtypes.NewModuleAddress(ibcconsumertypes.ConsumerToSendToProviderName).String())
 	<% } %>
 	return result
 }

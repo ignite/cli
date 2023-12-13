@@ -5,10 +5,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	<%= if (IsConsumerChain) { %>
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
 	ibcconsumer "github.com/cosmos/interchain-security/v3/x/ccv/consumer"
 	ibcconsumerkeeper "github.com/cosmos/interchain-security/v3/x/ccv/consumer/keeper"
-	ibcconsumertypes "github.com/cosmos/interchain-security/v3/x/ccv/consumer/types"
+	ibcccvtypes "github.com/cosmos/interchain-security/v3/x/ccv/types"
 	<% } else { %>
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	<% } %>
@@ -53,7 +54,7 @@ func (app *App) registerIBCModules() {
 		storetypes.NewKVStoreKey(ibcfeetypes.StoreKey),
 		storetypes.NewKVStoreKey(icahosttypes.StoreKey),
 		<%= if (IsConsumerChain) { %>
-		storetypes.NewKVStoreKey(ibcconsumetypes.StoreKey),
+		storetypes.NewKVStoreKey(ibcccvtypes.StoreKey),
 		<% } %>
 		storetypes.NewKVStoreKey(icacontrollertypes.StoreKey),
 		storetypes.NewMemoryStoreKey(capabilitytypes.MemStoreKey),
@@ -69,7 +70,7 @@ func (app *App) registerIBCModules() {
 	app.ParamsKeeper.Subspace(ibctransfertypes.ModuleName).WithKeyTable(ibctransfertypes.ParamKeyTable())
 	app.ParamsKeeper.Subspace(icacontrollertypes.SubModuleName).WithKeyTable(icacontrollertypes.ParamKeyTable())
 	<%= if (IsConsumerChain) { %>
-	app.ParamsKeeper.Subspace(ibcconsumertypes.ModuleName).WithKeyTable(ibcconsumertypes.ParamKeyTable())
+	app.ParamsKeeper.Subspace(ibcccvtypes.ModuleName).WithKeyTable(ibcccvtypes.ParamKeyTable())
 	<% } %>
 	app.ParamsKeeper.Subspace(icahosttypes.SubModuleName).WithKeyTable(icahosttypes.ParamKeyTable())
 
@@ -86,7 +87,7 @@ func (app *App) registerIBCModules() {
 	scopedICAControllerKeeper := app.CapabilityKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
 	scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
 	<%= if (IsConsumerChain) { %>
-		scopedIBCConsumerKeeper := app.CapabilityKeeper.ScopeToModule(ibcconsumertypes.ModuleName)
+		scopedIBCConsumerKeeper := app.CapabilityKeeper.ScopeToModule(ibcccvtypes.ModuleName)
 
 		// pre-initialize ConsumerKeeper to satisfy ibckeeper.NewKeeper
 		// which would panic on nil or zero keeper
@@ -94,13 +95,13 @@ func (app *App) registerIBCModules() {
 		// communication over IBC is not affected by these changes
 		app.ConsumerKeeper = ibcconsumerkeeper.NewNonZeroKeeper(
 			app.appCodec,
-			app.GetKey(ibcconsumertypes.StoreKey),
-			app.GetSubspace(ibcconsumertypes.ModuleName),
+			app.GetKey(ibcccvtypes.StoreKey),
+			app.GetSubspace(ibcccvtypes.ModuleName),
 		)
 	<% } %>
 
-	// Create IBC keeper
 	<%= if (IsConsumerChain) { %>
+	// Create IBC keeper
 	app.IBCKeeper = ibckeeper.NewKeeper(
 		app.appCodec,
 		app.GetKey(ibcexported.StoreKey),
@@ -114,11 +115,11 @@ func (app *App) registerIBCModules() {
 	// initialize the actual consumer keeper
 	app.ConsumerKeeper = ibcconsumerkeeper.NewKeeper(
 		app.appCodec,
-		app.GetKey(ibcconsumertypes.StoreKey),
-		app.GetSubspace(ibcconsumertypes.ModuleName),
+		app.GetKey(ibcccvtypes.StoreKey),
+		app.GetSubspace(ibcccvtypes.ModuleName),
 		scopedIBCConsumerKeeper,
 		app.IBCKeeper.ChannelKeeper,
-		&app.IBCKeeper.PortKeeper,
+		app.IBCKeeper.PortKeeper,
 		app.IBCKeeper.ConnectionKeeper,
 		app.IBCKeeper.ClientKeeper,
 		app.SlashingKeeper,
@@ -127,12 +128,15 @@ func (app *App) registerIBCModules() {
 		&app.TransferKeeper,
 		app.IBCKeeper,
 		authtypes.FeeCollectorName,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		authcodec.NewBech32Codec(sdk.Bech32PrefixValAddr),
+		authcodec.NewBech32Codec(sdk.Bech32PrefixConsAddr),
 	)
 
 	// register slashing module Slashing hooks to the consumer keeper
 	app.ConsumerKeeper = *app.ConsumerKeeper.SetHooks(app.SlashingKeeper.Hooks())
 
-	consumerModule := ibcconsumer.NewAppModule(app.ConsumerKeeper, app.GetSubspace(ibcconsumertypes.ModuleName))
+	consumerModule := ibcconsumer.NewAppModule(app.ConsumerKeeper, app.GetSubspace(ibcccvtypes.ModuleName))
 
 	<% } else { %>
 	app.IBCKeeper = ibckeeper.NewKeeper(
@@ -216,7 +220,7 @@ func (app *App) registerIBCModules() {
 	ibcRouter := porttypes.NewRouter().
 		AddRoute(ibctransfertypes.ModuleName, transferIBCModule).
 		AddRoute(icacontrollertypes.SubModuleName, icaControllerIBCModule).
-		<%= if (IsConsumerChain) { %>AddRoute(ibcconsumertypes.ModuleName, consumerModule).<% } %>
+		<%= if (IsConsumerChain) { %>AddRoute(ibcccvtypes.ModuleName, consumerModule).<% } %>
 		AddRoute(icahosttypes.SubModuleName, icaHostIBCModule)
 
 	// this line is used by starport scaffolding # ibc/app/module

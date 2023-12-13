@@ -381,7 +381,6 @@ func TestAppStateDeterminism(t *testing.T) {
 				db,
 				nil,
 				true,
-				app.MakeEncodingConfig(),
 				appOptions,
 				interBlockCacheOpt(),
 				baseapp.SetChainID(chainID),
