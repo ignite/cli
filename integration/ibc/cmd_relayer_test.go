@@ -20,9 +20,14 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/availableport"
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v28/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/goenv"
 	"github.com/ignite/cli/v28/ignite/pkg/randstr"
 	yamlmap "github.com/ignite/cli/v28/ignite/pkg/yaml"
 	envtest "github.com/ignite/cli/v28/integration"
+)
+
+const (
+	relayerMnemonic = "great immense still pill defense fetch pencil slow purchase symptom speed arm shoot fence have divorce cigar rapid hen vehicle pear evolve correct nerve"
 )
 
 var (
@@ -37,15 +42,28 @@ var (
 				},
 			},
 			Accounts: []base.Account{
-				{Name: "alice", Coins: []string{"1000token", "100000000stake"}},
-				{Name: "bob", Coins: []string{"500token", "100000000stake"}},
+				{
+					Name:     "alice",
+					Coins:    []string{"1000token", "100000000stake"},
+					Mnemonic: "slide moment original seven milk crawl help text kick fluid boring awkward doll wonder sure fragile plate grid hard next casual expire okay body",
+				},
+				{
+					Name:     "bob",
+					Coins:    []string{"500token", "100000000stake"},
+					Mnemonic: "trap possible liquid elite embody host segment fantasy swim cable digital eager tiny broom burden diary earn hen grow engine pigeon fringe claim program",
+				},
+				{
+					Name:     "relayer",
+					Coins:    []string{"500000token", "100000000000000stake"},
+					Mnemonic: relayerMnemonic,
+				},
 			},
 			Faucet: base.Faucet{
 				Name:  &bobName,
-				Coins: []string{"5token", "100000stake"},
+				Coins: []string{"500token", "10000000stake"},
 				Host:  ":4501",
 			},
-			Genesis: yamlmap.Map{"chain_id": "mars"},
+			Genesis: yamlmap.Map{"chain_id": "mars-1"},
 		},
 		Validators: []v1.Validator{
 			{
@@ -74,15 +92,28 @@ var (
 				},
 			},
 			Accounts: []base.Account{
-				{Name: "alice", Coins: []string{"1000token", "100000000stake"}},
-				{Name: "bob", Coins: []string{"500token", "100000000stake"}},
+				{
+					Name:     "alice",
+					Coins:    []string{"1000token", "100000000stake"},
+					Mnemonic: "slide moment original seven milk crawl help text kick fluid boring awkward doll wonder sure fragile plate grid hard next casual expire okay body",
+				},
+				{
+					Name:     "bob",
+					Coins:    []string{"500token", "100000000stake"},
+					Mnemonic: "trap possible liquid elite embody host segment fantasy swim cable digital eager tiny broom burden diary earn hen grow engine pigeon fringe claim program",
+				},
+				{
+					Name:     "relayer",
+					Coins:    []string{"500000token", "100000000000000stake"},
+					Mnemonic: relayerMnemonic,
+				},
 			},
 			Faucet: base.Faucet{
 				Name:  &bobName,
-				Coins: []string{"5token", "100000stake"},
+				Coins: []string{"500token", "10000000stake"},
 				Host:  ":4500",
 			},
-			Genesis: yamlmap.Map{"chain_id": "earth"},
+			Genesis: yamlmap.Map{"chain_id": "earth-1"},
 		},
 		Validators: []v1.Validator{
 			{
@@ -180,7 +211,7 @@ func runChain(
 	app envtest.App,
 	cfg v1.Config,
 	ports []uint,
-) (api string, rpc string, faucet string) {
+) (api, rpc, grpc, faucet string) {
 	t.Helper()
 	if len(ports) < 7 {
 		t.Fatalf("invalid number of ports %d", len(ports))
@@ -227,7 +258,7 @@ func runChain(
 	genHTTPAddr := func(port uint) string {
 		return fmt.Sprintf("http://127.0.0.1:%d", port)
 	}
-	return genHTTPAddr(ports[1]), genHTTPAddr(ports[5]), genHTTPAddr(ports[0])
+	return genHTTPAddr(ports[1]), genHTTPAddr(ports[5]), genHTTPAddr(ports[2]), genHTTPAddr(ports[0])
 }
 
 func TestBlogIBC(t *testing.T) {
@@ -346,8 +377,10 @@ func TestBlogIBC(t *testing.T) {
 	// serve both chains.
 	ports, err := availableport.Find(14)
 	require.NoError(t, err)
-	earthAPI, earthRPC, earthFaucet := runChain(t, env, app, earthConfig, ports[:7])
-	marsAPI, marsRPC, marsFaucet := runChain(t, env, app, marsConfig, ports[7:])
+	earthAPI, earthRPC, earthGRPC, earthFaucet := runChain(t, env, app, earthConfig, ports[:7])
+	marsAPI, marsRPC, marsGRPC, marsFaucet := runChain(t, env, app, marsConfig, ports[7:])
+	earthChainID := earthConfig.Genesis["chain_id"].(string)
+	marsChainID := marsConfig.Genesis["chain_id"].(string)
 
 	// check the chains is up
 	stepsCheckChains := step.NewSteps(
@@ -367,37 +400,46 @@ func TestBlogIBC(t *testing.T) {
 	)
 	env.Exec("waiting the chain is up", stepsCheckChains, envtest.ExecRetry())
 
-	// configure and run the ts relayer.
-	env.Must(env.Exec("configure the ts relayer",
+	// ibc relayer.
+	env.Must(env.Exec("install the hermes relayer app",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp,
-				"relayer",
-				"configure", "-a", "-r",
-				"--source-rpc", earthRPC,
-				"--source-faucet", earthFaucet,
-				"--source-port", "blog",
-				"--source-version", "blog-1",
-				"--source-gasprice", "0.0000025stake",
-				"--source-prefix", "cosmos",
-				"--source-gaslimit", "300000",
-				"--source-account", "default",
-				"--target-rpc", marsRPC,
-				"--target-faucet", marsFaucet,
-				"--target-port", "blog",
-				"--target-version", "blog-1",
-				"--target-gasprice", "0.0000025stake",
-				"--target-prefix", "cosmos",
-				"--target-gaslimit", "300000",
-				"--target-account", "default",
+				"app",
+				"install",
+				"-g",
+				filepath.Join(goenv.GoPath(), "src/github.com/ignite/apps/hermes"),
 			),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
-	//go func() {
+	env.Must(env.Exec("configure the hermes relayer app",
+		step.NewSteps(step.New(
+			step.Exec(envtest.IgniteApp,
+				"relayer",
+				"hermes",
+				"configure",
+				earthChainID,
+				earthRPC,
+				earthGRPC,
+				marsChainID,
+				marsRPC,
+				marsGRPC,
+				"--chain-a-faucet", earthFaucet,
+				"--chain-b-faucet", marsFaucet,
+				"--generate-wallets",
+				"--generate-config",
+			),
+			step.Workdir(app.SourcePath()),
+			step.Stdout(os.Stdout),
+			step.Stderr(os.Stderr),
+		)),
+	))
+
+	// go func() {
 	env.Must(env.Exec("run the ts relayer",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "relayer", "connect", "earth-mars"),
+			step.Exec(envtest.IgniteApp, "relayer", "hermes", "start", earthChainID, marsChainID),
 			step.Workdir(app.SourcePath()),
 			step.Stdout(os.Stdout),
 			step.Stderr(os.Stderr),
@@ -420,7 +462,7 @@ func TestBlogIBC(t *testing.T) {
 				return env.IsAppServed(ctx, marsAPI)
 			}),
 		),
-	))
+	)
 	env.Exec("run the ts relayer", stepsCheckRelayer, envtest.ExecRetry())
 
 	var (
@@ -436,7 +478,7 @@ func TestBlogIBC(t *testing.T) {
 		step.New(
 			step.Stdout(output),
 			step.PreExec(func() error {
-				err := env.IsAppServed(ctx, earthRPC)
+				err := env.IsAppServed(ctx, earthGRPC)
 				return err
 			}),
 			step.Exec(
@@ -449,7 +491,7 @@ func TestBlogIBC(t *testing.T) {
 				"Hello Mars, I'm Alice from Earth",
 				"--chain-id", "blog",
 				"--from", "alice",
-				"--node", earthRPC,
+				"--node", earthGRPC,
 				"--output", "json",
 				"--log_format", "json",
 				"--yes",
