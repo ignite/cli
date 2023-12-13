@@ -5,6 +5,7 @@
 ### Features
 
 - [#3830](https://github.com/ignite/cli/pull/3830) Remove gRPC info from Ignite Apps errors
+- [#3839](https://github.com/ignite/cli/pull/3839) New structure for app scaffolding
 
 ### Changes
 
