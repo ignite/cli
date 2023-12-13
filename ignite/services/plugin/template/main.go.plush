@@ -14,7 +14,8 @@ type app struct{}
 
 func (app) Manifest(_ context.Context) (*plugin.Manifest, error) {
 	m := &plugin.Manifest{
-		Name: "<%= Name %>",
+		Name: "<%= Name %>",<%= if (SharedHost) { %>
+		SharedHost: true,<% } %>
 	}
 	m.ImportCobraCommand(cmd.New<%= Title %>(), "ignite")
 	return m, nil
