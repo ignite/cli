@@ -275,7 +275,10 @@ func newCache(cmd *cobra.Command) (cache.Storage, error) {
 		return cache.Storage{}, err
 	}
 
-	storage, err := cache.NewStorage(filepath.Join(cacheRootDir, cacheFileName))
+	storage, err := cache.NewStorage(
+		filepath.Join(cacheRootDir, cacheFileName),
+		cache.WithVersion(version.Version),
+	)
 	if err != nil {
 		return cache.Storage{}, err
 	}

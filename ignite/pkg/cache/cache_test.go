@@ -14,14 +14,49 @@ type TestStruct struct {
 }
 
 func TestCreateStorage(t *testing.T) {
-	tmpDir1 := t.TempDir()
-	tmpDir2 := t.TempDir()
+	cases := []struct {
+		name    string
+		options []cache.StorageOption
+	}{
+		{
+			name: "simple",
+		},
+		{
+			name: "versioned",
+			options: []cache.StorageOption{
+				cache.WithVersion("v0.1.0"),
+			},
+		},
+	}
 
-	_, err := cache.NewStorage(filepath.Join(tmpDir1, "test.db"))
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := cache.NewStorage(filepath.Join(t.TempDir(), "cache.db"), tt.options...)
+			require.NoError(t, err)
+		})
+	}
+}
+
+func TestStoreWithVersion(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "cache.db")
+	storage, err := cache.NewStorage(path, cache.WithVersion("v0.1.0"))
 	require.NoError(t, err)
 
-	_, err = cache.NewStorage(filepath.Join(tmpDir2, "test.db"))
+	nsCache := cache.New[string](storage, "cacheNS")
+	err = nsCache.Put("myKey", "myValue")
 	require.NoError(t, err)
+
+	v, err := nsCache.Get("myKey")
+	require.NoError(t, err)
+	require.Equal(t, "myValue", v)
+
+	// Create a non versioned storage with the same file path
+	storage, err = cache.NewStorage(path)
+	require.NoError(t, err)
+
+	nsCache = cache.New[string](storage, "cacheNS")
+	_, err = nsCache.Get("myKey")
+	require.ErrorIs(t, err, cache.ErrorNotFound)
 }
 
 func TestStoreString(t *testing.T) {
