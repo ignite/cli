@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
 
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
@@ -139,7 +140,7 @@ func genesisProtoModify(opts *CreateOptions) genny.RunFn {
 		// TODO: typed.ProtoGenesisStateMessage exists but in subfolder, so we can't use it here, refactor?
 		genesisState, err := protoutil.GetMessageByName(protoFile, "GenesisState")
 		if err != nil {
-			return fmt.Errorf("couldn't find message 'GenesisState' in %s: %w", path, err)
+			return errors.Errorf("couldn't find message 'GenesisState' in %s: %w", path, err)
 		}
 		field := protoutil.NewField("port_id", "string", protoutil.NextUniqueID(genesisState))
 		protoutil.Append(genesisState, field)

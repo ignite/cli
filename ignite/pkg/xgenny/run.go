@@ -2,7 +2,6 @@ package xgenny
 
 import (
 	"context"
-	"errors"
 	"os"
 	"strings"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/gobuffalo/logger"
 	"github.com/gobuffalo/packd"
 
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/validation"
 )

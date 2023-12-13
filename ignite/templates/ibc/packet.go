@@ -2,7 +2,6 @@ package ibc
 
 import (
 	"embed"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,6 +10,7 @@ import (
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
 
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
@@ -194,7 +194,7 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 		name := fmt.Sprintf("%sPacketData", xstrings.Title(opts.ModuleName))
 		message, err := protoutil.GetMessageByName(protoFile, name)
 		if err != nil {
-			return fmt.Errorf("failed while looking up '%s' message in %s: %w", name, path, err)
+			return errors.Errorf("failed while looking up '%s' message in %s: %w", name, path, err)
 		}
 		// Use a directly Apply call here, modifying oneofs isn't common enough to warrant a separate function.
 		var packet *proto.Oneof
@@ -209,7 +209,7 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 			return true
 		})
 		if packet == nil {
-			return fmt.Errorf("could not find 'oneof packet' in message '%s' of file %s", name, path)
+			return errors.Errorf("could not find 'oneof packet' in message '%s' of file %s", name, path)
 		}
 		// Count fields of oneof:
 		max := 1
@@ -251,7 +251,7 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 			protoImports = append(protoImports, protoutil.NewImport(protopath))
 		}
 		if err := protoutil.AddImports(protoFile, true, protoImports...); err != nil {
-			return fmt.Errorf("failed while adding imports to %s: %w", path, err)
+			return errors.Errorf("failed while adding imports to %s: %w", path, err)
 		}
 
 		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
@@ -302,7 +302,7 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 		// Add RPC to service Msg.
 		serviceMsg, err := protoutil.GetServiceByName(protoFile, "Msg")
 		if err != nil {
-			return fmt.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
+			return errors.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
 		}
 		typenameUpper := opts.PacketName.UpperCamel
 		send := protoutil.NewRPC(
@@ -344,7 +344,7 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 			protoImports = append(protoImports, protoutil.NewImport(protopath))
 		}
 		if err := protoutil.AddImports(protoFile, true, protoImports...); err != nil {
-			return fmt.Errorf("error while processing %s: %w", path, err)
+			return errors.Errorf("error while processing %s: %w", path, err)
 		}
 
 		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
