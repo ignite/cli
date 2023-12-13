@@ -8,8 +8,10 @@
 
 ### Changes
 
+- [#3822](https://github.com/ignite/cli/pull/3822) Improve default scaffolded AutoCLI config
 - [#3838](https://github.com/ignite/cli/pull/3838) Scaffold chain with Cosmos SDK `v0.50.2`, and bump confix and x/upgrade to latest
 - [#3829](https://github.com/ignite/cli/pull/3829) Support version prefix for cached values
+- [#3723](https://github.com/ignite/cli/pull/3723) Create a wrapper for errors
 
 ### Fixes
 

@@ -1,12 +1,13 @@
 package ignitecmd
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 const (

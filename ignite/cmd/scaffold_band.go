@@ -1,11 +1,10 @@
 package ignitecmd
 
 import (
-	"errors"
-
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/services/scaffolder"
 )
