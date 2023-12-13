@@ -3,6 +3,7 @@ package cache
 import (
 	"bytes"
 	"encoding/gob"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -17,7 +18,7 @@ var ErrorNotFound = errors.New("no value was found with the provided key")
 
 // Storage is meant to be passed around and used by the New function (which provides namespacing and type-safety).
 type Storage struct {
-	storagePath string
+	path, version string
 }
 
 // Cache is a namespaced and type-safe key-value store.
@@ -29,16 +30,24 @@ type Cache[T any] struct {
 // NewStorage sets up the storage needed for later cache usage
 // path is the full path (including filename) to the database file to use.
 // It does not need to be closed as this happens automatically in each call to the cache.
-func NewStorage(path string) (Storage, error) {
+func NewStorage(path string, options ...StorageOption) (Storage, error) {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return Storage{}, err
 	}
 
-	return Storage{path}, nil
+	s := Storage{path: path}
+	for _, apply := range options {
+		apply(&s)
+	}
+	return s, nil
 }
 
 // New creates a namespaced and typesafe key-value Cache.
 func New[T any](storage Storage, namespace string) Cache[T] {
+	if storage.version != "" {
+		namespace = fmt.Sprint(storage.version, namespace)
+	}
+
 	return Cache[T]{
 		storage:   storage,
 		namespace: namespace,
@@ -52,7 +61,7 @@ func Key(keyParts ...string) string {
 
 // Clear deletes all namespaces and cached values.
 func (s Storage) Clear() error {
-	db, err := openDB(s.storagePath)
+	db, err := openDB(s.path)
 	if err != nil {
 		return err
 	}
@@ -68,7 +77,7 @@ func (s Storage) Clear() error {
 // Put sets key to value within the namespace
 // If the key already exists, it will be overwritten.
 func (c Cache[T]) Put(key string, value T) error {
-	db, err := openDB(c.storage.storagePath)
+	db, err := openDB(c.storage.path)
 	if err != nil {
 		return err
 	}
@@ -93,7 +102,7 @@ func (c Cache[T]) Put(key string, value T) error {
 // Get fetches the value of key within the namespace.
 // If no value exists, it will return found == false.
 func (c Cache[T]) Get(key string) (val T, err error) {
-	db, err := openDB(c.storage.storagePath)
+	db, err := openDB(c.storage.path)
 	if err != nil {
 		return val, err
 	}
@@ -129,7 +138,7 @@ func (c Cache[T]) Get(key string) (val T, err error) {
 
 // Delete removes a value for key within the namespace.
 func (c Cache[T]) Delete(key string) error {
-	db, err := openDB(c.storage.storagePath)
+	db, err := openDB(c.storage.path)
 	if err != nil {
 		return err
 	}
