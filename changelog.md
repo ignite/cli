@@ -10,6 +10,7 @@
 
 - [#3822](https://github.com/ignite/cli/pull/3822) Improve default scaffolded AutoCLI config
 - [#3838](https://github.com/ignite/cli/pull/3838) Scaffold chain with Cosmos SDK `v0.50.2`, and bump confix and x/upgrade to latest
+- [#3723](https://github.com/ignite/cli/pull/3723) Create a wrapper for errors
 
 ### Fixes
 
@@ -18,10 +19,6 @@
 - [#3825](https://github.com/ignite/cli/pull/3825) Fix a minor Keplr type-checking bug in TS client
 - [#3836](https://github.com/ignite/cli/pull/3836) Add missing IBC commands for scaffolded chain
 - [#3833](https://github.com/ignite/cli/pull/3833) Improve Cosmos SDK detection to support SDK forks
-
-### Changes
-
-- [#3723](https://github.com/ignite/cli/pull/3723) Create a wrapper for errors
 
 ## [`v28.0.0`](https://github.com/ignite/cli/releases/tag/v28.0.0)
 
