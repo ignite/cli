@@ -7,36 +7,41 @@ title: Blog tutorial
 
 ## Introduction
 
-This tutorial guides you through creating a blog application as a Cosmos SDK blockchain using Ignite CLI. You'll learn to set up types, messages, queries, and write logic for creating, reading, updating, and deleting blog posts.
+This tutorial guides you through creating a blog application as a Cosmos SDK blockchain using Ignite CLI. You'll learn how to set up types, messages, queries, and write logic for creating, reading, updating, and deleting blog posts.
 
 ## Creating the Blog Blockchain
 
 1. **Initialize the Blockchain:**
+
 ```bash
 ignite scaffold chain blog
 cd blog
 ```
 
 2. **Define the Post Type:**
+
 ```bash
 ignite scaffold type post title body creator id:uint
 ```
-This step creates a Post type with title, body (both strings), creator (string), and id (unsigned integer).
+This step creates a Post type with title (string), body (string), creator (string), and id (unsigned integer) fields.
 
 ## Implementing CRUD operations
 
 **Creating Posts**
 
 1. **Scaffold Create Message**
+
 ```bash
 ignite scaffold message create-post title body --response id:uint
 ```
+
 This message allows users to create posts with a title and body.
 
 2. **Append Posts to the Store:**
+
 Create the file `x/blog/keeper/post.go`.
 
-Implement `AppendPost` and following functions in `x/blog/keeper/post.go` to add posts to the store.
+Implement `AppendPost` and the following functions in `x/blog/keeper/post.go` to add posts to the store.
 
 ```go title="x/blog/keeper/post.go"
 package keeper
@@ -102,7 +107,7 @@ func (k Keeper) GetPost(ctx sdk.Context, id uint64) (val types.Post, found bool)
 
 3. **Add Post key prefix:**
 
-Add the `PostKey` and `PostCountKey` to the `x/blog/types/keys.go` file:
+Add the `PostKey` and `PostCountKey` functions to the `x/blog/types/keys.go` file:
 
 ```go title="x/blog/types/keys.go"
     // PostKey is used to uniquely identify posts within the system.
@@ -152,6 +157,7 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
 ```bash
 ignite scaffold message update-post title body id:uint
 ```
+
 This command allows for updating existing posts specified by their ID.
 
 2. **Update Logic**
@@ -167,7 +173,7 @@ func (k Keeper) SetPost(ctx sdk.Context, post types.Post) {
 }
 ```
 
-Refine the `UpdatePost` function in `x/blog/keeper/msg_server_update_post.go`
+Refine the `UpdatePost` function in `x/blog/keeper/msg_server_update_post.go`.
 
 ```go title="x/blog/keeper/msg_server_update_post.go"
 package keeper
@@ -210,6 +216,7 @@ func (k msgServer) UpdatePost(goCtx context.Context, msg *types.MsgUpdatePost) (
 ```bash
 ignite scaffold message delete-post id:uint
 ```
+
 This command enables the deletion of posts by their ID.
 
 2. **Delete Logic:**
@@ -224,7 +231,7 @@ func (k Keeper) RemovePost(ctx sdk.Context, id uint64) {
 }
 ```
 
-Add the according logic to `x/blog/keeper/msg_server_delete_post`:
+Add the according logic to `x/blog/keeper/msg_server_delete_post`.
 
 ```go title="x/blog/keeper/msg_server_delete_post.go"
 package keeper
@@ -391,6 +398,6 @@ blogd tx blog update-post "Hello" "Cosmos" 0 --from alice --chain-id blog
 blogd tx blog delete-post 0 --from alice  --chain-id blog
 ```
 
-**Summary**
+## Conclusion
 
 Congratulations on completing the Blog tutorial! You've successfully built a functional blockchain application using Ignite and Cosmos SDK. This tutorial equipped you with the skills to generate code for key blockchain operations and implement business-specific logic in a blockchain context. Continue developing your skills and expanding your blockchain applications with the next tutorials.
