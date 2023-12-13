@@ -44,23 +44,23 @@ var (
 			Accounts: []base.Account{
 				{
 					Name:     "alice",
-					Coins:    []string{"1000token", "100000000stake"},
+					Coins:    []string{"100000000000token", "10000000000000000000stake"},
 					Mnemonic: "slide moment original seven milk crawl help text kick fluid boring awkward doll wonder sure fragile plate grid hard next casual expire okay body",
 				},
 				{
 					Name:     "bob",
-					Coins:    []string{"500token", "100000000stake"},
+					Coins:    []string{"100000000000token", "10000000000000000000stake"},
 					Mnemonic: "trap possible liquid elite embody host segment fantasy swim cable digital eager tiny broom burden diary earn hen grow engine pigeon fringe claim program",
 				},
 				{
 					Name:     "relayer",
-					Coins:    []string{"500000token", "100000000000000stake"},
+					Coins:    []string{"100000000000token", "1000000000000000000000stake"},
 					Mnemonic: relayerMnemonic,
 				},
 			},
 			Faucet: base.Faucet{
 				Name:  &bobName,
-				Coins: []string{"500token", "10000000stake"},
+				Coins: []string{"500token", "100000000stake"},
 				Host:  ":4501",
 			},
 			Genesis: yamlmap.Map{"chain_id": "mars-1"},
@@ -94,23 +94,23 @@ var (
 			Accounts: []base.Account{
 				{
 					Name:     "alice",
-					Coins:    []string{"1000token", "100000000stake"},
+					Coins:    []string{"100000000000token", "10000000000000000000stake"},
 					Mnemonic: "slide moment original seven milk crawl help text kick fluid boring awkward doll wonder sure fragile plate grid hard next casual expire okay body",
 				},
 				{
 					Name:     "bob",
-					Coins:    []string{"500token", "100000000stake"},
+					Coins:    []string{"100000000000token", "10000000000000000000stake"},
 					Mnemonic: "trap possible liquid elite embody host segment fantasy swim cable digital eager tiny broom burden diary earn hen grow engine pigeon fringe claim program",
 				},
 				{
 					Name:     "relayer",
-					Coins:    []string{"500000token", "100000000000000stake"},
+					Coins:    []string{"100000000000token", "1000000000000000000000stake"},
 					Mnemonic: relayerMnemonic,
 				},
 			},
 			Faucet: base.Faucet{
 				Name:  &bobName,
-				Coins: []string{"500token", "10000000stake"},
+				Coins: []string{"500token", "100000000stake"},
 				Host:  ":4500",
 			},
 			Genesis: yamlmap.Map{"chain_id": "earth-1"},
