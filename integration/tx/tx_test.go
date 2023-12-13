@@ -11,11 +11,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/randstr"
 	"github.com/ignite/cli/v28/ignite/pkg/xurl"
 	envtest "github.com/ignite/cli/v28/integration"
@@ -94,7 +94,7 @@ func TestSignTxWithDashedAppName(t *testing.T) {
 				}
 				err := json.Unmarshal(output.Bytes(), &txResponse)
 				if err != nil {
-					return fmt.Errorf("unmarshling tx response: %w", err)
+					return errors.Errorf("unmarshling tx response: %w", err)
 				}
 				return nil
 			}),

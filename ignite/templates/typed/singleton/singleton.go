@@ -8,9 +8,9 @@ import (
 	"strings"
 
 	"github.com/emicklei/proto"
-
 	"github.com/gobuffalo/genny/v2"
 
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
@@ -118,12 +118,12 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 		// Import the type and gogoImport.
 		gogoImport := protoutil.NewImport(typed.GoGoProtoImport)
 		if err = protoutil.AddImports(protoFile, true, gogoImport, opts.ProtoTypeImport()); err != nil {
-			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
+			return errors.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 		// Find service.
 		serviceQuery, err := protoutil.GetServiceByName(protoFile, "Query")
 		if err != nil {
-			return fmt.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
+			return errors.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
 		}
 		appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
 		typenameUpper := opts.TypeName.UpperCamel
@@ -204,13 +204,13 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 		}
 		// Add initial import for the new type
 		if err = protoutil.AddImports(protoFile, true, opts.ProtoTypeImport()); err != nil {
-			return fmt.Errorf("failed to add imports to %s: %w", path, err)
+			return errors.Errorf("failed to add imports to %s: %w", path, err)
 		}
 
 		// Add field to GenesisState message.
 		genesisState, err := protoutil.GetMessageByName(protoFile, typed.ProtoGenesisStateMessage)
 		if err != nil {
-			return fmt.Errorf("failed while looking up message '%s' in %s: %w", typed.ProtoGenesisStateMessage, path, err)
+			return errors.Errorf("failed while looking up message '%s' in %s: %w", typed.ProtoGenesisStateMessage, path, err)
 		}
 		seqNumber := protoutil.NextUniqueID(genesisState)
 		field := protoutil.NewField(
@@ -376,12 +376,12 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 
 		// Add initial import for the new type:
 		if err = protoutil.AddImports(protoFile, true, opts.ProtoTypeImport()); err != nil {
-			return fmt.Errorf("failed while adding imports to %s: %w", path, err)
+			return errors.Errorf("failed while adding imports to %s: %w", path, err)
 		}
 		// Add the RPC service.
 		serviceMsg, err := protoutil.GetServiceByName(protoFile, "Msg")
 		if err != nil {
-			return fmt.Errorf("failed while looking up a message 'Msg' in %s: %w", path, err)
+			return errors.Errorf("failed while looking up a message 'Msg' in %s: %w", path, err)
 		}
 		// Append create, update, delete rpcs. Better to append them altogether, single traversal.
 		name := opts.TypeName.UpperCamel
@@ -415,7 +415,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		// we already know an import exists, pass false for fallback.
 		if err = protoutil.AddImports(protoFile, false, protoImports...); err != nil {
 			// shouldn't really occur.
-			return fmt.Errorf("failed while adding imports to %s: %w", path, err)
+			return errors.Errorf("failed while adding imports to %s: %w", path, err)
 		}
 
 		// Add the messages

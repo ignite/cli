@@ -1,10 +1,11 @@
 package cosmosbuf
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 func TestFindSDKPath(t *testing.T) {

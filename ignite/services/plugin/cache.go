@@ -2,13 +2,13 @@ package plugin
 
 import (
 	"encoding/gob"
-	"fmt"
 	"net"
 	"path"
 
 	hplugin "github.com/hashicorp/go-plugin"
 
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 const (
@@ -28,10 +28,10 @@ func init() {
 
 func writeConfigCache(pluginPath string, conf hplugin.ReattachConfig) error {
 	if pluginPath == "" {
-		return fmt.Errorf("provided path is invalid: %s", pluginPath)
+		return errors.Errorf("provided path is invalid: %s", pluginPath)
 	}
 	if conf.Addr == nil {
-		return fmt.Errorf("app Address info cannot be empty")
+		return errors.Errorf("app Address info cannot be empty")
 	}
 	cache, err := newCache()
 	if err != nil {
@@ -42,7 +42,7 @@ func writeConfigCache(pluginPath string, conf hplugin.ReattachConfig) error {
 
 func readConfigCache(pluginPath string) (hplugin.ReattachConfig, error) {
 	if pluginPath == "" {
-		return hplugin.ReattachConfig{}, fmt.Errorf("provided path is invalid: %s", pluginPath)
+		return hplugin.ReattachConfig{}, errors.Errorf("provided path is invalid: %s", pluginPath)
 	}
 	cache, err := newCache()
 	if err != nil {
@@ -65,7 +65,7 @@ func checkConfCache(pluginPath string) bool {
 
 func deleteConfCache(pluginPath string) error {
 	if pluginPath == "" {
-		return fmt.Errorf("provided path is invalid: %s", pluginPath)
+		return errors.Errorf("provided path is invalid: %s", pluginPath)
 	}
 	cache, err := newCache()
 	if err != nil {

@@ -1,7 +1,6 @@
 package cosmoserror_test
 
 import (
-	"errors"
 	"fmt"
 	"testing"
 
@@ -10,6 +9,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/ignite/cli/v28/ignite/pkg/cosmoserror"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 func TestUnwrap(t *testing.T) {
@@ -52,7 +52,7 @@ func TestUnwrap(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			unwrapped := cosmoserror.Unwrap(tc.err)
-			require.Equal(t, tc.want, unwrapped)
+			require.Equal(t, tc.want.Error(), unwrapped.Error())
 		})
 	}
 }

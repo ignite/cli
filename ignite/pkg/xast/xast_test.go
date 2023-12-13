@@ -1,7 +1,6 @@
 package xast_test
 
 import (
-	"errors"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -9,6 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/xast"
 )
 

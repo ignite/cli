@@ -2,8 +2,6 @@ package app
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -13,6 +11,7 @@ import (
 
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/v28/ignite/pkg/gomodule"
 	"github.com/ignite/cli/v28/ignite/pkg/xast"
@@ -28,7 +27,7 @@ func CheckKeeper(path, keeperName string) error {
 		return err
 	}
 	if len(appImpl) != 1 {
-		return fmt.Errorf("app.go should contain a single app (got %d)", len(appImpl))
+		return errors.Errorf("app.go should contain a single app (got %d)", len(appImpl))
 	}
 	appTypeName := appImpl[0]
 
@@ -69,7 +68,7 @@ func CheckKeeper(path, keeperName string) error {
 	}
 
 	if !found {
-		return fmt.Errorf("app doesn't contain %s", keeperName)
+		return errors.Errorf("app doesn't contain %s", keeperName)
 	}
 	return nil
 }
@@ -124,7 +123,7 @@ func DiscoverModules(file *ast.File, chainRoot string, fileImports map[string]st
 	appTypeName := "App"
 	switch {
 	case len(appImpl) > 1:
-		return nil, fmt.Errorf("app.go should contain only a single app (got %d)", len(appImpl))
+		return nil, errors.Errorf("app.go should contain only a single app (got %d)", len(appImpl))
 	case len(appImpl) == 1:
 		appTypeName = appImpl[0]
 	}
