@@ -428,20 +428,19 @@ func TestBlogIBC(t *testing.T) {
 				"--chain-a-faucet", earthFaucet,
 				"--chain-b-faucet", marsFaucet,
 				"--generate-wallets",
-				"--generate-config",
+				"--overwrite-config",
 			),
 			step.Workdir(app.SourcePath()),
-			step.Stdout(os.Stdout),
-			step.Stderr(os.Stderr),
 		)),
 	))
 
 	// go func() {
-	env.Must(env.Exec("run the ts relayer",
+	env.Must(env.Exec("run the hermes relayer",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp, "relayer", "hermes", "start", earthChainID, marsChainID),
 			step.Workdir(app.SourcePath()),
 			step.Stdout(os.Stdout),
+			step.Stdin(os.Stdin),
 			step.Stderr(os.Stderr),
 		)),
 	))
