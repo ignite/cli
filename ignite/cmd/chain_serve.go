@@ -2,7 +2,6 @@ package ignitecmd
 
 import (
 	"context"
-	"errors"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
@@ -12,6 +11,7 @@ import (
 	uilog "github.com/ignite/cli/v28/ignite/pkg/cliui/log"
 	cliuimodel "github.com/ignite/cli/v28/ignite/pkg/cliui/model"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/events"
 	"github.com/ignite/cli/v28/ignite/services/chain"
 )

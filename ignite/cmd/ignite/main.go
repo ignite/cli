@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"sync"
+
+	"google.golang.org/grpc/status"
 
 	ignitecmd "github.com/ignite/cli/v28/ignite/cmd"
 	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
@@ -13,6 +14,7 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/clictx"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/validation"
 	"github.com/ignite/cli/v28/ignite/pkg/xstrings"
 )
@@ -41,6 +43,10 @@ func run() int {
 	analytics.SendMetric(&wg, subCmd)
 
 	err = cmd.ExecuteContext(ctx)
+	if err != nil {
+		err = ensureError(err)
+	}
+
 	if errors.Is(ctx.Err(), context.Canceled) || errors.Is(err, context.Canceled) {
 		fmt.Println("aborted")
 		return exitCodeOK
@@ -74,4 +80,29 @@ func run() int {
 	wg.Wait() // waits for all metrics to be sent
 
 	return exitCodeOK
+}
+
+func ensureError(err error) error {
+	// Extract gRPC error status.
+	// These errors are returned by the plugins.
+	s, ok := status.FromError(err)
+	if !ok {
+		// The error is not a gRPC error
+		return err
+	}
+
+	// Get the error message
+	cause := s.Proto().GetMessage()
+	if cause == "" {
+		return err
+	}
+
+	// Restore context canceled errors
+	if cause == context.Canceled.Error() {
+		return context.Canceled
+	}
+
+	// Use the gRPC description as error to avoid printing
+	// extra gRPC error information like code or prefix.
+	return errors.New(cause)
 }

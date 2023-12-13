@@ -3,16 +3,14 @@ package cosmosutil
 import (
 	"encoding/base64"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"os"
 
 	sdkmath "cosmossdk.io/math"
 	"github.com/cometbft/cometbft/crypto/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-)
 
-const GentxFilename = "gentx.json"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+)
 
 type (
 	// GentxInfo represents the basic info about gentx file.
@@ -63,7 +61,7 @@ func ParseGentx(gentxBz []byte) (info GentxInfo, err error) {
 	// Try parsing gentx
 	var gentx Gentx
 	if err := json.Unmarshal(gentxBz, &gentx); err != nil {
-		return info, fmt.Errorf("unmarshal gentx: %w", err)
+		return info, errors.Errorf("unmarshal gentx: %w", err)
 	}
 	if gentx.Body.Messages == nil {
 		return info, errors.New("the gentx cannot be parsed")
@@ -79,7 +77,7 @@ func ParseGentx(gentxBz []byte) (info GentxInfo, err error) {
 	pb := gentx.Body.Messages[0].PubKey.Key
 	info.PubKey, err = base64.StdEncoding.DecodeString(pb)
 	if err != nil {
-		return info, fmt.Errorf("invalid validator public key %w", err)
+		return info, errors.Errorf("invalid validator public key %w", err)
 	}
 
 	amount, ok := sdkmath.NewIntFromString(gentx.Body.Messages[0].Value.Amount)

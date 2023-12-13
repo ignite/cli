@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 const (
@@ -62,7 +64,7 @@ func ParseList(arg string) ([]uint64, error) {
 				return nil, err
 			}
 			if start > end {
-				return nil, fmt.Errorf("cannot parse a reverse ordering range: %s", trimmedRange)
+				return nil, errors.Errorf("cannot parse a reverse ordering range: %s", trimmedRange)
 			}
 			for ; start <= end; start++ {
 				if _, ok := listNumbers[start]; ok {
@@ -72,7 +74,7 @@ func ParseList(arg string) ([]uint64, error) {
 				result = append(result, start)
 			}
 		default:
-			return nil, fmt.Errorf("cannot parse the number range: %s", trimmedRange)
+			return nil, errors.Errorf("cannot parse the number range: %s", trimmedRange)
 		}
 	}
 	return result, nil

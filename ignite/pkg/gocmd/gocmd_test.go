@@ -2,12 +2,12 @@ package gocmd_test
 
 import (
 	"context"
-	"errors"
 	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/gocmd"
 )
 

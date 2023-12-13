@@ -2,7 +2,6 @@ package ignitecmd
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -14,6 +13,7 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
 	cliuimodel "github.com/ignite/cli/v28/ignite/pkg/cliui/model"
 	"github.com/ignite/cli/v28/ignite/pkg/debugger"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/events"
 	"github.com/ignite/cli/v28/ignite/pkg/xurl"
 	"github.com/ignite/cli/v28/ignite/services/chain"

@@ -3,11 +3,8 @@ package cosmosaccount
 import (
 	"bufio"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"os"
-
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	dkeyring "github.com/99designs/keyring"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -17,7 +14,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/go-bip39"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 const (

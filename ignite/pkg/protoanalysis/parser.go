@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 
 	"github.com/emicklei/proto"
-	"github.com/pkg/errors"
 
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/localfs"
 )
 
