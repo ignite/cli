@@ -2,7 +2,6 @@ package localfs
 
 import (
 	"context"
-	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,6 +9,8 @@ import (
 	"time"
 
 	wt "github.com/radovskyb/watcher"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 type watcher struct {

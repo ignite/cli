@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -18,6 +17,7 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/gocmd"
 )
 
@@ -191,5 +191,5 @@ func FindModule(ctx context.Context, rootDir, path string) (Module, error) {
 		}
 	}
 
-	return Module{}, fmt.Errorf("%w: %s", ErrModuleNotFound, path)
+	return Module{}, errors.Errorf("%w: %s", ErrModuleNotFound, path)
 }

@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 // ErrImportNotFound returned when proto file import cannot be found.
@@ -67,7 +67,7 @@ func HasMessages(ctx context.Context, path string, names ...string) error {
 				}
 			}
 		}
-		return fmt.Errorf("invalid proto message name %s", name)
+		return errors.Errorf("invalid proto message name %s", name)
 	}
 
 	for _, name := range names {

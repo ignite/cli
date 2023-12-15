@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"compress/gzip"
 	"context"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -16,6 +15,7 @@ import (
 
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/localfs"
 	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis"
 )
@@ -276,7 +276,7 @@ func searchFile(file protoanalysis.File, protoPath string, includePaths []string
 		}
 
 		if !found {
-			return nil, fmt.Errorf("cannot locate dependency %q for %q", dep, file.Path)
+			return nil, errors.Errorf("cannot locate dependency %q for %q", dep, file.Path)
 		}
 	}
 
