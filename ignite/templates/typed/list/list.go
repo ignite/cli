@@ -8,9 +8,9 @@ import (
 	"strings"
 
 	"github.com/emicklei/proto"
-
 	"github.com/gobuffalo/genny/v2"
 
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
@@ -99,13 +99,13 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		}
 		// Import
 		if err = protoutil.AddImports(protoFile, true, opts.ProtoTypeImport()); err != nil {
-			return fmt.Errorf("failed while adding imports to %s: %w", path, err)
+			return errors.Errorf("failed while adding imports to %s: %w", path, err)
 		}
 
 		// RPC service
 		serviceMsg, err := protoutil.GetServiceByName(protoFile, "Msg")
 		if err != nil {
-			return fmt.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
+			return errors.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
 		}
 		// Create, update, delete rpcs. Better to append them altogether, single traversal.
 		typenameUpper := opts.TypeName.UpperCamel
@@ -138,7 +138,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		}
 		// we already know an import exists, pass false for fallback.
 		if err = protoutil.AddImports(protoFile, true, protoImports...); err != nil {
-			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
+			return errors.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 		// Messages
 		creator := protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)
@@ -207,13 +207,13 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 		// Imports for the new type and gogoImport.
 		gogoImport := protoutil.NewImport(typed.GoGoProtoImport)
 		if err = protoutil.AddImports(protoFile, true, gogoImport, opts.ProtoTypeImport()); err != nil {
-			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
+			return errors.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 
 		// Add to Query:
 		serviceQuery, err := protoutil.GetServiceByName(protoFile, "Query")
 		if err != nil {
-			return fmt.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
+			return errors.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
 		}
 		appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
 		typenameUpper := opts.TypeName.UpperCamel
@@ -336,27 +336,29 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 			return err
 		}
 
-		var positionalArgs string
+		var positionalArgs, positionalArgsStr string
 		for _, field := range opts.Fields {
 			positionalArgs += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
+			positionalArgsStr += fmt.Sprintf("[%s] ", field.ProtoFieldName())
 		}
 
 		template := `{
 			RpcMethod: "Create%[2]v",
-			Use: "create-%[3]v",
+			Use: "create-%[3]v %[6]s",
 			Short: "Create %[4]v",
 			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
 		},
 		{
 			RpcMethod: "Update%[2]v",
-			Use: "update-%[3]v",
+			Use: "update-%[3]v [id] %[6]s",
 			Short: "Update %[4]v",
-			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
+			PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "id"}, %[5]s},
 		},
 		{
 			RpcMethod: "Delete%[2]v",
-			Use: "delete-%[3]v",
+			Use: "delete-%[3]v [id]",
 			Short: "Delete %[4]v",
+			PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "id"}},
 		},
 		%[1]v`
 
@@ -367,6 +369,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 			opts.TypeName.Kebab,
 			opts.TypeName.Original,
 			strings.TrimSpace(positionalArgs),
+			strings.TrimSpace(positionalArgsStr),
 		)
 
 		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLITx, replacement)

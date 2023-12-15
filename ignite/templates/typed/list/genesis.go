@@ -6,6 +6,7 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/v28/ignite/templates/module"
@@ -38,12 +39,12 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 		// Add initial import for the new type
 		gogoImport := protoutil.NewImport(typed.GoGoProtoImport)
 		if err = protoutil.AddImports(protoFile, true, gogoImport, opts.ProtoTypeImport()); err != nil {
-			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
+			return errors.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 		// Get next available sequence number from GenesisState.
 		genesisState, err := protoutil.GetMessageByName(protoFile, typed.ProtoGenesisStateMessage)
 		if err != nil {
-			return fmt.Errorf("failed while looking up message '%s' in %s: %w", typed.ProtoGenesisStateMessage, path, err)
+			return errors.Errorf("failed while looking up message '%s' in %s: %w", typed.ProtoGenesisStateMessage, path, err)
 		}
 		seqNumber := protoutil.NextUniqueID(genesisState)
 		typenameLower, typenameUpper := opts.TypeName.LowerCamel, opts.TypeName.UpperCamel

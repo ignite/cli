@@ -2,7 +2,6 @@ package ignitecmd
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -10,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/validation"
 	"github.com/ignite/cli/v28/ignite/services/scaffolder"
@@ -181,7 +181,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 
 		for _, name := range dependencies {
 			if !isValid(name) {
-				return fmt.Errorf("invalid module dependency name format '%s'", name)
+				return errors.Errorf("invalid module dependency name format '%s'", name)
 			}
 
 			if alias, ok := moduleNameKeeperAlias[strings.ToLower(name)]; ok {

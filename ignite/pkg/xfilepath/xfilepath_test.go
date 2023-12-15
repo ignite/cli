@@ -1,7 +1,6 @@
 package xfilepath_test
 
 import (
-	"errors"
 	"os"
 	"path"
 	"path/filepath"
@@ -9,6 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/xfilepath"
 )
 

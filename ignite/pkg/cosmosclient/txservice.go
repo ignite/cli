@@ -6,7 +6,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/pkg/errors"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 type TxService struct {
