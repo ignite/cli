@@ -256,7 +256,6 @@ func New(
 		&app.interfaceRegistry,
 		&app.AccountKeeper,
 		&app.BankKeeper,
-		&app.CapabilityKeeper,
 		&app.SlashingKeeper,
 		<%= if (!IsConsumerChain) { %>
 		&app.StakingKeeper,
