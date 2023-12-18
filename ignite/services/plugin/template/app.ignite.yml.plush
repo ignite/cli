@@ -1,3 +1,5 @@
-<%= Name %>:
-  description: <%= Name %> is an awesome Ignite application!
-  path: ./
+version: '1.0.0'
+apps:
+  <%= Name %>:
+    description: <%= Name %> is an awesome Ignite application!
+    path: ./
