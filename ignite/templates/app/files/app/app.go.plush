@@ -425,6 +425,16 @@ func (app *App) GetSubspace(moduleName string) paramstypes.Subspace {
 	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
 	return subspace
 }
+
+// GetIBCKeeper returns the IBC keeper.
+func (app *App) GetIBCKeeper() *ibckeeper.Keeper {
+	return app.IBCKeeper
+}
+
+// GetCapabilityScopedKeeper returns the capability scoped keeper.
+func (app *App) GetCapabilityScopedKeeper(moduleName string) capabilitykeeper.ScopedKeeper {
+	return app.CapabilityKeeper.ScopeToModule(moduleName)
+}
 <% } %>
 
 // SimulationManager implements the SimulationApp interface.
@@ -444,18 +454,6 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig
 	// register app's OpenAPI routes.
 	docs.RegisterOpenAPIService(Name, apiSvr.Router)
 }
-
-<%= if (!IsChainMinimal) { %>
-// GetIBCKeeper returns the IBC keeper.
-func (app *App) GetIBCKeeper() *ibckeeper.Keeper {
-	return app.IBCKeeper
-}
-
-// GetCapabilityScopedKeeper returns the capability scoped keeper.
-func (app *App) GetCapabilityScopedKeeper(moduleName string) capabilitykeeper.ScopedKeeper {
-	return app.CapabilityKeeper.ScopeToModule(moduleName)
-}
-<% } %>
 
 // GetMaccPerms returns a copy of the module account permissions
 //
