@@ -8,9 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
-	"strings"
 
-	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
@@ -21,6 +19,7 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosbuf"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/events"
 	"github.com/ignite/cli/v28/ignite/pkg/gomodule"
 	"github.com/ignite/cli/v28/ignite/pkg/xfilepath"
@@ -35,7 +34,7 @@ const (
 
 var (
 	ErrBufConfig     = errors.New("invalid Buf config")
-	ErrMissingSDKDep = errors.New("cosmos SDK dependency not found")
+	ErrMissingSDKDep = errors.New("cosmos-sdk dependency not found")
 
 	protocGlobalInclude = xfilepath.List(
 		xfilepath.JoinFromHome(xfilepath.Path("local/include")),
@@ -70,7 +69,7 @@ type protoAnalysis struct {
 }
 
 func newBufConfigError(path string, cause error) error {
-	return fmt.Errorf("%w: %s: %w", ErrBufConfig, path, cause)
+	return errors.Errorf("%w: %s: %w", ErrBufConfig, path, cause)
 }
 
 func (g *generator) setup(ctx context.Context) (err error) {
@@ -96,21 +95,19 @@ func (g *generator) setup(ctx context.Context) (err error) {
 		return err
 	}
 
-	g.sdkImport = cosmosver.CosmosModulePath
-
-	// Check if the Cosmos SDK import path points to a different path
-	// and if so change the default one to the new location.
-	for _, r := range modFile.Replace {
-		if r.Old.Path == cosmosver.CosmosModulePath {
-			g.sdkImport = r.New.Path
-			break
-		}
-	}
-
 	// Read the dependencies defined in the `go.mod` file
 	g.deps, err = gomodule.ResolveDependencies(modFile, false)
 	if err != nil {
 		return err
+	}
+
+	// Dependencies are resolved, it is possible that the cosmos sdk has been replaced
+	g.sdkImport = cosmosver.CosmosModulePath
+	for _, dep := range g.deps {
+		if cosmosver.CosmosSDKModulePathPattern.MatchString(dep.Path) {
+			g.sdkImport = dep.Path
+			break
+		}
 	}
 
 	// Discover any custom modules defined by the user's app.
@@ -452,7 +449,7 @@ func (g generator) vendorProtoPackage(pkgName, protoPath string) (err error) {
 	path := filepath.Join(g.appPath, workFilename)
 	bz, err := os.ReadFile(path)
 	if err != nil {
-		return fmt.Errorf("error reading Buf workspace file: %s: %w", path, err)
+		return errors.Errorf("error reading Buf workspace file: %s: %w", path, err)
 	}
 
 	ws := struct {
@@ -487,7 +484,7 @@ func (g generator) vendorProtoPackage(pkgName, protoPath string) (err error) {
 
 func filterCosmosSDKModule(versions []gomodule.Version) (gomodule.Version, bool) {
 	for _, v := range versions {
-		if strings.HasPrefix(v.Path, cosmosver.CosmosModulePath) {
+		if cosmosver.CosmosSDKModulePathPattern.MatchString(v.Path) {
 			return v, true
 		}
 	}

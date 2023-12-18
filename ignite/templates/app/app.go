@@ -9,6 +9,7 @@ import (
 	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v28/ignite/templates/field/plushhelpers"
 )
@@ -27,7 +28,7 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 	// Remove "files/" prefix
 	subfs, err := fs.Sub(files, "files")
 	if err != nil {
-		return nil, fmt.Errorf("generator sub: %w", err)
+		return nil, errors.Errorf("generator sub: %w", err)
 	}
 	g := genny.New()
 
@@ -40,7 +41,7 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 	}
 
 	if err := g.SelectiveFS(subfs, opts.IncludePrefixes, nil, excludePrefix, nil); err != nil {
-		return g, fmt.Errorf("generator fs: %w", err)
+		return g, errors.Errorf("generator fs: %w", err)
 	}
 
 	if opts.IsChainMinimal {

@@ -2,13 +2,13 @@ package scaffolder
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
@@ -94,7 +94,7 @@ func (s Scaffolder) AddPacket(
 		return sm, err
 	}
 	if !ok {
-		return sm, fmt.Errorf("the module %s doesn't implement IBC module interface", moduleName)
+		return sm, errors.Errorf("the module %s doesn't implement IBC module interface", moduleName)
 	}
 
 	signer := ""
@@ -189,7 +189,7 @@ func checkForbiddenPacketField(name string) error {
 		"port",
 		"channelid",
 		datatype.TypeCustom:
-		return fmt.Errorf("%s is used by the packet scaffolder", name)
+		return errors.Errorf("%s is used by the packet scaffolder", name)
 	}
 
 	return checkGoReservedWord(name)

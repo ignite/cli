@@ -3,7 +3,6 @@ package cosmosfaucet
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	sdkmath "cosmossdk.io/math"
@@ -11,6 +10,7 @@ import (
 
 	chaincmdrunner "github.com/ignite/cli/v28/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 const (

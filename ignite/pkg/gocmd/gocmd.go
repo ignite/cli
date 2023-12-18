@@ -3,7 +3,6 @@ package gocmd
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,6 +10,7 @@ import (
 
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/goenv"
 )
 

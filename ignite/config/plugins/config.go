@@ -1,14 +1,13 @@
 package plugins
 
 import (
-	"errors"
-	"fmt"
 	"os"
 	"strings"
 
 	"golang.org/x/exp/slices"
 	"gopkg.in/yaml.v2"
 
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/gomodule"
 )
 
@@ -116,7 +115,7 @@ func (c Config) Path() string {
 // Must be writable.
 func (c *Config) Save() error {
 	errf := func(err error) error {
-		return fmt.Errorf("plugin config save: %w", err)
+		return errors.Errorf("plugin config save: %w", err)
 	}
 	if c.path == "" {
 		return errf(errors.New("empty path"))

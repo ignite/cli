@@ -2,7 +2,6 @@ package chain
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"os"
 
@@ -10,6 +9,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/ignite/cli/v28/ignite/config/chain/version"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 // Parse reads a config file.
@@ -18,7 +18,7 @@ import (
 func Parse(configFile io.Reader) (*Config, error) {
 	cfg, err := parse(configFile)
 	if err != nil {
-		return cfg, fmt.Errorf("error parsing config file: %w", err)
+		return cfg, errors.Errorf("error parsing config file: %w", err)
 	}
 
 	return cfg, validateConfig(cfg)
@@ -146,7 +146,7 @@ func validateNetworkConfig(c *Config) error {
 	for _, account := range c.Accounts {
 		// must have valid bech32 addr
 		if _, _, err := bech32.DecodeAndConvert(account.Address); err != nil {
-			return fmt.Errorf("invalid address %s: %w", account.Address, err)
+			return errors.Errorf("invalid address %s: %w", account.Address, err)
 		}
 
 		if account.Coins == nil {
