@@ -59,22 +59,19 @@ import (
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"google.golang.org/protobuf/types/known/durationpb"
-	<%= if (IsConsumerChain) { %>
-		ibcconsumertypes "github.com/cosmos/interchain-security/v3/x/ccv/consumer/types"
-	<% } else { %>
-		_ "github.com/cosmos/cosmos-sdk/x/distribution" // import for side-effects
-		distrmodulev1 "cosmossdk.io/api/cosmos/distribution/module/v1"
-		govmodulev1 "cosmossdk.io/api/cosmos/gov/module/v1"
-		_ "github.com/cosmos/cosmos-sdk/x/mint"         // import for side-effects
-		mintmodulev1 "cosmossdk.io/api/cosmos/mint/module/v1"
-		_ "github.com/cosmos/cosmos-sdk/x/staking" // import for side-effects
-		stakingmodulev1 "cosmossdk.io/api/cosmos/staking/module/v1"
-		distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-		govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-		minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-		stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	<% } %>
-
+	<%= if (IsConsumerChain) { %>ibcconsumertypes "github.com/cosmos/interchain-security/v3/x/ccv/consumer/types"<% } else { %>
+    _ "github.com/cosmos/cosmos-sdk/x/distribution" // import for side-effects
+    distrmodulev1 "cosmossdk.io/api/cosmos/distribution/module/v1"
+    govmodulev1 "cosmossdk.io/api/cosmos/gov/module/v1"
+    _ "github.com/cosmos/cosmos-sdk/x/mint"         // import for side-effects
+    mintmodulev1 "cosmossdk.io/api/cosmos/mint/module/v1"
+    _ "github.com/cosmos/cosmos-sdk/x/staking" // import for side-effects
+    stakingmodulev1 "cosmossdk.io/api/cosmos/staking/module/v1"
+    distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+    govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+    minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+    stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+    <% } %>
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 )
 
@@ -134,11 +131,8 @@ var (
 		<% } %>
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
-		<%= if (IsConsumerChain) { %>
-		ibcconsumertypes.ModuleName,
-		<% } else { %>
-		stakingtypes.ModuleName,
-		<% } %>
+		<%= if (IsConsumerChain) { %>ibcconsumertypes.ModuleName,<% } else { %>
+		stakingtypes.ModuleName,<% } %>
 		authz.ModuleName,
 		genutiltypes.ModuleName,
 		// ibc modules
@@ -154,12 +148,9 @@ var (
 	endBlockers = []string{
 		// cosmos sdk modules
 		crisistypes.ModuleName,
-		<%= if (IsConsumerChain) { %>
-		ibcconsumertypes.ModuleName,
-		<% } else { %>
+		<%= if (IsConsumerChain) { %>ibcconsumertypes.ModuleName,<% } else { %>
 		govtypes.ModuleName,
-		stakingtypes.ModuleName,
-		<% } %>
+		stakingtypes.ModuleName,<% } %>
 		feegrant.ModuleName,
 		group.ModuleName,
 		genutiltypes.ModuleName,
@@ -180,18 +171,15 @@ var (
 
 	// module account permissions
 	moduleAccPerms = []*authmodulev1.ModuleAccountPermission{
-		{Account: authtypes.FeeCollectorName},
-		<%= if (IsConsumerChain) { %>
+		{Account: authtypes.FeeCollectorName},<%= if (IsConsumerChain) { %>
 		{Account: icatypes.ModuleName},
 		{Account: ibcconsumertypes.ConsumerRedistributeName},
-		{Account: ibcconsumertypes.ConsumerToSendToProviderName},
-		<% } else { %>
+		{Account: ibcconsumertypes.ConsumerToSendToProviderName},<% } else { %>
 		{Account: distrtypes.ModuleName},
 		{Account: minttypes.ModuleName, Permissions: []string{authtypes.Minter}},
 		{Account: stakingtypes.BondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
 		{Account: stakingtypes.NotBondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
-		{Account: govtypes.ModuleName, Permissions: []string{authtypes.Burner}},
-		<% } %>
+		{Account: govtypes.ModuleName, Permissions: []string{authtypes.Burner}},<% } %>
 		{Account: ibctransfertypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
 		{Account: ibcfeetypes.ModuleName},
 		{Account: icatypes.ModuleName},
