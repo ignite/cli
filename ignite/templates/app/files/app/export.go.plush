@@ -8,14 +8,11 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	<%= if (IsConsumerChain) { %>
-	tmtypes "github.com/cometbft/cometbft/types"
-	<%= } else { %>
+	<%= if (IsConsumerChain) { %>tmtypes "github.com/cometbft/cometbft/types"<% } else { %>
 	"log"
 	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	<% } %>
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"<% } %>
 )
 
 // ExportAppStateAndValidators exports the state of the application for a genesis
