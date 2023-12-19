@@ -2,7 +2,6 @@ package app
 
 import (
 	"embed"
-	"fmt"
 	"io/fs"
 
 	"github.com/gobuffalo/genny/v2"
@@ -35,7 +34,7 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 	}
 	g := genny.New()
 	if err := g.SelectiveFS(subfs, includePrefix, nil, excludePrefix, nil); err != nil {
-		return g, fmt.Errorf("generator fs: %w", err)
+		return g, errors.Errorf("generator fs: %w", err)
 	}
 	ctx := plush.NewContext()
 	ctx.Set("ModulePath", opts.ModulePath)
