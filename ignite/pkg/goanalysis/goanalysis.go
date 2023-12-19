@@ -347,5 +347,5 @@ func parseReplacementCode(code string) (*ast.BlockStmt, error) {
 			return funcDecl.Body, nil
 		}
 	}
-	return nil, fmt.Errorf("replacement code does not contain a valid function declaration")
+	return nil, errors.Errorf("replacement code does not contain a valid function declaration")
 }
