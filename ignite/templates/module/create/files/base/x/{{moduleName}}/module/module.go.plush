@@ -94,9 +94,9 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *r
 // GetTxCmd returns the root Tx command for the module.
 // These commands enrich the AutoCLI tx commands.
 // When creating non AutoCLI commands, add the following:
-// func (a AppModuleBasic) GetTxCmd() *cobra.Command {
-//    return cli.GetTxCmd()
-// }
+func (a AppModuleBasic) GetTxCmd() *cobra.Command {
+   return cli.GetTxCmd()
+}
 
 // ----------------------------------------------------------------------------
 // AppModule
