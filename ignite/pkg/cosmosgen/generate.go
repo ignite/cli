@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"slices"
 
-	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
@@ -20,6 +19,7 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosbuf"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/events"
 	"github.com/ignite/cli/v28/ignite/pkg/gomodule"
 	"github.com/ignite/cli/v28/ignite/pkg/xfilepath"
@@ -69,7 +69,7 @@ type protoAnalysis struct {
 }
 
 func newBufConfigError(path string, cause error) error {
-	return fmt.Errorf("%w: %s: %w", ErrBufConfig, path, cause)
+	return errors.Errorf("%w: %s: %w", ErrBufConfig, path, cause)
 }
 
 func (g *generator) setup(ctx context.Context) (err error) {
@@ -449,7 +449,7 @@ func (g generator) vendorProtoPackage(pkgName, protoPath string) (err error) {
 	path := filepath.Join(g.appPath, workFilename)
 	bz, err := os.ReadFile(path)
 	if err != nil {
-		return fmt.Errorf("error reading Buf workspace file: %s: %w", path, err)
+		return errors.Errorf("error reading Buf workspace file: %s: %w", path, err)
 	}
 
 	ws := struct {

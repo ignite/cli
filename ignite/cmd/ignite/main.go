@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"sync"
@@ -15,6 +14,7 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/clictx"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/validation"
 	"github.com/ignite/cli/v28/ignite/pkg/xstrings"
 )

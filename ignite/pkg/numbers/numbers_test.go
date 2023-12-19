@@ -1,11 +1,12 @@
 package numbers
 
 import (
-	"errors"
 	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 func TestParseList(t *testing.T) {
@@ -50,7 +51,7 @@ func TestParseListErrors(t *testing.T) {
 		t.Run("list "+tt.list, func(t *testing.T) {
 			_, err := ParseList(tt.list)
 			require.Error(t, err)
-			require.Equal(t, tt.err, err)
+			require.True(t, errors.Is(tt.err, err))
 		})
 	}
 }

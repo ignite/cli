@@ -1,7 +1,6 @@
 package ignitecmd
 
 import (
-	"errors"
 	"path/filepath"
 
 	"github.com/manifoldco/promptui"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/xgit"

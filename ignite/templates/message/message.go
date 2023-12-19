@@ -11,6 +11,7 @@ import (
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush/v4"
 
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
@@ -98,7 +99,7 @@ func protoTxRPCModify(opts *Options) genny.RunFn {
 		// = Add new rpc to Msg.
 		serviceMsg, err := protoutil.GetServiceByName(protoFile, "Msg")
 		if err != nil {
-			return fmt.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
+			return errors.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
 		}
 		typenameUpper := opts.MsgName.UpperCamel
 		protoutil.Append(
@@ -157,7 +158,7 @@ func protoTxMessageModify(opts *Options) genny.RunFn {
 			protoImports = append(protoImports, protoutil.NewImport(protoPath))
 		}
 		if err = protoutil.AddImports(protoFile, true, protoImports...); err != nil {
-			return fmt.Errorf("failed to add imports to %s: %w", path, err)
+			return errors.Errorf("failed to add imports to %s: %w", path, err)
 		}
 
 		newFile := genny.NewFileS(path, protoutil.Print(protoFile))

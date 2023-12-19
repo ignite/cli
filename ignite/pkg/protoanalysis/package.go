@@ -1,11 +1,12 @@
 package protoanalysis
 
 import (
-	"errors"
 	"regexp"
 	"strings"
 
 	"golang.org/x/mod/semver"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 type (
