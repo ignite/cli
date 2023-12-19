@@ -11,6 +11,7 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/events"
 )
 
@@ -308,7 +309,7 @@ func (c *Chain) Generate(
 	// Check if the client config options have to be updated with the paths of the generated code
 	if updateConfig {
 		if err := c.saveClientConfig(conf.Client); err != nil {
-			return fmt.Errorf("error adding generated paths to config file: %w", err)
+			return errors.Errorf("error adding generated paths to config file: %w", err)
 		}
 	}
 

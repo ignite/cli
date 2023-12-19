@@ -2,7 +2,6 @@ package chain
 
 import (
 	"context"
-	"errors"
 	"os"
 	"path/filepath"
 
@@ -16,6 +15,7 @@ import (
 	uilog "github.com/ignite/cli/v28/ignite/pkg/cliui/log"
 	"github.com/ignite/cli/v28/ignite/pkg/confile"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/events"
 	"github.com/ignite/cli/v28/ignite/pkg/repoversion"
 	"github.com/ignite/cli/v28/ignite/pkg/xexec"

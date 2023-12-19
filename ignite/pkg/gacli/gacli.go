@@ -3,10 +3,11 @@ package gacli
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 type (
@@ -97,13 +98,13 @@ func (c Client) Send(body Body) error {
 	// Create an HTTP request with the payload
 	resp, err := c.httpClient.Post(requestURL.String(), "application/json", bytes.NewBuffer(encoded))
 	if err != nil {
-		return fmt.Errorf("error creating HTTP request: %w", err)
+		return errors.Wrapf(err, "error creating HTTP request: %s", requestURL.String())
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK &&
 		resp.StatusCode != http.StatusNoContent {
-		return fmt.Errorf("error sending event. Status code: %d", resp.StatusCode)
+		return errors.Errorf("error to add analytics metric. Status code: %d", resp.StatusCode)
 	}
 	return nil
 }

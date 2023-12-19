@@ -2,7 +2,6 @@ package module
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"path"
 	"path/filepath"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/app"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/gomodule"
 	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis"
 	"github.com/ignite/cli/v28/ignite/pkg/xstrings"
@@ -224,7 +224,7 @@ func extractRelPath(pkgGoImportPath, baseGoPath string) (string, error) {
 		return strings.TrimPrefix(pkgGoImportPath, p), nil
 	}
 
-	return "", fmt.Errorf("proto go import %s is not relative to %s", pkgGoImportPath, baseGoPath)
+	return "", errors.Errorf("proto go import %s is not relative to %s", pkgGoImportPath, baseGoPath)
 }
 
 // discover discovers and sdk module by a proto pkg.

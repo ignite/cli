@@ -8,6 +8,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 // SchemasDir defines the name for the embedded schema directory.
@@ -82,7 +84,7 @@ func (s Schemas) WalkFrom(fromVersion uint64, fn SchemasWalkFunc) error {
 	// Index the paths to the schemas with the matching versions
 	err := fs.WalkDir(s.fs, SchemasDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			return fmt.Errorf("failed to read schema %s: %w", path, err)
+			return errors.Errorf("failed to read schema %s: %w", path, err)
 		}
 
 		if path == SchemasDir {
@@ -92,7 +94,7 @@ func (s Schemas) WalkFrom(fromVersion uint64, fn SchemasWalkFunc) error {
 		// Extract the schema file version from the file name
 		version := extractSchemaVersion(path)
 		if version == 0 {
-			return fmt.Errorf("invalid schema file name '%s'", path)
+			return errors.Errorf("invalid schema file name '%s'", path)
 		}
 
 		if fromVersion <= version {
@@ -115,7 +117,7 @@ func (s Schemas) WalkFrom(fromVersion uint64, fn SchemasWalkFunc) error {
 		// Read the SQL script from the schema file
 		script, err := fs.ReadFile(s.fs, p)
 		if err != nil {
-			return fmt.Errorf("failed to read schema '%s': %w", p, err)
+			return errors.Errorf("failed to read schema '%s': %w", p, err)
 		}
 
 		// Create the SQL script to change the schema to the

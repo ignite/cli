@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"io"
 
@@ -13,6 +12,7 @@ import (
 
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/nodetime"
 )
 

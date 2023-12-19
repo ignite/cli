@@ -1,11 +1,12 @@
 package v1
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 
 	"github.com/spf13/pflag"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 const (
@@ -29,7 +30,7 @@ var flagTypes = map[string]Flag_Type{
 }
 
 func newDefaultFlagValueError(typeName, value string) error {
-	return fmt.Errorf("invalid default value for plugin command %s flag: %s", typeName, value)
+	return errors.Errorf("invalid default value for plugin command %s flag: %s", typeName, value)
 }
 
 func (f *Flag) exportToFlagSet(fs *pflag.FlagSet) error {
