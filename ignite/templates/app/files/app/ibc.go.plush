@@ -2,6 +2,7 @@ package app
 
 import (
 	storetypes "cosmossdk.io/store/types"
+	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -179,11 +180,14 @@ func (app *App) registerIBCModules() {
 	}
 }
 
-// AddIBCModuleManager adds the missing IBC modules into the module manager.
-func AddIBCModuleManager(moduleManager module.BasicManager) {
+// RegisterIBC adds the missing IBC modules and interfaces into the module manager.
+func RegisterIBC(moduleManager module.BasicManager, registry cdctypes.InterfaceRegistry) {
 	moduleManager[ibcexported.ModuleName] = ibc.AppModule{}
 	moduleManager[ibctransfertypes.ModuleName] = ibctransfer.AppModule{}
 	moduleManager[ibcfeetypes.ModuleName] = ibcfee.AppModule{}
 	moduleManager[icatypes.ModuleName] = icamodule.AppModule{}
 	moduleManager[capabilitytypes.ModuleName] = capability.AppModule{}
+
+	ibctm.AppModuleBasic{}.RegisterInterfaces(registry)
+	solomachine.AppModuleBasic{}.RegisterInterfaces(registry)
 }
