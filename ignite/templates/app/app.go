@@ -47,7 +47,7 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 	if opts.IsChainMinimal {
 		file, err := subfs.Open(fmt.Sprintf("%s.plush", minimalAppConfig))
 		if err != nil {
-			return g, fmt.Errorf("open minimal app config: %w", err)
+			return g, errors.Errorf("open minimal app config: %w", err)
 		}
 
 		g.File(genny.NewFile(appConfig, file))
