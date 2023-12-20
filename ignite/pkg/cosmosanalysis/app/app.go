@@ -260,7 +260,7 @@ func discoverIBCModules(ibcPath string) ([]string, error) {
 			return nil
 		}
 
-		if fn.Name.Name != "AddIBCModuleManager" {
+		if fn.Name.Name != "RegisterIBC" && fn.Name.Name != "AddIBCModuleManager" {
 			return nil
 		}
 
