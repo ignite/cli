@@ -4,6 +4,7 @@
 
 ### Features
 
+- [#3786](https://github.com/ignite/cli/pull/3786) Add artifacts for publishing Ignite to FlatHub and Snapcraft
 - [#3830](https://github.com/ignite/cli/pull/3830) Remove gRPC info from Ignite Apps errors
 - [#3820](https://github.com/ignite/cli/pull/3820) Add integration tests for IBC chains
 
@@ -22,6 +23,7 @@
 - [#3836](https://github.com/ignite/cli/pull/3836) Add missing IBC commands for scaffolded chain
 - [#3833](https://github.com/ignite/cli/pull/3833) Improve Cosmos SDK detection to support SDK forks
 - [#3849](https://github.com/ignite/cli/pull/3849) Add missing `tx.go` file by default and enable cli if autocli does not exist
+- [#3851](https://github.com/ignite/cli/pull/3851) Add missing ibc interfaces to chain client
 
 ## [`v28.0.0`](https://github.com/ignite/cli/releases/tag/v28.0.0)
 
