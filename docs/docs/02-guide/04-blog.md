@@ -47,61 +47,61 @@ Implement `AppendPost` and the following functions in `x/blog/keeper/post.go` to
 package keeper
 
 import (
-    "encoding/binary"
+	"encoding/binary"
 
-    sdk "github.com/cosmos/cosmos-sdk/types"
-    "cosmossdk.io/store/prefix"
-    "github.com/cosmos/cosmos-sdk/runtime"
+	"cosmossdk.io/store/prefix"
+	"github.com/cosmos/cosmos-sdk/runtime"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
-    "blog/x/blog/types"
+	"blog/x/blog/types"
 )
 
 func (k Keeper) AppendPost(ctx sdk.Context, post types.Post) uint64 {
-    count := k.GetPostCount(ctx)
-    post.Id = count
-    storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-    store := prefix.NewStore(storeAdapter, types.KeyPrefix(types.PostKey))
-    appendedValue := k.cdc.MustMarshal(&post)
-    store.Set(GetPostIDBytes(post.Id), appendedValue)
-    k.SetPostCount(ctx, count+1)
-    return count
+	count := k.GetPostCount(ctx)
+	post.Id = count
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.KeyPrefix(types.PostKey))
+	appendedValue := k.cdc.MustMarshal(&post)
+	store.Set(GetPostIDBytes(post.Id), appendedValue)
+	k.SetPostCount(ctx, count+1)
+	return count
 }
 
 func (k Keeper) GetPostCount(ctx sdk.Context) uint64 {
-    storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-    store := prefix.NewStore(storeAdapter, []byte{})
-    byteKey := types.KeyPrefix(types.PostCountKey)
-    bz := store.Get(byteKey)
-    if bz == nil {
-        return 0
-    }
-    return binary.BigEndian.Uint64(bz)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, []byte{})
+	byteKey := types.KeyPrefix(types.PostCountKey)
+	bz := store.Get(byteKey)
+	if bz == nil {
+		return 0
+	}
+	return binary.BigEndian.Uint64(bz)
 }
 
 func GetPostIDBytes(id uint64) []byte {
-    bz := make([]byte, 8)
-    binary.BigEndian.PutUint64(bz, id)
-    return bz
+	bz := make([]byte, 8)
+	binary.BigEndian.PutUint64(bz, id)
+	return bz
 }
 
 func (k Keeper) SetPostCount(ctx sdk.Context, count uint64) {
-    storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-    store := prefix.NewStore(storeAdapter, []byte{})
-    byteKey := types.KeyPrefix(types.PostCountKey)
-    bz := make([]byte, 8)
-    binary.BigEndian.PutUint64(bz, count)
-    store.Set(byteKey, bz)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, []byte{})
+	byteKey := types.KeyPrefix(types.PostCountKey)
+	bz := make([]byte, 8)
+	binary.BigEndian.PutUint64(bz, count)
+	store.Set(byteKey, bz)
 }
 
 func (k Keeper) GetPost(ctx sdk.Context, id uint64) (val types.Post, found bool) {
-    storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-    store := prefix.NewStore(storeAdapter, types.KeyPrefix(types.PostKey))
-    b := store.Get(GetPostIDBytes(id))
-    if b == nil {
-        return val, false
-    }
-    k.cdc.MustUnmarshal(b, &val)
-    return val, true
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.KeyPrefix(types.PostKey))
+	b := store.Get(GetPostIDBytes(id))
+	if b == nil {
+		return val, false
+	}
+	k.cdc.MustUnmarshal(b, &val)
+	return val, true
 }
 ```
 
@@ -110,12 +110,12 @@ func (k Keeper) GetPost(ctx sdk.Context, id uint64) (val types.Post, found bool)
 Add the `PostKey` and `PostCountKey` functions to the `x/blog/types/keys.go` file:
 
 ```go title="x/blog/types/keys.go"
-    // PostKey is used to uniquely identify posts within the system.
-    // It will be used as the beginning of the key for each post, followed bei their unique ID
-    PostKey = "Post/value/"
+	// PostKey is used to uniquely identify posts within the system.
+	// It will be used as the beginning of the key for each post, followed bei their unique ID
+	PostKey = "Post/value/"
 
-    // This key will be used to keep track of the ID of the latest post added to the store.
-    PostCountKey = "Post/count/"
+	// This key will be used to keep track of the ID of the latest post added to the store.
+	PostCountKey = "Post/count/"
 ```
 
 4. **Update Create Post:**
@@ -126,27 +126,27 @@ Update the `x/blog/keeper/msg_server_create_post.go` file with the `CreatePost` 
 package keeper
 
 import (
-    "context"
+	"context"
 
-    sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
-    "blog/x/blog/types"
+	"blog/x/blog/types"
 )
 
 func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (*types.MsgCreatePostResponse, error) {
-    ctx := sdk.UnwrapSDKContext(goCtx)
-    var post = types.Post{
-        Creator: msg.Creator,
-        Title:   msg.Title,
-        Body:    msg.Body,
-    }
-    id := k.AppendPost(
-        ctx,
-        post,
-    )
-    return &types.MsgCreatePostResponse{
-        Id: id,
-    }, nil
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	var post = types.Post{
+		Creator: msg.Creator,
+		Title:   msg.Title,
+		Body:    msg.Body,
+	}
+	id := k.AppendPost(
+		ctx,
+		post,
+	)
+	return &types.MsgCreatePostResponse{
+		Id: id,
+	}, nil
 }
 ```
 
@@ -166,10 +166,10 @@ Implement `SetPost` in `x/blog/keeper/post.go` for updating posts in the store.
 
 ```go title="x/blog/keeper/post.go"
 func (k Keeper) SetPost(ctx sdk.Context, post types.Post) {
-    storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-    store := prefix.NewStore(storeAdapter, types.KeyPrefix(types.PostKey))
-    b := k.cdc.MustMarshal(&post)
-    store.Set(GetPostIDBytes(post.Id), b)
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.KeyPrefix(types.PostKey))
+	b := k.cdc.MustMarshal(&post)
+	store.Set(GetPostIDBytes(post.Id), b)
 }
 ```
 
@@ -179,33 +179,33 @@ Refine the `UpdatePost` function in `x/blog/keeper/msg_server_update_post.go`.
 package keeper
 
 import (
-    "context"
-    "fmt"
+	"context"
+	"fmt"
 
-    errorsmod "cosmossdk.io/errors"
-    sdk "github.com/cosmos/cosmos-sdk/types"
-    sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-    "blog/x/blog/types"
+	"blog/x/blog/types"
 )
 
 func (k msgServer) UpdatePost(goCtx context.Context, msg *types.MsgUpdatePost) (*types.MsgUpdatePostResponse, error) {
-    ctx := sdk.UnwrapSDKContext(goCtx)
-    var post = types.Post{
-        Creator: msg.Creator,
-        Id:      msg.Id,
-        Title:   msg.Title,
-        Body:    msg.Body,
-    }
-    val, found := k.GetPost(ctx, msg.Id)
-    if !found {
-        return nil, errorsmod.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
-    }
-    if msg.Creator != val.Creator {
-        return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
-    }
-    k.SetPost(ctx, post)
-    return &types.MsgUpdatePostResponse{}, nil
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	var post = types.Post{
+		Creator: msg.Creator,
+		Id:      msg.Id,
+		Title:   msg.Title,
+		Body:    msg.Body,
+	}
+	val, found := k.GetPost(ctx, msg.Id)
+	if !found {
+		return nil, errorsmod.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
+	}
+	if msg.Creator != val.Creator {
+		return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
+	}
+	k.SetPost(ctx, post)
+	return &types.MsgUpdatePostResponse{}, nil
 }
 ```
 
@@ -225,9 +225,9 @@ Implement RemovePost in `x/blog/keeper/post.go` to delete posts from the store.
 
 ```go title="x/blog/keeper/post.go"
 func (k Keeper) RemovePost(ctx sdk.Context, id uint64) {
-    storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
-    store := prefix.NewStore(storeAdapter, types.KeyPrefix(types.PostKey))
-    store.Delete(GetPostIDBytes(id))
+	storeAdapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(storeAdapter, types.KeyPrefix(types.PostKey))
+	store.Delete(GetPostIDBytes(id))
 }
 ```
 
@@ -237,27 +237,27 @@ Add the according logic to `x/blog/keeper/msg_server_delete_post`.
 package keeper
 
 import (
-    "context"
-    "fmt"
+	"context"
+	"fmt"
 
-    errorsmod "cosmossdk.io/errors"
-    sdk "github.com/cosmos/cosmos-sdk/types"
-    sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-    "blog/x/blog/types"
+	"blog/x/blog/types"
 )
 
 func (k msgServer) DeletePost(goCtx context.Context, msg *types.MsgDeletePost) (*types.MsgDeletePostResponse, error) {
-    ctx := sdk.UnwrapSDKContext(goCtx)
-    val, found := k.GetPost(ctx, msg.Id)
-    if !found {
-        return nil, errorsmod.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
-    }
-    if msg.Creator != val.Creator {
-        return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
-    }
-    k.RemovePost(ctx, msg.Id)
-    return &types.MsgDeletePostResponse{}, nil
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	val, found := k.GetPost(ctx, msg.Id)
+	if !found {
+		return nil, errorsmod.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
+	}
+	if msg.Creator != val.Creator {
+		return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
+	}
+	k.RemovePost(ctx, msg.Id)
+	return &types.MsgDeletePostResponse{}, nil
 }
 ```
 
@@ -280,28 +280,28 @@ Implement `ShowPost` in `x/blog/keeper/query_show_post.go`.
 package keeper
 
 import (
-    "context"
+	"context"
 
-    sdk "github.com/cosmos/cosmos-sdk/types"
-    sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-    "google.golang.org/grpc/codes"
-    "google.golang.org/grpc/status"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
-    "blog/x/blog/types"
+	"blog/x/blog/types"
 )
 
 func (k Keeper) ShowPost(goCtx context.Context, req *types.QueryShowPostRequest) (*types.QueryShowPostResponse, error) {
-    if req == nil {
-        return nil, status.Error(codes.InvalidArgument, "invalid request")
-    }
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
 
-    ctx := sdk.UnwrapSDKContext(goCtx)
-    post, found := k.GetPost(ctx, req.Id)
-    if !found {
-        return nil, sdkerrors.ErrKeyNotFound
-    }
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	post, found := k.GetPost(ctx, req.Id)
+	if !found {
+		return nil, sdkerrors.ErrKeyNotFound
+	}
 
-    return &types.QueryShowPostResponse{Post: post}, nil
+	return &types.QueryShowPostResponse{Post: post}, nil
 }
 ```
 
