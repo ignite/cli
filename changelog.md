@@ -21,6 +21,7 @@
 - [#3825](https://github.com/ignite/cli/pull/3825) Fix a minor Keplr type-checking bug in TS client
 - [#3836](https://github.com/ignite/cli/pull/3836) Add missing IBC commands for scaffolded chain
 - [#3833](https://github.com/ignite/cli/pull/3833) Improve Cosmos SDK detection to support SDK forks
+- [#3851](https://github.com/ignite/cli/pull/3851) Add missing ibc interfaces to chain client
 
 ## [`v28.0.0`](https://github.com/ignite/cli/releases/tag/v28.0.0)
 
