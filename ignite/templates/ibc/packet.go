@@ -3,7 +3,6 @@ package ibc
 import (
 	"embed"
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/emicklei/proto"
@@ -352,24 +351,10 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 	}
 }
 
-//go:embed templates/packet/tx.tpl
-var txTemplate string
-
 // clientCliTxModify does not use AutoCLI here, because it as a better UX as it is.
 func clientCliTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		filePath := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/tx.go")
-		if _, err := os.Stat(filePath); errors.Is(err, os.ErrNotExist) {
-			content := fmt.Sprintf(txTemplate, opts.ModulePath, opts.ModuleName)
-			if err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
-				return err
-			}
-
-			if err := os.WriteFile(filePath, []byte(content), 0o644); err != nil {
-				return err
-			}
-		}
-
 		f, err := r.Disk.Find(filePath)
 		if err != nil {
 			return err
