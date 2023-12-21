@@ -115,7 +115,7 @@ func (c Client) SendMetric(metric Metric) error {
 	return c.Send(Body{
 		ClientID: metric.SessionID,
 		Events: []Event{{
-			Name:   metric.Cmd,
+			Name:   metric.Name,
 			Params: metric,
 		}},
 	})
