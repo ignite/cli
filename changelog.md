@@ -6,6 +6,7 @@
 
 - [#3786](https://github.com/ignite/cli/pull/3786) Add artifacts for publishing Ignite to FlatHub and Snapcraft
 - [#3830](https://github.com/ignite/cli/pull/3830) Remove gRPC info from Ignite Apps errors
+- [#3861](https://github.com/ignite/cli/pull/3861) Send to the analytics if the user is using a GitPod
 
 ### Changes
 
