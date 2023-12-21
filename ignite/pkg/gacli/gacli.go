@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
@@ -115,7 +116,7 @@ func (c Client) SendMetric(metric Metric) error {
 	return c.Send(Body{
 		ClientID: metric.SessionID,
 		Events: []Event{{
-			Name:   metric.Cmd,
+			Name:   strings.ReplaceAll(metric.Cmd, " ", "_"),
 			Params: metric,
 		}},
 	})

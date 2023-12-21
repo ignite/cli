@@ -24,6 +24,7 @@
 - [#3833](https://github.com/ignite/cli/pull/3833) Improve Cosmos SDK detection to support SDK forks
 - [#3849](https://github.com/ignite/cli/pull/3849) Add missing `tx.go` file by default and enable cli if autocli does not exist
 - [#3851](https://github.com/ignite/cli/pull/3851) Add missing ibc interfaces to chain client
+- [#3860](https://github.com/ignite/cli/pull/3860) Fix analytics event name
 
 ## [`v28.0.0`](https://github.com/ignite/cli/releases/tag/v28.0.0)
 
