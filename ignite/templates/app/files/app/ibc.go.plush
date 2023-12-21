@@ -197,7 +197,7 @@ func RegisterIBC(registry cdctypes.InterfaceRegistry) map[string]appmodule.AppMo
 
 	for _, module := range modules {
 		if mod, ok := module.(interface {
-			RegisterInterfaces(registry codectypes.InterfaceRegistry)
+			RegisterInterfaces(registry cdctypes.InterfaceRegistry)
 		}); ok {
 			mod.RegisterInterfaces(registry)
 		}
