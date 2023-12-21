@@ -81,6 +81,7 @@ otherwise, a row refers to a minor version and all associated patch versions.
 
 | Ignite CLI  | Cosmos SDK  | IBC                  | Notes                                                         |
 |-------------|-------------|----------------------|---------------------------------------------------------------|
+| v28.x.x     | v0.50.x     | v8.0.0               | -                                                             |
 | v0.27.1     | v0.47.3     | v7.1.0               | -                                                             |
 | v0.26.0     | v0.46.7     | v6.1.0               | -                                                             |
 | v0.25.2     | v0.46.6     | v5.1.0               | Bump Tendermint version to v0.34.24                           |
