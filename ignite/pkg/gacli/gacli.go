@@ -39,6 +39,7 @@ type (
 		Version            string `json:"version,omitempty"`
 		SessionID          string `json:"session_id,omitempty"`
 		EngagementTimeMsec string `json:"engagement_time_msec,omitempty"`
+		IsGitPod           bool   `json:"is_git_pod,omitempty"`
 	}
 )
 

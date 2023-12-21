@@ -12,6 +12,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/v28/ignite/pkg/gacli"
+	"github.com/ignite/cli/v28/ignite/pkg/gitpod"
 	"github.com/ignite/cli/v28/ignite/pkg/randstr"
 	"github.com/ignite/cli/v28/ignite/version"
 )
@@ -57,6 +58,7 @@ func SendMetric(wg *sync.WaitGroup, cmd *cobra.Command) {
 		Arch:      runtime.GOARCH,
 		SessionID: dntInfo.Name,
 		Version:   version.Version,
+		IsGitPod:  gitpod.IsOnGitpod(),
 	}
 
 	wg.Add(1)
