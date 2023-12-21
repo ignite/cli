@@ -2,13 +2,13 @@ package scaffolder
 
 import (
 	"context"
-	"fmt"
 	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
@@ -41,7 +41,7 @@ func (s Scaffolder) CreateParams(
 		return sm, err
 	}
 	if !ok {
-		return sm, fmt.Errorf("the module %v not exist", moduleName)
+		return sm, errors.Errorf("the module %v not exist", moduleName)
 	}
 
 	if err := checkParamCreated(s.path, moduleName, params); err != nil {
@@ -84,7 +84,7 @@ func checkParamCreated(appPath, moduleName string, params []string) error {
 	}
 
 	if ok {
-		return fmt.Errorf(
+		return errors.Errorf(
 			"duplicated params (%s) module %s",
 			strings.Join(params, " "),
 			moduleName,

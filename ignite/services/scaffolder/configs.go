@@ -2,13 +2,13 @@ package scaffolder
 
 import (
 	"context"
-	"fmt"
 	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
@@ -42,7 +42,7 @@ func (s Scaffolder) CreateConfigs(
 		return sm, err
 	}
 	if !ok {
-		return sm, fmt.Errorf("the module %v not exist", moduleName)
+		return sm, errors.Errorf("the module %v not exist", moduleName)
 	}
 
 	if err := checkConfigCreated(s.path, appName, moduleName, configs); err != nil {
@@ -85,7 +85,7 @@ func checkConfigCreated(appPath, appName, moduleName string, configs []string) (
 	}
 
 	if ok {
-		return fmt.Errorf(
+		return errors.Errorf(
 			"duplicated configs (%s) module %s",
 			strings.Join(configs, " "),
 			moduleName,

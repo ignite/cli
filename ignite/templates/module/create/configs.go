@@ -1,11 +1,11 @@
 package modulecreate
 
 import (
-	"fmt"
 	"path/filepath"
 
 	"github.com/gobuffalo/genny/v2"
 
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
 )
 
@@ -30,7 +30,7 @@ func configsProtoModify(opts ConfigsOptions) genny.RunFn {
 
 		params, err := protoutil.GetMessageByName(protoFile, "Module")
 		if err != nil {
-			return fmt.Errorf("couldn't find message 'Module' in %s: %w", path, err)
+			return errors.Errorf("couldn't find message 'Module' in %s: %w", path, err)
 		}
 		for _, paramField := range opts.Configs {
 			param := protoutil.NewField(

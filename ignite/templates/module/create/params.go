@@ -6,6 +6,7 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/v28/ignite/templates/module"
@@ -33,7 +34,7 @@ func paramsProtoModify(opts ParamsOptions) genny.RunFn {
 
 		params, err := protoutil.GetMessageByName(protoFile, "Params")
 		if err != nil {
-			return fmt.Errorf("couldn't find message 'Params' in %s: %w", path, err)
+			return errors.Errorf("couldn't find message 'Params' in %s: %w", path, err)
 		}
 		for _, paramField := range opts.Params {
 			param := protoutil.NewField(
