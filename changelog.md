@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [`v28.1.0`](https://github.com/ignite/cli/releases/tag/v28.1.0)
+
 ### Features
 
 - [#3786](https://github.com/ignite/cli/pull/3786) Add artifacts for publishing Ignite to FlatHub and Snapcraft
