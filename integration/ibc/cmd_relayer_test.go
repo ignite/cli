@@ -223,7 +223,7 @@ func runChain(
 		cfgPath  = filepath.Join(tmpDir, chain.ConfigFilenames[0])
 	)
 	genAddr := func(port uint) string {
-		return fmt.Sprintf("0.0.0.0:%d", port)
+		return fmt.Sprintf(":%d", port)
 	}
 
 	cfg.Validators[0].Home = homePath
@@ -375,7 +375,11 @@ func TestBlogIBC(t *testing.T) {
 	))
 
 	// serve both chains.
-	ports, err := availableport.Find(14)
+	ports, err := availableport.Find(
+		14,
+		availableport.WithMinPort(4000),
+		availableport.WithMaxPort(5000),
+	)
 	require.NoError(t, err)
 	earthAPI, earthRPC, earthGRPC, earthFaucet := runChain(t, env, app, earthConfig, ports[:7])
 	marsAPI, marsRPC, marsGRPC, marsFaucet := runChain(t, env, app, marsConfig, ports[7:])
