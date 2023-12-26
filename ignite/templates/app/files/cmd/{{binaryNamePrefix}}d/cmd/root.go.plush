@@ -108,9 +108,9 @@ func NewRootCmd() *cobra.Command {
 	// manually register the modules on the client side.
 	// This needs to be removed after IBC supports App Wiring.
 	ibcModules := app.RegisterIBC(clientCtx.InterfaceRegistry)
-	for name, module := range ibcModules {
+	for name, mod := range ibcModules {
 		moduleBasicManager[name] = module.CoreAppModuleBasicAdaptor(name, mod)
-		autoCliOpts.Modules[name] = module
+		autoCliOpts.Modules[name] = mod
 	}
 	initRootCmd(rootCmd, clientCtx.TxConfig, clientCtx.InterfaceRegistry, clientCtx.Codec, moduleBasicManager)
 
