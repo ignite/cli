@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- []() Fix genesis export for ibc modules.
+
 ## [`v28.1.0`](https://github.com/ignite/cli/releases/tag/v28.1.0)
 
 ### Features
