@@ -1,13 +1,13 @@
 package events_test
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/cliui/colors"
-	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/events"
 )
 
 func TestBusSend(t *testing.T) {

@@ -8,14 +8,14 @@ import (
 	"strings"
 
 	"github.com/emicklei/proto"
-
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
-	"github.com/ignite/cli/ignite/pkg/xgenny"
-	"github.com/ignite/cli/ignite/templates/typed"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v28/ignite/templates/typed"
 )
 
 var (
@@ -99,20 +99,32 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		}
 		// Import
 		if err = protoutil.AddImports(protoFile, true, opts.ProtoTypeImport()); err != nil {
-			return fmt.Errorf("failed while adding imports to %s: %w", path, err)
+			return errors.Errorf("failed while adding imports to %s: %w", path, err)
 		}
 
 		// RPC service
 		serviceMsg, err := protoutil.GetServiceByName(protoFile, "Msg")
 		if err != nil {
-			return fmt.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
+			return errors.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
 		}
 		// Create, update, delete rpcs. Better to append them altogether, single traversal.
 		typenameUpper := opts.TypeName.UpperCamel
 		protoutil.Append(serviceMsg,
-			protoutil.NewRPC("Create"+typenameUpper, "MsgCreate"+typenameUpper, "MsgCreate"+typenameUpper+"Response"),
-			protoutil.NewRPC("Update"+typenameUpper, "MsgUpdate"+typenameUpper, "MsgUpdate"+typenameUpper+"Response"),
-			protoutil.NewRPC("Delete"+typenameUpper, "MsgDelete"+typenameUpper, "MsgDelete"+typenameUpper+"Response"),
+			protoutil.NewRPC(
+				fmt.Sprintf("Create%s", typenameUpper),
+				fmt.Sprintf("MsgCreate%s", typenameUpper),
+				fmt.Sprintf("MsgCreate%sResponse", typenameUpper),
+			),
+			protoutil.NewRPC(
+				fmt.Sprintf("Update%s", typenameUpper),
+				fmt.Sprintf("MsgUpdate%s", typenameUpper),
+				fmt.Sprintf("MsgUpdate%sResponse", typenameUpper),
+			),
+			protoutil.NewRPC(
+				fmt.Sprintf("Delete%s", typenameUpper),
+				fmt.Sprintf("MsgDelete%s", typenameUpper),
+				fmt.Sprintf("MsgDelete%sResponse", typenameUpper),
+			),
 		)
 
 		// - Ensure custom types are imported
@@ -126,7 +138,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		}
 		// we already know an import exists, pass false for fallback.
 		if err = protoutil.AddImports(protoFile, true, protoImports...); err != nil {
-			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
+			return errors.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 		// Messages
 		creator := protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)
@@ -142,26 +154,26 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		}
 
 		msgCreate := protoutil.NewMessage(
-			"MsgCreate"+typenameUpper,
+			fmt.Sprintf("MsgCreate%s", typenameUpper),
 			protoutil.WithFields(createFields...),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
 		msgCreateResponse := protoutil.NewMessage(
-			"MsgCreate"+typenameUpper+"Response",
+			fmt.Sprintf("MsgCreate%sResponse", typenameUpper),
 			protoutil.WithFields(protoutil.NewField("id", "uint64", 1)),
 		)
 		msgUpdate := protoutil.NewMessage(
-			"MsgUpdate"+typenameUpper,
+			fmt.Sprintf("MsgUpdate%s", typenameUpper),
 			protoutil.WithFields(updateFields...),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
-		msgUpdateResponse := protoutil.NewMessage("MsgUpdate" + typenameUpper + "Response")
+		msgUpdateResponse := protoutil.NewMessage(fmt.Sprintf("MsgUpdate%sResponse", typenameUpper))
 		msgDelete := protoutil.NewMessage(
-			"MsgDelete"+typenameUpper,
+			fmt.Sprintf("MsgDelete%s", typenameUpper),
 			protoutil.WithFields(udfields...),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
-		msgDeleteResponse := protoutil.NewMessage("MsgDelete" + typenameUpper + "Response")
+		msgDeleteResponse := protoutil.NewMessage(fmt.Sprintf("MsgDelete%sResponse", typenameUpper))
 		protoutil.Append(
 			protoFile,
 			msgCreate,
@@ -195,17 +207,20 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 		// Imports for the new type and gogoImport.
 		gogoImport := protoutil.NewImport(typed.GoGoProtoImport)
 		if err = protoutil.AddImports(protoFile, true, gogoImport, opts.ProtoTypeImport()); err != nil {
-			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
+			return errors.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 
 		// Add to Query:
 		serviceQuery, err := protoutil.GetServiceByName(protoFile, "Query")
 		if err != nil {
-			return fmt.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
+			return errors.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
 		}
 		appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
 		typenameUpper := opts.TypeName.UpperCamel
-		rpcQueryGet := protoutil.NewRPC(typenameUpper, "QueryGet"+typenameUpper+"Request", "QueryGet"+typenameUpper+"Response",
+		rpcQueryGet := protoutil.NewRPC(
+			typenameUpper,
+			fmt.Sprintf("QueryGet%sRequest", typenameUpper),
+			fmt.Sprintf("QueryGet%sResponse", typenameUpper),
 			protoutil.WithRPCOptions(
 				protoutil.NewOption(
 					"google.api.http",
@@ -220,7 +235,10 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 		)
 		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("Queries a %v by id.", typenameUpper))
 
-		rpcQueryAll := protoutil.NewRPC(typenameUpper+"All", "QueryAll"+typenameUpper+"Request", "QueryAll"+typenameUpper+"Response",
+		rpcQueryAll := protoutil.NewRPC(
+			fmt.Sprintf("%sAll", typenameUpper),
+			fmt.Sprintf("QueryAll%sRequest", typenameUpper),
+			fmt.Sprintf("QueryAll%sResponse", typenameUpper),
 			protoutil.WithRPCOptions(
 				protoutil.NewOption(
 					"google.api.http",
@@ -241,19 +259,21 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 		gogoOption := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
 
 		queryGetRequest := protoutil.NewMessage(
-			"QueryGet"+typenameUpper+"Request",
+			fmt.Sprintf("QueryGet%sRequest", typenameUpper),
 			protoutil.WithFields(protoutil.NewField("id", "uint64", 1)),
 		)
 		field := protoutil.NewField(typenameUpper, typenameUpper, 1, protoutil.WithFieldOptions(gogoOption))
-		queryGetResponse := protoutil.NewMessage("QueryGet"+typenameUpper+"Response", protoutil.WithFields(field))
+		queryGetResponse := protoutil.NewMessage(
+			fmt.Sprintf("QueryGet%sResponse", typenameUpper),
+			protoutil.WithFields(field))
 
 		queryAllRequest := protoutil.NewMessage(
-			"QueryAll"+typenameUpper+"Request",
+			fmt.Sprintf("QueryAll%sRequest", typenameUpper),
 			protoutil.WithFields(protoutil.NewField(paginationName, paginationType+"Request", 1)),
 		)
 		field = protoutil.NewField(typenameUpper, typenameUpper, 1, protoutil.Repeated(), protoutil.WithFieldOptions(gogoOption))
 		queryAllResponse := protoutil.NewMessage(
-			"QueryAll"+typenameUpper+"Response",
+			fmt.Sprintf("QueryAll%sResponse", typenameUpper),
 			protoutil.WithFields(field, protoutil.NewField(paginationName, paginationType+"Response", 2)),
 		)
 		protoutil.Append(protoFile, queryGetRequest, queryGetResponse, queryAllRequest, queryAllResponse)
@@ -316,27 +336,29 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 			return err
 		}
 
-		var positionalArgs string
+		var positionalArgs, positionalArgsStr string
 		for _, field := range opts.Fields {
 			positionalArgs += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
+			positionalArgsStr += fmt.Sprintf("[%s] ", field.ProtoFieldName())
 		}
 
 		template := `{
 			RpcMethod: "Create%[2]v",
-			Use: "create-%[3]v",
+			Use: "create-%[3]v %[6]s",
 			Short: "Create %[4]v",
 			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
 		},
 		{
 			RpcMethod: "Update%[2]v",
-			Use: "update-%[3]v",
+			Use: "update-%[3]v [id] %[6]s",
 			Short: "Update %[4]v",
-			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
+			PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "id"}, %[5]s},
 		},
 		{
 			RpcMethod: "Delete%[2]v",
-			Use: "delete-%[3]v",
+			Use: "delete-%[3]v [id]",
 			Short: "Delete %[4]v",
+			PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "id"}},
 		},
 		%[1]v`
 
@@ -347,6 +369,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 			opts.TypeName.Kebab,
 			opts.TypeName.Original,
 			strings.TrimSpace(positionalArgs),
+			strings.TrimSpace(positionalArgsStr),
 		)
 
 		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLITx, replacement)

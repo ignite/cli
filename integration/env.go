@@ -2,14 +2,12 @@ package envtest
 
 import (
 	"context"
-	"errors"
 	"flag"
 	"fmt"
 	"os"
 	"path"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -17,11 +15,12 @@ import (
 	"github.com/cenkalti/backoff"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
-	"github.com/ignite/cli/ignite/pkg/env"
-	"github.com/ignite/cli/ignite/pkg/gocmd"
-	"github.com/ignite/cli/ignite/pkg/httpstatuschecker"
-	"github.com/ignite/cli/ignite/pkg/xurl"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosfaucet"
+	"github.com/ignite/cli/v28/ignite/pkg/env"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/gocmd"
+	"github.com/ignite/cli/v28/ignite/pkg/httpstatuschecker"
+	"github.com/ignite/cli/v28/ignite/pkg/xurl"
 )
 
 const (
@@ -57,7 +56,7 @@ func New(t *testing.T) Env {
 	// set an other one thanks to env var.
 	cfgDir := path.Join(t.TempDir(), ".ignite")
 	env.SetConfigDir(cfgDir)
-	enableDoNotTrackEnv()
+	enableDoNotTrackEnv(t)
 
 	t.Cleanup(cancel)
 	compileBinaryOnce.Do(func() {
@@ -71,7 +70,7 @@ func compileBinary(ctx context.Context) {
 	if err != nil {
 		panic(fmt.Sprintf("unable to get working dir: %v", err))
 	}
-	pkgs, err := gocmd.List(ctx, wd, []string{"-m", "-f={{.Dir}}", "github.com/ignite/cli"})
+	pkgs, err := gocmd.List(ctx, wd, []string{"-m", "-f={{.Dir}}", "github.com/ignite/cli/v28"})
 	if err != nil {
 		panic(fmt.Sprintf("unable to list ignite cli package: %v", err))
 	}
@@ -169,15 +168,9 @@ func (e Env) RequireExpectations() {
 }
 
 // enableDoNotTrackEnv set true the DO_NOT_TRACK env var.
-func enableDoNotTrackEnv() {
-	err := os.Setenv(envDoNotTrack, "true")
-	if err != nil {
-		panic(fmt.Sprintf("error set %s env: %v", envDoNotTrack, err))
-	}
-}
-
-func Contains(s, partial string) bool {
-	return strings.Contains(s, strings.TrimSpace(partial))
+func enableDoNotTrackEnv(t *testing.T) {
+	t.Helper()
+	t.Setenv(envDoNotTrack, "true")
 }
 
 func HasTestVerboseFlag() bool {

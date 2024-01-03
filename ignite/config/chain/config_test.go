@@ -7,8 +7,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/config/chain"
-	"github.com/ignite/cli/ignite/config/chain/version"
+	"github.com/ignite/cli/v28/ignite/config/chain"
+	"github.com/ignite/cli/v28/ignite/config/chain/version"
 )
 
 func TestCheckVersion(t *testing.T) {

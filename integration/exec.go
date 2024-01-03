@@ -3,7 +3,6 @@ package envtest
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -11,8 +10,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/ignite/cli/ignite/pkg/cmdrunner"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 type execOptions struct {

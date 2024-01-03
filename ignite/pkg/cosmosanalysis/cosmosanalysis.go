@@ -10,11 +10,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/pkg/errors"
 	"golang.org/x/mod/modfile"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosver"
-	"github.com/ignite/cli/ignite/pkg/gomodule"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodule"
 )
 
 const (
@@ -233,11 +233,12 @@ func ValidateGoMod(module *modfile.File) error {
 		cosmosver.CosmosModulePath: true,
 		tendermintModulePath:       true,
 	}
+
 	for _, r := range module.Require {
 		delete(moduleCheck, r.Mod.Path)
 	}
 	for m := range moduleCheck {
-		return fmt.Errorf("invalid go module, missing %s package dependency", m)
+		return errors.Errorf("invalid go module, missing %s package dependency", m)
 	}
 	return nil
 }

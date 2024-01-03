@@ -11,11 +11,11 @@ import (
 	"time"
 
 	"github.com/cenkalti/backoff"
-	"github.com/pkg/errors"
 
-	"github.com/ignite/cli/ignite/pkg/chaincmd"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/chaincmd"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 // Start starts the blockchain.
@@ -179,7 +179,7 @@ func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount str
 	}
 
 	if txResult.Code > 0 {
-		return "", fmt.Errorf("cannot send tokens (SDK code %d): %s", txResult.Code, txResult.RawLog)
+		return "", errors.Errorf("cannot send tokens (SDK code %d): %s", txResult.Code, txResult.RawLog)
 	}
 
 	return txResult.TxHash, nil
@@ -199,7 +199,7 @@ func (r Runner) WaitTx(ctx context.Context, txHash string, retryDelay time.Durat
 			}
 			retry++
 			if retry == maxRetry {
-				return backoff.Permanent(fmt.Errorf("can't retrieve tx %s", txHash))
+				return backoff.Permanent(errors.Errorf("can't retrieve tx %s", txHash))
 			}
 			return err
 		}
@@ -210,7 +210,7 @@ func (r Runner) WaitTx(ctx context.Context, txHash string, retryDelay time.Durat
 			return backoff.Permanent(err)
 		}
 		if txResult.Code != 0 {
-			return backoff.Permanent(fmt.Errorf("tx %s failed: %s", txHash, txResult.RawLog))
+			return backoff.Permanent(errors.Errorf("tx %s failed: %s", txHash, txResult.RawLog))
 		}
 
 		return nil

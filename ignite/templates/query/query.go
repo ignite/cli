@@ -7,16 +7,16 @@ import (
 	"strings"
 
 	"github.com/emicklei/proto"
-
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush/v4"
 
-	"github.com/ignite/cli/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
-	"github.com/ignite/cli/ignite/pkg/xgenny"
-	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v28/ignite/templates/field/plushhelpers"
 )
 
 //go:embed files/* files/**/*
@@ -85,11 +85,14 @@ func protoQueryModify(opts *Options) genny.RunFn {
 		}
 		serviceQuery, err := protoutil.GetServiceByName(protoFile, "Query")
 		if err != nil {
-			return fmt.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
+			return errors.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
 		}
 
 		typenameUpper, appModulePath := opts.QueryName.UpperCamel, gomodulepath.ExtractAppPath(opts.ModulePath)
-		rpcSingle := protoutil.NewRPC(typenameUpper, "Query"+typenameUpper+"Request", "Query"+typenameUpper+"Response",
+		rpcSingle := protoutil.NewRPC(
+			typenameUpper,
+			fmt.Sprintf("Query%sRequest", typenameUpper),
+			fmt.Sprintf("Query%sResponse", typenameUpper),
 			protoutil.WithRPCOptions(
 				protoutil.NewOption(
 					"google.api.http",
@@ -137,7 +140,7 @@ func protoQueryModify(opts *Options) genny.RunFn {
 			protoImports = append(protoImports, protoutil.NewImport(protopath))
 		}
 		if err = protoutil.AddImports(protoFile, true, protoImports...); err != nil {
-			return fmt.Errorf("failed to add imports to %s: %w", path, err)
+			return errors.Errorf("failed to add imports to %s: %w", path, err)
 		}
 
 		newFile := genny.NewFileS(path, protoutil.Print(protoFile))

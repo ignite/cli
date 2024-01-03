@@ -2,10 +2,11 @@ package cosmosclient
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 // TX defines a block transaction.
@@ -28,7 +29,7 @@ func (t TX) GetEvents() (events []TXEvent, err error) {
 			// so string values need to be encoded to be quoted and saved as valid JSONB.
 			v, err := formatAttributeValue([]byte(a.Value))
 			if err != nil {
-				return nil, fmt.Errorf("error encoding event attr '%s.%s': %w", e.Type, a.Key, err)
+				return nil, errors.Errorf("error encoding event attr '%s.%s': %w", e.Type, a.Key, err)
 			}
 
 			evt.Attributes = append(evt.Attributes, TXEventAttribute{

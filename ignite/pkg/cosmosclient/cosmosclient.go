@@ -4,7 +4,6 @@ package cosmosclient
 import (
 	"context"
 	"encoding/hex"
-	"fmt"
 	"io"
 	"net/url"
 	"os"
@@ -34,10 +33,10 @@ import (
 	gogogrpc "github.com/cosmos/gogoproto/grpc"
 	"github.com/cosmos/gogoproto/proto"
 	prototypes "github.com/cosmos/gogoproto/types"
-	"github.com/pkg/errors"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosfaucet"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 var (
@@ -625,7 +624,7 @@ func (c Client) GetBlockTXs(ctx context.Context, height int64) (txs []TX, err er
 
 	r, err := c.RPC.Block(ctx, &height)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch block %d: %w", height, err)
+		return nil, errors.Errorf("failed to fetch block %d: %w", height, err)
 	}
 
 	query := createTxSearchByHeightQuery(height)
@@ -670,7 +669,7 @@ func (c Client) CollectTXs(ctx context.Context, fromHeight int64, tc chan<- []TX
 
 	latestHeight, err := c.LatestBlockHeight(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to fetch latest block height: %w", err)
+		return errors.Errorf("failed to fetch latest block height: %w", err)
 	}
 
 	if fromHeight == 0 {
@@ -738,7 +737,7 @@ func (c *Client) checkAccountBalance(ctx context.Context, address string) error 
 		return nil
 	}
 
-	return fmt.Errorf("account has not enough %q balance, min. required amount: %d", c.faucetDenom, c.faucetMinAmount)
+	return errors.Errorf("account has not enough %q balance, min. required amount: %d", c.faucetDenom, c.faucetMinAmount)
 }
 
 // handleBroadcastResult handles the result of broadcast messages result and checks if an error occurred.

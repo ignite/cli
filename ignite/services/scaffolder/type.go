@@ -2,23 +2,23 @@ package scaffolder
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/pkg/xgenny"
-	"github.com/ignite/cli/ignite/templates/field"
-	"github.com/ignite/cli/ignite/templates/field/datatype"
-	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
-	"github.com/ignite/cli/ignite/templates/typed"
-	"github.com/ignite/cli/ignite/templates/typed/dry"
-	"github.com/ignite/cli/ignite/templates/typed/list"
-	maptype "github.com/ignite/cli/ignite/templates/typed/map"
-	"github.com/ignite/cli/ignite/templates/typed/singleton"
+	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v28/ignite/templates/field"
+	"github.com/ignite/cli/v28/ignite/templates/field/datatype"
+	modulecreate "github.com/ignite/cli/v28/ignite/templates/module/create"
+	"github.com/ignite/cli/v28/ignite/templates/typed"
+	"github.com/ignite/cli/v28/ignite/templates/typed/dry"
+	"github.com/ignite/cli/v28/ignite/templates/typed/list"
+	maptype "github.com/ignite/cli/v28/ignite/templates/typed/map"
+	"github.com/ignite/cli/v28/ignite/templates/typed/singleton"
 )
 
 // AddTypeOption configures options for AddType.
@@ -229,7 +229,7 @@ func checkForbiddenTypeIndex(index string) error {
 		index = indexSplit[0]
 		indexType := datatype.Name(indexSplit[1])
 		if f, ok := datatype.IsSupportedType(indexType); !ok || f.NonIndex {
-			return fmt.Errorf("invalid index type %s", indexType)
+			return errors.Errorf("invalid index type %s", indexType)
 		}
 	}
 	return checkForbiddenTypeField(index)
@@ -248,7 +248,7 @@ func checkForbiddenTypeField(field string) error {
 		"params",
 		"appendedvalue",
 		datatype.TypeCustom:
-		return fmt.Errorf("%s is used by type scaffolder", field)
+		return errors.Errorf("%s is used by type scaffolder", field)
 	}
 
 	return checkGoReservedWord(field)
@@ -282,7 +282,7 @@ func mapGenerator(replacer placeholder.Replacer, opts *typed.Options, indexes []
 	}
 	for _, index := range parsedIndexes {
 		if _, ok := exists[index.Name.LowerCamel]; ok {
-			return nil, fmt.Errorf("%s cannot simultaneously be an index and a field", index.Name.Original)
+			return nil, errors.Errorf("%s cannot simultaneously be an index and a field", index.Name.Original)
 		}
 	}
 

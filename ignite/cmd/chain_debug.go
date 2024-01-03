@@ -2,21 +2,21 @@ package ignitecmd
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 
-	cmdmodel "github.com/ignite/cli/ignite/cmd/model"
-	"github.com/ignite/cli/ignite/pkg/chaincmd"
-	"github.com/ignite/cli/ignite/pkg/cliui"
-	"github.com/ignite/cli/ignite/pkg/cliui/icons"
-	cliuimodel "github.com/ignite/cli/ignite/pkg/cliui/model"
-	"github.com/ignite/cli/ignite/pkg/debugger"
-	"github.com/ignite/cli/ignite/pkg/events"
-	"github.com/ignite/cli/ignite/pkg/xurl"
-	"github.com/ignite/cli/ignite/services/chain"
+	cmdmodel "github.com/ignite/cli/v28/ignite/cmd/model"
+	"github.com/ignite/cli/v28/ignite/pkg/chaincmd"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
+	cliuimodel "github.com/ignite/cli/v28/ignite/pkg/cliui/model"
+	"github.com/ignite/cli/v28/ignite/pkg/debugger"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/events"
+	"github.com/ignite/cli/v28/ignite/pkg/xurl"
+	"github.com/ignite/cli/v28/ignite/services/chain"
 )
 
 const (

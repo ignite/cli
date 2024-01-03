@@ -2,7 +2,6 @@ package goanalysis_test
 
 import (
 	"bytes"
-	"errors"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -14,8 +13,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/tools/go/ast/astutil"
 
-	"github.com/ignite/cli/ignite/pkg/goanalysis"
-	"github.com/ignite/cli/ignite/pkg/xast"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/xast"
 )
 
 var MainFile = []byte(`package main`)
@@ -111,13 +111,14 @@ func TestDiscoverOneMain(t *testing.T) {
 			require.NoError(t, err)
 
 			actual, err := goanalysis.DiscoverOneMain(tmpDir)
-
-			require.Equal(t, tt.err, err)
-
-			if tt.err == nil {
-				require.Equal(t, 1, len(want))
-				require.Equal(t, want[0], actual)
+			if tt.err != nil {
+				require.Error(t, err)
+				require.True(t, errors.Is(tt.err, err))
+				return
 			}
+			require.NoError(t, err)
+			require.Equal(t, 1, len(want))
+			require.Equal(t, want[0], actual)
 		})
 	}
 }

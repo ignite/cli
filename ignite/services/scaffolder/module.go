@@ -2,8 +2,6 @@ package scaffolder
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"go/token"
 	"os"
 	"path/filepath"
@@ -30,15 +28,16 @@ import (
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/ignite/pkg/cache"
-	appanalysis "github.com/ignite/cli/ignite/pkg/cosmosanalysis/app"
-	"github.com/ignite/cli/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/pkg/validation"
-	"github.com/ignite/cli/ignite/pkg/xgenny"
-	"github.com/ignite/cli/ignite/templates/field"
-	"github.com/ignite/cli/ignite/templates/module"
-	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
+	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	appanalysis "github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/app"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/validation"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v28/ignite/templates/field"
+	"github.com/ignite/cli/v28/ignite/templates/module"
+	modulecreate "github.com/ignite/cli/v28/ignite/templates/module/create"
 )
 
 const (
@@ -182,7 +181,7 @@ func (s Scaffolder) CreateModule(
 		return sm, err
 	}
 	if ok {
-		return sm, fmt.Errorf("the module %v already exists", moduleName)
+		return sm, errors.Errorf("the module %v already exists", moduleName)
 	}
 
 	// Apply the options
@@ -263,17 +262,17 @@ func moduleExists(appPath string, moduleName string) (bool, error) {
 func checkModuleName(appPath, moduleName string) error {
 	// go keyword
 	if token.Lookup(moduleName).IsKeyword() {
-		return fmt.Errorf("%s is a Go keyword", moduleName)
+		return errors.Errorf("%s is a Go keyword", moduleName)
 	}
 
 	// check if the name is a reserved name
 	if _, ok := reservedNames[moduleName]; ok {
-		return fmt.Errorf("%s is a reserved name and can't be used as a module name", moduleName)
+		return errors.Errorf("%s is a reserved name and can't be used as a module name", moduleName)
 	}
 
 	checkPrefix := func(name, prefix string) error {
 		if strings.HasPrefix(name, prefix) {
-			return fmt.Errorf("the module name can't be prefixed with %s because of potential store key collision", prefix)
+			return errors.Errorf("the module name can't be prefixed with %s because of potential store key collision", prefix)
 		}
 		return nil
 	}
@@ -313,7 +312,7 @@ func checkDependencies(dependencies []modulecreate.Dependency, appPath string) e
 		// check the dependency has been registered
 		path := filepath.Join(appPath, module.PathAppModule)
 		if err := appanalysis.CheckKeeper(path, dep.KeeperName()); err != nil {
-			return fmt.Errorf(
+			return errors.Errorf(
 				"the module cannot have %s as a dependency: %w",
 				dep.Name,
 				err,
@@ -323,7 +322,7 @@ func checkDependencies(dependencies []modulecreate.Dependency, appPath string) e
 		// check duplicated
 		_, ok := depMap[dep.Name]
 		if ok {
-			return fmt.Errorf("%s is a duplicated dependency", dep)
+			return errors.Errorf("%s is a duplicated dependency", dep)
 		}
 		depMap[dep.Name] = struct{}{}
 	}

@@ -11,12 +11,13 @@ import (
 	"path/filepath"
 
 	storetypes "cosmossdk.io/store/types"
-	"github.com/cosmos/cosmos-sdk/server"
 
 	"cosmossdk.io/client/v2/autocli"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -761,7 +762,7 @@ func NewApp(
 		},
 	)
 	if err != nil {
-		panic(fmt.Errorf("failed to create AnteHandler: %s", err))
+		panic(errors.Errorf("failed to create AnteHandler: %s", err))
 	}
 
 	app.SetAnteHandler(anteHandler)
@@ -1030,14 +1031,4 @@ func (App) GetSubspace(moduleName string) paramstypes.Subspace {
 // SimulationManager implements the SimulationApp interface
 func (App) SimulationManager() *module.SimulationManager {
 	return app.sm
-}
-
-// RegisterAPIRoutes registers all application module routes with the provided
-// API server.
-func (App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
-	app.App.RegisterAPIRoutes(apiSvr, apiConfig)
-	// register swagger API in app.go so that other applications can override easily
-	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
-		panic(err)
-	}
 }

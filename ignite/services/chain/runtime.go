@@ -2,7 +2,6 @@ package chain
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -10,10 +9,11 @@ import (
 	"github.com/nqd/flat"
 	"github.com/pelletier/go-toml"
 
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
-	"github.com/ignite/cli/ignite/pkg/chaincmd"
-	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
-	"github.com/ignite/cli/ignite/pkg/xurl"
+	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
+	"github.com/ignite/cli/v28/ignite/pkg/chaincmd"
+	chaincmdrunner "github.com/ignite/cli/v28/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/xurl"
 )
 
 // Gentx wraps the "testd gentx"  command for generating a gentx for a validator.
@@ -84,7 +84,7 @@ func (c Chain) appTOML(homePath string, cfg *chainconfig.Config) error {
 
 	apiAddr, err := xurl.TCP(servers.API.Address)
 	if err != nil {
-		return fmt.Errorf("invalid api address format %s: %w", servers.API.Address, err)
+		return errors.Errorf("invalid api address format %s: %w", servers.API.Address, err)
 	}
 
 	// Set default config values
@@ -137,12 +137,12 @@ func (c Chain) configTOML(homePath string, cfg *chainconfig.Config) error {
 
 	rpcAddr, err := xurl.TCP(servers.RPC.Address)
 	if err != nil {
-		return fmt.Errorf("invalid rpc address format %s: %w", servers.RPC.Address, err)
+		return errors.Errorf("invalid rpc address format %s: %w", servers.RPC.Address, err)
 	}
 
 	p2pAddr, err := xurl.TCP(servers.P2P.Address)
 	if err != nil {
-		return fmt.Errorf("invalid p2p address format %s: %w", servers.P2P.Address, err)
+		return errors.Errorf("invalid p2p address format %s: %w", servers.P2P.Address, err)
 	}
 
 	// Set default config values

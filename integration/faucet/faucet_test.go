@@ -2,7 +2,6 @@ package faucet_test
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -14,10 +13,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
-	"github.com/ignite/cli/ignite/pkg/xurl"
-	envtest "github.com/ignite/cli/integration"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosfaucet"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/xurl"
+	envtest "github.com/ignite/cli/v28/integration"
 )
 
 const (

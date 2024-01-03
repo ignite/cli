@@ -8,15 +8,15 @@ import (
 	"strings"
 
 	"github.com/emicklei/proto"
-
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
-	"github.com/ignite/cli/ignite/pkg/xgenny"
-	"github.com/ignite/cli/ignite/templates/module"
-	"github.com/ignite/cli/ignite/templates/typed"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v28/ignite/templates/module"
+	"github.com/ignite/cli/v28/ignite/templates/typed"
 )
 
 var (
@@ -118,16 +118,19 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 		// Import the type and gogoImport.
 		gogoImport := protoutil.NewImport(typed.GoGoProtoImport)
 		if err = protoutil.AddImports(protoFile, true, gogoImport, opts.ProtoTypeImport()); err != nil {
-			return fmt.Errorf("failed while adding imports in %s: %w", path, err)
+			return errors.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 		// Find service.
 		serviceQuery, err := protoutil.GetServiceByName(protoFile, "Query")
 		if err != nil {
-			return fmt.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
+			return errors.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
 		}
 		appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
 		typenameUpper := opts.TypeName.UpperCamel
-		rpcQueryGet := protoutil.NewRPC(typenameUpper, "QueryGet"+typenameUpper+"Request", "QueryGet"+typenameUpper+"Response",
+		rpcQueryGet := protoutil.NewRPC(
+			typenameUpper,
+			fmt.Sprintf("QueryGet%sRequest", typenameUpper),
+			fmt.Sprintf("QueryGet%sResponse", typenameUpper),
 			protoutil.WithRPCOptions(
 				protoutil.NewOption(
 					"google.api.http",
@@ -148,7 +151,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 		field := protoutil.NewField(typenameUpper, typenameUpper, 1,
 			protoutil.WithFieldOptions(protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())),
 		)
-		queryGetResponse := protoutil.NewMessage("QueryGet"+typenameUpper+"Response", protoutil.WithFields(field))
+		queryGetResponse := protoutil.NewMessage(fmt.Sprintf("QueryGet%sResponse", typenameUpper), protoutil.WithFields(field))
 		protoutil.Append(protoFile, queryGetRequest, queryGetResponse)
 
 		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
@@ -201,13 +204,13 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 		}
 		// Add initial import for the new type
 		if err = protoutil.AddImports(protoFile, true, opts.ProtoTypeImport()); err != nil {
-			return fmt.Errorf("failed to add imports to %s: %w", path, err)
+			return errors.Errorf("failed to add imports to %s: %w", path, err)
 		}
 
 		// Add field to GenesisState message.
 		genesisState, err := protoutil.GetMessageByName(protoFile, typed.ProtoGenesisStateMessage)
 		if err != nil {
-			return fmt.Errorf("failed while looking up message '%s' in %s: %w", typed.ProtoGenesisStateMessage, path, err)
+			return errors.Errorf("failed while looking up message '%s' in %s: %w", typed.ProtoGenesisStateMessage, path, err)
 		}
 		seqNumber := protoutil.NextUniqueID(genesisState)
 		field := protoutil.NewField(
@@ -373,19 +376,31 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 
 		// Add initial import for the new type:
 		if err = protoutil.AddImports(protoFile, true, opts.ProtoTypeImport()); err != nil {
-			return fmt.Errorf("failed while adding imports to %s: %w", path, err)
+			return errors.Errorf("failed while adding imports to %s: %w", path, err)
 		}
 		// Add the RPC service.
 		serviceMsg, err := protoutil.GetServiceByName(protoFile, "Msg")
 		if err != nil {
-			return fmt.Errorf("failed while looking up a message 'Msg' in %s: %w", path, err)
+			return errors.Errorf("failed while looking up a message 'Msg' in %s: %w", path, err)
 		}
 		// Append create, update, delete rpcs. Better to append them altogether, single traversal.
 		name := opts.TypeName.UpperCamel
 		protoutil.Append(serviceMsg,
-			protoutil.NewRPC("Create"+name, "MsgCreate"+name, "MsgCreate"+name+"Response"),
-			protoutil.NewRPC("Update"+name, "MsgUpdate"+name, "MsgUpdate"+name+"Response"),
-			protoutil.NewRPC("Delete"+name, "MsgDelete"+name, "MsgDelete"+name+"Response"),
+			protoutil.NewRPC(
+				fmt.Sprintf("Create%s", name),
+				fmt.Sprintf("MsgCreate%s", name),
+				fmt.Sprintf("MsgCreate%sResponse", name),
+			),
+			protoutil.NewRPC(
+				fmt.Sprintf("Update%s", name),
+				fmt.Sprintf("MsgUpdate%s", name),
+				fmt.Sprintf("MsgUpdate%sResponse", name),
+			),
+			protoutil.NewRPC(
+				fmt.Sprintf("Delete%s", name),
+				fmt.Sprintf("MsgDelete%s", name),
+				fmt.Sprintf("MsgDelete%sResponse", name),
+			),
 		)
 
 		// Ensure custom types are imported
@@ -400,7 +415,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		// we already know an import exists, pass false for fallback.
 		if err = protoutil.AddImports(protoFile, false, protoImports...); err != nil {
 			// shouldn't really occur.
-			return fmt.Errorf("failed while adding imports to %s: %w", path, err)
+			return errors.Errorf("failed while adding imports to %s: %w", path, err)
 		}
 
 		// Add the messages
@@ -415,19 +430,19 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 			protoutil.WithFields(fields...),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
-		msgCreateResponse := protoutil.NewMessage("MsgCreate" + name + "Response")
+		msgCreateResponse := protoutil.NewMessage(fmt.Sprintf("MsgCreate%sResponse", name))
 		msgUpdate := protoutil.NewMessage(
 			"MsgUpdate"+name,
 			protoutil.WithFields(fields...),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
-		msgUpdateResponse := protoutil.NewMessage("MsgUpdate" + name + "Response")
+		msgUpdateResponse := protoutil.NewMessage(fmt.Sprintf("MsgUpdate%sResponse", name))
 		msgDelete := protoutil.NewMessage(
 			"MsgDelete"+name,
 			protoutil.WithFields(creator),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
-		msgDeleteResponse := protoutil.NewMessage("MsgDelete" + name + "Response")
+		msgDeleteResponse := protoutil.NewMessage(fmt.Sprintf("MsgDelete%sResponse", name))
 		protoutil.Append(protoFile,
 			msgCreate, msgCreateResponse, msgUpdate, msgUpdateResponse, msgDelete, msgDeleteResponse,
 		)
@@ -445,20 +460,21 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 			return err
 		}
 
-		var positionalArgs string
+		var positionalArgs, positionalArgsStr string
 		for _, field := range opts.Fields {
 			positionalArgs += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
+			positionalArgsStr += fmt.Sprintf("[%s] ", field.ProtoFieldName())
 		}
 
 		template := `{
 			RpcMethod: "Create%[2]v",
-			Use: "create-%[3]v",
+			Use: "create-%[3]v %[6]s",
 			Short: "Create %[4]v",
 			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
 		},
 		{
 			RpcMethod: "Update%[2]v",
-			Use: "update-%[3]v",
+			Use: "update-%[3]v %[6]s",
 			Short: "Update %[4]v",
 			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
 		},
@@ -476,6 +492,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 			opts.TypeName.Kebab,
 			opts.TypeName.Original,
 			strings.TrimSpace(positionalArgs),
+			strings.TrimSpace(positionalArgsStr),
 		)
 
 		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLITx, replacement)

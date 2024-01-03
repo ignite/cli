@@ -8,6 +8,8 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 const (
@@ -85,7 +87,7 @@ func (c Client) GetGenesis(ctx context.Context) (Genesis, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return Genesis{}, fmt.Errorf("%d", resp.StatusCode)
+		return Genesis{}, errors.Errorf("%d", resp.StatusCode)
 	}
 
 	var out struct {
@@ -120,7 +122,7 @@ func (c Client) Status(ctx context.Context) (NodeInfo, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return NodeInfo{}, fmt.Errorf("%d", resp.StatusCode)
+		return NodeInfo{}, errors.Errorf("%d", resp.StatusCode)
 	}
 
 	var (

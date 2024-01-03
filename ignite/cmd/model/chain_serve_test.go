@@ -1,7 +1,6 @@
 package cmdmodel_test
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 	"testing"
@@ -10,12 +9,13 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/stretchr/testify/require"
 
-	cmdmodel "github.com/ignite/cli/ignite/cmd/model"
-	"github.com/ignite/cli/ignite/cmd/model/testdata"
-	"github.com/ignite/cli/ignite/pkg/cliui/colors"
-	"github.com/ignite/cli/ignite/pkg/cliui/icons"
-	cliuimodel "github.com/ignite/cli/ignite/pkg/cliui/model"
-	"github.com/ignite/cli/ignite/pkg/events"
+	cmdmodel "github.com/ignite/cli/v28/ignite/cmd/model"
+	"github.com/ignite/cli/v28/ignite/cmd/model/testdata"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
+	cliuimodel "github.com/ignite/cli/v28/ignite/pkg/cliui/model"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/events"
 )
 
 var chainServeActions = colors.Faint("Press the 'q' key to stop serve")

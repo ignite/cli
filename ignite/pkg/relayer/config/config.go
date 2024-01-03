@@ -1,13 +1,11 @@
 package relayerconf
 
 import (
-	"fmt"
 	"os"
 	"reflect"
 
-	"github.com/pkg/errors"
-
-	"github.com/ignite/cli/ignite/pkg/confile"
+	"github.com/ignite/cli/v28/ignite/pkg/confile"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 const SupportVersion = "2"
@@ -86,7 +84,7 @@ func Get() (Config, error) {
 		return c, err
 	}
 	if !reflect.DeepEqual(c, Config{}) && c.Version != SupportVersion {
-		return c, fmt.Errorf("your relayer setup is outdated. run 'rm %s' and configure relayer again", configPath)
+		return c, errors.Errorf("your relayer setup is outdated. run 'rm %s' and configure relayer again", configPath)
 	}
 	return c, nil
 }

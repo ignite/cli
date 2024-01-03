@@ -5,8 +5,8 @@ package ibc_test
 import (
 	"testing"
 
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
-	envtest "github.com/ignite/cli/integration"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	envtest "github.com/ignite/cli/v28/integration"
 )
 
 func TestCreateModuleWithIBC(t *testing.T) {

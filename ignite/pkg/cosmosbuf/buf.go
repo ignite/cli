@@ -2,7 +2,6 @@ package cosmosbuf
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,11 +9,12 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/ignite/pkg/cosmosver"
-	"github.com/ignite/cli/ignite/pkg/protoanalysis"
-	"github.com/ignite/cli/ignite/pkg/xexec"
-	"github.com/ignite/cli/ignite/pkg/xos"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/xexec"
+	"github.com/ignite/cli/v28/ignite/pkg/xos"
 )
 
 type (
@@ -96,7 +96,7 @@ func (b Buf) Update(ctx context.Context, modDir string, dependencies ...string) 
 // Export runs the buf Export command for the files in the proto directory.
 func (b Buf) Export(ctx context.Context, protoDir, output string) error {
 	// Check if the proto directory is the Cosmos SDK one
-	if strings.Contains(protoDir, cosmosver.CosmosModulePath) {
+	if cosmosver.CosmosSDKModulePathPattern.MatchString(protoDir) {
 		if b.sdkProtoDir == "" {
 			// Copy Cosmos SDK proto path without the Buf workspace.
 			// This is done because the workspace contains a reference to
@@ -113,7 +113,7 @@ func (b Buf) Export(ctx context.Context, protoDir, output string) error {
 		// Split absolute path into an absolute prefix and a relative suffix
 		paths := strings.Split(protoDir, "/proto")
 		if len(paths) < 2 {
-			return fmt.Errorf("invalid Cosmos SDK mod path: %s", protoDir)
+			return errors.Errorf("invalid Cosmos SDK mod path: %s", protoDir)
 		}
 
 		// Use the SDK copy to resolve SDK proto files
@@ -124,7 +124,7 @@ func (b Buf) Export(ctx context.Context, protoDir, output string) error {
 		return err
 	}
 	if len(specs) == 0 {
-		return fmt.Errorf("%w: %s", ErrProtoFilesNotFound, protoDir)
+		return errors.Errorf("%w: %s", ErrProtoFilesNotFound, protoDir)
 	}
 	flags := map[string]string{
 		flagOutput: output,
@@ -164,7 +164,7 @@ func (b Buf) Generate(
 	// can't download this folder because is unused as a dependency. We need to
 	// change the workspace copying the files to another folder and generate the
 	// files.
-	if strings.Contains(protoDir, cosmosver.CosmosModulePath) {
+	if cosmosver.CosmosSDKModulePathPattern.MatchString(protoDir) {
 		if b.sdkProtoDir == "" {
 			b.sdkProtoDir, err = copySDKProtoDir(protoDir)
 			if err != nil {
@@ -173,7 +173,7 @@ func (b Buf) Generate(
 		}
 		dirs := strings.Split(protoDir, "/proto/")
 		if len(dirs) < 2 {
-			return fmt.Errorf("invalid Cosmos SDK mod path: %s", dirs)
+			return errors.Errorf("invalid Cosmos SDK mod path: %s", dirs)
 		}
 		protoDir = filepath.Join(b.sdkProtoDir, dirs[1])
 	}
@@ -235,7 +235,7 @@ func (b Buf) generateCommand(
 	args ...string,
 ) ([]string, error) {
 	if _, ok := commands[c]; !ok {
-		return nil, fmt.Errorf("%w: %s", ErrInvalidCommand, c)
+		return nil, errors.Errorf("%w: %s", ErrInvalidCommand, c)
 	}
 
 	command := []string{
@@ -256,7 +256,7 @@ func (b Buf) generateCommand(
 func findSDKProtoPath(protoDir string) (string, error) {
 	paths := strings.Split(protoDir, "@")
 	if len(paths) < 2 {
-		return "", fmt.Errorf("invalid sdk mod dir: %s", protoDir)
+		return "", errors.Errorf("invalid sdk mod dir: %s", protoDir)
 	}
 	version := strings.Split(paths[1], "/")[0]
 	return fmt.Sprintf("%s@%s/proto", paths[0], version), nil

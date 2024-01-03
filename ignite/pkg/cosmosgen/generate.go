@@ -8,23 +8,22 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
-	"strings"
 
-	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 
-	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/cliui/colors"
-	"github.com/ignite/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite/cli/ignite/pkg/cosmosbuf"
-	"github.com/ignite/cli/ignite/pkg/cosmosver"
-	"github.com/ignite/cli/ignite/pkg/events"
-	"github.com/ignite/cli/ignite/pkg/gomodule"
-	"github.com/ignite/cli/ignite/pkg/xfilepath"
-	"github.com/ignite/cli/ignite/pkg/xos"
+	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosbuf"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/events"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodule"
+	"github.com/ignite/cli/v28/ignite/pkg/xfilepath"
+	"github.com/ignite/cli/v28/ignite/pkg/xos"
 )
 
 const (
@@ -34,7 +33,8 @@ const (
 )
 
 var (
-	ErrBufConfig = errors.New("invalid Buf config")
+	ErrBufConfig     = errors.New("invalid Buf config")
+	ErrMissingSDKDep = errors.New("cosmos-sdk dependency not found")
 
 	protocGlobalInclude = xfilepath.List(
 		xfilepath.JoinFromHome(xfilepath.Path("local/include")),
@@ -69,7 +69,7 @@ type protoAnalysis struct {
 }
 
 func newBufConfigError(path string, cause error) error {
-	return fmt.Errorf("%w: %s: %w", ErrBufConfig, path, cause)
+	return errors.Errorf("%w: %s: %w", ErrBufConfig, path, cause)
 }
 
 func (g *generator) setup(ctx context.Context) (err error) {
@@ -95,30 +95,48 @@ func (g *generator) setup(ctx context.Context) (err error) {
 		return err
 	}
 
-	g.sdkImport = cosmosver.CosmosModulePath
-
-	// Check if the Cosmos SDK import path points to a different path
-	// and if so change the default one to the new location.
-	for _, r := range modFile.Replace {
-		if r.Old.Path == cosmosver.CosmosModulePath {
-			g.sdkImport = r.New.Path
-			break
-		}
-	}
-
 	// Read the dependencies defined in the `go.mod` file
 	g.deps, err = gomodule.ResolveDependencies(modFile, false)
 	if err != nil {
 		return err
 	}
 
-	// Discover any custom modules defined by the user's app
-	g.appModules, err = g.discoverModules(ctx, g.appPath, g.protoDir)
+	// Dependencies are resolved, it is possible that the cosmos sdk has been replaced
+	g.sdkImport = cosmosver.CosmosModulePath
+	for _, dep := range g.deps {
+		if cosmosver.CosmosSDKModulePathPattern.MatchString(dep.Path) {
+			g.sdkImport = dep.Path
+			break
+		}
+	}
+
+	// Discover any custom modules defined by the user's app.
+	// Use the configured proto directory to locate app's proto files.
+	g.appModules, err = module.Discover(
+		ctx,
+		g.appPath,
+		g.appPath,
+		module.WithProtoDir(g.protoDir),
+		module.WithSDKDir(g.sdkDir),
+	)
 	if err != nil {
 		return err
 	}
 
 	g.appIncludes, _, err = g.resolveIncludes(ctx, g.appPath)
+	if err != nil {
+		return err
+	}
+
+	dep, found := filterCosmosSDKModule(g.deps)
+	if !found {
+		return ErrMissingSDKDep
+	}
+
+	// Find the full path to the Cosmos SDK Go package.
+	// The path is required to be able to discover proto packages for the
+	// set of "cosmossdk.io" packages that doesn't contain the proto files.
+	g.sdkDir, err = gomodule.LocatePath(ctx, g.cacheStorage, g.appPath, dep)
 	if err != nil {
 		return err
 	}
@@ -153,8 +171,10 @@ func (g *generator) setup(ctx context.Context) (err error) {
 				return err
 			}
 
-			// Discover any modules defined by the package
-			modules, err := g.discoverModules(ctx, path, "")
+			// Discover any modules defined by the package.
+			// Use an empty string for proto directory because it will be
+			// discovered automatically within the dependency package path.
+			modules, err := module.Discover(ctx, g.appPath, path, module.WithSDKDir(g.sdkDir))
 			if err != nil {
 				return err
 			}
@@ -243,14 +263,21 @@ func (g *generator) resolveIncludes(ctx context.Context, path string) (protoIncl
 
 	includes := protoIncludes{Paths: paths}
 
-	// Check that the app/package proto directory exists
-	protoPath := filepath.Join(path, g.protoDir)
-	fi, err := os.Stat(protoPath)
-	if err != nil && !os.IsNotExist(err) {
-		return protoIncludes{}, false, err
-	} else if !fi.IsDir() {
-		// Just return the global includes when a proto directory doesn't exist
-		return includes, true, nil
+	// The "cosmossdk.io" module packages must use SDK's proto path which is
+	// where all proto files for there type of Go package are.
+	var protoPath string
+	if module.IsCosmosSDKModulePkg(path) {
+		protoPath = filepath.Join(g.sdkDir, "proto")
+	} else {
+		// Check that the app/package proto directory exists
+		protoPath = filepath.Join(path, g.protoDir)
+		fi, err := os.Stat(protoPath)
+		if err != nil && !os.IsNotExist(err) {
+			return protoIncludes{}, false, err
+		} else if !fi.IsDir() {
+			// Just return the global includes when a proto directory doesn't exist
+			return includes, true, nil
+		}
 	}
 
 	// Add app's proto path to the list of proto paths
@@ -283,24 +310,6 @@ func (g *generator) resolveIncludes(ctx context.Context, path string) (protoIncl
 	includes.Paths = append(includes.Paths, g.getProtoIncludeFolders(path)...)
 
 	return includes, true, nil
-}
-
-func (g *generator) discoverModules(ctx context.Context, path, protoDir string) ([]module.Module, error) {
-	var filteredModules []module.Module
-	modules, err := module.Discover(ctx, g.appPath, path, protoDir)
-	if err != nil {
-		return nil, err
-	}
-
-	protoPath := filepath.Join(path, g.protoDir)
-	for _, m := range modules {
-		if !strings.HasPrefix(m.Pkg.Path, protoPath) {
-			continue
-		}
-		filteredModules = append(filteredModules, m)
-	}
-
-	return filteredModules, nil
 }
 
 func (g generator) updateBufModule(ctx context.Context) error {
@@ -440,7 +449,7 @@ func (g generator) vendorProtoPackage(pkgName, protoPath string) (err error) {
 	path := filepath.Join(g.appPath, workFilename)
 	bz, err := os.ReadFile(path)
 	if err != nil {
-		return fmt.Errorf("error reading Buf workspace file: %s: %w", path, err)
+		return errors.Errorf("error reading Buf workspace file: %s: %w", path, err)
 	}
 
 	ws := struct {
@@ -471,4 +480,13 @@ func (g generator) vendorProtoPackage(pkgName, protoPath string) (err error) {
 	)
 
 	return nil
+}
+
+func filterCosmosSDKModule(versions []gomodule.Version) (gomodule.Version, bool) {
+	for _, v := range versions {
+		if cosmosver.CosmosSDKModulePathPattern.MatchString(v.Path) {
+			return v, true
+		}
+	}
+	return gomodule.Version{}, false
 }

@@ -12,16 +12,17 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
-	"github.com/ignite/cli/ignite/config"
-	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/cliui"
-	"github.com/ignite/cli/ignite/pkg/cliui/colors"
-	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
-	"github.com/ignite/cli/ignite/pkg/gitpod"
-	"github.com/ignite/cli/ignite/pkg/goenv"
-	"github.com/ignite/cli/ignite/pkg/xgenny"
-	"github.com/ignite/cli/ignite/services/chain"
-	"github.com/ignite/cli/ignite/version"
+	"github.com/ignite/cli/v28/ignite/config"
+	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
+	uilog "github.com/ignite/cli/v28/ignite/pkg/cliui/log"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/gitpod"
+	"github.com/ignite/cli/v28/ignite/pkg/goenv"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v28/ignite/services/chain"
+	"github.com/ignite/cli/v28/ignite/version"
 )
 
 const (
@@ -85,7 +86,7 @@ To get started, create a blockchain:
 
 	// Load plugins if any
 	if err := LoadPlugins(ctx, c); err != nil {
-		return nil, nil, fmt.Errorf("error while loading apps: %w", err)
+		return nil, nil, errors.Errorf("error while loading apps: %w", err)
 	}
 	return c, UnloadPlugins, nil
 }
@@ -274,7 +275,10 @@ func newCache(cmd *cobra.Command) (cache.Storage, error) {
 		return cache.Storage{}, err
 	}
 
-	storage, err := cache.NewStorage(filepath.Join(cacheRootDir, cacheFileName))
+	storage, err := cache.NewStorage(
+		filepath.Join(cacheRootDir, cacheFileName),
+		cache.WithVersion(version.Version),
+	)
 	if err != nil {
 		return cache.Storage{}, err
 	}

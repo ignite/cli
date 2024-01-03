@@ -1,13 +1,13 @@
 package entrywriter_test
 
 import (
-	"errors"
 	"io"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/entrywriter"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 type WriterWithError struct{}

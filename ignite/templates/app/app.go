@@ -2,15 +2,15 @@ package app
 
 import (
 	"embed"
-	"fmt"
 	"io/fs"
 
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosgen"
-	"github.com/ignite/cli/ignite/pkg/xgenny"
-	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v28/ignite/templates/field/plushhelpers"
 )
 
 //go:embed files/* files/**/*
@@ -21,11 +21,11 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 	// Remove "files/" prefix
 	subfs, err := fs.Sub(files, "files")
 	if err != nil {
-		return nil, fmt.Errorf("generator sub: %w", err)
+		return nil, errors.Errorf("generator sub: %w", err)
 	}
 	g := genny.New()
 	if err := g.OnlyFS(subfs, opts.IncludePrefixes, nil); err != nil {
-		return g, fmt.Errorf("generator fs: %w", err)
+		return g, errors.Errorf("generator fs: %w", err)
 	}
 	ctx := plush.NewContext()
 	ctx.Set("ModulePath", opts.ModulePath)

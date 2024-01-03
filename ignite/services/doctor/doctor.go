@@ -9,15 +9,16 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
-	"github.com/ignite/cli/ignite/pkg/cliui/colors"
-	"github.com/ignite/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite/cli/ignite/pkg/cosmosgen"
-	"github.com/ignite/cli/ignite/pkg/events"
-	"github.com/ignite/cli/ignite/pkg/goanalysis"
-	"github.com/ignite/cli/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/ignite/pkg/xast"
-	"github.com/ignite/cli/ignite/templates/app"
+	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/events"
+	"github.com/ignite/cli/v28/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v28/ignite/pkg/xast"
+	"github.com/ignite/cli/v28/ignite/templates/app"
 )
 
 const (
@@ -52,7 +53,7 @@ func CollectEvents(ev events.Bus) Option {
 // MigrateConfig migrates the chain config if required.
 func (d *Doctor) MigrateConfig(_ context.Context) error {
 	errf := func(err error) error {
-		return fmt.Errorf("doctor migrate config: %w", err)
+		return errors.Errorf("doctor migrate config: %w", err)
 	}
 
 	d.ev.Send("Checking chain config file:")
@@ -78,7 +79,7 @@ func (d *Doctor) MigrateConfig(_ context.Context) error {
 	if version != chainconfig.LatestVersion {
 		_, err := f.Seek(0, 0)
 		if err != nil {
-			return errf(fmt.Errorf("failed to reset the file: %w", err))
+			return errf(errors.Errorf("failed to reset the file: %w", err))
 		}
 		// migrate config file
 		// Convert the current config to the latest version and update the YAML file
@@ -88,7 +89,7 @@ func (d *Doctor) MigrateConfig(_ context.Context) error {
 		}
 
 		if err := os.WriteFile(configPath, buf.Bytes(), 0o755); err != nil {
-			return errf(fmt.Errorf("config file migration failed: %w", err))
+			return errf(errors.Errorf("config file migration failed: %w", err))
 		}
 
 		status = "migrated"
@@ -109,7 +110,7 @@ func (d *Doctor) MigrateConfig(_ context.Context) error {
 // - dependency tools are installed.
 func (d *Doctor) FixDependencyTools(ctx context.Context) error {
 	errf := func(err error) error {
-		return fmt.Errorf("doctor fix dependency tools: %w", err)
+		return errors.Errorf("doctor fix dependency tools: %w", err)
 	}
 
 	d.ev.Send("Checking dependency tools:")

@@ -2,25 +2,24 @@ package ibc
 
 import (
 	"embed"
-	"errors"
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/emicklei/proto"
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
 
-	"github.com/ignite/cli/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
-	"github.com/ignite/cli/ignite/pkg/xgenny"
-	"github.com/ignite/cli/ignite/pkg/xstrings"
-	"github.com/ignite/cli/ignite/templates/field"
-	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
-	"github.com/ignite/cli/ignite/templates/module"
-	"github.com/ignite/cli/ignite/templates/testutil"
-	"github.com/ignite/cli/ignite/templates/typed"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v28/ignite/pkg/xstrings"
+	"github.com/ignite/cli/v28/ignite/templates/field"
+	"github.com/ignite/cli/v28/ignite/templates/field/plushhelpers"
+	"github.com/ignite/cli/v28/ignite/templates/module"
+	"github.com/ignite/cli/v28/ignite/templates/testutil"
+	"github.com/ignite/cli/v28/ignite/templates/typed"
 )
 
 var (
@@ -191,10 +190,10 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		name := xstrings.Title(opts.ModuleName) + "PacketData"
+		name := fmt.Sprintf("%sPacketData", xstrings.Title(opts.ModuleName))
 		message, err := protoutil.GetMessageByName(protoFile, name)
 		if err != nil {
-			return fmt.Errorf("failed while looking up '%s' message in %s: %w", name, path, err)
+			return errors.Errorf("failed while looking up '%s' message in %s: %w", name, path, err)
 		}
 		// Use a directly Apply call here, modifying oneofs isn't common enough to warrant a separate function.
 		var packet *proto.Oneof
@@ -209,7 +208,7 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 			return true
 		})
 		if packet == nil {
-			return fmt.Errorf("could not find 'oneof packet' in message '%s' of file %s", name, path)
+			return errors.Errorf("could not find 'oneof packet' in message '%s' of file %s", name, path)
 		}
 		// Count fields of oneof:
 		max := 1
@@ -251,7 +250,7 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 			protoImports = append(protoImports, protoutil.NewImport(protopath))
 		}
 		if err := protoutil.AddImports(protoFile, true, protoImports...); err != nil {
-			return fmt.Errorf("failed while adding imports to %s: %w", path, err)
+			return errors.Errorf("failed while adding imports to %s: %w", path, err)
 		}
 
 		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
@@ -302,10 +301,14 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 		// Add RPC to service Msg.
 		serviceMsg, err := protoutil.GetServiceByName(protoFile, "Msg")
 		if err != nil {
-			return fmt.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
+			return errors.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
 		}
 		typenameUpper := opts.PacketName.UpperCamel
-		send := protoutil.NewRPC("Send"+typenameUpper, "MsgSend"+typenameUpper, "MsgSend"+typenameUpper+"Response")
+		send := protoutil.NewRPC(
+			fmt.Sprintf("Send%s", typenameUpper),
+			fmt.Sprintf("MsgSend%s", typenameUpper),
+			fmt.Sprintf("MsgSend%sResponse", typenameUpper),
+		)
 		protoutil.Append(serviceMsg, send)
 
 		// Create fields for MsgSend.
@@ -340,7 +343,7 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 			protoImports = append(protoImports, protoutil.NewImport(protopath))
 		}
 		if err := protoutil.AddImports(protoFile, true, protoImports...); err != nil {
-			return fmt.Errorf("error while processing %s: %w", path, err)
+			return errors.Errorf("error while processing %s: %w", path, err)
 		}
 
 		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
@@ -348,24 +351,10 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 	}
 }
 
-//go:embed templates/packet/tx.tpl
-var txTemplate string
-
 // clientCliTxModify does not use AutoCLI here, because it as a better UX as it is.
 func clientCliTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		filePath := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/tx.go")
-		if _, err := os.Stat(filePath); errors.Is(err, os.ErrNotExist) {
-			content := fmt.Sprintf(txTemplate, opts.ModulePath, opts.ModuleName)
-			if err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
-				return err
-			}
-
-			if err := os.WriteFile(filePath, []byte(content), 0o644); err != nil {
-				return err
-			}
-		}
-
 		f, err := r.Disk.Find(filePath)
 		if err != nil {
 			return err

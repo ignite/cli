@@ -5,15 +5,15 @@ import (
 	"database/sql"
 	"embed"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/url"
 
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/lib/pq"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmostxcollector/query"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 const (
@@ -137,18 +137,18 @@ func (a Adapter) UpdateSchema(ctx context.Context, s Schemas) error {
 
 	// Create the schema table if it doesn't exist
 	if _, err := db.ExecContext(ctx, s.GetTableDDL()); err != nil {
-		return fmt.Errorf("failed to check schema table: %w", err)
+		return errors.Errorf("failed to check schema table: %w", err)
 	}
 
 	// Get the current schema version
 	var v uint64
 	if err := db.QueryRowContext(ctx, s.GetSchemaVersionSQL()).Scan(&v); err != nil {
-		return fmt.Errorf("failed to read current schema version: %w", err)
+		return errors.Errorf("failed to read current schema version: %w", err)
 	}
 
 	return s.WalkFrom(v+1, func(version uint64, script []byte) error {
 		if _, err := db.ExecContext(ctx, string(script)); err != nil {
-			return fmt.Errorf("error applying schema version %d: %w", version, err)
+			return errors.Errorf("error applying schema version %d: %w", version, err)
 		}
 
 		return nil
@@ -255,7 +255,7 @@ func (a Adapter) QueryEvents(ctx context.Context, q query.EventQuery) ([]query.E
 	for i := 0; rows.Next(); i++ {
 		e := query.Event{}
 		if err := rows.Scan(&e.ID, &e.Index, &e.TXHash, &e.Type, &e.CreatedAt); err != nil {
-			return nil, fmt.Errorf("failed to read event: %w", err)
+			return nil, errors.Errorf("failed to read event: %w", err)
 		}
 
 		events = append(events, e)
@@ -284,7 +284,7 @@ func (a Adapter) QueryEvents(ctx context.Context, q query.EventQuery) ([]query.E
 		)
 
 		if err := rows.Scan(&eventID, &name, &value); err != nil {
-			return nil, fmt.Errorf("failed to read event attribute: %w", err)
+			return nil, errors.Errorf("failed to read event attribute: %w", err)
 		}
 
 		i := eventIndexes[eventID]
@@ -354,11 +354,11 @@ func saveRawTX(ctx context.Context, sqlTx *sql.Tx, rtx *ctypes.ResultTx) error {
 	hash := rtx.Hash.String()
 	raw, err := json.Marshal(rtx)
 	if err != nil {
-		return fmt.Errorf("failed to encode raw TX %s: %w", hash, err)
+		return errors.Errorf("failed to encode raw TX %s: %w", hash, err)
 	}
 
 	if _, err := sqlTx.ExecContext(ctx, sqlInsertRawTX, hash, raw); err != nil {
-		return fmt.Errorf("error saving raw TX %s: %w", hash, err)
+		return errors.Errorf("error saving raw TX %s: %w", hash, err)
 	}
 
 	return nil
@@ -367,7 +367,7 @@ func saveRawTX(ctx context.Context, sqlTx *sql.Tx, rtx *ctypes.ResultTx) error {
 func saveTX(ctx context.Context, txStmt, evtStmt, attrStmt *sql.Stmt, tx cosmosclient.TX) error {
 	hash := tx.Raw.Hash.String()
 	if _, err := txStmt.ExecContext(ctx, hash, tx.Raw.Index, tx.Raw.Height, tx.BlockTime); err != nil {
-		return fmt.Errorf("error saving TX %s: %w", hash, err)
+		return errors.Errorf("error saving TX %s: %w", hash, err)
 	}
 
 	events, err := tx.GetEvents()
@@ -380,16 +380,16 @@ func saveTX(ctx context.Context, txStmt, evtStmt, attrStmt *sql.Stmt, tx cosmosc
 
 		row := evtStmt.QueryRowContext(ctx, hash, evt.Type, i)
 		if err := row.Err(); err != nil {
-			return fmt.Errorf("error saving event '%s': %w", evt.Type, err)
+			return errors.Errorf("error saving event '%s': %w", evt.Type, err)
 		}
 
 		if err := row.Scan(&evtID); err != nil {
-			return fmt.Errorf("error reading event ID: %w", err)
+			return errors.Errorf("error reading event ID: %w", err)
 		}
 
 		for _, attr := range evt.Attributes {
 			if _, err := attrStmt.ExecContext(ctx, evtID, attr.Key, attr.Value); err != nil {
-				return fmt.Errorf("error saving event attr '%s.%s': %w", evt.Type, attr.Key, err)
+				return errors.Errorf("error saving event attr '%s.%s': %w", evt.Type, attr.Key, err)
 			}
 		}
 	}

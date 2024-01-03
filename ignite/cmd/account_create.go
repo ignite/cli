@@ -1,11 +1,10 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 func NewAccountCreate() *cobra.Command {
@@ -27,12 +26,12 @@ func accountCreateHandler(cmd *cobra.Command, args []string) error {
 		cosmosaccount.WithHome(getKeyringDir(cmd)),
 	)
 	if err != nil {
-		return fmt.Errorf("unable to create registry: %w", err)
+		return errors.Errorf("unable to create registry: %w", err)
 	}
 
 	_, mnemonic, err := ca.Create(name)
 	if err != nil {
-		return fmt.Errorf("unable to create account: %w", err)
+		return errors.Errorf("unable to create account: %w", err)
 	}
 
 	cmd.Printf("Account %q created, keep your mnemonic in a secret place:\n\n%s\n", name, mnemonic)
