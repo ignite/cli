@@ -4,9 +4,19 @@
 
 ### Features
 
+- [#3835](https://github.com/ignite/cli/pull/3835) Add `--minimal` flag to `scaffold chain` to scaffold a chain with the least amount of sdk modules
+
+### Fixes
+
+- [#3867](https://github.com/ignite/cli/pull/3867) Fix genesis export for ibc modules.
+
+## [`v28.1.0`](https://github.com/ignite/cli/releases/tag/v28.1.0)
+
+### Features
+
 - [#3786](https://github.com/ignite/cli/pull/3786) Add artifacts for publishing Ignite to FlatHub and Snapcraft
 - [#3830](https://github.com/ignite/cli/pull/3830) Remove gRPC info from Ignite Apps errors
-- [#3835](https://github.com/ignite/cli/pull/3835) Add `--minimal` flag to `scaffold chain` to scaffold a chain with the least amount of sdk modules
+- [#3861](https://github.com/ignite/cli/pull/3861) Send to the analytics if the user is using a GitPod
 
 ### Changes
 
@@ -24,6 +34,7 @@
 - [#3833](https://github.com/ignite/cli/pull/3833) Improve Cosmos SDK detection to support SDK forks
 - [#3849](https://github.com/ignite/cli/pull/3849) Add missing `tx.go` file by default and enable cli if autocli does not exist
 - [#3851](https://github.com/ignite/cli/pull/3851) Add missing ibc interfaces to chain client
+- [#3860](https://github.com/ignite/cli/pull/3860) Fix analytics event name
 
 ## [`v28.0.0`](https://github.com/ignite/cli/releases/tag/v28.0.0)
 
