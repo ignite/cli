@@ -5,6 +5,7 @@
 ### Fixes
 
 - [#3867](https://github.com/ignite/cli/pull/3867) Fix genesis export for ibc modules.
+- [#3869](https://github.com/ignite/cli/pull/3869) Fix .git in parent dir
 
 ## [`v28.1.0`](https://github.com/ignite/cli/releases/tag/v28.1.0)
 
@@ -95,7 +96,6 @@
 - [#3701](https://github.com/ignite/cli/pull/3701) Bump `go` version to 1.21
 
 ## [`v0.27.1`](https://github.com/ignite/cli/releases/tag/v0.27.1)
-- [#3869](https://github.com/ignite/cli/pull/3869) Fix .git in parent dir
 
 ## [`v0.27.0`](https://github.com/ignite/cli/releases/tag/v0.27.0)
 
