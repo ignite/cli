@@ -1,3 +1,4 @@
+//nolint:unused
 package network_test
 
 import (
@@ -13,12 +14,12 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/stretchr/testify/require"
 
-	ignitecmd "github.com/ignite/cli/ignite/cmd"
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/ignite/pkg/gomodule"
-	"github.com/ignite/cli/ignite/pkg/xgit"
-	envtest "github.com/ignite/cli/integration"
+	ignitecmd "github.com/ignite/cli/v28/ignite/cmd"
+	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodule"
+	"github.com/ignite/cli/v28/ignite/pkg/xgit"
+	envtest "github.com/ignite/cli/v28/integration"
 )
 
 const (

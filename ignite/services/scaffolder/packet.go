@@ -2,19 +2,19 @@ package scaffolder
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/pkg/xgenny"
-	"github.com/ignite/cli/ignite/templates/field"
-	"github.com/ignite/cli/ignite/templates/field/datatype"
-	"github.com/ignite/cli/ignite/templates/ibc"
+	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v28/ignite/templates/field"
+	"github.com/ignite/cli/v28/ignite/templates/field/datatype"
+	"github.com/ignite/cli/v28/ignite/templates/ibc"
 )
 
 const (
@@ -94,7 +94,7 @@ func (s Scaffolder) AddPacket(
 		return sm, err
 	}
 	if !ok {
-		return sm, fmt.Errorf("the module %s doesn't implement IBC module interface", moduleName)
+		return sm, errors.Errorf("the module %s doesn't implement IBC module interface", moduleName)
 	}
 
 	signer := ""
@@ -149,12 +149,25 @@ func (s Scaffolder) AddPacket(
 // isIBCModule returns true if the provided module implements the IBC module interface
 // we naively check the existence of module_ibc.go for this check.
 func isIBCModule(appPath string, moduleName string) (bool, error) {
-	absPath, err := filepath.Abs(filepath.Join(appPath, moduleDir, moduleName, ibcModuleImplementation))
+	absPath, err := filepath.Abs(filepath.Join(appPath, moduleDir, moduleName, modulePkg, ibcModuleImplementation))
 	if err != nil {
 		return false, err
 	}
 
 	_, err = os.Stat(absPath)
+	if err != nil && !os.IsNotExist(err) {
+		return false, err
+	} else if err == nil {
+		// Is an IBC module
+		return true, err
+	}
+
+	// check the legacy path
+	absPathLegacy, err := filepath.Abs(filepath.Join(appPath, moduleDir, moduleName, ibcModuleImplementation))
+	if err != nil {
+		return false, err
+	}
+	_, err = os.Stat(absPathLegacy)
 	if os.IsNotExist(err) {
 		// Not an IBC module
 		return false, nil
@@ -176,7 +189,7 @@ func checkForbiddenPacketField(name string) error {
 		"port",
 		"channelid",
 		datatype.TypeCustom:
-		return fmt.Errorf("%s is used by the packet scaffolder", name)
+		return errors.Errorf("%s is used by the packet scaffolder", name)
 	}
 
 	return checkGoReservedWord(name)

@@ -3,13 +3,14 @@ package cosmosfaucet
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
+	chaincmdrunner "github.com/ignite/cli/v28/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 const (
@@ -54,12 +55,18 @@ type Faucet struct {
 
 	// coinsMax is a denom-max pair.
 	// it holds the maximum amounts of coins that can be sent to a single account.
-	coinsMax map[string]uint64
+	coinsMax map[string]sdkmath.Int
+
+	// fee to pay along with the transaction
+	feeAmount sdk.Coin
 
 	limitRefreshWindow time.Duration
 
 	// openAPIData holds template data customizations for serving OpenAPI page & spec.
 	openAPIData openAPIData
+
+	// version holds the cosmos-sdk version.
+	version cosmosver.Version
 }
 
 // Option configures the faucetOptions.
@@ -81,9 +88,9 @@ func Account(name, mnemonic string, coinType string) Option {
 // amount is the amount of the coin can be distributed per request.
 // maxAmount is the maximum amount of the coin that can be sent to a single account.
 // denom is denomination of the coin to be distributed by the faucet.
-func Coin(amount, maxAmount uint64, denom string) Option {
+func Coin(amount, maxAmount sdkmath.Int, denom string) Option {
 	return func(f *Faucet) {
-		f.coins = append(f.coins, sdk.NewCoin(denom, sdkmath.NewIntFromUint64(amount)))
+		f.coins = append(f.coins, sdk.NewCoin(denom, amount))
 		f.coinsMax[denom] = maxAmount
 	}
 }
@@ -102,10 +109,24 @@ func ChainID(id string) Option {
 	}
 }
 
+// FeeAmount sets a fee that it will be paid during the transaction.
+func FeeAmount(amount sdkmath.Int, denom string) Option {
+	return func(f *Faucet) {
+		f.feeAmount = sdk.NewCoin(denom, amount)
+	}
+}
+
 // OpenAPI configures how to serve Open API page and spec.
 func OpenAPI(apiAddress string) Option {
 	return func(f *Faucet) {
 		f.openAPIData.APIAddress = apiAddress
+	}
+}
+
+// Version configures the cosmos-sdk version.
+func Version(version cosmosver.Version) Option {
+	return func(f *Faucet) {
+		f.version = version
 	}
 }
 
@@ -114,7 +135,7 @@ func New(ctx context.Context, ccr chaincmdrunner.Runner, options ...Option) (Fau
 	f := Faucet{
 		runner:      ccr,
 		accountName: DefaultAccountName,
-		coinsMax:    make(map[string]uint64),
+		coinsMax:    make(map[string]sdkmath.Int),
 		openAPIData: openAPIData{"Blockchain", "http://localhost:1317"},
 	}
 
@@ -123,7 +144,7 @@ func New(ctx context.Context, ccr chaincmdrunner.Runner, options ...Option) (Fau
 	}
 
 	if len(f.coins) == 0 {
-		Coin(DefaultAmount, DefaultMaxAmount, DefaultDenom)(&f)
+		Coin(sdkmath.NewInt(DefaultAmount), sdkmath.NewInt(DefaultMaxAmount), DefaultDenom)(&f)
 	}
 
 	if f.limitRefreshWindow == 0 {

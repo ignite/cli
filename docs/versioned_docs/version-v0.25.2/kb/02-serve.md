@@ -88,4 +88,4 @@ build:
   ldflags: [ "-X main.Env=prod", "-X main.Version=1.0.1" ]
 ```
 
-Learn more about how to use the binary to [run a chain in production](https://docs.cosmos.network/main/run-node/run-node.html).
+Learn more about how to use the binary to [run a chain in production](https://docs.cosmos.network/main/run-node/run-node).

@@ -1,26 +1,89 @@
 package types
 
 import (
+	"context"
+
+	<%= if (dependencies.Contains("Staking")) { %>"cosmossdk.io/core/address"
+    stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"<% } %>
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/auth/types"
+	<%= if (dependencies.Contains("Authz")) { %>"github.com/cosmos/cosmos-sdk/x/authz"<% } %>
 )
 
 <%= for (dependency) in dependencies { %>
-<%= if (dependency.Name != "Bank" && dependency.Name != "Account") { %>
-type <%= dependency.KeeperName() %> interface {
-	// Methods imported from <%= toLower(dependency.Name) %> should be defined here
-}
-<% } %>
+    <%= if (dependency.Name == "Account") { %>
+    <% } else if (dependency.Name == "Bank") { %>
+    <% } else if (dependency.Name == "Staking") { %>
+        // StakingKeeper defines the expected interface for the Staking module.
+        type StakingKeeper interface {
+        	ConsensusAddressCodec() address.Codec
+        	ValidatorByConsAddr(context.Context, sdk.ConsAddress) (stakingtypes.ValidatorI, error)
+        	// Methods imported from account should be defined here
+        }
+
+    <% } else if (dependency.Name == "Slashing") { %>
+        // SlashingKeeper defines the expected interface for the Slashing module.
+        type SlashingKeeper interface {
+        	IsTombstoned(context.Context, sdk.ConsAddress) bool
+        	Jail(context.Context, sdk.ConsAddress) error
+        	// Methods imported from account should be defined here
+        }
+
+    <% } else if (dependency.Name == "Distribution") { %>
+        // DistributionKeeper defines the expected interface for the Distribution module.
+        type DistributionKeeper interface {
+        	FundCommunityPool(context.Context, sdk.Coins, sdk.AccAddress) error
+        	// Methods imported from account should be defined here
+        }
+
+    <% } else if (dependency.Name == "Mint") { %>
+        // MintKeeper defines the expected interface for the Mint module.
+        type MintKeeper interface {
+        	MintCoins(context.Context, sdk.Coins) error
+        	// Methods imported from account should be defined here
+        }
+
+    <% } else if (dependency.Name == "Authz") { %>
+        // AuthzKeeper defines the expected interface for the Authz module.
+        type AuthzKeeper interface {
+        	GetAuthorizations(_ context.Context, _, _ sdk.AccAddress) ([]authz.Authorization, error)
+        	// Methods imported from account should be defined here
+        }
+
+    <% } else if (dependency.Name == "Feegrant") { %>
+        // FeegrantKeeper defines the expected interface for the FeeGrant module.
+        type FeegrantKeeper interface {
+        	UseGrantedFees(_ context.Context, _, _ sdk.AccAddress, _ sdk.Coins, _ []sdk.Msg) error
+        	// Methods imported from account should be defined here
+        }
+
+    <% } else if (dependency.Name == "Group") { %>
+        // GroupKeeper defines the expected interface for the Group module.
+        type GroupKeeper interface {
+        	GetGroupSequence(context.Context) uint64
+        	// Methods imported from account should be defined here
+        }
+
+    <% } else { %>
+        type <%= dependency.KeeperName() %> interface {
+        	// TODO Add methods imported from <%= toLower(dependency.Name) %> should be defined here
+        }
+    <% } %>
 <% } %>
 
-// AccountKeeper defines the expected account keeper used for simulations (noalias)
+// AccountKeeper defines the expected interface for the Account module.
 type AccountKeeper interface {
-	GetAccount(ctx sdk.Context, addr sdk.AccAddress) types.AccountI
-	// Methods imported from account should be defined here
+    GetAccount(context.Context, sdk.AccAddress) sdk.AccountI // only used for simulation
+    // Methods imported from account should be defined here
 }
 
-// BankKeeper defines the expected interface needed to retrieve account balances.
+// BankKeeper defines the expected interface for the Bank module.
 type BankKeeper interface {
-	SpendableCoins(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
-	// Methods imported from bank should be defined here
+    SpendableCoins(context.Context, sdk.AccAddress) sdk.Coins
+    // Methods imported from bank should be defined here
+}
+
+// ParamSubspace defines the expected Subspace interface for parameters.
+type ParamSubspace interface {
+	Get(context.Context, []byte, interface{})
+	Set(context.Context, []byte, interface{})
 }

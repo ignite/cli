@@ -180,7 +180,7 @@ func (k msgServer) RevealSolution(goCtx context.Context, msg *types.MsgRevealSol
 	// convert the hash to a string
 	var solutionScavengerHashString = hex.EncodeToString(solutionScavengerHash[:])
 
-	// try getting a commit using the the hash of solution and address
+	// try getting a commit using the hash of solution and address
 	_, isFound := k.GetCommit(ctx, solutionScavengerHashString)
 
 	// return an error if a commit doesn't exist
@@ -238,7 +238,7 @@ func (k msgServer) RevealSolution(goCtx context.Context, msg *types.MsgRevealSol
 		return nil, sdkError
 	}
 
-	// save the udpated scavenge to the store
+	// save the updated scavenge to the store
 	k.SetScavenge(ctx, scavenge)
 	return &types.MsgRevealSolutionResponse{}, nil
 }

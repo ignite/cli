@@ -3,12 +3,13 @@ package keeper
 import (
     "errors"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"<%= ModulePath %>/x/<%= moduleName %>/types"
-	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
-	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
+	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
 )
 
 // Transmit<%= packetName.UpperCamel %>Packet transmits the packet over IBC with the specified source port and source channel
@@ -22,15 +23,15 @@ func (k Keeper) Transmit<%= packetName.UpperCamel %>Packet(
 ) (uint64, error) {
     channelCap, ok := k.scopedKeeper.GetCapability(ctx, host.ChannelCapabilityPath(sourcePort, sourceChannel))
     if !ok {
-        return 0, sdkerrors.Wrap(channeltypes.ErrChannelCapabilityNotFound, "module does not own channel capability")
+        return 0, errorsmod.Wrap(channeltypes.ErrChannelCapabilityNotFound, "module does not own channel capability")
     }
 
     packetBytes, err := packetData.GetBytes()
     if err != nil {
-        return 0, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, "cannot marshal the packet: %w", err)
+        return 0, errorsmod.Wrapf(sdkerrors.ErrJSONMarshal, "cannot marshal the packet: %s", err)
     }
 
-    return k.channelKeeper.SendPacket(ctx, channelCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, packetBytes)
+    return k.ibcKeeperFn().ChannelKeeper.SendPacket(ctx, channelCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, packetBytes)
 }
 
 // OnRecv<%= packetName.UpperCamel %>Packet processes packet reception
@@ -45,7 +46,7 @@ func (k Keeper) OnRecv<%= packetName.UpperCamel %>Packet(ctx sdk.Context, packet
 	return packetAck, nil
 }
 
-// OnAcknowledgement<%= packetName.UpperCamel %>Packet responds to the the success or failure of a packet
+// OnAcknowledgement<%= packetName.UpperCamel %>Packet responds to the success or failure of a packet
 // acknowledgement written on the receiving chain.
 func (k Keeper) OnAcknowledgement<%= packetName.UpperCamel %>Packet(ctx sdk.Context, packet channeltypes.Packet, data types.<%= packetName.UpperCamel %>PacketData, ack channeltypes.Acknowledgement) error {
 	switch dispatchedAck := ack.Response.(type) {

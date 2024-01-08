@@ -248,7 +248,7 @@ BuyOrderBook:
   priceDenom: venuscoin
 ```
 
-The author of the sell order successfuly exchanged 5 marscoin and received 25 venuscoin vouchers. The other 5marscoin created a sell order:
+The author of the sell order successfully exchanged 5 marscoin and received 25 venuscoin vouchers. The other 5marscoin created a sell order:
 
 ```yaml
 # Source blockchain

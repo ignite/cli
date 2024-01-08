@@ -1,65 +1,66 @@
 package main
 
 import (
-	"encoding/gob"
+	"context"
 	"fmt"
 	"path/filepath"
 
 	hplugin "github.com/hashicorp/go-plugin"
 
-	"github.com/ignite/cli/ignite/services/chain"
-	"github.com/ignite/cli/ignite/services/plugin"
+	"github.com/ignite/cli/v28/ignite/services/chain"
+	"github.com/ignite/cli/v28/ignite/services/plugin"
 )
 
-func init() {
-	gob.Register(plugin.Manifest{})
-	gob.Register(plugin.ExecutedCommand{})
-	gob.Register(plugin.ExecutedHook{})
-}
+type app struct{}
 
-type p struct{}
-
-func (p) Manifest() (plugin.Manifest, error) {
-	return plugin.Manifest{
+func (app) Manifest(ctx context.Context) (*plugin.Manifest, error) {
+	return &plugin.Manifest{
 		Name: "<%= Name %>",
-		// Add commands here
-		Commands: []plugin.Command{
+		// TODO: Add commands here
+		Commands: []*plugin.Command{
 			// Example of a command
 			{
 				Use:   "<%= Name %>",
 				Short: "Explain what the command is doing...",
 				Long:  "Long description goes here...",
-				Flags: []plugin.Flag{
+				Flags: []*plugin.Flag{
 					{Name: "my-flag", Type: plugin.FlagTypeString, Usage: "my flag description"},
 				},
 				PlaceCommandUnder: "ignite",
 				// Examples of adding subcommands:
-				/*
-					Commands: []plugin.Command{
-						{Use: "add"},
-						{Use: "list"},
-						{Use: "delete"},
-					},
-				*/
+				// Commands: []*plugin.Command{
+				// 	{Use: "add"},
+				// 	{Use: "list"},
+				// 	{Use: "delete"},
+				// },
 			},
 		},
-		// Add hooks here
-		Hooks: []plugin.Hook{},
+		// TODO: Add hooks here
+		Hooks: []*plugin.Hook{},
 		SharedHost: <%= SharedHost %>,
 	}, nil
 }
 
-func (p) Execute(cmd plugin.ExecutedCommand) error {
+func (app) Execute(ctx context.Context, cmd *plugin.ExecutedCommand, api plugin.ClientAPI) error {
 	// TODO: write command execution here
-	fmt.Printf("Hello I'm the <%= Name %> plugin\n")
+	fmt.Printf("Hello I'm the example-plugin plugin\n")
 	fmt.Printf("My executed command: %q\n", cmd.Path)
 	fmt.Printf("My args: %v\n", cmd.Args)
-	myFlag, _ := cmd.Flags().GetString("my-flag")
+
+	flags, err := cmd.NewFlags()
+	if err != nil {
+		return err
+	}
+
+	myFlag, _ := flags.GetString("my-flag")
 	fmt.Printf("My flags: my-flag=%q\n", myFlag)
 	fmt.Printf("My config parameters: %v\n", cmd.With)
 
 	// This is how the plugin can access the chain:
 	// c, err := getChain(cmd)
+	// if err != nil {
+	// 	return err
+	// }
 
 	// According to the number of declared commands, you may need a switch:
 	/*
@@ -72,28 +73,37 @@ func (p) Execute(cmd plugin.ExecutedCommand) error {
 			fmt.Println("Deleting stuff...")
 		}
 	*/
+	
+	// ClientAPI call example
+	fmt.Println(api.GetChainInfo(ctx))
+	
 	return nil
 }
 
-func (p) ExecuteHookPre(hook plugin.ExecutedHook) error {
-	fmt.Printf("Executing hook pre %q\n", hook.Name)
+func (app) ExecuteHookPre(ctx context.Context, h *plugin.ExecutedHook, api plugin.ClientAPI) error {
+	fmt.Printf("Executing hook pre %q\n", h.Hook.GetName())
 	return nil
 }
 
-func (p) ExecuteHookPost(hook plugin.ExecutedHook) error {
-	fmt.Printf("Executing hook post %q\n", hook.Name)
+func (app) ExecuteHookPost(ctx context.Context, h *plugin.ExecutedHook, api plugin.ClientAPI) error {
+	fmt.Printf("Executing hook post %q\n", h.Hook.GetName())
 	return nil
 }
 
-func (p) ExecuteHookCleanUp(hook plugin.ExecutedHook) error {
-	fmt.Printf("Executing hook cleanup %q\n", hook.Name)
+func (app) ExecuteHookCleanUp(ctx context.Context, h *plugin.ExecutedHook, api plugin.ClientAPI) error {
+	fmt.Printf("Executing hook cleanup %q\n", h.Hook.GetName())
 	return nil
 }
 
-func getChain(cmd plugin.ExecutedCommand, chainOption ...chain.Option) (*chain.Chain, error) {
+func getChain(cmd *plugin.ExecutedCommand, chainOption ...chain.Option) (*chain.Chain, error) {
+	flags, err := cmd.NewFlags()
+	if err != nil {
+		return nil, err
+	}
+
 	var (
-		home, _ = cmd.Flags().GetString("home")
-		path, _ = cmd.Flags().GetString("path")
+		home, _ = flags.GetString("home")
+		path, _ = flags.GetString("path")
 	)
 	if home != "" {
 		chainOption = append(chainOption, chain.HomePath(home))
@@ -106,12 +116,11 @@ func getChain(cmd plugin.ExecutedCommand, chainOption ...chain.Option) (*chain.C
 }
 
 func main() {
-	pluginMap := map[string]hplugin.Plugin{
-		"<%= Name %>": &plugin.InterfacePlugin{Impl: &p{}},
-	}
-
 	hplugin.Serve(&hplugin.ServeConfig{
 		HandshakeConfig: plugin.HandshakeConfig(),
-		Plugins:         pluginMap,
+		Plugins: map[string]hplugin.Plugin{
+			"<%= Name %>": plugin.NewGRPC(&app{}),
+		},
+		GRPCServer: hplugin.DefaultGRPCServer,
 	})
 }

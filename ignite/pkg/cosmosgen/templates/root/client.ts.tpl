@@ -5,11 +5,10 @@ import {
   EncodeObject,
   Registry,
 } from "@cosmjs/proto-signing";
-import { StdFee } from "@cosmjs/launchpad";
-import { SigningStargateClient } from "@cosmjs/stargate";
+import { SigningStargateClient, StdFee } from "@cosmjs/stargate";
 import { Env } from "./env";
 import { UnionToIntersection, Return, Constructor } from "./helpers";
-import { Module } from "./modules";
+import { IgntModule } from "./modules";
 import { EventEmitter } from "events";
 import { ChainInfo } from "@keplr-wallet/types";
 
@@ -19,11 +18,11 @@ const defaultFee = {
 };
 
 export class IgniteClient extends EventEmitter {
-	static plugins: Module[] = [];
+	static plugins: IgntModule[] = [];
   env: Env;
   signer?: OfflineSigner;
   registry: Array<[string, GeneratedType]> = [];
-  static plugin<T extends Module | Module[]>(plugin: T) {
+  static plugin<T extends IgntModule | IgntModule[]>(plugin: T) {
     const currentPlugins = this.plugins;
 
     class AugmentedClient extends this {
@@ -42,7 +41,7 @@ export class IgniteClient extends EventEmitter {
   async signAndBroadcast(msgs: EncodeObject[], fee: StdFee, memo: string) {
     if (this.signer) {
       const { address } = (await this.signer.getAccounts())[0];
-      const signingClient = await SigningStargateClient.connectWithSigner(this.env.rpcURL, this.signer, { registry: new Registry(this.registry), prefix: this.env.prefix });
+      const signingClient = await SigningStargateClient.connectWithSigner(this.env.rpcURL, this.signer, { registry: new Registry(this.registry) });
       return await signingClient.signAndBroadcast(address, msgs, fee ? fee : defaultFee, memo)
     } else {
       throw new Error(" Signer is not present.");
@@ -136,8 +135,6 @@ export class IgniteClient extends EventEmitter {
           return y;
         }) ?? [];
 
-      let coinType = 118;
-
       if (chainId) {
         const suggestOptions: ChainInfo = {
           chainId,
@@ -149,7 +146,6 @@ export class IgniteClient extends EventEmitter {
           bech32Config,
           currencies,
           feeCurrencies,
-          coinType,
           ...keplrChainInfo,
         };
         await window.keplr.experimentalSuggestChain(suggestOptions);

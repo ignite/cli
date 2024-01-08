@@ -3,17 +3,16 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cliui"
-	"github.com/ignite/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite/cli/ignite/services/chain"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/v28/ignite/services/chain"
 )
 
 func NewGenerateComposables() *cobra.Command {
 	c := &cobra.Command{
-		Use:     "composables",
-		Short:   "TypeScript frontend client and Vue 3 composables",
-		PreRunE: gitChangesConfirmPreRunHandler,
-		RunE:    generateComposablesHandler,
+		Use:   "composables",
+		Short: "TypeScript frontend client and Vue 3 composables",
+		RunE:  generateComposablesHandler,
 	}
 
 	c.Flags().AddFlagSet(flagSetYes())
@@ -45,7 +44,13 @@ func generateComposablesHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	if err := c.Generate(cmd.Context(), cacheStorage, chain.GenerateComposables(output)); err != nil {
+	var opts []chain.GenerateTarget
+	if flagGetEnableProtoVendor(cmd) {
+		opts = append(opts, chain.GenerateProtoVendor())
+	}
+
+	err = c.Generate(cmd.Context(), cacheStorage, chain.GenerateComposables(output), opts...)
+	if err != nil {
 		return err
 	}
 

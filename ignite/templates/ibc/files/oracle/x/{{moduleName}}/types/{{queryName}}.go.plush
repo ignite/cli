@@ -1,11 +1,10 @@
 package types
 
 import (
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
-
-const TypeMsg<%= queryName.UpperCamel %>Data = "<%= queryName.Snake %>_data"
 
 var (
 	_ sdk.Msg = &Msg<%= queryName.UpperCamel %>Data{}
@@ -46,39 +45,14 @@ func NewMsg<%= queryName.UpperCamel %>Data(
 	}
 }
 
-// Route returns the message route
-func (m *Msg<%= queryName.UpperCamel %>Data) Route() string {
-	return RouterKey
-}
-
-// Type returns the message type
-func (m *Msg<%= queryName.UpperCamel %>Data) Type() string {
-	return TypeMsg<%= queryName.UpperCamel %>Data
-}
-
-// GetSigners returns the message signers
-func (m *Msg<%= queryName.UpperCamel %>Data) GetSigners() []sdk.AccAddress {
-	<%= MsgSigner.LowerCamel %>, err := sdk.AccAddressFromBech32(m.<%= MsgSigner.UpperCamel %>)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{<%= MsgSigner.LowerCamel %>}
-}
-
-// GetSignBytes returns the signed bytes from the message
-func (m *Msg<%= queryName.UpperCamel %>Data) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(m)
-	return sdk.MustSortJSON(bz)
-}
-
 // ValidateBasic check the basic message validation
 func (m *Msg<%= queryName.UpperCamel %>Data) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(m.<%= MsgSigner.UpperCamel %>)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid <%= MsgSigner.LowerCamel %> address (%s)", err)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid <%= MsgSigner.LowerCamel %> address (%s)", err)
 	}
 	if m.SourceChannel == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid source channel")
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "invalid source channel")
 	}
 	return nil
 }

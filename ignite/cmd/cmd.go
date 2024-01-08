@@ -12,16 +12,17 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
-	"github.com/ignite/cli/ignite/config"
-	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/cliui"
-	"github.com/ignite/cli/ignite/pkg/cliui/colors"
-	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
-	"github.com/ignite/cli/ignite/pkg/gitpod"
-	"github.com/ignite/cli/ignite/pkg/goenv"
-	"github.com/ignite/cli/ignite/pkg/xgenny"
-	"github.com/ignite/cli/ignite/services/chain"
-	"github.com/ignite/cli/ignite/version"
+	"github.com/ignite/cli/v28/ignite/config"
+	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
+	uilog "github.com/ignite/cli/v28/ignite/pkg/cliui/log"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/gitpod"
+	"github.com/ignite/cli/v28/ignite/pkg/goenv"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v28/ignite/services/chain"
+	"github.com/ignite/cli/v28/ignite/version"
 )
 
 const (
@@ -39,8 +40,8 @@ const (
 )
 
 // New creates a new root command for `Ignite CLI` with its sub commands.
-// Returns the cobra.Command, a cleanUp function and an error. The cleanUp
-// function must be invoked by the caller to clean eventual plugin instances.
+// Returns the cobra.Command, a cleanup function and an error. The cleanup
+// function must be invoked by the caller to clean eventual Ignite App instances.
 func New(ctx context.Context) (*cobra.Command, func(), error) {
 	cobra.EnableCommandSorting = false
 
@@ -68,22 +69,24 @@ To get started, create a blockchain:
 		},
 	}
 
-	c.AddCommand(NewScaffold())
-	c.AddCommand(NewChain())
-	c.AddCommand(NewGenerate())
-	c.AddCommand(NewNode())
-	c.AddCommand(NewAccount())
-	c.AddCommand(NewRelayer())
-	c.AddCommand(NewTools())
-	c.AddCommand(NewDocs())
-	c.AddCommand(NewVersion())
-	c.AddCommand(NewPlugin())
-	c.AddCommand(NewDoctor())
+	c.AddCommand(
+		NewScaffold(),
+		NewChain(),
+		NewGenerate(),
+		NewNode(),
+		NewAccount(),
+		NewRelayer(),
+		NewTools(),
+		NewDocs(),
+		NewVersion(),
+		NewApp(),
+		NewDoctor(),
+	)
 	c.AddCommand(deprecated()...)
 
 	// Load plugins if any
 	if err := LoadPlugins(ctx, c); err != nil {
-		return nil, nil, fmt.Errorf("error while loading plugins: %w", err)
+		return nil, nil, errors.Errorf("error while loading apps: %w", err)
 	}
 	return c, UnloadPlugins, nil
 }
@@ -259,14 +262,7 @@ func checkNewVersion(ctx context.Context) {
 		return
 	}
 
-	fmt.Printf(`·
-· 🛸 Ignite CLI %s is available!
-·
-· To upgrade your Ignite CLI version, see the upgrade doc: https://docs.ignite.com/guide/install#upgrading-your-ignite-cli-installation
-·
-··
-
-`, next)
+	fmt.Printf("⬆️ Ignite CLI %s is available! To upgrade: https://docs.ignite.com/welcome/install#upgrade", next)
 }
 
 func printSection(session *cliui.Session, title string) error {
@@ -279,7 +275,10 @@ func newCache(cmd *cobra.Command) (cache.Storage, error) {
 		return cache.Storage{}, err
 	}
 
-	storage, err := cache.NewStorage(filepath.Join(cacheRootDir, cacheFileName))
+	storage, err := cache.NewStorage(
+		filepath.Join(cacheRootDir, cacheFileName),
+		cache.WithVersion(version.Version),
+	)
 	if err != nil {
 		return cache.Storage{}, err
 	}

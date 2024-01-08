@@ -15,9 +15,9 @@ import (
 	"time"
 
 	"github.com/buger/jsonparser"
-	"github.com/pkg/errors"
 
-	"github.com/ignite/cli/ignite/pkg/tarball"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/tarball"
 )
 
 const (
@@ -180,19 +180,27 @@ func (f *JSONFile) Field(key string, param interface{}) error {
 	switch dataType {
 	case jsonparser.Boolean, jsonparser.Array, jsonparser.Number, jsonparser.Object:
 		err := json.Unmarshal(value, param)
-		if _, ok := err.(*json.UnmarshalTypeError); ok { //nolint:errorlint
+		var unmarshalTypeError *json.UnmarshalTypeError
+		if errors.As(err, &unmarshalTypeError) {
 			return ErrInvalidValueType
-		} else if err != nil {
-			return err
 		}
 	case jsonparser.String:
-		paramStr, ok := param.(*string)
-		if !ok {
-			return ErrInvalidValueType
-		}
-		*paramStr, err = jsonparser.ParseString(value)
+		result, err := jsonparser.ParseString(value)
 		if err != nil {
 			return err
+		}
+		paramStr, ok := param.(*string)
+		if ok {
+			*paramStr = result
+			break
+		}
+		var (
+			unmarshalTypeError *json.UnmarshalTypeError
+			syntaxTypeError    *json.SyntaxError
+		)
+		if err := json.Unmarshal(value, param); errors.As(err, &unmarshalTypeError) ||
+			errors.As(err, &syntaxTypeError) {
+			return ErrInvalidValueType
 		}
 	case jsonparser.NotExist:
 	case jsonparser.Null:

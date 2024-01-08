@@ -2,16 +2,16 @@ package relayer
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/imdario/mergo"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
-	relayerconfig "github.com/ignite/cli/ignite/pkg/relayer/config"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosfaucet"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	relayerconfig "github.com/ignite/cli/v28/ignite/pkg/relayer/config"
 )
 
 const (

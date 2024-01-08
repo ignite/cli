@@ -1,15 +1,14 @@
 package ignitecmd
 
 import (
-	"errors"
-	"fmt"
 	"os"
 
 	"github.com/cosmos/go-bip39"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cliui/cliquiz"
-	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/cliquiz"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 const flagSecret = "secret"
@@ -71,6 +70,6 @@ func accountImportHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Printf("Account %q imported.\n", name)
+	cmd.Printf("Account %q imported.\n", name)
 	return nil
 }

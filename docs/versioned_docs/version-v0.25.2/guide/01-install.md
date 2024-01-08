@@ -74,7 +74,7 @@ In this case, use sudo before `curl` and before `bash`:
 sudo curl https://get.ignite.com/cli! | sudo bash
 ```
 
-## Upgrading your Ignite CLI installation
+## Upgrading your Ignite CLI installation {#upgrade}
 
 Before you install a new version of Ignite CLI, remove all existing Ignite CLI installations.
 

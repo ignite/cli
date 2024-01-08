@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ignite/cli/ignite/pkg/validation"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/validation"
 )
 
 var _ validation.Error = (*MissingPlaceholdersError)(nil)
@@ -18,8 +19,8 @@ type MissingPlaceholdersError struct {
 
 // Is true if both errors have the same list of missing placeholders.
 func (e *MissingPlaceholdersError) Is(err error) bool {
-	other, ok := err.(*MissingPlaceholdersError) //nolint:errorlint
-	if !ok {
+	var other *MissingPlaceholdersError
+	if !errors.As(err, &other) {
 		return false
 	}
 	if len(other.missing) != len(e.missing) {

@@ -16,47 +16,52 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	hplugin "github.com/hashicorp/go-plugin"
-	"github.com/pkg/errors"
 
-	"github.com/ignite/cli/ignite/config"
-	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
-	"github.com/ignite/cli/ignite/pkg/env"
-	"github.com/ignite/cli/ignite/pkg/events"
-	"github.com/ignite/cli/ignite/pkg/gocmd"
-	"github.com/ignite/cli/ignite/pkg/xfilepath"
-	"github.com/ignite/cli/ignite/pkg/xgit"
-	"github.com/ignite/cli/ignite/pkg/xurl"
+	"github.com/ignite/cli/v28/ignite/config"
+	pluginsconfig "github.com/ignite/cli/v28/ignite/config/plugins"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/v28/ignite/pkg/env"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/events"
+	"github.com/ignite/cli/v28/ignite/pkg/gocmd"
+	"github.com/ignite/cli/v28/ignite/pkg/xfilepath"
+	"github.com/ignite/cli/v28/ignite/pkg/xgit"
+	"github.com/ignite/cli/v28/ignite/pkg/xurl"
 )
 
 // PluginsPath holds the plugin cache directory.
 var PluginsPath = xfilepath.Mkdir(xfilepath.Join(
 	config.DirPath,
-	xfilepath.Path("plugins"),
+	xfilepath.Path("apps"),
 ))
 
 // Plugin represents a ignite plugin.
 type Plugin struct {
-	// Embed the plugin configuration
+	// Embed the plugin configuration.
 	pluginsconfig.Plugin
-	// Interface allows to communicate with the plugin via net/rpc.
+
+	// Interface allows to communicate with the plugin via RPC.
 	Interface Interface
-	// If any error occurred during the plugin load, it's stored here
+
+	// If any error occurred during the plugin load, it's stored here.
 	Error error
 
-	repoPath   string
-	cloneURL   string
-	cloneDir   string
-	reference  string
-	srcPath    string
-	binaryName string
+	name      string
+	repoPath  string
+	cloneURL  string
+	cloneDir  string
+	reference string
+	srcPath   string
 
 	client *hplugin.Client
 
-	// holds a cache of the plugin manifest to prevent mant calls over the rpc boundary
-	manifest Manifest
+	// Holds a cache of the plugin manifest to prevent mant calls over the rpc boundary.
+	manifest *Manifest
+
 	// If a plugin's ShareHost flag is set to true, isHost is used to discern if a
 	// plugin instance is controlling the rpc server.
-	isHost bool
+	isHost       bool
+	isSharedHost bool
 
 	ev events.Bus
 }
@@ -74,15 +79,13 @@ func CollectEvents(ev events.Bus) Option {
 // Load loads the plugins found in the chain config.
 //
 // There's 2 kinds of plugins, local or remote.
-// Local plugins have their path starting with a `/`, while remote plugins
-// don't.
+// Local plugins have their path starting with a `/`, while remote plugins don't.
 // Local plugins are useful for development purpose.
-// Remote plugins require to be fetched first, in $HOME/.ignite/plugins
-// folder, then they are loaded from there.
+// Remote plugins require to be fetched first, in $HOME/.ignite/apps folder,
+// then they are loaded from there.
 //
-// If an error occurs during a plugin load, it's not returned but rather stored
-// in the Plugin.Error field. This prevents the loading of other plugins to be
-// interrupted.
+// If an error occurs during a plugin load, it's not returned but rather stored in
+// the `Plugin.Error` field. This prevents the loading of other plugins to be interrupted.
 func Load(ctx context.Context, plugins []pluginsconfig.Plugin, options ...Option) ([]*Plugin, error) {
 	pluginsDir, err := PluginsPath()
 	if err != nil {
@@ -101,8 +104,7 @@ func Load(ctx context.Context, plugins []pluginsconfig.Plugin, options ...Option
 // Update removes the cache directory of plugins and fetch them again.
 func Update(plugins ...*Plugin) error {
 	for _, p := range plugins {
-		err := p.clean()
-		if err != nil {
+		if err := p.clean(); err != nil {
 			return err
 		}
 		p.fetch()
@@ -119,7 +121,7 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 		pluginPath = cp.Path
 	)
 	if pluginPath == "" {
-		p.Error = errors.Errorf(`missing plugin property "path"`)
+		p.Error = errors.Errorf(`missing app property "path"`)
 		return p
 	}
 
@@ -132,15 +134,15 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 		// This is a local plugin, check if the file exists
 		st, err := os.Stat(pluginPath)
 		if err != nil {
-			p.Error = errors.Wrapf(err, "local plugin path %q not found", pluginPath)
+			p.Error = errors.Wrapf(err, "local app path %q not found", pluginPath)
 			return p
 		}
 		if !st.IsDir() {
-			p.Error = errors.Errorf("local plugin path %q is not a dir", pluginPath)
+			p.Error = errors.Errorf("local app path %q is not a directory", pluginPath)
 			return p
 		}
 		p.srcPath = pluginPath
-		p.binaryName = path.Base(pluginPath)
+		p.name = path.Base(pluginPath)
 		return p
 	}
 	// This is a remote plugin, parse the URL
@@ -151,7 +153,7 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 	}
 	parts := strings.Split(pluginPath, "/")
 	if len(parts) < 3 {
-		p.Error = errors.Errorf("plugin path %q is not a valid repository URL", pluginPath)
+		p.Error = errors.Errorf("app path %q is not a valid repository URL", pluginPath)
 		return p
 	}
 	p.repoPath = path.Join(parts[:3]...)
@@ -165,19 +167,19 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 		p.cloneDir = path.Join(pluginsDir, p.repoPath)
 	}
 
-	// Plugin can have a subpath within its repository. For example,
-	// "github.com/ignite/plugins/plugin1" where "plugin1" is the subpath.
+	// Plugin can have a subpath within its repository.
+	// For example, "github.com/ignite/apps/app1" where "app1" is the subpath.
 	repoSubPath := path.Join(parts[3:]...)
 
 	p.srcPath = path.Join(p.cloneDir, repoSubPath)
-	p.binaryName = path.Base(pluginPath)
+	p.name = path.Base(pluginPath)
 
 	return p
 }
 
 // KillClient kills the running plugin client.
 func (p *Plugin) KillClient() {
-	if p.manifest.SharedHost && !p.isHost {
+	if p.isSharedHost && !p.isHost {
 		// Don't send kill signal to a shared-host plugin when this process isn't
 		// the one who initiated it.
 		return
@@ -188,13 +190,23 @@ func (p *Plugin) KillClient() {
 	}
 
 	if p.isHost {
-		deleteConfCache(p.Path)
+		_ = deleteConfCache(p.Path)
 		p.isHost = false
 	}
 }
 
-func (p *Plugin) binaryPath() string {
-	return path.Join(p.srcPath, p.binaryName)
+// Manifest returns plugin's manigest.
+// The manifest is available after the plugin has been loaded.
+func (p Plugin) Manifest() *Manifest {
+	return p.manifest
+}
+
+func (p Plugin) binaryName() string {
+	return fmt.Sprintf("%s.app", p.name)
+}
+
+func (p Plugin) binaryPath() string {
+	return path.Join(p.srcPath, p.binaryName())
 }
 
 // load tries to fill p.Interface, ensuring the plugin is usable.
@@ -229,7 +241,7 @@ func (p *Plugin) load(ctx context.Context) {
 	}
 	// pluginMap is the map of plugins we can dispense.
 	pluginMap := map[string]hplugin.Plugin{
-		p.binaryName: &InterfacePlugin{},
+		p.name: NewGRPC(nil),
 	}
 	// Create an hclog.Logger
 	logLevel := hclog.Error
@@ -237,10 +249,20 @@ func (p *Plugin) load(ctx context.Context) {
 		logLevel = hclog.Trace
 	}
 	logger := hclog.New(&hclog.LoggerOptions{
-		Name:   fmt.Sprintf("plugin %s", p.Path),
+		Name:   fmt.Sprintf("app %s", p.Path),
 		Output: os.Stderr,
 		Level:  logLevel,
 	})
+
+	// Common plugin client configuration values
+	cfg := &hplugin.ClientConfig{
+		HandshakeConfig:  HandshakeConfig(),
+		Plugins:          pluginMap,
+		Logger:           logger,
+		SyncStderr:       os.Stderr,
+		SyncStdout:       os.Stdout,
+		AllowedProtocols: []hplugin.Protocol{hplugin.ProtocolGRPC},
+	}
 
 	if checkConfCache(p.Path) {
 		rconf, err := readConfigCache(p.Path)
@@ -249,29 +271,16 @@ func (p *Plugin) load(ctx context.Context) {
 			return
 		}
 
-		// We're attaching to an existing server, supply attachment configuration
-		p.client = hplugin.NewClient(&hplugin.ClientConfig{
-			HandshakeConfig: handshakeConfig,
-			Plugins:         pluginMap,
-			Logger:          logger,
-			Reattach:        &rconf,
-			SyncStderr:      os.Stderr,
-			SyncStdout:      os.Stdout,
-		})
-
+		// Attach to an existing plugin process
+		cfg.Reattach = &rconf
+		p.client = hplugin.NewClient(cfg)
 	} else {
-		// We're a host! Start by launching the plugin process.
-		p.client = hplugin.NewClient(&hplugin.ClientConfig{
-			HandshakeConfig: handshakeConfig,
-			Plugins:         pluginMap,
-			Logger:          logger,
-			Cmd:             exec.Command(p.binaryPath()),
-			SyncStderr:      os.Stderr,
-			SyncStdout:      os.Stdout,
-		})
+		// Launch a new plugin process
+		cfg.Cmd = exec.Command(p.binaryPath())
+		p.client = hplugin.NewClient(cfg)
 	}
 
-	// :Connect via RPC
+	// Connect via gRPC
 	rpcClient, err := p.client.Client()
 	if err != nil {
 		p.Error = errors.Wrapf(err, "connecting")
@@ -279,21 +288,25 @@ func (p *Plugin) load(ctx context.Context) {
 	}
 
 	// Request the plugin
-	raw, err := rpcClient.Dispense(p.binaryName)
+	raw, err := rpcClient.Dispense(p.name)
 	if err != nil {
 		p.Error = errors.Wrapf(err, "dispensing")
 		return
 	}
 
 	// We should have an Interface now! This feels like a normal interface
-	// implementation but is in fact over an RPC connection.
+	// implementation but is in fact over an gRPC connection.
 	p.Interface = raw.(Interface)
 
-	m, err := p.Interface.Manifest()
+	m, err := p.Interface.Manifest(ctx)
 	if err != nil {
 		p.Error = errors.Wrapf(err, "manifest load")
+		return
 	}
 
+	p.isSharedHost = m.SharedHost
+
+	// Cache the manifest to avoid extra plugin requests
 	p.manifest = m
 
 	// write the rpc context to cache if the plugin is declared as host.
@@ -319,8 +332,8 @@ func (p *Plugin) fetch() {
 	if p.Error != nil {
 		return
 	}
-	p.ev.Send(fmt.Sprintf("Fetching plugin %q", p.cloneURL), events.ProgressStart())
-	defer p.ev.Send(fmt.Sprintf("Plugin fetched %q", p.cloneURL), events.ProgressFinish())
+	p.ev.Send(fmt.Sprintf("Fetching app %q", p.cloneURL), events.ProgressStart())
+	defer p.ev.Send(fmt.Sprintf("%s App fetched %q", icons.OK, p.cloneURL), events.ProgressFinish())
 
 	urlref := strings.Join([]string{p.cloneURL, p.reference}, "@")
 	err := xgit.Clone(context.Background(), urlref, p.cloneDir)
@@ -334,14 +347,14 @@ func (p *Plugin) build(ctx context.Context) {
 	if p.Error != nil {
 		return
 	}
-	p.ev.Send(fmt.Sprintf("Building plugin %q", p.Path), events.ProgressStart())
-	defer p.ev.Send(fmt.Sprintf("Plugin built %q", p.Path), events.ProgressFinish())
+	p.ev.Send(fmt.Sprintf("Building app %q", p.Path), events.ProgressStart())
+	defer p.ev.Send(fmt.Sprintf("%s App built %q", icons.OK, p.Path), events.ProgressFinish())
 
 	if err := gocmd.ModTidy(ctx, p.srcPath); err != nil {
 		p.Error = errors.Wrapf(err, "go mod tidy")
 		return
 	}
-	if err := gocmd.Build(ctx, p.binaryName, p.srcPath, nil); err != nil {
+	if err := gocmd.Build(ctx, p.binaryName(), p.srcPath, nil); err != nil {
 		p.Error = errors.Wrapf(err, "go build")
 		return
 	}
@@ -389,7 +402,7 @@ func (p *Plugin) outdatedBinary() bool {
 		return nil
 	})
 	if err != nil {
-		fmt.Printf("error while walking plugin source path %q\n", p.srcPath)
+		fmt.Printf("error while walking app source path %q\n", p.srcPath)
 		return false
 	}
 	return mostRecent.After(binaryTime)

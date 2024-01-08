@@ -8,9 +8,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
-	"github.com/ignite/cli/ignite/config/chain/version"
-	"github.com/ignite/cli/ignite/config/testdata"
+	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
+	"github.com/ignite/cli/v28/ignite/config/chain/version"
+	"github.com/ignite/cli/v28/ignite/config/testdata"
 )
 
 func TestReadConfigVersion(t *testing.T) {

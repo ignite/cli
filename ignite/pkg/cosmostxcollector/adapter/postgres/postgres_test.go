@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"testing"
 	"testing/fstest"
@@ -17,8 +16,9 @@ import (
 	"github.com/lib/pq"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmostxcollector/query"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 var (
@@ -110,7 +110,7 @@ func TestSave(t *testing.T) {
 			Hash:   h,
 			Height: 1,
 			Index:  0,
-			TxResult: abci.ResponseDeliverTx{
+			TxResult: abci.ExecTxResult{
 				Events: []abci.Event{evt},
 			},
 		},
@@ -231,7 +231,8 @@ func TestQuery(t *testing.T) {
 	// Act
 	cr, err := adapter.Query(ctx, qry)
 	if cr.Next() {
-		cr.Scan(&rowValue)
+		err = cr.Scan(&rowValue)
+		require.NoError(t, err)
 	}
 
 	// Assert

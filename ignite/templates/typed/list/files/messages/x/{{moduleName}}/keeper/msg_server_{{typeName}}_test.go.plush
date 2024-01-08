@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"testing"
 
+    sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/require"
 
@@ -10,10 +11,12 @@ import (
 )
 
 func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
-	srv, ctx := setupMsgServer(t)
+	_, srv, ctx := setupMsgServer(t)
+	wctx := sdk.UnwrapSDKContext(ctx)
+
 	<%= MsgSigner.LowerCamel %> := "A"
 	for i := 0; i < 5; i++ {
-		resp, err := srv.Create<%= TypeName.UpperCamel %>(ctx, &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>})
+		resp, err := srv.Create<%= TypeName.UpperCamel %>(wctx, &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>})
 		require.NoError(t, err)
 		require.Equal(t, i, int(resp.Id))
 	}
@@ -44,11 +47,13 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
-			srv, ctx := setupMsgServer(t)
-			_, err := srv.Create<%= TypeName.UpperCamel %>(ctx, &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>})
+            _, srv, ctx := setupMsgServer(t)
+            wctx := sdk.UnwrapSDKContext(ctx)
+
+			_, err := srv.Create<%= TypeName.UpperCamel %>(wctx, &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>})
 			require.NoError(t, err)
 
-			_, err = srv.Update<%= TypeName.UpperCamel %>(ctx, tc.request)
+			_, err = srv.Update<%= TypeName.UpperCamel %>(wctx, tc.request)
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)
 			} else {
@@ -83,11 +88,12 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
-			srv, ctx := setupMsgServer(t)
+            _, srv, ctx := setupMsgServer(t)
+            wctx := sdk.UnwrapSDKContext(ctx)
 
-			_, err := srv.Create<%= TypeName.UpperCamel %>(ctx, &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>})
+			_, err := srv.Create<%= TypeName.UpperCamel %>(wctx, &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>})
 			require.NoError(t, err)
-			_, err = srv.Delete<%= TypeName.UpperCamel %>(ctx, tc.request)
+			_, err = srv.Delete<%= TypeName.UpperCamel %>(wctx, tc.request)
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)
 			} else {

@@ -2,7 +2,6 @@ package debugger
 
 import (
 	"context"
-	"fmt"
 	"net"
 
 	"github.com/go-delve/delve/pkg/logflags"
@@ -12,6 +11,8 @@ import (
 	"github.com/go-delve/delve/service/rpc2"
 	"github.com/go-delve/delve/service/rpccommon"
 	"golang.org/x/sync/errgroup"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 const (
@@ -121,10 +122,10 @@ func Start(ctx context.Context, binaryPath string, options ...Option) (err error
 	}
 
 	if err = server.Run(); err != nil {
-		return fmt.Errorf("failed to run debug server: %w", err)
+		return errors.Errorf("failed to run debug server: %w", err)
 	}
 
-	defer server.Stop()
+	defer server.Stop() //nolint:errcheck
 
 	// Wait until the context is done or the connected client disconnects
 	select {

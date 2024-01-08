@@ -2,7 +2,6 @@ package scaffolder
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -11,9 +10,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ignite/cli/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/ignite/pkg/protoanalysis"
-	"github.com/ignite/cli/ignite/templates/field/datatype"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis"
+	"github.com/ignite/cli/v28/ignite/templates/field/datatype"
 )
 
 const (
@@ -32,12 +32,12 @@ func checkComponentValidity(appPath, moduleName string, compName multiformatname
 		return err
 	}
 	if !ok {
-		return fmt.Errorf("the module %s doesn't exist", moduleName)
+		return errors.Errorf("the module %s doesn't exist", moduleName)
 	}
 
 	// Ensure the name is valid, otherwise it would generate an incorrect code
 	if err := checkForbiddenComponentName(compName); err != nil {
-		return fmt.Errorf("%s can't be used as a component name: %w", compName.LowerCamel, err)
+		return errors.Errorf("%s can't be used as a component name: %w", compName.LowerCamel, err)
 	}
 
 	// Check component name is not already used
@@ -48,22 +48,22 @@ func checkComponentValidity(appPath, moduleName string, compName multiformatname
 func checkComponentCreated(appPath, moduleName string, compName multiformatname.Name, noMessage bool) (err error) {
 	// associate the type to check with the component that scaffold this type
 	typesToCheck := map[string]string{
-		compName.UpperCamel:                          componentType,
-		"queryall" + compName.LowerCase + "request":  componentType,
-		"queryall" + compName.LowerCase + "response": componentType,
-		"queryget" + compName.LowerCase + "request":  componentType,
-		"queryget" + compName.LowerCase + "response": componentType,
-		"query" + compName.LowerCase + "request":     componentQuery,
-		"query" + compName.LowerCase + "response":    componentQuery,
-		compName.LowerCase + "packetdata":            componentPacket,
+		compName.UpperCamel: componentType,
+		fmt.Sprintf("queryall%srequest", compName.LowerCase):  componentType,
+		fmt.Sprintf("queryall%sresponse", compName.LowerCase): componentType,
+		fmt.Sprintf("queryget%srequest", compName.LowerCase):  componentType,
+		fmt.Sprintf("queryget%sresponse", compName.LowerCase): componentType,
+		fmt.Sprintf("query%srequest", compName.LowerCase):     componentQuery,
+		fmt.Sprintf("query%sresponse", compName.LowerCase):    componentQuery,
+		fmt.Sprintf("%spacketdata", compName.LowerCase):       componentPacket,
 	}
 
 	if !noMessage {
-		typesToCheck["msgcreate"+compName.LowerCase] = componentType
-		typesToCheck["msgupdate"+compName.LowerCase] = componentType
-		typesToCheck["msgdelete"+compName.LowerCase] = componentType
-		typesToCheck["msg"+compName.LowerCase] = componentMessage
-		typesToCheck["msgsend"+compName.LowerCase] = componentPacket
+		typesToCheck[fmt.Sprintf("msgcreate%s", compName.LowerCase)] = componentType
+		typesToCheck[fmt.Sprintf("msgupdate%s", compName.LowerCase)] = componentType
+		typesToCheck[fmt.Sprintf("msgdelete%s", compName.LowerCase)] = componentType
+		typesToCheck[fmt.Sprintf("msg%s", compName.LowerCase)] = componentMessage
+		typesToCheck[fmt.Sprintf("msgsend%s", compName.LowerCase)] = componentPacket
 	}
 
 	absPath, err := filepath.Abs(filepath.Join(appPath, "x", moduleName, "types"))
@@ -90,7 +90,7 @@ func checkComponentCreated(appPath, moduleName string, compName multiformatname.
 
 				// Check if the parsed type is from a scaffolded component with the name
 				if compType, ok := typesToCheck[strings.ToLower(typeSpec.Name.Name)]; ok {
-					err = fmt.Errorf("component %s with name %s is already created (type %s exists)",
+					err = errors.Errorf("component %s with name %s is already created (type %s exists)",
 						compType,
 						compName.Original,
 						typeSpec.Name.Name,
@@ -101,7 +101,7 @@ func checkComponentCreated(appPath, moduleName string, compName multiformatname.
 				return true
 			})
 			if err != nil {
-				return
+				return err
 			}
 		}
 	}
@@ -138,7 +138,7 @@ func checkForbiddenComponentName(name multiformatname.Name) error {
 		"types",
 		"tx",
 		datatype.TypeCustom:
-		return fmt.Errorf("%s is used by Ignite scaffolder", name.LowerCamel)
+		return errors.Errorf("%s is used by Ignite scaffolder", name.LowerCamel)
 	}
 
 	if strings.HasSuffix(name.LowerCase, "test") {
@@ -152,7 +152,7 @@ func checkForbiddenComponentName(name multiformatname.Name) error {
 func checkGoReservedWord(name string) error {
 	// Check keyword or literal
 	if token.Lookup(name).IsKeyword() {
-		return fmt.Errorf("%s is a Go keyword", name)
+		return errors.Errorf("%s is a Go keyword", name)
 	}
 
 	// Check with builtin identifier
@@ -194,7 +194,7 @@ func checkGoReservedWord(name string) error {
 		"uint",
 		"uint8",
 		"uintptr":
-		return fmt.Errorf("%s is a Go built-in identifier", name)
+		return errors.Errorf("%s is a Go built-in identifier", name)
 	}
 	return nil
 }
@@ -220,7 +220,7 @@ func checkForbiddenOracleFieldName(name string) error {
 		"FEELIMIT",
 		"PREPAREGAS",
 		"EXECUTEGAS":
-		return fmt.Errorf("%s is used by Ignite scaffolder", name)
+		return errors.Errorf("%s is used by Ignite scaffolder", name)
 	}
 	return nil
 }

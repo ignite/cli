@@ -2,18 +2,24 @@ package ignitecmd
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cliui"
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/pkg/validation"
-	"github.com/ignite/cli/ignite/services/scaffolder"
-	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/validation"
+	"github.com/ignite/cli/v28/ignite/services/scaffolder"
+	modulecreate "github.com/ignite/cli/v28/ignite/templates/module/create"
 )
+
+// moduleNameKeeperAlias is a map of well known module names that have a different keeper name than the usual <module-name>Keeper.
+var moduleNameKeeperAlias = map[string]string{
+	"auth": "account",
+}
 
 const (
 	flagDep                 = "dep"
@@ -96,7 +102,7 @@ Refer to Cosmos SDK documentation to learn more about modules, dependencies and
 params.
 `,
 		Args:    cobra.ExactArgs(1),
-		PreRunE: gitChangesConfirmPreRunHandler,
+		PreRunE: migrationPreRunHandler,
 		RunE:    scaffoldModuleHandler,
 	}
 
@@ -167,7 +173,11 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 
 		for _, name := range dependencies {
 			if !isValid(name) {
-				return fmt.Errorf("invalid module dependency name format '%s'", name)
+				return errors.Errorf("invalid module dependency name format '%s'", name)
+			}
+
+			if alias, ok := moduleNameKeeperAlias[strings.ToLower(name)]; ok {
+				name = alias
 			}
 
 			deps = append(deps, modulecreate.NewDependency(name))

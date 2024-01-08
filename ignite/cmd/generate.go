@@ -2,8 +2,11 @@ package ignitecmd
 
 import (
 	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
+)
 
-	"github.com/ignite/cli/ignite/pkg/cliui"
+const (
+	flagEnableProtoVendor = "enable-proto-vendor"
 )
 
 // NewGenerate returns a command that groups code generation related sub commands.
@@ -21,11 +24,14 @@ meant to be edited by hand.
 `,
 		Aliases:           []string{"g"},
 		Args:              cobra.ExactArgs(1),
-		PersistentPreRunE: generatePreRunHandler,
+		PersistentPreRunE: migrationPreRunHandler,
 	}
+
+	c.PersistentFlags().AddFlagSet(flagSetEnableProtoVendor())
 
 	flagSetPath(c)
 	flagSetClearCache(c)
+
 	c.AddCommand(NewGenerateGo())
 	c.AddCommand(NewGenerateTSClient())
 	c.AddCommand(NewGenerateVuex())
@@ -36,9 +42,13 @@ meant to be edited by hand.
 	return c
 }
 
-func generatePreRunHandler(cmd *cobra.Command, _ []string) error {
-	session := cliui.New()
-	defer session.End()
+func flagSetEnableProtoVendor() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.Bool(flagEnableProtoVendor, false, "enable proto package vendor for missing Buf dependencies")
+	return fs
+}
 
-	return toolsMigrationPreRunHandler(cmd, session)
+func flagGetEnableProtoVendor(cmd *cobra.Command) bool {
+	skip, _ := cmd.Flags().GetBool(flagEnableProtoVendor)
+	return skip
 }

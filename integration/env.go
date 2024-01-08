@@ -2,14 +2,12 @@ package envtest
 
 import (
 	"context"
-	"errors"
 	"flag"
 	"fmt"
 	"os"
 	"path"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -17,16 +15,16 @@ import (
 	"github.com/cenkalti/backoff"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
-	"github.com/ignite/cli/ignite/pkg/env"
-	"github.com/ignite/cli/ignite/pkg/gocmd"
-	"github.com/ignite/cli/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/ignite/pkg/httpstatuschecker"
-	"github.com/ignite/cli/ignite/pkg/xurl"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosfaucet"
+	"github.com/ignite/cli/v28/ignite/pkg/env"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/gocmd"
+	"github.com/ignite/cli/v28/ignite/pkg/httpstatuschecker"
+	"github.com/ignite/cli/v28/ignite/pkg/xurl"
 )
 
 const (
-	ConfigYML = "config.yml"
+	envDoNotTrack = "DO_NOT_TRACK"
 )
 
 var (
@@ -58,6 +56,7 @@ func New(t *testing.T) Env {
 	// set an other one thanks to env var.
 	cfgDir := path.Join(t.TempDir(), ".ignite")
 	env.SetConfigDir(cfgDir)
+	enableDoNotTrackEnv(t)
 
 	t.Cleanup(cancel)
 	compileBinaryOnce.Do(func() {
@@ -71,10 +70,14 @@ func compileBinary(ctx context.Context) {
 	if err != nil {
 		panic(fmt.Sprintf("unable to get working dir: %v", err))
 	}
-	_, appPath, err := gomodulepath.Find(wd)
+	pkgs, err := gocmd.List(ctx, wd, []string{"-m", "-f={{.Dir}}", "github.com/ignite/cli/v28"})
 	if err != nil {
-		panic(fmt.Sprintf("unable to read go module path: %v", err))
+		panic(fmt.Sprintf("unable to list ignite cli package: %v", err))
 	}
+	if len(pkgs) != 1 {
+		panic(fmt.Sprintf("expected only one package, got %d", len(pkgs)))
+	}
+	appPath := pkgs[0]
 	var (
 		output, binary = filepath.Split(IgniteApp)
 		path           = path.Join(appPath, "ignite", "cmd", "ignite")
@@ -164,8 +167,10 @@ func (e Env) RequireExpectations() {
 	e.Must(e.HasFailed())
 }
 
-func Contains(s, partial string) bool {
-	return strings.Contains(s, strings.TrimSpace(partial))
+// enableDoNotTrackEnv set true the DO_NOT_TRACK env var.
+func enableDoNotTrackEnv(t *testing.T) {
+	t.Helper()
+	t.Setenv(envDoNotTrack, "true")
 }
 
 func HasTestVerboseFlag() bool {

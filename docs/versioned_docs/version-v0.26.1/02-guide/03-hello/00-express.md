@@ -40,7 +40,7 @@ The `ignite scaffold query` command is a tool used to quickly create new
 queries. When you run this command, it makes changes to your source code to add
 the new query and make it available in your API. This command accepts a query
 name (`"say-hello"`) and a list of request fields (in our case only `name`). The
-optional `--reponse` flag specifies the return values of the query.
+optional `--response` flag specifies the return values of the query.
 
 This command made the following changes to the source code.
 

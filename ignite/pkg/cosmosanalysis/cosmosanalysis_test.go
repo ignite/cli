@@ -7,7 +7,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodule"
 )
 
 var (
@@ -74,28 +75,38 @@ func (f Foo) foobar() {}
 package app
 type App struct {}
 func (app *App) Name() string { return app.BaseApp.Name() }
+func (app *App) RegisterAPIRoutes()                                   {}
+func (app *App) RegisterTxService()                                   {}
+func (app *App) AppCodec() codec.Codec                                { return app.appCodec }
+func (app *App) GetKey(storeKey string) *storetypes.KVStoreKey        { return nil }
+func (app *App) GetMemKey(storeKey string) *storetypes.MemoryStoreKey { return nil }
+func (app *App) kvStoreKeys() map[string]*storetypes.KVStoreKey       { return nil }
+func (app *App) GetSubspace(moduleName string) paramstypes.Subspace   { return subspace }
+func (app *App) TxConfig() client.TxConfig                       { return nil }
 func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
 }
 func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	return app.mm.EndBlock(ctx, req)
-}
-func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
-	_ = apiSvr.ClientCtx
 }
 `)
 	appTestFile = []byte(`
 package app_test
 type App struct {}
 func (app *App) Name() string { return app.BaseApp.Name() }
+func (app *App) RegisterAPIRoutes()                                   {}
+func (app *App) RegisterTxService()                                   {}
+func (app *App) AppCodec() codec.Codec                                { return app.appCodec }
+func (app *App) GetKey(storeKey string) *storetypes.KVStoreKey        { return nil }
+func (app *App) GetMemKey(storeKey string) *storetypes.MemoryStoreKey { return nil }
+func (app *App) kvStoreKeys() map[string]*storetypes.KVStoreKey       { return nil }
+func (app *App) GetSubspace(moduleName string) paramstypes.Subspace   { return subspace }
+func (app *App) TxConfig() client.TxConfig                       { return nil }
 func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
 }
 func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	return app.mm.EndBlock(ctx, req)
-}
-func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
-	_ = apiSvr.ClientCtx
 }
 `)
 )
@@ -156,10 +167,12 @@ func TestFindImplementationNotFound(t *testing.T) {
 
 	// No implementation
 	found, err := cosmosanalysis.FindImplementation(tmpDir1, expectedInterface)
+	require.NoError(t, err)
 	require.Len(t, found, 0)
 
 	// Partial implementation
 	found, err = cosmosanalysis.FindImplementation(tmpDir2, expectedInterface)
+	require.NoError(t, err)
 	require.Len(t, found, 0)
 }
 
@@ -189,7 +202,7 @@ func TestFindAppFilePath(t *testing.T) {
 	appTestFilePath := filepath.Join(secondaryAppFolder, "my_own_app_test.go")
 	err = os.WriteFile(appTestFilePath, appTestFile, 0o644)
 	require.NoError(t, err)
-	pathFound, err = cosmosanalysis.FindAppFilePath(tmpDir)
+	_, err = cosmosanalysis.FindAppFilePath(tmpDir)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "cannot locate your app.go")
 
@@ -215,5 +228,23 @@ func TestIsChainPath(t *testing.T) {
 	require.ErrorAs(t, err, &cosmosanalysis.ErrPathNotChain{})
 
 	err = cosmosanalysis.IsChainPath("testdata/chain")
+	require.NoError(t, err)
+
+	// testdata/chain-sdk-fork is a chain using a fork of the Cosmos SDK
+	// so it should still be considered as a chain as ValidateGoMod
+	// does not resolve the module file replacement.
+	err = cosmosanalysis.IsChainPath("testdata/chain-sdk-fork")
+	require.NoError(t, err)
+}
+
+func TestValidateGoMod(t *testing.T) {
+	modFile, err := gomodule.ParseAt("testdata/chain")
+	require.NoError(t, err)
+	err = cosmosanalysis.ValidateGoMod(modFile)
+	require.NoError(t, err)
+
+	modFile, err = gomodule.ParseAt("testdata/chain-sdk-fork")
+	require.NoError(t, err)
+	err = cosmosanalysis.ValidateGoMod(modFile)
 	require.NoError(t, err)
 }

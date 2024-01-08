@@ -8,11 +8,11 @@ import (
 
 	"github.com/manifoldco/promptui"
 
-	"github.com/ignite/cli/ignite/pkg/cliui/cliquiz"
-	"github.com/ignite/cli/ignite/pkg/cliui/clispinner"
-	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
-	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
-	"github.com/ignite/cli/ignite/pkg/events"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/cliquiz"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/clispinner"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/entrywriter"
+	uilog "github.com/ignite/cli/v28/ignite/pkg/cliui/log"
+	"github.com/ignite/cli/v28/ignite/pkg/events"
 )
 
 type sessionOptions struct {
@@ -289,6 +289,7 @@ func (s *Session) handleEvents() {
 			s.StopSpinner()
 			fmt.Fprintf(stdout, "%s\n", e)
 		case events.IndicationNone:
+			fallthrough
 		default:
 			// The text printed here won't be removed when the spinner stops
 			resume := s.PauseSpinner()

@@ -4,19 +4,22 @@ import (
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 const (
 	commandStart             = "start"
 	commandInit              = "init"
 	commandKeys              = "keys"
+	commandGenesis           = "genesis"
 	commandAddGenesisAccount = "add-genesis-account"
 	commandGentx             = "gentx"
 	commandCollectGentxs     = "collect-gentxs"
-	commandValidateGenesis   = "validate-genesis"
+	commandValidateGenesis   = "validate"
 	commandShowNodeID        = "show-node-id"
 	commandStatus            = "status"
 	commandTx                = "tx"
@@ -33,6 +36,7 @@ const (
 	optionRecover                          = "--recover"
 	optionAddress                          = "--address"
 	optionAmount                           = "--amount"
+	optionFees                             = "--fees"
 	optionValidatorMoniker                 = "--moniker"
 	optionValidatorCommissionRate          = "--commission-rate"
 	optionValidatorCommissionMaxRate       = "--commission-max-rate"
@@ -101,8 +105,8 @@ func (c ChainCmd) Copy(options ...Option) ChainCmd {
 type Option func(*ChainCmd)
 
 func applyOptions(c *ChainCmd, options []Option) {
-	for _, applyOption := range options {
-		applyOption(c)
+	for _, apply := range options {
+		apply(c)
 	}
 }
 
@@ -255,6 +259,7 @@ func (c ChainCmd) ListKeysCommand() step.Option {
 // AddGenesisAccountCommand returns the command to add a new account in the genesis file of the chain.
 func (c ChainCmd) AddGenesisAccountCommand(address, coins string) step.Option {
 	command := []string{
+		commandGenesis,
 		commandAddGenesisAccount,
 		address,
 		coins,
@@ -266,6 +271,7 @@ func (c ChainCmd) AddGenesisAccountCommand(address, coins string) step.Option {
 // AddVestingAccountCommand returns the command to add a delayed vesting account in the genesis file of the chain.
 func (c ChainCmd) AddVestingAccountCommand(address, originalCoins, vestingCoins string, vestingEndTime int64) step.Option {
 	command := []string{
+		commandGenesis,
 		commandAddGenesisAccount,
 		address,
 		originalCoins,
@@ -396,6 +402,7 @@ func (c ChainCmd) GentxCommand(
 	options ...GentxOption,
 ) step.Option {
 	command := []string{
+		commandGenesis,
 		commandGentx,
 	}
 
@@ -414,8 +421,8 @@ func (c ChainCmd) GentxCommand(
 	}
 
 	// Apply the options provided by the user
-	for _, applyOption := range options {
-		command = applyOption(command)
+	for _, apply := range options {
+		command = apply(command)
 	}
 
 	command = c.attachChainID(command)
@@ -427,6 +434,7 @@ func (c ChainCmd) GentxCommand(
 // CollectGentxsCommand returns the command to gather the gentxs in /gentx dir into the genesis file of the chain.
 func (c ChainCmd) CollectGentxsCommand() step.Option {
 	command := []string{
+		commandGenesis,
 		commandCollectGentxs,
 	}
 	return c.daemonCommand(command)
@@ -435,6 +443,7 @@ func (c ChainCmd) CollectGentxsCommand() step.Option {
 // ValidateGenesisCommand returns the command to check the validity of the chain genesis.
 func (c ChainCmd) ValidateGenesisCommand() step.Option {
 	command := []string{
+		commandGenesis,
 		commandValidateGenesis,
 	}
 	return c.daemonCommand(command)
@@ -470,8 +479,21 @@ func (c ChainCmd) ExportCommand() step.Option {
 	return c.daemonCommand(command)
 }
 
+// BankSendOption for the BankSendCommand.
+type BankSendOption func([]string) []string
+
+// BankSendWithFees sets fees to pay along with transaction for the bank send command.
+func BankSendWithFees(fee sdk.Coin) BankSendOption {
+	return func(command []string) []string {
+		if !fee.IsNil() {
+			return append(command, optionFees, fee.String())
+		}
+		return command
+	}
+}
+
 // BankSendCommand returns the command for transferring tokens.
-func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string) step.Option {
+func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string, options ...BankSendOption) step.Option {
 	command := []string{
 		commandTx,
 	}
@@ -485,6 +507,11 @@ func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string) step.Op
 		optionBroadcastMode, flags.BroadcastSync,
 		optionYes,
 	)
+
+	// Apply the options provided by the user
+	for _, apply := range options {
+		command = apply(command)
+	}
 
 	command = c.attachChainID(command)
 	command = c.attachKeyringBackend(command)
@@ -510,10 +537,27 @@ func (c ChainCmd) QueryTxEventsCommand(query string) step.Option {
 	command := []string{
 		commandQuery,
 		"txs",
-		"--events",
+		"--query",
 		query,
 		"--page", "1",
 		"--limit", "1000",
+		"--output", "json",
+	}
+
+	command = c.attachNode(command)
+	return c.cliCommand(command)
+}
+
+// QueryTxQueryCommand returns the command to query tx.
+func (c ChainCmd) QueryTxQueryCommand(query string) step.Option {
+	command := []string{
+		commandQuery,
+		"txs",
+		"--query",
+		query,
+		"--page", "1",
+		"--limit", "1000",
+		"--output", "json",
 	}
 
 	command = c.attachNode(command)
@@ -596,5 +640,5 @@ func KeyringBackendFromString(kb string) (KeyringBackend, error) {
 	if _, ok := existingKeyringBackend[KeyringBackend(kb)]; ok {
 		return KeyringBackend(kb), nil
 	}
-	return KeyringBackendUnspecified, fmt.Errorf("unrecognized keyring backend: %s", kb)
+	return KeyringBackendUnspecified, errors.Errorf("unrecognized keyring backend: %s", kb)
 }

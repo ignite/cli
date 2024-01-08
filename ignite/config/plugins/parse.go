@@ -1,31 +1,31 @@
 package plugins
 
 import (
-	"errors"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 
 	"gopkg.in/yaml.v2"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 // ParseDir expects to find a plugin config file in dir. If dir is not a folder,
 // an error is returned.
-// The plugin config file format can be `plugins.yml` or `plugins.yaml`. If
+// The plugin config file format can be `igniteapps.yml` or `igniteapps.yaml`. If
 // found, the file is parsed into a Config and returned. If no file from the
 // given names above are found, then an empty config is returned, w/o errors.
 func ParseDir(dir string) (*Config, error) {
 	// handy function that wraps and prefix err with a common label
 	errf := func(err error) (*Config, error) {
-		return nil, fmt.Errorf("plugin config parse: %w", err)
+		return nil, errors.Errorf("plugin config parse: %w", err)
 	}
 	fi, err := os.Stat(dir)
 	if err != nil {
 		return errf(err)
 	}
 	if !fi.IsDir() {
-		return errf(fmt.Errorf("path %s is not a dir", dir))
+		return errf(errors.Errorf("path %s is not a dir", dir))
 	}
 
 	filename, err := locateFile(dir)
@@ -53,8 +53,7 @@ func ParseDir(dir string) (*Config, error) {
 }
 
 var (
-	// filenames is a list of recognized names as Ignite's plugins config file.
-	filenames       = []string{"plugins.yml", "plugins.yaml"}
+	filenames       = []string{"igniteapps.yml", "igniteapps.yaml"}
 	defaultFilename = filenames[0]
 )
 

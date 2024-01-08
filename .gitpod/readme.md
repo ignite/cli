@@ -38,11 +38,11 @@ ignite chain serve
 
 ## Install Ignite CLI locally
 
-```
+```sh
 curl https://get.ignite.com/cli | bash
 ```
 
-The latest `ignite` binary is downloaded from the project repo and installed in `/usr/local/bin`. Learn more about [installing Ignite CLI](https://docs.ignite.com/guide/install).
+The latest `ignite` binary is downloaded from the project repo and installed in `/usr/local/bin`. Learn more about [installing Ignite CLI](https://docs.ignite.com/welcome/install).
 
 ## Stay in touch
 

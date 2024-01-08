@@ -3,15 +3,15 @@ package gocmd
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/ignite/pkg/goenv"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/goenv"
 )
 
 const (
@@ -33,11 +33,17 @@ const (
 	// CommandModVerify represents go mod "verify" command.
 	CommandModVerify = "verify"
 
+	// CommandModDownload represents go mod "download" command.
+	CommandModDownload = "download"
+
 	// CommandFmt represents go "fmt" command.
 	CommandFmt = "fmt"
 
 	// CommandEnv represents go "env" command.
 	CommandEnv = "env"
+
+	// CommandList represents go "list" command.
+	CommandList = "list"
 
 	// EnvGOARCH represents GOARCH variable.
 	EnvGOARCH = "GOARCH"
@@ -91,13 +97,24 @@ func ModTidy(ctx context.Context, path string, options ...exec.Option) error {
 			// FIXME(tb) untagged version of ignite/cli triggers a 404 not found when go
 			// mod tidy requests the sumdb, until we understand why, we disable sumdb.
 			// related issue:  https://github.com/golang/go/issues/56174
-			exec.StepOption(step.Env("GOSUMDB=off")),
+			// Also disable Go toolchain download because it doesn't work without a valid
+			// GOSUMDB value: https://go.dev/doc/toolchain#download
+			exec.StepOption(step.Env("GOSUMDB=off", "GOTOOLCHAIN=local+path")),
 		)...)
 }
 
 // ModVerify runs go mod verify on path with options.
 func ModVerify(ctx context.Context, path string, options ...exec.Option) error {
 	return exec.Exec(ctx, []string{Name(), CommandMod, CommandModVerify}, append(options, exec.StepOption(step.Workdir(path)))...)
+}
+
+// ModDownload runs go mod download on a path with options.
+func ModDownload(ctx context.Context, path string, json bool, options ...exec.Option) error {
+	command := []string{Name(), CommandMod, CommandModDownload}
+	if json {
+		command = append(command, "-json")
+	}
+	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
 }
 
 // BuildPath runs go install on cmd folder with options.
@@ -164,6 +181,22 @@ func Get(ctx context.Context, path string, pkgs []string, options ...exec.Option
 	}
 	command = append(command, pkgs...)
 	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
+}
+
+// List returns the list of packages in path.
+func List(ctx context.Context, path string, flags []string, options ...exec.Option) ([]string, error) {
+	command := []string{
+		Name(),
+		CommandList,
+	}
+	command = append(command, flags...)
+	var b bytes.Buffer
+	err := exec.Exec(ctx, command,
+		append(options, exec.StepOption(step.Workdir(path)), exec.StepOption(step.Stdout(&b)))...)
+	if err != nil {
+		return nil, err
+	}
+	return strings.Fields(b.String()), nil
 }
 
 // Ldflags returns a combined ldflags set from flags.

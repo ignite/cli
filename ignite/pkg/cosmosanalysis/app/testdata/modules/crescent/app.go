@@ -10,10 +10,14 @@ import (
 	"os"
 	"path/filepath"
 
+	storetypes "cosmossdk.io/store/types"
+
 	"cosmossdk.io/client/v2/autocli"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -758,7 +762,7 @@ func NewApp(
 		},
 	)
 	if err != nil {
-		panic(fmt.Errorf("failed to create AnteHandler: %s", err))
+		panic(errors.Errorf("failed to create AnteHandler: %s", err))
 	}
 
 	app.SetAnteHandler(anteHandler)
@@ -985,3 +989,46 @@ func (app *App) SetUpgradeHandlers(mm *module.Manager, configurator module.Confi
 
 func (App) TxConfig() client.TxConfig       { return nil }
 func (App) AutoCliOpts() autocli.AppOptions { return autocli.AppOptions{} }
+
+// GetKey returns the KVStoreKey for the provided store key.
+func (App) GetKey(storeKey string) *storetypes.KVStoreKey {
+	sk := app.UnsafeFindStoreKey(storeKey)
+	kvStoreKey, ok := sk.(*storetypes.KVStoreKey)
+	if !ok {
+		return nil
+	}
+	return kvStoreKey
+}
+
+// GetMemKey returns the MemoryStoreKey for the provided store key.
+func (App) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
+	key, ok := app.UnsafeFindStoreKey(storeKey).(*storetypes.MemoryStoreKey)
+	if !ok {
+		return nil
+	}
+
+	return key
+}
+
+// kvStoreKeys returns all the kv store keys registered inside App.
+func (App) kvStoreKeys() map[string]*storetypes.KVStoreKey {
+	keys := make(map[string]*storetypes.KVStoreKey)
+	for _, k := range app.GetStoreKeys() {
+		if kv, ok := k.(*storetypes.KVStoreKey); ok {
+			keys[kv.Name()] = kv
+		}
+	}
+
+	return keys
+}
+
+// GetSubspace returns a param subspace for a given module name.
+func (App) GetSubspace(moduleName string) paramstypes.Subspace {
+	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
+	return subspace
+}
+
+// SimulationManager implements the SimulationApp interface
+func (App) SimulationManager() *module.SimulationManager {
+	return app.sm
+}

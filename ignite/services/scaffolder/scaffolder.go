@@ -6,14 +6,14 @@ import (
 	"context"
 	"path/filepath"
 
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
-	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
-	"github.com/ignite/cli/ignite/pkg/cosmosgen"
-	"github.com/ignite/cli/ignite/pkg/cosmosver"
-	"github.com/ignite/cli/ignite/pkg/gocmd"
-	"github.com/ignite/cli/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/ignite/version"
+	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
+	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/gocmd"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v28/ignite/version"
 )
 
 // Scaffolder is Ignite CLI app scaffolder.
@@ -64,9 +64,11 @@ func New(appPath string) (Scaffolder, error) {
 }
 
 func finish(ctx context.Context, cacheStorage cache.Storage, path, gomodPath string) error {
-	if err := protoc(ctx, cacheStorage, path, gomodPath); err != nil {
+	err := protoc(ctx, cacheStorage, path, gomodPath)
+	if err != nil {
 		return err
 	}
+
 	if err := gocmd.ModTidy(ctx, path); err != nil {
 		return err
 	}
@@ -74,10 +76,6 @@ func finish(ctx context.Context, cacheStorage cache.Storage, path, gomodPath str
 }
 
 func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodPath string) error {
-	if err := cosmosgen.InstallDepTools(ctx, projectPath); err != nil {
-		return err
-	}
-
 	confpath, err := chainconfig.LocateDefault(projectPath)
 	if err != nil {
 		return err
@@ -88,7 +86,8 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 	}
 
 	options := []cosmosgen.Option{
-		cosmosgen.WithGoGeneration(gomodPath),
+		cosmosgen.UpdateBufModule(),
+		cosmosgen.WithGoGeneration(),
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
 	}
 
@@ -132,5 +131,5 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 		options = append(options, cosmosgen.WithOpenAPIGeneration(openAPIPath))
 	}
 
-	return cosmosgen.Generate(ctx, cacheStorage, projectPath, conf.Build.Proto.Path, options...)
+	return cosmosgen.Generate(ctx, cacheStorage, projectPath, conf.Build.Proto.Path, gomodPath, options...)
 }

@@ -2,9 +2,10 @@ package xhttp
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"time"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 // ShutdownTimeout is the timeout for waiting all requests to complete.
@@ -18,7 +19,7 @@ func Serve(ctx context.Context, s *http.Server) error {
 		shutdownCtx, cancel := context.WithTimeout(context.Background(), ShutdownTimeout)
 		defer cancel()
 
-		s.Shutdown(shutdownCtx)
+		_ = s.Shutdown(shutdownCtx)
 	}()
 
 	err := s.ListenAndServe()

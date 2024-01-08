@@ -7,13 +7,13 @@ import (
 	"encoding/json"
 	"io"
 
-	"github.com/pkg/errors"
 	"sigs.k8s.io/yaml"
 
-	"github.com/ignite/cli/ignite/pkg/chaincmd"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/ignite/pkg/truncatedbuffer"
+	"github.com/ignite/cli/v28/ignite/pkg/chaincmd"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/truncatedbuffer"
 )
 
 // Runner provides high level access to a blockchain's commands.
@@ -143,7 +143,7 @@ type buffer struct {
 // JSONEnsuredBytes ensures that encoding format for returned bytes is always
 // JSON even if the written data is originally encoded in YAML.
 func (b *buffer) JSONEnsuredBytes() ([]byte, error) {
-	bz := b.Buffer.Bytes()
+	bz := b.Bytes()
 
 	var out interface{}
 

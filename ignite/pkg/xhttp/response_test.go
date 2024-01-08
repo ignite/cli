@@ -2,13 +2,14 @@ package xhttp
 
 import (
 	"encoding/json"
-	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 func TestResponseJSON(t *testing.T) {

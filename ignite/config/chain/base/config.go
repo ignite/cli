@@ -3,8 +3,8 @@ package base
 import (
 	"github.com/imdario/mergo"
 
-	"github.com/ignite/cli/ignite/config/chain/version"
-	xyaml "github.com/ignite/cli/ignite/pkg/yaml"
+	"github.com/ignite/cli/v28/ignite/config/chain/version"
+	xyaml "github.com/ignite/cli/v28/ignite/pkg/yaml"
 )
 
 var (
@@ -34,9 +34,6 @@ type Account struct {
 	Mnemonic string   `yaml:"mnemonic,omitempty"`
 	Address  string   `yaml:"address,omitempty"`
 	CoinType string   `yaml:"cointype,omitempty"`
-
-	// The RPCAddress off the chain that account is issued at.
-	RPCAddress string `yaml:"rpc_address,omitempty"`
 }
 
 // Build holds build configs.
@@ -126,7 +123,7 @@ type Faucet struct {
 	Host string `yaml:"host,omitempty"`
 
 	// Port number for faucet server to listen at.
-	Port int `yaml:"port,omitempty"`
+	Port uint `yaml:"port,omitempty"`
 }
 
 // Init overwrites sdk configurations with given values.

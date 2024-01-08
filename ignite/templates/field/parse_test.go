@@ -1,13 +1,13 @@
 package field
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/ignite/templates/field/datatype"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v28/ignite/templates/field/datatype"
 )
 
 var (

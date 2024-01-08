@@ -1,16 +1,20 @@
 package ignitecmd
 
 import (
-	"errors"
+	"path/filepath"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
-	"github.com/ignite/cli/ignite/pkg/cliui"
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/pkg/xgit"
-	"github.com/ignite/cli/ignite/services/scaffolder"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/xgit"
+	"github.com/ignite/cli/v28/ignite/services/scaffolder"
+	"github.com/ignite/cli/v28/ignite/version"
 )
 
 // flags related to component scaffolding.
@@ -25,6 +29,28 @@ const (
 	msgCommitPrompt = "Do you want to proceed without committing your saved changes"
 
 	statusScaffolding = "Scaffolding..."
+
+	supportFieldTypes = `
+Currently supports: 
+
+| Type         | Alias   | Index | Code Type | Description                     |
+|--------------|---------|-------|-----------|---------------------------------|
+| string       | -       | yes   | string    | Text type                       |
+| array.string | strings | no    | []string  | List of text type               |
+| bool         | -       | yes   | bool      | Boolean type                    |
+| int          | -       | yes   | int32     | Integer type                    |
+| array.int    | ints    | no    | []int32   | List of integers types          |
+| uint         | -       | yes   | uint64    | Unsigned integer type           |
+| array.uint   | uints   | no    | []uint64  | List of unsigned integers types |
+| coin         | -       | no    | sdk.Coin  | Cosmos SDK coin type            |
+| array.coin   | coins   | no    | sdk.Coins | List of Cosmos SDK coin types   |
+
+Field Usage:
+    - fieldName
+    - fieldName:fieldType
+
+If no :fieldType, default (string) is used
+`
 )
 
 // NewScaffold returns a command that groups scaffolding related sub commands.
@@ -90,21 +116,57 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 		Args:    cobra.ExactArgs(1),
 	}
 
-	c.AddCommand(NewScaffoldChain())
-	c.AddCommand(NewScaffoldModule())
-	c.AddCommand(NewScaffoldList())
-	c.AddCommand(NewScaffoldMap())
-	c.AddCommand(NewScaffoldSingle())
-	c.AddCommand(NewScaffoldType())
-	c.AddCommand(NewScaffoldMessage())
-	c.AddCommand(NewScaffoldQuery())
-	c.AddCommand(NewScaffoldPacket())
-	c.AddCommand(NewScaffoldBandchain())
-	c.AddCommand(NewScaffoldVue())
-	c.AddCommand(NewScaffoldReact())
-	// c.AddCommand(NewScaffoldWasm())
+	c.AddCommand(
+		NewScaffoldChain(),
+		NewScaffoldModule(),
+		NewScaffoldList(),
+		NewScaffoldMap(),
+		NewScaffoldSingle(),
+		NewScaffoldType(),
+		NewScaffoldMessage(),
+		NewScaffoldQuery(),
+		NewScaffoldPacket(),
+		NewScaffoldBandchain(),
+		NewScaffoldVue(),
+		NewScaffoldReact(),
+	)
 
 	return c
+}
+
+func migrationPreRunHandler(cmd *cobra.Command, args []string) error {
+	if err := gitChangesConfirmPreRunHandler(cmd, args); err != nil {
+		return err
+	}
+
+	session := cliui.New()
+	defer session.End()
+
+	path := flagGetPath(cmd)
+	path, err := filepath.Abs(path)
+	if err != nil {
+		return err
+	}
+
+	_, appPath, err := gomodulepath.Find(path)
+	if err != nil {
+		return err
+	}
+
+	ver, err := cosmosver.Detect(appPath)
+	if err != nil {
+		return err
+	}
+
+	if err := version.AssertSupportedCosmosSDKVersion(ver); err != nil {
+		return err
+	}
+
+	if err := toolsMigrationPreRunHandler(cmd, session, appPath); err != nil {
+		return err
+	}
+
+	return bufMigrationPreRunHandler(cmd, session, appPath)
 }
 
 func scaffoldType(

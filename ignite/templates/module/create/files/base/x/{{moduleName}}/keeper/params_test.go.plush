@@ -4,16 +4,15 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	testkeeper "<%= modulePath %>/testutil/keeper"
-	"<%= modulePath %>/x/<%= moduleName %>/types"
+
+    keepertest "<%= modulePath %>/testutil/keeper"
+    "<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
 func TestGetParams(t *testing.T) {
-	k, ctx := testkeeper.<%= title(moduleName) %>Keeper(t)
+	k, ctx := keepertest.<%= title(moduleName) %>Keeper(t)
 	params := types.DefaultParams()
 
-	k.SetParams(ctx, params)
-
-	require.EqualValues(t, params, k.GetParams(ctx))<%= for (param) in params { %>
-	require.EqualValues(t, params.<%= param.Name.UpperCamel %>, k.<%= param.Name.UpperCamel %>(ctx))<% } %>
+	require.NoError(t, k.SetParams(ctx, params))
+	require.EqualValues(t, params, k.GetParams(ctx))
 }

@@ -3,9 +3,10 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cliui"
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/services/scaffolder"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/services/scaffolder"
 )
 
 const (
@@ -77,6 +78,7 @@ about Cosmos SDK on https://docs.cosmos.network
 	c.Flags().AddFlagSet(flagSetAccountPrefixes())
 	c.Flags().StringP(flagPath, "p", "", "create a project in a specific path")
 	c.Flags().Bool(flagNoDefaultModule, false, "create a project without a default module")
+	c.Flags().StringSlice(flagParams, []string{}, "add default module parameters")
 	c.Flags().Bool(flagSkipGit, false, "skip Git repository initialization")
 
 	return c
@@ -94,6 +96,14 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		skipGit, _         = cmd.Flags().GetBool(flagSkipGit)
 	)
 
+	params, err := cmd.Flags().GetStringSlice(flagParams)
+	if err != nil {
+		return err
+	}
+	if noDefaultModule && len(params) > 0 {
+		return errors.New("params flag is only supported if the default module is enabled")
+	}
+
 	cacheStorage, err := newCache(cmd)
 	if err != nil {
 		return err
@@ -108,6 +118,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		addressPrefix,
 		noDefaultModule,
 		skipGit,
+		params,
 	)
 	if err != nil {
 		return err

@@ -11,20 +11,20 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/cmdrunner"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/ignite/pkg/randstr"
-	"github.com/ignite/cli/ignite/pkg/xurl"
-	envtest "github.com/ignite/cli/integration"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/randstr"
+	"github.com/ignite/cli/v28/ignite/pkg/xurl"
+	envtest "github.com/ignite/cli/v28/integration"
 )
 
 func TestSignTxWithDashedAppName(t *testing.T) {
 	var (
 		env         = envtest.New(t)
-		appname     = "dashed-app-name"
+		appname     = "da-shed-a-p-p"
 		app         = env.Scaffold(appname)
 		servers     = app.RandomizeServerPorts()
 		ctx, cancel = context.WithCancel(env.Ctx())
@@ -78,11 +78,14 @@ func TestSignTxWithDashedAppName(t *testing.T) {
 			step.Exec(
 				app.Binary(),
 				"tx",
-				"dashedappname",
+				"dashedapp",
 				"create-item",
 				"helloworld",
+				"--chain-id", "dashedapp",
 				"--from", "alice",
 				"--node", nodeAddr,
+				"--output", "json",
+				"--log_format", "json",
 				"--yes",
 			),
 			step.PostExec(func(execErr error) error {
@@ -91,7 +94,7 @@ func TestSignTxWithDashedAppName(t *testing.T) {
 				}
 				err := json.Unmarshal(output.Bytes(), &txResponse)
 				if err != nil {
-					return fmt.Errorf("unmarshling tx response: %w", err)
+					return errors.Errorf("unmarshling tx response: %w", err)
 				}
 				return nil
 			}),
@@ -158,6 +161,8 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 				"keys",
 				"list",
 				"--keyring-backend", "test",
+				"--output", "json",
+				"--log_format", "json",
 			),
 			step.PostExec(func(execErr error) error {
 				if execErr != nil {
@@ -203,6 +208,8 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 						"--keyring-backend", "test",
 						"--chain-id", appname,
 						"--node", nodeAddr,
+						"--output", "json",
+						"--log_format", "json",
 						"--yes",
 					),
 					step.PreExec(func() error {

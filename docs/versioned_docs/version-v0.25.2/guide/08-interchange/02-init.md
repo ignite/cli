@@ -94,7 +94,7 @@ Use the optional `--desc` flag to define a description of the CLI command that i
 
 The token denoms must have the same behavior as described in the `ibc-transfer` module:
 
-- An external token received from a chain has a unique `denom`, reffered to as `voucher`.
+- An external token received from a chain has a unique `denom`, referred to as `voucher`.
 - When a token is sent to a blockchain and then sent back and received, the chain can resolve the voucher and convert it back to the original token denomination.
 
 `Voucher` tokens are represented as hashes, therefore you must store which original denomination is related to a voucher. You can do this with an indexed type.

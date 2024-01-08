@@ -1,13 +1,11 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
-	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
-	"github.com/ignite/cli/ignite/pkg/cliui"
-	"github.com/ignite/cli/ignite/services/plugin"
+	pluginsconfig "github.com/ignite/cli/v28/ignite/config/plugins"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui"
+	"github.com/ignite/cli/v28/ignite/services/plugin"
 )
 
 type defaultPlugin struct {
@@ -18,7 +16,7 @@ type defaultPlugin struct {
 }
 
 const (
-	PluginNetworkVersion = "v0.1.0"
+	PluginNetworkVersion = "v0.2.1"
 	PluginNetworkPath    = "github.com/ignite/cli-plugin-network@" + PluginNetworkVersion
 )
 
@@ -63,18 +61,12 @@ func newPluginInstallCmd(dp defaultPlugin) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			if cfg.HasPlugin(dp.path) {
-				// plugin already declared in global plugins, this shouldn't happen
-				// because this is actually why this command has been added, so let's
-				// break violently
-				panic(fmt.Sprintf("plugin %q unexpected in global config", dp.path))
-			}
 
 			// add plugin to config
 			pluginCfg := pluginsconfig.Plugin{
 				Path: dp.path,
 			}
-			cfg.Plugins = append(cfg.Plugins, pluginCfg)
+			cfg.Apps = append(cfg.Apps, pluginCfg)
 			if err := cfg.Save(); err != nil {
 				return err
 			}
@@ -98,7 +90,7 @@ func newPluginInstallCmd(dp defaultPlugin) *cobra.Command {
 			// Remove this command before call to linkPlugins because a plugin is
 			// usually not allowed to override an existing command.
 			rootCmd.RemoveCommand(cmd)
-			if err := linkPlugins(rootCmd, plugins); err != nil {
+			if err := linkPlugins(cmd.Context(), rootCmd, plugins); err != nil {
 				return err
 			}
 			// Execute the command

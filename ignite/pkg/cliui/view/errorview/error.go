@@ -5,7 +5,7 @@ import (
 
 	"github.com/muesli/reflow/wordwrap"
 
-	"github.com/ignite/cli/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
 )
 
 func NewError(err error) Error {
@@ -21,8 +21,8 @@ func (e Error) String() string {
 
 	w := wordwrap.NewWriter(80)
 	w.Breakpoints = []rune{' '}
-	w.Write([]byte(s))
-	w.Close()
+	_, _ = w.Write([]byte(s))
+	_ = w.Close()
 
 	return colors.Error(w.String())
 }

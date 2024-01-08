@@ -3,8 +3,8 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cliui"
-	"github.com/ignite/cli/ignite/services/doctor"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui"
+	"github.com/ignite/cli/v28/ignite/services/doctor"
 )
 
 func NewDoctor() *cobra.Command {
@@ -19,6 +19,10 @@ func NewDoctor() *cobra.Command {
 			doc := doctor.New(doctor.CollectEvents(session.EventBus()))
 
 			if err := doc.MigrateConfig(cmd.Context()); err != nil {
+				return err
+			}
+
+			if err := doc.MigratePluginsConfig(); err != nil {
 				return err
 			}
 

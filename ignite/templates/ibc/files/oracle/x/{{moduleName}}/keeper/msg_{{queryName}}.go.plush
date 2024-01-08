@@ -4,13 +4,14 @@ import (
 	"context"
 	"time"
 
+	errorsmod "cosmossdk.io/errors"
     "github.com/bandprotocol/bandchain-packet/obi"
 	"github.com/bandprotocol/bandchain-packet/packet"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-    channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
-    host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
+	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+    channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+    host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
 	"<%= ModulePath %>/x/<%= moduleName %>/types"
 )
 
@@ -20,9 +21,9 @@ func (k msgServer) <%= queryName.UpperCamel %>Data(goCtx context.Context, msg *t
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	sourcePort := types.PortID
-	sourceChannelEnd, found := k.channelKeeper.GetChannel(ctx, sourcePort, msg.SourceChannel)
+	sourceChannelEnd, found := k.ibcKeeperFn().ChannelKeeper.GetChannel(ctx, sourcePort, msg.SourceChannel)
 	if !found {
-		return nil, sdkerrors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			sdkerrors.ErrUnknownRequest,
 			"unknown channel %s port %s",
 			msg.SourceChannel,
@@ -33,9 +34,9 @@ func (k msgServer) <%= queryName.UpperCamel %>Data(goCtx context.Context, msg *t
 	destinationChannel := sourceChannelEnd.GetCounterparty().GetChannelID()
 
 	// get the next sequence
-	sequence, found := k.channelKeeper.GetNextSequenceSend(ctx, sourcePort, msg.SourceChannel)
+	sequence, found := k.ibcKeeperFn().ChannelKeeper.GetNextSequenceSend(ctx, sourcePort, msg.SourceChannel)
 	if !found {
-		return nil, sdkerrors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			channeltypes.ErrSequenceSendNotFound,
 
 			"source port: %s, source channel: %s", sourcePort, msg.SourceChannel)
@@ -43,7 +44,7 @@ func (k msgServer) <%= queryName.UpperCamel %>Data(goCtx context.Context, msg *t
 
 	channelCap, ok := k.scopedKeeper.GetCapability(ctx, host.ChannelCapabilityPath(sourcePort, msg.SourceChannel))
 	if !ok {
-		return nil, sdkerrors.Wrap(channeltypes.ErrChannelCapabilityNotFound,
+		return nil, errorsmod.Wrap(channeltypes.ErrChannelCapabilityNotFound,
 			"module does not own channel capability")
 	}
 
@@ -61,8 +62,8 @@ func (k msgServer) <%= queryName.UpperCamel %>Data(goCtx context.Context, msg *t
 
 	packetBytes, err := packetData.GetBytes()
     if err != nil {
-        return sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, "cannot marshal the packet: " + err.Error())
+        return errorsmod.Wrap(sdkerrors.ErrJSONMarshal, "cannot marshal the packet: " + err.Error())
     }
 
-	return k.channelKeeper.SendPacket(ctx, channelCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, packetBytes)
+	return k.ibcKeeperFn().ChannelKeeper.SendPacket(ctx, channelCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, packetBytes)
 }

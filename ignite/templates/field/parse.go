@@ -1,18 +1,18 @@
 package field
 
 import (
-	"fmt"
 	"strings"
 
-	"github.com/ignite/cli/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/ignite/templates/field/datatype"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v28/ignite/templates/field/datatype"
 )
 
 // validateField validates the field Name and type, and checks the name is not forbidden by Ignite CLI.
 func validateField(field string, isForbiddenField func(string) error) (multiformatname.Name, datatype.Name, error) {
 	fieldSplit := strings.Split(field, datatype.Separator)
 	if len(fieldSplit) > 2 {
-		return multiformatname.Name{}, "", fmt.Errorf("invalid field format: %s, should be 'Name' or 'Name:type'", field)
+		return multiformatname.Name{}, "", errors.Errorf("invalid field format: %s, should be 'Name' or 'Name:type'", field)
 	}
 
 	name, err := multiformatname.NewName(fieldSplit[0])
@@ -22,7 +22,7 @@ func validateField(field string, isForbiddenField func(string) error) (multiform
 
 	// Ensure the field Name is not a Go reserved Name, it would generate an incorrect code
 	if err := isForbiddenField(name.LowerCamel); err != nil {
-		return name, "", fmt.Errorf("%s can't be used as a field Name: %w", name, err)
+		return name, "", errors.Errorf("%s can't be used as a field Name: %w", name, err)
 	}
 
 	// Check if the object has an explicit type. The default is a string
@@ -58,7 +58,7 @@ func ParseFields(
 
 		// Ensure the field is not duplicated
 		if _, exists := existingFields[name.LowerCamel]; exists {
-			return parsedFields, fmt.Errorf("the field %s is duplicated", name.Original)
+			return parsedFields, errors.Errorf("the field %s is duplicated", name.Original)
 		}
 		existingFields[name.LowerCamel] = struct{}{}
 

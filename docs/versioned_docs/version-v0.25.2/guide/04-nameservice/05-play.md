@@ -104,7 +104,7 @@ After the transaction is broadcast and included in a block, the blockchain retur
 
 ## Query the Chain for a List of Names
 
-Query the chain for a list of name and correponding values. Query commands don't need the `--from` flag, because they don't broadcast transactions and make only free requests.
+Query the chain for a list of name and corresponding values. Query commands don't need the `--from` flag, because they don't broadcast transactions and make only free requests.
 
 ```bash
 nameserviced q nameservice list-whois

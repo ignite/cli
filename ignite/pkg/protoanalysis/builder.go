@@ -158,7 +158,11 @@ func (b builder) elementsToHTTPRules(requestMessage *proto.Message, elems []prot
 	return
 }
 
-var urlParamRe = regexp.MustCompile(`(?m){(.+?)}`)
+// Regexp to extract HTTP rule URL parameter names.
+// The expression extracts parameter names defined within "{}".
+// Extra parameter arguments are ignored. These arguments are normally
+// defined after an "=", for example as "{param=**}".
+var urlParamRe = regexp.MustCompile(`(?m){([^=]+?)(?:=.+?)?}`)
 
 func (b builder) constantToHTTPRules(requestMessage *proto.Message, constant proto.Literal) (httpRules []HTTPRule) {
 	// find out the endpoint template.

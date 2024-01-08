@@ -2,21 +2,27 @@ package cosmosgen
 
 import (
 	"context"
+	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/iancoleman/strcase"
 	gomodule "golang.org/x/mod/module"
 
-	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosbuf"
+	"github.com/ignite/cli/v28/ignite/pkg/events"
 )
 
 // generateOptions used to configure code generation.
 type generateOptions struct {
-	includeDirs []string
-	gomodPath   string
-	useCache    bool
+	includeDirs     []string
+	useCache        bool
+	updateBufModule bool
+	ev              events.Bus
+
+	generateProtobuf bool
 
 	jsOut            func(module.Module) string
 	tsClientRootPath string
@@ -32,8 +38,6 @@ type generateOptions struct {
 
 	specOut string
 }
-
-// TODO add WithInstall.
 
 // ModulePathFunc defines a function type that returns a path based on a Cosmos SDK module.
 type ModulePathFunc func(module.Module) string
@@ -72,10 +76,10 @@ func WithHooksGeneration(out ModulePathFunc, hooksRootPath string) Option {
 	}
 }
 
-// WithGoGeneration adds Go code generation.
-func WithGoGeneration(gomodPath string) Option {
+// WithGoGeneration adds protobuf (gogoproto and pulsar) code generation.
+func WithGoGeneration() Option {
 	return func(o *generateOptions) {
-		o.gomodPath = gomodPath
+		o.generateProtobuf = true
 	}
 }
 
@@ -94,54 +98,113 @@ func IncludeDirs(dirs []string) Option {
 	}
 }
 
+// UpdateBufModule enables Buf config proto dependencies update.
+// This option updates app's Buf config when proto packages or
+// Buf modules are found within the Go dependencies.
+func UpdateBufModule() Option {
+	return func(o *generateOptions) {
+		o.updateBufModule = true
+	}
+}
+
+// CollectEvents sets an event bus for sending generation feedback events.
+func CollectEvents(ev events.Bus) Option {
+	return func(c *generateOptions) {
+		c.ev = ev
+	}
+}
+
 // generator generates code for sdk and sdk apps.
 type generator struct {
-	ctx          context.Context
-	cacheStorage cache.Storage
-	appPath      string
-	protoDir     string
-	o            *generateOptions
-	sdkImport    string
-	deps         []gomodule.Version
-	appModules   []module.Module
-	thirdModules map[string][]module.Module // app dependency-modules pair.
+	buf                 cosmosbuf.Buf
+	cacheStorage        cache.Storage
+	appPath             string
+	protoDir            string
+	gomodPath           string
+	opts                *generateOptions
+	sdkImport           string
+	sdkDir              string
+	deps                []gomodule.Version
+	appModules          []module.Module
+	appIncludes         protoIncludes
+	thirdModules        map[string][]module.Module
+	thirdModuleIncludes map[string]protoIncludes
+	tmpDirs             []string
+}
+
+func (g *generator) cleanup() {
+	// Remove temporary directories created during generation
+	for _, path := range g.tmpDirs {
+		_ = os.RemoveAll(path)
+	}
 }
 
 // Generate generates code from protoDir of an SDK app residing at appPath with given options.
 // protoDir must be relative to the projectPath.
-func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir string, options ...Option) error {
-	g := &generator{
-		ctx:          ctx,
-		appPath:      appPath,
-		protoDir:     protoDir,
-		o:            &generateOptions{},
-		thirdModules: make(map[string][]module.Module),
-		cacheStorage: cacheStorage,
+func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir, gomodPath string, options ...Option) error {
+	b, err := cosmosbuf.New()
+	if err != nil {
+		return err
 	}
+
+	defer b.Cleanup()
+
+	g := &generator{
+		buf:                 b,
+		appPath:             appPath,
+		protoDir:            protoDir,
+		gomodPath:           gomodPath,
+		opts:                &generateOptions{},
+		thirdModules:        make(map[string][]module.Module),
+		thirdModuleIncludes: make(map[string]protoIncludes),
+		cacheStorage:        cacheStorage,
+	}
+
+	defer g.cleanup()
 
 	for _, apply := range options {
-		apply(g.o)
+		apply(g.opts)
 	}
 
-	if err := g.setup(); err != nil {
+	if err := g.setup(ctx); err != nil {
 		return err
+	}
+
+	// Update app's Buf config for third party discovered proto modules.
+	// Go dependency packages might contain proto files which could also
+	// optionally be using Buf, so for those cases the discovered proto
+	// files should be available before code generation.
+	if g.opts.updateBufModule {
+		if err := g.updateBufModule(ctx); err != nil {
+			return err
+		}
 	}
 
 	// Go generation must run first so the types are created before other
 	// generated code that requires sdk.Msg implementations to be defined
-	if g.o.gomodPath != "" {
-		if err := g.generateGo(); err != nil {
+	if g.opts.generateProtobuf {
+		if err := g.generateGoGo(ctx); err != nil {
+			return err
+		}
+
+		if err := g.generatePulsar(ctx); err != nil {
 			return err
 		}
 	}
 
-	if g.o.jsOut != nil {
-		if err := g.generateTS(); err != nil {
+	if g.opts.specOut != "" {
+		if err := g.generateOpenAPISpec(ctx); err != nil {
 			return err
 		}
 	}
 
-	if g.o.vuexOut != nil {
+	if g.opts.jsOut != nil {
+		if err := g.generateTS(ctx); err != nil {
+			return err
+		}
+	}
+
+	if g.opts.vuexOut != nil {
 		if err := g.generateVuex(); err != nil {
 			return err
 		}
@@ -162,7 +225,7 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 
 	}
 
-	if g.o.composablesRootPath != "" {
+	if g.opts.composablesRootPath != "" {
 		if err := g.generateComposables("vue"); err != nil {
 			return err
 		}
@@ -174,7 +237,7 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 			return err
 		}
 	}
-	if g.o.hooksRootPath != "" {
+	if g.opts.hooksRootPath != "" {
 		if err := g.generateComposables("react"); err != nil {
 			return err
 		}
@@ -183,12 +246,6 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		// This update is required to link the "ts-client" folder so the
 		// package is available during development before publishing it.
 		if err := g.updateComposableDependencies("react"); err != nil {
-			return err
-		}
-	}
-
-	if g.o.specOut != "" {
-		if err := generateOpenAPISpec(g); err != nil {
 			return err
 		}
 	}

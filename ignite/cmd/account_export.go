@@ -7,7 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 func NewAccountExport() *cobra.Command {
@@ -36,7 +37,7 @@ func accountExportHandler(cmd *cobra.Command, args []string) error {
 	}
 	const minPassLength = 8
 	if len(passphrase) < minPassLength {
-		return fmt.Errorf("passphrase must be at least %d characters", minPassLength)
+		return errors.Errorf("passphrase must be at least %d characters", minPassLength)
 	}
 
 	ca, err := cosmosaccount.New(
@@ -64,6 +65,6 @@ func accountExportHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Printf("Account %q exported to file: %s\n", name, path)
+	cmd.Printf("Account %q exported to file: %s\n", name, path)
 	return nil
 }

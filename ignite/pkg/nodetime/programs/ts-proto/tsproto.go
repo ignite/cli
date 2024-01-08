@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ignite/cli/ignite/pkg/nodetime"
+	"github.com/ignite/cli/v28/ignite/pkg/nodetime"
 )
 
 const (
@@ -25,7 +25,7 @@ func BinaryPath() (path string, cleanup func(), err error) {
 	// Create binary for the TypeScript protobuf generator
 	command, cleanupBin, err := nodetime.Command(nodetime.CommandTSProto)
 	if err != nil {
-		return
+		return path, cleanup, err
 	}
 
 	defer func() {
@@ -39,7 +39,7 @@ func BinaryPath() (path string, cleanup func(), err error) {
 	// test overwriting the generator script while it is being run in a separate test process.
 	tmpDir, err := os.MkdirTemp("", "ts_proto_plugin")
 	if err != nil {
-		return
+		return path, cleanup, err
 	}
 
 	cleanupScriptDir := func() { os.RemoveAll(tmpDir) }

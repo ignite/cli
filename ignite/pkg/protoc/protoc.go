@@ -2,17 +2,22 @@
 package protoc
 
 import (
+	"archive/tar"
+	"bytes"
+	"compress/gzip"
 	"context"
-	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/ignite/pkg/localfs"
-	"github.com/ignite/cli/ignite/pkg/protoanalysis"
-	"github.com/ignite/cli/ignite/pkg/protoc/data"
+	"github.com/ignite/ignite-files/protoc"
+
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/localfs"
+	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis"
 )
 
 // Option configures Generate configs.
@@ -77,12 +82,31 @@ func (c Cmd) Includes() []string {
 
 // Command sets the protoc binary up and returns the command needed to execute c.
 func Command() (command Cmd, cleanup func(), err error) {
-	path, cleanupProto, err := localfs.SaveBytesTemp(data.Binary(), "protoc", 0o755)
+	// Unpack binary content
+	gzr, err := gzip.NewReader(bytes.NewReader(protoc.Binary()))
 	if err != nil {
 		return Cmd{}, nil, err
 	}
 
-	include, cleanupInclude, err := localfs.SaveTemp(data.Include())
+	defer gzr.Close()
+
+	// Unarchive binary content
+	tr := tar.NewReader(gzr)
+	if _, err := tr.Next(); err != nil {
+		return Cmd{}, nil, err
+	}
+
+	binary, err := io.ReadAll(tr)
+	if err != nil {
+		return Cmd{}, nil, err
+	}
+
+	path, cleanupProto, err := localfs.SaveBytesTemp(binary, "protoc", 0o755)
+	if err != nil {
+		return Cmd{}, nil, err
+	}
+
+	include, cleanupInclude, err := localfs.SaveTemp(protoc.Include())
 	if err != nil {
 		cleanupProto()
 		return Cmd{}, nil, err
@@ -124,6 +148,8 @@ func Generate(ctx context.Context, outDir, protoPath string, includePaths, proto
 		command = cmd.Command()
 		includes = cmd.Includes()
 	}
+	// See: https://github.com/ignite/cli/issues/3698
+	command = append(command, "--experimental_allow_proto3_optional")
 
 	// add plugin if set.
 	if c.pluginPath != "" {
@@ -178,7 +204,7 @@ func Generate(ctx context.Context, outDir, protoPath string, includePaths, proto
 // when .proto files of the app depends on another proto package under includePaths (dependencies), those
 // may need to be discovered as well. some protoc plugins already do this discovery internally but
 // for the ones that don't, it needs to be handled here if GenerateDependencies() is enabled.
-func discoverFiles(ctx context.Context, c configs, protoPath string, includePaths []string, cache protoanalysis.Cache) (
+func discoverFiles(ctx context.Context, c configs, protoPath string, includePaths []string, cache *protoanalysis.Cache) (
 	discovered []string, err error,
 ) {
 	packages, err := protoanalysis.Parse(ctx, cache, protoPath)
@@ -250,7 +276,7 @@ func searchFile(file protoanalysis.File, protoPath string, includePaths []string
 		}
 
 		if !found {
-			return nil, fmt.Errorf("cannot locate dependency %q for %q", dep, file.Path)
+			return nil, errors.Errorf("cannot locate dependency %q for %q", dep, file.Path)
 		}
 	}
 

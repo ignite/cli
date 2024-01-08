@@ -9,13 +9,13 @@ import (
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
 
-	"github.com/ignite/cli/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/pkg/xgenny"
-	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
-	"github.com/ignite/cli/ignite/templates/module"
-	"github.com/ignite/cli/ignite/templates/testutil"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v28/ignite/templates/field/plushhelpers"
+	"github.com/ignite/cli/v28/ignite/templates/module"
+	"github.com/ignite/cli/v28/ignite/templates/testutil"
 )
 
 //go:embed files/oracle/* files/oracle/**/*
@@ -79,7 +79,7 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 // Deprecated: This function is no longer maintained.
 func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module_ibc.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/module_ibc.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -88,7 +88,7 @@ func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genn
 		// Recv packet dispatch
 		templateRecv := `oracleAck, err := im.handleOraclePacket(ctx, modulePacket)
 	if err != nil {
-		return channeltypes.NewErrorAcknowledgement(sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: "+err.Error()))
+		return channeltypes.NewErrorAcknowledgement(errorsmod.Wrap(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: "+err.Error()))
 	} else if ack != oracleAck {
 		return oracleAck
 	}
@@ -234,17 +234,31 @@ message Msg%[2]vDataResponse {
 // Deprecated: This function is no longer maintained.
 func clientCliQueryOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/query.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
-		template := `
-	cmd.AddCommand(Cmd%[2]vResult())
-	cmd.AddCommand(CmdLast%[2]vID())
-%[1]v`
-		replacement := fmt.Sprintf(template, Placeholder, opts.QueryName.UpperCamel)
-		content := replacer.Replace(f.String(), Placeholder, replacement)
+
+		template := `{
+			RpcMethod: "%[2]vResult",
+			Use: "%[3]v-result [request-id]",
+			Short: "Query the %[2]v result data by id",
+			PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "request_id"}},
+		},
+		{
+			RpcMethod: "Last%[2]vId",
+			Use: "last-%[3]v-id",
+			Short: "Query the last request id returned by %[2]v ack packet",
+		},
+		%[1]v`
+
+		replacement := fmt.Sprintf(template,
+			PlaceholderAutoCLIQuery,
+			opts.QueryName.UpperCamel,
+			opts.QueryName.Kebab,
+		)
+		content := replacer.Replace(f.String(), PlaceholderAutoCLIQuery, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
@@ -253,15 +267,35 @@ func clientCliQueryOracleModify(replacer placeholder.Replacer, opts *OracleOptio
 // Deprecated: This function is no longer maintained.
 func clientCliTxOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/tx.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
-		template := `cmd.AddCommand(CmdRequest%[2]vData())
+
+		template := `{
+			RpcMethod: "%[2]v",
+			Use: "%[3]v-data [oracle-script-id] [requested-validator-count] [sufficient-validator-count]",
+			Short: "Make a new %[2]v query request via an existing BandChain oracle script",
+			PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "oracle_script_id"}, {ProtoField: "ask_count"}, {ProtoField: "min_count"}},
+			FlagOptions: map[string]*autocliv1.FlagOptions{
+				"source_channel": {Name: "channel", Usage: "The channel id"},
+				"calldata": {Name: "calldata", DefaultValue: '{"multiplier": 1000000, symbols: []}', Usage: "Symbols and multiplier used in calling the oracle script"},
+				"fee_limit": {Name: "fee-limit", Usage: "The maximum tokens that will be paid to all data source providers"},
+				"prepare_gas": {Name: "prepare-gas", DefaultValue: "200000", Usage: "Prepare gas used in fee counting for prepare request"},
+				"execute_gas": {Name: "execute-gas", DefaultValue: "200000", Usage: "Execute gas used in fee counting for execute request"},
+			},
+		},
+
 %[1]v`
-		replacement := fmt.Sprintf(template, Placeholder, opts.QueryName.UpperCamel)
-		content := replacer.Replace(f.String(), Placeholder, replacement)
+
+		replacement := fmt.Sprintf(
+			template,
+			PlaceholderAutoCLITx,
+			opts.QueryName.UpperCamel,
+			opts.QueryName.Kebab,
+		)
+		content := replacer.Replace(f.String(), PlaceholderAutoCLITx, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
@@ -279,12 +313,6 @@ func codecOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny
 		// Set import if not set yet
 		replacement := `sdk "github.com/cosmos/cosmos-sdk/types"`
 		content := replacer.ReplaceOnce(f.String(), Placeholder, replacement)
-
-		// Register the module packet
-		templateRegistry := `cdc.RegisterConcrete(&Msg%[3]vData{}, "%[2]v/%[3]vData", nil)
-%[1]v`
-		replacementRegistry := fmt.Sprintf(templateRegistry, Placeholder2, opts.ModuleName, opts.QueryName.UpperCamel)
-		content = replacer.Replace(content, Placeholder2, replacementRegistry)
 
 		// Register the module packet interface
 		templateInterface := `registry.RegisterImplementations((*sdk.Msg)(nil),
@@ -314,7 +342,7 @@ func packetHandlerOracleModify(replacer placeholder.Replacer, opts *OracleOption
 		var %[2]vResult types.%[3]vResult
 		if err := obi.Decode(modulePacketData.Result, &%[2]vResult); err != nil {
 			ack = channeltypes.NewErrorAcknowledgement(err)
-			return ack, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest,
+			return ack, errorsmod.Wrap(sdkerrors.ErrUnknownRequest,
 				"cannot decode the %[2]v received packet")
 		}
 		im.keeper.Set%[3]vResult(ctx, types.OracleRequestID(modulePacketData.RequestID), %[2]vResult)
@@ -330,7 +358,7 @@ func packetHandlerOracleModify(replacer placeholder.Replacer, opts *OracleOption
 	case types.%[3]vClientIDKey:
 		var %[2]vData types.%[3]vCallData
 		if err = obi.Decode(data.GetCalldata(), &%[2]vData); err != nil {
-			return nil, sdkerrors.Wrap(err,
+			return nil, errorsmod.Wrap(err,
 				"cannot decode the %[2]v oracle acknowledgment packet")
 		}
 		im.keeper.SetLast%[3]vID(ctx, requestID)

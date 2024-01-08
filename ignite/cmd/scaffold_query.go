@@ -5,9 +5,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cliui"
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/services/scaffolder"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/services/scaffolder"
 )
 
 const (
@@ -17,10 +17,13 @@ const (
 // NewScaffoldQuery command creates a new type command to scaffold queries.
 func NewScaffoldQuery() *cobra.Command {
 	c := &cobra.Command{
-		Use:     "query [name] [request_field1] [request_field2] ...",
-		Short:   "Query for fetching data from a blockchain",
+		Use:   "query [name] [field1:type1] [field2:type2] ...",
+		Short: "Query for fetching data from a blockchain",
+		Long: `Query for fetching data from a blockchain.
+		
+For detailed type information use ignite scaffold type --help.`,
 		Args:    cobra.MinimumNArgs(1),
-		PreRunE: gitChangesConfirmPreRunHandler,
+		PreRunE: migrationPreRunHandler,
 		RunE:    queryHandler,
 	}
 

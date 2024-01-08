@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 
-	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
+	pluginsconfig "github.com/ignite/cli/v28/ignite/config/plugins"
 )
 
 func TestEnsureDefaultPlugins(t *testing.T) {
@@ -23,7 +23,7 @@ func TestEnsureDefaultPlugins(t *testing.T) {
 		{
 			name: "should not add because already present in config",
 			cfg: &pluginsconfig.Config{
-				Plugins: []pluginsconfig.Plugin{{
+				Apps: []pluginsconfig.Plugin{{
 					Path: "github.com/ignite/cli-plugin-network@v42",
 				}},
 			},

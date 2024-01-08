@@ -2,23 +2,20 @@ package scaffolder
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"go/parser"
 	"go/token"
 	"os"
 	"path/filepath"
 	"strings"
 
+	evidencetypes "cosmossdk.io/x/evidence/types"
+	feegranttypes "cosmossdk.io/x/feegrant"
+	upgradetypes "cosmossdk.io/x/upgrade/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
-	feegranttypes "github.com/cosmos/cosmos-sdk/x/feegrant"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	grouptypes "github.com/cosmos/cosmos-sdk/x/group"
@@ -26,34 +23,29 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
-	appanalysis "github.com/ignite/cli/ignite/pkg/cosmosanalysis/app"
-	"github.com/ignite/cli/ignite/pkg/cosmosver"
-	"github.com/ignite/cli/ignite/pkg/gocmd"
-	"github.com/ignite/cli/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/pkg/validation"
-	"github.com/ignite/cli/ignite/pkg/xgenny"
-	"github.com/ignite/cli/ignite/templates/field"
-	"github.com/ignite/cli/ignite/templates/module"
-	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
-	moduleimport "github.com/ignite/cli/ignite/templates/module/import"
+	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	appanalysis "github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/app"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/validation"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v28/ignite/templates/field"
+	"github.com/ignite/cli/v28/ignite/templates/module"
+	modulecreate "github.com/ignite/cli/v28/ignite/templates/module/create"
 )
 
 const (
-	wasmImport    = "github.com/CosmWasm/wasmd"
-	wasmVersion   = "v0.16.0"
 	extrasImport  = "github.com/tendermint/spm-extras"
 	extrasVersion = "v0.1.0"
 	appPkg        = "app"
 	moduleDir     = "x"
+	modulePkg     = "module"
 )
 
 var (
@@ -189,7 +181,7 @@ func (s Scaffolder) CreateModule(
 		return sm, err
 	}
 	if ok {
-		return sm, fmt.Errorf("the module %v already exists", moduleName)
+		return sm, errors.Errorf("the module %v already exists", moduleName)
 	}
 
 	// Apply the options
@@ -250,56 +242,6 @@ func (s Scaffolder) CreateModule(
 	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
-// ImportModule imports specified module with name to the scaffolded app.
-func (s Scaffolder) ImportModule(
-	ctx context.Context,
-	cacheStorage cache.Storage,
-	tracer *placeholder.Tracer,
-	name string,
-) (sm xgenny.SourceModification, err error) {
-	// Only wasm is currently supported
-	if name != "wasm" {
-		return sm, errors.New("module cannot be imported. Supported module: wasm")
-	}
-
-	ok, err := isWasmImported(s.path)
-	if err != nil {
-		return sm, err
-	}
-	if ok {
-		return sm, errors.New("wasm is already imported")
-	}
-
-	// run generator
-	g, err := moduleimport.NewGenerator(tracer, &moduleimport.ImportOptions{
-		AppPath:          s.path,
-		Feature:          name,
-		AppName:          s.modpath.Package,
-		BinaryNamePrefix: s.modpath.Root,
-	})
-	if err != nil {
-		return sm, err
-	}
-
-	sm, err = xgenny.RunWithValidation(tracer, g)
-	if err != nil {
-		var validationErr validation.Error
-		if errors.As(err, &validationErr) {
-			// TODO: implement a more generic method when there will be new methods to import wasm
-			return sm, errors.New("wasm cannot be imported. Apps initialized with Starport <=0.16.2 must downgrade Starport to 0.16.2 to import wasm")
-		}
-		return sm, err
-	}
-
-	// import a specific version of ComsWasm
-	// NOTE(dshulyak) it must be installed after validation
-	if err := s.installWasm(); err != nil {
-		return sm, err
-	}
-
-	return sm, finish(ctx, cacheStorage, s.path, s.modpath.RawPath)
-}
-
 // moduleExists checks if the module exists in the app.
 func moduleExists(appPath string, moduleName string) (bool, error) {
 	absPath, err := filepath.Abs(filepath.Join(appPath, moduleDir, moduleName))
@@ -320,17 +262,17 @@ func moduleExists(appPath string, moduleName string) (bool, error) {
 func checkModuleName(appPath, moduleName string) error {
 	// go keyword
 	if token.Lookup(moduleName).IsKeyword() {
-		return fmt.Errorf("%s is a Go keyword", moduleName)
+		return errors.Errorf("%s is a Go keyword", moduleName)
 	}
 
 	// check if the name is a reserved name
 	if _, ok := reservedNames[moduleName]; ok {
-		return fmt.Errorf("%s is a reserved name and can't be used as a module name", moduleName)
+		return errors.Errorf("%s is a reserved name and can't be used as a module name", moduleName)
 	}
 
 	checkPrefix := func(name, prefix string) error {
 		if strings.HasPrefix(name, prefix) {
-			return fmt.Errorf("the module name can't be prefixed with %s because of potential store key collision", prefix)
+			return errors.Errorf("the module name can't be prefixed with %s because of potential store key collision", prefix)
 		}
 		return nil
 	}
@@ -363,39 +305,6 @@ func checkModuleName(appPath, moduleName string) error {
 	return nil
 }
 
-func isWasmImported(appPath string) (bool, error) {
-	abspath := filepath.Join(appPath, appPkg)
-	fset := token.NewFileSet()
-	all, err := parser.ParseDir(fset, abspath, func(os.FileInfo) bool { return true }, parser.ImportsOnly)
-	if err != nil {
-		return false, err
-	}
-	for _, pkg := range all {
-		for _, f := range pkg.Files {
-			for _, imp := range f.Imports {
-				if strings.Contains(imp.Path.Value, wasmImport) {
-					return true, nil
-				}
-			}
-		}
-	}
-	return false, nil
-}
-
-func (s Scaffolder) installWasm() error {
-	switch {
-	case s.Version.GTE(cosmosver.StargateFortyVersion):
-		return cmdrunner.
-			New().
-			Run(context.Background(),
-				step.New(step.Exec(gocmd.Name(), "get", gocmd.PackageLiteral(wasmImport, wasmVersion))),
-				step.New(step.Exec(gocmd.Name(), "get", gocmd.PackageLiteral(extrasImport, extrasVersion))),
-			)
-	default:
-		return errors.New("version not supported")
-	}
-}
-
 // checkDependencies perform checks on the dependencies.
 func checkDependencies(dependencies []modulecreate.Dependency, appPath string) error {
 	depMap := make(map[string]struct{})
@@ -403,7 +312,7 @@ func checkDependencies(dependencies []modulecreate.Dependency, appPath string) e
 		// check the dependency has been registered
 		path := filepath.Join(appPath, module.PathAppModule)
 		if err := appanalysis.CheckKeeper(path, dep.KeeperName()); err != nil {
-			return fmt.Errorf(
+			return errors.Errorf(
 				"the module cannot have %s as a dependency: %w",
 				dep.Name,
 				err,
@@ -413,7 +322,7 @@ func checkDependencies(dependencies []modulecreate.Dependency, appPath string) e
 		// check duplicated
 		_, ok := depMap[dep.Name]
 		if ok {
-			return fmt.Errorf("%s is a duplicated dependency", dep)
+			return errors.Errorf("%s is a duplicated dependency", dep)
 		}
 		depMap[dep.Name] = struct{}{}
 	}

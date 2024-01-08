@@ -149,7 +149,7 @@ In the newly scaffolded `x/blog/keeper/msg_server_create_comment.go` file, you c
 You need to do the following things:
 
 * Create a variable of type `Comment` with title and body from the message
-* Check if the the comment posted for the respective blog id exists and comment is not older than 100 blocks
+* Check if the comment posted for the respective blog id exists and comment is not older than 100 blocks
 * Append this `Comment` to the store
 
 ```go

@@ -14,5 +14,6 @@ jobs:
     - uses: dangoslen/changelog-enforcer@v3
       with:
         changeLogPath: 'changelog.md'
-        missingUpdateErrorMessage: 'Please fill the changelog.md file or add the "Skip-Changelog" label'
+        missingUpdateErrorMessage: 'Please add an entry to the changelog.md file or add the "skip-changelog" label'
+        skipLabels: 'skip-changelog'
         versionPattern: ''

@@ -2,13 +2,14 @@ package plugin
 
 import (
 	"encoding/gob"
-	"fmt"
 	"net"
 	"path"
 
 	hplugin "github.com/hashicorp/go-plugin"
 
-	"github.com/ignite/cli/ignite/pkg/cache"
+	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/version"
 )
 
 const (
@@ -16,6 +17,9 @@ const (
 	cacheNamespace = "plugin.rpc.context"
 )
 
+// Caches configuration for shared plugin hosts.
+// The cached configuration can be used to re-attach to running plugins.
+// These type of plugins must have "shared_host: true" in their manifest.
 var storageCache *cache.Cache[hplugin.ReattachConfig]
 
 func init() {
@@ -25,10 +29,10 @@ func init() {
 
 func writeConfigCache(pluginPath string, conf hplugin.ReattachConfig) error {
 	if pluginPath == "" {
-		return fmt.Errorf("provided path is invalid: %s", pluginPath)
+		return errors.Errorf("provided path is invalid: %s", pluginPath)
 	}
 	if conf.Addr == nil {
-		return fmt.Errorf("plugin Address info cannot be empty")
+		return errors.Errorf("app Address info cannot be empty")
 	}
 	cache, err := newCache()
 	if err != nil {
@@ -39,7 +43,7 @@ func writeConfigCache(pluginPath string, conf hplugin.ReattachConfig) error {
 
 func readConfigCache(pluginPath string) (hplugin.ReattachConfig, error) {
 	if pluginPath == "" {
-		return hplugin.ReattachConfig{}, fmt.Errorf("provided path is invalid: %s", pluginPath)
+		return hplugin.ReattachConfig{}, errors.Errorf("provided path is invalid: %s", pluginPath)
 	}
 	cache, err := newCache()
 	if err != nil {
@@ -62,7 +66,7 @@ func checkConfCache(pluginPath string) bool {
 
 func deleteConfCache(pluginPath string) error {
 	if pluginPath == "" {
-		return fmt.Errorf("provided path is invalid: %s", pluginPath)
+		return errors.Errorf("provided path is invalid: %s", pluginPath)
 	}
 	cache, err := newCache()
 	if err != nil {
@@ -77,7 +81,10 @@ func newCache() (*cache.Cache[hplugin.ReattachConfig], error) {
 		return nil, err
 	}
 	if storageCache == nil {
-		storage, err := cache.NewStorage(path.Join(cacheRootDir, cacheFileName))
+		storage, err := cache.NewStorage(
+			path.Join(cacheRootDir, cacheFileName),
+			cache.WithVersion(version.Version),
+		)
 		if err != nil {
 			return nil, err
 		}

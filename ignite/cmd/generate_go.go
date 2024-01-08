@@ -3,17 +3,16 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cliui"
-	"github.com/ignite/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite/cli/ignite/services/chain"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/v28/ignite/services/chain"
 )
 
 func NewGenerateGo() *cobra.Command {
 	c := &cobra.Command{
-		Use:     "proto-go",
-		Short:   "Compile protocol buffer files to Go source code required by Cosmos SDK",
-		PreRunE: gitChangesConfirmPreRunHandler,
-		RunE:    generateGoHandler,
+		Use:   "proto-go",
+		Short: "Compile protocol buffer files to Go source code required by Cosmos SDK",
+		RunE:  generateGoHandler,
 	}
 
 	c.Flags().AddFlagSet(flagSetYes())
@@ -40,7 +39,13 @@ func generateGoHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	if err := c.Generate(cmd.Context(), cacheStorage, chain.GenerateGo()); err != nil {
+	var opts []chain.GenerateTarget
+	if flagGetEnableProtoVendor(cmd) {
+		opts = append(opts, chain.GenerateProtoVendor())
+	}
+
+	err = c.Generate(cmd.Context(), cacheStorage, chain.GenerateGo(), opts...)
+	if err != nil {
 		return err
 	}
 

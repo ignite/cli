@@ -8,6 +8,12 @@ on:
       - "**.*.md"
     branches:
       - main
+      - release/*
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   markdown-link-check:
     runs-on: ubuntu-latest

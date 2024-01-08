@@ -3,7 +3,7 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/services/scaffolder"
+	"github.com/ignite/cli/v28/ignite/services/scaffolder"
 )
 
 const (
@@ -21,12 +21,12 @@ dictionary) in the blockchain state.
 
 The "map" command is very similar to "ignite scaffold list" with the main
 difference in how values are indexed. With "list" values are indexed by an
-incrementing integer, whereas "list" values are indexed by a user-provided value
+incrementing integer, whereas "map" values are indexed by a user-provided value
 (or multiple values).
 
 Let's use the same blog post example:
 
-	ignite scaffold map post title body
+	ignite scaffold map post title body:string
 
 This command scaffolds a "Post" type and CRUD functionality to create, read,
 updated, and delete posts. However, when creating a new post with your chain's
@@ -54,9 +54,11 @@ product values that have the same category but are using different GUIDs.
 Since the behavior of "list" and "map" scaffolding is very similar, you can use
 the "--no-message", "--module", "--signer" flags as well as the colon syntax for
 custom types.
+
+For detailed type information use ignite scaffold type --help
 `,
 		Args:    cobra.MinimumNArgs(1),
-		PreRunE: gitChangesConfirmPreRunHandler,
+		PreRunE: migrationPreRunHandler,
 		RunE:    scaffoldMapHandler,
 	}
 

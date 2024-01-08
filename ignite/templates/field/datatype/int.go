@@ -5,8 +5,8 @@ import (
 
 	"github.com/emicklei/proto"
 
-	"github.com/ignite/cli/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
 )
 
 var (

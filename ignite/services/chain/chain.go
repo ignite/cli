@@ -2,25 +2,25 @@ package chain
 
 import (
 	"context"
-	"errors"
 	"os"
 	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
 
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
-	chainconfigv1 "github.com/ignite/cli/ignite/config/chain/v1"
-	"github.com/ignite/cli/ignite/pkg/chaincmd"
-	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
-	"github.com/ignite/cli/ignite/pkg/cliui/colors"
-	uilog "github.com/ignite/cli/ignite/pkg/cliui/log"
-	"github.com/ignite/cli/ignite/pkg/confile"
-	"github.com/ignite/cli/ignite/pkg/cosmosver"
-	"github.com/ignite/cli/ignite/pkg/events"
-	"github.com/ignite/cli/ignite/pkg/repoversion"
-	"github.com/ignite/cli/ignite/pkg/xexec"
-	"github.com/ignite/cli/ignite/pkg/xurl"
-	igniteversion "github.com/ignite/cli/ignite/version"
+	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
+	chainconfigv1 "github.com/ignite/cli/v28/ignite/config/chain/v1"
+	"github.com/ignite/cli/v28/ignite/pkg/chaincmd"
+	chaincmdrunner "github.com/ignite/cli/v28/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
+	uilog "github.com/ignite/cli/v28/ignite/pkg/cliui/log"
+	"github.com/ignite/cli/v28/ignite/pkg/confile"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/events"
+	"github.com/ignite/cli/v28/ignite/pkg/repoversion"
+	"github.com/ignite/cli/v28/ignite/pkg/xexec"
+	"github.com/ignite/cli/v28/ignite/pkg/xurl"
+	igniteversion "github.com/ignite/cli/v28/ignite/version"
 )
 
 var appBackendSourceWatchPaths = []string{
@@ -312,6 +312,11 @@ func (c *Chain) Home() (string, error) {
 	home = os.ExpandEnv(home)
 
 	return home, nil
+}
+
+// AppPath returns the configured App's path.
+func (c *Chain) AppPath() string {
+	return c.app.Path
 }
 
 // DefaultHome returns the blockchain node's default home dir when not specified in the app.

@@ -11,11 +11,12 @@ import (
 	"reflect"
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/tarball"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/tarball"
 )
 
 func TestJSONFile_Field(t *testing.T) {
@@ -66,7 +67,7 @@ func TestJSONFile_Field(t *testing.T) {
 			name:     "get coins parameter",
 			filepath: "testdata/jsonfile.json",
 			key:      "app_state.bank.balances.[0].coins",
-			want:     sdk.Coins{sdk.NewCoin("stake", sdk.NewInt(95000000))},
+			want:     sdk.Coins{sdk.NewCoin("stake", math.NewInt(95000000))},
 		},
 		{
 			name:     "get custom parameter",
@@ -115,13 +116,15 @@ func TestJSONFile_Field(t *testing.T) {
 }
 
 func TestJSONFile_Update(t *testing.T) {
-	jsonCoins, err := json.Marshal(sdk.NewCoin("bar", sdk.NewInt(500)))
+	coins := sdk.NewCoin("bar", math.NewInt(500))
+	jsonCoins, err := json.Marshal(coins)
 	require.NoError(t, err)
 
 	tests := []struct {
 		name     string
 		filepath string
 		opts     []UpdateFileOption
+		want     []interface{}
 		err      error
 	}{
 		{
@@ -133,6 +136,7 @@ func TestJSONFile_Update(t *testing.T) {
 					"22020096",
 				),
 			},
+			want: []interface{}{float64(22020096)},
 		},
 		{
 			name:     "update string field to number",
@@ -143,6 +147,7 @@ func TestJSONFile_Update(t *testing.T) {
 					22020096,
 				),
 			},
+			want: []interface{}{float64(22020096)},
 		},
 		{
 			name:     "update number field",
@@ -153,9 +158,10 @@ func TestJSONFile_Update(t *testing.T) {
 					1000,
 				),
 			},
+			want: []interface{}{float64(1000)},
 		},
 		{
-			name:     "update coin field",
+			name:     "update timestamp field",
 			filepath: "testdata/jsonfile.json",
 			opts: []UpdateFileOption{
 				WithKeyValueTimestamp(
@@ -163,9 +169,10 @@ func TestJSONFile_Update(t *testing.T) {
 					10000000,
 				),
 			},
+			want: nil, // TODO find a way to test timestamp values
 		},
 		{
-			name:     "update all values type",
+			name:     "update two values type",
 			filepath: "testdata/jsonfile.json",
 			opts: []UpdateFileOption{
 				WithKeyValue(
@@ -176,14 +183,11 @@ func TestJSONFile_Update(t *testing.T) {
 					"consensus_params.block.time_iota_ms",
 					1000,
 				),
-				WithKeyValueTimestamp(
-					"genesis_time",
-					999999999,
-				),
 			},
+			want: []interface{}{float64(3000000), float64(1000)},
 		},
 		{
-			name:     "update bytes",
+			name:     "update coin field",
 			filepath: "testdata/jsonfile.json",
 			opts: []UpdateFileOption{
 				WithKeyValueByte(
@@ -191,6 +195,10 @@ func TestJSONFile_Update(t *testing.T) {
 					jsonCoins,
 				),
 			},
+			want: []interface{}{map[string]interface{}{
+				"denom":  coins.Denom,
+				"amount": coins.Amount.String(),
+			}},
 		},
 		{
 			name:     "add non-existing field",
@@ -201,6 +209,7 @@ func TestJSONFile_Update(t *testing.T) {
 					"111",
 				),
 			},
+			want: []interface{}{float64(111)},
 		},
 	}
 	for _, tt := range tests {
@@ -238,10 +247,15 @@ func TestJSONFile_Update(t *testing.T) {
 			for _, opt := range tt.opts {
 				opt(updates)
 			}
-			for key, value := range updates {
-				newValue := value
-				err = f.Field(key, &newValue)
-				require.Equal(t, value, newValue)
+			if tt.want != nil {
+				got := make([]interface{}, 0)
+				for key := range updates {
+					var newValue interface{}
+					err := f.Field(key, &newValue)
+					require.NoError(t, err)
+					got = append(got, newValue)
+				}
+				require.ElementsMatch(t, tt.want, got)
 			}
 		})
 	}
@@ -333,7 +347,7 @@ func TestFromURL(t *testing.T) {
 		{
 			name: "invalid link",
 			args: args{
-				url: "https://github.com/invalid_example.json",
+				url: "https://google.com/invalid_example.json",
 			},
 			err: ErrInvalidURL,
 		},

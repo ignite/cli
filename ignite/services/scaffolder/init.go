@@ -8,14 +8,15 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/gocmd"
-	"github.com/ignite/cli/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/pkg/xgit"
-	"github.com/ignite/cli/ignite/templates/app"
-	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
-	"github.com/ignite/cli/ignite/templates/testutil"
+	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/xgit"
+	"github.com/ignite/cli/v28/ignite/templates/app"
+	"github.com/ignite/cli/v28/ignite/templates/field"
+	modulecreate "github.com/ignite/cli/v28/ignite/templates/module/create"
+	"github.com/ignite/cli/v28/ignite/templates/testutil"
 )
 
 // Init initializes a new app with name and given options.
@@ -25,6 +26,7 @@ func Init(
 	tracer *placeholder.Tracer,
 	root, name, addressPrefix string,
 	noDefaultModule, skipGit bool,
+	params []string,
 ) (path string, err error) {
 	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
@@ -44,11 +46,13 @@ func Init(
 	path = filepath.Join(root, appFolder)
 
 	// create the project
-	if err := generate(ctx, tracer, pathInfo, addressPrefix, path, noDefaultModule); err != nil {
+	err = generate(ctx, tracer, pathInfo, addressPrefix, path, noDefaultModule, params)
+	if err != nil {
 		return "", err
 	}
 
-	if err := finish(ctx, cacheStorage, path, pathInfo.RawPath); err != nil {
+	err = finish(ctx, cacheStorage, path, pathInfo.RawPath)
+	if err != nil {
 		return "", err
 	}
 
@@ -70,7 +74,14 @@ func generate(
 	addressPrefix,
 	absRoot string,
 	noDefaultModule bool,
+	params []string,
 ) error {
+	// Parse params with the associated type
+	paramsFields, err := field.ParseFields(params, checkForbiddenTypeIndex)
+	if err != nil {
+		return err
+	}
+
 	githubPath := gomodulepath.ExtractAppPath(pathInfo.RawPath)
 	if !strings.Contains(githubPath, "/") {
 		// A username must be added when the app module path has a single element
@@ -95,11 +106,17 @@ func generate(
 	}
 
 	run := func(runner *genny.Runner, gen *genny.Generator) error {
-		runner.With(gen)
+		if err := runner.With(gen); err != nil {
+			return err
+		}
 		runner.Root = absRoot
 		return runner.Run()
 	}
 	if err := run(genny.WetRunner(ctx), g); err != nil {
+		return err
+	}
+
+	if err := cosmosgen.InstallDepTools(ctx, absRoot); err != nil {
 		return err
 	}
 
@@ -110,7 +127,12 @@ func generate(
 			ModulePath: pathInfo.RawPath,
 			AppName:    pathInfo.Package,
 			AppPath:    absRoot,
+			Params:     paramsFields,
 			IsIBC:      false,
+		}
+		// Check if the module name is valid
+		if err := checkModuleName(opts.AppPath, opts.ModuleName); err != nil {
+			return err
 		}
 		g, err = modulecreate.NewGenerator(opts)
 		if err != nil {
@@ -125,5 +147,6 @@ func generate(
 		}
 
 	}
-	return gocmd.ModTidy(ctx, absRoot)
+
+	return nil
 }

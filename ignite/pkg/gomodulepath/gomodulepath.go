@@ -12,11 +12,11 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/pkg/errors"
 	"golang.org/x/mod/module"
 	"golang.org/x/mod/semver"
 
-	"github.com/ignite/cli/ignite/pkg/gomodule"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodule"
 )
 
 // Path represents a Go module's path.
@@ -121,14 +121,14 @@ func validateRawPath(path string) error {
 
 func validateURIPath(path string) error {
 	if err := module.CheckPath(path); err != nil {
-		return fmt.Errorf("app name is an invalid go module name: %w", err)
+		return errors.Errorf("app name is an invalid go module name: %w", err)
 	}
 	return nil
 }
 
 func validateNamePath(path string) error {
 	if err := module.CheckImportPath(path); err != nil {
-		return fmt.Errorf("app name is an invalid go module name: %w", err)
+		return errors.Errorf("app name is an invalid go module name: %w", err)
 	}
 	return nil
 }

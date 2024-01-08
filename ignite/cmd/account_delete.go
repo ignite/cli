@@ -1,11 +1,9 @@
 package ignitecmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosaccount"
 )
 
 func NewAccountDelete() *cobra.Command {
@@ -34,6 +32,6 @@ func accountDeleteHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Printf("Account %s deleted.\n", name)
+	cmd.Printf("Account %s deleted.\n", name)
 	return nil
 }

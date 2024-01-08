@@ -12,16 +12,16 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
-	"github.com/ignite/cli/ignite/config/chain/base"
-	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite/cli/ignite/pkg/randstr"
-	"github.com/ignite/cli/ignite/pkg/xurl"
-	xyaml "github.com/ignite/cli/ignite/pkg/yaml"
-	envtest "github.com/ignite/cli/integration"
+	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
+	"github.com/ignite/cli/v28/ignite/config/chain/base"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/entrywriter"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/v28/ignite/pkg/randstr"
+	"github.com/ignite/cli/v28/ignite/pkg/xurl"
+	xyaml "github.com/ignite/cli/v28/ignite/pkg/yaml"
+	envtest "github.com/ignite/cli/v28/integration"
 )
 
 const (
@@ -37,7 +37,7 @@ func assertBankBalanceOutput(t *testing.T, output string, balances string) {
 		table = append(table, []string{c.Amount.String(), c.Denom})
 	}
 	var expectedBalances strings.Builder
-	entrywriter.MustWrite(&expectedBalances, []string{"Amount", "Denom"}, table...)
+	_ = entrywriter.MustWrite(&expectedBalances, []string{"Amount", "Denom"}, table...)
 	assert.Contains(t, output, expectedBalances.String())
 }
 

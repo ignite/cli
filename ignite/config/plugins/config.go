@@ -1,22 +1,22 @@
 package plugins
 
 import (
-	"errors"
-	"fmt"
 	"os"
 	"strings"
 
 	"golang.org/x/exp/slices"
 	"gopkg.in/yaml.v2"
 
-	"github.com/ignite/cli/ignite/pkg/gomodule"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodule"
 )
 
 type Config struct {
-	// path to the config file
 	path string
 
-	Plugins []Plugin `yaml:"plugins"`
+	// Apps holds the list of installed Ignite Apps.
+	// Ignite Apps are implemented as plugins.
+	Apps []Plugin `yaml:"apps"`
 }
 
 // Plugin keeps plugin name and location.
@@ -38,10 +38,12 @@ type Plugin struct {
 	//
 	// path: github.com/foo/bar/plugin1@v42
 	Path string `yaml:"path"`
+
 	// With holds arguments passed to the plugin interface
 	With map[string]string `yaml:"with,omitempty"`
+
 	// Global holds whether the plugin is installed globally
-	// (default: $HOME/.ignite/plugins/plugins.yml) or locally for a chain.
+	// (default: $HOME/.ignite/apps/igniteapps.yml) or locally for a chain.
 	Global bool `yaml:"-"`
 }
 
@@ -85,9 +87,8 @@ func (p Plugin) IsLocalPath() bool {
 }
 
 // HasPath verifies if a plugin has the given path regardless of version.
-// Example:
-// github.com/foo/bar@v1 and github.com/foo/bar@v2 have the same path so "true"
-// will be returned.
+// For example github.com/foo/bar@v1 and github.com/foo/bar@v2 have the
+// same path so "true" will be returned.
 func (p Plugin) HasPath(path string) bool {
 	if path == "" {
 		return false
@@ -114,7 +115,7 @@ func (c Config) Path() string {
 // Must be writable.
 func (c *Config) Save() error {
 	errf := func(err error) error {
-		return fmt.Errorf("plugin config save: %w", err)
+		return errors.Errorf("plugin config save: %w", err)
 	}
 	if c.path == "" {
 		return errf(errors.New("empty path"))
@@ -134,7 +135,7 @@ func (c *Config) Save() error {
 // Returns also true if there's a local plugin with the module name equal to
 // that path.
 func (c Config) HasPlugin(path string) bool {
-	return slices.ContainsFunc(c.Plugins, func(cp Plugin) bool {
+	return slices.ContainsFunc(c.Apps, func(cp Plugin) bool {
 		if cp.HasPath(path) {
 			return true
 		}

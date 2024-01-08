@@ -3,8 +3,6 @@ package relayer
 import (
 	"context"
 	"encoding/hex"
-	"errors"
-	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -14,12 +12,13 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite/cli/ignite/pkg/ctxticker"
-	tsrelayer "github.com/ignite/cli/ignite/pkg/nodetime/programs/ts-relayer"
-	relayerconf "github.com/ignite/cli/ignite/pkg/relayer/config"
-	"github.com/ignite/cli/ignite/pkg/xurl"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/v28/ignite/pkg/ctxticker"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	tsrelayer "github.com/ignite/cli/v28/ignite/pkg/nodetime/programs/ts-relayer"
+	relayerconf "github.com/ignite/cli/v28/ignite/pkg/relayer/config"
+	"github.com/ignite/cli/v28/ignite/pkg/xurl"
 )
 
 const (
@@ -83,7 +82,7 @@ func (r Relayer) Link(
 	}
 
 	if path.Src.ChannelID != "" {
-		return conf, fmt.Errorf("%w: %s", ErrLinkedPath, path.ID)
+		return conf, errors.Errorf("%w: %s", ErrLinkedPath, path.ID)
 	}
 
 	if path, err = r.call(ctx, conf, path, "link"); err != nil {
@@ -198,7 +197,7 @@ func (r Relayer) prepare(ctx context.Context, conf relayerconf.Config, chainID s
 		return relayerconf.Chain{}, "", err
 	}
 
-	errMissingBalance := fmt.Errorf(`account "%s(%s)" on %q chain does not have enough balances`,
+	errMissingBalance := errors.Errorf(`account "%s(%s)" on %q chain does not have enough balances`,
 		addr,
 		chain.Account,
 		chain.ID,
@@ -233,7 +232,7 @@ func (r Relayer) prepare(ctx context.Context, conf relayerconf.Config, chainID s
 
 	// Check the algorithm because the TS relayer expects a secp256k1 private key
 	if algo != algoSecp256k1 {
-		return relayerconf.Chain{}, "", fmt.Errorf("private key algorithm must be secp256k1 instead of %s", algo)
+		return relayerconf.Chain{}, "", errors.Errorf("private key algorithm must be secp256k1 instead of %s", algo)
 	}
 
 	return chain, hex.EncodeToString(priv.Bytes()), nil

@@ -3,9 +3,9 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
-	"github.com/ignite/cli/ignite/pkg/cliui"
-	"github.com/ignite/cli/ignite/pkg/cosmosgen"
+	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosgen"
 )
 
 // NewScaffoldReact scaffolds a React app for a chain.
@@ -14,7 +14,7 @@ func NewScaffoldReact() *cobra.Command {
 		Use:     "react",
 		Short:   "React web app template",
 		Args:    cobra.NoArgs,
-		PreRunE: gitChangesConfirmPreRunHandler,
+		PreRunE: migrationPreRunHandler,
 		RunE:    scaffoldReactHandler,
 	}
 

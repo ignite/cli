@@ -2,7 +2,6 @@ package cosmosgen
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,8 +10,9 @@ import (
 	"github.com/imdario/mergo"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite/cli/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
 )
 
 type composablesGenerator struct {
@@ -41,7 +41,7 @@ func (g *generator) updateComposableDependencies(frontendType string) error {
 	var pkg map[string]interface{}
 
 	if err := json.Unmarshal(b, &pkg); err != nil {
-		return fmt.Errorf("error parsing %s: %w", packagesPath, err)
+		return errors.Errorf("error parsing %s: %w", packagesPath, err)
 	}
 
 	chainPath, _, err := gomodulepath.Find(g.appPath)
@@ -50,9 +50,9 @@ func (g *generator) updateComposableDependencies(frontendType string) error {
 	}
 
 	// Make sure the TS client path is absolute
-	tsClientPath, err := filepath.Abs(g.o.tsClientRootPath)
+	tsClientPath, err := filepath.Abs(g.opts.tsClientRootPath)
 	if err != nil {
-		return fmt.Errorf("failed to read the absolute typescript client path: %w", err)
+		return errors.Errorf("failed to read the absolute typescript client path: %w", err)
 	}
 
 	// Add the link to the ts-client to the VUE app dependencies
@@ -70,7 +70,7 @@ func (g *generator) updateComposableDependencies(frontendType string) error {
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("failed to link ts-client dependency in the frontend app: %w", err)
+		return errors.Errorf("failed to link ts-client dependency in the frontend app: %w", err)
 	}
 
 	// Save the modified package.json with the new dependencies
@@ -84,7 +84,7 @@ func (g *generator) updateComposableDependencies(frontendType string) error {
 	enc := json.NewEncoder(file)
 	enc.SetIndent("", "  ")
 	if err := enc.Encode(pkg); err != nil {
-		return fmt.Errorf("error updating %s: %w", packagesPath, err)
+		return errors.Errorf("error updating %s: %w", packagesPath, err)
 	}
 
 	return nil
@@ -131,9 +131,9 @@ func (g *composablesGenerator) generateComposableTemplates(p generatePayload) er
 func (g *composablesGenerator) generateComposableTemplate(m module.Module, p generatePayload) error {
 	var outDir string
 	if g.frontendType == "vue" {
-		outDir = g.g.o.composablesOut(m)
+		outDir = g.g.opts.composablesOut(m)
 	} else {
-		outDir = g.g.o.hooksOut(m)
+		outDir = g.g.opts.hooksOut(m)
 	}
 
 	if err := os.MkdirAll(outDir, 0o766); err != nil {
@@ -154,9 +154,9 @@ func (g *composablesGenerator) generateComposableTemplate(m module.Module, p gen
 func (g *composablesGenerator) generateRootTemplates(p generatePayload) error {
 	var outDir string
 	if g.frontendType == "vue" {
-		outDir = g.g.o.composablesRootPath
+		outDir = g.g.opts.composablesRootPath
 	} else {
-		outDir = g.g.o.hooksRootPath
+		outDir = g.g.opts.hooksRootPath
 	}
 	if err := os.MkdirAll(outDir, 0o766); err != nil {
 		return err

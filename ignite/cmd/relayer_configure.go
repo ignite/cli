@@ -4,15 +4,15 @@ import (
 	"fmt"
 
 	"github.com/gookit/color"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cliui"
-	"github.com/ignite/cli/ignite/pkg/cliui/cliquiz"
-	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
-	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite/cli/ignite/pkg/relayer"
-	relayerconfig "github.com/ignite/cli/ignite/pkg/relayer/config"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/cliquiz"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/entrywriter"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/relayer"
+	relayerconfig "github.com/ignite/cli/v28/ignite/pkg/relayer/config"
 )
 
 const (
@@ -42,7 +42,7 @@ const (
 	RelayerTarget = "target"
 
 	defaultSourceRPCAddress = "http://localhost:26657"
-	defaultTargetRPCAddress = "https://rpc.cosmos.network:443"
+	defaultTargetRPCAddress = "https://rpc.cosmos.directory:443/cosmoshub"
 
 	defautSourceGasPrice      = "0.00025stake"
 	defautTargetGasPrice      = "0.025uatom"

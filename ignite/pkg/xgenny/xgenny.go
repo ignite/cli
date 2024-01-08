@@ -8,9 +8,10 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
-	"github.com/pkg/errors"
 
 	"github.com/gobuffalo/packd"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 // Walker implements packd.Walker for Go embed's fs.FS.
@@ -39,7 +40,10 @@ func (w Walker) walkDir(wl packd.WalkFunc, path string) error {
 
 	for _, entry := range entries {
 		if entry.IsDir() {
-			w.walkDir(wl, filepath.Join(path, entry.Name()))
+			err := w.walkDir(wl, filepath.Join(path, entry.Name()))
+			if err != nil {
+				return err
+			}
 			continue
 		}
 
@@ -57,7 +61,9 @@ func (w Walker) walkDir(wl packd.WalkFunc, path string) error {
 			return err
 		}
 
-		wl(trimPath, f)
+		if err := wl(trimPath, f); err != nil {
+			return err
+		}
 	}
 
 	return nil

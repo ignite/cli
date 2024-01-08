@@ -24,7 +24,7 @@ To start a debugging session in the terminal run:
 ignite chain debug
 ```
 
-The command runs your blockchan app in the background, attaches to it and
+The command runs your blockchain app in the background, attaches to it and
 launches a terminal debugger shell:
 
 ```

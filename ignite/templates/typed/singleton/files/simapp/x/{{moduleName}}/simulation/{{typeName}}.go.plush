@@ -6,8 +6,8 @@ import (
 	"<%= ModulePath %>/x/<%= ModuleName %>/keeper"
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	simappparams "cosmossdk.io/simapp/params"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 )
@@ -27,16 +27,15 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(
 
 		_, found := k.Get<%= TypeName.UpperCamel %>(ctx)
 		if found {
-			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "<%= TypeName.UpperCamel %> already exist"), nil, nil
+			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.UpperCamel %> already exist"), nil, nil
 		}
 
 		txCtx := simulation.OperationInput{
 			R:               r,
 			App:             app,
-			TxGen:           simappparams.MakeTestEncodingConfig().TxConfig,
+			TxGen:           moduletestutil.MakeTestEncodingConfig().TxConfig,
 			Cdc:             nil,
 			Msg:             msg,
-			MsgType:         msg.Type(),
 			Context:         ctx,
 			SimAccount:      simAccount,
 			ModuleName:      types.ModuleName,
@@ -61,21 +60,20 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 			<%= TypeName.LowerCamel %>, found = k.Get<%= TypeName.UpperCamel %>(ctx)
 		)
 		if !found {
-			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "<%= TypeName.LowerCamel %> store is empty"), nil, nil
+			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> store is empty"), nil, nil
 		}
 		simAccount, found = FindAccount(accs, <%= TypeName.LowerCamel %>.<%= MsgSigner.UpperCamel %>)
 		if !found {
-			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found"), nil, nil
+			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found"), nil, nil
 		}
 		msg.<%= MsgSigner.UpperCamel %> = simAccount.Address.String()
 
 		txCtx := simulation.OperationInput{
 			R:               r,
 			App:             app,
-			TxGen:           simappparams.MakeTestEncodingConfig().TxConfig,
+			TxGen:           moduletestutil.MakeTestEncodingConfig().TxConfig,
 			Cdc:             nil,
 			Msg:             msg,
-			MsgType:         msg.Type(),
 			Context:         ctx,
 			SimAccount:      simAccount,
 			ModuleName:      types.ModuleName,
@@ -100,21 +98,20 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 			<%= TypeName.LowerCamel %>, found = k.Get<%= TypeName.UpperCamel %>(ctx)
 		)
 		if !found {
-			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "<%= TypeName.LowerCamel %> store is empty"), nil, nil
+			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> store is empty"), nil, nil
 		}
 		simAccount, found = FindAccount(accs, <%= TypeName.LowerCamel %>.<%= MsgSigner.UpperCamel %>)
 		if !found {
-			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found"), nil, nil
+			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found"), nil, nil
 		}
 		msg.<%= MsgSigner.UpperCamel %> = simAccount.Address.String()
 
 		txCtx := simulation.OperationInput{
 			R:               r,
 			App:             app,
-			TxGen:           simappparams.MakeTestEncodingConfig().TxConfig,
+			TxGen:           moduletestutil.MakeTestEncodingConfig().TxConfig,
 			Cdc:             nil,
 			Msg:             msg,
-			MsgType:         msg.Type(),
 			Context:         ctx,
 			SimAccount:      simAccount,
 			ModuleName:      types.ModuleName,

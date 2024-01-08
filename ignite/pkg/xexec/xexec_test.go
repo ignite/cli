@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/xexec"
+	"github.com/ignite/cli/v28/ignite/pkg/xexec"
 )
 
 func TestIsExec(t *testing.T) {

@@ -8,10 +8,15 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosgen"
 )
 
 func TestMissingTools(t *testing.T) {
+	var (
+		tools        = cosmosgen.DepTools()
+		someTools    = tools[:2]
+		missingTools = tools[2:]
+	)
 	tests := []struct {
 		name    string
 		astFile *ast.File
@@ -19,25 +24,18 @@ func TestMissingTools(t *testing.T) {
 	}{
 		{
 			name:    "no missing tools",
-			astFile: createASTFileWithImports(cosmosgen.DepTools()...),
+			astFile: createASTFileWithImports(tools...),
 			want:    nil,
 		},
 		{
-			name: "some missing tools",
-			astFile: createASTFileWithImports(
-				"github.com/golang/protobuf/protoc-gen-go",
-				"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway",
-				"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger",
-			),
-			want: []string{
-				"github.com/cosmos/gogoproto/protoc-gen-gocosmos",
-				"github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2",
-			},
+			name:    "some missing tools",
+			astFile: createASTFileWithImports(someTools...),
+			want:    missingTools,
 		},
 		{
 			name:    "all tools missing",
 			astFile: createASTFileWithImports(),
-			want:    cosmosgen.DepTools(),
+			want:    tools,
 		},
 	}
 	for _, tt := range tests {

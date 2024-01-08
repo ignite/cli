@@ -10,8 +10,9 @@ import (
 	"io"
 	"sync"
 
-	"github.com/ignite/cli/ignite/pkg/localfs"
-	"github.com/ignite/cli/ignite/pkg/nodetime/data"
+	"github.com/ignite/ignite-files/nodetime"
+
+	"github.com/ignite/cli/v28/ignite/pkg/localfs"
 )
 
 // the list of CLIs included.
@@ -47,7 +48,7 @@ var (
 func Binary() []byte {
 	onceBinary.Do(func() {
 		// untar the binary.
-		gzr, err := gzip.NewReader(bytes.NewReader(data.Binary()))
+		gzr, err := gzip.NewReader(bytes.NewReader(nodetime.Binary()))
 		if err != nil {
 			panic(err)
 		}

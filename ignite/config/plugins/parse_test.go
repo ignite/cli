@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
+	pluginsconfig "github.com/ignite/cli/v28/ignite/config/plugins"
 )
 
 func TestParseDir(t *testing.T) {
@@ -18,8 +18,8 @@ func TestParseDir(t *testing.T) {
 	}{
 		{
 			name:          "fail: path is not a dir",
-			path:          "testdata/plugins.yml",
-			expectedError: "plugin config parse: path testdata/plugins.yml is not a dir",
+			path:          "testdata/igniteapps.yml",
+			expectedError: "plugin config parse: path testdata/igniteapps.yml is not a dir",
 		},
 		{
 			name:          "fail: path doesn't exists",
@@ -30,7 +30,7 @@ func TestParseDir(t *testing.T) {
 			name:            "ok: path doesn't contain any config",
 			path:            "testdata/noconfig",
 			expectedPlugins: nil,
-			expectedPath:    "testdata/noconfig/plugins.yml",
+			expectedPath:    "testdata/noconfig/igniteapps.yml",
 		},
 		{
 			name:          "fail: path contains an invalid yml file",
@@ -52,7 +52,7 @@ func TestParseDir(t *testing.T) {
 					},
 				},
 			},
-			expectedPath: "testdata/plugins.yml",
+			expectedPath: "testdata/igniteapps.yml",
 		},
 		{
 			name: "ok: path contains a plugin.yaml file",
@@ -69,7 +69,7 @@ func TestParseDir(t *testing.T) {
 					},
 				},
 			},
-			expectedPath: "testdata/other/plugins.yaml",
+			expectedPath: "testdata/other/igniteapps.yaml",
 		},
 	}
 	for _, tt := range tests {
@@ -83,7 +83,7 @@ func TestParseDir(t *testing.T) {
 				return
 			}
 			require.NoError(err)
-			require.Equal(tt.expectedPlugins, cfg.Plugins)
+			require.Equal(tt.expectedPlugins, cfg.Apps)
 			require.Equal(tt.expectedPath, cfg.Path())
 		})
 	}

@@ -6,9 +6,9 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
-	"github.com/ignite/cli/ignite/pkg/cliui/cliquiz"
-	"github.com/ignite/cli/ignite/pkg/cliui/entrywriter"
-	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/cliquiz"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/entrywriter"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosaccount"
 )
 
 const (
@@ -39,12 +39,14 @@ chain.
 	c.PersistentFlags().AddFlagSet(flagSetKeyringBackend())
 	c.PersistentFlags().AddFlagSet(flagSetKeyringDir())
 
-	c.AddCommand(NewAccountCreate())
-	c.AddCommand(NewAccountDelete())
-	c.AddCommand(NewAccountShow())
-	c.AddCommand(NewAccountList())
-	c.AddCommand(NewAccountImport())
-	c.AddCommand(NewAccountExport())
+	c.AddCommand(
+		NewAccountCreate(),
+		NewAccountDelete(),
+		NewAccountShow(),
+		NewAccountList(),
+		NewAccountImport(),
+		NewAccountExport(),
+	)
 
 	return c
 }

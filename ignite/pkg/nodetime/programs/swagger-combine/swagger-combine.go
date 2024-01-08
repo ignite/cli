@@ -7,8 +7,7 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/ignite/pkg/nodetime"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/exec"
 )
 
 // Config represent swagger-combine config.
@@ -40,7 +39,7 @@ type OperationIDs struct {
 var opReg = regexp.MustCompile(`(?m)operationId.+?(\w+)`)
 
 // AddSpec adds a new OpenAPI spec to Config by path in the fs and unique id of spec.
-func (c *Config) AddSpec(id, path string) error {
+func (c *Config) AddSpec(id, path string, makeUnique bool) error {
 	// make operationId fields unique.
 	f, err := os.Open(path)
 	if err != nil {
@@ -58,7 +57,11 @@ func (c *Config) AddSpec(id, path string) error {
 
 	for _, op := range ops {
 		o := op[1]
-		rename[o] = id + o
+		if makeUnique {
+			rename[o] = id + o
+		} else {
+			rename[o] = o
+		}
 	}
 
 	// add api with replaced operation ids.
@@ -77,13 +80,7 @@ func (c *Config) AddSpec(id, path string) error {
 
 // Combine combines openapi specs into one and saves to out path.
 // specs is a spec id-fs path pair.
-func Combine(ctx context.Context, c Config, out string) error {
-	command, cleanup, err := nodetime.Command(nodetime.CommandSwaggerCombine)
-	if err != nil {
-		return err
-	}
-	defer cleanup()
-
+func Combine(ctx context.Context, c Config, command []string, out string) error {
 	f, err := os.CreateTemp("", "*.json")
 	if err != nil {
 		return err
