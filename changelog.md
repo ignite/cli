@@ -97,8 +97,6 @@
 
 ## [`v0.27.1`](https://github.com/ignite/cli/releases/tag/v0.27.1)
 
-## [`v0.27.0`](https://github.com/ignite/cli/releases/tag/v0.27.0)
-
 ### Features
 
 - [#3505](https://github.com/ignite/cli/pull/3505) Auto migrate dependency tools
