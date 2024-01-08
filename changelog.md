@@ -4,7 +4,8 @@
 
 ### Fixes
 
-- [#3867](https://github.com/ignite/cli/pull/3867) Fix genesis export for ibc modules.
+- [#3867](https://github.com/ignite/cli/pull/3867) Fix genesis export for ibc modules
+- [#3850](https://github.com/ignite/cli/pull/3871) Fix app.go file detection in apps scaffolded before v28.0.0
 
 ## [`v28.1.0`](https://github.com/ignite/cli/releases/tag/v28.1.0)
 
