@@ -6,6 +6,10 @@
 
 - [#3867](https://github.com/ignite/cli/pull/3867) Fix genesis export for ibc modules.
 
+### Changes
+
+- [#3877](https://github.com/ignite/cli/pull/3877) Change Ignite App extension to "ign"
+
 ## [`v28.1.0`](https://github.com/ignite/cli/releases/tag/v28.1.0)
 
 ### Features
