@@ -252,13 +252,13 @@ func (b Buf) generateCommand(
 }
 
 // findSDKProtoPath finds the Cosmos SDK proto folder path.
-func findSDKProtoPath(protoDir string) (string, error) {
+func findSDKProtoPath(protoDir string) string {
 	paths := strings.Split(protoDir, "@")
 	if len(paths) < 2 {
-		return protoDir, nil
+		return protoDir
 	}
 	version := strings.Split(paths[1], "/")[0]
-	return fmt.Sprintf("%s@%s/proto", paths[0], version), nil
+	return fmt.Sprintf("%s@%s/proto", paths[0], version)
 }
 
 // copySDKProtoDir copies the Cosmos SDK proto folder to a temporary directory.
@@ -268,9 +268,7 @@ func copySDKProtoDir(protoDir string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	srcPath, err := findSDKProtoPath(protoDir)
-	if err != nil {
-		return "", err
-	}
+
+	srcPath := findSDKProtoPath(protoDir)
 	return tmpDir, xos.CopyFolder(srcPath, tmpDir)
 }

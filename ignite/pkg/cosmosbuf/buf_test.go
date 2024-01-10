@@ -11,7 +11,6 @@ func TestFindSDKPath(t *testing.T) {
 		name     string
 		protoDir string
 		want     string
-		err      error
 	}{
 		{
 			name:     "full path",
@@ -42,13 +41,7 @@ func TestFindSDKPath(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := findSDKProtoPath(tt.protoDir)
-			if tt.err != nil {
-				require.Error(t, err)
-				require.Equal(t, tt.err.Error(), err.Error())
-				return
-			}
-			require.NoError(t, err)
+			got := findSDKProtoPath(tt.protoDir)
 			require.Equal(t, tt.want, got)
 		})
 	}
