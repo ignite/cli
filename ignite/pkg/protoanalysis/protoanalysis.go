@@ -4,6 +4,7 @@ package protoanalysis
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
@@ -11,7 +12,10 @@ import (
 // ErrImportNotFound returned when proto file import cannot be found.
 var ErrImportNotFound = errors.New("proto import not found")
 
-const protoFilePattern = "*.proto"
+const (
+	protoFilePattern = "*.proto"
+	skipInternalPath = "/internal"
+)
 
 // Parse parses proto packages by finding them with given glob pattern.
 func Parse(ctx context.Context, cache *Cache, path string) (Packages, error) {
@@ -29,6 +33,10 @@ func Parse(ctx context.Context, cache *Cache, path string) (Packages, error) {
 	var packages Packages
 
 	for _, pp := range parsed {
+		if strings.Contains(pp.dir, skipInternalPath) { // skip internal protos (mainly testing protos, etc.)
+			continue
+		}
+
 		packages = append(packages, build(*pp))
 	}
 

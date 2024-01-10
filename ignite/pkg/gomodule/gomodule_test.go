@@ -68,6 +68,11 @@ func TestFindModule(t *testing.T) {
 			version:    "v1.8.0",
 		},
 		{
+			name:       "module exists with local replace",
+			importPath: "../local-module-fork",
+			version:    "",
+		},
+		{
 			name:       "module missing",
 			importPath: "github.com/foo/bar",
 			version:    "v0.1.0",
