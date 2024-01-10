@@ -255,7 +255,7 @@ func (b Buf) generateCommand(
 func findSDKProtoPath(protoDir string) (string, error) {
 	paths := strings.Split(protoDir, "@")
 	if len(paths) < 2 {
-		return "", errors.Errorf("invalid sdk mod dir: %s", protoDir)
+		return protoDir, nil
 	}
 	version := strings.Split(paths[1], "/")[0]
 	return fmt.Sprintf("%s@%s/proto", paths[0], version), nil
