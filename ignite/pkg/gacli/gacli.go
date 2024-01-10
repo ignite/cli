@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
@@ -38,6 +39,7 @@ type (
 		Version            string `json:"version,omitempty"`
 		SessionID          string `json:"session_id,omitempty"`
 		EngagementTimeMsec string `json:"engagement_time_msec,omitempty"`
+		IsGitPod           bool   `json:"is_git_pod,omitempty"`
 	}
 )
 
@@ -115,7 +117,7 @@ func (c Client) SendMetric(metric Metric) error {
 	return c.Send(Body{
 		ClientID: metric.SessionID,
 		Events: []Event{{
-			Name:   metric.Cmd,
+			Name:   strings.ReplaceAll(metric.Cmd, " ", "_"),
 			Params: metric,
 		}},
 	})

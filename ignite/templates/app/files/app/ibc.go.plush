@@ -1,8 +1,9 @@
 package app
 
 import (
+	"cosmossdk.io/core/appmodule"
 	storetypes "cosmossdk.io/store/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
+	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types" <%= if (IsConsumerChain) { %>
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
@@ -238,12 +239,28 @@ func (app *App) registerIBCModules() {
 	}
 }
 
-// AddIBCModuleManager adds the missing IBC modules into the module manager.
-func AddIBCModuleManager(moduleManager module.BasicManager) {
-	moduleManager[ibcexported.ModuleName] = ibc.AppModule{}
-	moduleManager[ibctransfertypes.ModuleName] = ibctransfer.AppModule{}
-	moduleManager[ibcfeetypes.ModuleName] = ibcfee.AppModule{}
-	moduleManager[icatypes.ModuleName] = icamodule.AppModule{}
-	moduleManager[capabilitytypes.ModuleName] = capability.AppModule{}
-	<%= if (IsConsumerChain) { %>moduleManager[ibcconsumertypes.ModuleName] = ibcconsumer.AppModule{}<% } %>
+// Since the IBC modules don't support dependency injection, we need to
+// manually register the modules on the client side.
+// This needs to be removed after IBC supports App Wiring.
+func RegisterIBC(registry cdctypes.InterfaceRegistry) map[string]appmodule.AppModule {
+	modules := map[string]appmodule.AppModule{
+		ibcexported.ModuleName:      ibc.AppModule{},
+		ibctransfertypes.ModuleName: ibctransfer.AppModule{},
+		ibcfeetypes.ModuleName:      ibcfee.AppModule{},
+		icatypes.ModuleName:         icamodule.AppModule{},
+		capabilitytypes.ModuleName:  capability.AppModule{},
+		ibctm.ModuleName:            ibctm.AppModule{},
+		solomachine.ModuleName:      solomachine.AppModule{},
+		<%= if (IsConsumerChain) { %>ibcconsumertypes.ModuleName : ibcconsumer.AppModule{},<% } %>
+	}
+
+	for _, module := range modules {
+		if mod, ok := module.(interface {
+			RegisterInterfaces(registry cdctypes.InterfaceRegistry)
+		}); ok {
+			mod.RegisterInterfaces(registry)
+		}
+	}
+
+	return modules
 }
