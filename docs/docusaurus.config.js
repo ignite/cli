@@ -247,20 +247,20 @@ const config = {
 
           // The following is done for backwards compatibility
           // with the previous path structure of the versioned docs.
-          if (existingPath.includes("/v28.0.0")) {
-            return [existingPath.replace("/v28.0.0", "/v28")];
+          if (existingPath.includes("/v28")) {
+            return [existingPath.replace("/v28", "/v28.0.0")];
           }
 
-          if (existingPath.includes("/v0.27.2")) {
-            return [existingPath.replace("/0.27.2", "/v0.27")];
+          if (existingPath.includes("/v0.27")) {
+            return [existingPath.replace("/v0.27", "/v0.27.2")];
           }
 
-          if (existingPath.includes("/v0.26.1")) {
-            return [existingPath.replace("/0.26.1", "/v0.26")];
+          if (existingPath.includes("/v0.26")) {
+            return [existingPath.replace("/v0.26", "/v0.26.1")];
           }
 
-          if (existingPath.includes("/v0.25.2")) {
-            return [existingPath.replace("/0.25.2", "/v0.25")];
+          if (existingPath.includes("/v0.25")) {
+            return [existingPath.replace("/v0.25", "/v0.25.2")];
           }
 
           return; // No redirect created if it doesn't contain /guide
