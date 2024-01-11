@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	pluginsconfig "github.com/ignite/cli/v28/ignite/config/plugins"
@@ -18,20 +17,19 @@ import (
 func Test<%= Title %>(t *testing.T) {
 	var (
 		require = require.New(t)
-		assert  = assert.New(t)
 		env     = envtest.New(t)
 		app     = env.Scaffold("github.com/test/test")
 
 		assertPlugins = func(expectedLocalPlugins, expectedGlobalPlugins []pluginsconfig.Plugin) {
 			localCfg, err := pluginsconfig.ParseDir(app.SourcePath())
 			require.NoError(err)
-			assert.ElementsMatch(expectedLocalPlugins, localCfg.Apps, "unexpected local apps")
+			require.ElementsMatch(expectedLocalPlugins, localCfg.Apps, "unexpected local apps")
 
 			globalCfgPath, err := plugin.PluginsPath()
 			require.NoError(err)
 			globalCfg, err := pluginsconfig.ParseDir(globalCfgPath)
 			require.NoError(err)
-			assert.ElementsMatch(expectedGlobalPlugins, globalCfg.Apps, "unexpected global apps")
+			require.ElementsMatch(expectedGlobalPlugins, globalCfg.Apps, "unexpected global apps")
 		}
 	)
 
@@ -67,5 +65,5 @@ func Test<%= Title %>(t *testing.T) {
 			step.Stdout(buf),
 		)),
 	))
-	assert.Equal("Hello, world!\n", buf.String())
+	require.Equal("Hello, world!\n", buf.String())
 }
