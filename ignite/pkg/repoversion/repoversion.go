@@ -15,7 +15,7 @@ type Version struct {
 }
 
 func Determine(path string) (v Version, err error) {
-	repo, err := git.PlainOpen(path)
+	repo, err := git.PlainOpenWithOptions(path, &git.PlainOpenOptions{DetectDotGit: true})
 	if err != nil {
 		return Version{}, err
 	}
