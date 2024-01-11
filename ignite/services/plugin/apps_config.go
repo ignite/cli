@@ -1,12 +1,8 @@
 package plugin
 
-import (
-	semver "github.com/blang/semver/v4"
-)
-
-// AppYML is the structure of app.ignite.yml file.
-type AppYML struct {
-	Version semver.Version     `yaml:"version"`
+// AppsConfig is the structure of app.ignite.yml file.
+type AppsConfig struct {
+	Version uint               `yaml:"version"`
 	Apps    map[string]AppInfo `yaml:"apps"`
 }
 
