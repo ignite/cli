@@ -9,6 +9,7 @@
 ### Fixes
 
 - [#3867](https://github.com/ignite/cli/pull/3867) Fix genesis export for ibc modules.
+- [#3869](https://github.com/ignite/cli/pull/3869) Fix .git in parent dir
 
 ## [`v28.1.0`](https://github.com/ignite/cli/releases/tag/v28.1.0)
 
