@@ -335,7 +335,7 @@ type BankKeeper interface {
 }
 ```
 
-### Commiting Your Changes
+### Committing Your Changes
 
 Regular commits are vital for tracking progress and ensuring a stable rollback point if needed. After implementing these changes, use the following commands to commit:
 

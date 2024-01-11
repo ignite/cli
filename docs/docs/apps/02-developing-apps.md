@@ -97,7 +97,7 @@ message Manifest {
   // Enables sharing a single app server across all running instances of an Ignite App.
   // Useful if an app adds or extends long running commands.
   //
-  // Example: if an app defines a hook on `ignite chain serve`, a server is instanciated
+  // Example: if an app defines a hook on `ignite chain serve`, a server is instantiated
   // when the command is run. Now if you want to interact with that instance
   // from commands defined in that app, you need to enable shared host, or else the
   // commands will just instantiate separate app servers.
@@ -143,7 +143,7 @@ func (app) Manifest(context.Context) (*plugin.Manifest, error) {
 				Use:   "oracle [name]",
 				Short: "Scaffold an oracle module",
 				Long:  "Long description goes here...",
-				// Optionnal flags is required
+				// Optional flags is required
 				Flags: []*plugin.Flag{
 					{Name: "source", Type: plugin.FlagTypeString, Usage: "the oracle source"},
 				},
