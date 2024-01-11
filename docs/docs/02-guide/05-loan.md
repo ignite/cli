@@ -16,7 +16,7 @@ In this tutorial you will learn how to:
 - **Implement Loan Transactions:** Walk through coding the logic for initiating, managing, and closing loans.
 - **Create Custom Tokens:** Understand how to create and manage custom tokens within your DeFi ecosystem, vital for lending and borrowing mechanisms.
 - **Integrate Interest Rate Models:** Dive into implementing interest rate models to calculate loan interests dynamically.
-- **Ensure Security and Compliance:** Focus on security, ensure your DeFi module is resistent to common vulnerabilites by validating inputs.
+- **Ensure Security and Compliance:** Focus on security, ensure your DeFi module is resistant to common vulnerabilities by validating inputs.
 - **Test and Debug:** Learn effective strategies for testing your DeFi module and debugging issues that arise during development.
 
 ## Setup and Scaffold
