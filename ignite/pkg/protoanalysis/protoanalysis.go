@@ -14,7 +14,7 @@ var ErrImportNotFound = errors.New("proto import not found")
 
 const (
 	protoFilePattern = "*.proto"
-	skipInternalPath = "/internal"
+	internalPath     = "/internal"
 )
 
 // Parse parses proto packages by finding them with given glob pattern.
@@ -33,7 +33,7 @@ func Parse(ctx context.Context, cache *Cache, path string) (Packages, error) {
 	var packages Packages
 
 	for _, pp := range parsed {
-		if strings.Contains(pp.dir, skipInternalPath) { // skip internal protos (mainly testing protos, etc.)
+		if strings.Contains(pp.dir, internalPath) { // skip internal protos (mainly testing protos, etc.)
 			continue
 		}
 
