@@ -166,7 +166,17 @@ func JoinPath(path, version string) string {
 
 // FindModule returns the Go module info for an import path.
 // The module is searched within the dependencies of the module defined in root dir.
+// If a local module path is passed, it returns the local module info.
 func FindModule(ctx context.Context, rootDir, path string) (Module, error) {
+	// can be a local module.
+	if filepath.IsAbs(path) || strings.HasPrefix(path, ".") { // indicates that this is a local module.
+		return Module{
+			Path:    path,
+			Version: "",
+			Dir:     path,
+		}, nil
+	}
+
 	var stdout bytes.Buffer
 	err := gocmd.ModDownload(ctx, rootDir, true, exec.StepOption(step.Stdout(&stdout)))
 	if err != nil {
