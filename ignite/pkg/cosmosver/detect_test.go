@@ -19,4 +19,8 @@ func TestDetect(t *testing.T) {
 	v, err = cosmosver.Detect("testdata/chain-sdk-fork")
 	require.NoError(t, err)
 	require.Equal(t, "v0.50.1-rollkit-v0.11.6-no-fraud-proofs", v.Version)
+
+	v, err = cosmosver.Detect("testdata/chain-sdk-local-fork")
+	require.NoError(t, err)
+	require.Equal(t, "v0.50.2", v.Version)
 }
