@@ -9,8 +9,9 @@
 ### Fixes
 
 - [#3878](https://github.com/ignite/cli/pull/3878) Support local forks of Cosmos SDK in scaffolded chain.
-- [#3867](https://github.com/ignite/cli/pull/3867) Fix genesis export for ibc modules.
 - [#3869](https://github.com/ignite/cli/pull/3869) Fix .git in parent dir
+- [#3867](https://github.com/ignite/cli/pull/3867) Fix genesis export for ibc modules.
+- [#3850](https://github.com/ignite/cli/pull/3871) Fix app.go file detection in apps scaffolded before v28.0.0
 
 ### Changes
 

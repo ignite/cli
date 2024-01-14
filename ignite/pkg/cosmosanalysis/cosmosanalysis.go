@@ -27,7 +27,6 @@ var AppImplementation = []string{
 	"AppCodec",
 	"GetKey",
 	"GetMemKey",
-	"kvStoreKeys",
 	"RegisterAPIRoutes",
 }
 
