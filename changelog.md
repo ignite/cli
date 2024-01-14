@@ -4,8 +4,13 @@
 
 ### Fixes
 
+- [#3878](https://github.com/ignite/cli/pull/3878) Support local forks of Cosmos SDK in scaffolded chain.
 - [#3867](https://github.com/ignite/cli/pull/3867) Fix genesis export for ibc modules.
 - [#3869](https://github.com/ignite/cli/pull/3869) Fix .git in parent dir
+
+### Changes
+
+- [#3877](https://github.com/ignite/cli/pull/3877) Change Ignite App extension to "ign"
 
 ## [`v28.1.0`](https://github.com/ignite/cli/releases/tag/v28.1.0)
 

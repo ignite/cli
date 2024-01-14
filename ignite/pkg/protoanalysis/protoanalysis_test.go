@@ -485,3 +485,10 @@ func TestLiquidity(t *testing.T) {
 
 	require.Equal(t, expected, packages)
 }
+
+func TestSkipInternalPath(t *testing.T) {
+	packages, err := Parse(context.Background(), nil, "testdata/internal")
+	require.NoError(t, err)
+
+	require.Len(t, packages, 0)
+}
