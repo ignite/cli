@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- [#3839](https://github.com/ignite/cli/pull/3839) New structure for app scaffolding
+
 ### Fixes
 
 - [#3867](https://github.com/ignite/cli/pull/3867) Fix genesis export for ibc modules.
@@ -13,7 +17,6 @@
 
 - [#3786](https://github.com/ignite/cli/pull/3786) Add artifacts for publishing Ignite to FlatHub and Snapcraft
 - [#3830](https://github.com/ignite/cli/pull/3830) Remove gRPC info from Ignite Apps errors
-- [#3839](https://github.com/ignite/cli/pull/3839) New structure for app scaffolding
 - [#3861](https://github.com/ignite/cli/pull/3861) Send to the analytics if the user is using a GitPod
 
 ### Changes
