@@ -46,6 +46,7 @@ func Test<%= Title %>(t *testing.T) {
 			step.Exec(
 				envtest.IgniteApp,
 				"<%= Name %>",
+				"hello",
 			),
 			step.Workdir(app.SourcePath()),
 			step.Stdout(buf),

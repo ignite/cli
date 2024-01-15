@@ -1,23 +1,19 @@
 package cmd
 
-import (
-	"fmt"
+import "github.com/ignite/cli/v28/ignite/services/plugin"
 
-	"github.com/spf13/cobra"
-)
-
-// New<%= Title %> creates a new <%= Name %> command.
-func New<%= Title %>() *cobra.Command {
-	c := &cobra.Command{
-		Use:           "<%= Name %>",
-		Short:         "Say hello to the world of ignite!",
-		SilenceUsage:  true,
-		SilenceErrors: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Println("Hello, world!")
-			return nil
+// GetCommands returns the list of <%= Name %> app commands.
+func GetCommands() []*plugin.Command {
+	return []*plugin.Command{
+		{
+			Use:     "<%= Name %> [command]",
+			Short:   "<%= Name %> is an awesome Ignite application!",
+			Commands: []*plugin.Command{
+				{
+					Use:     "hello",
+					Short:   "Say hello to the world of ignite!",
+				},
+			},
 		},
 	}
-
-	return c
 }

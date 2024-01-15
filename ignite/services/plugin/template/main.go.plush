@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"os"
+	"fmt"
 
 	hplugin "github.com/hashicorp/go-plugin"
 
@@ -13,22 +13,23 @@ import (
 type app struct{}
 
 func (app) Manifest(_ context.Context) (*plugin.Manifest, error) {
-	m := &plugin.Manifest{
+	return &plugin.Manifest{
 		Name: "<%= Name %>",<%= if (SharedHost) { %>
 		SharedHost: true,<% } %>
-	}
-	m.ImportCobraCommand(cmd.New<%= Title %>(), "ignite")
-	return m, nil
+		Commands: cmd.GetCommands(),
+	}, nil
 }
 
-func (app) Execute(_ context.Context, c *plugin.ExecutedCommand, _ plugin.ClientAPI) error {
-	// Instead of a switch on c.Use, we run the root command like if
-	// we were in a command line context. This implies to set os.Args
-	// correctly.
-	// Remove the first arg "ignite" from OSArgs because our <%= Name %>
-	// command root is "<%= Name %>" not "ignite".
-	os.Args = c.OsArgs[1:]
-	return cmd.New<%= Title %>().Execute()
+func (app) Execute(ctx context.Context, c *plugin.ExecutedCommand, _ plugin.ClientAPI) error {
+	// Remove the first two elements "ignite" and "<%= Name %>" from OsArgs.
+	args := c.OsArgs[2:]
+	
+	switch args[0] {
+	case "hello":
+		return cmd.ExecuteHello(ctx, c)
+	default:
+		return fmt.Errorf("unknown command: %s", c.Path)
+	}
 }
 
 func (app) ExecuteHookPre(_ context.Context, _ *plugin.ExecutedHook, _ plugin.ClientAPI) error {
