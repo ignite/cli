@@ -62,7 +62,7 @@ func assertLocalPlugins(t *testing.T, app envtest.App, expectedPlugins []plugins
 
 func assertGlobalPlugins(t *testing.T, app envtest.App, expectedPlugins []pluginsconfig.Plugin) {
 	cfgPath, err := plugin.PluginsPath()
-	require.NoError(err)
+	require.NoError(t, err)
 	cfg, err := pluginsconfig.ParseDir(cfgPath)
 	require.NoError(t, err)
 	require.ElementsMatch(t, expectedPlugins, cfg.Apps, "unexpected global apps")
