@@ -37,7 +37,7 @@ configs.
 
 	c.Flags().AddFlagSet(flagSetYes())
 
-	c.Flags().String(flagModule, "", "module to add the query into. Default: app's main module")
+	c.Flags().String(flagModule, "", "module to add the query into (default: app's main module)")
 
 	return c
 }
