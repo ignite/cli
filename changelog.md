@@ -5,6 +5,7 @@
 ### Features
 
 - [#3839](https://github.com/ignite/cli/pull/3839) New structure for app scaffolding
+
 ## [`v28.1.1`](https://github.com/ignite/cli/releases/tag/v28.1.1)
 
 ### Fixes
