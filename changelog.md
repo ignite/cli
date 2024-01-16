@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+### Features
+
+- [#3835](https://github.com/ignite/cli/pull/3835) Add `--minimal` flag to `scaffold chain` to scaffold a chain with the least amount of sdk modules
+
+## [`v28.1.1`](https://github.com/ignite/cli/releases/tag/v28.1.1)
+
+### Fixes
+
+- [#3878](https://github.com/ignite/cli/pull/3878) Support local forks of Cosmos SDK in scaffolded chain.
+- [#3869](https://github.com/ignite/cli/pull/3869) Fix .git in parent dir
+- [#3867](https://github.com/ignite/cli/pull/3867) Fix genesis export for ibc modules.
+- [#3850](https://github.com/ignite/cli/pull/3871) Fix app.go file detection in apps scaffolded before v28.0.0
+
+### Changes
+
+- [#3885](https://github.com/ignite/cli/pull/3885) Scaffold chain with Cosmos SDK `v0.50.3`
+- [#3877](https://github.com/ignite/cli/pull/3877) Change Ignite App extension to "ign"
+
 ## [`v28.1.0`](https://github.com/ignite/cli/releases/tag/v28.1.0)
 
 ### Features
