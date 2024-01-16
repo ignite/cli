@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [`v28.1.1`](https://github.com/ignite/cli/releases/tag/v28.1.1)
+
 ### Fixes
 
 - [#3878](https://github.com/ignite/cli/pull/3878) Support local forks of Cosmos SDK in scaffolded chain.
