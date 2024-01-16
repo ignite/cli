@@ -15,7 +15,7 @@ func TestCreateModuleConfigs(t *testing.T) {
 		app = env.Scaffold("github.com/test/mars")
 	)
 
-	env.Must(env.Exec("create an module with configs",
+	env.Must(env.Exec("create a new module with configs",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp,
 				"s",
@@ -45,7 +45,7 @@ func TestCreateModuleConfigs(t *testing.T) {
 		envtest.ExecShouldError(),
 	))
 
-	env.Must(env.Exec("create an new module configs in the foo module",
+	env.Must(env.Exec("create a new module configs in the foo module",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp,
 				"s",
@@ -61,7 +61,7 @@ func TestCreateModuleConfigs(t *testing.T) {
 		)),
 	))
 
-	env.Must(env.Exec("create an new module configs in the mars module",
+	env.Must(env.Exec("create a new module configs in the mars module",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp,
 				"s",
