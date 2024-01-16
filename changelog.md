@@ -15,6 +15,7 @@
 
 ### Changes
 
+- [#3885](https://github.com/ignite/cli/pull/3885) Scaffold chain with Cosmos SDK `v0.50.3`
 - [#3877](https://github.com/ignite/cli/pull/3877) Change Ignite App extension to "ign"
 
 ## [`v28.1.0`](https://github.com/ignite/cli/releases/tag/v28.1.0)
