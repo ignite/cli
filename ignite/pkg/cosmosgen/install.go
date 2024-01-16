@@ -24,6 +24,9 @@ func DepTools() []string {
 		// grpc-gateway plugins.
 		"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway",
 		"github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2",
+
+		// goimports
+		"golang.org/x/tools/cmd/goimports",
 	}
 }
 
@@ -32,10 +35,12 @@ func InstallDepTools(ctx context.Context, appPath string) error {
 	if err := gocmd.ModTidy(ctx, appPath); err != nil {
 		return err
 	}
+
 	err := gocmd.Install(ctx, appPath, DepTools())
 	if gocmd.IsInstallError(err) {
 		return errors.New("unable to install dependency tools, run `ignite doctor` and try again")
 	}
+
 	return err
 }
 

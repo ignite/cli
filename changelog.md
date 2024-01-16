@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- [#3835](https://github.com/ignite/cli/pull/3835) Add `--minimal` flag to `scaffold chain` to scaffold a chain with the least amount of sdk modules
+
 ## [`v28.1.1`](https://github.com/ignite/cli/releases/tag/v28.1.1)
 
 ### Fixes

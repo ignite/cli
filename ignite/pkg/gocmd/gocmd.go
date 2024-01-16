@@ -229,6 +229,11 @@ func PackageLiteral(path, version string) string {
 	return fmt.Sprintf("%s@%s", path, version)
 }
 
+// Imports runs goimports on path with options.
+func GoImports(ctx context.Context, path string) error {
+	return exec.Exec(ctx, []string{"goimports", "-w", path})
+}
+
 // binaryPath determines the path where binary will be located at.
 func binaryPath(output, binary string) (string, error) {
 	if output != "" {
