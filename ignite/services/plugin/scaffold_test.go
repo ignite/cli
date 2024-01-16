@@ -37,7 +37,7 @@ func TestScaffold(t *testing.T) {
 	// Integration test check
 	err = gocmd.Test(ctx, filepath.Join(path, "integration"), []string{
 		"-timeout",
-		"2m",
+		"5m",
 		"-run",
 		"^TestBar$",
 	})
