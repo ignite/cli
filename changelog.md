@@ -5,6 +5,7 @@
 ### Features
 
 - [#3835](https://github.com/ignite/cli/pull/3835) Add `--minimal` flag to `scaffold chain` to scaffold a chain with the least amount of sdk modules
+- [#3820](https://github.com/ignite/cli/pull/3820) Add integration tests for IBC chains
 
 ## [`v28.1.1`](https://github.com/ignite/cli/releases/tag/v28.1.1)
 
@@ -26,7 +27,6 @@
 
 - [#3786](https://github.com/ignite/cli/pull/3786) Add artifacts for publishing Ignite to FlatHub and Snapcraft
 - [#3830](https://github.com/ignite/cli/pull/3830) Remove gRPC info from Ignite Apps errors
-- [#3820](https://github.com/ignite/cli/pull/3820) Add integration tests for IBC chains
 - [#3861](https://github.com/ignite/cli/pull/3861) Send to the analytics if the user is using a GitPod
 
 ### Changes
@@ -41,7 +41,7 @@
 - [#3827](https://github.com/ignite/cli/pull/3827) Change ignite apps to be able to run in any directory
 - [#3831](https://github.com/ignite/cli/pull/3831) Correct ignite app gRPC server stop memory issue
 - [#3825](https://github.com/ignite/cli/pull/3825) Fix a minor Keplr type-checking bug in TS client
-- [#3836](https://github.com/ignite/cli/pull/3836) Add missing IBC commands for scaffolded chain
+- [#3836](https://github.com/ignite/cli/pull/3836), [#3858](https://github.com/ignite/cli/pull/3858) Add missing IBC commands for scaffolded chain
 - [#3833](https://github.com/ignite/cli/pull/3833) Improve Cosmos SDK detection to support SDK forks
 - [#3849](https://github.com/ignite/cli/pull/3849) Add missing `tx.go` file by default and enable cli if autocli does not exist
 - [#3851](https://github.com/ignite/cli/pull/3851) Add missing ibc interfaces to chain client
