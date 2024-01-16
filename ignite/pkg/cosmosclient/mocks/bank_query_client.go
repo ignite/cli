@@ -375,6 +375,76 @@ func (_c *BankQueryClient_DenomOwners_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
+// DenomOwnersByQuery provides a mock function with given fields: ctx, in, opts
+func (_m *BankQueryClient) DenomOwnersByQuery(ctx context.Context, in *types.QueryDenomOwnersByQueryRequest, opts ...grpc.CallOption) (*types.QueryDenomOwnersByQueryResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *types.QueryDenomOwnersByQueryResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *types.QueryDenomOwnersByQueryRequest, ...grpc.CallOption) (*types.QueryDenomOwnersByQueryResponse, error)); ok {
+		return rf(ctx, in, opts...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *types.QueryDenomOwnersByQueryRequest, ...grpc.CallOption) *types.QueryDenomOwnersByQueryResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*types.QueryDenomOwnersByQueryResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *types.QueryDenomOwnersByQueryRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// BankQueryClient_DenomOwnersByQuery_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DenomOwnersByQuery'
+type BankQueryClient_DenomOwnersByQuery_Call struct {
+	*mock.Call
+}
+
+// DenomOwnersByQuery is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *types.QueryDenomOwnersByQueryRequest
+//   - opts ...grpc.CallOption
+func (_e *BankQueryClient_Expecter) DenomOwnersByQuery(ctx interface{}, in interface{}, opts ...interface{}) *BankQueryClient_DenomOwnersByQuery_Call {
+	return &BankQueryClient_DenomOwnersByQuery_Call{Call: _e.mock.On("DenomOwnersByQuery",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *BankQueryClient_DenomOwnersByQuery_Call) Run(run func(ctx context.Context, in *types.QueryDenomOwnersByQueryRequest, opts ...grpc.CallOption)) *BankQueryClient_DenomOwnersByQuery_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*types.QueryDenomOwnersByQueryRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *BankQueryClient_DenomOwnersByQuery_Call) Return(_a0 *types.QueryDenomOwnersByQueryResponse, _a1 error) *BankQueryClient_DenomOwnersByQuery_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *BankQueryClient_DenomOwnersByQuery_Call) RunAndReturn(run func(context.Context, *types.QueryDenomOwnersByQueryRequest, ...grpc.CallOption) (*types.QueryDenomOwnersByQueryResponse, error)) *BankQueryClient_DenomOwnersByQuery_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // DenomsMetadata provides a mock function with given fields: ctx, in, opts
 func (_m *BankQueryClient) DenomsMetadata(ctx context.Context, in *types.QueryDenomsMetadataRequest, opts ...grpc.CallOption) (*types.QueryDenomsMetadataResponse, error) {
 	_va := make([]interface{}, len(opts))
