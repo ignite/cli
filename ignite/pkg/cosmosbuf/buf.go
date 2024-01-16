@@ -96,7 +96,9 @@ func (b Buf) Update(ctx context.Context, modDir string, dependencies ...string) 
 // Export runs the buf Export command for the files in the proto directory.
 func (b Buf) Export(ctx context.Context, protoDir, output string) error {
 	// Check if the proto directory is the Cosmos SDK one
-	if cosmosver.CosmosSDKModulePathPattern.MatchString(protoDir) {
+	// TODO(@julienrbrt): this whole custom handling can be deleted
+	// after https://github.com/cosmos/cosmos-sdk/pull/18993 in v29.
+	if strings.Contains(protoDir, cosmosver.CosmosSDKRepoName) {
 		if b.sdkProtoDir == "" {
 			// Copy Cosmos SDK proto path without the Buf workspace.
 			// This is done because the workspace contains a reference to
@@ -159,12 +161,9 @@ func (b Buf) Generate(
 		excluded[file] = struct{}{}
 	}
 
-	// TODO find a better way to generate the cosmos-sdk files
-	// the buf.work.yaml contains the `orm/internal` folder, but the `go mod`
-	// can't download this folder because is unused as a dependency. We need to
-	// change the workspace copying the files to another folder and generate the
-	// files.
-	if cosmosver.CosmosSDKModulePathPattern.MatchString(protoDir) {
+	// TODO(@julienrbrt): this whole custom handling can be deleted
+	// after https://github.com/cosmos/cosmos-sdk/pull/18993 in v29.
+	if strings.Contains(protoDir, cosmosver.CosmosSDKRepoName) {
 		if b.sdkProtoDir == "" {
 			b.sdkProtoDir, err = copySDKProtoDir(protoDir)
 			if err != nil {
@@ -253,13 +252,13 @@ func (b Buf) generateCommand(
 }
 
 // findSDKProtoPath finds the Cosmos SDK proto folder path.
-func findSDKProtoPath(protoDir string) (string, error) {
+func findSDKProtoPath(protoDir string) string {
 	paths := strings.Split(protoDir, "@")
 	if len(paths) < 2 {
-		return "", errors.Errorf("invalid sdk mod dir: %s", protoDir)
+		return protoDir
 	}
 	version := strings.Split(paths[1], "/")[0]
-	return fmt.Sprintf("%s@%s/proto", paths[0], version), nil
+	return fmt.Sprintf("%s@%s/proto", paths[0], version)
 }
 
 // copySDKProtoDir copies the Cosmos SDK proto folder to a temporary directory.
@@ -269,9 +268,7 @@ func copySDKProtoDir(protoDir string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	srcPath, err := findSDKProtoPath(protoDir)
-	if err != nil {
-		return "", err
-	}
+
+	srcPath := findSDKProtoPath(protoDir)
 	return tmpDir, xos.CopyFolder(srcPath, tmpDir)
 }

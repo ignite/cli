@@ -17,9 +17,9 @@ jobs:
           key: node_modules-${{ hashFiles('**/yarn.lock') }}
 
       - name: Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 16.x
+          node-version: 20
           cache: yarn
           cache-dependency-path: docs/yarn.lock
 
@@ -27,16 +27,26 @@ jobs:
         run: yarn install
         working-directory: ./docs
 
-      - name: Generate docusaurus docs for ${{ github.ref_name }}
-        run: yarn run docusaurus docs:version ${{ github.ref_name }}
+      - name: Generate docusaurus docs for major version
+        run: |
+          VERSION=${{ github.ref_name }}
+          if [[ $VERSION == v0* ]]; then
+            # If version starts with v0, use the patch version
+            DOCUSAURUS_VERSION=${VERSION:1}
+          else
+            # Otherwise, use the major version
+            MAJOR_VERSION=${VERSION%%.*}
+            DOCUSAURUS_VERSION=${MAJOR_VERSION:1}
+          fi
+          yarn run docusaurus docs:version $DOCUSAURUS_VERSION
         working-directory: ./docs
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
         with:
-          title: 'chore: docusaurus deploy version ${{ github.ref_name }}'
-          commit-message: 'chore(docs): deploy version ${{ github.ref_name }}'
-          body: ''
+          title: "chore: docusaurus deploy version ${{ github.ref_name }}"
+          commit-message: "chore(docs): deploy version ${{ github.ref_name }}"
+          body: ""
           base: main
           branch: chore/docs/new-version
           add-paths: |
