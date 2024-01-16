@@ -5,9 +5,8 @@ package mocks
 import (
 	context "context"
 
-	mock "github.com/stretchr/testify/mock"
-
 	plugin "github.com/ignite/cli/v28/ignite/services/plugin"
+	mock "github.com/stretchr/testify/mock"
 
 	v1 "github.com/ignite/cli/v28/ignite/services/plugin/grpc/v1"
 )
