@@ -1,19 +1,9 @@
 package types
 
-import (
-	"fmt"
-)
-
-var _ = fmt.Errorf
-
 <%= for (param) in params { %>
-var (
-	// Key<%= param.Name.UpperCamel %> represents the <%= param.Name.UpperCamel %> parameter.
-	Key<%= param.Name.UpperCamel %> = []byte("<%= param.Name.UpperCamel %>")
 	// Default<%= param.Name.UpperCamel %> represents the <%= param.Name.UpperCamel %> default value.
 	// TODO: Determine the default value.
-	Default<%= param.Name.UpperCamel %> <%= param.DataType() %> = <%= if (param.DataType() == "string") { %>"<%= param.Name.Snake %>"<% } else { %><%= param.ValueIndex() %><% } %>
-)
+	var Default<%= param.Name.UpperCamel %> <%= param.DataType() %> = <%= if (param.DataType() == "string") { %>"<%= param.Name.Snake %>"<% } else { %><%= param.ValueIndex() %><% } %>
 <% } %>
 
 // this line is used by starport scaffolding # types/params/vars
@@ -51,15 +41,8 @@ func (p Params) Validate() error {<%= for (param) in params { %>
 
 <%= for (param) in params { %>
 // validate<%= param.Name.UpperCamel %> validates the <%= param.Name.UpperCamel %> parameter.
-func validate<%= param.Name.UpperCamel %>(v interface{}) error {
-	<%= param.Name.LowerCamel %>, ok := v.(<%= param.DataType() %>)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", v)
-	}
-
+func validate<%= param.Name.UpperCamel %>(v <%= param.DataType() %>) error {
 	// TODO implement validation
-	_ = <%= param.Name.LowerCamel %>
-
 	return nil
 }
 <% } %>

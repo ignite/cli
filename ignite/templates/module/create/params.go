@@ -61,15 +61,11 @@ func paramsTypesModify(replacer placeholder.Replacer, opts ParamsOptions) genny.
 		content := f.String()
 		for _, param := range opts.Params {
 			// param key and default value.
-			templateVars := `var (
-	// Key%[2]v represents the %[2]v parameter.
-	Key%[2]v = []byte("%[2]v")
+			templateVars := `
 	// Default%[2]v represents the %[2]v default value.
 	// TODO: Determine the default value.
-	Default%[2]v %[3]v = %[4]v
-)
-
-%[1]v`
+	var Default%[2]v %[3]v = %[4]v
+	%[1]v`
 			replacementVars := fmt.Sprintf(
 				templateVars,
 				module.PlaceholderParamsVars,
@@ -123,15 +119,8 @@ func paramsTypesModify(replacer placeholder.Replacer, opts ParamsOptions) genny.
 
 			// add param field to the validate method.
 			templateValidation := `// validate%[2]v validates the %[2]v parameter.
-func validate%[2]v(v interface{}) error {
-	%[3]v, ok := v.(%[4]v)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %%T", v)
-	}
-
+func validate%[2]v(v %[3]v) error {
 	// TODO implement validation
-	_ = %[3]v
-
 	return nil
 }
 
@@ -140,7 +129,6 @@ func validate%[2]v(v interface{}) error {
 				templateValidation,
 				module.PlaceholderParamsValidation,
 				param.Name.UpperCamel,
-				param.Name.LowerCamel,
 				param.DataType(),
 			)
 			content = replacer.Replace(content, module.PlaceholderParamsValidation, replacementValidation)

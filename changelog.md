@@ -6,6 +6,10 @@
 
 - [#3835](https://github.com/ignite/cli/pull/3835) Add `--minimal` flag to `scaffold chain` to scaffold a chain with the least amount of sdk modules
 
+### Changes
+
+- [#3770](https://github.com/ignite/cli/pull/3770) Add `scaffold configs` and `scaffold params` commands
+
 ## [`v28.1.1`](https://github.com/ignite/cli/releases/tag/v28.1.1)
 
 ### Fixes
@@ -32,7 +36,6 @@
 
 - [#3822](https://github.com/ignite/cli/pull/3822) Improve default scaffolded AutoCLI config
 - [#3838](https://github.com/ignite/cli/pull/3838) Scaffold chain with Cosmos SDK `v0.50.2`, and bump confix and x/upgrade to latest
-- [#3770](https://github.com/ignite/cli/pull/3770) Add `scaffold configs` and `scaffold params` commands
 - [#3829](https://github.com/ignite/cli/pull/3829) Support version prefix for cached values
 - [#3723](https://github.com/ignite/cli/pull/3723) Create a wrapper for errors
 
