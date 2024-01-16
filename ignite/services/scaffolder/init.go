@@ -25,9 +25,8 @@ func Init(
 	cacheStorage cache.Storage,
 	tracer *placeholder.Tracer,
 	root, name, addressPrefix string,
-	noDefaultModule, skipGit bool,
-	params,
-	moduleConfigs []string,
+	noDefaultModule, skipGit, minimal bool,
+	params, moduleConfigs []string,
 ) (path string, err error) {
 	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
@@ -47,7 +46,7 @@ func Init(
 	path = filepath.Join(root, appFolder)
 
 	// create the project
-	err = generate(ctx, tracer, pathInfo, addressPrefix, path, noDefaultModule, params, moduleConfigs)
+	err = generate(ctx, tracer, pathInfo, addressPrefix, path, noDefaultModule, minimal, params, moduleConfigs)
 	if err != nil {
 		return "", err
 	}
@@ -74,9 +73,8 @@ func generate(
 	pathInfo gomodulepath.Path,
 	addressPrefix,
 	absRoot string,
-	noDefaultModule bool,
-	params,
-	moduleConfigs []string,
+	noDefaultModule, minimal bool,
+	params, moduleConfigs []string,
 ) error {
 	// Parse params with the associated type
 	paramsFields, err := field.ParseFields(params, checkForbiddenTypeIndex)
@@ -104,6 +102,7 @@ func generate(
 		GitHubPath:       githubPath,
 		BinaryNamePrefix: pathInfo.Root,
 		AddressPrefix:    addressPrefix,
+		IsChainMinimal:   minimal,
 	})
 	if err != nil {
 		return err

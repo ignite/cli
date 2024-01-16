@@ -18,7 +18,7 @@ import (
 
 // moduleNameKeeperAlias is a map of well known module names that have a different keeper name than the usual <module-name>Keeper.
 var moduleNameKeeperAlias = map[string]string{
-	"auth": "account",
+	"auth": "account", // TODO(@julienrbrt) remove this when x/accounts is released
 }
 
 const (

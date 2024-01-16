@@ -10,7 +10,7 @@
 #
 #    This type of prelease is useful to make your bleeding-edge binaries available to advanced users.
 #
-# The workflow will not run if there is no tag pushed with a "v" prefix and no change pushed to your 
+# The workflow will not run if there is no tag pushed with a "v" prefix and no change pushed to your
 # default branch.
 on: push
 
@@ -22,16 +22,18 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-        
-      - name: Prepare Release Variables 
+
+      - name: Prepare Release Variables
         id: vars
         uses: ignite/cli/actions/release/vars@main
 
-      - name: Issue Release Assets 
+      - name: Issue Release Assets
         uses: ignite/cli/actions/cli@main
         if: ${{ steps.vars.outputs.should_release == 'true' }}
         with:
-          args: chain build --release --release.prefix ${{ steps.vars.outputs.tarball_prefix }} -t linux:amd64 -t darwin:amd64 -t darwin:arm64
+          args: chain build --release --release.prefix ${{ steps.vars.outputs.tarball_prefix }} -t linux:amd64 -t darwin:amd64 -t darwin:arm64 -y
+        env:
+          DO_NOT_TRACK: 1
 
       - name: Delete the "latest" Release
         uses: dev-drprasad/delete-tag-and-release@v0.2.1
@@ -48,6 +50,6 @@ jobs:
         with:
           tag_name: ${{ steps.vars.outputs.tag_name }}
           files: release/*
-          prerelease: true 
+          prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
