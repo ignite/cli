@@ -280,15 +280,15 @@ func createUnderscoreImport(imp string) *ast.ImportSpec {
 	}
 }
 
-// HasStructFieldsInPkg finds the struct into a package folder and checks
-// if the field exists inside the struct.
-func HasStructFieldsInPkg(pkgPath, structName string, fields []string) (bool, error) {
+// HasAnyStructFieldsInPkg finds the struct within a package folder and checks
+// if any of the fields are defined in the struct.
+func HasAnyStructFieldsInPkg(pkgPath, structName string, fields []string) (bool, error) {
 	absPath, err := filepath.Abs(pkgPath)
 	if err != nil {
 		return false, err
 	}
 	fileSet := token.NewFileSet()
-	all, err := parser.ParseDir(fileSet, absPath, func(os.FileInfo) bool { return true }, parser.ParseComments)
+	all, err := parser.ParseDir(fileSet, absPath, nil, parser.ParseComments)
 	if err != nil {
 		return false, err
 	}

@@ -79,7 +79,7 @@ func (s Scaffolder) CreateConfigs(
 // checkConfigCreated checks if the config has been already created.
 func checkConfigCreated(appPath, appName, moduleName string, configs []string) (err error) {
 	path := filepath.Join(appPath, "api", appName, moduleName, "module")
-	ok, err := goanalysis.HasStructFieldsInPkg(path, "Module", configs)
+	ok, err := goanalysis.HasAnyStructFieldsInPkg(path, "Module", configs)
 	if err != nil {
 		return err
 	}

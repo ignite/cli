@@ -78,7 +78,7 @@ func (s Scaffolder) CreateParams(
 // checkParamCreated checks if the parameter has been already created.
 func checkParamCreated(appPath, moduleName string, params []string) error {
 	path := filepath.Join(appPath, "x", moduleName, "types")
-	ok, err := goanalysis.HasStructFieldsInPkg(path, "Params", params)
+	ok, err := goanalysis.HasAnyStructFieldsInPkg(path, "Params", params)
 	if err != nil {
 		return err
 	}

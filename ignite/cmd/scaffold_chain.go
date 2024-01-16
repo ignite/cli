@@ -108,8 +108,12 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	if noDefaultModule && (len(params) > 0 || len(moduleConfigs) > 0) {
-		return errors.New("params flag is only supported if the default module is enabled")
+	if noDefaultModule {
+		if len(params) > 0 {
+			return errors.New("params flag is only supported if the default module is enabled")
+		} else if len(moduleConfigs) > 0 {
+			return errors.New("module configs flag is only supported if the default module is enabled")
+		}
 	}
 
 	cacheStorage, err := newCache(cmd)

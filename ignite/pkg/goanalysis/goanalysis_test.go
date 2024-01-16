@@ -584,7 +584,7 @@ func TestHasStructFieldsInPkg(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := goanalysis.HasStructFieldsInPkg(tt.path, tt.structName, tt.fields)
+			got, err := goanalysis.HasAnyStructFieldsInPkg(tt.path, tt.structName, tt.fields)
 			if tt.err != nil {
 				require.Error(t, err)
 				require.ErrorIs(t, err, tt.err)
