@@ -5,7 +5,7 @@ import (
 
 	keepertest "<%= modulePath %>/testutil/keeper"
 	"<%= modulePath %>/testutil/nullify"
-	"<%= modulePath %>/x/<%= moduleName %>/module"
+	<%= moduleName %> "<%= modulePath %>/x/<%= moduleName %>/module"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 	"github.com/stretchr/testify/require"
 )
