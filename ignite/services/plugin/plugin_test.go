@@ -363,7 +363,7 @@ func TestPluginLoad(t *testing.T) {
 			manifest, err := p.Interface.Manifest(ctx)
 			require.NoError(err)
 			assert.Equal(p.name, manifest.Name)
-			assert.NoError(p.Interface.Execute(ctx, &ExecutedCommand{OsArgs: []string{"ignite", p.name}}, clientAPI))
+			assert.NoError(p.Interface.Execute(ctx, &ExecutedCommand{OsArgs: []string{"ignite", p.name, "hello"}}, clientAPI))
 			assert.NoError(p.Interface.ExecuteHookPre(ctx, &ExecutedHook{}, clientAPI))
 			assert.NoError(p.Interface.ExecuteHookPost(ctx, &ExecutedHook{}, clientAPI))
 			assert.NoError(p.Interface.ExecuteHookCleanUp(ctx, &ExecutedHook{}, clientAPI))
