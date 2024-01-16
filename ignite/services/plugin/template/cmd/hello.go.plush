@@ -7,7 +7,7 @@ import (
     "github.com/ignite/cli/v28/ignite/services/plugin"
 )
 
-// ExecuteHello executes explorer hello subcommand.
+// ExecuteHello executes the hello subcommand.
 func ExecuteHello(ctx context.Context, cmd *plugin.ExecutedCommand) error {
     fmt.Println("Hello, world!")
     return nil
