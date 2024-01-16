@@ -38,7 +38,7 @@ jobs:
             MAJOR_VERSION=${VERSION%%.*}
             DOCUSAURUS_VERSION=${MAJOR_VERSION:1}
           fi
-          yarn run docusaurus docs:version $DOCUSAURUS_VERSION
+          yarn run docusaurus docs:version v$DOCUSAURUS_VERSION
         working-directory: ./docs
 
       - name: Create Pull Request

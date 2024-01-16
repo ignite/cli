@@ -30,4 +30,5 @@ import (
 	_ "github.com/cosmos/cosmos-proto/cmd/protoc-gen-go-pulsar"
 	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2"
+	_ "golang.org/x/tools/cmd/goimports"
 )
