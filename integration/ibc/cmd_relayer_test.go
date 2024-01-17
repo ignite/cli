@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"
@@ -204,6 +205,29 @@ func (k Keeper) OnTimeoutIbcPostPacket(ctx sdk.Context, packet channeltypes.Pack
     return nil
 }`
 )
+
+type QueryChannels struct {
+	Channels []struct {
+		ChannelId      string   `json:"channel_id"`
+		ConnectionHops []string `json:"connection_hops"`
+		Counterparty   struct {
+			ChannelId string `json:"channel_id"`
+			PortId    string `json:"port_id"`
+		} `json:"counterparty"`
+		Ordering string `json:"ordering"`
+		PortId   string `json:"port_id"`
+		State    string `json:"state"`
+		Version  string `json:"version"`
+	} `json:"channels"`
+	Height struct {
+		RevisionHeight string `json:"revision_height"`
+		RevisionNumber string `json:"revision_number"`
+	} `json:"height"`
+	Pagination struct {
+		NextKey interface{} `json:"next_key"`
+		Total   string      `json:"total"`
+	} `json:"pagination"`
+}
 
 func runChain(
 	t *testing.T,
@@ -413,7 +437,6 @@ func TestBlogIBC(t *testing.T) {
 				"-g",
 				filepath.Join(goenv.GoPath(), "src/github.com/ignite/apps/hermes"),
 			),
-			step.Workdir(app.SourcePath()),
 		)),
 	))
 
@@ -434,42 +457,59 @@ func TestBlogIBC(t *testing.T) {
 				"--generate-wallets",
 				"--overwrite-config",
 			),
-			step.Workdir(app.SourcePath()),
 		)),
 	))
 
-	// go func() {
-	env.Must(env.Exec("run the hermes relayer",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "relayer", "hermes", "start", earthChainID, marsChainID),
-			step.Workdir(app.SourcePath()),
-			step.Stdout(os.Stdout),
-			step.Stdin(os.Stdin),
-			step.Stderr(os.Stderr),
-		)),
-	))
-	//}()
-
-	stepsCheckRelayer := step.NewSteps(
-		step.New(
-			step.Exec(
-				// TODO query chain connection-id
-				app.Binary(),
-				"config",
-				"output", "json",
-			),
-			step.PreExec(func() error {
-				if err := env.IsAppServed(ctx, earthAPI); err != nil {
-					return err
-				}
-				return env.IsAppServed(ctx, marsAPI)
-			}),
-		),
-	)
-	env.Exec("run the ts relayer", stepsCheckRelayer, envtest.ExecRetry())
+	go func() {
+		env.Must(env.Exec("run the hermes relayer",
+			step.NewSteps(step.New(
+				step.Exec(envtest.IgniteApp, "relayer", "hermes", "start", earthChainID, marsChainID),
+			)),
+		))
+	}()
+	time.Sleep(3 * time.Second)
 
 	var (
-		output     = &bytes.Buffer{}
+		queryOutput   = &bytes.Buffer{}
+		queryResponse QueryChannels
+	)
+
+	// sign tx to add an item to the list.
+	env.Must(env.Exec("run the hermes relayer", step.NewSteps(
+		step.New(
+			step.Stdout(queryOutput),
+			step.Exec(
+				app.Binary(),
+				"q",
+				"ibc",
+				"channel",
+				"channels",
+				"--node", earthRPC,
+				"--log_format", "json",
+				"--output", "json",
+			),
+			step.PostExec(func(execErr error) error {
+				if execErr != nil {
+					return execErr
+				}
+				err := json.Unmarshal(queryOutput.Bytes(), &queryResponse)
+				if err != nil {
+					return fmt.Errorf("unmarshling tx response: %w", err)
+				}
+				if len(queryResponse.Channels) == 0 ||
+					len(queryResponse.Channels[0].ConnectionHops) == 0 {
+					return fmt.Errorf("channel not found")
+				}
+				if queryResponse.Channels[0].State != "STATE_OPEN" {
+					return fmt.Errorf("channel is not open")
+				}
+				return nil
+			}),
+		),
+	)))
+
+	var (
+		txOutput   = &bytes.Buffer{}
 		txResponse struct {
 			Code   int
 			RawLog string `json:"raw_log"`
@@ -479,20 +519,17 @@ func TestBlogIBC(t *testing.T) {
 	// sign tx to add an item to the list.
 	stepsTx := step.NewSteps(
 		step.New(
-			step.Stdout(output),
-			step.PreExec(func() error {
-				err := env.IsAppServed(ctx, earthGRPC)
-				return err
-			}),
+			step.Stdout(txOutput),
 			step.Exec(
 				app.Binary(),
 				"tx",
 				"blog",
 				"send-ibc-post",
+				"transfer",
 				"channel-0",
 				"Hello",
 				"Hello Mars, I'm Alice from Earth",
-				"--chain-id", "blog",
+				"--chain-id", earthChainID,
 				"--from", "alice",
 				"--node", earthGRPC,
 				"--output", "json",
@@ -503,7 +540,7 @@ func TestBlogIBC(t *testing.T) {
 				if execErr != nil {
 					return execErr
 				}
-				err := json.Unmarshal(output.Bytes(), &txResponse)
+				err := json.Unmarshal(txOutput.Bytes(), &txResponse)
 				if err != nil {
 					return fmt.Errorf("unmarshling tx response: %w", err)
 				}
