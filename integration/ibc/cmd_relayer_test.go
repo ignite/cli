@@ -9,10 +9,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"
 
@@ -224,14 +226,10 @@ type QueryChannels struct {
 		State    string `json:"state"`
 		Version  string `json:"version"`
 	} `json:"channels"`
-	Height struct {
-		RevisionHeight string `json:"revision_height"`
-		RevisionNumber string `json:"revision_number"`
-	} `json:"height"`
-	Pagination struct {
-		NextKey interface{} `json:"next_key"`
-		Total   string      `json:"total"`
-	} `json:"pagination"`
+}
+
+type QueryBalances struct {
+	Balances sdk.Coins `json:"balances"`
 }
 
 func runChain(
@@ -592,7 +590,7 @@ func TestBlogIBC(t *testing.T) {
 
 	var (
 		balanceOutput   = &bytes.Buffer{}
-		balanceResponse QueryChannels
+		balanceResponse QueryBalances
 	)
 	env.Must(env.Exec("check ibc balance", step.NewSteps(
 		step.New(
@@ -615,6 +613,10 @@ func TestBlogIBC(t *testing.T) {
 				err := json.Unmarshal(balanceOutput.Bytes(), &balanceResponse)
 				if err != nil {
 					return fmt.Errorf("unmarshling tx response: %w", err)
+				}
+				if len(balanceResponse.Balances) == 0 &&
+					!strings.Contains(balanceResponse.Balances[0].Denom, "ibc") {
+					return fmt.Errorf("invalid ibc balance: %v", balanceResponse.Balances[0])
 				}
 				return nil
 			}),
