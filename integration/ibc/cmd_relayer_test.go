@@ -249,8 +249,8 @@ func runChain(
 
 	var (
 		chainID  = cfg.Genesis["chain_id"].(string)
-		homePath = filepath.Join(tmpDir, chainID)
-		cfgPath  = filepath.Join(tmpDir, chain.ConfigFilenames[0])
+		homePath = filepath.Join(tmpDir, chainID, "home")
+		cfgPath  = filepath.Join(tmpDir, chainID, chain.ConfigFilenames[0])
 	)
 	genAddr := func(port uint) string {
 		return fmt.Sprintf(":%d", port)
@@ -515,7 +515,6 @@ func TestBlogIBC(t *testing.T) {
 		),
 	)))
 
-	// sign tx to add an item to the list.
 	var (
 		sender       = "alice"
 		receiverAddr = "cosmos1nrksk5swk6lnmlq670a8kwxmsjnu0ezqts39sa"
@@ -585,7 +584,7 @@ func TestBlogIBC(t *testing.T) {
 			}),
 		),
 	)
-	if !env.Exec("sign a tx", stepsTx, envtest.ExecRetry()) {
+	if !env.Exec("send an IBC transfer", stepsTx, envtest.ExecRetry()) {
 		t.FailNow()
 	}
 	require.Equal(t, 0, txResponse.Code,
