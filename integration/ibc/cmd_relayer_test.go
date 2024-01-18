@@ -26,7 +26,6 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v28/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/v28/ignite/pkg/goenv"
-	"github.com/ignite/cli/v28/ignite/pkg/randstr"
 	yamlmap "github.com/ignite/cli/v28/ignite/pkg/yaml"
 	envtest "github.com/ignite/cli/v28/integration"
 )
@@ -213,40 +212,44 @@ func (k Keeper) OnTimeoutIbcPostPacket(ctx sdk.Context, packet channeltypes.Pack
 }`
 )
 
-type QueryChannels struct {
-	Channels []struct {
-		ChannelId      string   `json:"channel_id"`
-		ConnectionHops []string `json:"connection_hops"`
-		Counterparty   struct {
-			ChannelId string `json:"channel_id"`
-			PortId    string `json:"port_id"`
-		} `json:"counterparty"`
-		Ordering string `json:"ordering"`
-		PortId   string `json:"port_id"`
-		State    string `json:"state"`
-		Version  string `json:"version"`
-	} `json:"channels"`
-}
+type (
+	QueryChannels struct {
+		Channels []struct {
+			ChannelId      string   `json:"channel_id"`
+			ConnectionHops []string `json:"connection_hops"`
+			Counterparty   struct {
+				ChannelId string `json:"channel_id"`
+				PortId    string `json:"port_id"`
+			} `json:"counterparty"`
+			Ordering string `json:"ordering"`
+			PortId   string `json:"port_id"`
+			State    string `json:"state"`
+			Version  string `json:"version"`
+		} `json:"channels"`
+	}
 
-type QueryBalances struct {
-	Balances sdk.Coins `json:"balances"`
-}
+	QueryBalances struct {
+		Balances sdk.Coins `json:"balances"`
+	}
+)
 
 func runChain(
 	t *testing.T,
+	ctx context.Context,
 	env envtest.Env,
 	app envtest.App,
 	cfg v1.Config,
+	tmpDir string,
 	ports []uint,
 ) (api, rpc, grpc, faucet string) {
 	t.Helper()
 	if len(ports) < 7 {
 		t.Fatalf("invalid number of ports %d", len(ports))
 	}
+
 	var (
-		ctx      = env.Ctx()
-		tmpDir   = t.TempDir()
-		homePath = filepath.Join(tmpDir, randstr.Runes(10))
+		chainID  = cfg.Genesis["chain_id"].(string)
+		homePath = filepath.Join(tmpDir, chainID)
 		cfgPath  = filepath.Join(tmpDir, chain.ConfigFilenames[0])
 	)
 	genAddr := func(port uint) string {
@@ -270,11 +273,6 @@ func runChain(
 	require.NoError(t, yaml.NewEncoder(file).Encode(cfg))
 	require.NoError(t, file.Close())
 
-	ctx, cancel := context.WithCancel(ctx)
-	t.Cleanup(func() {
-		cancel()
-	})
-
 	app.SetConfigPath(cfgPath)
 	app.SetHomePath(homePath)
 	go func() {
@@ -289,10 +287,17 @@ func runChain(
 
 func TestBlogIBC(t *testing.T) {
 	var (
-		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/planet")
-		ctx = env.Ctx()
+		env    = envtest.New(t)
+		app    = env.Scaffold("github.com/test/planet")
+		ctx    = env.Ctx()
+		tmpDir = t.TempDir()
 	)
+	ctx, cancel := context.WithCancel(ctx)
+	t.Cleanup(func() {
+		cancel()
+		time.Sleep(10 * time.Second)
+		require.NoError(t, os.RemoveAll(tmpDir))
+	})
 
 	env.Must(env.Exec("create an IBC module",
 		step.NewSteps(step.New(
@@ -407,10 +412,10 @@ func TestBlogIBC(t *testing.T) {
 		availableport.WithMaxPort(5000),
 	)
 	require.NoError(t, err)
-	earthAPI, earthRPC, earthGRPC, earthFaucet := runChain(t, env, app, earthConfig, ports[:7])
-	marsAPI, marsRPC, marsGRPC, marsFaucet := runChain(t, env, app, marsConfig, ports[7:])
+	earthAPI, earthRPC, earthGRPC, earthFaucet := runChain(t, ctx, env, app, earthConfig, tmpDir, ports[:7])
 	earthChainID := earthConfig.Genesis["chain_id"].(string)
 	earthHome := earthConfig.Validators[0].Home
+	marsAPI, marsRPC, marsGRPC, marsFaucet := runChain(t, ctx, env, app, marsConfig, tmpDir, ports[7:])
 	marsChainID := marsConfig.Genesis["chain_id"].(string)
 	marsHome := marsConfig.Validators[0].Home
 
@@ -469,6 +474,7 @@ func TestBlogIBC(t *testing.T) {
 			step.NewSteps(step.New(
 				step.Exec(envtest.IgniteApp, "relayer", "hermes", "start", earthChainID, marsChainID),
 			)),
+			envtest.ExecCtx(ctx),
 		))
 	}()
 	time.Sleep(3 * time.Second)
@@ -494,8 +500,7 @@ func TestBlogIBC(t *testing.T) {
 				if execErr != nil {
 					return execErr
 				}
-				err := json.Unmarshal(queryOutput.Bytes(), &queryResponse)
-				if err != nil {
+				if err := json.Unmarshal(queryOutput.Bytes(), &queryResponse); err != nil {
 					return fmt.Errorf("unmarshling tx response: %w", err)
 				}
 				if len(queryResponse.Channels) == 0 ||
@@ -547,8 +552,7 @@ func TestBlogIBC(t *testing.T) {
 				if execErr != nil {
 					return execErr
 				}
-				err := json.Unmarshal(txOutput.Bytes(), &txResponse)
-				if err != nil {
+				if err := json.Unmarshal(txOutput.Bytes(), &txResponse); err != nil {
 					return fmt.Errorf("unmarshling tx response: %w", err)
 				}
 				return cmdrunner.New().Run(ctx, step.New(
@@ -563,6 +567,7 @@ func TestBlogIBC(t *testing.T) {
 						"--output", "json",
 						"--log_format", "json",
 					),
+					step.Stdout(txOutput),
 					step.PreExec(func() error {
 						txOutput.Reset()
 						return nil
@@ -571,13 +576,11 @@ func TestBlogIBC(t *testing.T) {
 						if execErr != nil {
 							return execErr
 						}
-
-						if err := json.NewDecoder(txOutput).Decode(&txResponse); err != nil {
+						if err := json.Unmarshal(txOutput.Bytes(), &txResponse); err != nil {
 							return err
 						}
 						return nil
 					}),
-					step.Stdout(txOutput),
 				))
 			}),
 		),
@@ -610,12 +613,11 @@ func TestBlogIBC(t *testing.T) {
 				if execErr != nil {
 					return execErr
 				}
-				err := json.Unmarshal(balanceOutput.Bytes(), &balanceResponse)
-				if err != nil {
+				if err := json.Unmarshal(balanceOutput.Bytes(), &balanceResponse); err != nil {
 					return fmt.Errorf("unmarshling tx response: %w", err)
 				}
-				if len(balanceResponse.Balances) == 0 &&
-					!strings.Contains(balanceResponse.Balances[0].Denom, "ibc") {
+				if len(balanceResponse.Balances) == 0 ||
+					!strings.HasPrefix(balanceResponse.Balances[0].Denom, "ibc/") {
 					return fmt.Errorf("invalid ibc balance: %v", balanceResponse.Balances[0])
 				}
 				return nil
