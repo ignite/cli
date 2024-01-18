@@ -297,7 +297,7 @@ func TestBlogIBC(t *testing.T) {
 	ctx, cancel := context.WithCancel(ctx)
 	t.Cleanup(func() {
 		cancel()
-		time.Sleep(10 * time.Second)
+		time.Sleep(5 * time.Second)
 		require.NoError(t, os.RemoveAll(tmpDir))
 	})
 
