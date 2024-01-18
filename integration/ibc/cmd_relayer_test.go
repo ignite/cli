@@ -248,10 +248,13 @@ func runChain(
 	}
 
 	var (
-		chainID  = cfg.Genesis["chain_id"].(string)
-		homePath = filepath.Join(tmpDir, chainID, "home")
-		cfgPath  = filepath.Join(tmpDir, chainID, chain.ConfigFilenames[0])
+		chainID   = cfg.Genesis["chain_id"].(string)
+		chainPath = filepath.Join(tmpDir, chainID)
+		homePath  = filepath.Join(chainPath, "home")
+		cfgPath   = filepath.Join(chainPath, chain.ConfigFilenames[0])
 	)
+	require.NoError(t, os.MkdirAll(chainPath, os.ModePerm))
+
 	genAddr := func(port uint) string {
 		return fmt.Sprintf(":%d", port)
 	}
