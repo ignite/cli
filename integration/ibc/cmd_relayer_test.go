@@ -613,7 +613,7 @@ func TestBlogIBC(t *testing.T) {
 					return execErr
 				}
 				if err := json.Unmarshal(balanceOutput.Bytes(), &balanceResponse); err != nil {
-					return fmt.Errorf("unmarshling tx response: %w", err)
+					return fmt.Errorf("unmarshalling tx response: %w", err)
 				}
 				if len(balanceResponse.Balances) == 0 ||
 					!strings.HasPrefix(balanceResponse.Balances[0].Denom, "ibc/") {
