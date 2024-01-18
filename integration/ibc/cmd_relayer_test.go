@@ -31,8 +31,7 @@ import (
 )
 
 const (
-	keyringTestDirName = "keyring-test"
-	relayerMnemonic    = "great immense still pill defense fetch pencil slow purchase symptom speed arm shoot fence have divorce cigar rapid hen vehicle pear evolve correct nerve"
+	relayerMnemonic = "great immense still pill defense fetch pencil slow purchase symptom speed arm shoot fence have divorce cigar rapid hen vehicle pear evolve correct nerve"
 )
 
 var (
