@@ -2,7 +2,6 @@ package app
 
 import (
 	"embed"
-	"fmt"
 	"io/fs"
 
 	"github.com/gobuffalo/genny/v2"
@@ -14,13 +13,16 @@ import (
 	"github.com/ignite/cli/v28/ignite/templates/field/plushhelpers"
 )
 
-//go:embed files/* files/**/*
-var files embed.FS
-
 var (
-	ibcConfig        = "app/ibc.go"
-	minimalAppConfig = "app/app_config_minimal.go"
-	appConfig        = "app/app_config.go"
+	//go:embed files/* files/**/*
+	files embed.FS
+
+	//go:embed files-minimal/* files-minimal/**/*
+	filesMinimal embed.FS
+)
+
+const (
+	ibcConfig = "app/ibc.go"
 )
 
 // NewGenerator returns the generator to scaffold a new Cosmos SDK app.
@@ -32,12 +34,10 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 	}
 	g := genny.New()
 
-	// always exclude minimal app config it will be created later
-	// app_config_minimal is only used for the minimal app template
-	excludePrefix := []string{minimalAppConfig}
+	var excludePrefix []string
 	if opts.IsChainMinimal {
-		// minimal chain does not have ibc or classic app config
-		excludePrefix = append(excludePrefix, ibcConfig, appConfig)
+		// minimal chain does not have ibc
+		excludePrefix = append(excludePrefix, ibcConfig)
 	}
 
 	if err := g.SelectiveFS(subfs, opts.IncludePrefixes, nil, excludePrefix, nil); err != nil {
@@ -45,12 +45,15 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 	}
 
 	if opts.IsChainMinimal {
-		file, err := subfs.Open(fmt.Sprintf("%s.plush", minimalAppConfig))
+		// Remove "files-minimal/" prefix
+		subfs, err := fs.Sub(filesMinimal, "files-minimal")
 		if err != nil {
-			return g, errors.Errorf("open minimal app config: %w", err)
+			return nil, errors.Errorf("generator sub minimal: %w", err)
 		}
-
-		g.File(genny.NewFile(appConfig, file))
+		// Override files from "files" with the ones from "files-minimal"
+		if err := g.FS(subfs); err != nil {
+			return g, errors.Errorf("generator fs minimal: %w", err)
+		}
 	}
 
 	ctx := plush.NewContext()
