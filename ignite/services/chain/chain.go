@@ -343,15 +343,6 @@ func (c *Chain) DefaultGentxPath() (string, error) {
 	return filepath.Join(home, "config/gentx/gentx.json"), nil
 }
 
-// PrivValidatorKeyPath returns priv_validator_key.json path of the app.
-func (c *Chain) PrivValidatorKeyPath() (string, error) {
-	home, err := c.Home()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(home, "config/priv_validator_key.json"), nil
-}
-
 // GenesisPath returns genesis.json path of the app.
 func (c *Chain) GenesisPath() (string, error) {
 	home, err := c.Home()

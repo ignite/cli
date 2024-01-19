@@ -2,21 +2,10 @@ package chain
 
 import (
 	"context"
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
-	cmtypes "github.com/cometbft/cometbft/abci/types"
-	cmprivval "github.com/cometbft/cometbft/privval"
-	"github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	commitmenttypes "github.com/cosmos/ibc-go/v8/modules/core/23-commitment/types"
-	ibctmtypes "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
-	ccvconsumertypes "github.com/cosmos/interchain-security/v3/x/ccv/consumer/types"
-	ccvtypes "github.com/cosmos/interchain-security/v3/x/ccv/types"
 	"github.com/imdario/mergo"
 
 	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
@@ -180,9 +169,7 @@ func (c *Chain) InitAccounts(ctx context.Context, cfg *chainconfig.Config) error
 	}
 	if cfg.IsConsumerChain() {
 		// Consumer chain writes validators in the consumer module genesis
-		if err := c.writeConsumerGenesis(); err != nil {
-			return err
-		}
+		// TODO call plugin
 	} else {
 		// Sovereign chain writes validators in gentxs.
 		_, err := c.IssueGentx(ctx, createValidatorFromConfig(cfg))
@@ -191,83 +178,6 @@ func (c *Chain) InitAccounts(ctx context.Context, cfg *chainconfig.Config) error
 		}
 	}
 	return nil
-}
-
-// writeConsumerGenesis updates the consumer module genesis in the genesis.json
-// file of c.
-func (c *Chain) writeConsumerGenesis() error {
-	var (
-		providerClientState = &ibctmtypes.ClientState{
-			ChainId:         "provider",
-			TrustLevel:      ibctmtypes.DefaultTrustLevel,
-			TrustingPeriod:  time.Hour * 64,
-			UnbondingPeriod: time.Hour * 128,
-			MaxClockDrift:   time.Minute * 5,
-		}
-		providerConsState = &ibctmtypes.ConsensusState{
-			Timestamp: time.Now().Add(time.Hour * 24),
-			Root: commitmenttypes.NewMerkleRoot(
-				[]byte("LpGpeyQVLUo9HpdsgJr12NP2eCICspcULiWa5u9udOA="),
-			),
-			NextValidatorsHash: []byte("E30CE736441FB9101FADDAF7E578ABBE6DFDB67207112350A9A904D554E1F5BE"),
-		}
-		params = ccvtypes.NewParams(
-			true,
-			1000, // ignore distribution
-			"",   // ignore distribution
-			"",   // ignore distribution
-			ccvtypes.DefaultCCVTimeoutPeriod,
-			ccvtypes.DefaultTransferTimeoutPeriod,
-			ccvtypes.DefaultConsumerRedistributeFrac,
-			ccvtypes.DefaultHistoricalEntries,
-			ccvtypes.DefaultConsumerUnbondingPeriod,
-			"0", // disable soft opt-out
-			[]string{},
-			[]string{},
-		)
-	)
-	// Load public key from priv_validator_key.json file
-	pvKeyFile, err := c.PrivValidatorKeyPath()
-	if err != nil {
-		return err
-	}
-	filePV := cmprivval.LoadFilePVEmptyState(pvKeyFile, "")
-	pk, err := filePV.GetPubKey()
-	if err != nil {
-		return err
-	}
-	// Feed initial_val_set with this public key
-	// Like for sovereign chain, provide only a single validator.
-	valUpdates := cmtypes.ValidatorUpdates{
-		cmtypes.UpdateValidator(pk.Bytes(), 1, pk.Type()),
-	}
-	// Build consumer genesis
-	consumerGen := ccvtypes.NewInitialGenesisState(providerClientState, providerConsState, valUpdates, params)
-	// Read genesis file
-	genPath, err := c.GenesisPath()
-	if err != nil {
-		return err
-	}
-	genState, genDoc, err := genutiltypes.GenesisStateFromGenFile(genPath)
-	if err != nil {
-		return err
-	}
-	// Update consumer module gen state
-	interfaceRegistry := codectypes.NewInterfaceRegistry()
-	codec := codec.NewProtoCodec(interfaceRegistry)
-	bz, err := codec.MarshalJSON(consumerGen)
-	if err != nil {
-		return err
-	}
-	genState[ccvconsumertypes.ModuleName] = bz
-	// Update whole genesis
-	bz, err = json.MarshalIndent(genState, "", "  ")
-	if err != nil {
-		return err
-	}
-	genDoc.AppState = bz
-	// Save genesis
-	return genDoc.SaveAs(genPath)
 }
 
 // IssueGentx generates a gentx from the validator information in chain config and imports it in the chain genesis.
@@ -301,29 +211,7 @@ func (c *Chain) IsInitialized() (bool, error) {
 		return false, err
 	}
 	if cfg.IsConsumerChain() {
-		// Consumer chain doesn't have necessarily gentxs, so we can't rely on that
-		// to determine if it's initialized. To perform that check, we need to
-		// ensure the consumer genesis has InitialValSet filled.
-		genPath, err := c.GenesisPath()
-		if err != nil {
-			return false, err
-		}
-		genState, _, err := genutiltypes.GenesisStateFromGenFile(genPath)
-		if err != nil {
-			// If the genesis isn't readable, don't propagate the error, just
-			// consider the chain isn't initialized.
-			return false, nil
-		}
-		var (
-			consumerGenesis   ccvtypes.GenesisState
-			interfaceRegistry = codectypes.NewInterfaceRegistry()
-			codec             = codec.NewProtoCodec(interfaceRegistry)
-		)
-		err = codec.UnmarshalJSON(genState[ccvconsumertypes.ModuleName], &consumerGenesis)
-		if err != nil {
-			return false, err
-		}
-		return len(consumerGenesis.InitialValSet) != 0, nil
+		// TODO call plugin
 	}
 
 	gentxDir := filepath.Join(home, "config", "gentx")
