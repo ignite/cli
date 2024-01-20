@@ -76,6 +76,16 @@ func CollectEvents(ev events.Bus) Option {
 	}
 }
 
+// Execute starts and executes a plugin Execute command, then shutdowns it.
+func Execute(ctx context.Context, path string, args ...string) error {
+	plugins, err := Load(ctx, []pluginsconfig.Plugin{{Path: path}})
+	if err != nil {
+		return err
+	}
+	defer plugins[0].KillClient()
+	return plugins[0].Interface.Execute(ctx, &ExecutedCommand{Args: args}, nil)
+}
+
 // Load loads the plugins found in the chain config.
 //
 // There's 2 kinds of plugins, local or remote.
