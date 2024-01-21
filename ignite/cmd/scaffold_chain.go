@@ -10,6 +10,7 @@ import (
 )
 
 const (
+	flagMinimal         = "minimal"
 	flagNoDefaultModule = "no-module"
 	flagSkipGit         = "skip-git"
 	flagIsConsumer      = "consumer"
@@ -81,6 +82,7 @@ about Cosmos SDK on https://docs.cosmos.network
 	c.Flags().Bool(flagNoDefaultModule, false, "create a project without a default module")
 	c.Flags().StringSlice(flagParams, []string{}, "add default module parameters")
 	c.Flags().Bool(flagSkipGit, false, "skip Git repository initialization")
+	c.Flags().Bool(flagMinimal, false, "create a minimal blockchain (with the minimum required Cosmos SDK modules)")
 	c.Flags().Bool(flagIsConsumer, false, "scafffold an ICS consumer chain")
 
 	return c
@@ -96,6 +98,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		appPath            = flagGetPath(cmd)
 		noDefaultModule, _ = cmd.Flags().GetBool(flagNoDefaultModule)
 		skipGit, _         = cmd.Flags().GetBool(flagSkipGit)
+		minimal, _         = cmd.Flags().GetBool(flagMinimal)
 		isConsumer, _      = cmd.Flags().GetBool(flagIsConsumer)
 	)
 
@@ -106,6 +109,8 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 	if noDefaultModule && len(params) > 0 {
 		return errors.New("params flag is only supported if the default module is enabled")
 	}
+	// TODO reject if both minimal and isConsumer
+	// TODO introduce a kind for minimal and isConsumer?
 
 	cacheStorage, err := newCache(cmd)
 	if err != nil {
@@ -121,6 +126,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		addressPrefix,
 		noDefaultModule,
 		skipGit,
+		minimal,
 		isConsumer,
 		params,
 	)

@@ -4,8 +4,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-
-	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 func TestFindSDKPath(t *testing.T) {
@@ -13,7 +11,6 @@ func TestFindSDKPath(t *testing.T) {
 		name     string
 		protoDir string
 		want     string
-		err      error
 	}{
 		{
 			name:     "full path",
@@ -36,21 +33,15 @@ func TestFindSDKPath(t *testing.T) {
 			want:     "test/myproto@v0.3.1/proto",
 		},
 		{
-			name:     "no version",
+			name:     "no version (local)",
 			protoDir: "test/myproto/test/proto",
-			err:      errors.New("invalid sdk mod dir: test/myproto/test/proto"),
+			want:     "test/myproto/test/proto",
 		},
 	}
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := findSDKProtoPath(tt.protoDir)
-			if tt.err != nil {
-				require.Error(t, err)
-				require.Equal(t, tt.err.Error(), err.Error())
-				return
-			}
-			require.NoError(t, err)
+			got := findSDKProtoPath(tt.protoDir)
 			require.Equal(t, tt.want, got)
 		})
 	}

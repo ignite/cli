@@ -212,7 +212,7 @@ func (p Plugin) Manifest() *Manifest {
 }
 
 func (p Plugin) binaryName() string {
-	return fmt.Sprintf("%s.app", p.name)
+	return fmt.Sprintf("%s.ign", p.name)
 }
 
 func (p Plugin) binaryPath() string {

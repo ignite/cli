@@ -73,6 +73,7 @@ func BenchmarkFullAppSimulation(b *testing.B) {
 	}
 }
 
+<%= if (!IsChainMinimal) { %>
 func BenchmarkInvariants(b *testing.B) {
 	b.ReportAllocs()
 
@@ -147,3 +148,4 @@ func BenchmarkInvariants(b *testing.B) {
 		})
 	}
 }
+<% } %>

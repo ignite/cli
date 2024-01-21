@@ -13,8 +13,17 @@ import (
 	"github.com/ignite/cli/v28/ignite/templates/field/plushhelpers"
 )
 
-//go:embed files/* files/**/*
-var files embed.FS
+var (
+	//go:embed files/* files/**/*
+	files embed.FS
+
+	//go:embed files-minimal/* files-minimal/**/*
+	filesMinimal embed.FS
+)
+
+const (
+	ibcConfig = "app/ibc.go"
+)
 
 // NewGenerator returns the generator to scaffold a new Cosmos SDK app.
 func NewGenerator(opts *Options) (*genny.Generator, error) {
@@ -27,15 +36,32 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 		includePrefix = opts.IncludePrefixes
 		excludePrefix []string
 	)
+	if opts.IsChainMinimal {
+		// minimal chain does not have ibc
+		excludePrefix = append(excludePrefix, ibcConfig)
+	}
 	if !opts.IsConsumerChain {
 		// non-consumer chain doesn't need "consumer_*" & "ante_handler.go" files
-		excludePrefix = append(excludePrefix, "app/consumer_")
-		excludePrefix = append(excludePrefix, "app/ante_handler.go")
+		// TODO move that to files-consumer
+		excludePrefix = append(excludePrefix, "app/consumer_", "app/ante_handler.go")
 	}
 	g := genny.New()
 	if err := g.SelectiveFS(subfs, includePrefix, nil, excludePrefix, nil); err != nil {
 		return g, errors.Errorf("generator fs: %w", err)
 	}
+
+	if opts.IsChainMinimal {
+		// Remove "files-minimal/" prefix
+		subfs, err := fs.Sub(filesMinimal, "files-minimal")
+		if err != nil {
+			return nil, errors.Errorf("generator sub minimal: %w", err)
+		}
+		// Override files from "files" with the ones from "files-minimal"
+		if err := g.FS(subfs); err != nil {
+			return g, errors.Errorf("generator fs minimal: %w", err)
+		}
+	}
+
 	ctx := plush.NewContext()
 	ctx.Set("ModulePath", opts.ModulePath)
 	ctx.Set("AppName", opts.AppName)
@@ -44,6 +70,7 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 	ctx.Set("AddressPrefix", opts.AddressPrefix)
 	ctx.Set("IsConsumerChain", opts.IsConsumerChain)
 	ctx.Set("DepTools", cosmosgen.DepTools())
+	ctx.Set("IsChainMinimal", opts.IsChainMinimal)
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(xgenny.Transformer(ctx))

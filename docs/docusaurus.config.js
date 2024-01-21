@@ -64,7 +64,8 @@ const config = {
     ({
       image: "img/og-image.jpg",
       announcementBar: {
-        content: '<a target="_blank" rel="noopener noreferrer" href="https://ignite.com">← Back to Ignite</a>',
+        content:
+          '<a target="_blank" rel="noopener noreferrer" href="https://ignite.com">← Back to Ignite</a>',
         isCloseable: false,
       },
       docs: {
@@ -243,6 +244,25 @@ const config = {
               */
             return [existingPath.replace("/welcome", "/guide")];
           }
+
+          // The following is done for backwards compatibility
+          // with the previous path structure of the versioned docs.
+          if (existingPath.includes("/v28")) {
+            return [existingPath.replace("/v28", "/v28.0.0")];
+          }
+
+          if (existingPath.includes("/v0.27")) {
+            return [existingPath.replace("/v0.27", "/v0.27.2")];
+          }
+
+          if (existingPath.includes("/v0.26")) {
+            return [existingPath.replace("/v0.26", "/v0.26.1")];
+          }
+
+          if (existingPath.includes("/v0.25")) {
+            return [existingPath.replace("/v0.25", "/v0.25.2")];
+          }
+
           return; // No redirect created if it doesn't contain /guide
         },
       },

@@ -80,8 +80,10 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 	}
 	<% } %>
 
+<%= if (!IsChainMinimal) { %>
 	/* Just to be safe, assert the invariants on current state. */
 	app.CrisisKeeper.AssertInvariants(ctx)
+<% } %>
 
 	<%= if (!IsConsumerChain) { %>
 	/* Handle fee distribution state. */
@@ -237,6 +239,7 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 	}
 	<% } %>
 
+<%= if (!IsChainMinimal) { %>
 	/* Handle slashing state. */
 
 	// reset start height on signing infos
@@ -248,6 +251,7 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 			return false
 		},
 	)
+<% } %>
 }
 
 <%= if (IsConsumerChain) { %>
