@@ -4,8 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/ignite/cli/v28/ignite/services/plugin"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/v28/ignite/services/plugin"
 )
 
 func TestPluginExecute(t *testing.T) {
