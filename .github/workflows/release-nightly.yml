@@ -1,10 +1,9 @@
 name: Release nightly
 
 on:
+  schedule:
+    - cron: "0 0 * * *" # every day at midnight
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}

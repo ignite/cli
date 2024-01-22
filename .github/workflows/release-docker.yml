@@ -2,10 +2,9 @@ name: Release Docker Image
 
 on:
   release:
-    types: [ published ]
-  push:
-    branches:
-      - main
+    types: [published]
+  schedule:
+    - cron: "0 0 * * *" # every day at midnight
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -15,14 +14,14 @@ jobs:
   consecutiveness:
     runs-on: ubuntu-latest
     steps:
-    - uses: ignite/consecutive-workflow-action@main
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: ignite/consecutive-workflow-action@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   docker:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
-    needs: [ consecutiveness ]
+    needs: [consecutiveness]
 
     steps:
       - name: Check out the repo
@@ -59,4 +58,3 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
