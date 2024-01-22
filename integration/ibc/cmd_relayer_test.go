@@ -25,7 +25,6 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v28/ignite/pkg/goanalysis"
-	"github.com/ignite/cli/v28/ignite/pkg/goenv"
 	yamlmap "github.com/ignite/cli/v28/ignite/pkg/yaml"
 	envtest "github.com/ignite/cli/v28/integration"
 )
@@ -446,7 +445,8 @@ func TestBlogIBC(t *testing.T) {
 				"app",
 				"install",
 				"-g",
-				filepath.Join(goenv.GoPath(), "src/github.com/ignite/apps/hermes"),
+				// filepath.Join(goenv.GoPath(), "src/github.com/ignite/apps/hermes"), // Local path for test proposals
+				"github.com/ignite/apps/hermes",
 			),
 		)),
 	))
