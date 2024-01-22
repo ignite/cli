@@ -11,8 +11,6 @@ import (
 	"testing"
 	"time"
 
-	"<%= ModulePath %>/app"
-
 	"cosmossdk.io/log"
 	"cosmossdk.io/store"
 	storetypes "cosmossdk.io/store/types"
@@ -32,6 +30,8 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
+
+	"<%= ModulePath %>/app"
 )
 
 const (
@@ -385,7 +385,7 @@ func TestAppStateDeterminism(t *testing.T) {
 				interBlockCacheOpt(),
 				baseapp.SetChainID(chainID),
 			)
-			require.NoError(t, err)
+            require.NoError(t, err)
 
 			fmt.Printf(
 				"running non-determinism simulation; seed %d: %d/%d, attempt: %d/%d\n",
