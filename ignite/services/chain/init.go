@@ -172,7 +172,7 @@ func (c *Chain) InitAccounts(ctx context.Context, cfg *chainconfig.Config) error
 	}
 	if cfg.IsConsumerChain() {
 		// Consumer chain writes validators in the consumer module genesis
-		err := plugin.Execute(ctx, "/home/tom/src/ignite/cli-plugin-consumer", "writeGenesis")
+		err := plugin.Execute(ctx, "github.com/tbruyelle/cli-plugin-consumer", "writeGenesis")
 		if err != nil {
 			return fmt.Errorf("execute consumer plugin: %w", err)
 		}
@@ -219,10 +219,10 @@ func (c *Chain) IsInitialized() (bool, error) {
 	if cfg.IsConsumerChain() {
 		// Consumer chain writes validators in the consumer module genesis
 		// FIXME use constant for plugin path and args (or introduce new method in plugin/consumer.go)
-		err := plugin.Execute(context.Background(), "/home/tom/src/ignite/cli-plugin-consumer", "isInitialized")
+		err := plugin.Execute(context.Background(), "github.com/tbruyelle/cli-plugin-consumer", "isInitialized")
 		if err != nil {
 			// FIXME convert to rpc status.Error to get access to desc
-			if errors.Cause(err).Error() == "not initialized" {
+			if errors.Unwrap(err).Error() == "not initialized" {
 				return false, nil
 			}
 			return false, fmt.Errorf("execute consumer plugin %q %T: %w", err.Error(), err, err)
