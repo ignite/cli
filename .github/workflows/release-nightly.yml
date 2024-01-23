@@ -23,7 +23,7 @@ jobs:
       - uses: octokit/request-action@v2.x
         id: check_last_run
         with:
-          route: GET /repos/${{github.repository}}/actions/workflows/release-docker.yml/runs?per_page=1&status=completed
+          route: GET /repos/${{github.repository}}/actions/workflows/release-nightly.yml/runs?per_page=1&status=completed
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     outputs:
@@ -63,7 +63,9 @@ jobs:
           prerelease: true
 
   releases-binaries:
+    if: needs.check-latest-run.outputs.last_sha != github.sha
     name: Release Go Binary
+    needs: [consecutiveness, check-latest-run]
     runs-on: ubuntu-latest
     strategy:
       matrix:
