@@ -3,12 +3,12 @@ package plugininternal
 import (
 	"bytes"
 	"context"
-	"errors"
 	"time"
 
 	"google.golang.org/grpc/status"
 
 	pluginsconfig "github.com/ignite/cli/v28/ignite/config/plugins"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/services/plugin"
 )
 
