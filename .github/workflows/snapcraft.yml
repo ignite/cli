@@ -3,7 +3,6 @@ name: Publish snap package
 on:
   release:
     types: [published]
-  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
