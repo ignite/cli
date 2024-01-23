@@ -28,7 +28,7 @@ func TestPluginExecute(t *testing.T) {
 		{
 			name:        "ok: plugin execute ok ",
 			pluginPath:  "testdata/execute_ok",
-			expectedOut: "ok args=[arg1 arg2] chaininfo=chain_id:\"id\"  app_path:\"apppath\"  config_path:\"configpath\"  rpc_address:\"rpcPublicAddress\"  5:\"home\"\n",
+			expectedOut: "ok args=[arg1 arg2] chainid=id appPath=apppath configPath=configpath home=home rpcAddress=rpcPublicAddress\n",
 		},
 		{
 			name:          "ok: plugin execute fail ",

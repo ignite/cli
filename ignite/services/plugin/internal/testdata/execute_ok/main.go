@@ -18,8 +18,11 @@ func (app) Manifest(ctx context.Context) (*plugin.Manifest, error) {
 }
 
 func (app) Execute(ctx context.Context, cmd *plugin.ExecutedCommand, api plugin.ClientAPI) error {
-	chaininfo, _ := api.GetChainInfo(ctx)
-	fmt.Printf("ok args=%s chaininfo=%s\n", cmd.Args, chaininfo.String())
+	c, _ := api.GetChainInfo(ctx)
+	fmt.Printf(
+		"ok args=%s chainid=%s appPath=%s configPath=%s home=%s rpcAddress=%s\n",
+		cmd.Args, c.ChainId, c.AppPath, c.ConfigPath, c.Home, c.RpcAddress,
+	)
 	return nil
 }
 
