@@ -9,7 +9,6 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
-	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/v28/ignite/services/chain"
 )
 
@@ -91,7 +90,7 @@ for your current environment.
 	c.Flags().AddFlagSet(flagSetDebug())
 	c.Flags().Bool(flagRelease, false, "build for a release")
 	c.Flags().StringSliceP(flagReleaseTargets, "t", []string{}, "release targets. Available only with --release flag")
-	c.Flags().StringSlice(flagBuildTags, []string{cosmosver.DefaultVersion().String()}, "parameters to build the chain binary")
+	c.Flags().StringSlice(flagBuildTags, []string{}, "parameters to build the chain binary")
 	c.Flags().String(flagReleasePrefix, "", "tarball prefix for each release target. Available only with --release flag")
 	c.Flags().StringP(flagOutput, "o", "", "binary output path")
 	c.Flags().BoolP("verbose", "v", false, "verbose output")
