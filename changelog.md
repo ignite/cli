@@ -8,7 +8,8 @@
 
 ### Changes
 
-- [#3903](https://github.com/ignite/cli/pull/3903) Do not specify a default build tag and deprecate notion of app version
+- [#3899](https://github.com/ignite/cli/pull/3899) Introduce `plugin.Execute` function
+- [#3903](https://github.com/ignite/cli/pull/3903) Don't specify a default build tag and deprecate notion of app version
 
 ## [`v28.1.1`](https://github.com/ignite/cli/releases/tag/v28.1.1)
 
