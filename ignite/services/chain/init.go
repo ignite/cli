@@ -2,7 +2,6 @@ package chain
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -222,7 +221,7 @@ func (c *Chain) IsInitialized() (bool, error) {
 		err := plugin.Execute(context.Background(), "github.com/tbruyelle/cli-plugin-consumer", "isInitialized")
 		if err != nil {
 			// FIXME convert to rpc status.Error to get access to desc
-			if errors.Unwrap(err).Error() == "not initialized" {
+			if strings.Contains(err.Error(), "not initialized") {
 				return false, nil
 			}
 			return false, fmt.Errorf("execute consumer plugin %q %T: %w", err.Error(), err, err)
