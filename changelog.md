@@ -12,7 +12,7 @@
 
 ### Bug Fixes
 
-- [#3896](https://github.com/ignite/cli/issues/3896) Fix `ignite completion`
+- [#3905](https://github.com/ignite/cli/pull/3905) Fix `ignite completion`
 
 ## [`v28.1.1`](https://github.com/ignite/cli/releases/tag/v28.1.1)
 
