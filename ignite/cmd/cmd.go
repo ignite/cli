@@ -61,7 +61,7 @@ To get started, create a blockchain:
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			// Check for new versions only when shell completion scripts are not being
 			// generated to avoid invalid output to stdout when a new version is available
-			if cmd.Use != "completions" {
+			if cmd.Use != "completion" {
 				checkNewVersion(cmd.Context())
 			}
 
@@ -81,6 +81,7 @@ To get started, create a blockchain:
 		NewVersion(),
 		NewApp(),
 		NewDoctor(),
+		NewCompletionCmd(),
 	)
 	c.AddCommand(deprecated()...)
 

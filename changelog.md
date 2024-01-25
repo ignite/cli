@@ -6,10 +6,13 @@
 
 - [#3835](https://github.com/ignite/cli/pull/3835) Add `--minimal` flag to `scaffold chain` to scaffold a chain with the least amount of sdk modules
 
-
 ### Changes
 
 - [#3899](https://github.com/ignite/cli/pull/3899) Introduce plugin.Execute function
+
+### Bug Fixes
+
+- [#3905](https://github.com/ignite/cli/pull/3905) Fix `ignite completion`
 
 ## [`v28.1.1`](https://github.com/ignite/cli/releases/tag/v28.1.1)
 
