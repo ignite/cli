@@ -11,6 +11,10 @@
 - [#3899](https://github.com/ignite/cli/pull/3899) Introduce `plugin.Execute` function
 - [#3903](https://github.com/ignite/cli/pull/3903) Don't specify a default build tag and deprecate notion of app version
 
+### Bug Fixes
+
+- [#3905](https://github.com/ignite/cli/pull/3905) Fix `ignite completion`
+
 ## [`v28.1.1`](https://github.com/ignite/cli/releases/tag/v28.1.1)
 
 ### Fixes
