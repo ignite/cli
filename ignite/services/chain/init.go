@@ -2,7 +2,6 @@ package chain
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,8 +12,8 @@ import (
 	chaincmdrunner "github.com/ignite/cli/v28/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui/view/accountview"
 	"github.com/ignite/cli/v28/ignite/pkg/confile"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/events"
-	"github.com/ignite/cli/v28/ignite/services/plugin"
 )
 
 type (
@@ -171,9 +170,10 @@ func (c *Chain) InitAccounts(ctx context.Context, cfg *chainconfig.Config) error
 	}
 	if cfg.IsConsumerChain() {
 		// Consumer chain writes validators in the consumer module genesis
+		// TODO call plugin
 		err := plugin.Execute(ctx, "github.com/tbruyelle/cli-plugin-consumer", "writeGenesis")
 		if err != nil {
-			return fmt.Errorf("execute consumer plugin: %w", err)
+			return errors.Errorf("execute consumer plugin: %w", err)
 		}
 	} else {
 		// Sovereign chain writes validators in gentxs.
@@ -218,13 +218,14 @@ func (c *Chain) IsInitialized() (bool, error) {
 	if cfg.IsConsumerChain() {
 		// Consumer chain writes validators in the consumer module genesis
 		// FIXME use constant for plugin path and args (or introduce new method in plugin/consumer.go)
+		// TODO call plugin
 		err := plugin.Execute(context.Background(), "github.com/tbruyelle/cli-plugin-consumer", "isInitialized")
 		if err != nil {
 			// FIXME convert to rpc status.Error to get access to desc
 			if strings.Contains(err.Error(), "not initialized") {
 				return false, nil
 			}
-			return false, fmt.Errorf("execute consumer plugin %q %T: %w", err.Error(), err, err)
+			return false, errors.Errorf("execute consumer plugin: %w", err)
 		}
 	}
 
