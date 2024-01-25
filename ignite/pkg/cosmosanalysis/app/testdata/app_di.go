@@ -1,4 +1,4 @@
-//go:build !app_v1
+//go:build !hack-to-no-include-deps-in-ignite
 
 package simapp
 
