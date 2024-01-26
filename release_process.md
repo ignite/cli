@@ -53,5 +53,5 @@ This includes renaming the `go.mod` and all references to the version number in 
 Only the latest released version of Ignite is maintained for new features and bug fixes. Older versions may continue to function, but they will not receive any updates. This ensures that Ignite remains stable and reliable for all users.
 
 Users are encouraged to upgrade to the latest release as soon as possible to benefit from the latest features and security updates.
-Ignite ensures compatibility for the `start`, `build` and `serve` commands between major releases.
+Ignite ensures compatibility for the `chain` and `app` commands between major releases.
 Other commands may change between major releases and may require the user to upgrade their codebase to the Cosmos SDK version Ignite is using.
