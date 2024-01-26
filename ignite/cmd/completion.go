@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// completionCmd represents the completion command
+// completionCmd represents the completion command.
 func NewCompletionCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "completion [bash|zsh|fish|powershell]",
