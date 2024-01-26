@@ -31,7 +31,7 @@ type Account struct {
 // AddAccount creates a new account or imports an account when mnemonic is provided.
 // returns with an error if the operation went unsuccessful or an account with the provided name
 // already exists.
-func (r Runner) AddAccount(ctx context.Context, name, mnemonic, coinType string) (Account, error) {
+func (r Runner) AddAccount(ctx context.Context, name, mnemonic, coinType, keyType string) (Account, error) {
 	if err := r.CheckAccountExist(ctx, name); err != nil {
 		return Account{}, err
 	}
@@ -66,7 +66,7 @@ func (r Runner) AddAccount(ctx context.Context, name, mnemonic, coinType string)
 		if err := r.run(
 			ctx,
 			runOptions{},
-			r.chainCmd.RecoverKeyCommand(name, coinType),
+			r.chainCmd.RecoverKeyCommand(name, coinType, keyType),
 			step.Write(input.Bytes()),
 		); err != nil {
 			return Account{}, err
@@ -76,7 +76,7 @@ func (r Runner) AddAccount(ctx context.Context, name, mnemonic, coinType string)
 			stdout: b,
 			stderr: b,
 			stdin:  os.Stdin,
-		}, r.chainCmd.AddKeyCommand(name, coinType)); err != nil {
+		}, r.chainCmd.AddKeyCommand(name, coinType, keyType)); err != nil {
 			return Account{}, err
 		}
 

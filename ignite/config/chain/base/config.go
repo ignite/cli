@@ -34,6 +34,7 @@ type Account struct {
 	Mnemonic string   `yaml:"mnemonic,omitempty"`
 	Address  string   `yaml:"address,omitempty"`
 	CoinType string   `yaml:"cointype,omitempty"`
+	KeyType  string   `yaml:"keytype,omitempty"`
 }
 
 // Build holds build configs.
