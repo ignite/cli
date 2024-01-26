@@ -8,7 +8,7 @@ import (
 	"github.com/ignite/cli/v28/ignite/services/plugin"
 )
 
-// TODO move me to ignite org
+// TODO move me to ignite org.
 const consumerPlugin = "github.com/tbruyelle/cli-plugin-consumer"
 
 // ConsumerWriteGenesis writes validators in the consumer module genesis.
