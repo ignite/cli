@@ -25,7 +25,20 @@ The changelog lists all of the changes that have been made to Ignite since the l
 
 ## Release Preparation and Testing
 
-Before a release is made, it is important to prepare the release branches and perform thorough testing. This includes:
+Before a release is made, it is important to prepare the release branches and perform thorough testing.
+The process differs depending on whether the release is a `MAJOR`, `MINOR`, or `PATCH` release.
+
+### Major Release
+
+* Freeze the `main` branch.
+* Create a release branch from the `main` branch.
+  * Update `.github/mergify.yml` to allow backporting changes to the release branch.
+  * Possibly update CI/CD configuration to support the new release.
+* Running all unit tests, integration tests, and manual scenarios.
+* Ensuring that the release branch is still compatible with all supported environments.
+* Prepare the changelog.
+
+### Minor and Patch Releases
 
 * Verifying that all wanted changes have been backported to the release branch.
 * Running all unit tests, integration tests, and manual scenarios.
@@ -43,10 +56,11 @@ git tag v28.x.y -m "Release Ignite v28.x.y"
 
 ## Post-Release Activities
 
-After a `MAJOR` release has been made, it is important to monitor feedback and bug reports to inform subsequent releases.
+After a release has been made, it is important to monitor feedback and bug reports to inform subsequent releases.
 
-Additionally, the `main` branch should be updated to the next version number.
-This includes renaming `go.mod` and all references to the version number in the codebase.
+This includes updating the `main` branch changelog with the new release.
+
+In case of a new `MAJOR` release, the release author must also update the `main` branch to the next `MAJOR` version number: rename the `go.mod` and all references to the version number in the codebase.
 
 ## Maintenance Policy
 
