@@ -298,12 +298,17 @@ func ReplaceCode(pkgPath, oldFunctionName, newFunction string) (err error) {
 		for _, f := range pkg.Files {
 			found := false
 			ast.Inspect(f, func(n ast.Node) bool {
-				// Check if the node is a function declaration.
 				if funcDecl, ok := n.(*ast.FuncDecl); ok {
 					// Check if the function has the name you want to replace.
 					if funcDecl.Name.Name == oldFunctionName {
 						// Replace the function body with the replacement code.
-						funcDecl.Body, err = parseReplacementCode(newFunction)
+						replacementExpr, err := parser.ParseExpr(newFunction)
+						if err != nil {
+							return false
+						}
+						funcDecl.Body = &ast.BlockStmt{List: []ast.Stmt{
+							&ast.ExprStmt{X: replacementExpr},
+						}}
 						found = true
 						return false
 					}
@@ -332,20 +337,4 @@ func ReplaceCode(pkgPath, oldFunctionName, newFunction string) (err error) {
 		}
 	}
 	return nil
-}
-
-// parseReplacementCode parse the replacement code and create a *ast.BlockStmt.
-func parseReplacementCode(code string) (*ast.BlockStmt, error) {
-	fset := token.NewFileSet()
-	node, err := parser.ParseFile(fset, "", code, parser.ParseComments)
-	if err != nil {
-		return nil, err
-	}
-	// Assuming there's only one function in the replacement code.
-	if len(node.Decls) > 0 {
-		if funcDecl, ok := node.Decls[0].(*ast.FuncDecl); ok {
-			return funcDecl.Body, nil
-		}
-	}
-	return nil, errors.Errorf("replacement code does not contain a valid function declaration")
 }
