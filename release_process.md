@@ -17,11 +17,11 @@ Features or bug fixes that are ready to be included in a release must be backpor
 
 ## All PRs Target Main
 
-All pull requests (PRs) should target the `main` branch. This ensures that all changes are always integrated into the development branch and are eligible for backporting to release branches.
+All PRs should target the `main` branch. This ensures that changes are always integrated into the development branch and are ready for backporting.
 
 ## Changelog
 
-The changelog is a file that lists all of the changes that have been made to Ignite since the last release. The changelog must be up to date before a release is made.
+The changelog lists all of the changes that have been made to Ignite since the last release. The changelog must be up-to-date before a release is made.
 
 ## Release Preparation and Testing
 
@@ -34,7 +34,7 @@ Before a release is made, it is important to prepare the release branches and pe
 
 ## Release Publication
 
-Once the release is ready, it can be published to the releases page on GitHub. This involves tagging the release branch with the release version and creating a release announcement. The release anouncement should contain the changelog of the release.
+Once the release is ready, it can be published to the [releases page](https://github.com/ignite/cli/releases) on GitHub. This involves tagging the release branch with the release version and creating a release announcement. The release anouncement should contain the changelog of the release.
 
 ```bash
 git checkout release/v28.x.y
@@ -43,10 +43,10 @@ git tag v28.x.y -m "Release Ignite v28.x.y"
 
 ## Post-Release Activities
 
-After a **major** release has been made, it is important to monitor feedback and bug reports to inform subsequent releases.
+After a `MAJOR` release has been made, it is important to monitor feedback and bug reports to inform subsequent releases.
 
 Additionally, the `main` branch should be updated to the next version number.
-This includes renaming the `go.mod` and all references to the version number in the codebase.
+This includes renaming `go.mod` and all references to the version number in the codebase.
 
 ## Maintenance Policy
 
