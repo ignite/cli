@@ -6,6 +6,7 @@ package plugin
 import (
 	"context"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -64,6 +65,9 @@ type Plugin struct {
 	isSharedHost bool
 
 	ev events.Bus
+
+	stdout io.Writer
+	stderr io.Writer
 }
 
 // Option configures Plugin.
@@ -73,6 +77,13 @@ type Option func(*Plugin)
 func CollectEvents(ev events.Bus) Option {
 	return func(p *Plugin) {
 		p.ev = ev
+	}
+}
+
+func RedirectStdout(w io.Writer) Option {
+	return func(p *Plugin) {
+		p.stdout = w
+		p.stderr = w
 	}
 }
 
@@ -117,6 +128,8 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 	var (
 		p = &Plugin{
 			Plugin: cp,
+			stdout: os.Stdout,
+			stderr: os.Stderr,
 		}
 		pluginPath = cp.Path
 	)
@@ -259,8 +272,8 @@ func (p *Plugin) load(ctx context.Context) {
 		HandshakeConfig:  HandshakeConfig(),
 		Plugins:          pluginMap,
 		Logger:           logger,
-		SyncStderr:       os.Stderr,
-		SyncStdout:       os.Stdout,
+		SyncStderr:       p.stdout,
+		SyncStdout:       p.stderr,
 		AllowedProtocols: []hplugin.Protocol{hplugin.ProtocolGRPC},
 	}
 

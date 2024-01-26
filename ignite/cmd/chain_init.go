@@ -6,7 +6,6 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
-	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/v28/ignite/services/chain"
 )
 
@@ -89,7 +88,7 @@ commands manually to ensure a production-level node initialization.
 	c.Flags().AddFlagSet(flagSetCheckDependencies())
 	c.Flags().AddFlagSet(flagSetSkipProto())
 	c.Flags().AddFlagSet(flagSetDebug())
-	c.Flags().StringSlice(flagBuildTags, []string{cosmosver.DefaultVersion().String()}, "parameters to build the chain binary")
+	c.Flags().StringSlice(flagBuildTags, []string{}, "parameters to build the chain binary")
 
 	return c
 }

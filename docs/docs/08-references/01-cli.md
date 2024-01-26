@@ -3225,6 +3225,7 @@ ignite scaffold chain [name] [flags]
       --address-prefix string   account address prefix (default "cosmos")
       --clear-cache             clear the build cache (advanced)
   -h, --help                    help for chain
+      --minimal                 create a minimal blockchain (with the minimum required Cosmos SDK modules)
       --no-module               create a project without a default module
       --params strings          add default module parameters
   -p, --path string             create a project in a specific path

@@ -23,6 +23,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Update snapcraft.yaml
+        run: |
+          make snapcraft.yaml version=${GITHUB_REF#refs/tags/}
+
       - name: Build snap package
         uses: snapcore/action-build@v1
         id: build-snap
