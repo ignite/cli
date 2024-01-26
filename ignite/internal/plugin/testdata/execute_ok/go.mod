@@ -1,4 +1,4 @@
-module execute_fail
+module execute_ok
 
 go 1.21.1
 
@@ -9,7 +9,7 @@ require (
 	github.com/ignite/cli/v28 v28.0.0
 )
 
-replace github.com/ignite/cli/v28 => ../../../../../..
+replace github.com/ignite/cli/v28 => ../../../../..
 
 require (
 	dario.cat/mergo v1.0.0 // indirect
