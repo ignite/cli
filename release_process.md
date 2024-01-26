@@ -1,6 +1,7 @@
-# Ignite CLI Release Process
+# Release Process
 
-This document outlines the release process for the Ignite CLI. It ensures consistency, quality, and clear communication with users.
+This document outlines the release process for Ignite. It ensures consistency, quality, and clear communication with users.
+Ignite uses [semantic versioning](https://semver.org/) to indicate the stability and compatibility of releases.
 
 ## Release Branches
 
@@ -8,7 +9,7 @@ Releases are tagged from release branches. The release branch is typically named
 
 ## Development Branch
 
-The `main` branch is the development branch for the Ignite CLI. All new features and bug fixes are developed on this branch. The `main` branch is typically updated daily or weekly, depending on the amount of development activity.
+The `main` branch is the development branch for Ignite. All new features and bug fixes are developed on this branch. The `main` branch is typically updated daily or weekly, depending on the amount of development activity.
 
 ## Backporting Features and Bug Fixes
 
@@ -20,7 +21,7 @@ All pull requests (PRs) should target the `main` branch. This ensures that all c
 
 ## Changelog
 
-The changelog is a file that lists all of the changes that have been made to the Ignite CLI since the last release. The changelog must be up to date before a release is made.
+The changelog is a file that lists all of the changes that have been made to Ignite since the last release. The changelog must be up to date before a release is made.
 
 ## Release Preparation and Testing
 
@@ -49,7 +50,7 @@ This includes renaming the `go.mod` and all references to the version number in 
 
 ## Maintenance Policy
 
-Only the latest released version of the Ignite is maintained for new features and bug fixes. Older versions may continue to function, but they will not receive any updates. This ensures that the Ignite remains stable and reliable for all users.
+Only the latest released version of Ignite is maintained for new features and bug fixes. Older versions may continue to function, but they will not receive any updates. This ensures that Ignite remains stable and reliable for all users.
 
 Users are encouraged to upgrade to the latest release as soon as possible to benefit from the latest features and security updates.
 Ignite ensures compatibility for the `start`, `build` and `serve` commands between major releases.
