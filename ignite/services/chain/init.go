@@ -9,10 +9,10 @@ import (
 	"github.com/imdario/mergo"
 
 	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
+	"github.com/ignite/cli/v28/ignite/internal/plugin"
 	chaincmdrunner "github.com/ignite/cli/v28/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui/view/accountview"
 	"github.com/ignite/cli/v28/ignite/pkg/confile"
-	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/events"
 )
 
@@ -169,11 +169,9 @@ func (c *Chain) InitAccounts(ctx context.Context, cfg *chainconfig.Config) error
 		return nil
 	}
 	if cfg.IsConsumerChain() {
-		// Consumer chain writes validators in the consumer module genesis
-		// TODO call plugin
-		err := plugin.Execute(ctx, "github.com/tbruyelle/cli-plugin-consumer", "writeGenesis")
+		err := plugininternal.ConsumerWriteGenesis(ctx, c)
 		if err != nil {
-			return errors.Errorf("execute consumer plugin: %w", err)
+			return err
 		}
 	} else {
 		// Sovereign chain writes validators in gentxs.
@@ -204,8 +202,8 @@ func (c Chain) IssueGentx(ctx context.Context, v Validator) (string, error) {
 
 // IsInitialized checks if the chain is initialized.
 // The check is performed by checking if the gentx dir exists in the config,
-// unless c is a consumer chain, in that case the check relies on checking
-// if the consumer genesis module is filled with validators.
+// unless c is a consumer chain, in which case the check relies on checking if
+// the consumer genesis module is filled with validators.
 func (c *Chain) IsInitialized() (bool, error) {
 	home, err := c.Home()
 	if err != nil {
@@ -216,17 +214,7 @@ func (c *Chain) IsInitialized() (bool, error) {
 		return false, err
 	}
 	if cfg.IsConsumerChain() {
-		// Consumer chain writes validators in the consumer module genesis
-		// FIXME use constant for plugin path and args (or introduce new method in plugin/consumer.go)
-		// TODO call plugin
-		err := plugin.Execute(context.Background(), "github.com/tbruyelle/cli-plugin-consumer", "isInitialized")
-		if err != nil {
-			// FIXME convert to rpc status.Error to get access to desc
-			if strings.Contains(err.Error(), "not initialized") {
-				return false, nil
-			}
-			return false, errors.Errorf("execute consumer plugin: %w", err)
-		}
+		return plugininternal.ConsumerIsInitialized(context.Background(), c)
 	}
 
 	gentxDir := filepath.Join(home, "config", "gentx")
