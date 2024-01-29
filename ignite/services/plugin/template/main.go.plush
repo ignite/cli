@@ -3,116 +3,45 @@ package main
 import (
 	"context"
 	"fmt"
-	"path/filepath"
 
 	hplugin "github.com/hashicorp/go-plugin"
 
-	"github.com/ignite/cli/v28/ignite/services/chain"
 	"github.com/ignite/cli/v28/ignite/services/plugin"
+	"<%= ModuleName %>/cmd"
 )
 
 type app struct{}
 
-func (app) Manifest(ctx context.Context) (*plugin.Manifest, error) {
+func (app) Manifest(_ context.Context) (*plugin.Manifest, error) {
 	return &plugin.Manifest{
-		Name: "<%= Name %>",
-		// TODO: Add commands here
-		Commands: []*plugin.Command{
-			// Example of a command
-			{
-				Use:   "<%= Name %>",
-				Short: "Explain what the command is doing...",
-				Long:  "Long description goes here...",
-				Flags: []*plugin.Flag{
-					{Name: "my-flag", Type: plugin.FlagTypeString, Usage: "my flag description"},
-				},
-				PlaceCommandUnder: "ignite",
-				// Examples of adding subcommands:
-				// Commands: []*plugin.Command{
-				// 	{Use: "add"},
-				// 	{Use: "list"},
-				// 	{Use: "delete"},
-				// },
-			},
-		},
-		// TODO: Add hooks here
-		Hooks: []*plugin.Hook{},
-		SharedHost: <%= SharedHost %>,
+		Name: "<%= Name %>",<%= if (SharedHost) { %>
+		SharedHost: true,<% } %>
+		Commands: cmd.GetCommands(),
 	}, nil
 }
 
-func (app) Execute(ctx context.Context, cmd *plugin.ExecutedCommand, api plugin.ClientAPI) error {
-	// TODO: write command execution here
-	fmt.Printf("Hello I'm the example-plugin plugin\n")
-	fmt.Printf("My executed command: %q\n", cmd.Path)
-	fmt.Printf("My args: %v\n", cmd.Args)
-
-	flags, err := cmd.NewFlags()
-	if err != nil {
-		return err
-	}
-
-	myFlag, _ := flags.GetString("my-flag")
-	fmt.Printf("My flags: my-flag=%q\n", myFlag)
-	fmt.Printf("My config parameters: %v\n", cmd.With)
-
-	// This is how the plugin can access the chain:
-	// c, err := getChain(cmd)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// According to the number of declared commands, you may need a switch:
-	/*
-		switch cmd.Use {
-		case "add":
-			fmt.Println("Adding stuff...")
-		case "list":
-			fmt.Println("Listing stuff...")
-		case "delete":
-			fmt.Println("Deleting stuff...")
-		}
-	*/
+func (app) Execute(ctx context.Context, c *plugin.ExecutedCommand, _ plugin.ClientAPI) error {
+	// Remove the first two elements "ignite" and "<%= Name %>" from OsArgs.
+	args := c.OsArgs[2:]
 	
-	// ClientAPI call example
-	fmt.Println(api.GetChainInfo(ctx))
-	
-	return nil
-}
-
-func (app) ExecuteHookPre(ctx context.Context, h *plugin.ExecutedHook, api plugin.ClientAPI) error {
-	fmt.Printf("Executing hook pre %q\n", h.Hook.GetName())
-	return nil
-}
-
-func (app) ExecuteHookPost(ctx context.Context, h *plugin.ExecutedHook, api plugin.ClientAPI) error {
-	fmt.Printf("Executing hook post %q\n", h.Hook.GetName())
-	return nil
-}
-
-func (app) ExecuteHookCleanUp(ctx context.Context, h *plugin.ExecutedHook, api plugin.ClientAPI) error {
-	fmt.Printf("Executing hook cleanup %q\n", h.Hook.GetName())
-	return nil
-}
-
-func getChain(cmd *plugin.ExecutedCommand, chainOption ...chain.Option) (*chain.Chain, error) {
-	flags, err := cmd.NewFlags()
-	if err != nil {
-		return nil, err
+	switch args[0] {
+	case "hello":
+		return cmd.ExecuteHello(ctx, c)
+	default:
+		return fmt.Errorf("unknown command: %s", c.Path)
 	}
+}
 
-	var (
-		home, _ = flags.GetString("home")
-		path, _ = flags.GetString("path")
-	)
-	if home != "" {
-		chainOption = append(chainOption, chain.HomePath(home))
-	}
-	absPath, err := filepath.Abs(path)
-	if err != nil {
-		return nil, err
-	}
-	return chain.New(absPath, chainOption...)
+func (app) ExecuteHookPre(_ context.Context, _ *plugin.ExecutedHook, _ plugin.ClientAPI) error {
+	return nil
+}
+
+func (app) ExecuteHookPost(_ context.Context, _ *plugin.ExecutedHook, _ plugin.ClientAPI) error {
+	return nil
+}
+
+func (app) ExecuteHookCleanUp(_ context.Context, _ *plugin.ExecutedHook, _ plugin.ClientAPI) error {
+	return nil
 }
 
 func main() {
