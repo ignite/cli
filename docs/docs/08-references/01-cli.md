@@ -31,7 +31,7 @@ To get started, create a blockchain:
 * [ignite account](#ignite-account)	 - Create, delete, and show Ignite accounts
 * [ignite app](#ignite-app)	 - Create and manage Ignite Apps
 * [ignite chain](#ignite-chain)	 - Build, init and start a blockchain node
-* [ignite completion](#ignite-completion)	 - Generate the autocompletion script for the specified shell
+* [ignite completion](#ignite-completion)	 - Generates shell completion script.
 * [ignite docs](#ignite-docs)	 - Show Ignite CLI docs
 * [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
 * [ignite network](#ignite-network)	 - Launch a blockchain in production
@@ -578,7 +578,7 @@ ignite chain build [flags]
 **Options**
 
 ```
-      --build.tags strings        parameters to build the chain binary (default [app_v1])
+      --build.tags strings        parameters to build the chain binary
       --check-dependencies        verify that cached dependencies have not been modified since they were downloaded
       --clear-cache               clear the build cache (advanced)
       --debug                     build a debug binary
@@ -766,7 +766,7 @@ ignite chain init [flags]
 **Options**
 
 ```
-      --build.tags strings   parameters to build the chain binary (default [app_v1])
+      --build.tags strings   parameters to build the chain binary
       --check-dependencies   verify that cached dependencies have not been modified since they were downloaded
       --clear-cache          clear the build cache (advanced)
       --debug                build a debug binary
@@ -835,7 +835,7 @@ ignite chain serve [flags]
 **Options**
 
 ```
-      --build.tags strings   parameters to build the chain binary (default [app_v1])
+      --build.tags strings   parameters to build the chain binary
       --check-dependencies   verify that cached dependencies have not been modified since they were downloaded
       --clear-cache          clear the build cache (advanced)
   -f, --force-reset          force reset of the app state on start and every source change
@@ -909,13 +909,11 @@ ignite chain simulate [flags]
 
 ## ignite completion
 
-Generate the autocompletion script for the specified shell
+Generates shell completion script.
 
-**Synopsis**
-
-Generate the autocompletion script for ignite for the specified shell.
-See each sub-command's help for details on how to use the generated script.
-
+```
+ignite completion [bash|zsh|fish|powershell] [flags]
+```
 
 **Options**
 
@@ -926,167 +924,6 @@ See each sub-command's help for details on how to use the generated script.
 **SEE ALSO**
 
 * [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-* [ignite completion bash](#ignite-completion-bash)	 - Generate the autocompletion script for bash
-* [ignite completion fish](#ignite-completion-fish)	 - Generate the autocompletion script for fish
-* [ignite completion powershell](#ignite-completion-powershell)	 - Generate the autocompletion script for powershell
-* [ignite completion zsh](#ignite-completion-zsh)	 - Generate the autocompletion script for zsh
-
-
-## ignite completion bash
-
-Generate the autocompletion script for bash
-
-**Synopsis**
-
-Generate the autocompletion script for the bash shell.
-
-This script depends on the 'bash-completion' package.
-If it is not installed already, you can install it via your OS's package manager.
-
-To load completions in your current shell session:
-
-	source <(ignite completion bash)
-
-To load completions for every new session, execute once:
-
-**#### Linux:**
-
-	ignite completion bash > /etc/bash_completion.d/ignite
-
-**#### macOS:**
-
-	ignite completion bash > $(brew --prefix)/etc/bash_completion.d/ignite
-
-You will need to start a new shell for this setup to take effect.
-
-
-```
-ignite completion bash
-```
-
-**Options**
-
-```
-  -h, --help              help for bash
-      --no-descriptions   disable completion descriptions
-```
-
-**SEE ALSO**
-
-* [ignite completion](#ignite-completion)	 - Generate the autocompletion script for the specified shell
-
-
-## ignite completion fish
-
-Generate the autocompletion script for fish
-
-**Synopsis**
-
-Generate the autocompletion script for the fish shell.
-
-To load completions in your current shell session:
-
-	ignite completion fish | source
-
-To load completions for every new session, execute once:
-
-	ignite completion fish > ~/.config/fish/completions/ignite.fish
-
-You will need to start a new shell for this setup to take effect.
-
-
-```
-ignite completion fish [flags]
-```
-
-**Options**
-
-```
-  -h, --help              help for fish
-      --no-descriptions   disable completion descriptions
-```
-
-**SEE ALSO**
-
-* [ignite completion](#ignite-completion)	 - Generate the autocompletion script for the specified shell
-
-
-## ignite completion powershell
-
-Generate the autocompletion script for powershell
-
-**Synopsis**
-
-Generate the autocompletion script for powershell.
-
-To load completions in your current shell session:
-
-	ignite completion powershell | Out-String | Invoke-Expression
-
-To load completions for every new session, add the output of the above command
-to your powershell profile.
-
-
-```
-ignite completion powershell [flags]
-```
-
-**Options**
-
-```
-  -h, --help              help for powershell
-      --no-descriptions   disable completion descriptions
-```
-
-**SEE ALSO**
-
-* [ignite completion](#ignite-completion)	 - Generate the autocompletion script for the specified shell
-
-
-## ignite completion zsh
-
-Generate the autocompletion script for zsh
-
-**Synopsis**
-
-Generate the autocompletion script for the zsh shell.
-
-If shell completion is not already enabled in your environment you will need
-to enable it.  You can execute the following once:
-
-	echo "autoload -U compinit; compinit" >> ~/.zshrc
-
-To load completions in your current shell session:
-
-	source <(ignite completion zsh)
-
-To load completions for every new session, execute once:
-
-**#### Linux:**
-
-	ignite completion zsh > "${fpath[1]}/_ignite"
-
-**#### macOS:**
-
-	ignite completion zsh > $(brew --prefix)/share/zsh/site-functions/_ignite
-
-You will need to start a new shell for this setup to take effect.
-
-
-```
-ignite completion zsh [flags]
-```
-
-**Options**
-
-```
-  -h, --help              help for zsh
-      --no-descriptions   disable completion descriptions
-```
-
-**SEE ALSO**
-
-* [ignite completion](#ignite-completion)	 - Generate the autocompletion script for the specified shell
 
 
 ## ignite docs
