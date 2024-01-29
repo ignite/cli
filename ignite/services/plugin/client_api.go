@@ -9,6 +9,7 @@ import (
 // ErrAppChainNotFound indicates that the plugin command is not running inside a blockchain app.
 var ErrAppChainNotFound = errors.New("blockchain app not found")
 
+//go:generate mockery --srcpkg . --name Chainer --structname ChainerInterface --filename chainer.go --with-expecter
 type Chainer interface {
 	// AppPath returns the configured App's path.
 	AppPath() string
@@ -21,6 +22,9 @@ type Chainer interface {
 
 	// RPCPublicAddress returns the configured App's rpc endpoint.
 	RPCPublicAddress() (string, error)
+
+	// Home returns the App's home dir.
+	Home() (string, error)
 }
 
 // APIOption defines options for the client API.
@@ -66,11 +70,17 @@ func (api clientAPI) GetChainInfo(context.Context) (*ChainInfo, error) {
 		return nil, err
 	}
 
+	home, err := chain.Home()
+	if err != nil {
+		return nil, err
+	}
+
 	return &ChainInfo{
 		ChainId:    chainID,
 		AppPath:    chain.AppPath(),
 		ConfigPath: chain.ConfigPath(),
 		RpcAddress: rpc,
+		Home:       home,
 	}, nil
 }
 

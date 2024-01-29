@@ -20,6 +20,14 @@ build:
 	@-mkdir -p $(BUILD_FOLDER) 2> /dev/null
 	@go build $(BUILD_FLAGS) -o $(BUILD_FOLDER) ./...
 
+## prepare snapcraft.yaml for release
+snapcraft.yaml:
+	@sed -i 's/{{version}}/'$(version)'/' packaging/snap/snapcraft.yaml
+
+## prepare flatpak manifest for release
+flatpak:
+	@sed -i 's/{{version}}/'$(version)'/' packaging/flatpak/com.ignite.Ignite.yml
+
 ## mocks: generate mocks
 mocks:
 	@echo Generating mocks

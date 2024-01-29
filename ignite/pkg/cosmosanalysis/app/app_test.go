@@ -21,8 +21,8 @@ var (
 	NoAppFile []byte
 	//go:embed testdata/two_app.go
 	TwoAppFile []byte
-	//go:embed testdata/app_v2.go
-	AppV2 []byte
+	//go:embed testdata/app_di.go
+	AppDepinject []byte
 )
 
 func TestCheckKeeper(t *testing.T) {
@@ -55,8 +55,8 @@ func TestCheckKeeper(t *testing.T) {
 			expectedError: "app.go should contain a single app (got 2)",
 		},
 		{
-			name:       "app v2",
-			appFile:    AppV2,
+			name:       "app depinject",
+			appFile:    AppDepinject,
 			keeperName: "FooKeeper",
 		},
 	}
