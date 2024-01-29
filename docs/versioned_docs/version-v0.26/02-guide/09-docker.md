@@ -125,7 +125,7 @@ points to the `0.25.2` tag.
 
 You can specify to use a specific version of Ignite CLI. All available tags are
 in the [ignite/cli
-image](https://hub.docker.com/r/ignite/cli/tags?page=1&ordering=last_updated) on
+image](https://hub.docker.com/r/ignitehq/cli/tags?page=1&ordering=last_updated) on
 Docker Hub.
 
 For example:
