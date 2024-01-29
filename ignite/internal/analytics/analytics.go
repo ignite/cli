@@ -20,6 +20,7 @@ import (
 const (
 	telemetryEndpoint  = "https://telemetry-cli.ignite.com"
 	envDoNotTrack      = "DO_NOT_TRACK"
+	envCI              = "CI"
 	igniteDir          = ".ignite"
 	igniteAnonIdentity = "anon_identity.json"
 )
@@ -72,7 +73,8 @@ func SendMetric(wg *sync.WaitGroup, cmd *cobra.Command) {
 // env var is set https://consoledonottrack.com/
 func checkDNT() (anonIdentity, error) {
 	envDoNotTrackVar := os.Getenv(envDoNotTrack)
-	if envDoNotTrackVar == "1" || strings.ToLower(envDoNotTrackVar) == "true" {
+	envCIVar := os.Getenv(envCI)
+	if envDoNotTrackVar == "1" || strings.ToLower(envDoNotTrackVar) == "true" || strings.ToLower(envCIVar) == "true" {
 		return anonIdentity{DoNotTrack: true}, nil
 	}
 
