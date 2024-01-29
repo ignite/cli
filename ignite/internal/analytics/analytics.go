@@ -29,9 +29,9 @@ var gaclient gacli.Client
 
 // anonIdentity represents an analytics identity file.
 type anonIdentity struct {
-	// name represents the username.
+	// Name represents the username.
 	Name string `json:"name" yaml:"name"`
-	// doNotTrack represents the user track choice.
+	// DoNotTrack represents the user track choice.
 	DoNotTrack bool `json:"doNotTrack" yaml:"doNotTrack"`
 }
 
@@ -60,6 +60,7 @@ func SendMetric(wg *sync.WaitGroup, cmd *cobra.Command) {
 		SessionID: dntInfo.Name,
 		Version:   version.Version,
 		IsGitPod:  gitpod.IsOnGitpod(),
+		IsCI:      getIsCI(),
 	}
 
 	wg.Add(1)
@@ -73,8 +74,7 @@ func SendMetric(wg *sync.WaitGroup, cmd *cobra.Command) {
 // env var is set https://consoledonottrack.com/
 func checkDNT() (anonIdentity, error) {
 	envDoNotTrackVar := os.Getenv(envDoNotTrack)
-	envCIVar := os.Getenv(envCI)
-	if envDoNotTrackVar == "1" || strings.ToLower(envDoNotTrackVar) == "true" || strings.ToLower(envCIVar) == "true" {
+	if envDoNotTrackVar == "1" || strings.ToLower(envDoNotTrackVar) == "true" {
 		return anonIdentity{DoNotTrack: true}, nil
 	}
 
@@ -123,4 +123,10 @@ func checkDNT() (anonIdentity, error) {
 	}
 
 	return i, os.WriteFile(identityPath, data, 0o700)
+}
+
+func getIsCI() bool {
+	str := strings.ToLower(os.Getenv(envCI))
+
+	return str == "1" || str == "true"
 }
