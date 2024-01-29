@@ -45,6 +45,9 @@ const (
 	// CommandList represents go "list" command.
 	CommandList = "list"
 
+	// CommandTest represents go "test" command.
+	CommandTest = "test"
+
 	// EnvGOARCH represents GOARCH variable.
 	EnvGOARCH = "GOARCH"
 	// EnvGOMOD represents GOMOD variable.
@@ -197,6 +200,15 @@ func List(ctx context.Context, path string, flags []string, options ...exec.Opti
 		return nil, err
 	}
 	return strings.Fields(b.String()), nil
+}
+
+func Test(ctx context.Context, path string, flags []string, options ...exec.Option) error {
+	command := []string{
+		Name(),
+		CommandTest,
+	}
+	command = append(command, flags...)
+	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
 }
 
 // Ldflags returns a combined ldflags set from flags.
