@@ -56,12 +56,14 @@ func Test<%= Title %>(t *testing.T) {
 }
 
 func assertLocalPlugins(t *testing.T, app envtest.App, expectedPlugins []pluginsconfig.Plugin) {
+	t.Helper()
 	cfg, err := pluginsconfig.ParseDir(app.SourcePath())
 	require.NoError(t, err)
 	require.ElementsMatch(t, expectedPlugins, cfg.Apps, "unexpected local apps")
 }
 
 func assertGlobalPlugins(t *testing.T, app envtest.App, expectedPlugins []pluginsconfig.Plugin) {
+	t.Helper()
 	cfgPath, err := plugin.PluginsPath()
 	require.NoError(t, err)
 	cfg, err := pluginsconfig.ParseDir(cfgPath)
