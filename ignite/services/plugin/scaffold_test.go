@@ -6,9 +6,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/ignite/cli/v28/ignite/pkg/gocmd"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"
+
+	"github.com/ignite/cli/v28/ignite/pkg/gocmd"
 )
 
 func TestScaffold(t *testing.T) {
