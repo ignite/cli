@@ -2,8 +2,6 @@
 package goanalysis
 
 import (
-	"errors"
-	"fmt"
 	"go/ast"
 	"go/format"
 	"go/parser"
@@ -13,6 +11,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 const (
@@ -151,7 +151,7 @@ func declVarExists(decl ast.Decl, methodDecl string) bool {
 // getGenDeclNames returns a list of the method declaration inside the ast.GenDecl.
 func getGenDeclNames(genDecl *ast.GenDecl) ([]string, error) {
 	if genDecl.Tok != token.VAR {
-		return nil, fmt.Errorf("genDecl is not a var token: %v", genDecl.Tok)
+		return nil, errors.Errorf("genDecl is not a var token: %v", genDecl.Tok)
 	}
 	var decls []string
 	for _, spec := range genDecl.Specs {
@@ -173,7 +173,7 @@ func getGenDeclNames(genDecl *ast.GenDecl) ([]string, error) {
 		}
 	}
 	if len(decls) == 0 {
-		return nil, fmt.Errorf("empty method declarations")
+		return nil, errors.Errorf("empty method declarations")
 	}
 	return decls, nil
 }
@@ -182,19 +182,31 @@ func getGenDeclNames(genDecl *ast.GenDecl) ([]string, error) {
 func getCallExprName(expr ast.Expr) (string, error) {
 	call, ok := expr.(*ast.CallExpr)
 	if !ok {
-		return "", fmt.Errorf("expression is not a *ast.CallExpr: %v", expr)
+		return "", errors.Errorf("expression is not a *ast.CallExpr: %v", expr)
 	}
 	sel, ok := call.Fun.(*ast.SelectorExpr)
 	if !ok {
-		return "", fmt.Errorf("expression function is not a *ast.SelectorExpr: %v", call.Fun)
+		return "", errors.Errorf("expression function is not a *ast.SelectorExpr: %v", call.Fun)
 	}
 
 	x, ok := sel.X.(*ast.Ident)
 	if !ok {
-		return "", fmt.Errorf("selector expression function is not a *ast.Ident: %v", sel.X)
+		return "", errors.Errorf("selector expression function is not a *ast.Ident: %v", sel.X)
 	}
 
 	return x.String() + "." + sel.Sel.String(), nil
+}
+
+// FindBlankImports find all blank imports ('_') into a file.
+func FindBlankImports(node *ast.File) []string {
+	// Iterate through the import declarations and find the blank imports.
+	blankImports := make([]string, 0)
+	for _, imp := range node.Imports {
+		if imp.Name != nil && imp.Name.Name == "_" {
+			blankImports = append(blankImports, strings.ReplaceAll(imp.Path.Value, `"`, ""))
+		}
+	}
+	return blankImports
 }
 
 // FormatImports translate f.Imports into a map where name -> package.
@@ -252,7 +264,7 @@ func UpdateInitImports(file *ast.File, writer io.Writer, importsToAdd, importsTo
 	}
 
 	if _, err := writer.Write([]byte(toolsBuildTag)); err != nil {
-		return fmt.Errorf("failed to write the build tag: %w", err)
+		return errors.Errorf("failed to write the build tag: %w", err)
 	}
 	return format.Node(writer, token.NewFileSet(), file)
 }
@@ -266,4 +278,63 @@ func createUnderscoreImport(imp string) *ast.ImportSpec {
 			Value: strconv.Quote(imp),
 		},
 	}
+}
+
+// ReplaceCode replace a function implementation into a package path. The method will find
+// the method signature and re-write the method implementation based in the new function.
+func ReplaceCode(pkgPath, oldFunctionName, newFunction string) (err error) {
+	absPath, err := filepath.Abs(pkgPath)
+	if err != nil {
+		return err
+	}
+
+	fileSet := token.NewFileSet()
+	all, err := parser.ParseDir(fileSet, absPath, func(os.FileInfo) bool { return true }, parser.ParseComments)
+	if err != nil {
+		return err
+	}
+
+	for _, pkg := range all {
+		for _, f := range pkg.Files {
+			found := false
+			ast.Inspect(f, func(n ast.Node) bool {
+				if funcDecl, ok := n.(*ast.FuncDecl); ok {
+					// Check if the function has the name you want to replace.
+					if funcDecl.Name.Name == oldFunctionName {
+						// Replace the function body with the replacement code.
+						replacementExpr, err := parser.ParseExpr(newFunction)
+						if err != nil {
+							return false
+						}
+						funcDecl.Body = &ast.BlockStmt{List: []ast.Stmt{
+							&ast.ExprStmt{X: replacementExpr},
+						}}
+						found = true
+						return false
+					}
+				}
+				return true
+			})
+			if err != nil {
+				return err
+			}
+			if !found {
+				continue
+			}
+			filePath := fileSet.Position(f.Package).Filename
+			outFile, err := os.Create(filePath)
+			if err != nil {
+				return err
+			}
+
+			// Format and write the modified AST to the output file.
+			if err := format.Node(outFile, fileSet, f); err != nil {
+				return err
+			}
+			if err := outFile.Close(); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

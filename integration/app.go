@@ -11,20 +11,20 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"
 
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
-	v1 "github.com/ignite/cli/ignite/config/chain/v1"
-	"github.com/ignite/cli/ignite/pkg/availableport"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/ignite/pkg/gocmd"
-	"github.com/ignite/cli/ignite/pkg/goenv"
-	"github.com/ignite/cli/ignite/pkg/xurl"
+	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
+	v1 "github.com/ignite/cli/v28/ignite/config/chain/v1"
+	"github.com/ignite/cli/v28/ignite/pkg/availableport"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/pkg/gocmd"
+	"github.com/ignite/cli/v28/ignite/pkg/goenv"
+	"github.com/ignite/cli/v28/ignite/pkg/xurl"
 )
 
 const ServeTimeout = time.Minute * 15
 
 const (
 	defaultConfigFileName = "config.yml"
-	defaultTestTimeout    = 20 * time.Minute // Go's default is 10m
+	defaultTestTimeout    = 30 * time.Minute // Go's default is 10m
 )
 
 // Hosts contains the "hostname:port" addresses for different service hosts.
@@ -116,6 +116,10 @@ func (e Env) App(path string, options ...AppOption) App {
 
 func (a App) SourcePath() string {
 	return a.path
+}
+
+func (a *App) SetHomePath(homePath string) {
+	a.homePath = homePath
 }
 
 func (a *App) SetConfigPath(path string) {

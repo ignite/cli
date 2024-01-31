@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package ignite.services.plugin.grpc.v1;
+
+option go_package = "github.com/ignite/cli/v28/ignite/services/plugin/grpc/v1";
+
+message ChainInfo {
+  string chain_id = 1;
+  string app_path = 2;
+  string config_path = 3;
+  string rpc_address = 4;
+  string home        = 5;
+}

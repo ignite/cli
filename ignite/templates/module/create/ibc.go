@@ -7,14 +7,15 @@ import (
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
 
-	"github.com/ignite/cli/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
-	"github.com/ignite/cli/ignite/pkg/xgenny"
-	"github.com/ignite/cli/ignite/pkg/xstrings"
-	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
-	"github.com/ignite/cli/ignite/templates/module"
-	"github.com/ignite/cli/ignite/templates/typed"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v28/ignite/pkg/xstrings"
+	"github.com/ignite/cli/v28/ignite/templates/field/plushhelpers"
+	"github.com/ignite/cli/v28/ignite/templates/module"
+	"github.com/ignite/cli/v28/ignite/templates/typed"
 )
 
 // NewIBC returns the generator to scaffold the implementation of the IBCModule interface inside a module.
@@ -52,7 +53,7 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 
 func genesisModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "genesis.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -63,7 +64,7 @@ func genesisModify(replacer placeholder.Replacer, opts *CreateOptions) genny.Run
 k.SetPort(ctx, genState.PortId)
 // Only try to bind to port if it is not already bound, since we may already own
 // port capability from capability InitGenesis
-if !k.IsBound(ctx, genState.PortId) {
+if k.ShouldBound(ctx, genState.PortId) {
 	// module binds to the port on InitChain
 	// and claims the returned capability
 	err := k.BindPort(ctx, genState.PortId)
@@ -94,7 +95,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 		}
 
 		// Import
-		templateImport := `host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
+		templateImport := `host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
 %s`
 		replacementImport := fmt.Sprintf(templateImport, typed.PlaceholderGenesisTypesImport)
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisTypesImport, replacementImport)
@@ -139,7 +140,7 @@ func genesisProtoModify(opts *CreateOptions) genny.RunFn {
 		// TODO: typed.ProtoGenesisStateMessage exists but in subfolder, so we can't use it here, refactor?
 		genesisState, err := protoutil.GetMessageByName(protoFile, "GenesisState")
 		if err != nil {
-			return fmt.Errorf("couldn't find message 'GenesisState' in %s: %w", path, err)
+			return errors.Errorf("couldn't find message 'GenesisState' in %s: %w", path, err)
 		}
 		field := protoutil.NewField("port_id", "string", protoutil.NextUniqueID(genesisState))
 		protoutil.Append(genesisState, field)
@@ -189,7 +190,7 @@ func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunF
 
 		// Import
 		templateImport := `%[1]v
-%[2]vmodule "%[3]v/x/%[2]v"
+%[2]vmodule "%[3]v/x/%[2]v/module"
 %[2]vmoduletypes "%[3]v/x/%[2]v/types"`
 		replacementImport := fmt.Sprintf(templateImport, module.PlaceholderIBCImport, opts.ModuleName, opts.ModulePath)
 		content := replacer.Replace(f.String(), module.PlaceholderIBCImport, replacementImport)

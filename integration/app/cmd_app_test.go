@@ -9,14 +9,28 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
-	envtest "github.com/ignite/cli/integration"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	envtest "github.com/ignite/cli/v28/integration"
 )
 
+// TestGenerateAnApp tests scaffolding a new chain.
 func TestGenerateAnApp(t *testing.T) {
 	var (
 		env = envtest.New(t)
 		app = env.Scaffold("github.com/test/blog")
+	)
+
+	_, statErr := os.Stat(filepath.Join(app.SourcePath(), "x", "blog"))
+	require.False(t, os.IsNotExist(statErr), "the default module should be scaffolded")
+
+	app.EnsureSteady()
+}
+
+// TestGenerateAnAppMinimal tests scaffolding a new minimal chain.
+func TestGenerateAnAppMinimal(t *testing.T) {
+	var (
+		env = envtest.New(t)
+		app = env.Scaffold("blog", "--minimal")
 	)
 
 	_, statErr := os.Stat(filepath.Join(app.SourcePath(), "x", "blog"))

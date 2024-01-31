@@ -20,6 +20,14 @@ build:
 	@-mkdir -p $(BUILD_FOLDER) 2> /dev/null
 	@go build $(BUILD_FLAGS) -o $(BUILD_FOLDER) ./...
 
+## prepare snapcraft.yaml for release
+snapcraft.yaml:
+	@sed -i 's/{{version}}/'$(version)'/' packaging/snap/snapcraft.yaml
+
+## prepare flatpak manifest for release
+flatpak:
+	@sed -i 's/{{version}}/'$(version)'/' packaging/flatpak/com.ignite.Ignite.yml
+
 ## mocks: generate mocks
 mocks:
 	@echo Generating mocks
@@ -49,15 +57,39 @@ govulncheck:
 format:
 	@echo Formatting...
 	@go run mvdan.cc/gofumpt -w .
-	@go run golang.org/x/tools/cmd/goimports -w -local github.com/ignite/cli .
+	@go run golang.org/x/tools/cmd/goimports -w -local github.com/ignite/cli/v28 .
 	@go run github.com/tbruyelle/mdgofmt/cmd/mdgofmt -w docs
 
 ## lint: Run Golang CI Lint.
 lint:
-	@echo Running gocilint...
+	@echo Running golangci-lint...
 	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run --out-format=tab --issues-exit-code=0
 
+lint-fix:
+	@echo Running golangci-lint...
+	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run --fix --out-format=tab --issues-exit-code=0
+
 .PHONY: govet format lint
+
+## proto-all: Format, lint and generate code from proto files using buf.
+proto-all: proto-format proto-lint proto-gen format
+
+## proto-gen: Run buf generate.
+proto-gen:
+	@echo Generating code from proto...
+	@buf generate --template ./proto/buf.gen.yaml --output ./
+
+## proto-format: Run buf format and update files with invalid proto format>
+proto-format:
+	@echo Formatting proto files...
+	@buf format --write
+
+## proto-lint: Run buf lint.
+proto-lint:
+	@echo Linting proto files...
+	@buf lint
+
+.PHONY: proto-all proto-gen proto-format proto-lint
 
 ## test-unit: Run the unit tests.
 test-unit:

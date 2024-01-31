@@ -3,15 +3,15 @@ package gocmd
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/ignite/pkg/goenv"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/goenv"
 )
 
 const (
@@ -33,6 +33,9 @@ const (
 	// CommandModVerify represents go mod "verify" command.
 	CommandModVerify = "verify"
 
+	// CommandModDownload represents go mod "download" command.
+	CommandModDownload = "download"
+
 	// CommandFmt represents go "fmt" command.
 	CommandFmt = "fmt"
 
@@ -41,6 +44,9 @@ const (
 
 	// CommandList represents go "list" command.
 	CommandList = "list"
+
+	// CommandTest represents go "test" command.
+	CommandTest = "test"
 
 	// EnvGOARCH represents GOARCH variable.
 	EnvGOARCH = "GOARCH"
@@ -103,6 +109,15 @@ func ModTidy(ctx context.Context, path string, options ...exec.Option) error {
 // ModVerify runs go mod verify on path with options.
 func ModVerify(ctx context.Context, path string, options ...exec.Option) error {
 	return exec.Exec(ctx, []string{Name(), CommandMod, CommandModVerify}, append(options, exec.StepOption(step.Workdir(path)))...)
+}
+
+// ModDownload runs go mod download on a path with options.
+func ModDownload(ctx context.Context, path string, json bool, options ...exec.Option) error {
+	command := []string{Name(), CommandMod, CommandModDownload}
+	if json {
+		command = append(command, "-json")
+	}
+	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
 }
 
 // BuildPath runs go install on cmd folder with options.
@@ -187,6 +202,15 @@ func List(ctx context.Context, path string, flags []string, options ...exec.Opti
 	return strings.Fields(b.String()), nil
 }
 
+func Test(ctx context.Context, path string, flags []string, options ...exec.Option) error {
+	command := []string{
+		Name(),
+		CommandTest,
+	}
+	command = append(command, flags...)
+	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
+}
+
 // Ldflags returns a combined ldflags set from flags.
 func Ldflags(flags ...string) string {
 	return strings.Join(flags, " ")
@@ -215,6 +239,11 @@ func ParseTarget(t string) (goos, goarch string, err error) {
 // PackageLiteral returns the string representation of package part of go get [package].
 func PackageLiteral(path, version string) string {
 	return fmt.Sprintf("%s@%s", path, version)
+}
+
+// Imports runs goimports on path with options.
+func GoImports(ctx context.Context, path string) error {
+	return exec.Exec(ctx, []string{"goimports", "-w", path})
 }
 
 // binaryPath determines the path where binary will be located at.

@@ -2,9 +2,9 @@ package xhttp
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"net/http"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 // ResponseJSON writes a JSON response to w by using status as http status and data
@@ -18,7 +18,7 @@ func ResponseJSON(w http.ResponseWriter, status int, data interface{}) error {
 
 		// wrap error
 		if errMarhsal != nil {
-			err = fmt.Errorf("%w: %s", err, errMarhsal.Error())
+			err = errors.Errorf("%w: %s", err, errMarhsal.Error())
 		}
 	}
 	w.Header().Set("Content-Type", "application/json")

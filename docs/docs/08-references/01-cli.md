@@ -31,7 +31,7 @@ To get started, create a blockchain:
 * [ignite account](#ignite-account)	 - Create, delete, and show Ignite accounts
 * [ignite app](#ignite-app)	 - Create and manage Ignite Apps
 * [ignite chain](#ignite-chain)	 - Build, init and start a blockchain node
-* [ignite completion](#ignite-completion)	 - Generate the autocompletion script for the specified shell
+* [ignite completion](#ignite-completion)	 - Generates shell completion script.
 * [ignite docs](#ignite-docs)	 - Show Ignite CLI docs
 * [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
 * [ignite network](#ignite-network)	 - Launch a blockchain in production
@@ -578,7 +578,7 @@ ignite chain build [flags]
 **Options**
 
 ```
-      --build.tags strings        parameters to build the chain binary (default [app_v1])
+      --build.tags strings        parameters to build the chain binary
       --check-dependencies        verify that cached dependencies have not been modified since they were downloaded
       --clear-cache               clear the build cache (advanced)
       --debug                     build a debug binary
@@ -766,7 +766,7 @@ ignite chain init [flags]
 **Options**
 
 ```
-      --build.tags strings   parameters to build the chain binary (default [app_v1])
+      --build.tags strings   parameters to build the chain binary
       --check-dependencies   verify that cached dependencies have not been modified since they were downloaded
       --clear-cache          clear the build cache (advanced)
       --debug                build a debug binary
@@ -835,7 +835,7 @@ ignite chain serve [flags]
 **Options**
 
 ```
-      --build.tags strings   parameters to build the chain binary (default [app_v1])
+      --build.tags strings   parameters to build the chain binary
       --check-dependencies   verify that cached dependencies have not been modified since they were downloaded
       --clear-cache          clear the build cache (advanced)
   -f, --force-reset          force reset of the app state on start and every source change
@@ -909,13 +909,11 @@ ignite chain simulate [flags]
 
 ## ignite completion
 
-Generate the autocompletion script for the specified shell
+Generates shell completion script.
 
-**Synopsis**
-
-Generate the autocompletion script for ignite for the specified shell.
-See each sub-command's help for details on how to use the generated script.
-
+```
+ignite completion [bash|zsh|fish|powershell] [flags]
+```
 
 **Options**
 
@@ -926,167 +924,6 @@ See each sub-command's help for details on how to use the generated script.
 **SEE ALSO**
 
 * [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-* [ignite completion bash](#ignite-completion-bash)	 - Generate the autocompletion script for bash
-* [ignite completion fish](#ignite-completion-fish)	 - Generate the autocompletion script for fish
-* [ignite completion powershell](#ignite-completion-powershell)	 - Generate the autocompletion script for powershell
-* [ignite completion zsh](#ignite-completion-zsh)	 - Generate the autocompletion script for zsh
-
-
-## ignite completion bash
-
-Generate the autocompletion script for bash
-
-**Synopsis**
-
-Generate the autocompletion script for the bash shell.
-
-This script depends on the 'bash-completion' package.
-If it is not installed already, you can install it via your OS's package manager.
-
-To load completions in your current shell session:
-
-	source <(ignite completion bash)
-
-To load completions for every new session, execute once:
-
-**#### Linux:**
-
-	ignite completion bash > /etc/bash_completion.d/ignite
-
-**#### macOS:**
-
-	ignite completion bash > $(brew --prefix)/etc/bash_completion.d/ignite
-
-You will need to start a new shell for this setup to take effect.
-
-
-```
-ignite completion bash
-```
-
-**Options**
-
-```
-  -h, --help              help for bash
-      --no-descriptions   disable completion descriptions
-```
-
-**SEE ALSO**
-
-* [ignite completion](#ignite-completion)	 - Generate the autocompletion script for the specified shell
-
-
-## ignite completion fish
-
-Generate the autocompletion script for fish
-
-**Synopsis**
-
-Generate the autocompletion script for the fish shell.
-
-To load completions in your current shell session:
-
-	ignite completion fish | source
-
-To load completions for every new session, execute once:
-
-	ignite completion fish > ~/.config/fish/completions/ignite.fish
-
-You will need to start a new shell for this setup to take effect.
-
-
-```
-ignite completion fish [flags]
-```
-
-**Options**
-
-```
-  -h, --help              help for fish
-      --no-descriptions   disable completion descriptions
-```
-
-**SEE ALSO**
-
-* [ignite completion](#ignite-completion)	 - Generate the autocompletion script for the specified shell
-
-
-## ignite completion powershell
-
-Generate the autocompletion script for powershell
-
-**Synopsis**
-
-Generate the autocompletion script for powershell.
-
-To load completions in your current shell session:
-
-	ignite completion powershell | Out-String | Invoke-Expression
-
-To load completions for every new session, add the output of the above command
-to your powershell profile.
-
-
-```
-ignite completion powershell [flags]
-```
-
-**Options**
-
-```
-  -h, --help              help for powershell
-      --no-descriptions   disable completion descriptions
-```
-
-**SEE ALSO**
-
-* [ignite completion](#ignite-completion)	 - Generate the autocompletion script for the specified shell
-
-
-## ignite completion zsh
-
-Generate the autocompletion script for zsh
-
-**Synopsis**
-
-Generate the autocompletion script for the zsh shell.
-
-If shell completion is not already enabled in your environment you will need
-to enable it.  You can execute the following once:
-
-	echo "autoload -U compinit; compinit" >> ~/.zshrc
-
-To load completions in your current shell session:
-
-	source <(ignite completion zsh)
-
-To load completions for every new session, execute once:
-
-**#### Linux:**
-
-	ignite completion zsh > "${fpath[1]}/_ignite"
-
-**#### macOS:**
-
-	ignite completion zsh > $(brew --prefix)/share/zsh/site-functions/_ignite
-
-You will need to start a new shell for this setup to take effect.
-
-
-```
-ignite completion zsh [flags]
-```
-
-**Options**
-
-```
-  -h, --help              help for zsh
-      --no-descriptions   disable completion descriptions
-```
-
-**SEE ALSO**
-
-* [ignite completion](#ignite-completion)	 - Generate the autocompletion script for the specified shell
 
 
 ## ignite docs
@@ -1126,9 +963,10 @@ meant to be edited by hand.
 **Options**
 
 ```
-      --clear-cache   clear the build cache (advanced)
-  -h, --help          help for generate
-  -p, --path string   path of the app (default ".")
+      --clear-cache           clear the build cache (advanced)
+      --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
+  -h, --help                  help for generate
+  -p, --path string           path of the app (default ".")
 ```
 
 **SEE ALSO**
@@ -1138,7 +976,6 @@ meant to be edited by hand.
 * [ignite generate hooks](#ignite-generate-hooks)	 - TypeScript frontend client and React hooks
 * [ignite generate openapi](#ignite-generate-openapi)	 - OpenAPI spec for your chain
 * [ignite generate proto-go](#ignite-generate-proto-go)	 - Compile protocol buffer files to Go source code required by Cosmos SDK
-* [ignite generate proto-pulsar](#ignite-generate-proto-pulsar)	 - Compile protocol buffer files to Go pulsar source code required by Cosmos SDK
 * [ignite generate ts-client](#ignite-generate-ts-client)	 - TypeScript frontend client
 * [ignite generate vuex](#ignite-generate-vuex)	 - *DEPRECATED* TypeScript frontend client and Vuex stores
 
@@ -1162,8 +999,9 @@ ignite generate composables [flags]
 **Options inherited from parent commands**
 
 ```
-      --clear-cache   clear the build cache (advanced)
-  -p, --path string   path of the app (default ".")
+      --clear-cache           clear the build cache (advanced)
+      --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
+  -p, --path string           path of the app (default ".")
 ```
 
 **SEE ALSO**
@@ -1190,8 +1028,9 @@ ignite generate hooks [flags]
 **Options inherited from parent commands**
 
 ```
-      --clear-cache   clear the build cache (advanced)
-  -p, --path string   path of the app (default ".")
+      --clear-cache           clear the build cache (advanced)
+      --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
+  -p, --path string           path of the app (default ".")
 ```
 
 **SEE ALSO**
@@ -1217,8 +1056,9 @@ ignite generate openapi [flags]
 **Options inherited from parent commands**
 
 ```
-      --clear-cache   clear the build cache (advanced)
-  -p, --path string   path of the app (default ".")
+      --clear-cache           clear the build cache (advanced)
+      --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
+  -p, --path string           path of the app (default ".")
 ```
 
 **SEE ALSO**
@@ -1244,35 +1084,9 @@ ignite generate proto-go [flags]
 **Options inherited from parent commands**
 
 ```
-      --clear-cache   clear the build cache (advanced)
-  -p, --path string   path of the app (default ".")
-```
-
-**SEE ALSO**
-
-* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
-
-
-## ignite generate proto-pulsar
-
-Compile protocol buffer files to Go pulsar source code required by Cosmos SDK
-
-```
-ignite generate proto-pulsar [flags]
-```
-
-**Options**
-
-```
-  -h, --help   help for proto-pulsar
-  -y, --yes    answers interactive yes/no questions with yes
-```
-
-**Options inherited from parent commands**
-
-```
-      --clear-cache   clear the build cache (advanced)
-  -p, --path string   path of the app (default ".")
+      --clear-cache           clear the build cache (advanced)
+      --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
+  -p, --path string           path of the app (default ".")
 ```
 
 **SEE ALSO**
@@ -1321,8 +1135,9 @@ ignite generate ts-client [flags]
 **Options inherited from parent commands**
 
 ```
-      --clear-cache   clear the build cache (advanced)
-  -p, --path string   path of the app (default ".")
+      --clear-cache           clear the build cache (advanced)
+      --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
+  -p, --path string           path of the app (default ".")
 ```
 
 **SEE ALSO**
@@ -1349,8 +1164,9 @@ ignite generate vuex [flags]
 **Options inherited from parent commands**
 
 ```
-      --clear-cache   clear the build cache (advanced)
-  -p, --path string   path of the app (default ".")
+      --clear-cache           clear the build cache (advanced)
+      --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
+  -p, --path string           path of the app (default ".")
 ```
 
 **SEE ALSO**
@@ -2814,7 +2630,7 @@ Make requests to a live blockchain node
 
 ```
   -h, --help          help for node
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
 ```
 
 **SEE ALSO**
@@ -2837,7 +2653,7 @@ Querying subcommands
 **Options inherited from parent commands**
 
 ```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
 ```
 
 **SEE ALSO**
@@ -2860,7 +2676,7 @@ Querying commands for the bank module
 **Options inherited from parent commands**
 
 ```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
 ```
 
 **SEE ALSO**
@@ -2896,7 +2712,7 @@ ignite node query bank balances [from_account_or_address] [flags]
 **Options inherited from parent commands**
 
 ```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
 ```
 
 **SEE ALSO**
@@ -2921,7 +2737,7 @@ ignite node query tx [hash] [flags]
 **Options inherited from parent commands**
 
 ```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
 ```
 
 **SEE ALSO**
@@ -2951,7 +2767,7 @@ Transactions subcommands
 **Options inherited from parent commands**
 
 ```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
 ```
 
 **SEE ALSO**
@@ -2982,7 +2798,7 @@ Bank transaction subcommands
       --home string              directory where the blockchain node is initialized
       --keyring-backend string   keyring backend to store your account keys (default "test")
       --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
-      --node string              <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+      --node string              <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
 ```
 
 **SEE ALSO**
@@ -3017,7 +2833,7 @@ ignite node tx bank send [from_account_or_address] [to_account_or_address] [amou
       --home string              directory where the blockchain node is initialized
       --keyring-backend string   keyring backend to store your account keys (default "test")
       --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
-      --node string              <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.network:443")
+      --node string              <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
 ```
 
 **SEE ALSO**
@@ -3246,6 +3062,7 @@ ignite scaffold chain [name] [flags]
       --address-prefix string   account address prefix (default "cosmos")
       --clear-cache             clear the build cache (advanced)
   -h, --help                    help for chain
+      --minimal                 create a minimal blockchain (with the minimum required Cosmos SDK modules)
       --no-module               create a project without a default module
       --params strings          add default module parameters
   -p, --path string             create a project in a specific path

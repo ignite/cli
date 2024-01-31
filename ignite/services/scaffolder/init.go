@@ -8,15 +8,15 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/gocmd"
-	"github.com/ignite/cli/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/pkg/xgit"
-	"github.com/ignite/cli/ignite/templates/app"
-	"github.com/ignite/cli/ignite/templates/field"
-	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
-	"github.com/ignite/cli/ignite/templates/testutil"
+	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/xgit"
+	"github.com/ignite/cli/v28/ignite/templates/app"
+	"github.com/ignite/cli/v28/ignite/templates/field"
+	modulecreate "github.com/ignite/cli/v28/ignite/templates/module/create"
+	"github.com/ignite/cli/v28/ignite/templates/testutil"
 )
 
 // Init initializes a new app with name and given options.
@@ -25,7 +25,7 @@ func Init(
 	cacheStorage cache.Storage,
 	tracer *placeholder.Tracer,
 	root, name, addressPrefix string,
-	noDefaultModule, skipGit bool,
+	noDefaultModule, skipGit, minimal bool,
 	params []string,
 ) (path string, err error) {
 	pathInfo, err := gomodulepath.Parse(name)
@@ -46,7 +46,7 @@ func Init(
 	path = filepath.Join(root, appFolder)
 
 	// create the project
-	err = generate(ctx, tracer, pathInfo, addressPrefix, path, noDefaultModule, params)
+	err = generate(ctx, tracer, pathInfo, addressPrefix, path, noDefaultModule, minimal, params)
 	if err != nil {
 		return "", err
 	}
@@ -73,7 +73,7 @@ func generate(
 	pathInfo gomodulepath.Path,
 	addressPrefix,
 	absRoot string,
-	noDefaultModule bool,
+	noDefaultModule, minimal bool,
 	params []string,
 ) error {
 	// Parse params with the associated type
@@ -96,6 +96,7 @@ func generate(
 		GitHubPath:       githubPath,
 		BinaryNamePrefix: pathInfo.Root,
 		AddressPrefix:    addressPrefix,
+		IsChainMinimal:   minimal,
 	})
 	if err != nil {
 		return err
@@ -113,6 +114,10 @@ func generate(
 		return runner.Run()
 	}
 	if err := run(genny.WetRunner(ctx), g); err != nil {
+		return err
+	}
+
+	if err := cosmosgen.InstallDepTools(ctx, absRoot); err != nil {
 		return err
 	}
 
@@ -143,5 +148,6 @@ func generate(
 		}
 
 	}
-	return gocmd.ModTidy(ctx, absRoot)
+
+	return nil
 }

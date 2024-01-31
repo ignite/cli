@@ -13,7 +13,7 @@ updates:
     labels:
       - "dependencies"
       - "go"
-      - "Skip-Changelog"
+      - "skip-changelog"
     open-pull-requests-limit: 0
 
   - package-ecosystem: "npm"
@@ -24,5 +24,12 @@ updates:
     labels:
       - "dependencies"
       - "javascript"
-      - "Skip-Changelog"
+      - "skip-changelog"
+    open-pull-requests-limit: 0
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "10:00"
     open-pull-requests-limit: 0

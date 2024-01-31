@@ -2,22 +2,20 @@ package scaffolder
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"go/token"
 	"os"
 	"path/filepath"
 	"strings"
 
+	evidencetypes "cosmossdk.io/x/evidence/types"
+	feegranttypes "cosmossdk.io/x/feegrant"
+	upgradetypes "cosmossdk.io/x/upgrade/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
-	feegranttypes "github.com/cosmos/cosmos-sdk/x/feegrant"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	grouptypes "github.com/cosmos/cosmos-sdk/x/group"
@@ -25,20 +23,21 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/ignite/pkg/cache"
-	appanalysis "github.com/ignite/cli/ignite/pkg/cosmosanalysis/app"
-	"github.com/ignite/cli/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/pkg/validation"
-	"github.com/ignite/cli/ignite/pkg/xgenny"
-	"github.com/ignite/cli/ignite/templates/field"
-	"github.com/ignite/cli/ignite/templates/module"
-	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
+	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	appanalysis "github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/app"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/validation"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v28/ignite/templates/field"
+	"github.com/ignite/cli/v28/ignite/templates/module"
+	modulecreate "github.com/ignite/cli/v28/ignite/templates/module/create"
 )
 
 const (
@@ -46,6 +45,7 @@ const (
 	extrasVersion = "v0.1.0"
 	appPkg        = "app"
 	moduleDir     = "x"
+	modulePkg     = "module"
 )
 
 var (
@@ -181,7 +181,7 @@ func (s Scaffolder) CreateModule(
 		return sm, err
 	}
 	if ok {
-		return sm, fmt.Errorf("the module %v already exists", moduleName)
+		return sm, errors.Errorf("the module %v already exists", moduleName)
 	}
 
 	// Apply the options
@@ -262,17 +262,17 @@ func moduleExists(appPath string, moduleName string) (bool, error) {
 func checkModuleName(appPath, moduleName string) error {
 	// go keyword
 	if token.Lookup(moduleName).IsKeyword() {
-		return fmt.Errorf("%s is a Go keyword", moduleName)
+		return errors.Errorf("%s is a Go keyword", moduleName)
 	}
 
 	// check if the name is a reserved name
 	if _, ok := reservedNames[moduleName]; ok {
-		return fmt.Errorf("%s is a reserved name and can't be used as a module name", moduleName)
+		return errors.Errorf("%s is a reserved name and can't be used as a module name", moduleName)
 	}
 
 	checkPrefix := func(name, prefix string) error {
 		if strings.HasPrefix(name, prefix) {
-			return fmt.Errorf("the module name can't be prefixed with %s because of potential store key collision", prefix)
+			return errors.Errorf("the module name can't be prefixed with %s because of potential store key collision", prefix)
 		}
 		return nil
 	}
@@ -312,7 +312,7 @@ func checkDependencies(dependencies []modulecreate.Dependency, appPath string) e
 		// check the dependency has been registered
 		path := filepath.Join(appPath, module.PathAppModule)
 		if err := appanalysis.CheckKeeper(path, dep.KeeperName()); err != nil {
-			return fmt.Errorf(
+			return errors.Errorf(
 				"the module cannot have %s as a dependency: %w",
 				dep.Name,
 				err,
@@ -322,7 +322,7 @@ func checkDependencies(dependencies []modulecreate.Dependency, appPath string) e
 		// check duplicated
 		_, ok := depMap[dep.Name]
 		if ok {
-			return fmt.Errorf("%s is a duplicated dependency", dep)
+			return errors.Errorf("%s is a duplicated dependency", dep)
 		}
 		depMap[dep.Name] = struct{}{}
 	}

@@ -1,30 +1,23 @@
 package app
 
 import (
-	"bytes"
-	"fmt"
+	"context"
 	"go/ast"
-	"go/format"
 	"go/parser"
 	"go/token"
 	"os"
 	"path/filepath"
+	"strings"
 
-	"github.com/pkg/errors"
-
-	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
-	"github.com/ignite/cli/ignite/pkg/cosmosver"
-	"github.com/ignite/cli/ignite/pkg/goanalysis"
-	"github.com/ignite/cli/ignite/pkg/goenv"
-	"github.com/ignite/cli/ignite/pkg/gomodule"
-	"github.com/ignite/cli/ignite/pkg/xast"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodule"
+	"github.com/ignite/cli/v28/ignite/pkg/xast"
 )
 
-const (
-	appWiringImport      = "cosmossdk.io/depinject"
-	appWiringCallMethod  = "Inject"
-	registerRoutesMethod = "RegisterAPIRoutes"
-)
+const registerRoutesMethod = "RegisterAPIRoutes"
 
 // CheckKeeper checks for the existence of the keeper with the provided name in the app structure.
 func CheckKeeper(path, keeperName string) error {
@@ -34,7 +27,7 @@ func CheckKeeper(path, keeperName string) error {
 		return err
 	}
 	if len(appImpl) != 1 {
-		return fmt.Errorf("app.go should contain a single app (got %d)", len(appImpl))
+		return errors.Errorf("app.go should contain a single app (got %d)", len(appImpl))
 	}
 	appTypeName := appImpl[0]
 
@@ -75,18 +68,13 @@ func CheckKeeper(path, keeperName string) error {
 	}
 
 	if !found {
-		return fmt.Errorf("app doesn't contain %s", keeperName)
+		return errors.Errorf("app doesn't contain %s", keeperName)
 	}
 	return nil
 }
 
-// FindRegisteredModules looks for all the registered modules in the App
-// It finds activated modules by checking if imported modules are registered in the app and also checking if their query clients are registered
-// It does so by:
-// 1. Mapping out all the imports and named imports
-// 2. Looking for the call to module.NewBasicManager and finds the modules registered there
-// 3. Looking for the implementation of RegisterAPIRoutes and find the modules that call their RegisterGRPCGatewayRoutes.
-func FindRegisteredModules(chainRoot string) (modules []string, err error) {
+// FindRegisteredModules returns all registered modules into the chain root.
+func FindRegisteredModules(chainRoot string) ([]string, error) {
 	// Assumption: modules are registered in the app package
 	appFilePath, err := cosmosanalysis.FindAppFilePath(chainRoot)
 	if err != nil {
@@ -101,283 +89,122 @@ func FindRegisteredModules(chainRoot string) (modules []string, err error) {
 		return nil, err
 	}
 
-	// The modules registered by Cosmos SDK `rumtime.App` are included
-	// when the app registers API modules though the `App` instance.
-	var includeRuntimeModules bool
-
-	// Loop on package's files
+	// Search the app for the imported SDK modules
+	var discovered []string
 	for _, f := range appPkg.Files {
+		discovered = append(discovered, goanalysis.FindBlankImports(f)...)
 		fileImports := goanalysis.FormatImports(f)
-		err := xast.Inspect(f, func(n ast.Node) error {
-			// Find modules in module.NewBasicManager call
-			pkgs, err := findBasicManagerRegistrations(n, appDir, fileImports)
-			if err != nil {
-				return err
-			}
-
-			if pkgs != nil {
-				for _, p := range pkgs {
-					importModule := fileImports[p]
-					if importModule == "" {
-						// When the package is not defined in the same file use the package name as import
-						importModule = p
-					}
-					modules = append(modules, importModule)
-				}
-				return xast.ErrStop
-			}
-
-			// Check if Cosmos SDK runtime App is called to register API routes
-			if !includeRuntimeModules {
-				includeRuntimeModules = checkRuntimeAppCalled(n)
-			}
-
-			// Find modules in RegisterAPIRoutes declaration
-			if pkgs := findRegisterAPIRoutesRegistrations(n); pkgs != nil {
-				for _, p := range pkgs {
-					importModule := fileImports[p]
-					if importModule == "" {
-						continue
-					}
-					modules = append(modules, importModule)
-				}
-
-				return xast.ErrStop
-			}
-
-			return nil
-		})
+		d, err := DiscoverModules(f, chainRoot, fileImports)
 		if err != nil {
 			return nil, err
 		}
+		discovered = append(discovered, d...)
 	}
 
-	// Try to find the modules registered in Cosmos SDK `runtime.App`.
-	// This is required to properly generate OpenAPI specs for these
-	// modules when `app.App.RegisterAPIRoutes` is called.
-	if includeRuntimeModules {
-		runtimeModules, err := findRuntimeRegisteredModules(chainRoot)
+	// Discover IBC wired modules
+	// TODO: This can be removed once IBC modules use dependency injection
+	ibcPath := filepath.Join(chainRoot, "app", "ibc.go")
+	if _, err := os.Stat(ibcPath); err == nil {
+		m, err := discoverIBCModules(ibcPath)
 		if err != nil {
 			return nil, err
 		}
 
-		modules = append(modules, runtimeModules...)
+		discovered = append(discovered, m...)
 	}
 
-	return modules, nil
+	return removeDuplicateEntries(discovered), nil
 }
 
-// CheckAppWiring check if the app wiring exists finding the `depinject.Inject` method call.
-func CheckAppWiring(chainRoot string) (bool, error) {
-	// Assumption: modules are registered in the app package
-	appFilePath, err := cosmosanalysis.FindAppFilePath(chainRoot)
-	if err != nil {
-		return false, err
-	}
-	// The directory where the app file is located.
-	// This is required to resolve references within the app package.
-	appDir := filepath.Dir(appFilePath)
-
-	appPkg, _, err := xast.ParseDir(appDir)
-	if err != nil {
-		return false, err
+// DiscoverModules find a map of import modules based on the configured app.
+func DiscoverModules(file *ast.File, chainRoot string, fileImports map[string]string) ([]string, error) {
+	// find app type
+	appImpl := cosmosanalysis.FindImplementationInFile(file, cosmosanalysis.AppImplementation)
+	appTypeName := "App"
+	switch {
+	case len(appImpl) > 1:
+		return nil, errors.Errorf("app.go should contain only a single app (got %d)", len(appImpl))
+	case len(appImpl) == 1:
+		appTypeName = appImpl[0]
 	}
 
-	// Loop on package's files
-	for _, f := range appPkg.Files {
-		exists := goanalysis.FuncVarExists(f, appWiringImport, appWiringCallMethod)
-		if exists {
-			return true, nil
-		}
-	}
-	return false, nil
-}
-
-func exprToString(n ast.Expr) (string, error) {
-	buf := bytes.Buffer{}
-	fset := token.NewFileSet()
-
-	// Convert the expression node to Go
-	if err := format.Node(&buf, fset, n); err != nil {
-		return "", err
-	}
-
-	return buf.String(), nil
-}
-
-func newExprError(msg string, n ast.Expr) error {
-	s, err := exprToString(n)
-	if err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
-	}
-	return fmt.Errorf("%s: %s", msg, s)
-}
-
-func newUnexpectedTypeErr(n any) error {
-	return errors.Errorf("unexpected type %T", n)
-}
-
-func findBasicManagerRegistrations(n ast.Node, pkgDir string, fileImports map[string]string) (packages []string, err error) {
-	callExprType, ok := n.(*ast.CallExpr)
-	if !ok {
-		return packages, err
-	}
-
-	selectorExprType, ok := callExprType.Fun.(*ast.SelectorExpr)
-	if !ok {
-		return packages, err
-	}
-
-	identExprType, ok := selectorExprType.X.(*ast.Ident)
-	if !ok {
-		return packages, err
-	}
-	basicModulePkgName := findBasicManagerPkgName(fileImports)
-	if basicModulePkgName == "" {
-		// cosmos-sdk/types/module is not imported in this file, skip
-		return packages, err
-	}
-	if identExprType.Name != basicModulePkgName || selectorExprType.Sel.Name != "NewBasicManager" {
-		return packages, err
-	}
-
-	// Node "n" defines the call to NewBasicManager, let's loop on its args to discover modules
-	for _, arg := range callExprType.Args {
-		switch v := arg.(type) {
-
-		case *ast.CompositeLit:
-			// The arg is an app module
-			ps, err := parsePkgNameFromCompositeLit(v, pkgDir)
-			if err != nil {
-				return nil, err
+	var discovered []string
+	for _, decl := range file.Decls {
+		switch x := decl.(type) {
+		case *ast.GenDecl:
+			discovered = append(discovered, discoverKeeperModules(x, appTypeName, fileImports)...)
+		case *ast.FuncDecl:
+			// The modules registered by Cosmos SDK `rumtime.App` are included
+			// when the app registers API modules though the `App` instance.
+			if isRuntimeAppCalled(x) {
+				m, err := discoverRuntimeAppModules(chainRoot)
+				if err != nil {
+					return nil, err
+				}
+				discovered = append(discovered, m...)
 			}
-			packages = append(packages, ps...)
+		}
+	}
+	return removeDuplicateEntries(discovered), nil
+}
 
-		case *ast.CallExpr:
-			// The arg is a function call that returns the app module
-			ps, err := parsePkgNameFromCall(v, pkgDir)
-			if err != nil {
-				return nil, err
+func removeDuplicateEntries(entries []string) (res []string) {
+	seen := make(map[string]struct{})
+	for _, e := range entries {
+		if _, ok := seen[e]; ok {
+			continue
+		}
+
+		seen[e] = struct{}{}
+		res = append(res, e)
+	}
+	return
+}
+
+func discoverKeeperModules(d *ast.GenDecl, appTypeName string, imports map[string]string) []string {
+	var modules []string
+	for _, spec := range d.Specs {
+		typeSpec, ok := spec.(*ast.TypeSpec)
+		if !ok {
+			continue
+		}
+		if typeSpec.Name.Name != appTypeName {
+			continue
+		}
+		structType, ok := typeSpec.Type.(*ast.StructType)
+		if !ok {
+			continue
+		}
+		for _, field := range structType.Fields.List {
+			f := field.Type
+		CheckSpec:
+			switch spec := f.(type) {
+			case *ast.StarExpr:
+				f, ok = spec.X.(*ast.SelectorExpr)
+				if !ok {
+					continue
+				}
+				goto CheckSpec
+			case *ast.SelectorExpr:
+				if !strings.HasSuffix(spec.Sel.Name, "Keeper") {
+					continue
+				}
+				ident, ok := spec.X.(*ast.Ident)
+				if !ok {
+					continue
+				}
+				fileImport, ok := imports[ident.Name]
+				if !ok {
+					continue
+				}
+				modules = append(modules, removeKeeperPkgPath(fileImport))
 			}
-			packages = append(packages, ps...)
-
-		case *ast.Ident:
-			// The list of modules are defined in a local variable
-			ps, err := parseAppModulesFromIdent(v, pkgDir)
-			if err != nil {
-				return nil, err
-			}
-
-			packages = append(packages, ps...)
-		case *ast.SelectorExpr:
-			// The list of modules is defined in a variable of a different package
-			ps, err := parseAppModulesFromSelectorExpr(v, pkgDir, fileImports)
-			if err != nil {
-				return nil, err
-			}
-			packages = append(packages, ps...)
-		default:
-			return nil, newExprError("unsupported NewBasicManager() argument format", arg)
 		}
 	}
-	return packages, nil
+	return modules
 }
 
-func findBasicManagerPkgName(pkgs map[string]string) string {
-	for mod, pkg := range pkgs {
-		if pkg == "github.com/cosmos/cosmos-sdk/types/module" {
-			return mod
-		}
-	}
-	return ""
-}
-
-func findRegisterAPIRoutesRegistrations(n ast.Node) []string {
-	funcLitType, ok := n.(*ast.FuncDecl)
-	if !ok {
-		return nil
-	}
-
-	if funcLitType.Name.Name != registerRoutesMethod {
-		return nil
-	}
-
-	var packagesRegistered []string
-	for _, stmt := range funcLitType.Body.List {
-		exprStmt, ok := stmt.(*ast.ExprStmt)
-		if !ok {
-			continue
-		}
-
-		exprCall, ok := exprStmt.X.(*ast.CallExpr)
-		if !ok {
-			continue
-		}
-
-		exprFun, ok := exprCall.Fun.(*ast.SelectorExpr)
-		if !ok || exprFun.Sel.Name != "RegisterGRPCGatewayRoutes" {
-			continue
-		}
-
-		identType, ok := exprFun.X.(*ast.Ident)
-		if !ok {
-			continue
-		}
-
-		pkgName := identType.Name
-		if pkgName == "" {
-			continue
-		}
-
-		packagesRegistered = append(packagesRegistered, identType.Name)
-	}
-
-	return packagesRegistered
-}
-
-func checkRuntimeAppCalled(n ast.Node) bool {
-	funcLitType, ok := n.(*ast.FuncDecl)
-	if !ok {
-		return false
-	}
-
-	if funcLitType.Name.Name != registerRoutesMethod {
-		return false
-	}
-
-	for _, stmt := range funcLitType.Body.List {
-		exprStmt, ok := stmt.(*ast.ExprStmt)
-		if !ok {
-			continue
-		}
-
-		exprCall, ok := exprStmt.X.(*ast.CallExpr)
-		if !ok {
-			continue
-		}
-
-		exprFun, ok := exprCall.Fun.(*ast.SelectorExpr)
-		if !ok || exprFun.Sel.Name != registerRoutesMethod {
-			continue
-		}
-
-		exprSel, ok := exprFun.X.(*ast.SelectorExpr)
-		if !ok || exprSel.Sel.Name != "App" {
-			continue
-		}
-
-		identType, ok := exprSel.X.(*ast.Ident)
-		if !ok || identType.Name != "app" {
-			continue
-		}
-
-		return true
-	}
-
-	return false
-}
-
-func findRuntimeRegisteredModules(chainRoot string) ([]string, error) {
+func discoverRuntimeAppModules(chainRoot string) ([]string, error) {
 	// Resolve the absolute path to the Cosmos SDK module
 	cosmosPath, err := resolveCosmosPackagePath(chainRoot)
 	if err != nil {
@@ -417,6 +244,64 @@ func findRuntimeRegisteredModules(chainRoot string) ([]string, error) {
 	return modules, nil
 }
 
+func discoverIBCModules(ibcPath string) ([]string, error) {
+	f, _, err := xast.ParseFile(ibcPath)
+	if err != nil {
+		return nil, err
+	}
+
+	var (
+		names   []string
+		imports = goanalysis.FormatImports(f)
+	)
+	err = xast.Inspect(f, func(n ast.Node) error {
+		fn, _ := n.(*ast.FuncDecl)
+		if fn == nil {
+			return nil
+		}
+
+		if fn.Name.Name != "RegisterIBC" && fn.Name.Name != "AddIBCModuleManager" {
+			return nil
+		}
+
+		for _, stmt := range fn.Body.List {
+			x, _ := stmt.(*ast.AssignStmt)
+			if x == nil {
+				continue
+			}
+
+			if len(x.Rhs) == 0 {
+				continue
+			}
+
+			c, _ := x.Rhs[0].(*ast.CompositeLit)
+			if c == nil {
+				continue
+			}
+
+			s, _ := c.Type.(*ast.SelectorExpr)
+			if s == nil || s.Sel.Name != "AppModule" {
+				continue
+			}
+
+			if m, _ := s.X.(*ast.Ident); m != nil {
+				names = append(names, m.Name)
+			}
+		}
+
+		return xast.ErrStop
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var modules []string
+	for _, n := range names {
+		modules = append(modules, imports[n])
+	}
+	return modules, nil
+}
+
 func resolveCosmosPackagePath(chainRoot string) (string, error) {
 	modFile, err := gomodule.ParseAt(chainRoot)
 	if err != nil {
@@ -430,21 +315,100 @@ func resolveCosmosPackagePath(chainRoot string) (string, error) {
 
 	var pkg string
 	for _, dep := range deps {
-		if dep.Path == cosmosver.CosmosModulePath {
+		// dependencies are resolved, so we need to check for possible SDK forks
+		if cosmosver.CosmosSDKModulePathPattern.MatchString(dep.Path) {
 			pkg = dep.String()
 			break
 		}
 	}
 
 	if pkg == "" {
-		return "", errors.New("Cosmos SDK package version not found")
+		return "", errors.New("cosmos-sdk package version not found")
 	}
 
-	// Check path of the package directory within Go's module cache
-	path := filepath.Join(goenv.GoModCache(), pkg)
-	info, err := os.Stat(path)
-	if os.IsNotExist(err) || !info.IsDir() {
-		return "", errors.New("local path to Cosmos SDK package not found")
+	m, err := gomodule.FindModule(context.Background(), chainRoot, pkg)
+	if err != nil {
+		return "", err
 	}
-	return path, nil
+	return m.Dir, nil
+}
+
+func findRegisterAPIRoutesRegistrations(n ast.Node) []string {
+	funcLitType, ok := n.(*ast.FuncDecl)
+	if !ok {
+		return nil
+	}
+
+	if funcLitType.Name.Name != registerRoutesMethod {
+		return nil
+	}
+
+	var packagesRegistered []string
+	for _, stmt := range funcLitType.Body.List {
+		exprStmt, ok := stmt.(*ast.ExprStmt)
+		if !ok {
+			continue
+		}
+		exprCall, ok := exprStmt.X.(*ast.CallExpr)
+		if !ok {
+			continue
+		}
+		exprFun, ok := exprCall.Fun.(*ast.SelectorExpr)
+		if !ok || exprFun.Sel.Name != "RegisterGRPCGatewayRoutes" {
+			continue
+		}
+		identType, ok := exprFun.X.(*ast.Ident)
+		if !ok {
+			continue
+		}
+		pkgName := identType.Name
+		if pkgName == "" {
+			continue
+		}
+		packagesRegistered = append(packagesRegistered, identType.Name)
+	}
+	return packagesRegistered
+}
+
+func removeKeeperPkgPath(pkg string) string {
+	path := strings.TrimSuffix(pkg, "/keeper")
+	path = strings.TrimSuffix(path, "/controller")
+	return strings.TrimSuffix(path, "/host")
+}
+
+func isRuntimeAppCalled(fn *ast.FuncDecl) bool {
+	if fn.Name.Name != registerRoutesMethod {
+		return false
+	}
+
+	for _, stmt := range fn.Body.List {
+		exprStmt, ok := stmt.(*ast.ExprStmt)
+		if !ok {
+			continue
+		}
+
+		exprCall, ok := exprStmt.X.(*ast.CallExpr)
+		if !ok {
+			continue
+		}
+
+		exprFun, ok := exprCall.Fun.(*ast.SelectorExpr)
+		if !ok || exprFun.Sel.Name != registerRoutesMethod {
+			continue
+		}
+
+		exprSel, ok := exprFun.X.(*ast.SelectorExpr)
+		if !ok || exprSel.Sel.Name != "App" {
+			continue
+		}
+
+		identType, ok := exprSel.X.(*ast.Ident)
+		if !ok || identType.Name != "app" {
+			continue
+		}
+
+		return true
+	}
+
+	return false
 }

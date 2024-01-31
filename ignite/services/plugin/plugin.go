@@ -6,6 +6,7 @@ package plugin
 import (
 	"context"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -16,17 +17,17 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	hplugin "github.com/hashicorp/go-plugin"
-	"github.com/pkg/errors"
 
-	"github.com/ignite/cli/ignite/config"
-	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
-	"github.com/ignite/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite/cli/ignite/pkg/env"
-	"github.com/ignite/cli/ignite/pkg/events"
-	"github.com/ignite/cli/ignite/pkg/gocmd"
-	"github.com/ignite/cli/ignite/pkg/xfilepath"
-	"github.com/ignite/cli/ignite/pkg/xgit"
-	"github.com/ignite/cli/ignite/pkg/xurl"
+	"github.com/ignite/cli/v28/ignite/config"
+	pluginsconfig "github.com/ignite/cli/v28/ignite/config/plugins"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/v28/ignite/pkg/env"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/events"
+	"github.com/ignite/cli/v28/ignite/pkg/gocmd"
+	"github.com/ignite/cli/v28/ignite/pkg/xfilepath"
+	"github.com/ignite/cli/v28/ignite/pkg/xgit"
+	"github.com/ignite/cli/v28/ignite/pkg/xurl"
 )
 
 // PluginsPath holds the plugin cache directory.
@@ -37,11 +38,13 @@ var PluginsPath = xfilepath.Mkdir(xfilepath.Join(
 
 // Plugin represents a ignite plugin.
 type Plugin struct {
-	// Embed the plugin configuration
+	// Embed the plugin configuration.
 	pluginsconfig.Plugin
-	// Interface allows to communicate with the plugin via net/rpc.
+
+	// Interface allows to communicate with the plugin via RPC.
 	Interface Interface
-	// If any error occurred during the plugin load, it's stored here
+
+	// If any error occurred during the plugin load, it's stored here.
 	Error error
 
 	name      string
@@ -53,13 +56,18 @@ type Plugin struct {
 
 	client *hplugin.Client
 
-	// holds a cache of the plugin manifest to prevent mant calls over the rpc boundary
-	manifest Manifest
+	// Holds a cache of the plugin manifest to prevent mant calls over the rpc boundary.
+	manifest *Manifest
+
 	// If a plugin's ShareHost flag is set to true, isHost is used to discern if a
 	// plugin instance is controlling the rpc server.
-	isHost bool
+	isHost       bool
+	isSharedHost bool
 
 	ev events.Bus
+
+	stdout io.Writer
+	stderr io.Writer
 }
 
 // Option configures Plugin.
@@ -69,6 +77,13 @@ type Option func(*Plugin)
 func CollectEvents(ev events.Bus) Option {
 	return func(p *Plugin) {
 		p.ev = ev
+	}
+}
+
+func RedirectStdout(w io.Writer) Option {
+	return func(p *Plugin) {
+		p.stdout = w
+		p.stderr = w
 	}
 }
 
@@ -100,8 +115,7 @@ func Load(ctx context.Context, plugins []pluginsconfig.Plugin, options ...Option
 // Update removes the cache directory of plugins and fetch them again.
 func Update(plugins ...*Plugin) error {
 	for _, p := range plugins {
-		err := p.clean()
-		if err != nil {
+		if err := p.clean(); err != nil {
 			return err
 		}
 		p.fetch()
@@ -114,6 +128,8 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 	var (
 		p = &Plugin{
 			Plugin: cp,
+			stdout: os.Stdout,
+			stderr: os.Stderr,
 		}
 		pluginPath = cp.Path
 	)
@@ -176,7 +192,7 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 
 // KillClient kills the running plugin client.
 func (p *Plugin) KillClient() {
-	if p.manifest.SharedHost && !p.isHost {
+	if p.isSharedHost && !p.isHost {
 		// Don't send kill signal to a shared-host plugin when this process isn't
 		// the one who initiated it.
 		return
@@ -192,8 +208,14 @@ func (p *Plugin) KillClient() {
 	}
 }
 
+// Manifest returns plugin's manigest.
+// The manifest is available after the plugin has been loaded.
+func (p Plugin) Manifest() *Manifest {
+	return p.manifest
+}
+
 func (p Plugin) binaryName() string {
-	return fmt.Sprintf("%s.app", p.name)
+	return fmt.Sprintf("%s.ign", p.name)
 }
 
 func (p Plugin) binaryPath() string {
@@ -232,7 +254,7 @@ func (p *Plugin) load(ctx context.Context) {
 	}
 	// pluginMap is the map of plugins we can dispense.
 	pluginMap := map[string]hplugin.Plugin{
-		p.name: &InterfacePlugin{},
+		p.name: NewGRPC(nil),
 	}
 	// Create an hclog.Logger
 	logLevel := hclog.Error
@@ -245,6 +267,16 @@ func (p *Plugin) load(ctx context.Context) {
 		Level:  logLevel,
 	})
 
+	// Common plugin client configuration values
+	cfg := &hplugin.ClientConfig{
+		HandshakeConfig:  HandshakeConfig(),
+		Plugins:          pluginMap,
+		Logger:           logger,
+		SyncStderr:       p.stdout,
+		SyncStdout:       p.stderr,
+		AllowedProtocols: []hplugin.Protocol{hplugin.ProtocolGRPC},
+	}
+
 	if checkConfCache(p.Path) {
 		rconf, err := readConfigCache(p.Path)
 		if err != nil {
@@ -252,29 +284,16 @@ func (p *Plugin) load(ctx context.Context) {
 			return
 		}
 
-		// We're attaching to an existing server, supply attachment configuration
-		p.client = hplugin.NewClient(&hplugin.ClientConfig{
-			HandshakeConfig: handshakeConfig,
-			Plugins:         pluginMap,
-			Logger:          logger,
-			Reattach:        &rconf,
-			SyncStderr:      os.Stderr,
-			SyncStdout:      os.Stdout,
-		})
-
+		// Attach to an existing plugin process
+		cfg.Reattach = &rconf
+		p.client = hplugin.NewClient(cfg)
 	} else {
-		// We're a host! Start by launching the plugin process.
-		p.client = hplugin.NewClient(&hplugin.ClientConfig{
-			HandshakeConfig: handshakeConfig,
-			Plugins:         pluginMap,
-			Logger:          logger,
-			Cmd:             exec.Command(p.binaryPath()),
-			SyncStderr:      os.Stderr,
-			SyncStdout:      os.Stdout,
-		})
+		// Launch a new plugin process
+		cfg.Cmd = exec.Command(p.binaryPath())
+		p.client = hplugin.NewClient(cfg)
 	}
 
-	// :Connect via RPC
+	// Connect via gRPC
 	rpcClient, err := p.client.Client()
 	if err != nil {
 		p.Error = errors.Wrapf(err, "connecting")
@@ -289,14 +308,18 @@ func (p *Plugin) load(ctx context.Context) {
 	}
 
 	// We should have an Interface now! This feels like a normal interface
-	// implementation but is in fact over an RPC connection.
+	// implementation but is in fact over an gRPC connection.
 	p.Interface = raw.(Interface)
 
-	m, err := p.Interface.Manifest()
+	m, err := p.Interface.Manifest(ctx)
 	if err != nil {
 		p.Error = errors.Wrapf(err, "manifest load")
+		return
 	}
 
+	p.isSharedHost = m.SharedHost
+
+	// Cache the manifest to avoid extra plugin requests
 	p.manifest = m
 
 	// write the rpc context to cache if the plugin is declared as host.

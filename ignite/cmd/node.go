@@ -3,14 +3,14 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosaccount"
-	"github.com/ignite/cli/ignite/pkg/cosmosclient"
-	"github.com/ignite/cli/ignite/pkg/xurl"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/v28/ignite/pkg/xurl"
 )
 
 const (
 	flagNode         = "node"
-	cosmosRPCAddress = "https://rpc.cosmos.network:443"
+	cosmosRPCAddress = "https://rpc.cosmos.directory:443/cosmoshub"
 )
 
 func NewNode() *cobra.Command {

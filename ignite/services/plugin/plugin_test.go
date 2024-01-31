@@ -13,13 +13,13 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	hplugin "github.com/hashicorp/go-plugin"
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	pluginsconfig "github.com/ignite/cli/ignite/config/plugins"
-	"github.com/ignite/cli/ignite/pkg/gocmd"
-	"github.com/ignite/cli/ignite/pkg/gomodule"
+	pluginsconfig "github.com/ignite/cli/v28/ignite/config/plugins"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/gocmd"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodule"
 )
 
 func TestNewPlugin(t *testing.T) {
@@ -34,21 +34,27 @@ func TestNewPlugin(t *testing.T) {
 		{
 			name: "fail: empty path",
 			expectedPlugin: Plugin{
-				Error: errors.Errorf(`missing app property "path"`),
+				Error:  errors.Errorf(`missing app property "path"`),
+				stdout: os.Stdout,
+				stderr: os.Stderr,
 			},
 		},
 		{
 			name:      "fail: local plugin doesnt exists",
 			pluginCfg: pluginsconfig.Plugin{Path: "/xxx/yyy/app"},
 			expectedPlugin: Plugin{
-				Error: errors.Errorf(`local app path "/xxx/yyy/app" not found`),
+				Error:  errors.Errorf(`local app path "/xxx/yyy/app" not found`),
+				stdout: os.Stdout,
+				stderr: os.Stderr,
 			},
 		},
 		{
 			name:      "fail: local plugin is not a directory",
 			pluginCfg: pluginsconfig.Plugin{Path: path.Join(wd, "testdata/fakebin")},
 			expectedPlugin: Plugin{
-				Error: errors.Errorf(fmt.Sprintf("local app path %q is not a directory", path.Join(wd, "testdata/fakebin"))),
+				Error:  errors.Errorf(fmt.Sprintf("local app path %q is not a directory", path.Join(wd, "testdata/fakebin"))),
+				stdout: os.Stdout,
+				stderr: os.Stderr,
 			},
 		},
 		{
@@ -57,20 +63,26 @@ func TestNewPlugin(t *testing.T) {
 			expectedPlugin: Plugin{
 				srcPath: path.Join(wd, "testdata"),
 				name:    "testdata",
+				stdout:  os.Stdout,
+				stderr:  os.Stderr,
 			},
 		},
 		{
 			name:      "fail: remote plugin with only domain",
 			pluginCfg: pluginsconfig.Plugin{Path: "github.com"},
 			expectedPlugin: Plugin{
-				Error: errors.Errorf(`app path "github.com" is not a valid repository URL`),
+				Error:  errors.Errorf(`app path "github.com" is not a valid repository URL`),
+				stdout: os.Stdout,
+				stderr: os.Stderr,
 			},
 		},
 		{
 			name:      "fail: remote plugin with incomplete URL",
 			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite"},
 			expectedPlugin: Plugin{
-				Error: errors.Errorf(`app path "github.com/ignite" is not a valid repository URL`),
+				Error:  errors.Errorf(`app path "github.com/ignite" is not a valid repository URL`),
+				stdout: os.Stdout,
+				stderr: os.Stderr,
 			},
 		},
 		{
@@ -83,6 +95,8 @@ func TestNewPlugin(t *testing.T) {
 				reference: "",
 				srcPath:   ".ignite/apps/github.com/ignite/app",
 				name:      "app",
+				stdout:    os.Stdout,
+				stderr:    os.Stderr,
 			},
 		},
 		{
@@ -95,6 +109,8 @@ func TestNewPlugin(t *testing.T) {
 				reference: "develop",
 				srcPath:   ".ignite/apps/github.com/ignite/app-develop",
 				name:      "app",
+				stdout:    os.Stdout,
+				stderr:    os.Stderr,
 			},
 		},
 		{
@@ -107,6 +123,8 @@ func TestNewPlugin(t *testing.T) {
 				reference: "package/v1.0.0",
 				srcPath:   ".ignite/apps/github.com/ignite/app-package-v1.0.0",
 				name:      "app",
+				stdout:    os.Stdout,
+				stderr:    os.Stderr,
 			},
 		},
 		{
@@ -119,6 +137,8 @@ func TestNewPlugin(t *testing.T) {
 				reference: "",
 				srcPath:   ".ignite/apps/github.com/ignite/app/plugin1",
 				name:      "plugin1",
+				stdout:    os.Stdout,
+				stderr:    os.Stderr,
 			},
 		},
 		{
@@ -131,6 +151,8 @@ func TestNewPlugin(t *testing.T) {
 				reference: "develop",
 				srcPath:   ".ignite/apps/github.com/ignite/app-develop/plugin1",
 				name:      "plugin1",
+				stdout:    os.Stdout,
+				stderr:    os.Stderr,
 			},
 		},
 		{
@@ -143,6 +165,8 @@ func TestNewPlugin(t *testing.T) {
 				reference: "package/v1.0.0",
 				srcPath:   ".ignite/apps/github.com/ignite/app-package-v1.0.0/plugin1",
 				name:      "plugin1",
+				stdout:    os.Stdout,
+				stderr:    os.Stderr,
 			},
 		},
 	}
@@ -157,33 +181,47 @@ func TestNewPlugin(t *testing.T) {
 	}
 }
 
+// Helper to make a local git repository with gofile committed.
+// Returns the repo directory and the git.Repository
+func makeGitRepo(t *testing.T, name string) (string, *git.Repository) {
+	t.Helper()
+
+	require := require.New(t)
+	repoDir := t.TempDir()
+	scaffoldPlugin(t, repoDir, "github.com/ignite/"+name, false)
+
+	repo, err := git.PlainInit(repoDir, false)
+	require.NoError(err)
+
+	w, err := repo.Worktree()
+	require.NoError(err)
+
+	_, err = w.Add(".")
+	require.NoError(err)
+
+	_, err = w.Commit("msg", &git.CommitOptions{
+		Author: &object.Signature{
+			Name:  "bob",
+			Email: "bob@example.com",
+			When:  time.Now(),
+		},
+	})
+	require.NoError(err)
+	return repoDir, repo
+}
+
+type TestClientAPI struct{ ClientAPI }
+
+func (TestClientAPI) GetChainInfo(context.Context) (*ChainInfo, error) {
+	return &ChainInfo{}, nil
+}
+
 func TestPluginLoad(t *testing.T) {
 	wd, err := os.Getwd()
 	require.NoError(t, err)
 
-	// Helper to make a local git repository with gofile committed.
-	// Returns the repo directory and the git.Repository
-	makeGitRepo := func(t *testing.T, name string) (string, *git.Repository) {
-		require := require.New(t)
-		repoDir := t.TempDir()
-		scaffoldPlugin(t, repoDir, "github.com/ignite/"+name, false)
-		require.NoError(err)
-		repo, err := git.PlainInit(repoDir, false)
-		require.NoError(err)
-		w, err := repo.Worktree()
-		require.NoError(err)
-		_, err = w.Add(".")
-		require.NoError(err)
-		_, err = w.Commit("msg", &git.CommitOptions{
-			Author: &object.Signature{
-				Name:  "bob",
-				Email: "bob@example.com",
-				When:  time.Now(),
-			},
-		})
-		require.NoError(err)
-		return repoDir, repo
-	}
+	clientAPI := &TestClientAPI{}
+
 	tests := []struct {
 		name          string
 		buildPlugin   func(t *testing.T) Plugin
@@ -330,6 +368,7 @@ func TestPluginLoad(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
 			require := require.New(t)
 			assert := assert.New(t)
 			p := tt.buildPlugin(t)
@@ -345,13 +384,13 @@ func TestPluginLoad(t *testing.T) {
 
 			require.NoError(p.Error)
 			require.NotNil(p.Interface)
-			manifest, err := p.Interface.Manifest()
+			manifest, err := p.Interface.Manifest(ctx)
 			require.NoError(err)
 			assert.Equal(p.name, manifest.Name)
-			assert.NoError(p.Interface.Execute(ExecutedCommand{}))
-			assert.NoError(p.Interface.ExecuteHookPre(ExecutedHook{}))
-			assert.NoError(p.Interface.ExecuteHookPost(ExecutedHook{}))
-			assert.NoError(p.Interface.ExecuteHookCleanUp(ExecutedHook{}))
+			assert.NoError(p.Interface.Execute(ctx, &ExecutedCommand{OsArgs: []string{"ignite", p.name, "hello"}}, clientAPI))
+			assert.NoError(p.Interface.ExecuteHookPre(ctx, &ExecutedHook{}, clientAPI))
+			assert.NoError(p.Interface.ExecuteHookPost(ctx, &ExecutedHook{}, clientAPI))
+			assert.NoError(p.Interface.ExecuteHookCleanUp(ctx, &ExecutedHook{}, clientAPI))
 		})
 	}
 }
@@ -491,19 +530,23 @@ func TestPluginClean(t *testing.T) {
 // scaffoldPlugin runs Scaffold and updates the go.mod so it uses the
 // current ignite/cli sources.
 func scaffoldPlugin(t *testing.T, dir, name string, sharedHost bool) string {
+	t.Helper()
+
 	require := require.New(t)
-	path, err := Scaffold(dir, name, sharedHost)
+	path, err := Scaffold(context.Background(), dir, name, sharedHost)
 	require.NoError(err)
+
 	// We want the scaffolded plugin to use the current version of ignite/cli,
 	// for that we need to update the plugin go.mod and add a replace to target
 	// current ignite/cli
 	gomod, err := gomodule.ParseAt(path)
 	require.NoError(err)
+
 	// use GOMOD env to get current directory module path
 	modpath, err := gocmd.Env(gocmd.EnvGOMOD)
 	require.NoError(err)
 	modpath = filepath.Dir(modpath)
-	err = gomod.AddReplace("github.com/ignite/cli", "", modpath, "")
+	err = gomod.AddReplace("github.com/ignite/cli/v28", "", modpath, "")
 	require.NoError(err)
 	// Save go.mod
 	data, err := gomod.Format()
@@ -515,12 +558,14 @@ func scaffoldPlugin(t *testing.T, dir, name string, sharedHost bool) string {
 
 func assertPlugin(t *testing.T, want, have Plugin) {
 	t.Helper()
+
 	if want.Error != nil {
 		require.Error(t, have.Error)
 		assert.Regexp(t, want.Error.Error(), have.Error.Error())
 	} else {
 		require.NoError(t, have.Error)
 	}
+
 	// Errors aren't comparable with assert.Equal, because of the different stacks
 	want.Error = nil
 	have.Error = nil

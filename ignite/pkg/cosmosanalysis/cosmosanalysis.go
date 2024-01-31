@@ -10,11 +10,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/pkg/errors"
 	"golang.org/x/mod/modfile"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosver"
-	"github.com/ignite/cli/ignite/pkg/gomodule"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodule"
 )
 
 const (
@@ -24,9 +24,9 @@ const (
 )
 
 var AppImplementation = []string{
-	"Name",
+	"AppCodec",
 	"GetKey",
-	"TxConfig",
+	"GetMemKey",
 	"RegisterAPIRoutes",
 }
 
@@ -81,51 +81,38 @@ func FindImplementation(modulePath string, interfaceList []string) (found []stri
 	return found, nil
 }
 
+// FindImplementationInFile find all struct implements the interfaceList into an ast.File.
+func FindImplementationInFile(n ast.Node, interfaceList []string) (found []string) {
+	// collect all structs under path to find out the ones that satisfies the implementation
+	structImplementations := make(map[string]implementation)
+
+	findImplementation(n, func(methodName, structName string) bool {
+		// mark the implementation that this struct satisfies.
+		if _, ok := structImplementations[structName]; !ok {
+			structImplementations[structName] = newImplementation(interfaceList)
+		}
+
+		structImplementations[structName][methodName] = true
+
+		return true
+	})
+
+	for name, impl := range structImplementations {
+		if checkImplementation(impl) {
+			found = append(found, name)
+		}
+	}
+
+	return found
+}
+
+// findImplementationInFiles find all struct implements the interfaceList into a list of ast.File.
 func findImplementationInFiles(files []*ast.File, interfaceList []string) (found []string) {
 	// collect all structs under path to find out the ones that satisfies the implementation
 	structImplementations := make(map[string]implementation)
 
 	for _, f := range files {
-		ast.Inspect(f, func(n ast.Node) bool {
-			// look for struct methods.
-			methodDecl, ok := n.(*ast.FuncDecl)
-			if !ok {
-				return true
-			}
-
-			// not a method.
-			if methodDecl.Recv == nil {
-				return true
-			}
-
-			methodName := methodDecl.Name.Name
-
-			// find the struct name that method belongs to.
-			t := methodDecl.Recv.List[0].Type
-			var ident *ast.Ident
-			switch t := t.(type) {
-			case *ast.Ident:
-				// method with a value receiver
-				ident = t
-			case *ast.IndexExpr:
-				// generic method with a value receiver
-				ident = t.X.(*ast.Ident)
-			case *ast.StarExpr:
-				switch t := t.X.(type) {
-				case *ast.Ident:
-					// method with a pointer receiver
-					ident = t
-				case *ast.IndexExpr:
-					// generic method with a pointer receiver
-					ident = t.X.(*ast.Ident)
-				default:
-					return true
-				}
-			default:
-				return true
-			}
-			structName := ident.Name
-
+		findImplementation(f, func(methodName, structName string) bool {
 			// mark the implementation that this struct satisfies.
 			if _, ok := structImplementations[structName]; !ok {
 				structImplementations[structName] = newImplementation(interfaceList)
@@ -144,6 +131,55 @@ func findImplementationInFiles(files []*ast.File, interfaceList []string) (found
 	}
 
 	return found
+}
+
+// findImplementation parse the ast.Node and call the callback if is a struct implementation.
+func findImplementation(f ast.Node, endCallback func(methodName, structName string) bool) {
+	ast.Inspect(f, func(n ast.Node) bool {
+		// look for struct methods.
+		methodDecl, ok := n.(*ast.FuncDecl)
+		if !ok {
+			return true
+		}
+
+		// not a method.
+		if methodDecl.Recv == nil {
+			return true
+		}
+
+		methodName := methodDecl.Name.Name
+
+		// find the struct name that method belongs to.
+		t := methodDecl.Recv.List[0].Type
+		var ident *ast.Ident
+		switch t := t.(type) {
+		case *ast.Ident:
+			// method with a value receiver
+			ident = t
+		case *ast.IndexExpr:
+			// generic method with a value receiver
+			ident = t.X.(*ast.Ident)
+		case *ast.StarExpr:
+			switch t := t.X.(type) {
+			case *ast.Ident:
+				// method with a pointer receiver
+				ident = t
+			case *ast.IndexExpr:
+				// generic method with a pointer receiver
+				ident = t.X.(*ast.Ident)
+			default:
+				return true
+			}
+		default:
+			return true
+		}
+		structName := ident.Name
+
+		if endCallback != nil {
+			return endCallback(methodName, structName)
+		}
+		return true
+	})
 }
 
 // newImplementation returns a new object to parse implementation of an interface.
@@ -196,11 +232,12 @@ func ValidateGoMod(module *modfile.File) error {
 		cosmosver.CosmosModulePath: true,
 		tendermintModulePath:       true,
 	}
+
 	for _, r := range module.Require {
 		delete(moduleCheck, r.Mod.Path)
 	}
 	for m := range moduleCheck {
-		return fmt.Errorf("invalid go module, missing %s package dependency", m)
+		return errors.Errorf("invalid go module, missing %s package dependency", m)
 	}
 	return nil
 }

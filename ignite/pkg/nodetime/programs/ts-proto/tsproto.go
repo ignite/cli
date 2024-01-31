@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ignite/cli/ignite/pkg/nodetime"
+	"github.com/ignite/cli/v28/ignite/pkg/nodetime"
 )
 
 const (

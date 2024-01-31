@@ -1,13 +1,13 @@
 package multiformatname_test
 
 import (
-	"errors"
 	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
 )
 
 func TestNewMultiFormatName(t *testing.T) {
@@ -20,7 +20,7 @@ func TestNewMultiFormatName(t *testing.T) {
 		{"foo_barFoobar", "fooBarFoobar", "FooBarFoobar", "foo-bar-foobar", "foo_bar_foobar", "foobarfoobar"},
 		{"foo_-_bar", "fooBar", "FooBar", "foo---bar", "foo___bar", "foobar"},
 		{"foo_-_Bar", "fooBar", "FooBar", "foo---bar", "foo___bar", "foobar"},
-		{"fooBAR", "fooBAR", "FooBAR", "foo-bar", "foo_bar", "foobar"},
+		{"fooBAR", "fooBar", "FooBar", "foo-bar", "foo_bar", "foobar"},
 		{"fooBar123", "fooBar123", "FooBar123", "foo-bar-123", "foo_bar_123", "foobar123"},
 	}
 

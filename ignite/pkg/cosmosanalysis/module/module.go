@@ -2,7 +2,6 @@ package module
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"path"
 	"path/filepath"
@@ -10,10 +9,12 @@ import (
 
 	"golang.org/x/mod/semver"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
-	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/app"
-	"github.com/ignite/cli/ignite/pkg/gomodule"
-	"github.com/ignite/cli/ignite/pkg/protoanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/app"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodule"
+	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/xstrings"
 )
 
 // Msgs is a module import path-sdk msgs pair.
@@ -22,57 +23,58 @@ type Msgs map[string][]string
 // Module keeps metadata about a Cosmos SDK module.
 type Module struct {
 	// Name of the module.
-	Name string
+	Name string `json:"name,omitempty"`
 
 	// GoModulePath of the app where the module is defined.
-	GoModulePath string
+	GoModulePath string `json:"go_module_path,omitempty"`
 
 	// Pkg holds the proto package info.
-	Pkg protoanalysis.Package
+	Pkg protoanalysis.Package `json:"package,omitempty"`
 
-	// Msg is a list of sdk.Msg implementation of the module.
-	Msgs []Msg
+	// Msgs is a list of sdk.Msg implementation of the module.
+	Msgs []Msg `json:"messages,omitempty"`
 
 	// HTTPQueries is a list of module queries.
-	HTTPQueries []HTTPQuery
+	HTTPQueries []HTTPQuery `json:"http_queries,omitempty"`
 
 	// Types is a list of proto types that might be used by module.
-	Types []Type
+	Types []Type `json:"types,omitempty"`
 }
 
 // Msg keeps metadata about an sdk.Msg implementation.
 type Msg struct {
 	// Name of the type.
-	Name string
+	Name string `json:"name,omitempty"`
 
 	// URI of the type.
-	URI string
+	URI string `json:"uri,omitempty"`
 
-	// FilePath is the path of the .proto file where message is defined at.
-	FilePath string
+	// FilePath is the path of the proto file where message is defined.
+	FilePath string `json:"file_path,omitempty"`
 }
 
 // HTTPQuery is an sdk Query.
 type HTTPQuery struct {
 	// Name of the RPC func.
-	Name string
+	Name string `json:"name,omitempty"`
 
 	// FullName of the query with service name and rpc func name.
-	FullName string
+	FullName string `json:"full_name,omitempty"`
 
-	// HTTPAnnotations keeps info about http annotations of query.
-	Rules []protoanalysis.HTTPRule
+	// Rules keeps info about configured HTTP rules of RPC functions.
+	Rules []protoanalysis.HTTPRule `json:"rules,omitempty"`
 
 	// Paginated indicates that the query is using pagination.
-	Paginated bool
+	Paginated bool `json:"paginated,omitempty"`
 }
 
 // Type is a proto type that might be used by module.
 type Type struct {
-	Name string
+	// Name of the type.
+	Name string `json:"name,omitempty"`
 
 	// FilePath is the path of the .proto file where message is defined at.
-	FilePath string
+	FilePath string `json:"file_path,omitempty"`
 }
 
 type moduleDiscoverer struct {
@@ -80,6 +82,12 @@ type moduleDiscoverer struct {
 	protoPath         string
 	basegopath        string
 	registeredModules []string
+}
+
+// IsCosmosSDKModulePkg check if a Go import path is a Cosmos SDK package module.
+// These type of package have the "cosmossdk.io/x" prefix.
+func IsCosmosSDKModulePkg(path string) bool {
+	return strings.Contains(path, "cosmossdk.io/x/")
 }
 
 // Discover discovers and returns modules and their types that are registered in the app
@@ -91,7 +99,12 @@ type moduleDiscoverer struct {
 // 1. Getting all the registered Go modules from the app.
 // 2. Parsing the proto files to find services and messages.
 // 3. Check if the proto services are implemented in any of the registered modules.
-func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Module, error) {
+func Discover(ctx context.Context, chainRoot, sourcePath string, options ...DiscoverOption) ([]Module, error) {
+	var o discoverOptions
+	for _, apply := range options {
+		apply(&o)
+	}
+
 	// find out base Go import path of the blockchain.
 	gm, err := gomodule.ParseAt(sourcePath)
 	if err != nil {
@@ -109,13 +122,12 @@ func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Mo
 
 	// Go import path of the app module
 	basegopath := gm.Module.Mod.Path
-	rootgopath := RootGoImportPath(basegopath)
 
 	// Keep the custom app's modules and filter out the third
 	// party ones that are not defined within the app.
 	appModules := make([]string, 0)
 	for _, m := range registeredModules {
-		if strings.HasPrefix(m, rootgopath) {
+		if strings.HasPrefix(m, basegopath) {
 			appModules = append(appModules, m)
 		}
 	}
@@ -124,8 +136,18 @@ func Discover(ctx context.Context, chainRoot, sourcePath, protoDir string) ([]Mo
 		return []Module{}, nil
 	}
 
+	// Switch the proto path for "cosmossdk.io" module packages to the official Cosmos
+	// SDK package because the module packages doesn't contain the proto files. These
+	// files are only available from the Cosmos SDK package.
+	var protoPath string
+	if o.sdkDir != "" && IsCosmosSDKModulePkg(sourcePath) {
+		protoPath = switchCosmosSDKPackagePath(sourcePath, o.sdkDir)
+	} else {
+		protoPath = filepath.Join(sourcePath, o.protoDir)
+	}
+
 	md := &moduleDiscoverer{
-		protoPath:         filepath.Join(sourcePath, protoDir),
+		protoPath:         protoPath,
 		sourcePath:        sourcePath,
 		basegopath:        basegopath,
 		registeredModules: appModules,
@@ -202,7 +224,7 @@ func extractRelPath(pkgGoImportPath, baseGoPath string) (string, error) {
 		return strings.TrimPrefix(pkgGoImportPath, p), nil
 	}
 
-	return "", fmt.Errorf("proto go import %s is not relative to %s", pkgGoImportPath, baseGoPath)
+	return "", errors.Errorf("proto go import %s is not relative to %s", pkgGoImportPath, baseGoPath)
 }
 
 // discover discovers and sdk module by a proto pkg.
@@ -235,7 +257,6 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 		Pkg:          pkg,
 	}
 
-	// fill sdk Msgs.
 	for _, msg := range msgs {
 		pkgmsg, err := pkg.MessageByName(msg)
 		if err != nil {
@@ -268,13 +289,8 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 
 		// do not use if used as a request/return type of RPC.
 		for _, s := range pkg.Services {
-			for i, q := range s.RPCFuncs {
+			for _, q := range s.RPCFuncs {
 				if q.RequestType == protomsg.Name || q.ReturnsType == protomsg.Name {
-					// Check if the service response message is using pagination and
-					// update the RPC function. This is done here to avoid extra loops
-					// just to update the pagination property.
-					s.RPCFuncs[i].Paginated = hasPagination(protomsg)
-
 					return false
 				}
 			}
@@ -285,6 +301,17 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 
 	// fill types.
 	for _, protomsg := range pkg.Messages {
+		// Update pagination for RPC functions when a service response uses pagination
+		if hasPagination(protomsg) {
+			for _, s := range pkg.Services {
+				for i, q := range s.RPCFuncs {
+					if q.RequestType == protomsg.Name || q.ReturnsType == protomsg.Name {
+						s.RPCFuncs[i].Paginated = true
+					}
+				}
+			}
+		}
+
 		if !isType(protomsg) {
 			continue
 		}
@@ -419,4 +446,12 @@ func hasPagination(msg protoanalysis.Message) bool {
 	}
 
 	return false
+}
+
+func switchCosmosSDKPackagePath(srcPath, sdkDir string) string {
+	modName := xstrings.StringBetween(srcPath, "/x/", "@")
+	if modName == "" {
+		return srcPath
+	}
+	return filepath.Join(sdkDir, "proto", "cosmos", modName)
 }

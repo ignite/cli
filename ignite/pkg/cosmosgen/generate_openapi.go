@@ -1,7 +1,7 @@
 package cosmosgen
 
 import (
-	"errors"
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,12 +9,13 @@ import (
 
 	"github.com/iancoleman/strcase"
 
-	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite/cli/ignite/pkg/dirchange"
-	"github.com/ignite/cli/ignite/pkg/nodetime"
-	swaggercombine "github.com/ignite/cli/ignite/pkg/nodetime/programs/swagger-combine"
-	"github.com/ignite/cli/ignite/pkg/xos"
+	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/v28/ignite/pkg/dirchange"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/nodetime"
+	swaggercombine "github.com/ignite/cli/v28/ignite/pkg/nodetime/programs/swagger-combine"
+	"github.com/ignite/cli/v28/ignite/pkg/xos"
 )
 
 const (
@@ -30,7 +31,7 @@ func (g *generator) openAPITemplateForSTA() string {
 	return filepath.Join(g.appPath, g.protoDir, "buf.gen.sta.yaml")
 }
 
-func (g *generator) generateOpenAPISpec() error {
+func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 	var (
 		specDirs []string
 		conf     = swaggercombine.Config{
@@ -83,13 +84,8 @@ func (g *generator) generateOpenAPISpec() error {
 		}
 
 		hasAnySpecChanged = true
-		if err := g.buf.Generate(
-			g.ctx,
-			m.Pkg.Path,
-			dir,
-			g.openAPITemplate(),
-			"module.proto",
-		); err != nil {
+		err = g.buf.Generate(ctx, m.Pkg.Path, dir, g.openAPITemplate(), "module.proto")
+		if err != nil {
 			return err
 		}
 
@@ -162,14 +158,14 @@ func (g *generator) generateOpenAPISpec() error {
 	}
 
 	// combine specs into one and save to out.
-	if err := swaggercombine.Combine(g.ctx, conf, command, out); err != nil {
+	if err := swaggercombine.Combine(ctx, conf, command, out); err != nil {
 		return err
 	}
 
 	return dirchange.SaveDirChecksum(specCache, out, g.appPath, out)
 }
 
-func (g *generator) generateModuleOpenAPISpec(m module.Module, out string) error {
+func (g *generator) generateModuleOpenAPISpec(ctx context.Context, m module.Module, out string) error {
 	var (
 		specDirs []string
 		conf     = swaggercombine.Config{
@@ -199,13 +195,8 @@ func (g *generator) generateModuleOpenAPISpec(m module.Module, out string) error
 			return err
 		}
 
-		if err := g.buf.Generate(
-			g.ctx,
-			m.Pkg.Path,
-			dir,
-			g.openAPITemplateForSTA(),
-			"module.proto",
-		); err != nil {
+		err = g.buf.Generate(ctx, m.Pkg.Path, dir, g.openAPITemplateForSTA(), "module.proto")
+		if err != nil {
 			return err
 		}
 
@@ -253,5 +244,5 @@ func (g *generator) generateModuleOpenAPISpec(m module.Module, out string) error
 		return err
 	}
 	// combine specs into one and save to out.
-	return swaggercombine.Combine(g.ctx, conf, command, out)
+	return swaggercombine.Combine(ctx, conf, command, out)
 }

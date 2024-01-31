@@ -18,4 +18,8 @@ const (
 	PlaceholderSimappGenesisState = "// this line is used by starport scaffolding # simapp/module/genesisState"
 	PlaceholderSimappOperation    = "// this line is used by starport scaffolding # simapp/module/operation"
 	PlaceholderSimappOperationMsg = "// this line is used by starport scaffolding # simapp/module/OpMsg"
+
+	// Placeholders AutoCLI
+	PlaceholderAutoCLIQuery = "// this line is used by ignite scaffolding # autocli/query"
+	PlaceholderAutoCLITx    = "// this line is used by ignite scaffolding # autocli/tx"
 )

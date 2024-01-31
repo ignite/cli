@@ -1,11 +1,10 @@
 package v1
 
 import (
-	"fmt"
-
 	"github.com/mitchellh/mapstructure"
 
-	baseconfig "github.com/ignite/cli/ignite/config/chain/base"
+	baseconfig "github.com/ignite/cli/v28/ignite/config/chain/base"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 func DefaultServers() Servers {
@@ -56,12 +55,12 @@ func (v Validator) GetServers() (Servers, error) {
 
 	// Ovewrite the default Cosmos SDK addresses with the configured ones
 	if err := mapstructure.Decode(v.App, &s); err != nil {
-		return Servers{}, fmt.Errorf("error reading validator app servers: %w", err)
+		return Servers{}, errors.Errorf("error reading validator app servers: %w", err)
 	}
 
 	// Ovewrite the default Tendermint addresses with the configured ones
 	if err := mapstructure.Decode(v.Config, &s); err != nil {
-		return Servers{}, fmt.Errorf("error reading tendermint validator config servers: %w", err)
+		return Servers{}, errors.Errorf("error reading tendermint validator config servers: %w", err)
 	}
 
 	return s, nil
@@ -69,11 +68,11 @@ func (v Validator) GetServers() (Servers, error) {
 
 func (v *Validator) SetServers(s Servers) error {
 	if err := v.setAppServers(s); err != nil {
-		return fmt.Errorf("error updating validator app servers: %w", err)
+		return errors.Errorf("error updating validator app servers: %w", err)
 	}
 
 	if err := v.setConfigServers(s); err != nil {
-		return fmt.Errorf("error updating validator config servers: %w", err)
+		return errors.Errorf("error updating validator config servers: %w", err)
 	}
 
 	return nil
@@ -93,7 +92,7 @@ func (v *Validator) setAppServers(s Servers) error {
 func (v *Validator) setConfigServers(s Servers) error {
 	m, err := decodeServers(s.tendermintServers)
 	if err != nil {
-		return fmt.Errorf("error updating validator config servers: %w", err)
+		return errors.Errorf("error updating validator config servers: %w", err)
 	}
 
 	v.Config = mergeMaps(m, v.Config)

@@ -1,10 +1,10 @@
 package cosmoserror
 
 import (
-	"errors"
-
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 var (
@@ -17,26 +17,21 @@ var (
 //
 //nolint:exhaustive
 func Unwrap(err error) error {
-	wrapped := err
-	for err != nil {
-		s, ok := status.FromError(err)
-		if ok {
-			switch s.Code() {
-			case codes.NotFound:
-				return ErrNotFound
-			case codes.InvalidArgument:
-				return ErrInvalidRequest
-			case codes.Internal:
-				return ErrInternal
-			}
+	s, ok := status.FromError(err)
+	if ok {
+		switch s.Code() {
+		case codes.NotFound:
+			return ErrNotFound
+		case codes.InvalidArgument:
+			return ErrInvalidRequest
+		case codes.Internal:
+			return ErrInternal
 		}
-		err = errors.Unwrap(err)
 	}
-	unwrapped := errors.Unwrap(wrapped)
-	if unwrapped != nil {
-		return unwrapped
+	if err := errors.Unwrap(err); err != nil {
+		return err
 	}
-	return wrapped
+	return err
 }
 
 // IsNotFound returns if the given error is "not found".

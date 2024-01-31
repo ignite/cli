@@ -6,19 +6,20 @@ import (
 	"path/filepath"
 
 	"github.com/emicklei/proto"
-
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
 
-	"github.com/ignite/cli/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	"github.com/ignite/cli/ignite/pkg/protoanalysis/protoutil"
-	"github.com/ignite/cli/ignite/pkg/xgenny"
-	"github.com/ignite/cli/ignite/pkg/xstrings"
-	"github.com/ignite/cli/ignite/templates/field"
-	"github.com/ignite/cli/ignite/templates/field/plushhelpers"
-	"github.com/ignite/cli/ignite/templates/module"
-	"github.com/ignite/cli/ignite/templates/testutil"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v28/ignite/pkg/xstrings"
+	"github.com/ignite/cli/v28/ignite/templates/field"
+	"github.com/ignite/cli/v28/ignite/templates/field/plushhelpers"
+	"github.com/ignite/cli/v28/ignite/templates/module"
+	"github.com/ignite/cli/v28/ignite/templates/testutil"
+	"github.com/ignite/cli/v28/ignite/templates/typed"
 )
 
 var (
@@ -102,7 +103,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 
 func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module_ibc.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/module_ibc.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -189,10 +190,10 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		name := xstrings.Title(opts.ModuleName) + "PacketData"
+		name := fmt.Sprintf("%sPacketData", xstrings.Title(opts.ModuleName))
 		message, err := protoutil.GetMessageByName(protoFile, name)
 		if err != nil {
-			return fmt.Errorf("failed while looking up '%s' message in %s: %w", name, path, err)
+			return errors.Errorf("failed while looking up '%s' message in %s: %w", name, path, err)
 		}
 		// Use a directly Apply call here, modifying oneofs isn't common enough to warrant a separate function.
 		var packet *proto.Oneof
@@ -207,7 +208,7 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 			return true
 		})
 		if packet == nil {
-			return fmt.Errorf("could not find 'oneof packet' in message '%s' of file %s", name, path)
+			return errors.Errorf("could not find 'oneof packet' in message '%s' of file %s", name, path)
 		}
 		// Count fields of oneof:
 		max := 1
@@ -249,7 +250,7 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 			protoImports = append(protoImports, protoutil.NewImport(protopath))
 		}
 		if err := protoutil.AddImports(protoFile, true, protoImports...); err != nil {
-			return fmt.Errorf("failed while adding imports to %s: %w", path, err)
+			return errors.Errorf("failed while adding imports to %s: %w", path, err)
 		}
 
 		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
@@ -300,10 +301,14 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 		// Add RPC to service Msg.
 		serviceMsg, err := protoutil.GetServiceByName(protoFile, "Msg")
 		if err != nil {
-			return fmt.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
+			return errors.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
 		}
 		typenameUpper := opts.PacketName.UpperCamel
-		send := protoutil.NewRPC("Send"+typenameUpper, "MsgSend"+typenameUpper, "MsgSend"+typenameUpper+"Response")
+		send := protoutil.NewRPC(
+			fmt.Sprintf("Send%s", typenameUpper),
+			fmt.Sprintf("MsgSend%s", typenameUpper),
+			fmt.Sprintf("MsgSend%sResponse", typenameUpper),
+		)
 		protoutil.Append(serviceMsg, send)
 
 		// Create fields for MsgSend.
@@ -317,9 +322,14 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 			protoutil.NewField("channelID", "string", 3),
 			protoutil.NewField("timeoutTimestamp", "uint64", 4),
 		)
+		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.LowerCamel)
 
 		// Create MsgSend, MsgSendResponse and add to file.
-		msgSend := protoutil.NewMessage("MsgSend"+typenameUpper, protoutil.WithFields(sendFields...))
+		msgSend := protoutil.NewMessage(
+			"MsgSend"+typenameUpper,
+			protoutil.WithFields(sendFields...),
+			protoutil.WithMessageOptions(creatorOpt),
+		)
 		msgSendResponse := protoutil.NewMessage("MsgSend" + typenameUpper + "Response")
 		protoutil.Append(protoFile, msgSend, msgSendResponse)
 
@@ -333,7 +343,7 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 			protoImports = append(protoImports, protoutil.NewImport(protopath))
 		}
 		if err := protoutil.AddImports(protoFile, true, protoImports...); err != nil {
-			return fmt.Errorf("error while processing %s: %w", path, err)
+			return errors.Errorf("error while processing %s: %w", path, err)
 		}
 
 		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
@@ -341,10 +351,11 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 	}
 }
 
+// clientCliTxModify does not use AutoCLI here, because it as a better UX as it is.
 func clientCliTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/tx.go")
-		f, err := r.Disk.Find(path)
+		filePath := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/tx.go")
+		f, err := r.Disk.Find(filePath)
 		if err != nil {
 			return err
 		}
@@ -352,7 +363,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny
 %[1]v`
 		replacement := fmt.Sprintf(template, Placeholder, opts.PacketName.UpperCamel)
 		content := replacer.Replace(f.String(), Placeholder, replacement)
-		newFile := genny.NewFileS(path, content)
+		newFile := genny.NewFileS(filePath, content)
 		return r.File(newFile)
 	}
 }
@@ -368,17 +379,6 @@ func codecModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 		// Set import if not set yet
 		replacement := `sdk "github.com/cosmos/cosmos-sdk/types"`
 		content := replacer.ReplaceOnce(f.String(), module.Placeholder, replacement)
-
-		// Register the module packet
-		templateRegistry := `cdc.RegisterConcrete(&MsgSend%[2]v{}, "%[3]v/Send%[2]v", nil)
-%[1]v`
-		replacementRegistry := fmt.Sprintf(
-			templateRegistry,
-			module.Placeholder2,
-			opts.PacketName.UpperCamel,
-			opts.ModuleName,
-		)
-		content = replacer.Replace(content, module.Placeholder2, replacementRegistry)
 
 		// Register the module packet interface
 		templateInterface := `registry.RegisterImplementations((*sdk.Msg)(nil),

@@ -2,13 +2,12 @@
 package multiformatname
 
 import (
-	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/iancoleman/strcase"
 
-	"github.com/ignite/cli/ignite/pkg/xstrings"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/xstrings"
 )
 
 // Name represents a name with multiple naming convention representations.
@@ -67,14 +66,14 @@ func basicCheckName(name string) error {
 	c := name[0]
 	authorized := ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')
 	if !authorized {
-		return fmt.Errorf("name cannot contain %v as first character", string(c))
+		return errors.Errorf("name cannot contain %v as first character", string(c))
 	}
 
 	for _, c := range name[1:] {
 		// A name can contain letter, hyphen or underscore
 		authorized := ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || ('0' <= c && c <= '9') || c == '-' || c == '_'
 		if !authorized {
-			return fmt.Errorf("name cannot contain %v", string(c))
+			return errors.Errorf("name cannot contain %v", string(c))
 		}
 	}
 

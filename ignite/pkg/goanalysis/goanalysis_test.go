@@ -2,7 +2,6 @@ package goanalysis_test
 
 import (
 	"bytes"
-	"errors"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -14,8 +13,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/tools/go/ast/astutil"
 
-	"github.com/ignite/cli/ignite/pkg/goanalysis"
-	"github.com/ignite/cli/ignite/pkg/xast"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/xast"
 )
 
 var MainFile = []byte(`package main`)
@@ -111,13 +111,14 @@ func TestDiscoverOneMain(t *testing.T) {
 			require.NoError(t, err)
 
 			actual, err := goanalysis.DiscoverOneMain(tmpDir)
-
-			require.Equal(t, tt.err, err)
-
-			if tt.err == nil {
-				require.Equal(t, 1, len(want))
-				require.Equal(t, want[0], actual)
+			if tt.err != nil {
+				require.Error(t, err)
+				require.True(t, errors.Is(tt.err, err))
+				return
 			}
+			require.NoError(t, err)
+			require.Equal(t, 1, len(want))
+			require.Equal(t, want[0], actual)
 		})
 	}
 }
@@ -233,6 +234,29 @@ func TestFuncVarExists(t *testing.T) {
 			require.NoError(t, err)
 
 			got := goanalysis.FuncVarExists(appPkg, tt.goImport, tt.methodSignature)
+			require.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestFindBlankImports(t *testing.T) {
+	tests := []struct {
+		name     string
+		testfile string
+		want     []string
+	}{
+		{
+			name:     "test a declaration inside a method success",
+			testfile: "testdata/varexist",
+			want:     []string{"embed", "mvdan.cc/gofumpt"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			appPkg, _, err := xast.ParseFile(tt.testfile)
+			require.NoError(t, err)
+
+			got := goanalysis.FindBlankImports(appPkg)
 			require.Equal(t, tt.want, got)
 		})
 	}
@@ -476,6 +500,80 @@ func TestUpdateInitImports(t *testing.T) {
 			sort.Strings(tt.want)
 			sort.Strings(gotImports)
 			require.EqualValues(t, tt.want, gotImports)
+		})
+	}
+}
+
+func TestReplaceCode(t *testing.T) {
+	var (
+		newFunction = `package test
+func NewMethod1() {
+	n := "test new method"
+	bla := fmt.Sprintf("test new - %s", n)
+	fmt.Println(bla)
+}`
+		rollback = `package test
+func NewMethod1() {
+	foo := 100
+	bar := fmt.Sprintf("test - %d", foo)
+	fmt.Println(bar)
+}`
+	)
+
+	type args struct {
+		path            string
+		oldFunctionName string
+		newFunction     string
+	}
+	tests := []struct {
+		name string
+		args args
+		err  error
+	}{
+		{
+			name: "function fooTest",
+			args: args{
+				path:            "testdata",
+				oldFunctionName: "fooTest",
+				newFunction:     newFunction,
+			},
+		},
+		{
+			name: "function BazTest",
+			args: args{
+				path:            "testdata",
+				oldFunctionName: "BazTest",
+				newFunction:     newFunction,
+			},
+		},
+		{
+			name: "function invalidFunction",
+			args: args{
+				path:            "testdata",
+				oldFunctionName: "invalidFunction",
+				newFunction:     newFunction,
+			},
+		},
+		{
+			name: "invalid path",
+			args: args{
+				path:            "invalid_path",
+				oldFunctionName: "invalidPath",
+				newFunction:     newFunction,
+			},
+			err: os.ErrNotExist,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := goanalysis.ReplaceCode(tt.args.path, tt.args.oldFunctionName, tt.args.newFunction)
+			if tt.err != nil {
+				require.Error(t, err)
+				require.ErrorIs(t, err, tt.err)
+				return
+			}
+			require.NoError(t, err)
+			require.NoError(t, goanalysis.ReplaceCode(tt.args.path, tt.args.oldFunctionName, rollback))
 		})
 	}
 }

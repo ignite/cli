@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/ignite/cli/ignite/pkg/cosmosclient/mocks"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosclient/mocks"
 )
 
 //go:generate mockery --srcpkg github.com/cometbft/cometbft/rpc/client --name Client --structname RPCClient --filename rpc_client.go --output ../mocks --with-expecter

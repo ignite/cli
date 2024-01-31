@@ -6,14 +6,14 @@ import (
 	"context"
 	"path/filepath"
 
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
-	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/cosmosanalysis"
-	"github.com/ignite/cli/ignite/pkg/cosmosgen"
-	"github.com/ignite/cli/ignite/pkg/cosmosver"
-	"github.com/ignite/cli/ignite/pkg/gocmd"
-	"github.com/ignite/cli/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/ignite/version"
+	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
+	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/gocmd"
+	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v28/ignite/version"
 )
 
 // Scaffolder is Ignite CLI app scaffolder.
@@ -69,17 +69,16 @@ func finish(ctx context.Context, cacheStorage cache.Storage, path, gomodPath str
 		return err
 	}
 
-	if err := gocmd.ModTidy(ctx, path); err != nil {
+	if err := gocmd.Fmt(ctx, path); err != nil {
 		return err
 	}
-	return gocmd.Fmt(ctx, path)
+
+	_ = gocmd.GoImports(ctx, path) // goimports installation could fail, so ignore the error
+
+	return gocmd.ModTidy(ctx, path)
 }
 
 func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodPath string) error {
-	if err := cosmosgen.InstallDepTools(ctx, projectPath); err != nil {
-		return err
-	}
-
 	confpath, err := chainconfig.LocateDefault(projectPath)
 	if err != nil {
 		return err
@@ -90,8 +89,8 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 	}
 
 	options := []cosmosgen.Option{
+		cosmosgen.UpdateBufModule(),
 		cosmosgen.WithGoGeneration(),
-		cosmosgen.WithPulsarGeneration(),
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
 	}
 

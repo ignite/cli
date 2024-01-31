@@ -4,5 +4,6 @@
 *       @ilgooz @jeronimoalbi @Pantani @julienrbrt @Ehsan-saradar
 
 # Docs
-*.md    @salmad3 @toschdev
-docs/*   @salmad3 @toschdev
+*.md    @salmad3 @toschdev @ilgooz
+docs/*   @salmad3 @toschdev @ilgooz
+changelog.md @ilgooz @salmad3 @toschdev @jeronimoalbi @Pantani @julienrbrt @Ehsan-saradar

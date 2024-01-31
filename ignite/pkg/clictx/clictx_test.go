@@ -2,13 +2,13 @@ package clictx_test
 
 import (
 	"context"
-	"errors"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/clictx"
+	"github.com/ignite/cli/v28/ignite/pkg/clictx"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 func TestDo(t *testing.T) {

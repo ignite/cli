@@ -1,12 +1,11 @@
 package gomodulepath
 
 import (
-	"errors"
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"golang.org/x/mod/module"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 func TestParse(t *testing.T) {
@@ -49,11 +48,7 @@ func TestParse(t *testing.T) {
 		{
 			name:    "invalid as go.mod module name",
 			rawpath: "github.com/a/b/c@",
-			err: &module.InvalidPathError{
-				Kind: "module",
-				Path: "github.com/a/b/c@",
-				Err:  fmt.Errorf("invalid char '@'"),
-			},
+			err:     errors.New(`app name is an invalid go module name: malformed module path "github.com/a/b/c@": invalid char '@'`),
 		},
 		{
 			name:    "name starting with the letter v",
@@ -111,7 +106,7 @@ func TestParse(t *testing.T) {
 			path, err := Parse(tt.rawpath)
 			if err != nil {
 				require.Error(t, err)
-				require.Equal(t, tt.err, errors.Unwrap(err))
+				require.Equal(t, tt.err.Error(), err.Error())
 				return
 			}
 			require.NoError(t, err)
@@ -171,7 +166,7 @@ func TestExtractAppPath(t *testing.T) {
 }
 
 func TestValidateURIPath(t *testing.T) {
-	require.NoError(t, validateURIPath("github.com/ignite/cli"))
+	require.NoError(t, validateURIPath("github.com/ignite/cli/v28"))
 }
 
 func TestValidateURIPathWithInvalidPath(t *testing.T) {

@@ -1,13 +1,13 @@
 package plugins
 
 import (
-	"errors"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 
 	"gopkg.in/yaml.v2"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 // ParseDir expects to find a plugin config file in dir. If dir is not a folder,
@@ -18,14 +18,14 @@ import (
 func ParseDir(dir string) (*Config, error) {
 	// handy function that wraps and prefix err with a common label
 	errf := func(err error) (*Config, error) {
-		return nil, fmt.Errorf("plugin config parse: %w", err)
+		return nil, errors.Errorf("plugin config parse: %w", err)
 	}
 	fi, err := os.Stat(dir)
 	if err != nil {
 		return errf(err)
 	}
 	if !fi.IsDir() {
-		return errf(fmt.Errorf("path %s is not a dir", dir))
+		return errf(errors.Errorf("path %s is not a dir", dir))
 	}
 
 	filename, err := locateFile(dir)

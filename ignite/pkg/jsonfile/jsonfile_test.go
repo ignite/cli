@@ -11,11 +11,12 @@ import (
 	"reflect"
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/ignite/pkg/tarball"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/tarball"
 )
 
 func TestJSONFile_Field(t *testing.T) {
@@ -66,7 +67,7 @@ func TestJSONFile_Field(t *testing.T) {
 			name:     "get coins parameter",
 			filepath: "testdata/jsonfile.json",
 			key:      "app_state.bank.balances.[0].coins",
-			want:     sdk.Coins{sdk.NewCoin("stake", sdk.NewInt(95000000))},
+			want:     sdk.Coins{sdk.NewCoin("stake", math.NewInt(95000000))},
 		},
 		{
 			name:     "get custom parameter",
@@ -115,7 +116,7 @@ func TestJSONFile_Field(t *testing.T) {
 }
 
 func TestJSONFile_Update(t *testing.T) {
-	coins := sdk.NewCoin("bar", sdk.NewInt(500))
+	coins := sdk.NewCoin("bar", math.NewInt(500))
 	jsonCoins, err := json.Marshal(coins)
 	require.NoError(t, err)
 

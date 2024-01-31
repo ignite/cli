@@ -6,53 +6,9 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/ignite/pkg/placeholder"
-	modulecreate "github.com/ignite/cli/ignite/templates/module/create"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	modulecreate "github.com/ignite/cli/v28/ignite/templates/module/create"
 )
-
-// supportSimulation checks if module_simulation.go exists,
-// appends the generator to create the file if it doesn't.
-func supportSimulation(
-	gens []*genny.Generator,
-	appPath,
-	modulePath,
-	moduleName string,
-) ([]*genny.Generator, error) {
-	simulation, err := modulecreate.AddSimulation(
-		appPath,
-		modulePath,
-		moduleName,
-	)
-	if err != nil {
-		return gens, err
-	}
-	gens = append(gens, simulation)
-	return gens, nil
-}
-
-// supportGenesisTests checks if types/genesis_test.go exists
-// appends the generator to create the file if it doesn't.
-func supportGenesisTests(
-	gens []*genny.Generator,
-	appPath,
-	appName,
-	modulePath,
-	moduleName string,
-	isIBC bool,
-) ([]*genny.Generator, error) {
-	genesisTest, err := modulecreate.AddGenesisTest(
-		appPath,
-		appName,
-		modulePath,
-		moduleName,
-		isIBC,
-	)
-	if err != nil {
-		return gens, err
-	}
-	gens = append(gens, genesisTest)
-	return gens, nil
-}
 
 // supportMsgServer checks if the module supports the MsgServer convention
 // appends the generator to support it if it doesn't

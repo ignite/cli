@@ -2,19 +2,17 @@ package chain
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/pkg/errors"
-
 	sdkmath "cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
-	chaincmdrunner "github.com/ignite/cli/ignite/pkg/chaincmd/runner"
-	"github.com/ignite/cli/ignite/pkg/cosmosfaucet"
-	"github.com/ignite/cli/ignite/pkg/xurl"
+	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
+	chaincmdrunner "github.com/ignite/cli/v28/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosfaucet"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/xurl"
 )
 
 var (
@@ -75,20 +73,21 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 
 	apiAddress, err = xurl.HTTP(apiAddress)
 	if err != nil {
-		return cosmosfaucet.Faucet{}, fmt.Errorf("invalid host api address format: %w", err)
+		return cosmosfaucet.Faucet{}, errors.Errorf("invalid host api address format: %w", err)
 	}
 
 	faucetOptions := []cosmosfaucet.Option{
 		cosmosfaucet.Account(*conf.Faucet.Name, "", ""),
 		cosmosfaucet.ChainID(id),
 		cosmosfaucet.OpenAPI(apiAddress),
+		cosmosfaucet.Version(c.Version),
 	}
 
 	// parse coins to pass to the faucet as coins.
 	for _, coin := range conf.Faucet.Coins {
 		parsedCoin, err := sdk.ParseCoinNormalized(coin)
 		if err != nil {
-			return cosmosfaucet.Faucet{}, fmt.Errorf("%w: %s", err, coin)
+			return cosmosfaucet.Faucet{}, errors.Errorf("%w: %s", err, coin)
 		}
 
 		var amountMax sdkmath.Int
@@ -97,7 +96,7 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 		for _, coinMax := range conf.Faucet.CoinsMax {
 			parsedMax, err := sdk.ParseCoinNormalized(coinMax)
 			if err != nil {
-				return cosmosfaucet.Faucet{}, fmt.Errorf("%w: %s", err, coin)
+				return cosmosfaucet.Faucet{}, errors.Errorf("%w: %s", err, coin)
 			}
 			if parsedMax.Denom == parsedCoin.Denom {
 				amountMax = parsedMax.Amount
@@ -111,7 +110,7 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 	if conf.Faucet.RateLimitWindow != "" {
 		rateLimitWindow, err := time.ParseDuration(conf.Faucet.RateLimitWindow)
 		if err != nil {
-			return cosmosfaucet.Faucet{}, fmt.Errorf("%w: %s", err, conf.Faucet.RateLimitWindow)
+			return cosmosfaucet.Faucet{}, errors.Errorf("%w: %s", err, conf.Faucet.RateLimitWindow)
 		}
 
 		faucetOptions = append(faucetOptions, cosmosfaucet.RefreshWindow(rateLimitWindow))

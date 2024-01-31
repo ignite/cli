@@ -6,18 +6,19 @@ import (
 	"os"
 	"path/filepath"
 
-	chainconfig "github.com/ignite/cli/ignite/config/chain"
-	"github.com/ignite/cli/ignite/config/chain/base"
-	"github.com/ignite/cli/ignite/pkg/cache"
-	"github.com/ignite/cli/ignite/pkg/cliui/icons"
-	"github.com/ignite/cli/ignite/pkg/cosmosgen"
-	"github.com/ignite/cli/ignite/pkg/events"
+	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
+	"github.com/ignite/cli/v28/ignite/config/chain/base"
+	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/events"
 )
 
 type generateOptions struct {
 	useCache             bool
+	isProtoVendorEnabled bool
 	isGoEnabled          bool
-	isPulsarEnabled      bool
 	isTSClientEnabled    bool
 	isComposablesEnabled bool
 	isHooksEnabled       bool
@@ -36,13 +37,6 @@ type GenerateTarget func(*generateOptions)
 func GenerateGo() GenerateTarget {
 	return func(o *generateOptions) {
 		o.isGoEnabled = true
-	}
-}
-
-// GeneratePulsar enables generating proto based Go code needed for the chain's source code.
-func GeneratePulsar() GenerateTarget {
-	return func(o *generateOptions) {
-		o.isPulsarEnabled = true
 	}
 }
 
@@ -92,6 +86,18 @@ func GenerateHooks(path string) GenerateTarget {
 func GenerateOpenAPI() GenerateTarget {
 	return func(o *generateOptions) {
 		o.isOpenAPIEnabled = true
+	}
+}
+
+// GenerateProtoVendor enables `proto_vendor` folder generation.
+// Proto vendor is generated from Go dependencies that contain proto files that
+// are not included in the app's Buf config.
+// Enabling proto vendoring might update Buf config with missing dependencies
+// if a Go dependency contains proto files and a Buf config with a name that is
+// not listed in the Buf dependencies.
+func GenerateProtoVendor() GenerateTarget {
+	return func(o *generateOptions) {
+		o.isProtoVendorEnabled = true
 	}
 }
 
@@ -157,6 +163,7 @@ func (c *Chain) Generate(
 	c.ev.Send("Building proto...", events.ProgressUpdate())
 
 	options := []cosmosgen.Option{
+		cosmosgen.CollectEvents(c.ev),
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
 	}
 
@@ -164,8 +171,8 @@ func (c *Chain) Generate(
 		options = append(options, cosmosgen.WithGoGeneration())
 	}
 
-	if targetOptions.isPulsarEnabled {
-		options = append(options, cosmosgen.WithPulsarGeneration())
+	if targetOptions.isProtoVendorEnabled {
+		options = append(options, cosmosgen.UpdateBufModule())
 	}
 
 	var (
@@ -302,7 +309,7 @@ func (c *Chain) Generate(
 	// Check if the client config options have to be updated with the paths of the generated code
 	if updateConfig {
 		if err := c.saveClientConfig(conf.Client); err != nil {
-			return fmt.Errorf("error adding generated paths to config file: %w", err)
+			return errors.Errorf("error adding generated paths to config file: %w", err)
 		}
 	}
 

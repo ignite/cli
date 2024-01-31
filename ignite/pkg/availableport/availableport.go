@@ -5,6 +5,8 @@ import (
 	"math/rand"
 	"net"
 	"time"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 type availablePortOptions struct {
@@ -49,12 +51,12 @@ func Find(n uint, options ...Options) (ports []uint, err error) {
 	}
 	// If the number of ports required is bigger than the range, this stops it
 	if opts.maxPort < opts.minPort {
-		return nil, fmt.Errorf("invalid ports range: max < min (%d < %d)", opts.maxPort, opts.minPort)
+		return nil, errors.Errorf("invalid ports range: max < min (%d < %d)", opts.maxPort, opts.minPort)
 	}
 
 	// If the number of ports required is bigger than the range, this stops it
 	if n > (opts.maxPort - opts.minPort) {
-		return nil, fmt.Errorf("invalid amount of ports requested: limit is %d", opts.maxPort-opts.minPort)
+		return nil, errors.Errorf("invalid amount of ports requested: limit is %d", opts.maxPort-opts.minPort)
 	}
 
 	// Marker to point if a port is already added in the list
