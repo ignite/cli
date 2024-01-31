@@ -619,7 +619,7 @@ func TestBlogIBC(t *testing.T) {
 				}
 				if len(balanceResponse.Balances) == 0 ||
 					!strings.HasPrefix(balanceResponse.Balances[0].Denom, "ibc/") {
-					return fmt.Errorf("invalid ibc balance: %v", balanceResponse.Balances[0])
+					return fmt.Errorf("invalid ibc balance: %v", balanceResponse)
 				}
 				return nil
 			}),
