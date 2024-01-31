@@ -31,7 +31,7 @@ var plugins []*plugin.Plugin
 
 // LoadPlugins tries to load all the plugins found in configurations.
 // If no configurations found, it returns w/o error.
-func LoadPlugins(ctx context.Context, cmd *cobra.Command) error {
+func LoadPlugins(ctx context.Context, cmd *cobra.Command, session *cliui.Session) error {
 	var (
 		rootCmd        = cmd.Root()
 		pluginsConfigs []pluginsconfig.Plugin
@@ -52,9 +52,6 @@ func LoadPlugins(ctx context.Context, cmd *cobra.Command) error {
 	if len(pluginsConfigs) == 0 {
 		return nil
 	}
-
-	session := cliui.New(cliui.WithStdout(os.Stdout))
-	defer session.End()
 
 	uniquePlugins := pluginsconfig.RemoveDuplicates(pluginsConfigs)
 	plugins, err = plugin.Load(ctx, uniquePlugins, plugin.CollectEvents(session.EventBus()))
