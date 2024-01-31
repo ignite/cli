@@ -55,3 +55,8 @@ func GoModCache() string {
 	}
 	return filepath.Join(build.Default.GOPATH, modDir)
 }
+
+// GoPath returns the go path.
+func GoPath() string {
+	return os.Getenv(GOPATH)
+}
