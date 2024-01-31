@@ -431,17 +431,15 @@ If no path is specified all declared apps are updated.`,
 				if err != nil {
 					return err
 				}
-				cmd.Println("All apps updated.")
 				return nil
 			}
 			// find the plugin to update
 			for _, p := range plugins {
-				if p.Path == args[0] {
+				if p.HasPath(args[0]) {
 					err := plugin.Update(p)
 					if err != nil {
 						return err
 					}
-					cmd.Printf("App %q updated.\n", p.Path)
 					return nil
 				}
 			}
@@ -479,7 +477,7 @@ Respects key value pairs declared after the app path to be added to the generate
 			}
 
 			for _, p := range conf.Apps {
-				if p.Path == args[0] {
+				if p.HasPath(args[0]) {
 					return errors.Errorf("app %s is already installed", args[0])
 				}
 			}
@@ -562,7 +560,7 @@ func NewAppUninstall() *cobra.Command {
 
 			removed := false
 			for i, cp := range conf.Apps {
-				if cp.Path == args[0] {
+				if cp.HasPath(args[0]) {
 					conf.Apps = append(conf.Apps[:i], conf.Apps[i+1:]...)
 					removed = true
 					break
@@ -648,7 +646,7 @@ func NewAppDescribe() *cobra.Command {
 			ctx := cmd.Context()
 
 			for _, p := range plugins {
-				if p.Path == args[0] {
+				if p.HasPath(args[0]) {
 					manifest, err := p.Interface.Manifest(ctx)
 					if err != nil {
 						return errors.Errorf("error while loading app manifest: %w", err)
