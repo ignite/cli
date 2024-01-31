@@ -279,3 +279,62 @@ func createUnderscoreImport(imp string) *ast.ImportSpec {
 		},
 	}
 }
+
+// ReplaceCode replace a function implementation into a package path. The method will find
+// the method signature and re-write the method implementation based in the new function.
+func ReplaceCode(pkgPath, oldFunctionName, newFunction string) (err error) {
+	absPath, err := filepath.Abs(pkgPath)
+	if err != nil {
+		return err
+	}
+
+	fileSet := token.NewFileSet()
+	all, err := parser.ParseDir(fileSet, absPath, func(os.FileInfo) bool { return true }, parser.ParseComments)
+	if err != nil {
+		return err
+	}
+
+	for _, pkg := range all {
+		for _, f := range pkg.Files {
+			found := false
+			ast.Inspect(f, func(n ast.Node) bool {
+				if funcDecl, ok := n.(*ast.FuncDecl); ok {
+					// Check if the function has the name you want to replace.
+					if funcDecl.Name.Name == oldFunctionName {
+						// Replace the function body with the replacement code.
+						replacementExpr, err := parser.ParseExpr(newFunction)
+						if err != nil {
+							return false
+						}
+						funcDecl.Body = &ast.BlockStmt{List: []ast.Stmt{
+							&ast.ExprStmt{X: replacementExpr},
+						}}
+						found = true
+						return false
+					}
+				}
+				return true
+			})
+			if err != nil {
+				return err
+			}
+			if !found {
+				continue
+			}
+			filePath := fileSet.Position(f.Package).Filename
+			outFile, err := os.Create(filePath)
+			if err != nil {
+				return err
+			}
+
+			// Format and write the modified AST to the output file.
+			if err := format.Node(outFile, fileSet, f); err != nil {
+				return err
+			}
+			if err := outFile.Close(); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
