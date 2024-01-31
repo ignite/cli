@@ -122,44 +122,44 @@ The `ValidateBasic` function plays a crucial role in maintaining the security an
 
 ```go title="x/loan/types/message_request_loan.go"
 import (
-    "strconv"
+	"strconv"
 
-    errorsmod "cosmossdk.io/errors"
-    sdk "github.com/cosmos/cosmos-sdk/types"
-    sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 func (msg *MsgRequestLoan) ValidateBasic() error {
-    _, err := sdk.AccAddressFromBech32(msg.Creator)
-    if err != nil {
-        return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
-    }
-    amount, _ := sdk.ParseCoinsNormalized(msg.Amount)
-    if !amount.IsValid() {
-        return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "amount is not a valid Coins object")
-    }
-    if amount.Empty() {
-        return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "amount is empty")
-    }
-    fee, _ := sdk.ParseCoinsNormalized(msg.Fee)
-    if !fee.IsValid() {
-        return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "fee is not a valid Coins object")
-    }
-    deadline, err := strconv.ParseInt(msg.Deadline, 10, 64)
-    if err != nil {
-        return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "deadline is not an integer")
-    }
-    if deadline <= 0 {
-        return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "deadline should be a positive integer")
-    }
-    collateral, _ := sdk.ParseCoinsNormalized(msg.Collateral)
-    if !collateral.IsValid() {
-        return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "collateral is not a valid Coins object")
-    }
-    if collateral.Empty() {
-        return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "collateral is empty")
-    }
-    return nil
+	_, err := sdk.AccAddressFromBech32(msg.Creator)
+	if err != nil {
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
+	}
+	amount, _ := sdk.ParseCoinsNormalized(msg.Amount)
+	if !amount.IsValid() {
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "amount is not a valid Coins object")
+	}
+	if amount.Empty() {
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "amount is empty")
+	}
+	fee, _ := sdk.ParseCoinsNormalized(msg.Fee)
+	if !fee.IsValid() {
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "fee is not a valid Coins object")
+	}
+	deadline, err := strconv.ParseInt(msg.Deadline, 10, 64)
+	if err != nil {
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "deadline is not an integer")
+	}
+	if deadline <= 0 {
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "deadline should be a positive integer")
+	}
+	collateral, _ := sdk.ParseCoinsNormalized(msg.Collateral)
+	if !collateral.IsValid() {
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "collateral is not a valid Coins object")
+	}
+	if collateral.Empty() {
+		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "collateral is empty")
+	}
+	return nil
 }
 ```
 
@@ -175,37 +175,37 @@ Replace your scaffolded templates with the following code.
 package keeper
 
 import (
-    "context"
+	"context"
 
-    sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
-    "loan/x/loan/types"
+	"loan/x/loan/types"
 )
 
 func (k msgServer) RequestLoan(goCtx context.Context, msg *types.MsgRequestLoan) (*types.MsgRequestLoanResponse, error) {
-    ctx := sdk.UnwrapSDKContext(goCtx)
-    var loan = types.Loan{
-        Amount:     msg.Amount,
-        Fee:        msg.Fee,
-        Collateral: msg.Collateral,
-        Deadline:   msg.Deadline,
-        State:      "requested",
-        Borrower:   msg.Creator,
-    }
-    borrower, err := sdk.AccAddressFromBech32(msg.Creator)
-    if err != nil {
-        panic(err)
-    }
-    collateral, err := sdk.ParseCoinsNormalized(loan.Collateral)
-    if err != nil {
-        panic(err)
-    }
-    sdkError := k.bankKeeper.SendCoinsFromAccountToModule(ctx, borrower, types.ModuleName, collateral)
-    if sdkError != nil {
-        return nil, sdkError
-    }
-    k.AppendLoan(ctx, loan)
-    return &types.MsgRequestLoanResponse{}, nil
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	var loan = types.Loan{
+		Amount:     msg.Amount,
+		Fee:        msg.Fee,
+		Collateral: msg.Collateral,
+		Deadline:   msg.Deadline,
+		State:      "requested",
+		Borrower:   msg.Creator,
+	}
+	borrower, err := sdk.AccAddressFromBech32(msg.Creator)
+	if err != nil {
+		panic(err)
+	}
+	collateral, err := sdk.ParseCoinsNormalized(loan.Collateral)
+	if err != nil {
+		panic(err)
+	}
+	sdkError := k.bankKeeper.SendCoinsFromAccountToModule(ctx, borrower, types.ModuleName, collateral)
+	if sdkError != nil {
+		return nil, sdkError
+	}
+	k.AppendLoan(ctx, loan)
+	return &types.MsgRequestLoanResponse{}, nil
 }
 ```
 
@@ -215,36 +215,36 @@ As a borrower, you have the option to cancel a loan you have created if you no l
 package keeper
 
 import (
-    "context"
+	"context"
 
-    errorsmod "cosmossdk.io/errors"
-    sdk "github.com/cosmos/cosmos-sdk/types"
-    sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-    "loan/x/loan/types"
+	"loan/x/loan/types"
 )
 
 func (k msgServer) CancelLoan(goCtx context.Context, msg *types.MsgCancelLoan) (*types.MsgCancelLoanResponse, error) {
-    ctx := sdk.UnwrapSDKContext(goCtx)
-    loan, found := k.GetLoan(ctx, msg.Id)
-    if !found {
-        return nil, errorsmod.Wrapf(sdkerrors.ErrKeyNotFound, "key %d doesn't exist", msg.Id)
-    }
-    if loan.Borrower != msg.Creator {
-        return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "Cannot cancel: not the borrower")
-    }
-    if loan.State != "requested" {
-        return nil, errorsmod.Wrapf(types.ErrWrongLoanState, "%v", loan.State)
-    }
-    borrower, _ := sdk.AccAddressFromBech32(loan.Borrower)
-    collateral, _ := sdk.ParseCoinsNormalized(loan.Collateral)
-    err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, borrower, collateral)
-    if err != nil {
-        return nil, err
-    }
-    loan.State = "cancelled"
-    k.SetLoan(ctx, loan)
-    return &types.MsgCancelLoanResponse{}, nil
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	loan, found := k.GetLoan(ctx, msg.Id)
+	if !found {
+		return nil, errorsmod.Wrapf(sdkerrors.ErrKeyNotFound, "key %d doesn't exist", msg.Id)
+	}
+	if loan.Borrower != msg.Creator {
+		return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "Cannot cancel: not the borrower")
+	}
+	if loan.State != "requested" {
+		return nil, errorsmod.Wrapf(types.ErrWrongLoanState, "%v", loan.State)
+	}
+	borrower, _ := sdk.AccAddressFromBech32(loan.Borrower)
+	collateral, _ := sdk.ParseCoinsNormalized(loan.Collateral)
+	err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, borrower, collateral)
+	if err != nil {
+		return nil, err
+	}
+	loan.State = "cancelled"
+	k.SetLoan(ctx, loan)
+	return &types.MsgCancelLoanResponse{}, nil
 }
 ```
 
@@ -256,38 +256,38 @@ Approve loan requests and liquidate loans if borrowers fail to repay.
 package keeper
 
 import (
-    "context"
+	"context"
 
-    errorsmod "cosmossdk.io/errors"
-    sdk "github.com/cosmos/cosmos-sdk/types"
-    sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-    "loan/x/loan/types"
+	"loan/x/loan/types"
 )
 
 func (k msgServer) ApproveLoan(goCtx context.Context, msg *types.MsgApproveLoan) (*types.MsgApproveLoanResponse, error) {
-    ctx := sdk.UnwrapSDKContext(goCtx)
-    loan, found := k.GetLoan(ctx, msg.Id)
-    if !found {
-        return nil, errorsmod.Wrapf(sdkerrors.ErrKeyNotFound, "key %d doesn't exist", msg.Id)
-    }
-    if loan.State != "requested" {
-        return nil, errorsmod.Wrapf(types.ErrWrongLoanState, "%v", loan.State)
-    }
-    lender, _ := sdk.AccAddressFromBech32(msg.Creator)
-    borrower, _ := sdk.AccAddressFromBech32(loan.Borrower)
-    amount, err := sdk.ParseCoinsNormalized(loan.Amount)
-    if err != nil {
-        return nil, errorsmod.Wrap(types.ErrWrongLoanState, "Cannot parse coins in loan amount")
-    }
-    err = k.bankKeeper.SendCoins(ctx, lender, borrower, amount)
-    if err != nil {
-        return nil, err
-    }
-    loan.Lender = msg.Creator
-    loan.State = "approved"
-    k.SetLoan(ctx, loan)
-    return &types.MsgApproveLoanResponse{}, nil
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	loan, found := k.GetLoan(ctx, msg.Id)
+	if !found {
+		return nil, errorsmod.Wrapf(sdkerrors.ErrKeyNotFound, "key %d doesn't exist", msg.Id)
+	}
+	if loan.State != "requested" {
+		return nil, errorsmod.Wrapf(types.ErrWrongLoanState, "%v", loan.State)
+	}
+	lender, _ := sdk.AccAddressFromBech32(msg.Creator)
+	borrower, _ := sdk.AccAddressFromBech32(loan.Borrower)
+	amount, err := sdk.ParseCoinsNormalized(loan.Amount)
+	if err != nil {
+		return nil, errorsmod.Wrap(types.ErrWrongLoanState, "Cannot parse coins in loan amount")
+	}
+	err = k.bankKeeper.SendCoins(ctx, lender, borrower, amount)
+	if err != nil {
+		return nil, err
+	}
+	loan.Lender = msg.Creator
+	loan.State = "approved"
+	k.SetLoan(ctx, loan)
+	return &types.MsgApproveLoanResponse{}, nil
 }
 ```
 
@@ -295,47 +295,47 @@ func (k msgServer) ApproveLoan(goCtx context.Context, msg *types.MsgApproveLoan)
 package keeper
 
 import (
-    "context"
+	"context"
 
-    errorsmod "cosmossdk.io/errors"
-    sdk "github.com/cosmos/cosmos-sdk/types"
-    sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-    "loan/x/loan/types"
+	"loan/x/loan/types"
 )
 
 func (k msgServer) RepayLoan(goCtx context.Context, msg *types.MsgRepayLoan) (*types.MsgRepayLoanResponse, error) {
-    ctx := sdk.UnwrapSDKContext(goCtx)
-    loan, found := k.GetLoan(ctx, msg.Id)
-    if !found {
-        return nil, errorsmod.Wrapf(sdkerrors.ErrKeyNotFound, "key %d doesn't exist", msg.Id)
-    }
-    if loan.State != "approved" {
-        return nil, errorsmod.Wrapf(types.ErrWrongLoanState, "%v", loan.State)
-    }
-    lender, _ := sdk.AccAddressFromBech32(loan.Lender)
-    borrower, _ := sdk.AccAddressFromBech32(loan.Borrower)
-    if msg.Creator != loan.Borrower {
-        return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "Cannot repay: not the borrower")
-    }
-    amount, _ := sdk.ParseCoinsNormalized(loan.Amount)
-    fee, _ := sdk.ParseCoinsNormalized(loan.Fee)
-    collateral, _ := sdk.ParseCoinsNormalized(loan.Collateral)
-    err := k.bankKeeper.SendCoins(ctx, borrower, lender, amount)
-    if err != nil {
-        return nil, err
-    }
-    err = k.bankKeeper.SendCoins(ctx, borrower, lender, fee)
-    if err != nil {
-        return nil, err
-    }
-    err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, borrower, collateral)
-    if err != nil {
-        return nil, err
-    }
-    loan.State = "repayed"
-    k.SetLoan(ctx, loan)
-    return &types.MsgRepayLoanResponse{}, nil
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	loan, found := k.GetLoan(ctx, msg.Id)
+	if !found {
+		return nil, errorsmod.Wrapf(sdkerrors.ErrKeyNotFound, "key %d doesn't exist", msg.Id)
+	}
+	if loan.State != "approved" {
+		return nil, errorsmod.Wrapf(types.ErrWrongLoanState, "%v", loan.State)
+	}
+	lender, _ := sdk.AccAddressFromBech32(loan.Lender)
+	borrower, _ := sdk.AccAddressFromBech32(loan.Borrower)
+	if msg.Creator != loan.Borrower {
+		return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "Cannot repay: not the borrower")
+	}
+	amount, _ := sdk.ParseCoinsNormalized(loan.Amount)
+	fee, _ := sdk.ParseCoinsNormalized(loan.Fee)
+	collateral, _ := sdk.ParseCoinsNormalized(loan.Collateral)
+	err := k.bankKeeper.SendCoins(ctx, borrower, lender, amount)
+	if err != nil {
+		return nil, err
+	}
+	err = k.bankKeeper.SendCoins(ctx, borrower, lender, fee)
+	if err != nil {
+		return nil, err
+	}
+	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, borrower, collateral)
+	if err != nil {
+		return nil, err
+	}
+	loan.State = "repayed"
+	k.SetLoan(ctx, loan)
+	return &types.MsgRepayLoanResponse{}, nil
 }
 ```
 
@@ -343,44 +343,44 @@ func (k msgServer) RepayLoan(goCtx context.Context, msg *types.MsgRepayLoan) (*t
 package keeper
 
 import (
-    "context"
-    "strconv"
+	"context"
+	"strconv"
 
-    errorsmod "cosmossdk.io/errors"
-    sdk "github.com/cosmos/cosmos-sdk/types"
-    sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-    "loan/x/loan/types"
+	"loan/x/loan/types"
 )
 
 func (k msgServer) LiquidateLoan(goCtx context.Context, msg *types.MsgLiquidateLoan) (*types.MsgLiquidateLoanResponse, error) {
-    ctx := sdk.UnwrapSDKContext(goCtx)
-    loan, found := k.GetLoan(ctx, msg.Id)
-    if !found {
-        return nil, errorsmod.Wrapf(sdkerrors.ErrKeyNotFound, "key %d doesn't exist", msg.Id)
-    }
-    if loan.Lender != msg.Creator {
-        return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "Cannot liquidate: not the lender")
-    }
-    if loan.State != "approved" {
-        return nil, errorsmod.Wrapf(types.ErrWrongLoanState, "%v", loan.State)
-    }
-    lender, _ := sdk.AccAddressFromBech32(loan.Lender)
-    collateral, _ := sdk.ParseCoinsNormalized(loan.Collateral)
-    deadline, err := strconv.ParseInt(loan.Deadline, 10, 64)
-    if err != nil {
-        panic(err)
-    }
-    if ctx.BlockHeight() < deadline {
-        return nil, errorsmod.Wrap(types.ErrDeadline, "Cannot liquidate before deadline")
-    }
-    err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, lender, collateral)
-    if err != nil {
-        return nil, err
-    }
-    loan.State = "liquidated"
-    k.SetLoan(ctx, loan)
-    return &types.MsgLiquidateLoanResponse{}, nil
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	loan, found := k.GetLoan(ctx, msg.Id)
+	if !found {
+		return nil, errorsmod.Wrapf(sdkerrors.ErrKeyNotFound, "key %d doesn't exist", msg.Id)
+	}
+	if loan.Lender != msg.Creator {
+		return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "Cannot liquidate: not the lender")
+	}
+	if loan.State != "approved" {
+		return nil, errorsmod.Wrapf(types.ErrWrongLoanState, "%v", loan.State)
+	}
+	lender, _ := sdk.AccAddressFromBech32(loan.Lender)
+	collateral, _ := sdk.ParseCoinsNormalized(loan.Collateral)
+	deadline, err := strconv.ParseInt(loan.Deadline, 10, 64)
+	if err != nil {
+		panic(err)
+	}
+	if ctx.BlockHeight() < deadline {
+		return nil, errorsmod.Wrap(types.ErrDeadline, "Cannot liquidate before deadline")
+	}
+	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, lender, collateral)
+	if err != nil {
+		return nil, err
+	}
+	loan.State = "liquidated"
+	k.SetLoan(ctx, loan)
+	return &types.MsgLiquidateLoanResponse{}, nil
 }
 ```
 
@@ -390,12 +390,12 @@ Add the custom errors `ErrWrongLoanState` and `ErrDeadline`:
 package types
 
 import (
-    sdkerrors "cosmossdk.io/errors"
+	sdkerrors "cosmossdk.io/errors"
 )
 
 var (
-    ErrWrongLoanState = sdkerrors.Register(ModuleName, 2, "wrong loan state")
-    ErrDeadline = sdkerrors.Register(ModuleName, 3, "deadline")
+	ErrWrongLoanState = sdkerrors.Register(ModuleName, 2, "wrong loan state")
+	ErrDeadline       = sdkerrors.Register(ModuleName, 3, "deadline")
 )
 ```
 
