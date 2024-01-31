@@ -617,9 +617,11 @@ func TestBlogIBC(t *testing.T) {
 				if err := json.Unmarshal(balanceOutput.Bytes(), &balanceResponse); err != nil {
 					return fmt.Errorf("unmarshalling tx response: %w", err)
 				}
-				if len(balanceResponse.Balances) == 0 ||
-					!strings.HasPrefix(balanceResponse.Balances[0].Denom, "ibc/") {
-					return fmt.Errorf("invalid ibc balance: %v", balanceResponse)
+				if balanceResponse.Balances.Empty() {
+					return fmt.Errorf("empty balances")
+				}
+				if !strings.HasPrefix(balanceResponse.Balances[0].Denom, "ibc/") {
+					return fmt.Errorf("invalid ibc balance: %v", balanceResponse.Balances[0])
 				}
 				return nil
 			}),
