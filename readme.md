@@ -48,7 +48,7 @@ If Ignite doesn't automatically move to your `/usr/local/bin` directory, use thi
 ```
 sudo mv ignite /usr/local/bin
 ```
-In the event you get an error: you may need to create the /usr/local/bin folder and give yourself permission as follows:
+If you encounter an error, you might need to create the `/usr/local/bin` directory and set the necessary permissions as follows:
 ```
 mkdir /usr/local/bin
 sudo chown -R $(whoami) /usr/local/bin
