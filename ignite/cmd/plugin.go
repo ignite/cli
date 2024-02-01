@@ -424,8 +424,7 @@ If no path is specified all declared apps are updated.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				// update all plugins
-				err := plugin.Update(plugins...)
-				if err != nil {
+				if err := plugin.Update(plugins...); err != nil {
 					return err
 				}
 				return nil
@@ -433,8 +432,7 @@ If no path is specified all declared apps are updated.`,
 			// find the plugin to update
 			for _, p := range plugins {
 				if p.HasPath(args[0]) {
-					err := plugin.Update(p)
-					if err != nil {
+					if err := plugin.Update(p); err != nil {
 						return err
 					}
 					return nil
@@ -502,7 +500,6 @@ Respects key value pairs declared after the app path to be added to the generate
 				p.With[kv[0]] = kv[1]
 			}
 
-			session.StartSpinner("Loading app")
 			plugins, err := plugin.Load(cmd.Context(), []pluginsconfig.Plugin{p}, pluginsOptions...)
 			if err != nil {
 				return err
