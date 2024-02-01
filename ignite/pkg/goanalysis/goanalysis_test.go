@@ -503,3 +503,77 @@ func TestUpdateInitImports(t *testing.T) {
 		})
 	}
 }
+
+func TestReplaceCode(t *testing.T) {
+	var (
+		newFunction = `package test
+func NewMethod1() {
+	n := "test new method"
+	bla := fmt.Sprintf("test new - %s", n)
+	fmt.Println(bla)
+}`
+		rollback = `package test
+func NewMethod1() {
+	foo := 100
+	bar := fmt.Sprintf("test - %d", foo)
+	fmt.Println(bar)
+}`
+	)
+
+	type args struct {
+		path            string
+		oldFunctionName string
+		newFunction     string
+	}
+	tests := []struct {
+		name string
+		args args
+		err  error
+	}{
+		{
+			name: "function fooTest",
+			args: args{
+				path:            "testdata",
+				oldFunctionName: "fooTest",
+				newFunction:     newFunction,
+			},
+		},
+		{
+			name: "function BazTest",
+			args: args{
+				path:            "testdata",
+				oldFunctionName: "BazTest",
+				newFunction:     newFunction,
+			},
+		},
+		{
+			name: "function invalidFunction",
+			args: args{
+				path:            "testdata",
+				oldFunctionName: "invalidFunction",
+				newFunction:     newFunction,
+			},
+		},
+		{
+			name: "invalid path",
+			args: args{
+				path:            "invalid_path",
+				oldFunctionName: "invalidPath",
+				newFunction:     newFunction,
+			},
+			err: os.ErrNotExist,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := goanalysis.ReplaceCode(tt.args.path, tt.args.oldFunctionName, tt.args.newFunction)
+			if tt.err != nil {
+				require.Error(t, err)
+				require.ErrorIs(t, err, tt.err)
+				return
+			}
+			require.NoError(t, err)
+			require.NoError(t, goanalysis.ReplaceCode(tt.args.path, tt.args.oldFunctionName, rollback))
+		})
+	}
+}

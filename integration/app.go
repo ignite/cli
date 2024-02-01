@@ -118,6 +118,10 @@ func (a App) SourcePath() string {
 	return a.path
 }
 
+func (a *App) SetHomePath(homePath string) {
+	a.homePath = homePath
+}
+
 func (a *App) SetConfigPath(path string) {
 	a.configPath = path
 }

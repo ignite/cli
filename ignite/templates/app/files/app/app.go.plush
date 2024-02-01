@@ -23,6 +23,8 @@ import (
 	_ "cosmossdk.io/x/circuit"                                          // import for side-effects
 	_ "cosmossdk.io/x/evidence"                                         // import for side-effects
 	_ "cosmossdk.io/x/feegrant/module"                                  // import for side-effects
+	_ "cosmossdk.io/x/nft/module"										// import for side-effects
+	nftkeeper "cosmossdk.io/x/nft/keeper"
 	_ "cosmossdk.io/x/upgrade"                                          // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/auth/vesting"                     // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/authz/module"                     // import for side-effects
@@ -121,6 +123,7 @@ type App struct {
 	EvidenceKeeper        evidencekeeper.Keeper
 	FeeGrantKeeper        feegrantkeeper.Keeper
 	GroupKeeper           groupkeeper.Keeper
+	NFTKeeper             nftkeeper.Keeper
 	CircuitBreakerKeeper  circuitkeeper.Keeper
 
     // IBC
@@ -272,6 +275,7 @@ func New(
 		&app.AuthzKeeper,
 		&app.EvidenceKeeper,
 		&app.FeeGrantKeeper,
+		&app.NFTKeeper,
 		&app.GroupKeeper,
 		&app.CircuitBreakerKeeper,
 		// this line is used by starport scaffolding # stargate/app/keeperDefinition

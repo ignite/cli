@@ -4,8 +4,10 @@
 
 ### Features
 
+- [#3924](https://github.com/ignite/cli/pull/3924) Scaffold NFT module by default
 - [#3839](https://github.com/ignite/cli/pull/3839) New structure for app scaffolding
 - [#3835](https://github.com/ignite/cli/pull/3835) Add `--minimal` flag to `scaffold chain` to scaffold a chain with the least amount of sdk modules
+- [#3820](https://github.com/ignite/cli/pull/3820) Add integration tests for IBC chains
 
 ### Changes
 
