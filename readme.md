@@ -53,7 +53,7 @@ If you encounter an error, you might need to create the `/usr/local/bin` directo
 mkdir /usr/local/bin
 sudo chown -R $(whoami) /usr/local/bin
 ```
-For more options on using and installing Ignite please see below:
+For more options on installing and using Ignite, please see the following:
 
 Open Ignite CLI [in your web
 browser](https://gitpod.io/#https://github.com/ignite/cli/tree/v0.25.2) (or open
