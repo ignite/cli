@@ -44,7 +44,7 @@ You can install Ignite with one simple command:
 curl https://get.ignite.com/cli! | bash
 ```
 
-If Ignite is not automatically moved to your /usr/local/bin folder, you can do so with this command:
+If Ignite doesn't automatically move to your `/usr/local/bin` directory, use this command to do so:
 ```
 sudo mv ignite /usr/local/bin
 ```
