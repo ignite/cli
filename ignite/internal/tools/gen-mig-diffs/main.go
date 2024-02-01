@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
@@ -37,7 +36,7 @@ var scaffoldCommands = map[string][]string{
 	},
 	"map": {
 		"chain example",
-		"map map1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --module example --yes",
+		"map map1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --index f10:string --module example --yes",
 	},
 	"single": {
 		"chain example",
@@ -58,22 +57,8 @@ var scaffoldCommands = map[string][]string{
 	"packet": {
 		"chain example --no-module",
 		"module example --ibc",
-		"packet packet1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --module example --yes",
+		"packet packet1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --ack f1:string,f2:strings,f3:bool,f4:int,f5:ints,f6:uint,f7:uints,f8:coin,f9:coins --module example --yes",
 	},
-}
-
-var diffExceptions = []string{
-	"*.md",
-	"go.sum",
-	"*_test.go",
-	"*.pb.go",
-	"*.pb.gw.go",
-	"openapi.yml", // FIXME: For some reason removing this file from exceptions causes too much memory usage and OS kills the process
-	".gitignore",
-	"*.html",
-	"*.css",
-	"*.js",
-	"*.ts",
 }
 
 func main() {
@@ -81,6 +66,7 @@ func main() {
 
 	fromFlag := flag.String("from", "", "Semver tag to generate migration document from")
 	toFlag := flag.String("to", "", "Semver tag to generate migration document to")
+	sourceFlag := flag.String("source", "", "Source code directory of ignite cli repository (will be cloned if not provided)")
 	flag.Parse()
 
 	var (
@@ -100,13 +86,13 @@ func main() {
 		}
 	}
 
-	err = run(fromVer, toVer, logger)
+	err = run(fromVer, toVer, sourceFlag, logger)
 	if err != nil {
 		logger.Fatal(err)
 	}
 }
 
-func run(fromVer, toVer *semver.Version, logger *log.Logger) error {
+func run(fromVer, toVer *semver.Version, source *string, logger *log.Logger) error {
 	// A temporary directory is created to clone ignite cli repository and build it
 	tmpdir, err := os.MkdirTemp("", ".migdoc")
 	defer os.RemoveAll(tmpdir)
@@ -115,13 +101,26 @@ func run(fromVer, toVer *semver.Version, logger *log.Logger) error {
 	}
 	logger.Println("Created temporary directory:", tmpdir)
 
-	logger.Println("Cloning", igniteCliRepository)
-	repoDir := filepath.Join(tmpdir, igniteRepoPath)
-	repo, err := git.PlainClone(repoDir, false, &git.CloneOptions{
-		URL: igniteCliRepository,
-	})
-	if err != nil {
-		return err
+	var (
+		repoDir string
+		repo    *git.Repository
+	)
+	if source != nil && *source != "" {
+		logger.Println("Using source code directory:", *source)
+		repoDir = *source
+		repo, err = git.PlainOpen(*source)
+		if err != nil {
+			return err
+		}
+	} else {
+		logger.Println("Cloning", igniteCliRepository)
+		repoDir := filepath.Join(tmpdir, igniteRepoPath)
+		repo, err = git.PlainClone(repoDir, false, &git.CloneOptions{
+			URL: igniteCliRepository,
+		})
+		if err != nil {
+			return err
+		}
 	}
 
 	versions, err := getRepositoryVersionTags(repo)
@@ -267,6 +266,7 @@ func validateVersionRange(fromVer, toVer *semver.Version, versions semver.Collec
 	return fromVer, toVer, nil
 }
 
+// Run scaffolds commands one by one with the given version of ignite cli and save the output in the output directory
 func runScaffoldsForVersion(wt *git.Worktree, repoDir, outputDir string, ver *semver.Version) error {
 	err := checkoutAndBuildIgniteCli(wt, ver.Original(), repoDir)
 	if err != nil {
@@ -275,11 +275,6 @@ func runScaffoldsForVersion(wt *git.Worktree, repoDir, outputDir string, ver *se
 
 	binPath := filepath.Join(repoDir, igniteBinaryPath)
 	err = executeScaffoldCommands(binPath, outputDir, ver)
-	if err != nil {
-		return err
-	}
-
-	err = removeGitDirectories(outputDir)
 	if err != nil {
 		return err
 	}
@@ -318,37 +313,13 @@ func executeScaffoldCommands(ignitePath, outputDir string, ver *semver.Version) 
 				pathFlag = filepath.Join(outputDir, name, "example")
 			}
 			args = append(args, "--path", pathFlag)
-			err := exec.Exec(context.Background(), args)
+			err := exec.Exec(context.Background(), args, exec.StepOption(step.Stdout(os.Stdout)), exec.StepOption(step.Stderr(os.Stderr)))
 			if err != nil {
 				return errors.Wrapf(err, "failed to execute ignite scaffold command: %s", cmd)
 			}
 		}
 
 	}
-	return nil
-}
-
-func removeGitDirectories(outputDir string) error {
-	paths := make([]string, 0)
-	err := filepath.WalkDir(outputDir, func(path string, d fs.DirEntry, err error) error {
-		if d.IsDir() {
-			if d.Name() == ".git" || d.Name() == ".github" {
-				paths = append(paths, path)
-			}
-		}
-		return nil
-	})
-	if err != nil {
-		return errors.Wrap(err, "failed to walk through output directory")
-	}
-
-	for _, path := range paths {
-		err := os.RemoveAll(path)
-		if err != nil {
-			return errors.Wrapf(err, "failed to remove %s directory", path)
-		}
-	}
-
 	return nil
 }
 
@@ -403,10 +374,8 @@ func diff(dir1, dir2 string) ([]gotextdiff.Unified, error) {
 			return nil
 		}
 
-		for _, exception := range diffExceptions {
-			if match, _ := filepath.Match(exception, info.Name()); match {
-				return nil
-			}
+		if isException(path) {
+			return nil
 		}
 
 		relPath, err := filepath.Rel(dir1, path)
@@ -451,10 +420,8 @@ func diff(dir1, dir2 string) ([]gotextdiff.Unified, error) {
 			return nil
 		}
 
-		for _, exception := range diffExceptions {
-			if match, _ := filepath.Match(exception, info.Name()); match {
-				return nil
-			}
+		if isException(path) {
+			return nil
 		}
 
 		relPath, err := filepath.Rel(dir2, path)
