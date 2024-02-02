@@ -9,6 +9,10 @@ description: |
 grade: stable # must be 'stable' to release into candidate/stable channels
 confinement: classic
 
+architectures:
+  - build-on: amd64
+  - build-on: arm64
+
 parts:
   ignite:
     plugin: go
