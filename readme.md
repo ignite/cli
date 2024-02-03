@@ -37,6 +37,24 @@ so you can focus on writing business logic.
 
 ## Quick start
 
+### Installation
+
+You can install Ignite with one simple command:
+```
+curl https://get.ignite.com/cli! | bash
+```
+
+If Ignite doesn't automatically move to your `/usr/local/bin` directory, use this command to do so:
+```
+sudo mv ignite /usr/local/bin
+```
+If you encounter an error, you might need to create the `/usr/local/bin` directory and set the necessary permissions as follows:
+```
+mkdir /usr/local/bin
+sudo chown -R $(whoami) /usr/local/bin
+```
+For more options on installing and using Ignite, please see the following:
+
 Open Ignite CLI [in your web
 browser](https://gitpod.io/#https://github.com/ignite/cli/tree/v0.25.2) (or open
 [nightly version](https://gitpod.io/#https://github.com/ignite/cli)), or
@@ -44,7 +62,7 @@ browser](https://gitpod.io/#https://github.com/ignite/cli/tree/v0.25.2) (or open
 
 To create and start a blockchain:
 
-```bash
+```
 ignite scaffold chain mars
 
 cd mars
