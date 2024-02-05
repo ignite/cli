@@ -17,6 +17,7 @@
 ### Bug Fixes
 
 - [#3905](https://github.com/ignite/cli/pull/3905) Fix `ignite completion`
+- [#3931](https://github.com/ignite/cli/pull/3931) Fix `app update` command and duplicated apps 
 
 ## [`v28.1.1`](https://github.com/ignite/cli/releases/tag/v28.1.1)
 

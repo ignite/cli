@@ -20,8 +20,8 @@ build:
 	@-mkdir -p $(BUILD_FOLDER) 2> /dev/null
 	@go build $(BUILD_FLAGS) -o $(BUILD_FOLDER) ./...
 
-## prepare snapcraft.yaml for release
-snapcraft.yaml:
+## prepare snapcraft config for release
+snapcraft:
 	@sed -i 's/{{version}}/'$(version)'/' packaging/snap/snapcraft.yaml
 
 ## prepare flatpak manifest for release
