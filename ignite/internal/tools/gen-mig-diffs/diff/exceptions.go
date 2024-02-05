@@ -1,4 +1,4 @@
-package main
+package diff
 
 import (
 	"path/filepath"
