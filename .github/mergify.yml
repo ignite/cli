@@ -18,11 +18,11 @@ pull_request_rules:
   - name: backport patches to v28.x.y branch
     conditions:
       - base=main
-      - label=backport/v29.x.y
+      - label=backport/v28.x.y
     actions:
       backport:
         branches:
-          - release/v29.x.y
+          - release/v28.x.y
   - name: backport patches to v29.x.y branch
     conditions:
       - base=main
