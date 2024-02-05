@@ -49,6 +49,15 @@ installation.  The `ignite` binary is installed in `/usr/local/bin`.
 To learn more or customize the installation process, see the [installer docs](https://github.com/ignite/installer) on
 GitHub.
 
+:::tip
+Alternatively, you can install Ignite CLI using a package manager on GNU/Linux:
+
+```bash
+snap install ignite --classic
+```
+
+:::
+
 ### Write permission
 
 Ignite CLI installation requires write permission to the `/usr/local/bin/` directory. If the installation fails because
