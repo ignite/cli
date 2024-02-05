@@ -5,7 +5,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/ignite/cli/v28/ignite/pkg/events"
+	"github.com/ignite/cli/v29/ignite/pkg/events"
 )
 
 func FooCmd() tea.Msg { return nil }

@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"
 
-	v0 "github.com/ignite/cli/v28/ignite/config/chain/v0"
+	v0 "github.com/ignite/cli/v29/ignite/config/chain/v0"
 )
 
 //go:embed config.yaml

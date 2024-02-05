@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	v1 "github.com/ignite/cli/v28/ignite/config/chain/v1"
-	xyaml "github.com/ignite/cli/v28/ignite/pkg/yaml"
+	v1 "github.com/ignite/cli/v29/ignite/config/chain/v1"
+	xyaml "github.com/ignite/cli/v29/ignite/pkg/yaml"
 )
 
 func TestValidatorGetServers(t *testing.T) {

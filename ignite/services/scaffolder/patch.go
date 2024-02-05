@@ -6,8 +6,8 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
-	modulecreate "github.com/ignite/cli/v28/ignite/templates/module/create"
+	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
+	modulecreate "github.com/ignite/cli/v29/ignite/templates/module/create"
 )
 
 // supportMsgServer checks if the module supports the MsgServer convention

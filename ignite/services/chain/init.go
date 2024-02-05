@@ -8,11 +8,11 @@ import (
 
 	"github.com/imdario/mergo"
 
-	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
-	chaincmdrunner "github.com/ignite/cli/v28/ignite/pkg/chaincmd/runner"
-	"github.com/ignite/cli/v28/ignite/pkg/cliui/view/accountview"
-	"github.com/ignite/cli/v28/ignite/pkg/confile"
-	"github.com/ignite/cli/v28/ignite/pkg/events"
+	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
+	chaincmdrunner "github.com/ignite/cli/v29/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/view/accountview"
+	"github.com/ignite/cli/v29/ignite/pkg/confile"
+	"github.com/ignite/cli/v29/ignite/pkg/events"
 )
 
 type (

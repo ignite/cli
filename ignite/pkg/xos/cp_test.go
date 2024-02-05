@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/v28/ignite/pkg/xos"
+	"github.com/ignite/cli/v29/ignite/pkg/xos"
 )
 
 func TestCopyFolder(t *testing.T) {

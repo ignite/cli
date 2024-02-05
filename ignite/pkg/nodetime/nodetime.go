@@ -12,7 +12,7 @@ import (
 
 	"github.com/ignite/ignite-files/nodetime"
 
-	"github.com/ignite/cli/v28/ignite/pkg/localfs"
+	"github.com/ignite/cli/v29/ignite/pkg/localfs"
 )
 
 // the list of CLIs included.

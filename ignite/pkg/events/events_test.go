@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/v28/ignite/pkg/events"
+	"github.com/ignite/cli/v29/ignite/pkg/events"
 )
 
 func TestNew(t *testing.T) {

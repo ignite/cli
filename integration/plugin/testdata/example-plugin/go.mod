@@ -6,7 +6,7 @@ toolchain go1.21.4
 
 require (
 	github.com/hashicorp/go-plugin v1.5.2
-	github.com/ignite/cli/v28 v28.0.0
+	github.com/ignite/cli/v29 v29.0.0
 )
 
 require (
@@ -82,4 +82,4 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
-replace github.com/ignite/cli/v28 => ../../../../
+replace github.com/ignite/cli/v29 => ../../../../

@@ -8,15 +8,15 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/v28/ignite/pkg/cache"
-	"github.com/ignite/cli/v28/ignite/pkg/cosmosgen"
-	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
-	"github.com/ignite/cli/v28/ignite/pkg/xgit"
-	"github.com/ignite/cli/v28/ignite/templates/app"
-	"github.com/ignite/cli/v28/ignite/templates/field"
-	modulecreate "github.com/ignite/cli/v28/ignite/templates/module/create"
-	"github.com/ignite/cli/v28/ignite/templates/testutil"
+	"github.com/ignite/cli/v29/ignite/pkg/cache"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v29/ignite/pkg/xgit"
+	"github.com/ignite/cli/v29/ignite/templates/app"
+	"github.com/ignite/cli/v29/ignite/templates/field"
+	modulecreate "github.com/ignite/cli/v29/ignite/templates/module/create"
+	"github.com/ignite/cli/v29/ignite/templates/testutil"
 )
 
 // Init initializes a new app with name and given options.

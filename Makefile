@@ -57,7 +57,7 @@ govulncheck:
 format:
 	@echo Formatting...
 	@go run mvdan.cc/gofumpt -w .
-	@go run golang.org/x/tools/cmd/goimports -w -local github.com/ignite/cli/v28 .
+	@go run golang.org/x/tools/cmd/goimports -w -local github.com/ignite/cli/v29 .
 	@go run github.com/tbruyelle/mdgofmt/cmd/mdgofmt -w docs
 
 ## lint: Run Golang CI Lint.

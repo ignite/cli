@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	pluginsconfig "github.com/ignite/cli/v28/ignite/config/plugins"
+	pluginsconfig "github.com/ignite/cli/v29/ignite/config/plugins"
 )
 
 func TestParseDir(t *testing.T) {

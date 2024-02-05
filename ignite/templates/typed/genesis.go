@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 )
 
 // ProtoGenesisStateMessage is the name of the proto message that represents the genesis state.

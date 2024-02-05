@@ -15,7 +15,7 @@ import (
 	marskeeper "github.com/tendermint/planet/x/mars/keeper"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	app "github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/app/testdata/modules/registration_not_in_app_go"
+	app "github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/app/testdata/modules/registration_not_in_app_go"
 )
 
 type Foo struct {

@@ -40,10 +40,10 @@ import (
 	"context"
 	"log"
 
-	"github.com/ignite/cli/v28/ignite/pkg/clictx"
-	"github.com/ignite/cli/v28/ignite/pkg/cosmosclient"
-	"github.com/ignite/cli/v28/ignite/pkg/cosmostxcollector"
-	"github.com/ignite/cli/v28/ignite/pkg/cosmostxcollector/adapter/postgres"
+	"github.com/ignite/cli/v29/ignite/pkg/clictx"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmostxcollector"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmostxcollector/adapter/postgres"
 )
 
 const (

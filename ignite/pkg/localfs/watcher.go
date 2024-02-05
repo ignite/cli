@@ -10,7 +10,7 @@ import (
 
 	wt "github.com/radovskyb/watcher"
 
-	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 type watcher struct {

@@ -8,8 +8,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/ignite/cli/v28/ignite/pkg/cosmoserror"
-	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmoserror"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 func TestUnwrap(t *testing.T) {

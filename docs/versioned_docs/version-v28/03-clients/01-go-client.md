@@ -119,7 +119,7 @@ import (
 	"log"
 
 	// Importing the general purpose Cosmos blockchain client
-	"github.com/ignite/cli/v28/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosclient"
 
 	// Importing the types package of your blog blockchain
 	"blog/x/blog/types"
