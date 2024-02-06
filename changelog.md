@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [`v28.2.0`](https://github.com/ignite/cli/releases/tag/v28.2.0)
+
 ### Features
 
 - [#3924](https://github.com/ignite/cli/pull/3924) Scaffold NFT module by default
@@ -14,10 +16,10 @@
 - [#3899](https://github.com/ignite/cli/pull/3899) Introduce `plugin.Execute` function
 - [#3903](https://github.com/ignite/cli/pull/3903) Don't specify a default build tag and deprecate notion of app version
 
-### Bug Fixes
+### Fixes
 
 - [#3905](https://github.com/ignite/cli/pull/3905) Fix `ignite completion`
-- [#3931](https://github.com/ignite/cli/pull/3931) Fix `app update` command and duplicated apps 
+- [#3931](https://github.com/ignite/cli/pull/3931) Fix `app update` command and duplicated apps
 
 ## [`v28.1.1`](https://github.com/ignite/cli/releases/tag/v28.1.1)
 
