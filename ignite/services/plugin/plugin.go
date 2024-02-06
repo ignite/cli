@@ -272,8 +272,8 @@ func (p *Plugin) load(ctx context.Context) {
 		HandshakeConfig:  HandshakeConfig(),
 		Plugins:          pluginMap,
 		Logger:           logger,
-		SyncStderr:       p.stdout,
-		SyncStdout:       p.stderr,
+		SyncStdout:       p.stdout,
+		SyncStderr:       p.stderr,
 		AllowedProtocols: []hplugin.Protocol{hplugin.ProtocolGRPC},
 	}
 
