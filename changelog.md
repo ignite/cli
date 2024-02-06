@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- [#3953](https://github.com/ignite/cli/pull/3953) Fix apps `Stdout` is redirected to `Stderr`
+
 ## [`v28.2.0`](https://github.com/ignite/cli/releases/tag/v28.2.0)
 
 ### Features
@@ -20,8 +24,6 @@
 
 - [#3905](https://github.com/ignite/cli/pull/3905) Fix `ignite completion`
 - [#3931](https://github.com/ignite/cli/pull/3931) Fix `app update` command and duplicated apps
-- [#3931](https://github.com/ignite/cli/pull/3931) Fix `app update` command and duplicated apps 
-- [#3953](https://github.com/ignite/cli/pull/3953) Fix apps `Stdout` is redirected to `Stderr`
 
 ## [`v28.1.1`](https://github.com/ignite/cli/releases/tag/v28.1.1)
 
