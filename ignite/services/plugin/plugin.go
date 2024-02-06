@@ -83,7 +83,6 @@ func CollectEvents(ev events.Bus) Option {
 func RedirectStdout(w io.Writer) Option {
 	return func(p *Plugin) {
 		p.stdout = w
-		p.stderr = w
 	}
 }
 
