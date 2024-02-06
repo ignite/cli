@@ -252,7 +252,7 @@ func runScaffoldsForVersion(repoDir, outputDir string, ver *semver.Version) erro
 	scaffolder := scaffold.NewScaffolder(binPath, scaffold.DefaultScaffoldCommands)
 	err = scaffolder.RunScaffolds(ver, outputDir)
 	if err != nil {
-		return errors.Wrapf(err, "failed to run scaffolds for tag %s", ver)
+		return err
 	}
 
 	return nil
