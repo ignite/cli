@@ -424,18 +424,12 @@ If no path is specified all declared apps are updated.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				// update all plugins
-				if err := plugin.Update(plugins...); err != nil {
-					return err
-				}
-				return nil
+				return plugin.Update(plugins...)
 			}
 			// find the plugin to update
 			for _, p := range plugins {
 				if p.HasPath(args[0]) {
-					if err := plugin.Update(p); err != nil {
-						return err
-					}
-					return nil
+					return plugin.Update(p)
 				}
 			}
 			return errors.Errorf("App %q not found", args[0])
