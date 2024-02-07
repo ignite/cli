@@ -8,9 +8,8 @@ import (
 	"github.com/ignite/cli/v28/ignite/services/plugin"
 )
 
-// TODO move me to ignite org
 // TODO use released version of app-consumer
-const consumerPlugin = "github.com/tbruyelle/app-consumer@feat/implementation"
+const consumerPlugin = "github.com/ignite/app-consumer"
 
 // ConsumerWriteGenesis writes validators in the consumer module genesis.
 // NOTE(tb): Using a plugin for this task avoids having the interchain-security
