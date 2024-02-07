@@ -38,6 +38,20 @@ ignite chain serve
 
 ## Install Ignite CLI locally
 
+Using a package manager, you can install Ignite CLI on macOS:
+
+```sh
+brew install ignite
+```
+
+or GNU/Linux:
+
+```sh
+snap install ignite --classic
+```
+
+Or manually using the following command:
+
 ```sh
 curl https://get.ignite.com/cli | bash
 ```

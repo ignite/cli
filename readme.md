@@ -39,25 +39,23 @@ so you can focus on writing business logic.
 
 ### Installation
 
-You can install Ignite with one simple command:
+You can install Ignite a package manager on macOS:
 
 ```sh
-curl https://get.ignite.com/cli! | bash
+brew install ignite
 ```
 
-Or using a package manager on GNU/Linux:
+or GNU/Linux:
 
 ```sh
 snap install ignite --classic
 ```
 
-<!--
-or macOS:
+Or manually using the following command:
 
 ```sh
-brew install ignite
+curl https://get.ignite.com/cli! | bash
 ```
--->
 
 <details>
   <summary>Troubleshoot</summary>
