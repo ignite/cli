@@ -16,7 +16,7 @@ class Ignite < Formula
   test do
     # assert scaffolding works
     ENV["DO_NOT_TRACK"] = "1"
-    system "#{bin}/ignite", "s", "chain", "mars"
+    system bin/"ignite", "s", "chain", "mars"
     assert_predicate testpath/"mars/go.mod", :exist?
   end
 end
