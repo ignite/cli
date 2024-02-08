@@ -101,30 +101,60 @@ func NewScaffolder(ignitePath string, commands []ScaffoldCommand) *Scaffolder {
 }
 
 func (s *Scaffolder) Run(ver *semver.Version, out string) error {
-	for _, command := range s.commands {
-		if err := s.runCommand(command, ver, out); err != nil {
+	for _, c := range s.commands {
+		if err := s.runCommand(c.Name, c.Prerequisites, c.Commands, ver, out); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (s *Scaffolder) runCommand(command ScaffoldCommand, ver *semver.Version, out string) error {
-	for _, pr := range command.Prerequisites {
-		c, err := s.findCommand(pr)
+func (s *Scaffolder) runCommand(
+	name string,
+	prerequisites []string,
+	cmds []string,
+	ver *semver.Version,
+	out string,
+) error {
+	for _, p := range prerequisites {
+		c, err := s.findCommand(p)
 		if err != nil {
 			return err
 		}
-		if err := s.runCommand(c, ver, out); err != nil {
+
+		err = s.runCommand(name, c.Prerequisites, c.Commands, ver, out)
+		if err != nil {
 			return err
 		}
 	}
 
-	for _, cmd := range command.Commands {
-		if err := s.executeScaffold(command.Name, cmd, ver, out); err != nil {
+	for _, cmd := range cmds {
+		if err := s.executeScaffold(name, cmd, ver, out); err != nil {
 			return err
 		}
 	}
+	return nil
+}
+
+func (s *Scaffolder) runPrerequisites(name string, prerequisites []string, ver *semver.Version, out string) error {
+	for _, p := range prerequisites {
+		c, err := s.findCommand(p)
+		if err != nil {
+			return err
+		}
+
+		err = s.runPrerequisites(name, c.Prerequisites, ver, out)
+		if err != nil {
+			return err
+		}
+
+		for _, cmd := range c.Commands {
+			if err := s.executeScaffold(name, cmd, ver, out); err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 }
 

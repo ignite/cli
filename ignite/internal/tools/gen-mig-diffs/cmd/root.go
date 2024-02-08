@@ -10,11 +10,8 @@ import (
 const (
 	fromFlag   = "from"
 	toFlag     = "to"
+	sourceFlag = "source"
 	outputFlag = "output"
-
-	igniteCliRepository = "http://github.com/ignite/cli.git"
-	igniteRepoPath      = "src/github.com/ignite/cli"
-	igniteBinaryPath    = "dist/ignite"
 )
 
 // NewRootCmd creates a new root command
@@ -26,6 +23,7 @@ func NewRootCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			from, _ := cmd.Flags().GetString(fromFlag)
 			to, _ := cmd.Flags().GetString(toFlag)
+			source := cmd.Flag(sourceFlag).Value.String()
 			output, _ := cmd.Flags().GetString(outputFlag)
 
 			fromVer, err := semver.NewVersion(from)
@@ -37,10 +35,11 @@ func NewRootCmd() *cobra.Command {
 				return errors.Wrapf(err, "failed to parse to version %s", to)
 			}
 
-			mdg, err := migdiff.NewMigDiffGenerator(fromVer, toVer)
+			mdg, err := migdiff.NewGenerator(fromVer, toVer, source)
 			if err != nil {
 				return err
 			}
+			defer mdg.Cleanup()
 
 			return mdg.Generate(output)
 		},
@@ -48,7 +47,8 @@ func NewRootCmd() *cobra.Command {
 
 	cmd.Flags().StringP(fromFlag, "f", "", "Version of ignite or path to ignite source code to generate the diff from")
 	cmd.Flags().StringP(toFlag, "t", "", "Version of ignite or path to ignite source code to generate the diff to")
-	cmd.Flags().StringP(outputFlag, "o", ".", "Output directory to save the migration diff files")
+	cmd.Flags().StringP(sourceFlag, "s", "", "Path to ignite source code repository (optional)")
+	cmd.Flags().StringP(outputFlag, "o", "./diffs", "Output directory to save the migration diff files")
 
 	return cmd
 }
