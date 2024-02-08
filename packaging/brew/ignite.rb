@@ -9,12 +9,10 @@ class Ignite < Formula
   depends_on "node"
 
   def install
-    bin.mkpath
-    system "go", "build", "-mod=readonly", *std_go_args, "-o", bin/"ignite", "./ignite/cmd/ignite/..."
+    system "go", "build", "-mod=readonly", *std_go_args(output: bin/"ignite"), "./ignite/cmd/ignite/..."
   end
 
   test do
-    # assert scaffolding works
     ENV["DO_NOT_TRACK"] = "1"
     system bin/"ignite", "s", "chain", "mars"
     assert_predicate testpath/"mars/go.mod", :exist?
