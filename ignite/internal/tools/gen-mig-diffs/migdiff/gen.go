@@ -34,7 +34,7 @@ var diffIgnoreGlobs = []string{
 	"**.pulsar.go",
 	"**/node_modules/**",
 	"**/openapi.yml",
-	"**/.gitignore",
+	".gitignore",
 	"**.html",
 	"**.css",
 	"**.js",

@@ -105,6 +105,10 @@ func (s *Scaffolder) Run(ver *semver.Version, out string) error {
 		if err := s.runCommand(c.Name, c.Prerequisites, c.Commands, ver, out); err != nil {
 			return err
 		}
+
+		if err := applyPostScaffoldExceptions(ver, c.Name, out); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -129,27 +133,28 @@ func (s *Scaffolder) runCommand(
 	}
 
 	for _, cmd := range cmds {
-		if err := s.executeScaffold(name, cmd, ver, out); err != nil {
+		if err := s.executeScaffold(ver, name, cmd, out); err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
-func (s *Scaffolder) runPrerequisites(name string, prerequisites []string, ver *semver.Version, out string) error {
+func (s *Scaffolder) runPrerequisites(ver *semver.Version, name string, prerequisites []string, out string) error {
 	for _, p := range prerequisites {
 		c, err := s.findCommand(p)
 		if err != nil {
 			return err
 		}
 
-		err = s.runPrerequisites(name, c.Prerequisites, ver, out)
+		err = s.runPrerequisites(ver, name, c.Prerequisites, out)
 		if err != nil {
 			return err
 		}
 
 		for _, cmd := range c.Commands {
-			if err := s.executeScaffold(name, cmd, ver, out); err != nil {
+			if err := s.executeScaffold(ver, name, cmd, out); err != nil {
 				return err
 			}
 		}
@@ -168,29 +173,25 @@ func (s *Scaffolder) findCommand(name string) (ScaffoldCommand, error) {
 	return ScaffoldCommand{}, fmt.Errorf("command %s not found", name)
 }
 
-func (s *Scaffolder) executeScaffold(name, cmd string, ver *semver.Version, out string) error {
+func (s *Scaffolder) executeScaffold(ver *semver.Version, name, cmd string, out string) error {
 	args := []string{s.ignitePath, "scaffold"}
 	args = append(args, strings.Fields(cmd)...)
 	args = append(args, "--path", filepath.Join(out, name))
-	args = applyPreScaffoldExceptions(ver, args)
+	args = applyPreExecuteExceptions(ver, args)
 
 	if err := exec.Exec(context.Background(), args); err != nil {
 		return errors.Wrapf(err, "failed to execute ignite scaffold command: %s", cmd)
-	}
-
-	if err := applyPostScaffoldExceptions(ver, name, out); err != nil {
-		return err
 	}
 
 	return nil
 }
 
 // In this function we can manipulate command arguments before executing it in order to compensate for differences in versions.
-func applyPreScaffoldExceptions(ver *semver.Version, args []string) []string {
+func applyPreExecuteExceptions(ver *semver.Version, args []string) []string {
 	// In versions <0.27.0, "scaffold chain" command always creates a new directory with the name of chain at the given --path
 	// so we need to append "example" to the path if the command is not "chain"
 	if ver.LessThan(semver.MustParse("v0.27.0")) && args[2] != "chain" {
-		(args)[len(args)-1] = filepath.Join(args[len(args)-1], "example")
+		args[len(args)-1] = filepath.Join(args[len(args)-1], "example")
 	}
 
 	return args
