@@ -1,4 +1,4 @@
-package scaffold
+package migdiff
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
-var DefaultScaffoldCommands = []ScaffoldCommand{
+var defaultScaffoldCommands = []ScaffoldCommand{
 	{
 		Name: "chain",
 		Commands: []string{
@@ -100,7 +100,7 @@ func NewScaffolder(ignitePath string, commands []ScaffoldCommand) *Scaffolder {
 	}
 }
 
-func (s *Scaffolder) RunScaffolds(ver *semver.Version, out string) error {
+func (s *Scaffolder) Run(ver *semver.Version, out string) error {
 	for _, command := range s.commands {
 		if err := s.runCommand(command, ver, out); err != nil {
 			return err
