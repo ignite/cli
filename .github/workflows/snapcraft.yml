@@ -30,6 +30,8 @@ jobs:
       - name: Build snap package
         uses: snapcore/action-build@v1
         id: build-snap
+        with:
+          path: "packaging/snap"
 
       - name: Publish snap package
         uses: snapcore/action-publish@v1
