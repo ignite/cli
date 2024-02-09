@@ -6,7 +6,7 @@ import (
 	"github.com/hexops/gotextdiff"
 )
 
-// Sutract two unified diffs from each other.
+// Subtract two unified diffs from each other.
 func Subtract(a, b gotextdiff.Unified) gotextdiff.Unified {
 	return gotextdiff.Unified{
 		From:  a.From,
@@ -21,7 +21,16 @@ func subtractHunks(src, base []*gotextdiff.Hunk) []*gotextdiff.Hunk {
 
 	res := make([]*gotextdiff.Hunk, 0, len(src))
 	offset := 0
-	for i, j := 0, 0; i < len(src) && j < len(base); {
+	for i, j := 0, 0; i < len(src) || j < len(base); {
+		if i >= len(src) {
+			break
+		}
+		if j >= len(base) {
+			res = append(res, src[i])
+			i++
+			continue
+		}
+
 		s := src[i]
 		b := base[j]
 

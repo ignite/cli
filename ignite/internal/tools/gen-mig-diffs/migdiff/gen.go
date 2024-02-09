@@ -35,6 +35,7 @@ var diffIgnoreGlobs = []string{
 	"**/node_modules/**",
 	"**/openapi.yml",
 	".gitignore",
+	".github/**",
 	"**.html",
 	"**.css",
 	"**.js",
