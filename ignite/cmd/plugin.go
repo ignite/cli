@@ -31,7 +31,7 @@ var plugins []*plugin.Plugin
 
 // LoadPlugins tries to load all the plugins found in configurations.
 // If no configurations found, it returns w/o error.
-func LoadPlugins(ctx context.Context, cmd *cobra.Command) error {
+func LoadPlugins(ctx context.Context, cmd *cobra.Command, session *cliui.Session) error {
 	var (
 		rootCmd        = cmd.Root()
 		pluginsConfigs []pluginsconfig.Plugin
@@ -52,9 +52,6 @@ func LoadPlugins(ctx context.Context, cmd *cobra.Command) error {
 	if len(pluginsConfigs) == 0 {
 		return nil
 	}
-
-	session := cliui.New(cliui.WithStdout(os.Stdout))
-	defer session.End()
 
 	uniquePlugins := pluginsconfig.RemoveDuplicates(pluginsConfigs)
 	plugins, err = plugin.Load(ctx, uniquePlugins, plugin.CollectEvents(session.EventBus()))
@@ -427,22 +424,12 @@ If no path is specified all declared apps are updated.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				// update all plugins
-				err := plugin.Update(plugins...)
-				if err != nil {
-					return err
-				}
-				cmd.Println("All apps updated.")
-				return nil
+				return plugin.Update(plugins...)
 			}
 			// find the plugin to update
 			for _, p := range plugins {
-				if p.Path == args[0] {
-					err := plugin.Update(p)
-					if err != nil {
-						return err
-					}
-					cmd.Printf("App %q updated.\n", p.Path)
-					return nil
+				if p.HasPath(args[0]) {
+					return plugin.Update(p)
 				}
 			}
 			return errors.Errorf("App %q not found", args[0])
@@ -479,7 +466,7 @@ Respects key value pairs declared after the app path to be added to the generate
 			}
 
 			for _, p := range conf.Apps {
-				if p.Path == args[0] {
+				if p.HasPath(args[0]) {
 					return errors.Errorf("app %s is already installed", args[0])
 				}
 			}
@@ -507,7 +494,6 @@ Respects key value pairs declared after the app path to be added to the generate
 				p.With[kv[0]] = kv[1]
 			}
 
-			session.StartSpinner("Loading app")
 			plugins, err := plugin.Load(cmd.Context(), []pluginsconfig.Plugin{p}, pluginsOptions...)
 			if err != nil {
 				return err
@@ -562,7 +548,7 @@ func NewAppUninstall() *cobra.Command {
 
 			removed := false
 			for i, cp := range conf.Apps {
-				if cp.Path == args[0] {
+				if cp.HasPath(args[0]) {
 					conf.Apps = append(conf.Apps[:i], conf.Apps[i+1:]...)
 					removed = true
 					break
@@ -648,7 +634,7 @@ func NewAppDescribe() *cobra.Command {
 			ctx := cmd.Context()
 
 			for _, p := range plugins {
-				if p.Path == args[0] {
+				if p.HasPath(args[0]) {
 					manifest, err := p.Interface.Manifest(ctx)
 					if err != nil {
 						return errors.Errorf("error while loading app manifest: %w", err)

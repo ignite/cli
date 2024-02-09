@@ -2,20 +2,29 @@
 
 ## Unreleased
 
+### Fixes
+
+- [#3953](https://github.com/ignite/cli/pull/3953) Fix apps `Stdout` is redirected to `Stderr`
+
+## [`v28.2.0`](https://github.com/ignite/cli/releases/tag/v28.2.0)
+
 ### Features
 
+- [#3924](https://github.com/ignite/cli/pull/3924) Scaffold NFT module by default
 - [#3839](https://github.com/ignite/cli/pull/3839) New structure for app scaffolding
 - [#3835](https://github.com/ignite/cli/pull/3835) Add `--minimal` flag to `scaffold chain` to scaffold a chain with the least amount of sdk modules
 - [#3820](https://github.com/ignite/cli/pull/3820) Add integration tests for IBC chains
+- [#3956](https://github.com/ignite/cli/pull/3956) Prepare for wasm app
 
 ### Changes
 
 - [#3899](https://github.com/ignite/cli/pull/3899) Introduce `plugin.Execute` function
 - [#3903](https://github.com/ignite/cli/pull/3903) Don't specify a default build tag and deprecate notion of app version
 
-### Bug Fixes
+### Fixes
 
 - [#3905](https://github.com/ignite/cli/pull/3905) Fix `ignite completion`
+- [#3931](https://github.com/ignite/cli/pull/3931) Fix `app update` command and duplicated apps
 
 ## [`v28.1.1`](https://github.com/ignite/cli/releases/tag/v28.1.1)
 
