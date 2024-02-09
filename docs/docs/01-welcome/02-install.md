@@ -37,13 +37,13 @@ ignite version
 
 ## Installing Ignite CLI
 
-To install the latest version of the `ignite` binary use a package manager on macOS:
+To install the latest version of Ignite use [HomeBrew](https://formulae.brew.sh/formula/ignite) on macOS and GNU/Linux:
 
 ```sh
 brew install ignite
 ```
 
-or GNU/Linux:
+Or use Snap on GNU/Linux:
 
 ```sh
 snap install ignite --classic

@@ -39,13 +39,13 @@ so you can focus on writing business logic.
 
 ### Installation
 
-You can install Ignite a package manager on macOS:
+You can install Ignite using [HomeBrew](https://formulae.brew.sh/formula/ignite) on macOS and GNU/Linux:
 
 ```sh
 brew install ignite
 ```
 
-or GNU/Linux:
+Or using Snap on GNU/Linux:
 
 ```sh
 snap install ignite --classic
