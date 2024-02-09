@@ -103,11 +103,10 @@ func calculateEndEqualLines(h *gotextdiff.Hunk) int {
 func calculateHunkOffsetChange(lines []gotextdiff.Line) int {
 	offset := 0
 	for _, l := range lines {
-		switch l.Kind {
-		case gotextdiff.Delete:
-			offset--
-		case gotextdiff.Insert:
+		if l.Kind == gotextdiff.Insert {
 			offset++
+		} else if l.Kind == gotextdiff.Delete {
+			offset--
 		}
 	}
 	return offset
