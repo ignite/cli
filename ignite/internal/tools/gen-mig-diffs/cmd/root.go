@@ -14,7 +14,7 @@ const (
 	outputFlag = "output"
 )
 
-// NewRootCmd creates a new root command
+// NewRootCmd creates a new root command.
 func NewRootCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "gen-mig-diffs",

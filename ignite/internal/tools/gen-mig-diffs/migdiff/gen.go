@@ -42,7 +42,7 @@ var diffIgnoreGlobs = []string{
 	"**.ts",
 }
 
-// Generator is used to generate migration diffs
+// Generator is used to generate migration diffs.
 type Generator struct {
 	from, to         *semver.Version
 	tempDir, repoDir string
@@ -116,7 +116,7 @@ func cloneIgniteRepo(path string) (*git.Repository, error) {
 	return repo, err
 }
 
-// getRepoVersionTags returns a sorted collection of semver tags from the ignite cli repository
+// getRepoVersionTags returns a sorted collection of semver tags from the ignite cli repository.
 func getRepoVersionTags(repoDir string) (semver.Collection, error) {
 	repo, err := git.PlainOpen(repoDir)
 	if err != nil {
@@ -249,7 +249,7 @@ func (g *Generator) Generate(outputPath string) error {
 	return nil
 }
 
-// Run scaffolds commands one by one with the given version of ignite cli and save the output in the output directory
+// Run scaffolds commands one by one with the given version of ignite cli and save the output in the output directory.
 func (g *Generator) runScaffoldsForVersion(ver *semver.Version, outputDir string) error {
 	err := g.checkoutToTag(ver.Original())
 	if err != nil {
@@ -315,7 +315,7 @@ func calculateDiffs(fromDir, toDir string) (map[string][]gotextdiff.Unified, err
 	return diffs, nil
 }
 
-// subtractBaseDiffs removes chain and module diffs from other diffs
+// subtractBaseDiffs removes chain and module diffs from other diffs.
 func subtractBaseDiffs(diffs map[string][]gotextdiff.Unified) {
 	chainDiff := diffs["chain"]
 	moduleDiff := diffs["module"]

@@ -10,6 +10,7 @@ import (
 	"github.com/hexops/gotextdiff"
 	"github.com/hexops/gotextdiff/myers"
 	"github.com/hexops/gotextdiff/span"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 // ComputeFS computes the unified diffs between the origin and modified filesystems.
@@ -23,6 +24,10 @@ func ComputeFS(origin, modified fs.FS, ignoreGlobs ...string) ([]gotextdiff.Unif
 	marked := make(map[string]struct{})
 	unified := make([]gotextdiff.Unified, 0)
 	err = fs.WalkDir(origin, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return errors.Errorf("failed to walk origin: %w", err)
+		}
+
 		if d.IsDir() {
 			return nil
 		}
@@ -34,13 +39,13 @@ func ComputeFS(origin, modified fs.FS, ignoreGlobs ...string) ([]gotextdiff.Unif
 		marked[path] = struct{}{}
 		data, err := fs.ReadFile(origin, path)
 		if err != nil {
-			return fmt.Errorf("failed to read file %q from origin: %w", path, err)
+			return errors.Errorf("failed to read file %q from origin: %w", path, err)
 		}
 		originFile := string(data)
 
 		data, err = fs.ReadFile(modified, path)
 		if !os.IsNotExist(err) && err != nil {
-			return fmt.Errorf("failed to read file %q from modified: %w", path, err)
+			return errors.Errorf("failed to read file %q from modified: %w", path, err)
 		}
 		modifiedFile := string(data)
 
@@ -55,11 +60,11 @@ func ComputeFS(origin, modified fs.FS, ignoreGlobs ...string) ([]gotextdiff.Unif
 	}
 
 	err = fs.WalkDir(modified, ".", func(path string, d fs.DirEntry, err error) error {
-		if d.IsDir() {
-			return nil
+		if err != nil {
+			return errors.Errorf("failed to walk modified: %w", err)
 		}
 
-		if matchGlobs(compiledGlobs, path) {
+		if d.IsDir() {
 			return nil
 		}
 
@@ -67,10 +72,14 @@ func ComputeFS(origin, modified fs.FS, ignoreGlobs ...string) ([]gotextdiff.Unif
 			return nil
 		}
 
+		if matchGlobs(compiledGlobs, path) {
+			return nil
+		}
+
 		originFile := ""
 		data, err := fs.ReadFile(modified, path)
 		if err != nil {
-			return fmt.Errorf("failed to read file %q from modified: %w", path, err)
+			return errors.Errorf("failed to read file %q from modified: %w", path, err)
 		}
 		modifiedFile := string(data)
 
@@ -92,7 +101,7 @@ func compileGlobs(globs []string) ([]glob.Glob, error) {
 	for _, g := range globs {
 		compiledGlob, err := glob.Compile(g, filepath.Separator)
 		if err != nil {
-			return nil, fmt.Errorf("failed to compile glob %q: %w", g, err)
+			return nil, errors.Errorf("failed to compile glob %q: %w", g, err)
 		}
 		compiledGlobs = append(compiledGlobs, compiledGlob)
 	}

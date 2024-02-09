@@ -2,7 +2,6 @@ package migdiff
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -77,7 +76,7 @@ var defaultScaffoldCommands = []ScaffoldCommand{
 	},
 }
 
-// ScaffoldCommand represents a set of commands and prerequisites scaffold commands that are required to run before them
+// ScaffoldCommand represents a set of commands and prerequisites scaffold commands that are required to run before them.
 type ScaffoldCommand struct {
 	// Name is the unique identifier of the command
 	Name string
@@ -141,28 +140,6 @@ func (s *Scaffolder) runCommand(
 	return nil
 }
 
-func (s *Scaffolder) runPrerequisites(ver *semver.Version, name string, prerequisites []string, out string) error {
-	for _, p := range prerequisites {
-		c, err := s.findCommand(p)
-		if err != nil {
-			return err
-		}
-
-		err = s.runPrerequisites(ver, name, c.Prerequisites, out)
-		if err != nil {
-			return err
-		}
-
-		for _, cmd := range c.Commands {
-			if err := s.executeScaffold(ver, name, cmd, out); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
 func (s *Scaffolder) findCommand(name string) (ScaffoldCommand, error) {
 	for _, c := range s.commands {
 		if c.Name == name {
@@ -170,7 +147,7 @@ func (s *Scaffolder) findCommand(name string) (ScaffoldCommand, error) {
 		}
 	}
 
-	return ScaffoldCommand{}, fmt.Errorf("command %s not found", name)
+	return ScaffoldCommand{}, errors.Errorf("command %s not found", name)
 }
 
 func (s *Scaffolder) executeScaffold(ver *semver.Version, name, cmd string, out string) error {

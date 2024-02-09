@@ -79,10 +79,9 @@ func beforeHunk(a, b *gotextdiff.Hunk, offset int) bool {
 func calculateStartEqualLines(h *gotextdiff.Hunk) int {
 	lines := 0
 	for _, l := range h.Lines {
-		switch l.Kind {
-		case gotextdiff.Equal:
+		if l.Kind == gotextdiff.Equal {
 			lines++
-		default:
+		} else {
 			break
 		}
 	}
@@ -92,10 +91,9 @@ func calculateStartEqualLines(h *gotextdiff.Hunk) int {
 func calculateEndEqualLines(h *gotextdiff.Hunk) int {
 	lines := 0
 	for i := len(h.Lines) - 1; i >= 0; i-- {
-		switch h.Lines[i].Kind {
-		case gotextdiff.Equal:
+		if h.Lines[i].Kind == gotextdiff.Equal {
 			lines++
-		default:
+		} else {
 			break
 		}
 	}
@@ -105,11 +103,10 @@ func calculateEndEqualLines(h *gotextdiff.Hunk) int {
 func calculateHunkOffsetChange(lines []gotextdiff.Line) int {
 	offset := 0
 	for _, l := range lines {
-		switch l.Kind {
-		case gotextdiff.Delete:
-			offset--
-		case gotextdiff.Insert:
+		if l.Kind == gotextdiff.Insert {
 			offset++
+		} else if l.Kind == gotextdiff.Delete {
+			offset--
 		}
 	}
 	return offset
