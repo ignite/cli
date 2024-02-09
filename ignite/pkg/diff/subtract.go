@@ -140,26 +140,17 @@ func subtractHunk(a, b *gotextdiff.Hunk) *gotextdiff.Hunk {
 
 func subtractLines(a, b []gotextdiff.Line) []gotextdiff.Line {
 	res := make([]gotextdiff.Line, 0, len(a))
-	for i, j := 0, 0; i < len(a) && j < len(b); {
-		la := a[i]
-		lb := b[j]
-
-		if la == lb {
-			if la.Kind == gotextdiff.Equal {
-				res = append(res, la)
+	for _, la := range a {
+		rep := false
+		for _, lb := range b {
+			if la.Kind != gotextdiff.Equal && la.Kind == lb.Kind && la.Content == lb.Content {
+				rep = true
+				break
 			}
-			i++
-			j++
-			continue
 		}
 
-		if i < len(a) {
+		if !rep {
 			res = append(res, la)
-			i++
-			continue
-		}
-		if j < len(b) {
-			j++
 		}
 	}
 
