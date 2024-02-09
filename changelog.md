@@ -15,6 +15,7 @@
 - [#3835](https://github.com/ignite/cli/pull/3835) Add `--minimal` flag to `scaffold chain` to scaffold a chain with the least amount of sdk modules
 - [#3820](https://github.com/ignite/cli/pull/3820) Add integration tests for IBC chains
 - [#3956](https://github.com/ignite/cli/pull/3956) Prepare for wasm app
+- [#3718](https://github.com/ignite/cli/pull/3718) Add `gen-mig-diffs` tool app to compare scaffold output of two versions of ignite
 
 ### Changes
 
