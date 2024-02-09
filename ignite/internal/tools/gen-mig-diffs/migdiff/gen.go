@@ -27,7 +27,7 @@ const (
 var diffIgnoreGlobs = []string{
 	".git/**",
 	"**.md",
-	"**/go.sum",
+	"go.sum",
 	"**_test.go",
 	"**.pb.go",
 	"**.pb.gw.go",
@@ -40,6 +40,7 @@ var diffIgnoreGlobs = []string{
 	"**.css",
 	"**.js",
 	"**.ts",
+	"**.json",
 }
 
 // Generator is used to generate migration diffs.

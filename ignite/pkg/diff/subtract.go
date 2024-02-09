@@ -73,7 +73,7 @@ func sortHunks(hunks []*gotextdiff.Hunk) {
 
 // beforeHunk returns true if a comes before b.
 func beforeHunk(a, b *gotextdiff.Hunk, offset int) bool {
-	return a.ToLine-calculateEndEqualLines(a) < b.FromLine-calculateStartEqualLines(b)+offset
+	return a.ToLine-calculateEndEqualLines(a) < b.FromLine+calculateStartEqualLines(b)+offset
 }
 
 func calculateStartEqualLines(h *gotextdiff.Hunk) int {
@@ -103,10 +103,11 @@ func calculateEndEqualLines(h *gotextdiff.Hunk) int {
 func calculateHunkOffsetChange(lines []gotextdiff.Line) int {
 	offset := 0
 	for _, l := range lines {
-		if l.Kind == gotextdiff.Insert {
-			offset++
-		} else if l.Kind == gotextdiff.Delete {
+		switch l.Kind {
+		case gotextdiff.Delete:
 			offset--
+		case gotextdiff.Insert:
+			offset++
 		}
 	}
 	return offset
@@ -123,7 +124,7 @@ func hunksOverlap(a, b *gotextdiff.Hunk, offset int) bool {
 }
 
 func isLineInHunk(line int, h *gotextdiff.Hunk, offset int) bool {
-	return line-calculateStartEqualLines(h) >= h.FromLine+offset && line+calculateEndEqualLines(h) <= h.ToLine+offset
+	return line-calculateStartEqualLines(h) > h.FromLine+offset && line+calculateEndEqualLines(h) < h.ToLine+offset
 }
 
 func subtractHunk(a, b *gotextdiff.Hunk) *gotextdiff.Hunk {
