@@ -5,6 +5,7 @@
 ### Changes
 
 - [#3959](https://github.com/ignite/cli/pull/3959) Remove app name prefix from the `.gitignore` file
+- [#3962](https://github.com/ignite/cli/pull/3962) Rename `map`/`list`/`single` query type names and cli commands
 
 ### Fixes
 
