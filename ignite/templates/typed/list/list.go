@@ -218,7 +218,7 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 		appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
 		typenameUpper := opts.TypeName.UpperCamel
 		rpcQueryGet := protoutil.NewRPC(
-			typenameUpper,
+			fmt.Sprintf("Get%s", typenameUpper),
 			fmt.Sprintf("QueryGet%sRequest", typenameUpper),
 			fmt.Sprintf("QueryGet%sResponse", typenameUpper),
 			protoutil.WithRPCOptions(
@@ -236,7 +236,7 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("Queries a %v by id.", typenameUpper))
 
 		rpcQueryAll := protoutil.NewRPC(
-			fmt.Sprintf("%sAll", typenameUpper),
+			fmt.Sprintf("List%s", typenameUpper),
 			fmt.Sprintf("QueryAll%sRequest", typenameUpper),
 			fmt.Sprintf("QueryAll%sResponse", typenameUpper),
 			protoutil.WithRPCOptions(
@@ -387,14 +387,15 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 		}
 
 		template := `{
-			RpcMethod: "%[2]vAll",
+			RpcMethod: "List%[2]v",
 			Use: "list-%[3]v",
 			Short: "List all %[4]v",
 		},
 		{
-			RpcMethod: "%[2]v",
-			Use: "show-%[3]v [id]",
+			RpcMethod: "Get%[2]v",
+			Use: "get-%[3]v [id]",
 			Short: "Shows a %[4]v by id",
+			Alias: []string{"show-%[3]v"},
 			PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "id"}},
 		},
 		%[1]v`

@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (s queryServer) <%= TypeName.UpperCamel %>All(ctx context.Context, req *types.QueryAll<%= TypeName.UpperCamel %>Request) (*types.QueryAll<%= TypeName.UpperCamel %>Response, error) {
+func (s queryServer) List<%= TypeName.UpperCamel %>(ctx context.Context, req *types.QueryAll<%= TypeName.UpperCamel %>Request) (*types.QueryAll<%= TypeName.UpperCamel %>Response, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
@@ -38,7 +38,7 @@ func (s queryServer) <%= TypeName.UpperCamel %>All(ctx context.Context, req *typ
 	return &types.QueryAll<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: <%= TypeName.LowerCamel %>s, Pagination: pageRes}, nil
 }
 
-func (s queryServer) <%= TypeName.UpperCamel %>(ctx context.Context, req *types.QueryGet<%= TypeName.UpperCamel %>Request) (*types.QueryGet<%= TypeName.UpperCamel %>Response, error) {
+func (s queryServer) Get<%= TypeName.UpperCamel %>(ctx context.Context, req *types.QueryGet<%= TypeName.UpperCamel %>Request) (*types.QueryGet<%= TypeName.UpperCamel %>Response, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
