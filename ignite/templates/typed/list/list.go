@@ -394,7 +394,7 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 		{
 			RpcMethod: "Get%[2]v",
 			Use: "get-%[3]v [id]",
-			Short: "Shows a %[4]v by id",
+			Short: "Gets a %[4]v by id",
 			Alias: []string{"show-%[3]v"},
 			PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "id"}},
 		},
