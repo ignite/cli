@@ -2,9 +2,10 @@ package cmd
 
 import (
 	semver "github.com/Masterminds/semver/v3"
+	"github.com/spf13/cobra"
+
 	"github.com/ignite/cli/v28/ignite/internal/tools/gen-mig-diffs/migdiff"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
-	"github.com/spf13/cobra"
 )
 
 const (

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/hexops/gotextdiff"
+
 	"github.com/ignite/cli/v28/ignite/pkg/diff"
 )
 

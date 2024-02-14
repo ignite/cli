@@ -4,8 +4,9 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/ignite/cli/v28/ignite/pkg/diff"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/v28/ignite/pkg/diff"
 )
 
 func TestComputeFS(t *testing.T) {
