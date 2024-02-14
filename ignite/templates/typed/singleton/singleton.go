@@ -168,7 +168,7 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 		}
 
 		template := `{
-			RpcMethod: "%[2]v",
+			RpcMethod: "Get%[2]v",
 			Use: "get-%[3]v",
 			Short: "Gets a %[4]v",
 			Alias: []string{"show-%[3]v"},
