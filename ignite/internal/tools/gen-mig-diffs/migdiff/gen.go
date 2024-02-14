@@ -158,7 +158,7 @@ func validateVersionRange(fromVer, toVer *semver.Version, versions semver.Collec
 		return nil, nil, errors.New("At least two semver tags are required")
 	}
 
-versionMap := make(map[string]*semver.Version)
+	versionMap := make(map[string]*semver.Version)
 	for _, ver := range versions {
 		versionMap[ver.String()] = ver
 	}
@@ -174,7 +174,7 @@ versionMap := make(map[string]*semver.Version)
 	} else {
 		toVer = versions[versions.Len()-1]
 	}
-	
+
 	// Replace fromVer and toVer with equivalent semver tags from versions
 	if fromVer != nil {
 		if _, found := versionMap[fromVer.String()]; !found {
