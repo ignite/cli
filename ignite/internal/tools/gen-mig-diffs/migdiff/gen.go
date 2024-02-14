@@ -103,7 +103,6 @@ func NewGenerator(from, to *semver.Version, source string) (*Generator, error) {
 
 func createTempDir() (string, error) {
 	tmpdir, err := os.MkdirTemp("", ".migdoc")
-	defer os.RemoveAll(tmpdir)
 	if err != nil {
 		return "", err
 	}
