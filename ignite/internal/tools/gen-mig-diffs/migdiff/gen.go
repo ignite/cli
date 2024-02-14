@@ -158,53 +158,36 @@ func validateVersionRange(fromVer, toVer *semver.Version, versions semver.Collec
 		return nil, nil, errors.New("At least two semver tags are required")
 	}
 
-	// Replace fromVer and toVer with equivalent semver tags from versions
-	if fromVer != nil {
-		found := false
-		for _, ver := range versions {
-			if ver.Equal(fromVer) {
-				fromVer = ver
-				found = true
-				break
-			}
-		}
-		if !found {
-			return nil, nil, errors.Errorf("tag %s not found", fromVer)
-		}
-	}
-	if toVer != nil {
-		found := false
-		for _, ver := range versions {
-			if ver.Equal(toVer) {
-				toVer = ver
-				found = true
-				break
-			}
-		}
-		if !found {
-			return nil, nil, errors.Errorf("tag %s not found", toVer)
-		}
+versionMap := make(map[string]*semver.Version)
+	for _, ver := range versions {
+		versionMap[ver.String()] = ver
 	}
 
 	// Picking default values for fromVer and toVer such that:
 	// If both fromVer and toVer are not provided, then generate migration document for second last and last semver tags
 	// If only fromVer is not provided, then use the tag before toVer as fromVer
 	// If only toVer is not provided, then use the last tag as toVer
-	if fromVer == nil {
-		if toVer != nil {
-			sort.Search(versions.Len(), func(i int) bool {
-				if versions[i].LessThan(toVer) {
-					fromVer = versions[i]
-					return false
-				}
-				return true
-			})
-		} else {
-			fromVer = versions[versions.Len()-2]
+	if toVer != nil {
+		if _, found := versionMap[toVer.String()]; !found {
+			return nil, nil, errors.Errorf("tag %s not found", toVer)
 		}
-	}
-	if toVer == nil {
+	} else {
 		toVer = versions[versions.Len()-1]
+	}
+	
+	// Replace fromVer and toVer with equivalent semver tags from versions
+	if fromVer != nil {
+		if _, found := versionMap[fromVer.String()]; !found {
+			return nil, nil, errors.Errorf("tag %s not found", fromVer)
+		}
+	} else {
+		sort.Search(versions.Len(), func(i int) bool {
+			if versions[i].LessThan(toVer) {
+				fromVer = versions[i]
+				return false
+			}
+			return true
+		})
 	}
 
 	// Unable to generate migration document if fromVer is greater or equal to toVer
