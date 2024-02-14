@@ -111,10 +111,9 @@ func createTempDir() (string, error) {
 }
 
 func cloneIgniteRepo(path string) (*git.Repository, error) {
-	repo, err := git.PlainClone(path, false, &git.CloneOptions{
+	return git.PlainClone(path, false, &git.CloneOptions{
 		URL: igniteCliRepository,
 	})
-	return repo, err
 }
 
 // getRepoVersionTags returns a sorted collection of semver tags from the ignite cli repository.
