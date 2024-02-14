@@ -1,0 +1,14 @@
+package {{ num }}
+
+import (
+	"context"
+
+	corestoretypes "cosmossdk.io/core/store"
+
+	"github.com/cosmos/cosmos-sdk/codec"
+)
+
+// MigrateStore migrates the module to consensus version {{ num }}.
+func MigrateStore(ctx context.Context, storeService corestoretypes.KVStoreService, cdc codec.BinaryCodec) {
+	// Insert {{ num }} migration here.
+}
