@@ -10,6 +10,7 @@
 ### Fixes
 
 - [#3953](https://github.com/ignite/cli/pull/3953) Fix apps `Stdout` is redirected to `Stderr`
+- [#3863](https://github.com/ignite/cli/pull/3963) Fix breaking issue for app client API when reading app chain info
 
 ## [`v28.2.0`](https://github.com/ignite/cli/releases/tag/v28.2.0)
 
