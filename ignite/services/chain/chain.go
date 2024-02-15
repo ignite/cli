@@ -206,7 +206,12 @@ func (c *Chain) RPCPublicAddress() (string, error) {
 		if err != nil {
 			return "", err
 		}
-		validator := conf.Validators[0]
+
+		validator, err := chainconfig.FirstValidator(conf)
+		if err != nil {
+			return "", err
+		}
+
 		servers, err := validator.GetServers()
 		if err != nil {
 			return "", err

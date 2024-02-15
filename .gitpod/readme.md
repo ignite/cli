@@ -38,6 +38,20 @@ ignite chain serve
 
 ## Install Ignite CLI locally
 
+You can install Ignite using [HomeBrew](https://formulae.brew.sh/formula/ignite) on macOS and GNU/Linux:
+
+```sh
+brew install ignite
+```
+
+Or using Snap on GNU/Linux:
+
+```sh
+snap install ignite --classic
+```
+
+Or manually using the following command:
+
 ```sh
 curl https://get.ignite.com/cli | bash
 ```
@@ -46,14 +60,14 @@ The latest `ignite` binary is downloaded from the project repo and installed in 
 
 ## Stay in touch
 
-Ignite CLI is a free and open source product maintained by [Ignite](https://ignite.com). Follow us on [Twitter](https://twitter.com/ignite_dev) to get the latest updates.
+Ignite CLI is a free and open source product maintained by [Ignite](https://ignite.com). Follow us on [Twitter](https://twitter.com/ignite) to get the latest updates.
 
 ## Community
 
 Ignite CLI is a free and open source product maintained by [Ignite](https://ignite.com). Here's where you can find us. Stay in touch.
 
 * [ignite.com website](https://ignite.com)
-* [@ignite_dev on Twitter](https://twitter.com/ignite_dev)
+* [@ignite on Twitter](https://twitter.com/ignite)
 * [ignite.com/blog](https://ignite.com/blog)
 * [Ignite Discord](https://discord.gg/ignite)
 * [Ignite YouTube](https://www.youtube.com/@ignitehq)

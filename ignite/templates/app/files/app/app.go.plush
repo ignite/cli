@@ -20,10 +20,11 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/distribution"   // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/mint"           // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/staking"        // import for side-effects
-<%= if (!IsChainMinimal) { %>
 	_ "cosmossdk.io/x/circuit"                                          // import for side-effects
 	_ "cosmossdk.io/x/evidence"                                         // import for side-effects
 	_ "cosmossdk.io/x/feegrant/module"                                  // import for side-effects
+	_ "cosmossdk.io/x/nft/module"										// import for side-effects
+	nftkeeper "cosmossdk.io/x/nft/keeper"
 	_ "cosmossdk.io/x/upgrade"                                          // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/auth/vesting"                     // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/authz/module"                     // import for side-effects
@@ -34,7 +35,6 @@ import (
 	_ "github.com/cosmos/ibc-go/modules/capability"                     // import for side-effects
 	_ "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts" // import for side-effects
 	_ "github.com/cosmos/ibc-go/v8/modules/apps/29-fee"                 // import for side-effects
-<% } %>
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -113,7 +113,6 @@ type App struct {
 	DistrKeeper           distrkeeper.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
 
-<%= if (!IsChainMinimal) { %>
 	SlashingKeeper        slashingkeeper.Keeper
 	MintKeeper            mintkeeper.Keeper
 	GovKeeper             *govkeeper.Keeper
@@ -124,6 +123,7 @@ type App struct {
 	EvidenceKeeper        evidencekeeper.Keeper
 	FeeGrantKeeper        feegrantkeeper.Keeper
 	GroupKeeper           groupkeeper.Keeper
+	NFTKeeper             nftkeeper.Keeper
 	CircuitBreakerKeeper  circuitkeeper.Keeper
 
     // IBC
@@ -139,7 +139,6 @@ type App struct {
 	ScopedIBCTransferKeeper   capabilitykeeper.ScopedKeeper
 	ScopedICAControllerKeeper capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
-<% } %>
 
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
@@ -156,7 +155,6 @@ func init() {
 	DefaultNodeHome = filepath.Join(userHomeDir, "."+Name)
 }
 
-<%= if (!IsChainMinimal) { %>
 // getGovProposalHandlers return the chain proposal handlers.
 func getGovProposalHandlers() []govclient.ProposalHandler {
 	var govProposalHandlers []govclient.ProposalHandler
@@ -169,7 +167,6 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 
 	return govProposalHandlers
 }
-<% } %>
 
 // AppConfig returns the default app config.
 func AppConfig() depinject.Config {
@@ -181,9 +178,7 @@ func AppConfig() depinject.Config {
 			// supply custom module basics
 			map[string]module.AppModuleBasic{
 				genutiltypes.ModuleName: genutil.NewAppModuleBasic(genutiltypes.DefaultMessageValidator),
-				<%= if (!IsChainMinimal) { %>
 				govtypes.ModuleName:     gov.NewAppModuleBasic(getGovProposalHandlers()),
-				<% } %>
 				// this line is used by starport scaffolding # stargate/appConfig/moduleBasic
 			},
 		),
@@ -209,14 +204,12 @@ func New(
 			depinject.Supply(
 				// Supply the application options
 				appOpts,
-				<%= if (!IsChainMinimal) { %>
-                // Supply with IBC keeper getter for the IBC modules with App Wiring.
-                // The IBC Keeper cannot be passed because it has not been initiated yet.
-                // Passing the getter, the app IBC Keeper will always be accessible.
-                // This needs to be removed after IBC supports App Wiring.
-                app.GetIBCKeeper,
-                app.GetCapabilityScopedKeeper,
-				<% } %>
+				// Supply with IBC keeper getter for the IBC modules with App Wiring.
+				// The IBC Keeper cannot be passed because it has not been initiated yet.
+				// Passing the getter, the app IBC Keeper will always be accessible.
+				// This needs to be removed after IBC supports App Wiring.
+				app.GetIBCKeeper,
+				app.GetCapabilityScopedKeeper,
 				// Supply the logger
 				logger,
 
@@ -228,11 +221,11 @@ func New(
 				// add it below. By default the auth module uses simulation.RandomGenesisAccounts.
 				//
 				// authtypes.RandomGenesisAccountsFn(simulation.RandomGenesisAccounts),
-                //
+				//
 				// For providing a custom a base account type add it below.
 				// By default the auth module uses authtypes.ProtoBaseAccount().
 				//
-                // func() sdk.AccountI { return authtypes.ProtoBaseAccount() },
+				// func() sdk.AccountI { return authtypes.ProtoBaseAccount() },
 				//
 				// For providing a different address codec, add it below.
 				// By default the auth module uses a Bech32 address codec,
@@ -273,7 +266,6 @@ func New(
 		&app.StakingKeeper,
 		&app.DistrKeeper,
 		&app.ConsensusParamsKeeper,
-<%= if (!IsChainMinimal) { %>
 		&app.SlashingKeeper,
 		&app.MintKeeper,
 		&app.GovKeeper,
@@ -283,9 +275,9 @@ func New(
 		&app.AuthzKeeper,
 		&app.EvidenceKeeper,
 		&app.FeeGrantKeeper,
+		&app.NFTKeeper,
 		&app.GroupKeeper,
 		&app.CircuitBreakerKeeper,
-<% } %>
 		// this line is used by starport scaffolding # stargate/app/keeperDefinition
 	); err != nil {
 		panic(err)
@@ -325,32 +317,26 @@ func New(
 
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 
-<%= if (!IsChainMinimal) { %>
 	// Register legacy modules
-	app.registerIBCModules()
-<% } %>
+	if err := app.registerIBCModules(appOpts); err != nil {
+		return nil, err
+	}
 
 	// register streaming services
-    if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
+	if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
 		return nil, err
 	}
 
 	/****  Module Options ****/
 
-<%= if (!IsChainMinimal) { %>
 	app.ModuleManager.RegisterInvariants(app.CrisisKeeper)
-<% } %>
 
-<%= if (!IsChainMinimal) { %>
 	// create the simulation manager and define the order of the modules for deterministic simulations
 	//
 	// NOTE: this is not required apps that don't use the simulator for fuzz testing transactions
 	overrideModules := map[string]module.AppModuleSimulation{
 		authtypes.ModuleName: auth.NewAppModule(app.appCodec, app.AccountKeeper, authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
 	}
-<% } else { %>
-	overrideModules := make(map[string]module.AppModuleSimulation)
-<% } %>
 	app.sm = module.NewSimulationManagerFromAppModules(app.ModuleManager.Modules, overrideModules)
 	app.sm.RegisterStoreDecoders()
 
@@ -419,7 +405,6 @@ func (app *App) kvStoreKeys() map[string]*storetypes.KVStoreKey {
 	return keys
 }
 
-<%= if (!IsChainMinimal) { %>
 // GetSubspace returns a param subspace for a given module name.
 func (app *App) GetSubspace(moduleName string) paramstypes.Subspace {
 	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
@@ -435,7 +420,6 @@ func (app *App) GetIBCKeeper() *ibckeeper.Keeper {
 func (app *App) GetCapabilityScopedKeeper(moduleName string) capabilitykeeper.ScopedKeeper {
 	return app.CapabilityKeeper.ScopeToModule(moduleName)
 }
-<% } %>
 
 // SimulationManager implements the SimulationApp interface.
 func (app *App) SimulationManager() *module.SimulationManager {

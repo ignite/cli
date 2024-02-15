@@ -1,6 +1,6 @@
 name: ignite
 base: core22 # the base snap is the execution environment for this snap
-version: "28.0.0"
+version: "{{version}}"
 summary: Build, launch, and maintain any crypto application with Ignite CLI # 79 char long summary
 description: |
   Ignite CLI offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community. Ignite CLI is built on top of Cosmos SDK, the world's most popular blockchain framework.
@@ -9,11 +9,15 @@ description: |
 grade: stable # must be 'stable' to release into candidate/stable channels
 confinement: classic
 
+architectures:
+  - build-on: amd64
+  - build-on: arm64
+
 parts:
   ignite:
     plugin: go
     source: https://github.com/ignite/cli.git
-    source-tag: v28.0.0
+    source-tag: v{{version}}
     source-subdir: ignite/cmd/ignite
     build-snaps:
       - go
@@ -21,4 +25,3 @@ parts:
 apps:
   ignite:
     command: bin/ignite
-    plugs: [home, network, network-bind, removable-media]

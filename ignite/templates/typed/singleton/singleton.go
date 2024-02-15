@@ -128,7 +128,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 		appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
 		typenameUpper := opts.TypeName.UpperCamel
 		rpcQueryGet := protoutil.NewRPC(
-			typenameUpper,
+			fmt.Sprintf("Get%s", typenameUpper),
 			fmt.Sprintf("QueryGet%sRequest", typenameUpper),
 			fmt.Sprintf("QueryGet%sResponse", typenameUpper),
 			protoutil.WithRPCOptions(
@@ -168,9 +168,10 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 		}
 
 		template := `{
-			RpcMethod: "%[2]v",
-			Use: "show-%[3]v",
-			Short: "show %[4]v",
+			RpcMethod: "Get%[2]v",
+			Use: "get-%[3]v",
+			Short: "Gets a %[4]v",
+			Alias: []string{"show-%[3]v"},
 		},
 		%[1]v`
 		replacement := fmt.Sprintf(

@@ -1,4 +1,4 @@
-name: Publish snap package
+name: Publish Ignite to Snapcraft
 
 on:
   release:
@@ -23,9 +23,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Update snapcraft.yaml
+        run: |
+          make snapcraft version=${GITHUB_REF#refs/tags/}
+
       - name: Build snap package
         uses: snapcore/action-build@v1
         id: build-snap
+        with:
+          path: "packaging/snap"
 
       - name: Publish snap package
         uses: snapcore/action-publish@v1

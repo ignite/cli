@@ -34,21 +34,27 @@ func TestNewPlugin(t *testing.T) {
 		{
 			name: "fail: empty path",
 			expectedPlugin: Plugin{
-				Error: errors.Errorf(`missing app property "path"`),
+				Error:  errors.Errorf(`missing app property "path"`),
+				stdout: os.Stdout,
+				stderr: os.Stderr,
 			},
 		},
 		{
 			name:      "fail: local plugin doesnt exists",
 			pluginCfg: pluginsconfig.Plugin{Path: "/xxx/yyy/app"},
 			expectedPlugin: Plugin{
-				Error: errors.Errorf(`local app path "/xxx/yyy/app" not found`),
+				Error:  errors.Errorf(`local app path "/xxx/yyy/app" not found`),
+				stdout: os.Stdout,
+				stderr: os.Stderr,
 			},
 		},
 		{
 			name:      "fail: local plugin is not a directory",
 			pluginCfg: pluginsconfig.Plugin{Path: path.Join(wd, "testdata/fakebin")},
 			expectedPlugin: Plugin{
-				Error: errors.Errorf(fmt.Sprintf("local app path %q is not a directory", path.Join(wd, "testdata/fakebin"))),
+				Error:  errors.Errorf(fmt.Sprintf("local app path %q is not a directory", path.Join(wd, "testdata/fakebin"))),
+				stdout: os.Stdout,
+				stderr: os.Stderr,
 			},
 		},
 		{
@@ -57,20 +63,26 @@ func TestNewPlugin(t *testing.T) {
 			expectedPlugin: Plugin{
 				srcPath: path.Join(wd, "testdata"),
 				name:    "testdata",
+				stdout:  os.Stdout,
+				stderr:  os.Stderr,
 			},
 		},
 		{
 			name:      "fail: remote plugin with only domain",
 			pluginCfg: pluginsconfig.Plugin{Path: "github.com"},
 			expectedPlugin: Plugin{
-				Error: errors.Errorf(`app path "github.com" is not a valid repository URL`),
+				Error:  errors.Errorf(`app path "github.com" is not a valid repository URL`),
+				stdout: os.Stdout,
+				stderr: os.Stderr,
 			},
 		},
 		{
 			name:      "fail: remote plugin with incomplete URL",
 			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite"},
 			expectedPlugin: Plugin{
-				Error: errors.Errorf(`app path "github.com/ignite" is not a valid repository URL`),
+				Error:  errors.Errorf(`app path "github.com/ignite" is not a valid repository URL`),
+				stdout: os.Stdout,
+				stderr: os.Stderr,
 			},
 		},
 		{
@@ -83,6 +95,8 @@ func TestNewPlugin(t *testing.T) {
 				reference: "",
 				srcPath:   ".ignite/apps/github.com/ignite/app",
 				name:      "app",
+				stdout:    os.Stdout,
+				stderr:    os.Stderr,
 			},
 		},
 		{
@@ -95,6 +109,8 @@ func TestNewPlugin(t *testing.T) {
 				reference: "develop",
 				srcPath:   ".ignite/apps/github.com/ignite/app-develop",
 				name:      "app",
+				stdout:    os.Stdout,
+				stderr:    os.Stderr,
 			},
 		},
 		{
@@ -107,6 +123,8 @@ func TestNewPlugin(t *testing.T) {
 				reference: "package/v1.0.0",
 				srcPath:   ".ignite/apps/github.com/ignite/app-package-v1.0.0",
 				name:      "app",
+				stdout:    os.Stdout,
+				stderr:    os.Stderr,
 			},
 		},
 		{
@@ -119,6 +137,8 @@ func TestNewPlugin(t *testing.T) {
 				reference: "",
 				srcPath:   ".ignite/apps/github.com/ignite/app/plugin1",
 				name:      "plugin1",
+				stdout:    os.Stdout,
+				stderr:    os.Stderr,
 			},
 		},
 		{
@@ -131,6 +151,8 @@ func TestNewPlugin(t *testing.T) {
 				reference: "develop",
 				srcPath:   ".ignite/apps/github.com/ignite/app-develop/plugin1",
 				name:      "plugin1",
+				stdout:    os.Stdout,
+				stderr:    os.Stderr,
 			},
 		},
 		{
@@ -143,6 +165,8 @@ func TestNewPlugin(t *testing.T) {
 				reference: "package/v1.0.0",
 				srcPath:   ".ignite/apps/github.com/ignite/app-package-v1.0.0/plugin1",
 				name:      "plugin1",
+				stdout:    os.Stdout,
+				stderr:    os.Stderr,
 			},
 		},
 	}
@@ -363,7 +387,7 @@ func TestPluginLoad(t *testing.T) {
 			manifest, err := p.Interface.Manifest(ctx)
 			require.NoError(err)
 			assert.Equal(p.name, manifest.Name)
-			assert.NoError(p.Interface.Execute(ctx, &ExecutedCommand{}, clientAPI))
+			assert.NoError(p.Interface.Execute(ctx, &ExecutedCommand{OsArgs: []string{"ignite", p.name, "hello"}}, clientAPI))
 			assert.NoError(p.Interface.ExecuteHookPre(ctx, &ExecutedHook{}, clientAPI))
 			assert.NoError(p.Interface.ExecuteHookPost(ctx, &ExecutedHook{}, clientAPI))
 			assert.NoError(p.Interface.ExecuteHookCleanUp(ctx, &ExecutedHook{}, clientAPI))

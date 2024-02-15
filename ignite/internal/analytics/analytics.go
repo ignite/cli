@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -20,6 +21,8 @@ import (
 const (
 	telemetryEndpoint  = "https://telemetry-cli.ignite.com"
 	envDoNotTrack      = "DO_NOT_TRACK"
+	envCI              = "CI"
+	envGitHubActions   = "GITHUB_ACTIONS"
 	igniteDir          = ".ignite"
 	igniteAnonIdentity = "anon_identity.json"
 )
@@ -28,9 +31,9 @@ var gaclient gacli.Client
 
 // anonIdentity represents an analytics identity file.
 type anonIdentity struct {
-	// name represents the username.
+	// Name represents the username.
 	Name string `json:"name" yaml:"name"`
-	// doNotTrack represents the user track choice.
+	// DoNotTrack represents the user track choice.
 	DoNotTrack bool `json:"doNotTrack" yaml:"doNotTrack"`
 }
 
@@ -59,6 +62,7 @@ func SendMetric(wg *sync.WaitGroup, cmd *cobra.Command) {
 		SessionID: dntInfo.Name,
 		Version:   version.Version,
 		IsGitPod:  gitpod.IsOnGitpod(),
+		IsCI:      getIsCI(),
 	}
 
 	wg.Add(1)
@@ -71,8 +75,7 @@ func SendMetric(wg *sync.WaitGroup, cmd *cobra.Command) {
 // checkDNT check if the user allow to track data or if the DO_NOT_TRACK
 // env var is set https://consoledonottrack.com/
 func checkDNT() (anonIdentity, error) {
-	envDoNotTrackVar := os.Getenv(envDoNotTrack)
-	if envDoNotTrackVar == "1" || strings.ToLower(envDoNotTrackVar) == "true" {
+	if dnt, err := strconv.ParseBool(os.Getenv(envDoNotTrack)); err != nil || dnt {
 		return anonIdentity{DoNotTrack: true}, nil
 	}
 
@@ -121,4 +124,22 @@ func checkDNT() (anonIdentity, error) {
 	}
 
 	return i, os.WriteFile(identityPath, data, 0o700)
+}
+
+func getIsCI() bool {
+	ci, err := strconv.ParseBool(os.Getenv(envCI))
+	if err != nil {
+		return false
+	}
+
+	if ci {
+		return true
+	}
+
+	ci, err = strconv.ParseBool(os.Getenv(envGitHubActions))
+	if err != nil {
+		return false
+	}
+
+	return ci
 }

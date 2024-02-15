@@ -37,14 +37,51 @@ so you can focus on writing business logic.
 
 ## Quick start
 
-Open Ignite CLI [in your web
-browser](https://gitpod.io/#https://github.com/ignite/cli/tree/v0.25.2) (or open
-[nightly version](https://gitpod.io/#https://github.com/ignite/cli)), or
-[install the latest release](https://docs.ignite.com/welcome/install).
+### Installation
+
+You can install Ignite using [HomeBrew](https://formulae.brew.sh/formula/ignite) on macOS and GNU/Linux:
+
+```sh
+brew install ignite
+```
+
+Or using Snap on GNU/Linux:
+
+```sh
+snap install ignite --classic
+```
+
+Or manually using the following command:
+
+```sh
+curl https://get.ignite.com/cli! | bash
+```
+
+<details>
+  <summary>Troubleshoot</summary>
+
+If Ignite doesn't automatically move to your `/usr/local/bin` directory, use this command to do so:
+
+```sh
+sudo mv ignite /usr/local/bin
+```
+
+If you encounter an error, you might need to create the `/usr/local/bin` directory and set the necessary permissions as follows:
+
+```sh
+mkdir /usr/local/bin
+sudo chown -R $(whoami) /usr/local/bin
+```
+
+</details>
+
+For more options on installing and using Ignite, please see the following:
+
+Open Ignite CLI [in your web browser](https://gitpod.io/#https://github.com/ignite/cli/tree/v28.1.1) (or open [nightly version](https://gitpod.io/#https://github.com/ignite/cli)), or [install the latest release](https://docs.ignite.com/welcome/install).
 
 To create and start a blockchain:
 
-```bash
+```sh
 ignite scaffold chain mars
 
 cd mars
@@ -81,7 +118,7 @@ otherwise, a row refers to a minor version and all associated patch versions.
 
 | Ignite CLI  | Cosmos SDK  | IBC                  | Notes                                                         |
 |-------------|-------------|----------------------|---------------------------------------------------------------|
-| v28.x.x     | v0.50.x     | v8.0.0               | -                                                             |
+| v28.x.y     | v0.50.x     | v8.0.0               | -                                                             |
 | v0.27.1     | v0.47.3     | v7.1.0               | -                                                             |
 | v0.26.0     | v0.46.7     | v6.1.0               | -                                                             |
 | v0.25.2     | v0.46.6     | v5.1.0               | Bump Tendermint version to v0.34.24                           |
@@ -103,7 +140,7 @@ To upgrade your blockchain to the newer version of Cosmos SDK, see the
 Ignite CLI commands can be extended using plugins. A plugin is a program that
 uses github.com/hashicorp/go-plugin to communicate with the ignite binary.
 
-#### Use a plugin
+### Use a plugin
 
 Plugins must be declared in the `config.yml` file, using the following syntax:
 
@@ -133,9 +170,9 @@ A plugin must implement `plugin.Interface`.
 The easiest way to make a plugin is to use the `ignite plugin scaffold` command.
 For example:
 
-```
-$ cd /home/user/src
-$ ignite plugin scaffold github.com/foo/bar
+```sh
+cd /home/user/src
+ignite plugin scaffold github.com/foo/bar
 ```
 
 It will create a folder `bar` under `/home/user/src` and generate predefined
@@ -180,7 +217,7 @@ Ignite CLI is a free and open source product maintained by
 [Ignite](https://ignite.com). Here's where you can find us. Stay in touch.
 
 * [ignite.com website](https://ignite.com)
-* [@ignite\_dev on Twitter](https://twitter.com/ignite_dev)
+* [@ignite on Twitter](https://twitter.com/ignite)
 * [ignite.com/blog](https://ignite.com/blog)
 * [Ignite Discord](https://discord.com/invite/ignite)
 * [Ignite YouTube](https://www.youtube.com/@ignitehq)
