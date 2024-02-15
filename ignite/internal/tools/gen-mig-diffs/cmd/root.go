@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/v28/ignite/internal/tools/gen-mig-diffs/migdiff"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
@@ -36,7 +37,9 @@ func NewRootCmd() *cobra.Command {
 				return errors.Wrapf(err, "failed to parse to version %s", to)
 			}
 
-			mdg, err := migdiff.NewGenerator(fromVer, toVer, source)
+			session := cliui.New()
+			defer session.End()
+			mdg, err := migdiff.NewGenerator(fromVer, toVer, source, session)
 			if err != nil {
 				return err
 			}

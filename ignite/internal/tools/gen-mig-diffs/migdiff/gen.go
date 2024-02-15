@@ -3,7 +3,6 @@ package migdiff
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -13,6 +12,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/hexops/gotextdiff"
 
+	"github.com/ignite/cli/v28/ignite/pkg/cliui"
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v28/ignite/pkg/diff"
@@ -49,36 +49,40 @@ type Generator struct {
 	from, to         *semver.Version
 	tempDir, repoDir string
 	repo             *git.Repository
-	logger           *log.Logger
+	session          *cliui.Session
 }
 
 // NewGenerator creates a new generator for migration diffs between from and to versions of ignite cli
 // If source is empty, then it clones the ignite cli repository to a temporary directory and uses it as the source.
-func NewGenerator(from, to *semver.Version, source string) (*Generator, error) {
-	logger := log.New(os.Stdout, "", log.LstdFlags)
-
+func NewGenerator(from, to *semver.Version, source string, session *cliui.Session) (*Generator, error) {
 	tempDir, err := createTempDir()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create temporary directory")
 	}
-	logger.Println("Created temporary directory:", tempDir)
+	session.EventBus().SendInfo(fmt.Sprintf("Created temporary directory: %s", tempDir))
 
 	var (
 		repoDir = source
 		repo    *git.Repository
 	)
 	if source == "" {
-		logger.Println("Cloning ignite repository...")
+		session.StartSpinner("Cloning ignite repository...")
+
 		repoDir = filepath.Join(tempDir, igniteRepoPath)
 		repo, err = cloneIgniteRepo(repoDir)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to clone ignite repository")
 		}
+
+		session.StopSpinner()
+		session.EventBus().SendInfo(fmt.Sprintf("Cloned ignite repository to: %s", repoDir))
 	} else {
 		repo, err = git.PlainOpen(source)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to open ignite repository")
 		}
+
+		session.EventBus().SendInfo(fmt.Sprintf("Using ignite repository at: %s", repoDir))
 	}
 
 	versions, err := getRepoVersionTags(repoDir)
@@ -97,7 +101,7 @@ func NewGenerator(from, to *semver.Version, source string) (*Generator, error) {
 		tempDir: tempDir,
 		repoDir: repoDir,
 		repo:    repo,
-		logger:  logger,
+		session: session,
 	}, nil
 }
 
@@ -198,13 +202,18 @@ func validateVersionRange(fromVer, toVer *semver.Version, versions semver.Collec
 	return fromVer, toVer, nil
 }
 
-func (g *Generator) Cleanup() error {
-	g.logger.Println("Cleaning up temporary directory:", g.tempDir)
-	return os.RemoveAll(g.tempDir)
+func (g *Generator) Cleanup() {
+	err := os.RemoveAll(g.tempDir)
+	if err != nil {
+		g.session.EventBus().SendError(err)
+		return
+	}
+
+	g.session.EventBus().SendInfo(fmt.Sprintf("Removed temporary directory: %s", g.tempDir))
 }
 
 func (g *Generator) Generate(outputPath string) error {
-	g.logger.Printf("Generating migration diffs for %s->%s\n", g.from, g.to)
+	g.session.Printf("Generating migration diffs for v%s -> v%s\n", g.from, g.to)
 
 	fromDir := filepath.Join(g.tempDir, g.from.Original())
 	err := g.runScaffoldsForVersion(g.from, fromDir)
@@ -217,23 +226,27 @@ func (g *Generator) Generate(outputPath string) error {
 		return errors.Wrapf(err, "failed to run scaffolds for version %s", g.to)
 	}
 
-	g.logger.Println("Calculating diff...")
+	g.session.StartSpinner("Calculating diff...")
 	diffs, err := calculateDiffs(fromDir, toDir)
 	if err != nil {
 		return errors.Wrap(err, "failed to calculate diff")
 	}
+	g.session.StopSpinner()
+	g.session.EventBus().SendInfo("Diff calculated successfully")
 
 	err = saveDiffs(diffs, outputPath)
 	if err != nil {
 		return errors.Wrap(err, "failed to save diff map")
 	}
-	log.Println("Migration diffs generated successfully at", outputPath)
+	g.session.Println("Migration diffs generated successfully at", outputPath)
 
 	return nil
 }
 
 // Run scaffolds commands one by one with the given version of ignite cli and save the output in the output directory.
 func (g *Generator) runScaffoldsForVersion(ver *semver.Version, outputDir string) error {
+	g.session.StartSpinner(fmt.Sprintf("Building ignite cli for v%s...", ver))
+
 	err := g.checkoutToTag(ver.Original())
 	if err != nil {
 		return err
@@ -244,12 +257,20 @@ func (g *Generator) runScaffoldsForVersion(ver *semver.Version, outputDir string
 		return err
 	}
 
+	g.session.StopSpinner()
+	g.session.EventBus().SendInfo(fmt.Sprintf("Built ignite cli for v%s", ver))
+
+	g.session.StartSpinner(fmt.Sprintf("Running scaffold commands for v%s...", ver))
+
 	binPath := filepath.Join(g.repoDir, igniteBinaryPath)
 	scaffolder := NewScaffolder(binPath, defaultScaffoldCommands)
 	err = scaffolder.Run(ver, outputDir)
 	if err != nil {
 		return err
 	}
+
+	g.session.StopSpinner()
+	g.session.EventBus().SendInfo(fmt.Sprintf("Scaffolded code for commands at %s", outputDir))
 
 	return nil
 }
