@@ -1,4 +1,4 @@
-name: Publish snap package
+name: Publish Ignite to Snapcraft
 
 on:
   release:

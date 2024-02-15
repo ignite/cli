@@ -37,10 +37,54 @@ so you can focus on writing business logic.
 
 ## Quick start
 
+<<<<<<< HEAD
 Open Ignite CLI [in your web
 browser](https://gitpod.io/#https://github.com/ignite/cli/tree/v0.25.2) (or open
 [nightly version](https://gitpod.io/#https://github.com/ignite/cli)), or
 [install the latest release](https://docs.ignite.com/welcome/install).
+=======
+### Installation
+
+You can install Ignite using [HomeBrew](https://formulae.brew.sh/formula/ignite) on macOS and GNU/Linux:
+
+```sh
+brew install ignite
+```
+
+Or using Snap on GNU/Linux:
+
+```sh
+snap install ignite --classic
+```
+
+Or manually using the following command:
+
+```sh
+curl https://get.ignite.com/cli! | bash
+```
+
+<details>
+  <summary>Troubleshoot</summary>
+
+If Ignite doesn't automatically move to your `/usr/local/bin` directory, use this command to do so:
+
+```sh
+sudo mv ignite /usr/local/bin
+```
+
+If you encounter an error, you might need to create the `/usr/local/bin` directory and set the necessary permissions as follows:
+
+```sh
+mkdir /usr/local/bin
+sudo chown -R $(whoami) /usr/local/bin
+```
+
+</details>
+
+For more options on installing and using Ignite, please see the following:
+
+Open Ignite CLI [in your web browser](https://gitpod.io/#https://github.com/ignite/cli/tree/v28.1.1) (or open [nightly version](https://gitpod.io/#https://github.com/ignite/cli)), or [install the latest release](https://docs.ignite.com/welcome/install).
+>>>>>>> 17f1a763 (chore: add homebrew formula (#3950))
 
 To create and start a blockchain:
 
