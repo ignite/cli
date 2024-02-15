@@ -40,7 +40,7 @@ const (
 	statusQuerying   = "Querying..."
 )
 
-// List of CLI commands that should not load Ignite app instances
+// List of CLI commands that should not load Ignite app instances.
 var skipAppsLoadCommands = []string{"version", "help", "docs", "completion"}
 
 // New creates a new root command for `Ignite CLI` with its sub commands.
