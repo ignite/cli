@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	cmdmodel "github.com/ignite/cli/v28/ignite/cmd/model"
+	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
 	"github.com/ignite/cli/v28/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
@@ -117,8 +118,11 @@ func chainDebug(cmd *cobra.Command, session *cliui.Session) error {
 		return err
 	}
 
-	// TODO: Replace by config.FirstValidator when PR #3199 is merged
-	validator := cfg.Validators[0]
+	validator, err := chainconfig.FirstValidator(cfg)
+	if err != nil {
+		return err
+	}
+
 	servers, err := validator.GetServers()
 	if err != nil {
 		return err
