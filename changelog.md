@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changes
+
+- [#3972](https://github.com/ignite/cli/pull/3972) Skip Ignite app loading for some base commands that don't allow apps
+
 ### Fixes
 
 - [#3953](https://github.com/ignite/cli/pull/3953) Fix apps `Stdout` is redirected to `Stderr`
