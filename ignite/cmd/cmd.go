@@ -89,7 +89,7 @@ To get started, create a blockchain:
 	)
 	c.AddCommand(deprecated()...)
 
-	// Don't load plugins for level one commands that doesn't allow them
+	// Don't load Ignite apps for level one commands that doesn't allow them
 	if len(os.Args) == 2 && slices.Contains(skipAppsLoadCommands, os.Args[1]) {
 		return c, func() {}, nil
 	}
