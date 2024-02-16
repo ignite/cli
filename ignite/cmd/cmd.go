@@ -40,7 +40,7 @@ const (
 	statusQuerying   = "Querying..."
 )
 
-// List of CLI commands that should not load Ignite app instances.
+// List of CLI level one commands that should not load Ignite app instances.
 var skipAppsLoadCommands = []string{"version", "help", "docs", "completion"}
 
 // New creates a new root command for `Ignite CLI` with its sub commands.
@@ -89,8 +89,8 @@ To get started, create a blockchain:
 	)
 	c.AddCommand(deprecated()...)
 
-	// Don't load plugins when current command doesn't allow them
-	if len(os.Args) < 2 || slices.Contains(skipAppsLoadCommands, os.Args[1]) {
+	// Don't load plugins for level one commands that doesn't allow them
+	if len(os.Args) == 2 && slices.Contains(skipAppsLoadCommands, os.Args[1]) {
 		return c, func() {}, nil
 	}
 
