@@ -660,28 +660,33 @@ func oldFunction() {
 }
 
 func TestAppendParamToFunctionCall(t *testing.T) {
-	tests := []struct {
-		name             string
+	type args struct {
 		fileContent      string
 		functionName     string
 		functionCallName string
 		index            int
 		paramToAdd       string
-		want             string
-		err              error
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+		err  error
 	}{
 		{
 			name: "add new parameter to index 1 in a function extension",
-			fileContent: `package main
+			args: args{
+				fileContent: `package main
 
 func myFunction() {
 	p := NewParam()
 	p.New("param1", "param2")
 }`,
-			functionName:     "myFunction",
-			functionCallName: "New",
-			paramToAdd:       "param3",
-			index:            1,
+				functionName:     "myFunction",
+				functionCallName: "New",
+				paramToAdd:       "param3",
+				index:            1,
+			},
 			want: `package main
 
 func myFunction() {
@@ -692,15 +697,17 @@ func myFunction() {
 		},
 		{
 			name: "add new parameter to index 1",
-			fileContent: `package main
+			args: args{
+				fileContent: `package main
 
 func myFunction() {
 	New("param1", "param2")
 }`,
-			functionName:     "myFunction",
-			functionCallName: "New",
-			paramToAdd:       "param3",
-			index:            1,
+				functionName:     "myFunction",
+				functionCallName: "New",
+				paramToAdd:       "param3",
+				index:            1,
+			},
 			want: `package main
 
 func myFunction() {
@@ -710,16 +717,18 @@ func myFunction() {
 		},
 		{
 			name: "add a new parameter for two functions",
-			fileContent: `package main
+			args: args{
+				fileContent: `package main
 
 func myFunction() {
 	New("param1", "param2")
 	New("param1", "param2", "param4")
 }`,
-			functionName:     "myFunction",
-			functionCallName: "New",
-			index:            -1,
-			paramToAdd:       "param3",
+				functionName:     "myFunction",
+				functionCallName: "New",
+				index:            -1,
+				paramToAdd:       "param3",
+			},
 			want: `package main
 
 func myFunction() {
@@ -730,28 +739,32 @@ func myFunction() {
 		},
 		{
 			name: "FunctionNotFound",
-			fileContent: `package main
+			args: args{
+				fileContent: `package main
 
 func anotherFunction() {
 	New("param1", "param2")
 }`,
-			functionName:     "myFunction",
-			functionCallName: "New",
-			paramToAdd:       "param3",
-			index:            1,
-			err:              errors.Errorf("function myFunction not found or no calls to New inside the function"),
+				functionName:     "myFunction",
+				functionCallName: "New",
+				paramToAdd:       "param3",
+				index:            1,
+			},
+			err: errors.Errorf("function myFunction not found or no calls to New inside the function"),
 		},
 		{
 			name: "FunctionCallNotFound",
-			fileContent: `package main
+			args: args{
+				fileContent: `package main
 
 func myFunction() {
 	AnotherFunction("param1", "param2")
 }`,
-			functionName:     "myFunction",
-			functionCallName: "New",
-			paramToAdd:       "param3",
-			index:            1,
+				functionName:     "myFunction",
+				functionCallName: "New",
+				paramToAdd:       "param3",
+				index:            1,
+			},
 			want: `package main
 
 func myFunction() {
@@ -761,21 +774,29 @@ func myFunction() {
 		},
 		{
 			name: "IndexOutOfRange",
-			fileContent: `package main
+			args: args{
+				fileContent: `package main
 
 func myFunction() {
 	New("param1", "param2")
 }`,
-			functionName:     "myFunction",
-			functionCallName: "New",
-			paramToAdd:       "param3",
-			index:            3,
-			err:              errors.Errorf("index out of range"),
+				functionName:     "myFunction",
+				functionCallName: "New",
+				paramToAdd:       "param3",
+				index:            3,
+			},
+			err: errors.Errorf("index out of range"),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := AppendParamToFunctionCall(tt.fileContent, tt.functionName, tt.functionCallName, tt.paramToAdd, tt.index)
+			got, err := AppendParamToFunctionCall(
+				tt.args.fileContent,
+				tt.args.functionName,
+				tt.args.functionCallName,
+				tt.args.paramToAdd,
+				tt.args.index,
+			)
 			if tt.err != nil {
 				require.Error(t, err)
 				require.Equal(t, tt.err.Error(), err.Error())
