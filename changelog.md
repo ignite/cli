@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- [#3977](https://github.com/ignite/cli/pull/3977) Add `chain lint` command to lint the chain's codebase using `golangci-lint`
+
 ### Changes
 
 - [#3959](https://github.com/ignite/cli/pull/3959) Remove app name prefix from the `.gitignore` file
