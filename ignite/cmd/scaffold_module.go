@@ -128,24 +128,10 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
 
-	ibcModule, err := cmd.Flags().GetBool(flagIBC)
-	if err != nil {
-		return err
-	}
-
-	ibcOrdering, err := cmd.Flags().GetString(flagIBCOrdering)
-	if err != nil {
-		return err
-	}
-	requireRegistration, err := cmd.Flags().GetBool(flagRequireRegistration)
-	if err != nil {
-		return err
-	}
-
-	params, err := cmd.Flags().GetStringSlice(flagParams)
-	if err != nil {
-		return err
-	}
+	ibcModule, _ := cmd.Flags().GetBool(flagIBC)
+	ibcOrdering, _ := cmd.Flags().GetString(flagIBCOrdering)
+	requireRegistration, _ := cmd.Flags().GetBool(flagRequireRegistration)
+	params, _ := cmd.Flags().GetStringSlice(flagParams)
 
 	cacheStorage, err := newCache(cmd)
 	if err != nil {
@@ -162,10 +148,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// Get module dependencies
-	dependencies, err := cmd.Flags().GetStringSlice(flagDep)
-	if err != nil {
-		return err
-	}
+	dependencies, _ := cmd.Flags().GetStringSlice(flagDep)
 	if len(dependencies) > 0 {
 		var deps []modulecreate.Dependency
 
