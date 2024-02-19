@@ -108,6 +108,7 @@ func newFunctionOptions() functionOpts {
 	}
 }
 
+// ModifyFunction modify a function based in the options.
 func ModifyFunction(fileContent, functionName string, functions ...FunctionOptions) (modifiedContent string, err error) {
 	// Apply function options.
 	opts := newFunctionOptions()
