@@ -7,6 +7,7 @@ import (
 	"go/format"
 	"go/parser"
 	"go/token"
+	"strconv"
 	"strings"
 
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
@@ -275,6 +276,78 @@ func ReplaceFunctionContent(fileContent, oldFunctionName, newFunction string) (m
 
 	if !found {
 		return "", errors.Errorf("function %s not found in file content", oldFunctionName)
+	}
+
+	// Write the modified AST to a buffer.
+	var buf bytes.Buffer
+	if err := format.Node(&buf, fileSet, f); err != nil {
+		return "", err
+	}
+
+	return buf.String(), nil
+}
+
+// AppendParamToFunctionCall inserts a parameter to a function call inside a function in Go source code content.
+func AppendParamToFunctionCall(fileContent, functionName, functionCallName, paramToAdd string, index int) (modifiedContent string, err error) {
+	fileSet := token.NewFileSet()
+
+	// Parse the Go source code content.
+	f, err := parser.ParseFile(fileSet, "", fileContent, parser.ParseComments)
+	if err != nil {
+		return "", err
+	}
+
+	var (
+		found      bool
+		errInspect error
+	)
+	ast.Inspect(f, func(n ast.Node) bool {
+		if funcDecl, ok := n.(*ast.FuncDecl); ok {
+			// Check if the function has the name you want to replace.
+			if funcDecl.Name.Name == functionName {
+				ast.Inspect(funcDecl, func(n ast.Node) bool {
+					callExpr, ok := n.(*ast.CallExpr)
+					if !ok {
+						return true
+					}
+					// Check if the call expression matches the function call name
+					ident, ok := callExpr.Fun.(*ast.Ident)
+					if !ok || ident.Name != functionCallName {
+						selector, ok := callExpr.Fun.(*ast.SelectorExpr)
+						if !ok || selector.Sel.Name != functionCallName {
+							return true
+						}
+					}
+					// Construct the new argument to be added
+					newArg := &ast.BasicLit{
+						Kind:  token.STRING,
+						Value: strconv.Quote(paramToAdd),
+					}
+					switch {
+					case index == -1:
+						// Append the new argument to the end
+						callExpr.Args = append(callExpr.Args, newArg)
+						found = true
+					case index >= 0 && index <= len(callExpr.Args):
+						// Insert the new argument at the specified index
+						callExpr.Args = append(callExpr.Args[:index], append([]ast.Expr{newArg}, callExpr.Args[index:]...)...)
+						found = true
+					default:
+						errInspect = fmt.Errorf("index out of range")
+						return false // Stop the inspection, an error occurred
+					}
+					return true // Continue the inspection for duplicated calls
+				})
+				return false // Stop the inspection, we found what we needed
+			}
+		}
+		return true // Continue inspecting
+	})
+	if errInspect != nil {
+		return "", errInspect
+	}
+	if !found {
+		return "", fmt.Errorf("function %s not found or no calls to %s inside the function", functionName, functionCallName)
 	}
 
 	// Write the modified AST to a buffer.

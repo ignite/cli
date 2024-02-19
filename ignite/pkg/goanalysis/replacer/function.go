@@ -7,6 +7,7 @@ import (
 	"go/format"
 	"go/parser"
 	"go/token"
+	"strconv"
 	"strings"
 
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
@@ -27,7 +28,9 @@ type (
 	FunctionOptions func(*functionOpts)
 
 	call struct {
-		name, code string
+		name  string
+		code  string
+		index int
 	}
 	param struct {
 		name    string
@@ -152,90 +155,124 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 		returnStmts = append(returnStmts, newRetExpr)
 	}
 
+	callMap := make(map[string]call)
+	for _, call := range opts.insideCall {
+		callMap[call.name] = call
+	}
+
 	// Parse the Go code to insert.
 	var (
 		found      bool
 		errInspect error
 	)
 	ast.Inspect(f, func(n ast.Node) bool {
-		if funcDecl, ok := n.(*ast.FuncDecl); ok {
-			// Check if the function has the code you want to replace.
-			if funcDecl.Name.Name == functionName {
-				for _, param := range opts.newParams {
-					funcDecl.Type.Params.List = append(funcDecl.Type.Params.List, &ast.Field{
-						Names: []*ast.Ident{ast.NewIdent(param.name)},
-						Type:  &ast.Ident{Name: param.varType},
-					})
-				}
+		funcDecl, ok := n.(*ast.FuncDecl)
+		if !ok || funcDecl.Name.Name != functionName {
+			return true
+		}
 
-				if newFunctionBody != nil {
-					funcDecl.Body = newFunctionBody
-				}
+		for _, param := range opts.newParams {
+			funcDecl.Type.Params.List = append(funcDecl.Type.Params.List, &ast.Field{
+				Names: []*ast.Ident{ast.NewIdent(param.name)},
+				Type:  &ast.Ident{Name: param.varType},
+			})
+		}
 
-				// Add the new code at line.
-				for _, newLine := range opts.newLines {
-					// Check if the function body has enough lines.
-					if newLine.number <= uint64(len(funcDecl.Body.List)) {
-						// Parse the Go code to insert.
-						insertionExpr, err := parser.ParseExpr(newLine.code)
-						if err != nil {
-							errInspect = err
-							return false
-						}
-						// Insert code at the specified line number.
-						funcDecl.Body.List = append(funcDecl.Body.List[:newLine.number-1], append([]ast.Stmt{&ast.ExprStmt{X: insertionExpr}}, funcDecl.Body.List[newLine.number-1:]...)...)
-					}
-				}
+		// Check if the function has the code you want to replace.
+		if newFunctionBody != nil {
+			funcDecl.Body = newFunctionBody
+		}
 
-				// Check if there is a return statement in the function.
-				if len(funcDecl.Body.List) > 0 {
-					// Replace the return statements.
-					for _, stmt := range funcDecl.Body.List {
-						if retStmt, ok := stmt.(*ast.ReturnStmt); ok && len(returnStmts) > 0 {
-							// Remove existing return statements.
-							retStmt.Results = nil
-							// Add the new return statement.
-							retStmt.Results = append(retStmt.Results, returnStmts...)
-						}
-					}
-
-					lastStmt := funcDecl.Body.List[len(funcDecl.Body.List)-1]
-					switch lastStmt.(type) {
-					case *ast.ReturnStmt:
-						// If there is a return, insert before it.
-						appendCode = append(appendCode, lastStmt)
-						funcDecl.Body.List = append(funcDecl.Body.List[:len(funcDecl.Body.List)-1], appendCode...)
-					default:
-						// If there is no return, insert at the end of the function body.
-						funcDecl.Body.List = append(funcDecl.Body.List, appendCode...)
-					}
+		ast.Inspect(funcDecl, func(n ast.Node) bool {
+			callExpr, ok := n.(*ast.CallExpr)
+			if !ok {
+				return true
+			}
+			// Check if the call expression matches the function call name
+			var c call
+			ident, ok := callExpr.Fun.(*ast.Ident)
+			if ok {
+				c = callMap[ident.Name]
+			} else {
+				selector, ok := callExpr.Fun.(*ast.SelectorExpr)
+				if ok {
+					c = callMap[selector.Sel.Name]
 				} else {
-					// If there are no statements in the function body, insert at the end of the function body.
-					funcDecl.Body.List = append(funcDecl.Body.List, appendCode...)
+					return true
 				}
+			}
 
+			// Construct the new argument to be added
+			newArg := &ast.BasicLit{
+				Kind:  token.STRING,
+				Value: strconv.Quote(c.code),
+			}
+			switch {
+			case c.index == -1:
+				// Append the new argument to the end
+				callExpr.Args = append(callExpr.Args, newArg)
 				found = true
-				return false
+			case c.index >= 0 && c.index <= len(callExpr.Args):
+				// Insert the new argument at the specified index
+				callExpr.Args = append(callExpr.Args[:c.index], append([]ast.Expr{newArg}, callExpr.Args[c.index:]...)...)
+				found = true
+			default:
+				errInspect = fmt.Errorf("index out of range")
+				return false // Stop the inspection, an error occurred
+			}
+			return true // Continue the inspection for duplicated calls
+		})
+
+		// Add the new code at line.
+		for _, newLine := range opts.newLines {
+			// Check if the function body has enough lines.
+			if newLine.number <= uint64(len(funcDecl.Body.List)) {
+				// Parse the Go code to insert.
+				insertionExpr, err := parser.ParseExpr(newLine.code)
+				if err != nil {
+					errInspect = err
+					return false
+				}
+				// Insert code at the specified line number.
+				funcDecl.Body.List = append(funcDecl.Body.List[:newLine.number-1], append([]ast.Stmt{&ast.ExprStmt{X: insertionExpr}}, funcDecl.Body.List[newLine.number-1:]...)...)
 			}
 		}
-		return true
+
+		// Check if there is a return statement in the function.
+		if len(funcDecl.Body.List) > 0 {
+			// Replace the return statements.
+			for _, stmt := range funcDecl.Body.List {
+				if retStmt, ok := stmt.(*ast.ReturnStmt); ok && len(returnStmts) > 0 {
+					// Remove existing return statements.
+					retStmt.Results = nil
+					// Add the new return statement.
+					retStmt.Results = append(retStmt.Results, returnStmts...)
+				}
+			}
+
+			lastStmt := funcDecl.Body.List[len(funcDecl.Body.List)-1]
+			switch lastStmt.(type) {
+			case *ast.ReturnStmt:
+				// If there is a return, insert before it.
+				appendCode = append(appendCode, lastStmt)
+				funcDecl.Body.List = append(funcDecl.Body.List[:len(funcDecl.Body.List)-1], appendCode...)
+			default:
+				// If there is no return, insert at the end of the function body.
+				funcDecl.Body.List = append(funcDecl.Body.List, appendCode...)
+			}
+		} else {
+			// If there are no statements in the function body, insert at the end of the function body.
+			funcDecl.Body.List = append(funcDecl.Body.List, appendCode...)
+		}
+
+		found = true
+		return false
 	})
 	if errInspect != nil {
 		return "", errInspect
 	}
 	if !found {
 		return "", errors.Errorf("function %s not found in file content", functionName)
-	}
-
-	if len(opts.insideCall) > 0 {
-		// Add code inside another function call.
-		// Implement this logic based on your requirements.
-		// For simplicity, we'll just add a comment with the inserted code.
-		for _, call := range opts.insideCall {
-			targetFunc.Body.List = append(targetFunc.Body.List, &ast.Comment{
-				Text: fmt.Sprintf("// Added code inside call '%s': %s", call.name, call.code),
-			})
-		}
 	}
 
 	// Format the modified AST.
