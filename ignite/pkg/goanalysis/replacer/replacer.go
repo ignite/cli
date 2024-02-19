@@ -53,6 +53,7 @@ func AppendFunction(fileContent string, function string) (modifiedContent string
 }
 
 // AppendImports appends import statements to the existing import block in Go source code content.
+// TODO add options to add import in the end, begin or a specific line
 func AppendImports(fileContent string, importStatements ...string) (modifiedContent string, err error) {
 	fileSet := token.NewFileSet()
 
