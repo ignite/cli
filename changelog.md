@@ -4,7 +4,7 @@
 
 ### Features
 
-- []() Add `chain lint` command to lint the chain's codebase using `golangci-lint`
+- [#3977](https://github.com/ignite/cli/pull/3977) Add `chain lint` command to lint the chain's codebase using `golangci-lint`
 
 ### Changes
 
