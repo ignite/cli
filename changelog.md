@@ -9,10 +9,14 @@
 ### Changes
 
 - [#3959](https://github.com/ignite/cli/pull/3959) Remove app name prefix from the `.gitignore` file
+- [#3962](https://github.com/ignite/cli/pull/3962) Rename all RPC endpoints and autocli commands generated for `map`/`list`/`single` types 
+- [#3972](https://github.com/ignite/cli/pull/3972) Skip Ignite app loading for some base commands that don't allow apps
 
 ### Fixes
 
 - [#3953](https://github.com/ignite/cli/pull/3953) Fix apps `Stdout` is redirected to `Stderr`
+- [#3863](https://github.com/ignite/cli/pull/3963) Fix breaking issue for app client API when reading app chain info
+- [#3969](https://github.com/ignite/cli/pull/3969) Get first config validator using a getter to avoid index errors
 
 ## [`v28.2.0`](https://github.com/ignite/cli/releases/tag/v28.2.0)
 

@@ -202,15 +202,14 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 			}
 		}
 
-		// Get chain when the plugin runs inside an blockchain app
-		c, err := newChainWithHomeFlags(cmd)
-		if err != nil && !errors.Is(err, gomodule.ErrGoModNotFound) {
+		api, err := newAppClientAPI(cmd)
+		if err != nil {
 			return err
 		}
 
 		ctx := cmd.Context()
 		execHook := newExecutedHook(hook, cmd, args)
-		err = p.Interface.ExecuteHookPre(ctx, execHook, plugin.NewClientAPI(plugin.WithChain(c)))
+		err = p.Interface.ExecuteHookPre(ctx, execHook, api)
 		if err != nil {
 			return errors.Errorf("app %q ExecuteHookPre() error: %w", p.Path, err)
 		}
@@ -224,15 +223,14 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 			err := runCmd(cmd, args)
 			// if the command has failed the `PostRun` will not execute. here we execute the cleanup step before returnning.
 			if err != nil {
-				// Get chain when the plugin runs inside an blockchain app
-				c, err := newChainWithHomeFlags(cmd)
-				if err != nil && !errors.Is(err, gomodule.ErrGoModNotFound) {
+				api, err := newAppClientAPI(cmd)
+				if err != nil {
 					return err
 				}
 
 				ctx := cmd.Context()
 				execHook := newExecutedHook(hook, cmd, args)
-				err = p.Interface.ExecuteHookCleanUp(ctx, execHook, plugin.NewClientAPI(plugin.WithChain(c)))
+				err = p.Interface.ExecuteHookCleanUp(ctx, execHook, api)
 				if err != nil {
 					cmd.Printf("app %q ExecuteHookCleanUp() error: %v", p.Path, err)
 				}
@@ -246,9 +244,8 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 
 	postCmd := cmd.PostRunE
 	cmd.PostRunE = func(cmd *cobra.Command, args []string) error {
-		// Get chain when the plugin runs inside an blockchain app
-		c, err := newChainWithHomeFlags(cmd)
-		if err != nil && !errors.Is(err, gomodule.ErrGoModNotFound) {
+		api, err := newAppClientAPI(cmd)
+		if err != nil {
 			return err
 		}
 
@@ -256,7 +253,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 		execHook := newExecutedHook(hook, cmd, args)
 
 		defer func() {
-			err := p.Interface.ExecuteHookCleanUp(ctx, execHook, plugin.NewClientAPI(plugin.WithChain(c)))
+			err := p.Interface.ExecuteHookCleanUp(ctx, execHook, api)
 			if err != nil {
 				cmd.Printf("app %q ExecuteHookCleanUp() error: %v", p.Path, err)
 			}
@@ -270,7 +267,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 			}
 		}
 
-		err = p.Interface.ExecuteHookPost(ctx, execHook, plugin.NewClientAPI(plugin.WithChain(c)))
+		err = p.Interface.ExecuteHookPost(ctx, execHook, api)
 		if err != nil {
 			return errors.Errorf("app %q ExecuteHookPost() error : %w", p.Path, err)
 		}
@@ -333,9 +330,8 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd *plugin.C
 		newCmd.RunE = func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
 			return clictx.Do(ctx, func() error {
-				// Get chain when the plugin runs inside an blockchain app
-				c, err := newChainWithHomeFlags(cmd)
-				if err != nil && !errors.Is(err, gomodule.ErrGoModNotFound) {
+				api, err := newAppClientAPI(cmd)
+				if err != nil {
 					return err
 				}
 
@@ -348,7 +344,7 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd *plugin.C
 					With:   p.With,
 				}
 				execCmd.ImportFlags(cmd)
-				err = p.Interface.Execute(ctx, execCmd, plugin.NewClientAPI(plugin.WithChain(c)))
+				err = p.Interface.Execute(ctx, execCmd, api)
 
 				// NOTE(tb): This pause gives enough time for go-plugin to sync the
 				// output from stdout/stderr of the plugin. Without that pause, this
@@ -694,6 +690,21 @@ func printPlugins(ctx context.Context, session *cliui.Session) error {
 		return errors.Errorf("error while printing apps: %w", err)
 	}
 	return nil
+}
+
+func newAppClientAPI(cmd *cobra.Command) (plugin.ClientAPI, error) {
+	// Get chain when the plugin runs inside an blockchain app
+	c, err := newChainWithHomeFlags(cmd)
+	if err != nil && !errors.Is(err, gomodule.ErrGoModNotFound) {
+		return nil, err
+	}
+
+	var options []plugin.APIOption
+	if c != nil {
+		options = append(options, plugin.WithChain(c))
+	}
+
+	return plugin.NewClientAPI(options...), nil
 }
 
 func flagSetPluginsGlobal() *flag.FlagSet {

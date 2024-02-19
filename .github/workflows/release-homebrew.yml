@@ -1,0 +1,31 @@
+name: Publish Ignite to HomeBrew
+
+on:
+  release:
+    types: [published]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  homebrew:
+    name: Bump Homebrew formula
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract version
+        id: extract-version
+        # Strip a string prefix from the git tag name:
+        run: |
+          echo "tag-name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - uses: mislav/bump-homebrew-formula-action@v3
+        with:
+          formula-name: ignite
+          formula-path: Formula/i/ignite.rb
+          homebrew-tap: Homebrew/homebrew-core
+          base-branch: master
+          download-url: https://github.com/ignite/cli/archive/refs/tags/${{ steps.extract-version.outputs.tag-name }}.tar.gz
+        env:
+          # the personal access token should have "repo" & "workflow" scopes
+          COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
