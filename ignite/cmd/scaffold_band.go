@@ -49,10 +49,7 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
 
-	module, err := cmd.Flags().GetString(flagModule)
-	if err != nil {
-		return err
-	}
+	module, _ := cmd.Flags().GetString(flagModule)
 	if module == "" {
 		return errors.New("please specify a module to create the BandChain oracle into: --module <module_name>")
 	}
