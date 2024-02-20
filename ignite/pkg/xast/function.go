@@ -1,4 +1,4 @@
-package replacer
+package xast
 
 import (
 	"bytes"

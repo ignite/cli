@@ -9,6 +9,7 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v28/ignite/pkg/xast"
 	"github.com/ignite/cli/v28/ignite/templates/module"
 )
 
@@ -59,21 +60,29 @@ func paramsTypesModify(replacer placeholder.Replacer, opts ParamsOptions) genny.
 		}
 
 		content := f.String()
+
+		globalOpts := make([]xast.GlobalOptions, len(opts.Params))
+		modifyNewParams := make([]xast.FunctionOptions, len(opts.Params))
+		modifyDefaultParams := make([]xast.FunctionOptions, len(opts.Params))
+		modifyValidate := make([]xast.FunctionOptions, len(opts.Params))
+		//xast.AppendCode()
 		for _, param := range opts.Params {
 			// param key and default value.
-			templateVars := `
-	// Default%[2]v represents the %[2]v default value.
-	// TODO: Determine the default value.
-	var Default%[2]v %[3]v = %[4]v
-	%[1]v`
-			replacementVars := fmt.Sprintf(
-				templateVars,
-				module.PlaceholderParamsVars,
-				param.Name.UpperCamel,
-				param.DataType(),
-				param.Value(),
+			globalOpts = append(
+				globalOpts,
+				xast.WithGlobal(fmt.Sprintf("Default%s", param.Name.UpperCamel), param.DataType(), param.Value()),
 			)
-			content = replacer.Replace(content, module.PlaceholderParamsVars, replacementVars)
+
+			// param key and default value.
+			content, err = xast.ModifyFunction(
+				content,
+				"",
+				xast.GlobalTypeConst,
+				xast.WithGlobal(fmt.Sprintf("Default%s", param.Name.UpperCamel), param.DataType(), param.Value()),
+			)
+			if err != nil {
+				return err
+			}
 
 			// add parameter to the new method.
 			templateNewParam := "%[2]v %[3]v,\n%[1]v"

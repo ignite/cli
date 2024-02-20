@@ -6,16 +6,12 @@ package types
 	var Default<%= param.Name.UpperCamel %> <%= param.DataType() %> = <%= if (param.DataType() == "string") { %>"<%= param.Name.Snake %>"<% } else { %><%= param.ValueIndex() %><% } %>
 <% } %>
 
-// this line is used by starport scaffolding # types/params/vars
-
 // NewParams creates a new Params instance.
 func NewParams(<%= for (param) in params { %>
 	<%= param.Name.LowerCamel %> <%= param.DataType() %>,<% } %>
-	// this line is used by starport scaffolding # types/params/new/parameter
 ) Params {
 	return Params{<%= for (param) in params { %>
         <%= param.Name.UpperCamel %>: <%= param.Name.LowerCamel %>,<% } %>
-        // this line is used by starport scaffolding # types/params/new/struct
 	}
 }
 
@@ -23,7 +19,6 @@ func NewParams(<%= for (param) in params { %>
 func DefaultParams() Params {
 	return NewParams(<%= for (param) in params { %>
         Default<%= param.Name.UpperCamel %>,<% } %>
-        // this line is used by starport scaffolding # types/params/default
 	)
 }
 
@@ -33,8 +28,6 @@ func (p Params) Validate() error {<%= for (param) in params { %>
    		return err
    	}
    	<% } %>
-
-   	// this line is used by starport scaffolding # types/params/validate
 
 	return nil
 }
@@ -46,5 +39,3 @@ func validate<%= param.Name.UpperCamel %>(v <%= param.DataType() %>) error {
 	return nil
 }
 <% } %>
-
-// this line is used by starport scaffolding # types/params/validation

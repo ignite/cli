@@ -27,12 +27,4 @@ const (
 	PlaceholderTypesGenesisValidField = "// this line is used by starport scaffolding # types/genesis/validField"
 	PlaceholderGenesisTestState       = "// this line is used by starport scaffolding # genesis/test/state"
 	PlaceholderGenesisTestAssert      = "// this line is used by starport scaffolding # genesis/test/assert"
-
-	// Params
-	PlaceholderParamsVars       = "// this line is used by starport scaffolding # types/params/vars"
-	PlaceholderParamsNewParam   = "// this line is used by starport scaffolding # types/params/new/parameter"
-	PlaceholderParamsNewStruct  = "// this line is used by starport scaffolding # types/params/new/struct"
-	PlaceholderParamsDefault    = "// this line is used by starport scaffolding # types/params/default"
-	PlaceholderParamsValidate   = "// this line is used by starport scaffolding # types/params/validate"
-	PlaceholderParamsValidation = "// this line is used by starport scaffolding # types/params/validation"
 )
