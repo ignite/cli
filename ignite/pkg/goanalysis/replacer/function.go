@@ -138,7 +138,7 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 	// Parse the content of the append code an ast.
 	appendCode := make([]ast.Stmt, 0)
 	for _, codeToInsert := range opts.appendCode {
-		insertionExpr, err := parser.ParseExpr(codeToInsert)
+		insertionExpr, err := parser.ParseExprFrom(fileSet, "", []byte(codeToInsert), parser.ParseComments)
 		if err != nil {
 			return "", err
 		}
@@ -149,7 +149,7 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 	returnStmts := make([]ast.Expr, 0)
 	for _, returnVar := range opts.returnVars {
 		// Parse the new return var to expression.
-		newRetExpr, err := parser.ParseExpr(returnVar)
+		newRetExpr, err := parser.ParseExprFrom(fileSet, "", []byte(returnVar), parser.ParseComments)
 		if err != nil {
 			return "", err
 		}
@@ -157,12 +157,14 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 	}
 
 	callMap := make(map[string][]call)
+	callMapCheck := make(map[string][]call)
 	for _, c := range opts.insideCall {
 		calls, ok := callMap[c.name]
 		if !ok {
 			calls = []call{}
 		}
 		callMap[c.name] = append(calls, c)
+		callMapCheck[c.name] = append(calls, c)
 	}
 
 	// Parse the Go code to insert.
@@ -192,7 +194,7 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 					append([]*ast.Field{fieldParam}, funcDecl.Type.Params.List[p.index:]...)...,
 				)
 			default:
-				errInspect = fmt.Errorf("params index out of range")
+				errInspect = errors.Errorf("params index %d out of range", p.index)
 				return false
 			}
 		}
@@ -206,11 +208,11 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 		for _, newLine := range opts.newLines {
 			// Check if the function body has enough lines.
 			if newLine.number > uint64(len(funcDecl.Body.List))-1 {
-				errInspect = fmt.Errorf("code at line index out of range")
+				errInspect = errors.Errorf("line number %d out of range", newLine.number)
 				return false
 			}
 			// Parse the Go code to insert.
-			insertionExpr, err := parser.ParseExpr(newLine.code)
+			insertionExpr, err := parser.ParseExprFrom(fileSet, "", []byte(newLine.code), parser.ParseComments)
 			if err != nil {
 				errInspect = err
 				return false
@@ -234,16 +236,20 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 					// Add the new return statement.
 					stmt.Results = append(stmt.Results, returnStmts...)
 				}
-				// If there is a return, insert before it.
-				appendCode = append(appendCode, stmt)
-				funcDecl.Body.List = append(funcDecl.Body.List[:len(funcDecl.Body.List)-1], appendCode...)
+				if len(appendCode) > 0 {
+					// If there is a return, insert before it.
+					appendCode = append(appendCode, stmt)
+					funcDecl.Body.List = append(funcDecl.Body.List[:len(funcDecl.Body.List)-1], appendCode...)
+				}
 			default:
 				if len(returnStmts) > 0 {
 					errInspect = errors.New("return statement not found")
 					return false
 				}
 				// If there is no return, insert at the end of the function body.
-				funcDecl.Body.List = append(funcDecl.Body.List, appendCode...)
+				if len(appendCode) > 0 {
+					funcDecl.Body.List = append(funcDecl.Body.List, appendCode...)
+				}
 			}
 		} else {
 			if len(returnStmts) > 0 {
@@ -251,7 +257,9 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 				return false
 			}
 			// If there are no statements in the function body, insert at the end of the function body.
-			funcDecl.Body.List = append(funcDecl.Body.List, appendCode...)
+			if len(appendCode) > 0 {
+				funcDecl.Body.List = append(funcDecl.Body.List, appendCode...)
+			}
 		}
 
 		// Add new code to the function callers.
@@ -278,10 +286,7 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 
 			// Construct the new argument to be added
 			for _, c := range calls {
-				newArg := &ast.Ident{
-					NamePos: 1, // using the 1 position solve the arg indentation by magic ?!
-					Name:    c.code,
-				}
+				newArg := &ast.Ident{Name: c.code}
 				switch {
 				case c.index == -1:
 					// Append the new argument to the end
@@ -290,13 +295,22 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 					// Insert the new argument at the specified index
 					callExpr.Args = append(callExpr.Args[:c.index], append([]ast.Expr{newArg}, callExpr.Args[c.index:]...)...)
 				default:
-					errInspect = fmt.Errorf("function call index out of range")
+					errInspect = errors.Errorf("function call index %d out of range", c.index)
 					return false // Stop the inspection, an error occurred
 				}
 			}
+			delete(callMapCheck, name)
 			return true // Continue the inspection for duplicated calls
 		})
+		if errInspect != nil {
+			return false
+		}
+		if len(callMapCheck) > 0 {
+			errInspect = errors.Errorf("function calls not found: %v", callMapCheck)
+			return false
+		}
 
+		// everything is ok, mark as found and stop the inspect
 		found = true
 		return false
 	})
