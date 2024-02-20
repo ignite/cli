@@ -47,23 +47,13 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
 
-	module, err := cmd.Flags().GetString(flagModule)
-	if err != nil {
-		return err
-	}
+	module, _ := cmd.Flags().GetString(flagModule)
 	if module == "" {
 		return errors.New("please specify a module to create the packet into: --module <module_name>")
 	}
 
-	ackFields, err := cmd.Flags().GetStringSlice(flagAck)
-	if err != nil {
-		return err
-	}
-
-	noMessage, err := cmd.Flags().GetBool(flagNoMessage)
-	if err != nil {
-		return err
-	}
+	ackFields, _ := cmd.Flags().GetStringSlice(flagAck)
+	noMessage, _ := cmd.Flags().GetBool(flagNoMessage)
 
 	cacheStorage, err := newCache(cmd)
 	if err != nil {

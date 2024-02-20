@@ -98,16 +98,10 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		noDefaultModule, _ = cmd.Flags().GetBool(flagNoDefaultModule)
 		skipGit, _         = cmd.Flags().GetBool(flagSkipGit)
 		minimal, _         = cmd.Flags().GetBool(flagMinimal)
+		params, _          = cmd.Flags().GetStringSlice(flagParams)
+		moduleConfigs, _   = cmd.Flags().GetStringSlice(flagModuleConfigs)
 	)
 
-	params, err := cmd.Flags().GetStringSlice(flagParams)
-	if err != nil {
-		return err
-	}
-	moduleConfigs, err := cmd.Flags().GetStringSlice(flagModuleConfigs)
-	if err != nil {
-		return err
-	}
 	if noDefaultModule {
 		if len(params) > 0 {
 			return errors.New("params flag is only supported if the default module is enabled")
