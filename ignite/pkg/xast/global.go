@@ -86,11 +86,12 @@ func InsertGlobal(fileContent string, globalType GlobalType, globals ...GlobalOp
 
 	// Determine the declaration type based on GlobalType.
 	var declType string
-	if globalType == GlobalTypeVar {
+	switch globalType {
+	case GlobalTypeVar:
 		declType = "var"
-	} else if globalType == GlobalTypeConst {
+	case GlobalTypeConst:
 		declType = "const"
-	} else {
+	default:
 		return "", errors.Errorf("unsupported global type: %d", globalType)
 	}
 

@@ -2,12 +2,13 @@ package xast
 
 import (
 	"bytes"
-	"fmt"
 	"go/ast"
 	"go/format"
 	"go/parser"
 	"go/token"
 	"strconv"
+
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 type (
@@ -113,7 +114,7 @@ func AppendImports(fileContent string, imports ...ImportOptions) (string, error)
 			// Insert the new argument at the specified index
 			importDecl.Specs = append(importDecl.Specs[:importStmt.index], append([]ast.Spec{spec}, importDecl.Specs[importStmt.index:]...)...)
 		default:
-			return "", fmt.Errorf("index out of range") // Stop the inspection, an error occurred
+			return "", errors.Errorf("index out of range") // Stop the inspection, an error occurred
 		}
 	}
 
