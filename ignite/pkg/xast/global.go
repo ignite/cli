@@ -24,12 +24,12 @@ type (
 	}
 
 	// GlobalType represents the global type.
-	GlobalType uint8
+	GlobalType string
 )
 
 const (
-	GlobalTypeVar GlobalType = iota
-	GlobalTypeConst
+	GlobalTypeVar   GlobalType = "var"
+	GlobalTypeConst GlobalType = "const"
 )
 
 // WithGlobal add a new global.
@@ -84,17 +84,6 @@ func InsertGlobal(fileContent string, globalType GlobalType, globals ...GlobalOp
 		}
 	}
 
-	// Determine the declaration type based on GlobalType.
-	var declType string
-	switch globalType {
-	case GlobalTypeVar:
-		declType = "var"
-	case GlobalTypeConst:
-		declType = "const"
-	default:
-		return "", errors.Errorf("unsupported global type: %d", globalType)
-	}
-
 	// Create global variable/constant declarations.
 	for _, global := range opts.globals {
 		// Create an identifier for the global.
@@ -111,22 +100,33 @@ func InsertGlobal(fileContent string, globalType GlobalType, globals ...GlobalOp
 
 		// Create a declaration based on the global type.
 		var spec ast.Spec
-		if declType == "var" {
+		switch globalType {
+		case GlobalTypeVar:
 			spec = &ast.ValueSpec{
 				Names:  []*ast.Ident{ident},
 				Type:   ast.NewIdent(global.varType),
 				Values: []ast.Expr{valueExpr},
 			}
-		} else if declType == "const" {
+		case GlobalTypeConst:
 			spec = &ast.ValueSpec{
 				Names:  []*ast.Ident{ident},
 				Type:   ast.NewIdent(global.varType),
 				Values: []ast.Expr{valueExpr},
 			}
+		default:
+			return "", errors.Errorf("unsupported global type: %s", string(globalType))
 		}
 
 		// Insert the declaration after the import section or package declaration if no imports.
-		f.Decls = append(f.Decls[:insertIndex], append([]ast.Decl{&ast.GenDecl{Tok: token.Lookup(declType), Specs: []ast.Spec{spec}}}, f.Decls[insertIndex:]...)...)
+		f.Decls = append(
+			f.Decls[:insertIndex],
+			append([]ast.Decl{
+				&ast.GenDecl{
+					TokPos: 1,
+					Tok:    token.Lookup(string(globalType)),
+					Specs:  []ast.Spec{spec},
+				},
+			}, f.Decls[insertIndex:]...)...)
 		insertIndex++
 	}
 

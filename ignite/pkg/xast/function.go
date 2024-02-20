@@ -213,7 +213,7 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 		for _, p := range opts.newParams {
 			fieldParam := &ast.Field{
 				Names: []*ast.Ident{ast.NewIdent(p.name)},
-				Type:  &ast.Ident{Name: p.varType},
+				Type:  ast.NewIdent(p.varType),
 			}
 			switch {
 			case p.index == -1:
@@ -317,6 +317,7 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 				// Construct the new argument to be added
 				for _, c := range calls {
 					newArg := ast.NewIdent(c.code)
+					newArg.NamePos = token.Pos(c.index)
 					switch {
 					case c.index == -1:
 						// Append the new argument to the end
@@ -353,6 +354,7 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 					if s.paramName != "" {
 						newArg = &ast.KeyValueExpr{
 							Key:   ast.NewIdent(s.paramName),
+							Colon: token.Pos(s.index),
 							Value: ast.NewIdent(s.code),
 						}
 					}

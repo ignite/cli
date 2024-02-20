@@ -175,12 +175,12 @@ var fooVar foo = 42
 			name: "Insert an invalid type",
 			args: args{
 				fileContent: `package main`,
-				globalType:  102,
+				globalType:  "invalid",
 				globals: []GlobalOptions{
-					WithGlobal("myInvalidVar", "invalid", "AEF#3fa."),
+					WithGlobal("fooVar", "foo", "42"),
 				},
 			},
-			err: errors.New("unsupported global type: 102"),
+			err: errors.New("unsupported global type: invalid"),
 		},
 	}
 	for _, tt := range tests {
