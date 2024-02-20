@@ -196,3 +196,157 @@ var fooVar foo = 42
 		})
 	}
 }
+
+func TestAppendFunction(t *testing.T) {
+	type args struct {
+		fileContent string
+		function    string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+		err  error
+	}{
+		{
+			name: "Append a function after the package declaration",
+			args: args{
+				fileContent: `package main`,
+				function: `func add(a, b int) int {
+	return a + b
+}`,
+			},
+			want: `package main
+
+func add(a, b int) int {
+	return a + b
+}
+`,
+		},
+		{
+			name: "Append a function after a var",
+			args: args{
+				fileContent: `package main
+
+import (
+	"fmt"
+)
+
+var myIntVar int = 42
+`,
+				function: `func add(a, b int) int {
+	return a + b
+}`,
+			},
+			want: `package main
+
+import (
+	"fmt"
+)
+
+var myIntVar int = 42
+
+func add(a, b int) int {
+	return a + b
+}
+`,
+		},
+		{
+			name: "Append a function after the import",
+			args: args{
+				fileContent: `package main
+
+import (
+	"fmt"
+)
+`,
+				function: `func add(a, b int) int {
+	return a + b
+}`,
+			},
+			want: `package main
+
+import (
+	"fmt"
+)
+
+func add(a, b int) int {
+	return a + b
+}
+`,
+		},
+		{
+			name: "Append a function after another function",
+			args: args{
+				fileContent: `package main
+
+import (
+	"fmt"
+)
+
+var myIntVar int = 42
+
+func myFunction() int {
+    return 42
+}
+`,
+				function: `func add(a, b int) int {
+	return a + b
+}`,
+			},
+			want: `package main
+
+import (
+	"fmt"
+)
+
+var myIntVar int = 42
+
+func myFunction() int {
+	return 42
+}
+func add(a, b int) int {
+	return a + b
+}
+`,
+		},
+		{
+			name: "Append a function in an empty file",
+			args: args{
+				fileContent: ``,
+				function: `func add(a, b int) int {
+	return a + b
+}`,
+			},
+			err: errors.New("1:1: expected 'package', found 'EOF'"),
+		},
+		{
+			name: "Append a empty function",
+			args: args{
+				fileContent: `package main`,
+				function:    ``,
+			},
+			err: errors.New("no function declaration found in the provided function body"),
+		},
+		{
+			name: "Append an invalid function",
+			args: args{
+				fileContent: `package main`,
+				function:    `@,.l.e,`,
+			},
+			err: errors.New("2:1: illegal character U+0040 '@'"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := AppendFunction(tt.args.fileContent, tt.args.function)
+			if tt.err != nil {
+				require.Error(t, err)
+				require.Equal(t, tt.err.Error(), err.Error())
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, tt.want, got)
+		})
+	}
+}

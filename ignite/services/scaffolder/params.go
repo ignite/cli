@@ -61,7 +61,7 @@ func (s Scaffolder) CreateParams(
 		AppPath:    s.path,
 	}
 
-	g, err := modulecreate.NewModuleParam(tracer, opts)
+	g, err := modulecreate.NewModuleParam(opts)
 	if err != nil {
 		return sm, err
 	}

@@ -7,17 +7,15 @@ import (
 	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
-	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/v28/ignite/pkg/xast"
-	"github.com/ignite/cli/v28/ignite/templates/module"
 )
 
 // NewModuleParam returns the generator to scaffold a new parameter inside a module.
-func NewModuleParam(replacer placeholder.Replacer, opts ParamsOptions) (*genny.Generator, error) {
+func NewModuleParam(opts ParamsOptions) (*genny.Generator, error) {
 	g := genny.New()
 	g.RunFn(paramsProtoModify(opts))
-	g.RunFn(paramsTypesModify(replacer, opts))
+	g.RunFn(paramsTypesModify(opts))
 	return g, nil
 }
 
@@ -51,7 +49,7 @@ func paramsProtoModify(opts ParamsOptions) genny.RunFn {
 	}
 }
 
-func paramsTypesModify(replacer placeholder.Replacer, opts ParamsOptions) genny.RunFn {
+func paramsTypesModify(opts ParamsOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/params.go")
 		f, err := r.Disk.Find(path)
@@ -59,89 +57,82 @@ func paramsTypesModify(replacer placeholder.Replacer, opts ParamsOptions) genny.
 			return err
 		}
 
-		content := f.String()
-
-		globalOpts := make([]xast.GlobalOptions, len(opts.Params))
-		modifyNewParams := make([]xast.FunctionOptions, len(opts.Params))
-		modifyDefaultParams := make([]xast.FunctionOptions, len(opts.Params))
-		modifyValidate := make([]xast.FunctionOptions, len(opts.Params))
-		//xast.AppendCode()
-		for _, param := range opts.Params {
+		var (
+			content               = f.String()
+			globalOpts            = make([]xast.GlobalOptions, len(opts.Params))
+			newParamsModifier     = make([]xast.FunctionOptions, 0)
+			defaultParamsModifier = make([]xast.FunctionOptions, len(opts.Params))
+			validateModifier      = make([]xast.FunctionOptions, len(opts.Params))
+		)
+		for i, param := range opts.Params {
 			// param key and default value.
-			globalOpts = append(
-				globalOpts,
-				xast.WithGlobal(fmt.Sprintf("Default%s", param.Name.UpperCamel), param.DataType(), param.Value()),
+			globalOpts[i] = xast.WithGlobal(
+				fmt.Sprintf("Default%s", param.Name.UpperCamel),
+				param.DataType(),
+				param.Value(),
 			)
 
-			// param key and default value.
-			content, err = xast.ModifyFunction(
-				content,
-				"",
-				xast.GlobalTypeConst,
-				xast.WithGlobal(fmt.Sprintf("Default%s", param.Name.UpperCamel), param.DataType(), param.Value()),
+			// add parameter to the struct into the new method.
+			newParamsModifier = append(
+				newParamsModifier,
+				xast.AppendFuncParams(param.Name.LowerCamel, param.DataType(), -1),
+				xast.AppendInsideFuncStruct(
+					"Params",
+					param.Name.UpperCamel,
+					param.Name.LowerCamel,
+					-1,
+				),
 			)
+
+			// add default parameter.
+			defaultParamsModifier[i] = xast.AppendInsideFuncCall(
+				"NewParams",
+				fmt.Sprintf("Default%s", param.Name.UpperCamel),
+				-1,
+			)
+
+			// add param field to the validate method.
+			replacementValidate := fmt.Sprintf(
+				`if err := validate%[1]v(p.%[1]v); err != nil { return err }`,
+				param.Name.UpperCamel,
+			)
+			validateModifier[i] = xast.AppendFuncCode(replacementValidate)
+
+			// add param field to the validate method.
+			templateValidation := `// validate%[1]v validates the %[1]v parameter.
+func validate%[1]v(v %[2]v) error {
+	// TODO implement validation
+	return nil
+}`
+			validationFunc := fmt.Sprintf(
+				templateValidation,
+				param.Name.UpperCamel,
+				param.DataType(),
+			)
+			content, err = xast.AppendFunction(content, validationFunc)
 			if err != nil {
 				return err
 			}
+		}
 
-			// add parameter to the new method.
-			templateNewParam := "%[2]v %[3]v,\n%[1]v"
-			replacementNewParam := fmt.Sprintf(
-				templateNewParam,
-				module.PlaceholderParamsNewParam,
-				param.Name.LowerCamel,
-				param.DataType(),
-			)
-			content = replacer.Replace(content, module.PlaceholderParamsNewParam, replacementNewParam)
+		content, err = xast.InsertGlobal(content, xast.GlobalTypeConst, globalOpts...)
+		if err != nil {
+			return err
+		}
 
-			// add parameter to the struct into the new method.
-			templateNewStruct := "%[2]v: %[3]v,\n%[1]v"
-			replacementNewStruct := fmt.Sprintf(
-				templateNewStruct,
-				module.PlaceholderParamsNewStruct,
-				param.Name.UpperCamel,
-				param.Name.LowerCamel,
-			)
-			content = replacer.Replace(content, module.PlaceholderParamsNewStruct, replacementNewStruct)
+		content, err = xast.ModifyFunction(content, "NewParams", newParamsModifier...)
+		if err != nil {
+			return err
+		}
 
-			// add default parameter.
-			templateDefault := `Default%[2]v,
-%[1]v`
-			replacementDefault := fmt.Sprintf(
-				templateDefault,
-				module.PlaceholderParamsDefault,
-				param.Name.UpperCamel,
-			)
-			content = replacer.Replace(content, module.PlaceholderParamsDefault, replacementDefault)
+		content, err = xast.ModifyFunction(content, "DefaultParams", defaultParamsModifier...)
+		if err != nil {
+			return err
+		}
 
-			// add param field to the validate method.
-			templateValidate := `if err := validate%[2]v(p.%[2]v); err != nil {
-   		return err
-   	}
-	%[1]v`
-			replacementValidate := fmt.Sprintf(
-				templateValidate,
-				module.PlaceholderParamsValidate,
-				param.Name.UpperCamel,
-			)
-			content = replacer.Replace(content, module.PlaceholderParamsValidate, replacementValidate)
-
-			// add param field to the validate method.
-			templateValidation := `// validate%[2]v validates the %[2]v parameter.
-func validate%[2]v(v %[3]v) error {
-	// TODO implement validation
-	return nil
-}
-
-%[1]v`
-			replacementValidation := fmt.Sprintf(
-				templateValidation,
-				module.PlaceholderParamsValidation,
-				param.Name.UpperCamel,
-				param.DataType(),
-			)
-			content = replacer.Replace(content, module.PlaceholderParamsValidation, replacementValidation)
-
+		content, err = xast.ModifyFunction(content, "Validate", validateModifier...)
+		if err != nil {
+			return err
 		}
 
 		newFile := genny.NewFileS(path, content)

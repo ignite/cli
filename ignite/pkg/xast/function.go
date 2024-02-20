@@ -15,17 +15,24 @@ import (
 type (
 	// functionOpts represent the options for functions.
 	functionOpts struct {
-		newParams  []param
-		body       string
-		newLines   []line
-		insideCall []call
-		appendCode []string
-		returnVars []string
+		newParams    []param
+		body         string
+		newLines     []line
+		insideCall   []call
+		insideStruct []str
+		appendCode   []string
+		returnVars   []string
 	}
 
 	// FunctionOptions configures code generation.
 	FunctionOptions func(*functionOpts)
 
+	str struct {
+		structName string
+		paramName  string
+		code       string
+		index      int
+	}
 	call struct {
 		name  string
 		code  string
@@ -42,8 +49,8 @@ type (
 	}
 )
 
-// AppendParams add a new param value.
-func AppendParams(name, varType string, index int) FunctionOptions {
+// AppendFuncParams add a new param value.
+func AppendFuncParams(name, varType string, index int) FunctionOptions {
 	return func(c *functionOpts) {
 		c.newParams = append(c.newParams, param{
 			name:    name,
@@ -53,22 +60,22 @@ func AppendParams(name, varType string, index int) FunctionOptions {
 	}
 }
 
-// ReplaceBody replace all body of the function, the method will replace first and apply the other options after.
-func ReplaceBody(body string) FunctionOptions {
+// ReplaceFuncBody replace all body of the function, the method will replace first and apply the other options after.
+func ReplaceFuncBody(body string) FunctionOptions {
 	return func(c *functionOpts) {
 		c.body = body
 	}
 }
 
-// AppendCode append code before the end or the return, if exists, of a function in Go source code content.
-func AppendCode(code string) FunctionOptions {
+// AppendFuncCode append code before the end or the return, if exists, of a function in Go source code content.
+func AppendFuncCode(code string) FunctionOptions {
 	return func(c *functionOpts) {
 		c.appendCode = append(c.appendCode, code)
 	}
 }
 
-// AppendAtLine append a new code at line.
-func AppendAtLine(code string, lineNumber uint64) FunctionOptions {
+// AppendFuncAtLine append a new code at line.
+func AppendFuncAtLine(code string, lineNumber uint64) FunctionOptions {
 	return func(c *functionOpts) {
 		c.newLines = append(c.newLines, line{
 			code:   code,
@@ -77,11 +84,9 @@ func AppendAtLine(code string, lineNumber uint64) FunctionOptions {
 	}
 }
 
-// InsideCall add code inside another function call. For instances, the method have a parameter a
+// AppendInsideFuncCall add code inside another function call. For instances, the method have a parameter a
 // call 'New(param1, param2)' and we want to add the param3 the result will be 'New(param1, param2, param3)'.
-// Or if we have a struct call Params{Param1: param1} and we want to add the param2 the result will
-// be Params{Param1: param1, Param2: param2}.
-func InsideCall(callName, code string, index int) FunctionOptions {
+func AppendInsideFuncCall(callName, code string, index int) FunctionOptions {
 	return func(c *functionOpts) {
 		c.insideCall = append(c.insideCall, call{
 			name:  callName,
@@ -91,8 +96,22 @@ func InsideCall(callName, code string, index int) FunctionOptions {
 	}
 }
 
-// NewReturn replaces return statements in a Go function with a new return statement.
-func NewReturn(returnVars ...string) FunctionOptions {
+// AppendInsideFuncStruct add code inside another function call. For instances,
+// the struct have only one parameter 'Params{Param1: param1}' and we want to add
+// the param2 the result will be 'Params{Param1: param1, Param2: param2}'.
+func AppendInsideFuncStruct(structName, paramName, code string, index int) FunctionOptions {
+	return func(c *functionOpts) {
+		c.insideStruct = append(c.insideStruct, str{
+			structName: structName,
+			paramName:  paramName,
+			code:       code,
+			index:      index,
+		})
+	}
+}
+
+// NewFuncReturn replaces return statements in a Go function with a new return statement.
+func NewFuncReturn(returnVars ...string) FunctionOptions {
 	return func(c *functionOpts) {
 		c.returnVars = append(c.returnVars, returnVars...)
 	}
@@ -100,11 +119,13 @@ func NewReturn(returnVars ...string) FunctionOptions {
 
 func newFunctionOptions() functionOpts {
 	return functionOpts{
-		newParams:  make([]param, 0),
-		body:       "",
-		newLines:   make([]line, 0),
-		appendCode: make([]string, 0),
-		returnVars: make([]string, 0),
+		newParams:    make([]param, 0),
+		body:         "",
+		newLines:     make([]line, 0),
+		insideCall:   make([]call, 0),
+		insideStruct: make([]str, 0),
+		appendCode:   make([]string, 0),
+		returnVars:   make([]string, 0),
 	}
 }
 

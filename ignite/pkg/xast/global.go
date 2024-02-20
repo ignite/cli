@@ -102,7 +102,7 @@ func InsertGlobal(fileContent string, globalType GlobalType, globals ...GlobalOp
 		// Create a value expression if provided.
 		var valueExpr ast.Expr
 		if global.value != "" {
-			valueExpr, err = parser.ParseExpr(global.value)
+			valueExpr, err = parser.ParseExprFrom(fileSet, "", []byte(global.value), parser.ParseComments)
 			if err != nil {
 				return "", err
 			}
@@ -136,5 +136,45 @@ func InsertGlobal(fileContent string, globalType GlobalType, globals ...GlobalOp
 	}
 
 	// Return the modified content.
+	return buf.String(), nil
+}
+
+// AppendFunction appends a new function to the end of the Go source code content.
+func AppendFunction(fileContent string, function string) (modifiedContent string, err error) {
+	fileSet := token.NewFileSet()
+
+	// Parse the function body as a separate file.
+	funcFile, err := parser.ParseFile(fileSet, "", "package main\n"+function, parser.AllErrors)
+	if err != nil {
+		return "", err
+	}
+
+	// Extract the first declaration, assuming it's a function declaration.
+	var funcDecl *ast.FuncDecl
+	for _, decl := range funcFile.Decls {
+		if fDecl, ok := decl.(*ast.FuncDecl); ok {
+			funcDecl = fDecl
+			break
+		}
+	}
+	if funcDecl == nil {
+		return "", errors.Errorf("no function declaration found in the provided function body")
+	}
+
+	// Parse the Go source code content.
+	f, err := parser.ParseFile(fileSet, "", fileContent, parser.ParseComments)
+	if err != nil {
+		return "", err
+	}
+
+	// Append the function declaration to the file's declarations.
+	f.Decls = append(f.Decls, funcDecl)
+
+	// Format the modified AST.
+	var buf bytes.Buffer
+	if err := format.Node(&buf, fileSet, f); err != nil {
+		return "", err
+	}
+
 	return buf.String(), nil
 }

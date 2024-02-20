@@ -45,15 +45,15 @@ func anotherFunction() bool {
 				fileContent:  existingContent,
 				functionName: "anotherFunction",
 				functions: []FunctionOptions{
-					AppendParams("param1", "string", 0),
-					ReplaceBody(`return false`),
-					AppendAtLine(`fmt.Println("Appended at line 0.")`, 0),
-					AppendAtLine(`SimpleCall(foo, bar)`, 1),
-					AppendCode(`fmt.Println("Appended code.")`),
-					NewReturn("1"),
-					InsideCall("SimpleCall", "baz", 0),
-					InsideCall("SimpleCall", "bla", -1),
-					InsideCall("Println", strconv.Quote("test"), -1),
+					AppendFuncParams("param1", "string", 0),
+					ReplaceFuncBody(`return false`),
+					AppendFuncAtLine(`fmt.Println("Appended at line 0.")`, 0),
+					AppendFuncAtLine(`SimpleCall(foo, bar)`, 1),
+					AppendFuncCode(`fmt.Println("Appended code.")`),
+					NewFuncReturn("1"),
+					AppendInsideFuncCall("SimpleCall", "baz", 0),
+					AppendInsideFuncCall("SimpleCall", "bla", -1),
+					AppendInsideFuncCall("Println", strconv.Quote("test"), -1),
 				},
 			},
 			want: `package main
@@ -80,7 +80,7 @@ func anotherFunction(param1 string) bool {
 			args: args{
 				fileContent:  existingContent,
 				functionName: "anotherFunction",
-				functions:    []FunctionOptions{ReplaceBody(`return false`)},
+				functions:    []FunctionOptions{ReplaceFuncBody(`return false`)},
 			},
 			want: `package main
 
@@ -102,9 +102,9 @@ func anotherFunction() bool { return false }
 				fileContent:  existingContent,
 				functionName: "anotherFunction",
 				functions: []FunctionOptions{
-					AppendAtLine(`fmt.Println("Appended at line 0.")`, 0),
-					AppendAtLine(`SimpleCall(foo, bar)`, 1),
-					AppendCode(`fmt.Println("Appended code.")`),
+					AppendFuncAtLine(`fmt.Println("Appended at line 0.")`, 0),
+					AppendFuncAtLine(`SimpleCall(foo, bar)`, 1),
+					AppendFuncCode(`fmt.Println("Appended code.")`),
 				},
 			},
 			want: `package main
@@ -135,7 +135,7 @@ func anotherFunction() bool {
 			args: args{
 				fileContent:  existingContent,
 				functionName: "anotherFunction",
-				functions:    []FunctionOptions{NewReturn("1")},
+				functions:    []FunctionOptions{NewFuncReturn("1")},
 			},
 			want: strings.ReplaceAll(existingContent, "return true", "return 1\n") + "\n",
 		},
@@ -145,10 +145,10 @@ func anotherFunction() bool {
 				fileContent:  existingContent,
 				functionName: "anotherFunction",
 				functions: []FunctionOptions{
-					InsideCall("NewParam", "baz", 0),
-					InsideCall("NewParam", "bla", -1),
-					InsideCall("CallSomething", strconv.Quote("test1"), -1),
-					InsideCall("CallSomething", strconv.Quote("test2"), 0),
+					AppendInsideFuncCall("NewParam", "baz", 0),
+					AppendInsideFuncCall("NewParam", "bla", -1),
+					AppendInsideFuncCall("CallSomething", strconv.Quote("test1"), -1),
+					AppendInsideFuncCall("CallSomething", strconv.Quote("test2"), 0),
 				},
 			},
 			want: `package main
@@ -174,7 +174,7 @@ func anotherFunction() bool {
 			args: args{
 				fileContent:  existingContent,
 				functionName: "anotherFunction",
-				functions:    []FunctionOptions{AppendParams("param1", "string", 1)},
+				functions:    []FunctionOptions{AppendFuncParams("param1", "string", 1)},
 			},
 			err: errors.New("params index 1 out of range"),
 		},
@@ -183,7 +183,7 @@ func anotherFunction() bool {
 			args: args{
 				fileContent:  existingContent,
 				functionName: "anotherFunction",
-				functions:    []FunctionOptions{AppendParams("9#.(c", "string", 0)},
+				functions:    []FunctionOptions{AppendFuncParams("9#.(c", "string", 0)},
 			},
 			err: errors.New("format.Node internal error (12:22: expected ')', found 9 (and 1 more errors))"),
 		},
@@ -192,7 +192,7 @@ func anotherFunction() bool {
 			args: args{
 				fileContent:  existingContent,
 				functionName: "anotherFunction",
-				functions:    []FunctionOptions{ReplaceBody("9#.(c")},
+				functions:    []FunctionOptions{ReplaceFuncBody("9#.(c")},
 			},
 			err: errors.New("1:24: illegal character U+0023 '#'"),
 		},
@@ -201,7 +201,7 @@ func anotherFunction() bool {
 			args: args{
 				fileContent:  existingContent,
 				functionName: "anotherFunction",
-				functions:    []FunctionOptions{AppendAtLine(`fmt.Println("")`, 4)},
+				functions:    []FunctionOptions{AppendFuncAtLine(`fmt.Println("")`, 4)},
 			},
 			err: errors.New("line number 4 out of range"),
 		},
@@ -210,7 +210,7 @@ func anotherFunction() bool {
 			args: args{
 				fileContent:  existingContent,
 				functionName: "anotherFunction",
-				functions:    []FunctionOptions{AppendAtLine("9#.(c", 0)},
+				functions:    []FunctionOptions{AppendFuncAtLine("9#.(c", 0)},
 			},
 			err: errors.New("1:2: illegal character U+0023 '#'"),
 		},
@@ -219,7 +219,7 @@ func anotherFunction() bool {
 			args: args{
 				fileContent:  existingContent,
 				functionName: "anotherFunction",
-				functions:    []FunctionOptions{AppendCode("9#.(c")},
+				functions:    []FunctionOptions{AppendFuncCode("9#.(c")},
 			},
 			err: errors.New("1:2: illegal character U+0023 '#'"),
 		},
@@ -228,7 +228,7 @@ func anotherFunction() bool {
 			args: args{
 				fileContent:  existingContent,
 				functionName: "anotherFunction",
-				functions:    []FunctionOptions{NewReturn("9#.(c")},
+				functions:    []FunctionOptions{NewFuncReturn("9#.(c")},
 			},
 			err: errors.New("1:2: illegal character U+0023 '#'"),
 		},
@@ -237,7 +237,7 @@ func anotherFunction() bool {
 			args: args{
 				fileContent:  existingContent,
 				functionName: "anotherFunction",
-				functions:    []FunctionOptions{InsideCall("FooFunction", "baz", 0)},
+				functions:    []FunctionOptions{AppendInsideFuncCall("FooFunction", "baz", 0)},
 			},
 			err: errors.New("function calls not found: map[FooFunction:[{FooFunction baz 0}]]"),
 		},
@@ -246,7 +246,7 @@ func anotherFunction() bool {
 			args: args{
 				fileContent:  existingContent,
 				functionName: "anotherFunction",
-				functions:    []FunctionOptions{InsideCall("NewParam", "9#.(c", 0)},
+				functions:    []FunctionOptions{AppendInsideFuncCall("NewParam", "9#.(c", 0)},
 			},
 			err: errors.New("format.Node internal error (13:21: illegal character U+0023 '#' (and 2 more errors))"),
 		},
@@ -255,7 +255,7 @@ func anotherFunction() bool {
 			args: args{
 				fileContent:  existingContent,
 				functionName: "anotherFunction",
-				functions:    []FunctionOptions{InsideCall("NewParam", "baz", 1)},
+				functions:    []FunctionOptions{AppendInsideFuncCall("NewParam", "baz", 1)},
 			},
 			err: errors.New("function call index 1 out of range"),
 		},
