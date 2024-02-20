@@ -50,10 +50,12 @@ func anotherFunction() bool {
 					AppendFuncAtLine(`fmt.Println("Appended at line 0.")`, 0),
 					AppendFuncAtLine(`SimpleCall(foo, bar)`, 1),
 					AppendFuncCode(`fmt.Println("Appended code.")`),
+					AppendFuncCode(`Param{Baz: baz, Foo: foo}`),
 					NewFuncReturn("1"),
 					AppendInsideFuncCall("SimpleCall", "baz", 0),
 					AppendInsideFuncCall("SimpleCall", "bla", -1),
 					AppendInsideFuncCall("Println", strconv.Quote("test"), -1),
+					AppendInsideFuncStruct("Param", "Bar", strconv.Quote("bar"), -1),
 				},
 			},
 			want: `package main
@@ -71,6 +73,7 @@ func anotherFunction(param1 string) bool {
 	fmt.Println("Appended at line 0.", "test")
 	SimpleCall(baz, foo, bar, bla)
 	fmt.Println("Appended code.", "test")
+	Param{Baz: baz, Foo: foo, Bar: "bar"}
 	return 1
 }
 `,
@@ -170,6 +173,40 @@ func anotherFunction() bool {
 `,
 		},
 		{
+			name: "add inside struct modifications",
+			args: args{
+				fileContent: `package main
+
+import (
+	"fmt"
+)
+
+func anotherFunction() bool {
+	Param{Baz: baz, Foo: foo}
+	Client{baz, foo}
+	return true
+}`,
+				functionName: "anotherFunction",
+				functions: []FunctionOptions{
+					AppendInsideFuncStruct("Param", "Bar", "bar", -1),
+					AppendInsideFuncStruct("Param", "Bla", "bla", 1),
+					AppendInsideFuncStruct("Client", "", "bar", 0),
+				},
+			},
+			want: `package main
+
+import (
+	"fmt"
+)
+
+func anotherFunction() bool {
+	Param{Baz: baz, Bla: bla, Foo: foo, Bar: bar}
+	Client{bar, baz, foo}
+	return true
+}
+`,
+		},
+		{
 			name: "params out of range",
 			args: args{
 				fileContent:  existingContent,
@@ -258,6 +295,15 @@ func anotherFunction() bool {
 				functions:    []FunctionOptions{AppendInsideFuncCall("NewParam", "baz", 1)},
 			},
 			err: errors.New("function call index 1 out of range"),
+		},
+		{
+			name: "empty modifications",
+			args: args{
+				fileContent:  existingContent,
+				functionName: "anotherFunction",
+				functions:    []FunctionOptions{},
+			},
+			want: existingContent + "\n",
 		},
 	}
 	for _, tt := range tests {

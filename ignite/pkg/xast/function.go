@@ -188,6 +188,17 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 		callMapCheck[c.name] = append(calls, c)
 	}
 
+	structMap := make(map[string][]str)
+	structMapCheck := make(map[string][]str)
+	for _, s := range opts.insideStruct {
+		structs, ok := structMap[s.structName]
+		if !ok {
+			structs = []str{}
+		}
+		structMap[s.structName] = append(structs, s)
+		structMapCheck[s.structName] = append(structs, s)
+	}
+
 	// Parse the Go code to insert.
 	var (
 		found      bool
@@ -285,42 +296,83 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 
 		// Add new code to the function callers.
 		ast.Inspect(funcDecl, func(n ast.Node) bool {
-			callExpr, ok := n.(*ast.CallExpr)
-			if !ok {
-				return true
-			}
-			// Check if the call expression matches the function call name
-			name := ""
-			switch exp := callExpr.Fun.(type) {
-			case *ast.Ident:
-				name = exp.Name
-			case *ast.SelectorExpr:
-				name = exp.Sel.Name
+			switch expr := n.(type) {
+			case *ast.CallExpr: // Add a new parameter to a function call.
+				// Check if the call expression matches the function call name.
+				name := ""
+				switch exp := expr.Fun.(type) {
+				case *ast.Ident:
+					name = exp.Name
+				case *ast.SelectorExpr:
+					name = exp.Sel.Name
+				default:
+					return true
+				}
+
+				calls, ok := callMap[name]
+				if !ok {
+					return true
+				}
+
+				// Construct the new argument to be added
+				for _, c := range calls {
+					newArg := ast.NewIdent(c.code)
+					switch {
+					case c.index == -1:
+						// Append the new argument to the end
+						expr.Args = append(expr.Args, newArg)
+					case c.index >= 0 && c.index <= len(expr.Args):
+						// Insert the new argument at the specified index
+						expr.Args = append(expr.Args[:c.index], append([]ast.Expr{newArg}, expr.Args[c.index:]...)...)
+					default:
+						errInspect = errors.Errorf("function call index %d out of range", c.index)
+						return false // Stop the inspection, an error occurred
+					}
+				}
+				delete(callMapCheck, name)
+			case *ast.CompositeLit: // Add a new parameter to a literal struct.
+				// Check if the call expression matches the function call name.
+				name := ""
+				switch exp := expr.Type.(type) {
+				case *ast.Ident:
+					name = exp.Name
+				case *ast.SelectorExpr:
+					name = exp.Sel.Name
+				default:
+					return true
+				}
+
+				structs, ok := structMap[name]
+				if !ok {
+					return true
+				}
+
+				// Construct the new argument to be added
+				for _, s := range structs {
+					var newArg ast.Expr = ast.NewIdent(s.code)
+					if s.paramName != "" {
+						newArg = &ast.KeyValueExpr{
+							Key:   ast.NewIdent(s.paramName),
+							Value: ast.NewIdent(s.code),
+						}
+					}
+
+					switch {
+					case s.index == -1:
+						// Append the new argument to the end
+						expr.Elts = append(expr.Elts, newArg)
+					case s.index >= 0 && s.index <= len(expr.Elts):
+						// Insert the new argument at the specified index
+						expr.Elts = append(expr.Elts[:s.index], append([]ast.Expr{newArg}, expr.Elts[s.index:]...)...)
+					default:
+						errInspect = errors.Errorf("function call index %d out of range", s.index)
+						return false // Stop the inspection, an error occurred
+					}
+				}
+				delete(structMapCheck, name)
 			default:
 				return true
 			}
-
-			calls, ok := callMap[name]
-			if !ok {
-				return true
-			}
-
-			// Construct the new argument to be added
-			for _, c := range calls {
-				newArg := &ast.Ident{Name: c.code}
-				switch {
-				case c.index == -1:
-					// Append the new argument to the end
-					callExpr.Args = append(callExpr.Args, newArg)
-				case c.index >= 0 && c.index <= len(callExpr.Args):
-					// Insert the new argument at the specified index
-					callExpr.Args = append(callExpr.Args[:c.index], append([]ast.Expr{newArg}, callExpr.Args[c.index:]...)...)
-				default:
-					errInspect = errors.Errorf("function call index %d out of range", c.index)
-					return false // Stop the inspection, an error occurred
-				}
-			}
-			delete(callMapCheck, name)
 			return true // Continue the inspection for duplicated calls
 		})
 		if errInspect != nil {
@@ -328,6 +380,10 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 		}
 		if len(callMapCheck) > 0 {
 			errInspect = errors.Errorf("function calls not found: %v", callMapCheck)
+			return false
+		}
+		if len(structMapCheck) > 0 {
+			errInspect = errors.Errorf("function structs not found: %v", structMapCheck)
 			return false
 		}
 

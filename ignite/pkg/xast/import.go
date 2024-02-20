@@ -98,9 +98,7 @@ func AppendImports(fileContent string, imports ...ImportOptions) (string, error)
 		}
 		// Create a new import spec.
 		spec := &ast.ImportSpec{
-			Name: &ast.Ident{
-				Name: importStmt.name,
-			},
+			Name: ast.NewIdent(importStmt.name),
 			Path: &ast.BasicLit{
 				Kind:  token.STRING,
 				Value: path,

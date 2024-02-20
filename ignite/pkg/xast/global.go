@@ -97,7 +97,7 @@ func InsertGlobal(fileContent string, globalType GlobalType, globals ...GlobalOp
 	// Create global variable/constant declarations.
 	for _, global := range opts.globals {
 		// Create an identifier for the global.
-		ident := &ast.Ident{Name: global.name}
+		ident := ast.NewIdent(global.name)
 
 		// Create a value expression if provided.
 		var valueExpr ast.Expr
