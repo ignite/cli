@@ -278,9 +278,9 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 
 			// Construct the new argument to be added
 			for _, c := range calls {
-				newArg := &ast.BasicLit{
-					Kind:  token.STRING,
-					Value: c.code,
+				newArg := &ast.Ident{
+					NamePos: 1, // using the 1 position solve the arg indentation by magic ?!
+					Name:    c.code,
 				}
 				switch {
 				case c.index == -1:
