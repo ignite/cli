@@ -174,7 +174,6 @@ func main() {
 }
 
 func anotherFunction() bool {
-    // Some code here
     fmt.Println("Another function")
     return true
 }`
@@ -210,7 +209,6 @@ func main() {
 }
 
 func anotherFunction() bool {
-	// Some code here
 	fmt.Println("Another function")
 	return true
 }
@@ -234,7 +232,6 @@ func main() {
 }
 
 func anotherFunction() bool {
-	// Some code here
 	fmt.Println("Another function")
 	fmt.Println("Inserted code here")
 
