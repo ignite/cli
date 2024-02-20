@@ -5,6 +5,7 @@
 ### Features
 
 - [#3977](https://github.com/ignite/cli/pull/3977) Add `chain lint` command to lint the chain's codebase using `golangci-lint`
+- [#3770](https://github.com/ignite/cli/pull/3770) Add `scaffold configs` and `scaffold params` commands
 
 ### Changes
 
@@ -38,10 +39,6 @@
 
 - [#3905](https://github.com/ignite/cli/pull/3905) Fix `ignite completion`
 - [#3931](https://github.com/ignite/cli/pull/3931) Fix `app update` command and duplicated apps
-
-### Changes
-
-- [#3770](https://github.com/ignite/cli/pull/3770) Add `scaffold configs` and `scaffold params` commands
 
 ## [`v28.1.1`](https://github.com/ignite/cli/releases/tag/v28.1.1)
 
