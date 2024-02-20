@@ -159,11 +159,12 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 	// Parse the content of the append code an ast.
 	appendCode := make([]ast.Stmt, 0)
 	for _, codeToInsert := range opts.appendCode {
-		insertionExpr, err := parser.ParseExprFrom(fileSet, "", []byte(codeToInsert), parser.ParseComments)
+		newFuncContent := fmt.Sprintf("package p; func _() { %s }", strings.TrimSpace(codeToInsert))
+		newContent, err := parser.ParseFile(fileSet, "", newFuncContent, parser.ParseComments)
 		if err != nil {
 			return "", err
 		}
-		appendCode = append(appendCode, &ast.ExprStmt{X: insertionExpr})
+		appendCode = append(appendCode, newContent.Decls[0].(*ast.FuncDecl).Body.List...)
 	}
 
 	// Parse the content of the return vars into an ast.

@@ -258,7 +258,7 @@ func anotherFunction() bool {
 				functionName: "anotherFunction",
 				functions:    []FunctionOptions{AppendFuncCode("9#.(c")},
 			},
-			err: errors.New("1:2: illegal character U+0023 '#'"),
+			err: errors.New("1:24: illegal character U+0023 '#'"),
 		},
 		{
 			name: "invalid new return",
