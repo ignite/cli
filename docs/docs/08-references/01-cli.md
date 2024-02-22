@@ -508,6 +508,7 @@ chain.
 * [ignite chain debug](#ignite-chain-debug)	 - Launch a debugger for a blockchain app
 * [ignite chain faucet](#ignite-chain-faucet)	 - Send coins to an account
 * [ignite chain init](#ignite-chain-init)	 - Initialize your chain
+* [ignite chain lint](#ignite-chain-lint)	 - Lint codebase using golangci-lint
 * [ignite chain serve](#ignite-chain-serve)	 - Start a blockchain node in development
 * [ignite chain simulate](#ignite-chain-simulate)	 - Run simulation testing for the blockchain
 
@@ -774,6 +775,36 @@ ignite chain init [flags]
       --home string          directory where the blockchain node is initialized
   -p, --path string          path of the app (default ".")
       --skip-proto           skip file generation from proto
+```
+
+**Options inherited from parent commands**
+
+```
+  -c, --config string   path to Ignite config file (default: ./config.yml)
+  -y, --yes             answers interactive yes/no questions with yes
+```
+
+**SEE ALSO**
+
+* [ignite chain](#ignite-chain)	 - Build, init and start a blockchain node
+
+
+## ignite chain lint
+
+Lint codebase using golangci-lint
+
+**Synopsis**
+
+The lint command runs the golangci-lint tool to lint the codebase.
+
+```
+ignite chain lint [flags]
+```
+
+**Options**
+
+```
+  -h, --help   help for lint
 ```
 
 **Options inherited from parent commands**
