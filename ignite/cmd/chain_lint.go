@@ -1,9 +1,10 @@
 package ignitecmd
 
 import (
+	"github.com/spf13/cobra"
+
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
 	"github.com/ignite/cli/v28/ignite/services/chain"
-	"github.com/spf13/cobra"
 )
 
 // NewChainLint returns a lint command to build a blockchain app.
