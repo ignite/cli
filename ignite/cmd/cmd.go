@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -38,6 +39,9 @@ const (
 	statusGenerating = "Generating..."
 	statusQuerying   = "Querying..."
 )
+
+// List of CLI level one commands that should not load Ignite app instances.
+var skipAppsLoadCommands = []string{"version", "help", "docs", "completion"}
 
 // New creates a new root command for `Ignite CLI` with its sub commands.
 // Returns the cobra.Command, a cleanup function and an error. The cleanup
@@ -84,6 +88,11 @@ To get started, create a blockchain:
 		NewCompletionCmd(),
 	)
 	c.AddCommand(deprecated()...)
+
+	// Don't load Ignite apps for level one commands that doesn't allow them
+	if len(os.Args) == 2 && slices.Contains(skipAppsLoadCommands, os.Args[1]) {
+		return c, func() {}, nil
+	}
 
 	// Load plugins if any
 	session := cliui.New(cliui.WithStdout(os.Stdout))
