@@ -18,7 +18,6 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/gitpod"
 	"github.com/ignite/cli/v28/ignite/pkg/goenv"
-	"github.com/ignite/cli/v28/ignite/services/chain"
 	"github.com/ignite/cli/v28/ignite/version"
 )
 
@@ -169,21 +168,6 @@ func flagSetClearCache(cmd *cobra.Command) {
 func flagGetClearCache(cmd *cobra.Command) bool {
 	clearCache, _ := cmd.Flags().GetBool(flagClearCache)
 	return clearCache
-}
-
-func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*chain.Chain, error) {
-	// Check if custom home is provided
-	if home := getHome(cmd); home != "" {
-		chainOption = append(chainOption, chain.HomePath(home))
-	}
-
-	appPath := flagGetPath(cmd)
-	absPath, err := filepath.Abs(appPath)
-	if err != nil {
-		return nil, err
-	}
-
-	return chain.New(absPath, chainOption...)
 }
 
 func deprecated() []*cobra.Command {

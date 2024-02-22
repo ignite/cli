@@ -18,6 +18,7 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/gomodule"
 	"github.com/ignite/cli/v28/ignite/pkg/xgit"
+	"github.com/ignite/cli/v28/ignite/services/chain"
 	"github.com/ignite/cli/v28/ignite/services/plugin"
 )
 
@@ -694,7 +695,7 @@ func printPlugins(ctx context.Context, session *cliui.Session) error {
 
 func newAppClientAPI(cmd *cobra.Command) (plugin.ClientAPI, error) {
 	// Get chain when the plugin runs inside an blockchain app
-	c, err := newChainWithHomeFlags(cmd)
+	c, err := chain.NewChainWithHomeFlags(cmd)
 	if err != nil && !errors.Is(err, gomodule.ErrGoModNotFound) {
 		return nil, err
 	}
