@@ -12,6 +12,7 @@
 - [#3962](https://github.com/ignite/cli/pull/3962) Rename all RPC endpoints and autocli commands generated for `map`/`list`/`single` types 
 - [#3972](https://github.com/ignite/cli/pull/3972) Skip Ignite app loading for some base commands that don't allow apps
 - [#3976](https://github.com/ignite/cli/pull/3976) Remove error checks for Cobra command value get calls
+- [#3983](https://github.com/ignite/cli/pull/3983) Bump `cosmos-sdk`, `ibc-go` and `go-plugin`
 
 ### Fixes
 
