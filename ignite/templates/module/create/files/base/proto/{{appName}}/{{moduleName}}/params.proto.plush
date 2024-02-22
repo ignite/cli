@@ -12,5 +12,5 @@ message Params {
   option (gogoproto.equal) = true;
 
   <%= for (i, param) in params { %>
-  <%= param.ProtoType(i+1) %> [(gogoproto.moretags) = "yaml:\"<%= param.Name.Snake %>\""];<% } %>
+  <%= param.ProtoType(i+1) %>;<% } %>
 }

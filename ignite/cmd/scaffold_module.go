@@ -25,6 +25,7 @@ const (
 	flagDep                 = "dep"
 	flagIBC                 = "ibc"
 	flagParams              = "params"
+	flagModuleConfigs       = "module-configs"
 	flagIBCOrdering         = "ordering"
 	flagRequireRegistration = "require-registration"
 
@@ -115,6 +116,7 @@ params.
 	c.Flags().String(flagIBCOrdering, "none", "channel ordering of the IBC module [none|ordered|unordered]")
 	c.Flags().Bool(flagRequireRegistration, false, "fail if module can't be registered")
 	c.Flags().StringSlice(flagParams, []string{}, "add module parameters")
+	c.Flags().StringSlice(flagModuleConfigs, []string{}, "add module configs")
 
 	return c
 }
@@ -133,6 +135,11 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	requireRegistration, _ := cmd.Flags().GetBool(flagRequireRegistration)
 	params, _ := cmd.Flags().GetStringSlice(flagParams)
 
+	moduleConfigs, err := cmd.Flags().GetStringSlice(flagModuleConfigs)
+	if err != nil {
+		return err
+	}
+
 	cacheStorage, err := newCache(cmd)
 	if err != nil {
 		return err
@@ -140,6 +147,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 
 	options := []scaffolder.ModuleCreationOption{
 		scaffolder.WithParams(params),
+		scaffolder.WithModuleConfigs(moduleConfigs),
 	}
 
 	// Check if the module must be an IBC module
