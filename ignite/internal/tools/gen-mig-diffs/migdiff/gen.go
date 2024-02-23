@@ -20,9 +20,9 @@ import (
 )
 
 const (
-	igniteCliRepository = "http://github.com/ignite/cli.git"
-	igniteRepoPath      = "src/github.com/ignite/cli"
-	igniteBinaryPath    = "dist/ignite"
+	defaultRepoURL    = "http://github.com/ignite/cli.git"
+	defaultRepoPath   = "src/github.com/ignite/cli"
+	defaultBinaryPath = "dist/ignite"
 )
 
 var diffIgnoreGlobs = []string{
@@ -44,45 +44,91 @@ var diffIgnoreGlobs = []string{
 	"**.json",
 }
 
-// Generator is used to generate migration diffs.
-type Generator struct {
-	from, to         *semver.Version
-	tempDir, repoDir string
-	repo             *git.Repository
-	session          *cliui.Session
+type (
+	// Generator is used to generate migration diffs.
+	Generator struct {
+		from, to         *semver.Version
+		tempDir, repoDir string
+		repo             *git.Repository
+		session          *cliui.Session
+	}
+
+	// genOptions represents configuration for the generator.
+	genOptions struct {
+		source   string
+		repoPath string
+		repoURL  string
+	}
+	// GenOptions configures the generator.
+	GenOptions func(*genOptions)
+)
+
+// newGenOptions returns a genOptions with default options.
+func newGenOptions() genOptions {
+	return genOptions{
+		source:   "",
+		repoPath: defaultRepoPath,
+		repoURL:  defaultRepoURL,
+	}
+}
+
+// WithSource set the repo source GenOptions.
+func WithSource(source string) GenOptions {
+	return func(m *genOptions) {
+		m.source = source
+	}
+}
+
+// WithRepoPath set the repo path GenOptions.
+func WithRepoPath(repoPath string) GenOptions {
+	return func(m *genOptions) {
+		m.repoPath = repoPath
+	}
+}
+
+// WithRepoURL set the repo URL GenOptions.
+func WithRepoURL(repoURL string) GenOptions {
+	return func(m *genOptions) {
+		m.repoURL = repoURL
+	}
 }
 
 // NewGenerator creates a new generator for migration diffs between from and to versions of ignite cli
 // If source is empty, then it clones the ignite cli repository to a temporary directory and uses it as the source.
-func NewGenerator(from, to *semver.Version, source string, session *cliui.Session) (*Generator, error) {
-	tempDir, err := createTempDir()
+func NewGenerator(from, to *semver.Version, session *cliui.Session, options ...GenOptions) (*Generator, error) {
+	opts := newGenOptions()
+	for _, apply := range options {
+		apply(&opts)
+	}
+
+	tempDir, err := os.MkdirTemp("", ".migdoc")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create temporary directory")
 	}
 	session.EventBus().SendInfo(fmt.Sprintf("Created temporary directory: %s", tempDir))
 
 	var (
-		repoDir = source
+		repoDir = opts.source
 		repo    *git.Repository
 	)
-	if source == "" {
+	if repoDir != "" {
+		repo, err = git.PlainOpen(repoDir)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to open ignite repository")
+		}
+
+		session.EventBus().SendInfo(fmt.Sprintf("Using ignite repository at: %s", repoDir))
+	} else {
 		session.StartSpinner("Cloning ignite repository...")
 
-		repoDir = filepath.Join(tempDir, igniteRepoPath)
-		repo, err = cloneIgniteRepo(repoDir)
+		repoDir = filepath.Join(tempDir, opts.repoPath)
+		repo, err = git.PlainClone(repoDir, false, &git.CloneOptions{URL: opts.repoURL})
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to clone ignite repository")
 		}
 
 		session.StopSpinner()
 		session.EventBus().SendInfo(fmt.Sprintf("Cloned ignite repository to: %s", repoDir))
-	} else {
-		repo, err = git.PlainOpen(source)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to open ignite repository")
-		}
-
-		session.EventBus().SendInfo(fmt.Sprintf("Using ignite repository at: %s", repoDir))
 	}
 
 	versions, err := getRepoVersionTags(repoDir)
@@ -103,21 +149,6 @@ func NewGenerator(from, to *semver.Version, source string, session *cliui.Sessio
 		repo:    repo,
 		session: session,
 	}, nil
-}
-
-func createTempDir() (string, error) {
-	tmpdir, err := os.MkdirTemp("", ".migdoc")
-	if err != nil {
-		return "", err
-	}
-
-	return tmpdir, nil
-}
-
-func cloneIgniteRepo(path string) (*git.Repository, error) {
-	return git.PlainClone(path, false, &git.CloneOptions{
-		URL: igniteCliRepository,
-	})
 }
 
 // getRepoVersionTags returns a sorted collection of semver tags from the ignite cli repository.
@@ -262,7 +293,7 @@ func (g *Generator) runScaffoldsForVersion(ver *semver.Version, outputDir string
 
 	g.session.StartSpinner(fmt.Sprintf("Running scaffold commands for v%s...", ver))
 
-	binPath := filepath.Join(g.repoDir, igniteBinaryPath)
+	binPath := filepath.Join(g.repoDir, defaultBinaryPath)
 	scaffolder := NewScaffolder(binPath, defaultScaffoldCommands)
 	err = scaffolder.Run(ver, outputDir)
 	if err != nil {

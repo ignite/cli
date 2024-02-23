@@ -23,10 +23,12 @@ func NewRootCmd() *cobra.Command {
 		Short: "Generate migration diffs",
 		Long:  "This tool is used to generate migration diff files for each of ignites scaffold commands",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			from, _ := cmd.Flags().GetString(fromFlag)
-			to, _ := cmd.Flags().GetString(toFlag)
-			source := cmd.Flag(sourceFlag).Value.String()
-			output, _ := cmd.Flags().GetString(outputFlag)
+			var (
+				from, _   = cmd.Flags().GetString(fromFlag)
+				to, _     = cmd.Flags().GetString(toFlag)
+				source, _ = cmd.Flags().GetString(sourceFlag)
+				output, _ = cmd.Flags().GetString(outputFlag)
+			)
 
 			fromVer, err := semver.NewVersion(from)
 			if err != nil && from != "" {
@@ -39,7 +41,7 @@ func NewRootCmd() *cobra.Command {
 
 			session := cliui.New()
 			defer session.End()
-			mdg, err := migdiff.NewGenerator(fromVer, toVer, source, session)
+			mdg, err := migdiff.NewGenerator(fromVer, toVer, session, migdiff.WithSource(source))
 			if err != nil {
 				return err
 			}
