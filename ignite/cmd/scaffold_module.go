@@ -12,6 +12,7 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/validation"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v28/ignite/services/scaffolder"
 	modulecreate "github.com/ignite/cli/v28/ignite/templates/module/create"
 )
@@ -195,7 +196,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 			return err
 		}
 	} else {
-		modificationsStr, err := sourceModificationToString(sm)
+		modificationsStr, err := xgenny.SourceModificationToString(sm)
 		if err != nil {
 			return err
 		}
