@@ -1,5 +1,21 @@
 package xgenny
 
+import (
+	"sort"
+	"strings"
+
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/v28/ignite/pkg/xfilepath"
+)
+
+var (
+	modifyPrefix = colors.Modified("modify ")
+	createPrefix = colors.Success("create ")
+	removePrefix = func(s string) string {
+		return strings.TrimPrefix(strings.TrimPrefix(s, modifyPrefix), createPrefix)
+	}
+)
+
 // SourceModification describes modified and created files in the source code after a run.
 type SourceModification struct {
 	modified map[string]struct{}
@@ -55,4 +71,35 @@ func (sm *SourceModification) AppendCreatedFiles(createdFiles ...string) {
 func (sm *SourceModification) Merge(newSm SourceModification) {
 	sm.AppendModifiedFiles(newSm.ModifiedFiles()...)
 	sm.AppendCreatedFiles(newSm.CreatedFiles()...)
+}
+
+func SourceModificationToString(sm SourceModification) (string, error) {
+	// get file names and add prefix
+	var files []string
+	for _, modified := range sm.ModifiedFiles() {
+		// get the relative app path from the current directory
+		relativePath, err := xfilepath.RelativePath(modified)
+		if err != nil {
+			return "", err
+		}
+		files = append(files, modifyPrefix+relativePath)
+	}
+	for _, created := range sm.CreatedFiles() {
+		// get the relative app path from the current directory
+		relativePath, err := xfilepath.RelativePath(created)
+		if err != nil {
+			return "", err
+		}
+		files = append(files, createPrefix+relativePath)
+	}
+
+	// sort filenames without prefix
+	sort.Slice(files, func(i, j int) bool {
+		s1 := removePrefix(files[i])
+		s2 := removePrefix(files[j])
+
+		return strings.Compare(s1, s2) == -1
+	})
+
+	return "\n" + strings.Join(files, "\n"), nil
 }

@@ -25,7 +25,7 @@ func generateHooksHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
 	defer session.End()
 
-	c, err := newChainWithHomeFlags(
+	c, err := chain.NewWithHomeFlags(
 		cmd,
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
