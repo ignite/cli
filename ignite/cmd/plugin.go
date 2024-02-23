@@ -695,7 +695,7 @@ func printPlugins(ctx context.Context, session *cliui.Session) error {
 
 func newAppClientAPI(cmd *cobra.Command) (plugin.ClientAPI, error) {
 	// Get chain when the plugin runs inside an blockchain app
-	c, err := chain.NewChainWithHomeFlags(cmd)
+	c, err := chain.NewWithHomeFlags(cmd)
 	if err != nil && !errors.Is(err, gomodule.ErrGoModNotFound) {
 		return nil, err
 	}

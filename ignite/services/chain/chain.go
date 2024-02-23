@@ -193,7 +193,7 @@ func New(path string, options ...Option) (*Chain, error) {
 	return c, nil
 }
 
-func NewChainWithHomeFlags(cmd *cobra.Command, chainOption ...Option) (*Chain, error) {
+func NewWithHomeFlags(cmd *cobra.Command, chainOption ...Option) (*Chain, error) {
 	var (
 		home, _    = cmd.Flags().GetString(flagHome)
 		appPath, _ = cmd.Flags().GetString(flagPath)

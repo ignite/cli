@@ -25,7 +25,7 @@ func NewChainLint() *cobra.Command {
 				chain.CollectEvents(session.EventBus()),
 			}
 
-			c, err := chain.NewChainWithHomeFlags(cmd, chainOption...)
+			c, err := chain.NewWithHomeFlags(cmd, chainOption...)
 			if err != nil {
 				return err
 			}
