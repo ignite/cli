@@ -135,44 +135,44 @@ otherwise, a row refers to a minor version and all associated patch versions.
 To upgrade your blockchain to the newer version of Cosmos SDK, see the
 [Migration guide](https://docs.ignite.com/migration).
 
-## Plugin system
+## App system
 
-Ignite CLI commands can be extended using plugins. A plugin is a program that
+Ignite CLI commands can be extended using apps. An app is a program that
 uses github.com/hashicorp/go-plugin to communicate with the ignite binary.
 
-### Use a plugin
+### Use an App
 
-Plugins must be declared in the `config.yml` file, using the following syntax:
+Apps must be declared in the `config.yml` file, using the following syntax:
 
 ```yaml
-plugins:
+apps:
   // path can be a repository or a local path
   // the directory must contain go code under a main package.
   // For repositories you can specify a suffix @branch or @tag to target a
   // specific git reference.
-  - path: github.com/org/repo/my-plugin
-    // Additional parameters can be passed to the plugin
+  - path: github.com/org/repo/my-app
+    // Additional parameters can be passed to the app
     with:
       key: value
 ```
 
 Once declared, the next time the ignite binary will be executed under this
-configuration, it will fetch, build and run the plugin. As a result, more
+configuration, it will fetch, build and run the app. As a result, more
 commands should be available in the list of the ignite commands.
 
-`ignite plugin` command allows to list the plugins and their status, and to
-update a plugin if you need to get the latest version.
+`ignite app` command allows to list the apps and their status, and to
+update a apps if you need to get the latest version.
 
-### Make a plugin
+### Create an App
 
-A plugin must implement `plugin.Interface`.
+An app must implement `plugin.Interface`.
 
-The easiest way to make a plugin is to use the `ignite plugin scaffold` command.
+The easiest way to create an app is to use the `ignite app scaffold` command.
 For example:
 
 ```sh
 cd /home/user/src
-ignite plugin scaffold github.com/foo/bar
+ignite app scaffold github.com/foo/bar
 ```
 
 It will create a folder `bar` under `/home/user/src` and generate predefined
@@ -180,17 +180,17 @@ It will create a folder `bar` under `/home/user/src` and generate predefined
 ignite binary via `hashicorp/go-plugin`. What need to be adapted is the
 implementation of the `plugin.Interface` (`Commands` and `Execute` methods).
 
-To test your plugin, you only need to declare it under a chain config, for
+To test your app, you only need to declare it under a chain config, for
 instance:
 
 ```yaml
-plugins:
+apps:
   - path: /home/user/src/bar
 ```
 
-Then run `ignite`, the plugin will compile and should be listed among the ignite
-commands. Each time `ignite` is executed, the plugin is recompiled if the files
-have changed since the last compilation. This allows fast and easy plugin
+Then run `ignite`, the app will compile and should be listed among the ignite
+commands. Each time `ignite` is executed, the app is recompiled if the files
+have changed since the last compilation. This allows fast and easy app
 development, you only care about code and `ignite` handles the compilation.
 
 ## Contributing
