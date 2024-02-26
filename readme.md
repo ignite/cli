@@ -139,7 +139,7 @@ To upgrade your blockchain to the newer version of Cosmos SDK, see the
 
 Ignite Apps aims to extend the functionality of Ignite CLI, offering both official and community-contributed integrations. These integrations are designed to streamline development processes and offer valuable insights for blockchain app developers.
 
-### **How to Install an Ignite App**
+### How to Install an Ignite App
 
 ```bash
 ignite app install -g github.com/ignite/apps/[app-name]
@@ -148,7 +148,7 @@ ignite app install -g github.com/ignite/apps/[app-name]
 The `ignite app list` command allows to list the plugins and their status, and to
 update a plugin if you need to get the latest version.
 
-### **How to Create an App**
+### How to Create an App
 
 Scaffold your Ignite app with one simple command:
 
