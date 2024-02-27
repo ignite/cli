@@ -7,6 +7,7 @@ import (
 
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v28/ignite/services/scaffolder"
 )
 
@@ -46,31 +47,19 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 	defer session.End()
 
 	// Get the module to add the type into
-	module, err := cmd.Flags().GetString(flagModule)
-	if err != nil {
-		return err
-	}
+	module, _ := cmd.Flags().GetString(flagModule)
 
 	// Get request fields
-	resFields, err := cmd.Flags().GetStringSlice(flagResponse)
-	if err != nil {
-		return err
-	}
+	resFields, _ := cmd.Flags().GetStringSlice(flagResponse)
 
 	// Get description
-	desc, err := cmd.Flags().GetString(flagDescription)
-	if err != nil {
-		return err
-	}
+	desc, _ := cmd.Flags().GetString(flagDescription)
 	if desc == "" {
 		// Use a default description
 		desc = fmt.Sprintf("Query %s", args[0])
 	}
 
-	paginated, err := cmd.Flags().GetBool(flagPaginated)
-	if err != nil {
-		return err
-	}
+	paginated, _ := cmd.Flags().GetBool(flagPaginated)
 
 	cacheStorage, err := newCache(cmd)
 	if err != nil {
@@ -87,7 +76,7 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	modificationsStr, err := sourceModificationToString(sm)
+	modificationsStr, err := xgenny.SourceModificationToString(sm)
 	if err != nil {
 		return err
 	}

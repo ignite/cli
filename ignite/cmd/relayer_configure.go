@@ -235,79 +235,26 @@ func relayerConfigureHandler(cmd *cobra.Command, _ []string) (err error) {
 	)
 
 	// Get flags
-	advanced, err := cmd.Flags().GetBool(flagAdvanced)
-	if err != nil {
-		return err
-	}
-	sourceAccount, err = cmd.Flags().GetString(flagSourceAccount)
-	if err != nil {
-		return err
-	}
-	targetAccount, err = cmd.Flags().GetString(flagTargetAccount)
-	if err != nil {
-		return err
-	}
-	sourceRPCAddress, err = cmd.Flags().GetString(flagSourceRPC)
-	if err != nil {
-		return err
-	}
-	sourceFaucetAddress, err = cmd.Flags().GetString(flagSourceFaucet)
-	if err != nil {
-		return err
-	}
-	targetRPCAddress, err = cmd.Flags().GetString(flagTargetRPC)
-	if err != nil {
-		return err
-	}
-	targetFaucetAddress, err = cmd.Flags().GetString(flagTargetFaucet)
-	if err != nil {
-		return err
-	}
-	sourcePort, err = cmd.Flags().GetString(flagSourcePort)
-	if err != nil {
-		return err
-	}
-	sourceVersion, err = cmd.Flags().GetString(flagSourceVersion)
-	if err != nil {
-		return err
-	}
-	targetPort, err = cmd.Flags().GetString(flagTargetPort)
-	if err != nil {
-		return err
-	}
-	targetVersion, err = cmd.Flags().GetString(flagTargetVersion)
-	if err != nil {
-		return err
-	}
-	sourceGasPrice, err = cmd.Flags().GetString(flagSourceGasPrice)
-	if err != nil {
-		return err
-	}
-	targetGasPrice, err = cmd.Flags().GetString(flagTargetGasPrice)
-	if err != nil {
-		return err
-	}
-	sourceGasLimit, err = cmd.Flags().GetInt64(flagSourceGasLimit)
-	if err != nil {
-		return err
-	}
-	targetGasLimit, err = cmd.Flags().GetInt64(flagTargetGasLimit)
-	if err != nil {
-		return err
-	}
-	sourceAddressPrefix, err = cmd.Flags().GetString(flagSourceAddressPrefix)
-	if err != nil {
-		return err
-	}
-	targetAddressPrefix, err = cmd.Flags().GetString(flagTargetAddressPrefix)
-	if err != nil {
-		return err
-	}
-	ordered, err := cmd.Flags().GetBool(flagOrdered)
-	if err != nil {
-		return err
-	}
+	sourceAccount, _ = cmd.Flags().GetString(flagSourceAccount)
+	targetAccount, _ = cmd.Flags().GetString(flagTargetAccount)
+	sourceRPCAddress, _ = cmd.Flags().GetString(flagSourceRPC)
+	sourceFaucetAddress, _ = cmd.Flags().GetString(flagSourceFaucet)
+	targetRPCAddress, _ = cmd.Flags().GetString(flagTargetRPC)
+	targetFaucetAddress, _ = cmd.Flags().GetString(flagTargetFaucet)
+	sourcePort, _ = cmd.Flags().GetString(flagSourcePort)
+	sourceVersion, _ = cmd.Flags().GetString(flagSourceVersion)
+	targetPort, _ = cmd.Flags().GetString(flagTargetPort)
+	targetVersion, _ = cmd.Flags().GetString(flagTargetVersion)
+	sourceGasPrice, _ = cmd.Flags().GetString(flagSourceGasPrice)
+	targetGasPrice, _ = cmd.Flags().GetString(flagTargetGasPrice)
+	sourceGasLimit, _ = cmd.Flags().GetInt64(flagSourceGasLimit)
+	targetGasLimit, _ = cmd.Flags().GetInt64(flagTargetGasLimit)
+	sourceAddressPrefix, _ = cmd.Flags().GetString(flagSourceAddressPrefix)
+	targetAddressPrefix, _ = cmd.Flags().GetString(flagTargetAddressPrefix)
+
 	var (
+		advanced, _       = cmd.Flags().GetBool(flagAdvanced)
+		ordered, _        = cmd.Flags().GetBool(flagOrdered)
 		sourceClientID, _ = cmd.Flags().GetString(flagSourceClientID)
 		targetClientID, _ = cmd.Flags().GetString(flagTargetClientID)
 		reset, _          = cmd.Flags().GetBool(flagReset)

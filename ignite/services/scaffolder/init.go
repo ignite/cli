@@ -26,7 +26,7 @@ func Init(
 	tracer *placeholder.Tracer,
 	root, name, addressPrefix string,
 	noDefaultModule, skipGit, minimal, isConsumerChain bool,
-	params []string,
+	params, moduleConfigs []string,
 ) (path string, err error) {
 	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
@@ -56,6 +56,7 @@ func Init(
 		minimal,
 		isConsumerChain,
 		params,
+		moduleConfigs,
 	); err != nil {
 		return "", err
 	}
@@ -82,13 +83,17 @@ func generate(
 	pathInfo gomodulepath.Path,
 	addressPrefix,
 	absRoot string,
-	noDefaultModule bool,
-	minimal bool,
-	isConsumerChain bool,
-	params []string,
+	noDefaultModule, minimal, isConsumerChain bool,
+	params, moduleConfigs []string,
 ) error {
 	// Parse params with the associated type
 	paramsFields, err := field.ParseFields(params, checkForbiddenTypeIndex)
+	if err != nil {
+		return err
+	}
+
+	// Parse configs with the associated type
+	configsFields, err := field.ParseFields(moduleConfigs, checkForbiddenTypeIndex)
 	if err != nil {
 		return err
 	}
@@ -141,6 +146,7 @@ func generate(
 			AppName:    pathInfo.Package,
 			AppPath:    absRoot,
 			Params:     paramsFields,
+			Configs:    configsFields,
 			IsIBC:      false,
 		}
 		// Check if the module name is valid

@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sort"
-	"strings"
+	"slices"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -15,13 +14,10 @@ import (
 	"github.com/ignite/cli/v28/ignite/config"
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
-	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
 	uilog "github.com/ignite/cli/v28/ignite/pkg/cliui/log"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/gitpod"
 	"github.com/ignite/cli/v28/ignite/pkg/goenv"
-	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
-	"github.com/ignite/cli/v28/ignite/services/chain"
 	"github.com/ignite/cli/v28/ignite/version"
 )
 
@@ -38,6 +34,9 @@ const (
 	statusGenerating = "Generating..."
 	statusQuerying   = "Querying..."
 )
+
+// List of CLI level one commands that should not load Ignite app instances.
+var skipAppsLoadCommands = []string{"version", "help", "docs", "completion"}
 
 // New creates a new root command for `Ignite CLI` with its sub commands.
 // Returns the cobra.Command, a cleanup function and an error. The cleanup
@@ -84,6 +83,11 @@ To get started, create a blockchain:
 		NewCompletionCmd(),
 	)
 	c.AddCommand(deprecated()...)
+
+	// Don't load Ignite apps for level one commands that doesn't allow them
+	if len(os.Args) == 2 && slices.Contains(skipAppsLoadCommands, os.Args[1]) {
+		return c, func() {}, nil
+	}
 
 	// Load plugins if any
 	session := cliui.New(cliui.WithStdout(os.Stdout))
@@ -166,60 +170,6 @@ func flagGetClearCache(cmd *cobra.Command) bool {
 	return clearCache
 }
 
-func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*chain.Chain, error) {
-	// Check if custom home is provided
-	if home := getHome(cmd); home != "" {
-		chainOption = append(chainOption, chain.HomePath(home))
-	}
-
-	appPath := flagGetPath(cmd)
-	absPath, err := filepath.Abs(appPath)
-	if err != nil {
-		return nil, err
-	}
-
-	return chain.New(absPath, chainOption...)
-}
-
-var (
-	modifyPrefix = colors.Modified("modify ")
-	createPrefix = colors.Success("create ")
-	removePrefix = func(s string) string {
-		return strings.TrimPrefix(strings.TrimPrefix(s, modifyPrefix), createPrefix)
-	}
-)
-
-func sourceModificationToString(sm xgenny.SourceModification) (string, error) {
-	// get file names and add prefix
-	var files []string
-	for _, modified := range sm.ModifiedFiles() {
-		// get the relative app path from the current directory
-		relativePath, err := relativePath(modified)
-		if err != nil {
-			return "", err
-		}
-		files = append(files, modifyPrefix+relativePath)
-	}
-	for _, created := range sm.CreatedFiles() {
-		// get the relative app path from the current directory
-		relativePath, err := relativePath(created)
-		if err != nil {
-			return "", err
-		}
-		files = append(files, createPrefix+relativePath)
-	}
-
-	// sort filenames without prefix
-	sort.Slice(files, func(i, j int) bool {
-		s1 := removePrefix(files[i])
-		s2 := removePrefix(files[j])
-
-		return strings.Compare(s1, s2) == -1
-	})
-
-	return "\n" + strings.Join(files, "\n"), nil
-}
-
 func deprecated() []*cobra.Command {
 	return []*cobra.Command{
 		{
@@ -239,19 +189,6 @@ func deprecated() []*cobra.Command {
 			Deprecated: "use `ignite chain faucet` instead.",
 		},
 	}
-}
-
-// relativePath return the relative app path from the current directory.
-func relativePath(appPath string) (string, error) {
-	pwd, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-	path, err := filepath.Rel(pwd, appPath)
-	if err != nil {
-		return "", err
-	}
-	return path, nil
 }
 
 func checkNewVersion(ctx context.Context) {

@@ -73,10 +73,6 @@ For detailed type information use ignite scaffold type --help
 }
 
 func scaffoldMapHandler(cmd *cobra.Command, args []string) error {
-	indexes, err := cmd.Flags().GetStringSlice(FlagIndexes)
-	if err != nil {
-		return err
-	}
-
+	indexes, _ := cmd.Flags().GetStringSlice(FlagIndexes)
 	return scaffoldType(cmd, args, scaffolder.MapType(indexes...))
 }

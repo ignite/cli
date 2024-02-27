@@ -25,7 +25,7 @@ func generateHooksHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
 	defer session.End()
 
-	c, err := newChainWithHomeFlags(
+	c, err := chain.NewWithHomeFlags(
 		cmd,
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
@@ -39,10 +39,7 @@ func generateHooksHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	output, err := cmd.Flags().GetString(flagOutput)
-	if err != nil {
-		return err
-	}
+	output, _ := cmd.Flags().GetString(flagOutput)
 
 	var opts []chain.GenerateTarget
 	if flagGetEnableProtoVendor(cmd) {
