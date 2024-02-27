@@ -20,7 +20,7 @@ import (
 )
 
 const (
-	defaultRepoURL    = "http://github.com/ignite/cli.git"
+	defaultRepoURL    = "https://github.com/ignite/cli.git"
 	defaultRepoPath   = "src/github.com/ignite/cli"
 	defaultBinaryPath = "dist/ignite"
 )

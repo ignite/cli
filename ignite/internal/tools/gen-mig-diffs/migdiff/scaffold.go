@@ -120,6 +120,7 @@ func (s *Scaffolder) runCommand(
 	ver *semver.Version,
 	out string,
 ) error {
+	// TODO add cache for duplicated commands.
 	for _, p := range prerequisites {
 		c, err := s.findCommand(p)
 		if err != nil {
