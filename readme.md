@@ -24,6 +24,7 @@
   </a>
     <img alt="Test Status" src="https://github.com/ignite/cli/workflows/Test/badge.svg" />
     <img alt="Lint Status" src="https://github.com/ignite/cli/workflows/Lint/badge.svg" />
+    <img alt="Discord" src="https://img.shields.io/discord/893126937067802685">
 </div>
 
 ![Ignite CLI](./assets/ignite-cli.png)
