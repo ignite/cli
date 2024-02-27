@@ -126,8 +126,7 @@ func (s *Scaffolder) runCommand(
 			return err
 		}
 
-		err = s.runCommand(name, c.Prerequisites, c.Commands, ver, out)
-		if err != nil {
+		if err := s.runCommand(name, c.Prerequisites, c.Commands, ver, out); err != nil {
 			return err
 		}
 	}

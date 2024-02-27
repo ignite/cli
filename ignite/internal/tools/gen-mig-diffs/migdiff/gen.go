@@ -247,13 +247,11 @@ func (g *Generator) Generate(outputPath string) error {
 	g.session.Printf("Generating migration diffs for v%s -> v%s\n", g.from, g.to)
 
 	fromDir := filepath.Join(g.tempDir, g.from.Original())
-	err := g.runScaffoldsForVersion(g.from, fromDir)
-	if err != nil {
+	if err := g.runScaffoldsForVersion(g.from, fromDir); err != nil {
 		return errors.Wrapf(err, "failed to run scaffolds for version %s", g.from)
 	}
 	toDir := filepath.Join(g.tempDir, g.to.Original())
-	err = g.runScaffoldsForVersion(g.to, toDir)
-	if err != nil {
+	if err := g.runScaffoldsForVersion(g.to, toDir); err != nil {
 		return errors.Wrapf(err, "failed to run scaffolds for version %s", g.to)
 	}
 
@@ -265,8 +263,7 @@ func (g *Generator) Generate(outputPath string) error {
 	g.session.StopSpinner()
 	g.session.EventBus().SendInfo("Diff calculated successfully")
 
-	err = saveDiffs(diffs, outputPath)
-	if err != nil {
+	if err = saveDiffs(diffs, outputPath); err != nil {
 		return errors.Wrap(err, "failed to save diff map")
 	}
 	g.session.Println("Migration diffs generated successfully at", outputPath)
@@ -278,13 +275,11 @@ func (g *Generator) Generate(outputPath string) error {
 func (g *Generator) runScaffoldsForVersion(ver *semver.Version, outputDir string) error {
 	g.session.StartSpinner(fmt.Sprintf("Building ignite cli for v%s...", ver))
 
-	err := g.checkoutToTag(ver.Original())
-	if err != nil {
+	if err := g.checkoutToTag(ver.Original()); err != nil {
 		return err
 	}
 
-	err = g.buildIgniteCli()
-	if err != nil {
+	if err := g.buildIgniteCli(); err != nil {
 		return err
 	}
 
@@ -294,9 +289,8 @@ func (g *Generator) runScaffoldsForVersion(ver *semver.Version, outputDir string
 	g.session.StartSpinner(fmt.Sprintf("Running scaffold commands for v%s...", ver))
 
 	binPath := filepath.Join(g.repoDir, defaultBinaryPath)
-	scaffolder := NewScaffolder(binPath, defaultScaffoldCommands)
-	err = scaffolder.Run(ver, outputDir)
-	if err != nil {
+	s := NewScaffolder(binPath, defaultScaffoldCommands)
+	if err := s.Run(ver, outputDir); err != nil {
 		return err
 	}
 
@@ -312,9 +306,7 @@ func (g *Generator) checkoutToTag(tag string) error {
 		return err
 	}
 
-	err = wt.Checkout(&git.CheckoutOptions{
-		Branch: plumbing.NewTagReferenceName(tag),
-	})
+	err = wt.Checkout(&git.CheckoutOptions{Branch: plumbing.NewTagReferenceName(tag)})
 	if err != nil {
 		return errors.Wrapf(err, "failed to checkout tag %s", tag)
 	}
@@ -375,20 +367,21 @@ func subtractUnifieds(a, b []gotextdiff.Unified) []gotextdiff.Unified {
 }
 
 func saveDiffs(diffs map[string][]gotextdiff.Unified, outputPath string) error {
-	err := os.MkdirAll(outputPath, os.ModePerm)
-	if err != nil {
+	if err := os.MkdirAll(outputPath, os.ModePerm); err != nil {
 		return err
 	}
 
 	for name, diffs := range diffs {
-		outf, err := os.Create(filepath.Join(outputPath, name+".diff"))
+		output, err := os.Create(filepath.Join(outputPath, name+".diff"))
 		if err != nil {
 			return err
 		}
-		defer outf.Close()
 		for _, d := range diffs {
-			outf.WriteString(fmt.Sprint(d))
-			outf.WriteString("\n")
+			output.WriteString(fmt.Sprint(d))
+			output.WriteString("\n")
+		}
+		if err := output.Close(); err != nil {
+			return err
 		}
 	}
 
