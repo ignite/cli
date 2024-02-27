@@ -306,8 +306,15 @@ func (g *Generator) checkoutToTag(tag string) error {
 		return err
 	}
 
-	err = wt.Checkout(&git.CheckoutOptions{Branch: plumbing.NewTagReferenceName(tag)})
-	if err != nil {
+	// Reset and clean the git directory before the checkout to avoid conflicts.
+	if err := wt.Reset(&git.ResetOptions{Mode: git.HardReset}); err != nil {
+		return errors.Wrapf(err, "failed to reset %s", g.repoDir)
+	}
+	if err := wt.Clean(&git.CleanOptions{Dir: true}); err != nil {
+		return errors.Wrapf(err, "failed to reset %s", g.repoDir)
+	}
+
+	if err = wt.Checkout(&git.CheckoutOptions{Branch: plumbing.NewTagReferenceName(tag)}); err != nil {
 		return errors.Wrapf(err, "failed to checkout tag %s", tag)
 	}
 
