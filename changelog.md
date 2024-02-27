@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- [#3985](https://github.com/ignite/cli/pull/3985) Make some `cmd` pkg functions public
+
 ### Changes
 
 - [#3972](https://github.com/ignite/cli/pull/3972) Skip Ignite app loading for some base commands that don't allow apps

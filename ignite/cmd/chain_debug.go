@@ -107,7 +107,7 @@ func chainDebug(cmd *cobra.Command, session *cliui.Session) error {
 		chainOptions = append(chainOptions, chain.ConfigFile(config))
 	}
 
-	c, err := newChainWithHomeFlags(cmd, chainOptions...)
+	c, err := chain.NewWithHomeFlags(cmd, chainOptions...)
 	if err != nil {
 		return err
 	}

@@ -143,7 +143,7 @@ func chainServe(cmd *cobra.Command, session *cliui.Session) error {
 	}
 
 	// create the chain
-	c, err := newChainWithHomeFlags(cmd, chainOption...)
+	c, err := chain.NewWithHomeFlags(cmd, chainOption...)
 	if err != nil {
 		return err
 	}
