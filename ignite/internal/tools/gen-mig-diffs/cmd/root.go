@@ -1,10 +1,14 @@
 package cmd
 
 import (
-	semver "github.com/Masterminds/semver/v3"
+	"fmt"
+
+	"github.com/Masterminds/semver/v3"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/v28/ignite/internal/tools/gen-mig-diffs/migdiff"
+	"github.com/ignite/cli/v28/ignite/internal/tools/gen-mig-diffs/pkg/diff"
+	"github.com/ignite/cli/v28/ignite/internal/tools/gen-mig-diffs/pkg/repo"
+	"github.com/ignite/cli/v28/ignite/internal/tools/gen-mig-diffs/pkg/scaffold"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
@@ -20,7 +24,7 @@ const (
 func NewRootCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "gen-mig-diffs",
-		Short: "Generate migration diffs",
+		Short: "GenerateBinaries migration diffs",
 		Long:  "This tool is used to generate migration diff files for each of ignites scaffold commands",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var (
@@ -41,13 +45,47 @@ func NewRootCmd() *cobra.Command {
 
 			session := cliui.New()
 			defer session.End()
-			mdg, err := migdiff.NewGenerator(fromVer, toVer, session, migdiff.WithSource(source))
+
+			igniteRepo, err := repo.New(fromVer, toVer, session, repo.WithSource(source))
 			if err != nil {
 				return err
 			}
-			defer mdg.Cleanup()
+			defer igniteRepo.Cleanup()
 
-			return mdg.Generate(output)
+			fromBin, toBin, err := igniteRepo.GenerateBinaries()
+			if err != nil {
+				return err
+			}
+
+			sFrom := scaffold.New(fromBin, scaffold.DefaultCommands)
+			session.StartSpinner(fmt.Sprintf("Running scaffold commands for v%s...", fromVer.String()))
+			if err := sFrom.Run(fromVer, output); err != nil {
+				return err
+			}
+
+			sTo := scaffold.New(toBin, scaffold.DefaultCommands)
+			session.StartSpinner(fmt.Sprintf("Running scaffold commands for v%s...", toVer.String()))
+			if err := sTo.Run(toVer, output); err != nil {
+				return err
+			}
+
+			session.StopSpinner()
+			session.EventBus().SendInfo(fmt.Sprintf("Scaffolded code for commands at %s", output))
+
+			session.StartSpinner("Calculating diff...")
+			diffs, err := diff.CalculateDiffs(fromDir, toDir)
+			if err != nil {
+				return errors.Wrap(err, "failed to calculate diff")
+			}
+			session.StopSpinner()
+			session.EventBus().SendInfo("Diff calculated successfully")
+
+			if err = diff.SaveDiffs(diffs, output); err != nil {
+				return errors.Wrap(err, "failed to save diff map")
+			}
+			session.Println("Migration diffs generated successfully at", output)
+
+			return nil
 		},
 	}
 

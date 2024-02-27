@@ -1,4 +1,4 @@
-package migdiff
+package scaffold
 
 import (
 	"context"
@@ -12,64 +12,73 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
-var defaultScaffoldCommands = []ScaffoldCommand{
-	{
-		Name: "chain",
-		Commands: []string{
-			"chain example --no-module",
-		},
+type (
+	// Command represents a set of commands and prerequisites scaffold commands that are required to run before them.
+	Command struct {
+		// Name is the unique identifier of the command
+		Name string
+		// Prerequisites is the names of commands that need to be run before this command set
+		Prerequisites []string
+		// Commands is the list of scaffold commands that are going to be run
+		// The commands will be prefixed with "ignite scaffold" and executed in order
+		Commands []string
+	}
+
+	Scaffold struct {
+		ignitePath string
+		commands   Commands
+	}
+
+	Commands = map[string]Command
+)
+
+var DefaultCommands = Commands{
+	"chain": Command{
+		Commands: []string{"chain example --no-module"},
 	},
-	{
-		Name:          "module",
+	"module": Command{
 		Prerequisites: []string{"chain"},
 		Commands: []string{
 			"module example --ibc",
 		},
 	},
-	{
-		Name:          "list",
+	"list": Command{
 		Prerequisites: []string{"module"},
 		Commands: []string{
 			"list list1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --module example --yes",
 		},
 	},
-	{
-		Name:          "map",
+	"map": Command{
 		Prerequisites: []string{"module"},
 		Commands: []string{
 			"map map1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --index i1:string --module example --yes",
 		},
 	},
-	{
-		Name:          "single",
+	"single": Command{
 		Prerequisites: []string{"module"},
 		Commands: []string{
 			"single single1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --module example --yes",
 		},
 	},
-	{
-		Name:          "type",
+	"type": Command{
 		Prerequisites: []string{"module"},
 		Commands: []string{
 			"type type1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --module example --yes",
 		},
 	},
-	{
-		Name:          "message",
+	"message": Command{
 		Prerequisites: []string{"module"},
 		Commands: []string{
 			"message message1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --module example --yes",
 		},
 	},
-	{
-		Name:          "query",
+	"query": Command{
 		Prerequisites: []string{"module"},
 		Commands: []string{
 			"query query1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints --module example --yes",
 		},
 	},
-	{
-		Name:          "packet",
+	"packet": Command{
 		Prerequisites: []string{"module"},
 		Commands: []string{
 			"packet packet1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --ack f1:string,f2:strings,f3:bool,f4:int,f5:ints,f6:uint,f7:uints,f8:coin,f9:coins --module example --yes",
@@ -77,30 +86,14 @@ var defaultScaffoldCommands = []ScaffoldCommand{
 	},
 }
 
-// ScaffoldCommand represents a set of commands and prerequisites scaffold commands that are required to run before them.
-type ScaffoldCommand struct {
-	// Name is the unique identifier of the command
-	Name string
-	// Prerequisites is the names of commands that need to be run before this command set
-	Prerequisites []string
-	// Commands is the list of scaffold commands that are going to be run
-	// The commands will be prefixed with "ignite scaffold" and executed in order
-	Commands []string
-}
-
-type Scaffolder struct {
-	ignitePath string
-	commands   []ScaffoldCommand
-}
-
-func NewScaffolder(ignitePath string, commands []ScaffoldCommand) *Scaffolder {
-	return &Scaffolder{
+func New(ignitePath string, commands Commands) Scaffold {
+	return Scaffold{
 		ignitePath: ignitePath,
 		commands:   commands,
 	}
 }
 
-func (s *Scaffolder) Run(ver *semver.Version, out string) error {
+func (s Scaffold) Run(ver *semver.Version, out string) error {
 	for _, c := range s.commands {
 		if err := s.runCommand(c.Name, c.Prerequisites, c.Commands, ver, out); err != nil {
 			return err
@@ -113,7 +106,7 @@ func (s *Scaffolder) Run(ver *semver.Version, out string) error {
 	return nil
 }
 
-func (s *Scaffolder) runCommand(
+func (s Scaffold) runCommand(
 	name string,
 	prerequisites []string,
 	cmds []string,
@@ -122,11 +115,10 @@ func (s *Scaffolder) runCommand(
 ) error {
 	// TODO add cache for duplicated commands.
 	for _, p := range prerequisites {
-		c, err := s.findCommand(p)
-		if err != nil {
-			return err
+		c, ok := s.commands[p]
+		if !ok {
+			return errors.Errorf("command %s not found", name)
 		}
-
 		if err := s.runCommand(name, c.Prerequisites, c.Commands, ver, out); err != nil {
 			return err
 		}
@@ -141,17 +133,7 @@ func (s *Scaffolder) runCommand(
 	return nil
 }
 
-func (s *Scaffolder) findCommand(name string) (ScaffoldCommand, error) {
-	for _, c := range s.commands {
-		if c.Name == name {
-			return c, nil
-		}
-	}
-
-	return ScaffoldCommand{}, errors.Errorf("command %s not found", name)
-}
-
-func (s *Scaffolder) executeScaffold(ver *semver.Version, name, cmd string, out string) error {
+func (s Scaffold) executeScaffold(ver *semver.Version, name, cmd string, out string) error {
 	args := []string{s.ignitePath, "scaffold"}
 	args = append(args, strings.Fields(cmd)...)
 	args = append(args, "--path", filepath.Join(out, name))
