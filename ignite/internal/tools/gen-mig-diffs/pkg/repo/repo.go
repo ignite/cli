@@ -224,7 +224,6 @@ func validateVersionRange(fromVer, toVer *semver.Version, versions semver.Collec
 }
 
 func (g *Generator) GenerateBinaries() (string, string, error) {
-	g.session.Printf("Generating migration diffs for v%s -> v%s\n", g.from, g.to)
 	fromBinPath, err := g.buildIgniteCli(g.from)
 	if err != nil {
 		return "", "", errors.Wrapf(err, "failed to run scaffolds for 'FROM' version %s", g.from)
@@ -238,7 +237,7 @@ func (g *Generator) GenerateBinaries() (string, string, error) {
 
 // buildIgniteCli build the ignite CLI from version.
 func (g *Generator) buildIgniteCli(ver *semver.Version) (string, error) {
-	g.session.StartSpinner(fmt.Sprintf("Building ignite cli for v%s...", ver))
+	g.session.StartSpinner(fmt.Sprintf("Building binary for version v%s...", ver))
 
 	if err := g.checkoutToTag(ver.Original()); err != nil {
 		return "", err

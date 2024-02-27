@@ -98,7 +98,6 @@ func (s Scaffold) Run(ver *semver.Version, out string) error {
 		if err := s.runCommand(c.Name, c.Prerequisites, c.Commands, ver, out); err != nil {
 			return err
 		}
-
 		if err := applyPostScaffoldExceptions(ver, c.Name, out); err != nil {
 			return err
 		}
@@ -129,20 +128,17 @@ func (s Scaffold) runCommand(
 			return err
 		}
 	}
-
 	return nil
 }
 
 func (s Scaffold) executeScaffold(ver *semver.Version, name, cmd string, out string) error {
-	args := []string{s.ignitePath, "scaffold"}
-	args = append(args, strings.Fields(cmd)...)
+	args := append([]string{s.ignitePath, "scaffold"}, strings.Fields(cmd)...)
 	args = append(args, "--path", filepath.Join(out, name))
 	args = applyPreExecuteExceptions(ver, args)
 
 	if err := exec.Exec(context.Background(), args); err != nil {
 		return errors.Wrapf(err, "failed to execute ignite scaffold command: %s", cmd)
 	}
-
 	return nil
 }
 
@@ -153,7 +149,6 @@ func applyPreExecuteExceptions(ver *semver.Version, args []string) []string {
 	if ver.LessThan(semver.MustParse("v0.27.0")) && args[2] != "chain" {
 		args[len(args)-1] = filepath.Join(args[len(args)-1], "example")
 	}
-
 	return args
 }
 
@@ -162,18 +157,15 @@ func applyPostScaffoldExceptions(ver *semver.Version, name string, out string) e
 	// In versions <0.27.0, "scaffold chain" command always creates a new directory with the name of chain at the given --path
 	// so we need to move the directory to the parent directory.
 	if ver.LessThan(semver.MustParse("v0.27.0")) {
-		err := os.Rename(filepath.Join(out, name, "example"), filepath.Join(out, "example_tmp"))
-		if err != nil {
+		if err := os.Rename(filepath.Join(out, name, "example"), filepath.Join(out, "example_tmp")); err != nil {
 			return errors.Wrapf(err, "failed to move %s directory to tmp directory", name)
 		}
 
-		err = os.RemoveAll(filepath.Join(out, name))
-		if err != nil {
+		if err := os.RemoveAll(filepath.Join(out, name)); err != nil {
 			return errors.Wrapf(err, "failed to remove %s directory", name)
 		}
 
-		err = os.Rename(filepath.Join(out, "example_tmp"), filepath.Join(out, name))
-		if err != nil {
+		if err := os.Rename(filepath.Join(out, "example_tmp"), filepath.Join(out, name)); err != nil {
 			return errors.Wrapf(err, "failed to move tmp directory to %s directory", name)
 		}
 	}
