@@ -248,11 +248,11 @@ func (g *Generator) Generate(outputPath string) error {
 
 	fromDir := filepath.Join(g.tempDir, g.from.Original())
 	if err := g.runScaffoldsForVersion(g.from, fromDir); err != nil {
-		return errors.Wrapf(err, "failed to run scaffolds for version %s", g.from)
+		return errors.Wrapf(err, "failed to run scaffolds for 'FROM' version %s", g.from)
 	}
 	toDir := filepath.Join(g.tempDir, g.to.Original())
 	if err := g.runScaffoldsForVersion(g.to, toDir); err != nil {
-		return errors.Wrapf(err, "failed to run scaffolds for version %s", g.to)
+		return errors.Wrapf(err, "failed to run scaffolds for 'TO' version %s", g.to)
 	}
 
 	g.session.StartSpinner("Calculating diff...")
