@@ -26,56 +26,56 @@ const (
 type (
 	// Generator is used to generate migration diffs.
 	Generator struct {
-		from, to         *semver.Version
+		From, To         *semver.Version
 		tempDir, repoDir string
 		repo             *git.Repository
 		session          *cliui.Session
 	}
 
-	// genOptions represents configuration for the generator.
-	genOptions struct {
+	// options represents configuration for the generator.
+	options struct {
 		source   string
 		repoPath string
 		repoURL  string
 	}
-	// GenOptions configures the generator.
-	GenOptions func(*genOptions)
+	// Options configures the generator.
+	Options func(*options)
 )
 
-// newGenOptions returns a genOptions with default options.
-func newGenOptions() genOptions {
-	return genOptions{
+// newOptions returns a options with default options.
+func newOptions() options {
+	return options{
 		source:   "",
 		repoPath: defaultRepoPath,
 		repoURL:  defaultRepoURL,
 	}
 }
 
-// WithSource set the repo source GenOptions.
-func WithSource(source string) GenOptions {
-	return func(m *genOptions) {
+// WithSource set the repo source Options.
+func WithSource(source string) Options {
+	return func(m *options) {
 		m.source = source
 	}
 }
 
-// WithRepoPath set the repo path GenOptions.
-func WithRepoPath(repoPath string) GenOptions {
-	return func(m *genOptions) {
+// WithRepoPath set the repo path Options.
+func WithRepoPath(repoPath string) Options {
+	return func(m *options) {
 		m.repoPath = repoPath
 	}
 }
 
-// WithRepoURL set the repo URL GenOptions.
-func WithRepoURL(repoURL string) GenOptions {
-	return func(m *genOptions) {
+// WithRepoURL set the repo URL Options.
+func WithRepoURL(repoURL string) Options {
+	return func(m *options) {
 		m.repoURL = repoURL
 	}
 }
 
 // New creates a new generator for migration diffs between from and to versions of ignite cli
 // If source is empty, then it clones the ignite cli repository to a temporary directory and uses it as the source.
-func New(from, to *semver.Version, session *cliui.Session, options ...GenOptions) (*Generator, error) {
-	opts := newGenOptions()
+func New(from, to *semver.Version, session *cliui.Session, options ...Options) (*Generator, error) {
+	opts := newOptions()
 	for _, apply := range options {
 		apply(&opts)
 	}
@@ -121,8 +121,8 @@ func New(from, to *semver.Version, session *cliui.Session, options ...GenOptions
 	}
 
 	return &Generator{
-		from:    from,
-		to:      to,
+		From:    from,
+		To:      to,
 		tempDir: tempDir,
 		repoDir: repoDir,
 		repo:    repo,
@@ -224,13 +224,13 @@ func validateVersionRange(fromVer, toVer *semver.Version, versions semver.Collec
 }
 
 func (g *Generator) GenerateBinaries() (string, string, error) {
-	fromBinPath, err := g.buildIgniteCli(g.from)
+	fromBinPath, err := g.buildIgniteCli(g.From)
 	if err != nil {
-		return "", "", errors.Wrapf(err, "failed to run scaffolds for 'FROM' version %s", g.from)
+		return "", "", errors.Wrapf(err, "failed to run scaffolds for 'FROM' version %s", g.From)
 	}
-	toBinPath, err := g.buildIgniteCli(g.to)
+	toBinPath, err := g.buildIgniteCli(g.To)
 	if err != nil {
-		return "", "", errors.Wrapf(err, "failed to run scaffolds for 'TO' version %s", g.to)
+		return "", "", errors.Wrapf(err, "failed to run scaffolds for 'TO' version %s", g.To)
 	}
 	return fromBinPath, toBinPath, nil
 }

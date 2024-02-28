@@ -27,13 +27,15 @@ func NewRootCmd() *cobra.Command {
 		Short: "GenerateBinaries migration diffs",
 		Long:  "This tool is used to generate migration diff files for each of ignites scaffold commands",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			session := cliui.New()
+			defer session.End()
+
 			var (
 				from, _   = cmd.Flags().GetString(fromFlag)
 				to, _     = cmd.Flags().GetString(toFlag)
 				source, _ = cmd.Flags().GetString(sourceFlag)
 				output, _ = cmd.Flags().GetString(outputFlag)
 			)
-
 			fromVer, err := semver.NewVersion(from)
 			if err != nil && from != "" {
 				return errors.Wrapf(err, "failed to parse from version %s", from)
@@ -42,9 +44,6 @@ func NewRootCmd() *cobra.Command {
 			if err != nil && to != "" {
 				return errors.Wrapf(err, "failed to parse to version %s", to)
 			}
-
-			session := cliui.New()
-			defer session.End()
 
 			igniteRepo, err := repo.New(fromVer, toVer, session, repo.WithSource(source))
 			if err != nil {
@@ -57,15 +56,15 @@ func NewRootCmd() *cobra.Command {
 				return err
 			}
 
-			sFrom := scaffold.New(fromBin, scaffold.DefaultCommands)
-			session.StartSpinner(fmt.Sprintf("Running scaffold commands for v%s...", fromVer.String()))
-			if err := sFrom.Run(fromVer, output); err != nil {
+			session.StartSpinner(fmt.Sprintf("Running scaffold commands for v%s...", igniteRepo.From.String()))
+			fromDir, err := scaffold.Run(fromBin, igniteRepo.From)
+			if err != nil {
 				return err
 			}
 
-			sTo := scaffold.New(toBin, scaffold.DefaultCommands)
-			session.StartSpinner(fmt.Sprintf("Running scaffold commands for v%s...", toVer.String()))
-			if err := sTo.Run(toVer, output); err != nil {
+			session.StartSpinner(fmt.Sprintf("Running scaffold commands for v%s...", igniteRepo.To.String()))
+			toDir, err := scaffold.Run(toBin, igniteRepo.To)
+			if err != nil {
 				return err
 			}
 

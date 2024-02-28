@@ -13,8 +13,8 @@ import (
 )
 
 type (
-	// Command represents a set of commands and prerequisites scaffold commands that are required to run before them.
-	Command struct {
+	// Scaffold represents a set of commands and prerequisites scaffold commands that are required to run before them.
+	Scaffold struct {
 		// Name is the unique identifier of the command
 		Name string
 		// Prerequisites is the names of commands that need to be run before this command set
@@ -24,116 +24,102 @@ type (
 		Commands []string
 	}
 
-	Scaffold struct {
-		ignitePath string
-		commands   Commands
-	}
-
-	Commands = map[string]Command
+	Commands = map[string]Scaffold
 )
 
-var DefaultCommands = Commands{
-	"chain": Command{
-		Commands: []string{"chain example --no-module"},
-	},
-	"module": Command{
-		Prerequisites: []string{"chain"},
-		Commands: []string{
-			"module example --ibc",
-		},
-	},
-	"list": Command{
-		Prerequisites: []string{"module"},
-		Commands: []string{
-			"list list1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --module example --yes",
-		},
-	},
-	"map": Command{
-		Prerequisites: []string{"module"},
-		Commands: []string{
-			"map map1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --index i1:string --module example --yes",
-		},
-	},
-	"single": Command{
-		Prerequisites: []string{"module"},
-		Commands: []string{
-			"single single1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --module example --yes",
-		},
-	},
-	"type": Command{
-		Prerequisites: []string{"module"},
-		Commands: []string{
-			"type type1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --module example --yes",
-		},
-	},
-	"message": Command{
-		Prerequisites: []string{"module"},
-		Commands: []string{
-			"message message1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --module example --yes",
-		},
-	},
-	"query": Command{
-		Prerequisites: []string{"module"},
-		Commands: []string{
-			"query query1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints --module example --yes",
-		},
-	},
-	"packet": Command{
-		Prerequisites: []string{"module"},
-		Commands: []string{
-			"packet packet1 f1:string f2:strings f3:bool f4:int f5:ints f6:uint f7:uints f8:coin f9:coins --ack f1:string,f2:strings,f3:bool,f4:int,f5:ints,f6:uint,f7:uints,f8:coin,f9:coins --module example --yes",
-		},
-	},
-}
+type (
+	// options represents configuration for the generator.
+	options struct {
+		cachePath string
+		output    string
+		commands  Commands
+	}
+	// Options configures the generator.
+	Options func(*options)
+)
 
-func New(ignitePath string, commands Commands) Scaffold {
-	return Scaffold{
-		ignitePath: ignitePath,
-		commands:   commands,
+// newOptions returns a options with default options.
+func newOptions() options {
+	tmpDir := os.TempDir()
+	return options{
+		cachePath: filepath.Join(tmpDir, "migration-cache"),
+		output:    filepath.Join(tmpDir, "migration"),
+		commands:  DefaultCommands,
 	}
 }
 
-func (s Scaffold) Run(ver *semver.Version, out string) error {
-	for _, c := range s.commands {
-		if err := s.runCommand(c.Name, c.Prerequisites, c.Commands, ver, out); err != nil {
-			return err
-		}
-		if err := applyPostScaffoldExceptions(ver, c.Name, out); err != nil {
-			return err
-		}
+// WithOutput set the ignite scaffold output.
+func WithOutput(output string) Options {
+	return func(m *options) {
+		m.output = output
 	}
-	return nil
 }
 
-func (s Scaffold) runCommand(
-	name string,
-	prerequisites []string,
-	cmds []string,
+// WithCachePath set the ignite scaffold cache path.
+func WithCachePath(cachePath string) Options {
+	return func(m *options) {
+		m.cachePath = cachePath
+	}
+}
+
+// WithCommandList set the migration docs output.
+func WithCommandList(commands Commands) Options {
+	return func(m *options) {
+		m.commands = commands
+	}
+}
+
+func Run(binary string, ver *semver.Version, options ...Options) (string, error) {
+	opts := newOptions()
+	for _, apply := range options {
+		apply(&opts)
+	}
+
+	output, err := filepath.Abs(opts.output)
+	if err != nil {
+		return "", err
+	}
+	output = filepath.Join(output, ver.Original())
+
+	for _, c := range opts.commands {
+		if err := runCommand(binary, output, c.Name, c.Prerequisites, c.Commands, ver, opts.commands); err != nil {
+			return "", err
+		}
+		if err := applyPostScaffoldExceptions(ver, c.Name, output); err != nil {
+			return "", err
+		}
+	}
+	return output, nil
+}
+
+func runCommand(
+	binary, output, name string,
+	prerequisites, scaffoldCommands []string,
 	ver *semver.Version,
-	out string,
+	commandList Commands,
 ) error {
-	// TODO add cache for duplicated commands.
+	// TODO add cache for duplicated scaffoldCommands.
 	for _, p := range prerequisites {
-		c, ok := s.commands[p]
+		c, ok := commandList[p]
 		if !ok {
 			return errors.Errorf("command %s not found", name)
 		}
-		if err := s.runCommand(name, c.Prerequisites, c.Commands, ver, out); err != nil {
+		if err := runCommand(binary, output, name, c.Prerequisites, c.Commands, ver, commandList); err != nil {
 			return err
 		}
 	}
 
-	for _, cmd := range cmds {
-		if err := s.executeScaffold(ver, name, cmd, out); err != nil {
+	for _, cmd := range scaffoldCommands {
+		if err := executeScaffold(binary, name, cmd, output, ver); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (s Scaffold) executeScaffold(ver *semver.Version, name, cmd string, out string) error {
-	args := append([]string{s.ignitePath, "scaffold"}, strings.Fields(cmd)...)
-	args = append(args, "--path", filepath.Join(out, name))
+func executeScaffold(binary, name, cmd, output string, ver *semver.Version) error {
+	args := append([]string{binary, "scaffold"}, strings.Fields(cmd)...)
+	args = append(args, "--path", filepath.Join(output, name))
 	args = applyPreExecuteExceptions(ver, args)
 
 	if err := exec.Exec(context.Background(), args); err != nil {
@@ -153,19 +139,19 @@ func applyPreExecuteExceptions(ver *semver.Version, args []string) []string {
 }
 
 // In this function we can manipulate the output of scaffold commands after they have been executed in order to compensate for differences in versions.
-func applyPostScaffoldExceptions(ver *semver.Version, name string, out string) error {
+func applyPostScaffoldExceptions(ver *semver.Version, name string, output string) error {
 	// In versions <0.27.0, "scaffold chain" command always creates a new directory with the name of chain at the given --path
 	// so we need to move the directory to the parent directory.
 	if ver.LessThan(semver.MustParse("v0.27.0")) {
-		if err := os.Rename(filepath.Join(out, name, "example"), filepath.Join(out, "example_tmp")); err != nil {
+		if err := os.Rename(filepath.Join(output, name, "example"), filepath.Join(output, "example_tmp")); err != nil {
 			return errors.Wrapf(err, "failed to move %s directory to tmp directory", name)
 		}
 
-		if err := os.RemoveAll(filepath.Join(out, name)); err != nil {
+		if err := os.RemoveAll(filepath.Join(output, name)); err != nil {
 			return errors.Wrapf(err, "failed to remove %s directory", name)
 		}
 
-		if err := os.Rename(filepath.Join(out, "example_tmp"), filepath.Join(out, name)); err != nil {
+		if err := os.Rename(filepath.Join(output, "example_tmp"), filepath.Join(output, name)); err != nil {
 			return errors.Wrapf(err, "failed to move tmp directory to %s directory", name)
 		}
 	}
