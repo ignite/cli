@@ -8,4 +8,4 @@ require (
 	github.com/stretchr/testify v1.8.4
 )
 
-replace github.com/ignite/cli/v29 => github.com/ignite/cli/v29@main
+replace github.com/ignite/cli/v29 => github.com/ignite/cli/v29 main

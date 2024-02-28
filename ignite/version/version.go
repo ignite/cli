@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path"
 	"runtime"
 	"runtime/debug"
 	"strings"
@@ -87,6 +88,13 @@ func resolveDevVersion(ctx context.Context) string {
 	tag, err := getLatestReleaseTag(ctx)
 	if err != nil {
 		return Version
+	}
+
+	// if the module version is higher than the latest tag, use the module version
+	if info, ok := debug.ReadBuildInfo(); ok {
+		if version := path.Base(info.Main.Path); version > tag {
+			tag = fmt.Sprintf("%s.0.0", version)
+		}
 	}
 
 	if Version == versionDev {
