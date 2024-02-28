@@ -83,7 +83,6 @@ func CollectEvents(ev events.Bus) Option {
 func RedirectStdout(w io.Writer) Option {
 	return func(p *Plugin) {
 		p.stdout = w
-		p.stderr = w
 	}
 }
 
@@ -272,8 +271,8 @@ func (p *Plugin) load(ctx context.Context) {
 		HandshakeConfig:  HandshakeConfig(),
 		Plugins:          pluginMap,
 		Logger:           logger,
-		SyncStderr:       p.stdout,
-		SyncStdout:       p.stderr,
+		SyncStdout:       p.stdout,
+		SyncStderr:       p.stderr,
 		AllowedProtocols: []hplugin.Protocol{hplugin.ProtocolGRPC},
 	}
 

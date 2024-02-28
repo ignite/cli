@@ -3,7 +3,7 @@ module <%= ModuleName %>
 go 1.21
 
 require (
-	github.com/hashicorp/go-plugin v1.5.0
-	github.com/ignite/cli/v28 v28.0.0 // todo bump to v29 once released
+	github.com/hashicorp/go-plugin v1.6.0
+	github.com/ignite/cli/v28 v28.2.0
 	github.com/stretchr/testify v1.8.4
 )

@@ -6,6 +6,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
 )
 
@@ -49,10 +50,7 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
 
-	module, err := cmd.Flags().GetString(flagModule)
-	if err != nil {
-		return err
-	}
+	module, _ := cmd.Flags().GetString(flagModule)
 	if module == "" {
 		return errors.New("please specify a module to create the BandChain oracle into: --module <module_name>")
 	}
@@ -78,7 +76,7 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	modificationsStr, err := sourceModificationToString(sm)
+	modificationsStr, err := xgenny.SourceModificationToString(sm)
 	if err != nil {
 		return err
 	}

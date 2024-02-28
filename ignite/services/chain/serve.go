@@ -245,10 +245,10 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 						info := colors.Info(
 							"Blockchain failed to start.\n",
 							"If the new code is no longer compatible with the saved\n",
-							"state, you can reset the database by launching:",
+							"state, you can reset the database by launching:\n",
+							"For more verbose logging, add -v to the command.",
 						)
-						command := colors.SprintFunc(colors.White)("ignite chain serve --reset-once")
-
+						command := colors.SprintFunc(colors.White)("ignite chain serve --reset-once -v")
 						return errors.Errorf("cannot run %s\n\n%s\n%s", startErr.AppName, info, command)
 					}
 

@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	cmdmodel "github.com/ignite/cli/v29/ignite/cmd/model"
+	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
@@ -99,15 +100,12 @@ func chainDebug(cmd *cobra.Command, session *cliui.Session) error {
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	}
 
-	config, err := cmd.Flags().GetString(flagConfig)
-	if err != nil {
-		return err
-	}
+	config, _ := cmd.Flags().GetString(flagConfig)
 	if config != "" {
 		chainOptions = append(chainOptions, chain.ConfigFile(config))
 	}
 
-	c, err := newChainWithHomeFlags(cmd, chainOptions...)
+	c, err := chain.NewWithHomeFlags(cmd, chainOptions...)
 	if err != nil {
 		return err
 	}
@@ -117,8 +115,11 @@ func chainDebug(cmd *cobra.Command, session *cliui.Session) error {
 		return err
 	}
 
-	// TODO: Replace by config.FirstValidator when PR #3199 is merged
-	validator := cfg.Validators[0]
+	validator, err := chainconfig.FirstValidator(cfg)
+	if err != nil {
+		return err
+	}
+
 	servers, err := validator.GetServers()
 	if err != nil {
 		return err

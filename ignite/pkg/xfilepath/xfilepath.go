@@ -86,3 +86,16 @@ func Mkdir(path PathRetriever) PathRetriever {
 		return p, os.MkdirAll(p, 0o755)
 	}
 }
+
+// RelativePath return the relative app path from the current directory.
+func RelativePath(appPath string) (string, error) {
+	pwd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	path, err := filepath.Rel(pwd, appPath)
+	if err != nil {
+		return "", err
+	}
+	return path, nil
+}

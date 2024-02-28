@@ -48,6 +48,7 @@ func NewGenerator(opts *CreateOptions) (*genny.Generator, error) {
 	ctx.Set("appName", opts.AppName)
 	ctx.Set("dependencies", opts.Dependencies)
 	ctx.Set("params", opts.Params)
+	ctx.Set("configs", opts.Configs)
 	ctx.Set("isIBC", opts.IsIBC)
 	ctx.Set("apiPath", fmt.Sprintf("/%s/%s", appModulePath, opts.ModuleName))
 	ctx.Set("protoPkgName", module.ProtoPackageName(appModulePath, opts.ModuleName))

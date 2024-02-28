@@ -12,6 +12,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/pkg/xgit"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
 	"github.com/ignite/cli/v29/ignite/version"
@@ -123,6 +124,8 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 		NewScaffoldMap(),
 		NewScaffoldSingle(),
 		NewScaffoldType(),
+		NewScaffoldParams(),
+		NewScaffoldConfigs(),
 		NewScaffoldMessage(),
 		NewScaffoldQuery(),
 		NewScaffoldPacket(),
@@ -221,7 +224,7 @@ func scaffoldType(
 		return err
 	}
 
-	modificationsStr, err := sourceModificationToString(sm)
+	modificationsStr, err := xgenny.SourceModificationToString(sm)
 	if err != nil {
 		return err
 	}

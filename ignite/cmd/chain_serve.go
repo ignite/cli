@@ -134,16 +134,13 @@ func chainServe(cmd *cobra.Command, session *cliui.Session) error {
 	}
 
 	// check if custom config is defined
-	config, err := cmd.Flags().GetString(flagConfig)
-	if err != nil {
-		return err
-	}
+	config, _ := cmd.Flags().GetString(flagConfig)
 	if config != "" {
 		chainOption = append(chainOption, chain.ConfigFile(config))
 	}
 
 	// create the chain
-	c, err := newChainWithHomeFlags(cmd, chainOption...)
+	c, err := chain.NewWithHomeFlags(cmd, chainOption...)
 	if err != nil {
 		return err
 	}
@@ -156,47 +153,27 @@ func chainServe(cmd *cobra.Command, session *cliui.Session) error {
 	// serve the chain
 	var serveOptions []chain.ServeOption
 
-	forceUpdate, err := cmd.Flags().GetBool(flagForceReset)
-	if err != nil {
-		return err
-	}
-
+	forceUpdate, _ := cmd.Flags().GetBool(flagForceReset)
 	if forceUpdate {
 		serveOptions = append(serveOptions, chain.ServeForceReset())
 	}
 
-	resetOnce, err := cmd.Flags().GetBool(flagResetOnce)
-	if err != nil {
-		return err
-	}
-
+	resetOnce, _ := cmd.Flags().GetBool(flagResetOnce)
 	if resetOnce {
 		serveOptions = append(serveOptions, chain.ServeResetOnce())
 	}
 
-	quitOnFail, err := cmd.Flags().GetBool(flagQuitOnFail)
-	if err != nil {
-		return err
-	}
-
+	quitOnFail, _ := cmd.Flags().GetBool(flagQuitOnFail)
 	if quitOnFail {
 		serveOptions = append(serveOptions, chain.QuitOnFail())
 	}
 
-	generateClients, err := cmd.Flags().GetBool(flagGenerateClients)
-	if err != nil {
-		return err
-	}
-
+	generateClients, _ := cmd.Flags().GetBool(flagGenerateClients)
 	if generateClients {
 		serveOptions = append(serveOptions, chain.GenerateClients())
 	}
 
-	buildTags, err := cmd.Flags().GetStringSlice(flagBuildTags)
-	if err != nil {
-		return err
-	}
-
+	buildTags, _ := cmd.Flags().GetStringSlice(flagBuildTags)
 	if len(buildTags) > 0 {
 		serveOptions = append(serveOptions, chain.BuildTags(buildTags...))
 	}

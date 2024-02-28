@@ -4,20 +4,43 @@
 
 ### Features
 
+- [#3977](https://github.com/ignite/cli/pull/3977) Add `chain lint` command to lint the chain's codebase using `golangci-lint`
+- [#3770](https://github.com/ignite/cli/pull/3770) Add `scaffold configs` and `scaffold params` commands
+- [#3985](https://github.com/ignite/cli/pull/3985) Make some `cmd` pkg functions public
+
+### Changes
+
+- [#3959](https://github.com/ignite/cli/pull/3959) Remove app name prefix from the `.gitignore` file
+- [#3962](https://github.com/ignite/cli/pull/3962) Rename all RPC endpoints and autocli commands generated for `map`/`list`/`single` types 
+- [#3972](https://github.com/ignite/cli/pull/3972) Skip Ignite app loading for some base commands that don't allow apps
+- [#3976](https://github.com/ignite/cli/pull/3976) Remove error checks for Cobra command value get calls
+- [#3983](https://github.com/ignite/cli/pull/3983) Bump `cosmos-sdk` to `v0.50.4` and `ibc-go` to `v8.1.0`
+
+### Fixes
+
+- [#3953](https://github.com/ignite/cli/pull/3953) Fix apps `Stdout` is redirected to `Stderr`
+- [#3863](https://github.com/ignite/cli/pull/3963) Fix breaking issue for app client API when reading app chain info
+- [#3969](https://github.com/ignite/cli/pull/3969) Get first config validator using a getter to avoid index errors
+
+## [`v28.2.0`](https://github.com/ignite/cli/releases/tag/v28.2.0)
+
+### Features
+
 - [#3924](https://github.com/ignite/cli/pull/3924) Scaffold NFT module by default
 - [#3839](https://github.com/ignite/cli/pull/3839) New structure for app scaffolding
 - [#3835](https://github.com/ignite/cli/pull/3835) Add `--minimal` flag to `scaffold chain` to scaffold a chain with the least amount of sdk modules
 - [#3820](https://github.com/ignite/cli/pull/3820) Add integration tests for IBC chains
+- [#3956](https://github.com/ignite/cli/pull/3956) Prepare for wasm app
 
 ### Changes
 
 - [#3899](https://github.com/ignite/cli/pull/3899) Introduce `plugin.Execute` function
 - [#3903](https://github.com/ignite/cli/pull/3903) Don't specify a default build tag and deprecate notion of app version
 
-### Bug Fixes
+### Fixes
 
 - [#3905](https://github.com/ignite/cli/pull/3905) Fix `ignite completion`
-- [#3931](https://github.com/ignite/cli/pull/3931) Fix `app update` command and duplicated apps 
+- [#3931](https://github.com/ignite/cli/pull/3931) Fix `app update` command and duplicated apps
 
 ## [`v28.1.1`](https://github.com/ignite/cli/releases/tag/v28.1.1)
 

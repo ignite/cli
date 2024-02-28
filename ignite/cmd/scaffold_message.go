@@ -5,6 +5,7 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
 )
 
@@ -124,7 +125,7 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	modificationsStr, err := sourceModificationToString(sm)
+	modificationsStr, err := xgenny.SourceModificationToString(sm)
 	if err != nil {
 		return err
 	}

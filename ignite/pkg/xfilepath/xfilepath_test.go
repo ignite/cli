@@ -99,3 +99,56 @@ func TestMkdir(t *testing.T) {
 	require.Equal(t, newdir, dir)
 	require.DirExists(t, dir)
 }
+
+func TestRelativePath(t *testing.T) {
+	pwd, err := os.Getwd()
+	require.NoError(t, err)
+	rootRelative, err := filepath.Rel(pwd, "/")
+	require.NoError(t, err)
+
+	tests := []struct {
+		name    string
+		appPath string
+		want    string
+		err     error
+	}{
+		{
+			name:    "same directory",
+			appPath: filepath.Join(pwd, "file.go"),
+			want:    "file.go",
+		},
+		{
+			name:    "previous directory",
+			appPath: filepath.Join(filepath.Dir(pwd), "file.go"),
+			want:    "../file.go",
+		},
+		{
+			name:    "root directory",
+			appPath: "/file.go",
+			want:    filepath.Join(rootRelative, "file.go"),
+		},
+		{
+			name:    "absolute path",
+			appPath: pwd,
+			want:    ".",
+		},
+		{
+			name:    "NonExistentPath",
+			appPath: filepath.Join(filepath.Base(pwd), "file.go"),
+			want:    "",
+			err:     errors.Errorf("Rel: can't make xfilepath/file.go relative to %s", pwd),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := xfilepath.RelativePath(tt.appPath)
+			if tt.err != nil {
+				require.Error(t, err)
+				require.Equal(t, tt.err.Error(), err.Error())
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, tt.want, got)
+		})
+	}
+}

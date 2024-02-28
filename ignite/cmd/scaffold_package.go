@@ -6,6 +6,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
 )
 
@@ -47,23 +48,13 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
 
-	module, err := cmd.Flags().GetString(flagModule)
-	if err != nil {
-		return err
-	}
+	module, _ := cmd.Flags().GetString(flagModule)
 	if module == "" {
 		return errors.New("please specify a module to create the packet into: --module <module_name>")
 	}
 
-	ackFields, err := cmd.Flags().GetStringSlice(flagAck)
-	if err != nil {
-		return err
-	}
-
-	noMessage, err := cmd.Flags().GetBool(flagNoMessage)
-	if err != nil {
-		return err
-	}
+	ackFields, _ := cmd.Flags().GetStringSlice(flagAck)
+	noMessage, _ := cmd.Flags().GetBool(flagNoMessage)
 
 	cacheStorage, err := newCache(cmd)
 	if err != nil {
@@ -87,7 +78,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	modificationsStr, err := sourceModificationToString(sm)
+	modificationsStr, err := xgenny.SourceModificationToString(sm)
 	if err != nil {
 		return err
 	}

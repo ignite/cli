@@ -145,84 +145,84 @@ func createMainFiles(tmpDir string, mainFiles []string) (pathsWithMain []string,
 func TestFuncVarExists(t *testing.T) {
 	tests := []struct {
 		name            string
-		testfile        string
+		testFile        string
 		goImport        string
 		methodSignature string
 		want            bool
 	}{
 		{
 			name:            "test a declaration inside a method success",
-			testfile:        "testdata/varexist",
+			testFile:        "testdata/varexist",
 			methodSignature: "Background",
 			goImport:        "context",
 			want:            true,
 		},
 		{
 			name:            "test global declaration success",
-			testfile:        "testdata/varexist",
+			testFile:        "testdata/varexist",
 			methodSignature: "Join",
 			goImport:        "path/filepath",
 			want:            true,
 		},
 		{
 			name:            "test a declaration inside an if and inside a method success",
-			testfile:        "testdata/varexist",
+			testFile:        "testdata/varexist",
 			methodSignature: "SplitList",
 			goImport:        "path/filepath",
 			want:            true,
 		},
 		{
 			name:            "test global variable success assign",
-			testfile:        "testdata/varexist",
+			testFile:        "testdata/varexist",
 			methodSignature: "New",
 			goImport:        "errors",
 			want:            true,
 		},
 		{
 			name:            "test invalid import",
-			testfile:        "testdata/varexist",
+			testFile:        "testdata/varexist",
 			methodSignature: "Join",
 			goImport:        "errors",
 			want:            false,
 		},
 		{
 			name:            "test invalid case sensitive assign",
-			testfile:        "testdata/varexist",
+			testFile:        "testdata/varexist",
 			methodSignature: "join",
 			goImport:        "context",
 			want:            false,
 		},
 		{
 			name:            "test invalid struct assign",
-			testfile:        "testdata/varexist",
+			testFile:        "testdata/varexist",
 			methodSignature: "fooStruct",
 			goImport:        "context",
 			want:            false,
 		},
 		{
 			name:            "test invalid method signature",
-			testfile:        "testdata/varexist",
+			testFile:        "testdata/varexist",
 			methodSignature: "fooMethod",
 			goImport:        "context",
 			want:            false,
 		},
 		{
 			name:            "test not found name",
-			testfile:        "testdata/varexist",
+			testFile:        "testdata/varexist",
 			methodSignature: "Invalid",
 			goImport:        "context",
 			want:            false,
 		},
 		{
 			name:            "test invalid assign with wrong",
-			testfile:        "testdata/varexist",
+			testFile:        "testdata/varexist",
 			methodSignature: "invalid.New",
 			goImport:        "context",
 			want:            false,
 		},
 		{
 			name:            "test invalid assign with wrong",
-			testfile:        "testdata/varexist",
+			testFile:        "testdata/varexist",
 			methodSignature: "SplitList",
 			goImport:        "path/filepath",
 			want:            true,
@@ -230,7 +230,7 @@ func TestFuncVarExists(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			appPkg, _, err := xast.ParseFile(tt.testfile)
+			appPkg, _, err := xast.ParseFile(tt.testFile)
 			require.NoError(t, err)
 
 			got := goanalysis.FuncVarExists(appPkg, tt.goImport, tt.methodSignature)
@@ -574,6 +574,98 @@ func NewMethod1() {
 			}
 			require.NoError(t, err)
 			require.NoError(t, goanalysis.ReplaceCode(tt.args.path, tt.args.oldFunctionName, rollback))
+		})
+	}
+}
+
+func TestHasStructFieldsInPkg(t *testing.T) {
+	tests := []struct {
+		name       string
+		path       string
+		structName string
+		fields     []string
+		err        error
+		want       bool
+	}{
+		{
+			name:       "test a value with an empty struct",
+			path:       "testdata",
+			structName: "emptyStruct",
+			fields:     []string{"name"},
+			want:       false,
+		},
+		{
+			name:       "test no value with an empty struct",
+			path:       "testdata",
+			structName: "emptyStruct",
+			fields:     []string{""},
+			want:       false,
+		},
+		{
+			name:       "test a valid field into single field struct",
+			path:       "testdata",
+			structName: "fooStruct",
+			fields:     []string{"name"},
+			want:       true,
+		},
+		{
+			name:       "test a not valid field into single field struct",
+			path:       "testdata",
+			structName: "fooStruct",
+			fields:     []string{"baz"},
+			want:       false,
+		},
+		{
+			name:       "test a not valid field into struct",
+			path:       "testdata",
+			structName: "bazStruct",
+			fields:     []string{"baz"},
+			want:       false,
+		},
+		{
+			name:       "test a valid field into struct",
+			path:       "testdata",
+			structName: "bazStruct",
+			fields:     []string{"name"},
+			want:       true,
+		},
+		{
+			name:       "test two valid fields into struct",
+			path:       "testdata",
+			structName: "bazStruct",
+			fields:     []string{"name", "title"},
+			want:       true,
+		},
+		{
+			name:       "test a valid and a not valid fields into struct",
+			path:       "testdata",
+			structName: "bazStruct",
+			fields:     []string{"foo", "title"},
+			want:       true,
+		},
+		{
+			name:       "test three not valid fields into struct",
+			path:       "testdata",
+			structName: "bazStruct",
+			fields:     []string{"foo", "baz", "bla"},
+			want:       false,
+		},
+		{
+			name: "invalid path",
+			path: "invalid_path",
+			err:  os.ErrNotExist,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := goanalysis.HasAnyStructFieldsInPkg(tt.path, tt.structName, tt.fields)
+			if tt.err != nil {
+				require.Error(t, err)
+				require.ErrorIs(t, err, tt.err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, tt.want, got)
 		})
 	}
 }

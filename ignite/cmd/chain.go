@@ -104,6 +104,7 @@ chain.
 		NewChainFaucet(),
 		NewChainSimulate(),
 		NewChainDebug(),
+		NewChainLint(),
 	)
 
 	return c

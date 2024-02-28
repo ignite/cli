@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -21,6 +22,7 @@ const (
 	telemetryEndpoint  = "https://telemetry-cli.ignite.com"
 	envDoNotTrack      = "DO_NOT_TRACK"
 	envCI              = "CI"
+	envGitHubActions   = "GITHUB_ACTIONS"
 	igniteDir          = ".ignite"
 	igniteAnonIdentity = "anon_identity.json"
 )
@@ -73,8 +75,7 @@ func SendMetric(wg *sync.WaitGroup, cmd *cobra.Command) {
 // checkDNT check if the user allow to track data or if the DO_NOT_TRACK
 // env var is set https://consoledonottrack.com/
 func checkDNT() (anonIdentity, error) {
-	envDoNotTrackVar := os.Getenv(envDoNotTrack)
-	if envDoNotTrackVar == "1" || strings.ToLower(envDoNotTrackVar) == "true" {
+	if dnt, err := strconv.ParseBool(os.Getenv(envDoNotTrack)); err != nil || dnt {
 		return anonIdentity{DoNotTrack: true}, nil
 	}
 
@@ -126,7 +127,19 @@ func checkDNT() (anonIdentity, error) {
 }
 
 func getIsCI() bool {
-	str := strings.ToLower(os.Getenv(envCI))
+	ci, err := strconv.ParseBool(os.Getenv(envCI))
+	if err != nil {
+		return false
+	}
 
-	return str == "1" || str == "true"
+	if ci {
+		return true
+	}
+
+	ci, err = strconv.ParseBool(os.Getenv(envGitHubActions))
+	if err != nil {
+		return false
+	}
+
+	return ci
 }
