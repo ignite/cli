@@ -31,6 +31,7 @@
 - [#3835](https://github.com/ignite/cli/pull/3835) Add `--minimal` flag to `scaffold chain` to scaffold a chain with the least amount of sdk modules
 - [#3820](https://github.com/ignite/cli/pull/3820) Add integration tests for IBC chains
 - [#3956](https://github.com/ignite/cli/pull/3956) Prepare for wasm app
+- [#3660](https://github.com/ignite/cli/pull/3660) Add ability to scaffold ICS consumer chain
 
 ### Changes
 
@@ -63,7 +64,6 @@
 
 - [#3786](https://github.com/ignite/cli/pull/3786) Add artifacts for publishing Ignite to FlatHub and Snapcraft
 - [#3830](https://github.com/ignite/cli/pull/3830) Remove gRPC info from Ignite Apps errors
-- [#3660](https://github.com/ignite/cli/pull/3660) Add ability to scaffold ICS consumer chain
 - [#3861](https://github.com/ignite/cli/pull/3861) Send to the analytics if the user is using a GitPod
 
 ### Changes
