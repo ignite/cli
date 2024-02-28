@@ -24,6 +24,7 @@
   </a>
     <img alt="Test Status" src="https://github.com/ignite/cli/workflows/Test/badge.svg" />
     <img alt="Lint Status" src="https://github.com/ignite/cli/workflows/Lint/badge.svg" />
+    <img alt="Discord" src="https://img.shields.io/discord/893126937067802685">
 </div>
 
 ![Ignite CLI](./assets/ignite-cli.png)
@@ -135,65 +136,38 @@ otherwise, a row refers to a minor version and all associated patch versions.
 To upgrade your blockchain to the newer version of Cosmos SDK, see the
 [Migration guide](https://docs.ignite.com/migration).
 
-## Plugin system
+## Ignite Apps
 
-Ignite CLI commands can be extended using plugins. A plugin is a program that
-uses github.com/hashicorp/go-plugin to communicate with the ignite binary.
+Ignite Apps aims to extend the functionality of Ignite CLI, offering both official and community-contributed integrations. These integrations are designed to streamline development processes and offer valuable insights for blockchain app developers.
 
-### Use a plugin
+### How to Install an Ignite App
 
-Plugins must be declared in the `config.yml` file, using the following syntax:
-
-```yaml
-plugins:
-  // path can be a repository or a local path
-  // the directory must contain go code under a main package.
-  // For repositories you can specify a suffix @branch or @tag to target a
-  // specific git reference.
-  - path: github.com/org/repo/my-plugin
-    // Additional parameters can be passed to the plugin
-    with:
-      key: value
+```bash
+ignite app install -g github.com/ignite/apps/[app-name]
 ```
 
-Once declared, the next time the ignite binary will be executed under this
-configuration, it will fetch, build and run the plugin. As a result, more
-commands should be available in the list of the ignite commands.
-
-`ignite plugin` command allows to list the plugins and their status, and to
+The `ignite app list` command allows to list the plugins and their status, and to
 update a plugin if you need to get the latest version.
 
-### Make a plugin
+### How to Create an App
 
-A plugin must implement `plugin.Interface`.
+Scaffold your Ignite app with one simple command:
 
-The easiest way to make a plugin is to use the `ignite plugin scaffold` command.
-For example:
-
-```sh
-cd /home/user/src
-ignite plugin scaffold github.com/foo/bar
+```bash
+ignite scaffold app path/to/your/app
 ```
 
-It will create a folder `bar` under `/home/user/src` and generate predefined
-`go.mod` and `main.go`. The code contains everything required to connect to the
-ignite binary via `hashicorp/go-plugin`. What need to be adapted is the
-implementation of the `plugin.Interface` (`Commands` and `Execute` methods).
+Afterwards, install using:
 
-To test your plugin, you only need to declare it under a chain config, for
-instance:
-
-```yaml
-plugins:
-  - path: /home/user/src/bar
+```bash
+ignite app install -g path/to/your/app
 ```
 
-Then run `ignite`, the plugin will compile and should be listed among the ignite
-commands. Each time `ignite` is executed, the plugin is recompiled if the files
-have changed since the last compilation. This allows fast and easy plugin
-development, you only care about code and `ignite` handles the compilation.
+For more information, refer to [Creating Ignite Apps](https://docs.ignite.com/apps/developing-apps).
 
-## Contributing
+Also check out the section of our [example Apps](https://github.com/ignite/apps/tree/main/examples).
+
+## Contributing to Ignite CLI
 
 We welcome contributions from everyone. The `main` branch contains the
 development version of the code. You can create a branch from `main` and
