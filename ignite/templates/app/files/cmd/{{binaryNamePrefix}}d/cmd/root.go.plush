@@ -110,7 +110,7 @@ func NewRootCmd() *cobra.Command {
 	// This needs to be removed after IBC supports App Wiring.
 	ibcModules := app.RegisterIBC(clientCtx.InterfaceRegistry)
 	for name, mod := range ibcModules {
-		moduleBasicManager[name] = module.CoreAppModuleBasicAdaptor(name, mod)
+		moduleBasicManager[name] = module.CoreAppModuleAdaptor(name, mod)
 		autoCliOpts.Modules[name] = mod
 	}
 <% } %>
