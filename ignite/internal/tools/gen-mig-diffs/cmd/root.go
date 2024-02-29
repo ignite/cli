@@ -55,6 +55,7 @@ func NewRootCmd() *cobra.Command {
 				return errors.Wrapf(err, "failed to parse to version %s", to)
 			}
 
+			// Check or download the source and generate the binaries for each version.
 			repoOptions := make([]repo.Options, 0)
 			if repoCleanup {
 				repoOptions = append(repoOptions, repo.WithCleanup())
@@ -80,6 +81,7 @@ func NewRootCmd() *cobra.Command {
 				return err
 			}
 
+			// Scaffold the default commands for each version.
 			scaffoldOptions := make([]scaffold.Options, 0)
 			if scaffoldOutput != "" {
 				scaffoldOptions = append(scaffoldOptions, scaffold.WithOutput(scaffoldOutput))
@@ -96,6 +98,8 @@ func NewRootCmd() *cobra.Command {
 			if err := sFrom.Run(cmd.Context()); err != nil {
 				return err
 			}
+			session.StopSpinner()
+			session.EventBus().SendInfo(fmt.Sprintf("Scaffolded code for %s at %s", igniteRepo.From.Original(), sFrom.Output))
 
 			session.StartSpinner(fmt.Sprintf("Running scaffold commands for %s...", igniteRepo.To.Original()))
 			sTo, err := scaffold.New(toBin, igniteRepo.To, scaffoldOptions...)
@@ -105,10 +109,10 @@ func NewRootCmd() *cobra.Command {
 			if err := sTo.Run(cmd.Context()); err != nil {
 				return err
 			}
-
 			session.StopSpinner()
-			session.EventBus().SendInfo(fmt.Sprintf("Scaffolded code for commands at %s", output))
+			session.EventBus().SendInfo(fmt.Sprintf("Scaffolded code for %s at %s", igniteRepo.To.Original(), sTo.Output))
 
+			// Calculate and save the diffs from the scaffolded code.
 			session.StartSpinner("Calculating diff...")
 			diffs, err := diff.CalculateDiffs(sFrom.Output, sTo.Output)
 			if err != nil {
