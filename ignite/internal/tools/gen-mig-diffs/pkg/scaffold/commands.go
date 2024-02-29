@@ -6,9 +6,7 @@ var defaultCommands = Commands{
 	},
 	"module": Scaffold{
 		Prerequisites: []string{"chain"},
-		Commands: []string{
-			"module example --ibc",
-		},
+		Commands:      []string{"module example --ibc"},
 	},
 	"list": Scaffold{
 		Prerequisites: []string{"module"},

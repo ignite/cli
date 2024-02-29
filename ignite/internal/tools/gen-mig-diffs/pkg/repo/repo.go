@@ -254,12 +254,12 @@ func validateVersionRange(fromVer, toVer *semver.Version, versions semver.Collec
 	return fromVer, toVer, nil
 }
 
-func (g *Generator) GenerateBinaries() (string, string, error) {
-	fromBinPath, err := g.buildIgniteCli(g.From)
+func (g *Generator) GenerateBinaries(ctx context.Context) (string, string, error) {
+	fromBinPath, err := g.buildIgniteCli(ctx, g.From)
 	if err != nil {
 		return "", "", errors.Wrapf(err, "failed to run scaffolds for 'FROM' version %s", g.From)
 	}
-	toBinPath, err := g.buildIgniteCli(g.To)
+	toBinPath, err := g.buildIgniteCli(ctx, g.To)
 	if err != nil {
 		return "", "", errors.Wrapf(err, "failed to run scaffolds for 'TO' version %s", g.To)
 	}
@@ -267,14 +267,14 @@ func (g *Generator) GenerateBinaries() (string, string, error) {
 }
 
 // buildIgniteCli build the ignite CLI from version.
-func (g *Generator) buildIgniteCli(ver *semver.Version) (string, error) {
+func (g *Generator) buildIgniteCli(ctx context.Context, ver *semver.Version) (string, error) {
 	g.session.StartSpinner(fmt.Sprintf("Building binary for version v%s...", ver))
 
 	if err := g.checkoutToTag(ver.Original()); err != nil {
 		return "", err
 	}
 
-	err := exec.Exec(context.Background(), []string{"make", "build"}, exec.StepOption(step.Workdir(g.source)))
+	err := exec.Exec(ctx, []string{"make", "build"}, exec.StepOption(step.Workdir(g.source)))
 	if err != nil {
 		return "", errors.Wrap(err, "failed to build ignite cli using make build")
 	}
@@ -282,7 +282,7 @@ func (g *Generator) buildIgniteCli(ver *semver.Version) (string, error) {
 	binPath := filepath.Join(g.source, defaultBinaryPath)
 
 	g.session.StopSpinner()
-	g.session.EventBus().SendInfo(fmt.Sprintf("Built ignite cli for v%s", ver))
+	g.session.EventBus().SendInfo(fmt.Sprintf("Built ignite cli for %s", ver.Original()))
 
 	return binPath, nil
 }

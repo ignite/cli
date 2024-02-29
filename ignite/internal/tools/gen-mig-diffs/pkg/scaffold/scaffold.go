@@ -72,7 +72,7 @@ func WithCommandList(commands Commands) Options {
 }
 
 // Run execute the scaffold commands based in the binary semantic version.
-func Run(binary string, ver *semver.Version, options ...Options) (string, error) {
+func Run(ctx context.Context, binary string, ver *semver.Version, options ...Options) (string, error) {
 	opts := newOptions()
 	for _, apply := range options {
 		apply(&opts)
@@ -85,7 +85,7 @@ func Run(binary string, ver *semver.Version, options ...Options) (string, error)
 	output = filepath.Join(output, ver.Original())
 
 	for _, c := range opts.commands {
-		if err := runCommand(binary, output, c.Name, c.Prerequisites, c.Commands, ver, opts.commands); err != nil {
+		if err := runCommand(ctx, binary, output, c.Name, c.Prerequisites, c.Commands, ver, opts.commands); err != nil {
 			return "", err
 		}
 		if err := applyPostScaffoldExceptions(ver, c.Name, output); err != nil {
@@ -96,6 +96,7 @@ func Run(binary string, ver *semver.Version, options ...Options) (string, error)
 }
 
 func runCommand(
+	ctx context.Context,
 	binary, output, name string,
 	prerequisites, scaffoldCommands []string,
 	ver *semver.Version,
@@ -107,25 +108,25 @@ func runCommand(
 		if !ok {
 			return errors.Errorf("command %s not found", name)
 		}
-		if err := runCommand(binary, output, name, c.Prerequisites, c.Commands, ver, commandList); err != nil {
+		if err := runCommand(ctx, binary, output, name, c.Prerequisites, c.Commands, ver, commandList); err != nil {
 			return err
 		}
 	}
 
 	for _, cmd := range scaffoldCommands {
-		if err := executeScaffold(binary, name, cmd, output, ver); err != nil {
+		if err := executeScaffold(ctx, binary, name, cmd, output, ver); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func executeScaffold(binary, name, cmd, output string, ver *semver.Version) error {
+func executeScaffold(ctx context.Context, binary, name, cmd, output string, ver *semver.Version) error {
 	args := append([]string{binary, "scaffold"}, strings.Fields(cmd)...)
 	args = append(args, "--path", filepath.Join(output, name))
 	args = applyPreExecuteExceptions(ver, args)
 
-	if err := exec.Exec(context.Background(), args); err != nil {
+	if err := exec.Exec(ctx, args); err != nil {
 		return errors.Wrapf(err, "failed to execute ignite scaffold command: %s", cmd)
 	}
 	return nil
@@ -134,8 +135,9 @@ func executeScaffold(binary, name, cmd, output string, ver *semver.Version) erro
 // applyPreExecuteExceptions this function we can manipulate command arguments before executing it in
 // order to compensate for differences in versions.
 func applyPreExecuteExceptions(ver *semver.Version, args []string) []string {
-	// In versions <0.27.0, "scaffold chain" command always creates a new directory with the name of chain at the given --path
-	// so we need to append "example" to the path if the command is not "chain"
+	// In versions <0.27.0, "scaffold chain" command always creates a new directory with the
+	// name of chain at the given --path so we need to append "example" to the path if the
+	// command is not "chain".
 	if ver.LessThan(v027) && args[2] != "chain" {
 		args[len(args)-1] = filepath.Join(args[len(args)-1], "example")
 	}
@@ -145,17 +147,15 @@ func applyPreExecuteExceptions(ver *semver.Version, args []string) []string {
 // applyPostScaffoldExceptions this function we can manipulate the output of scaffold commands after
 // they have been executed in order to compensate for differences in versions.
 func applyPostScaffoldExceptions(ver *semver.Version, name string, output string) error {
-	// In versions <0.27.0, "scaffold chain" command always creates a new directory with the name of chain at the given --path
-	// so we need to move the directory to the parent directory.
+	// In versions <0.27.0, "scaffold chain" command always creates a new directory with the name of
+	// chain at the given --path so we need to move the directory to the parent directory.
 	if ver.LessThan(v027) {
 		if err := os.Rename(filepath.Join(output, name, "example"), filepath.Join(output, "example_tmp")); err != nil {
 			return errors.Wrapf(err, "failed to move %s directory to tmp directory", name)
 		}
-
 		if err := os.RemoveAll(filepath.Join(output, name)); err != nil {
 			return errors.Wrapf(err, "failed to remove %s directory", name)
 		}
-
 		if err := os.Rename(filepath.Join(output, "example_tmp"), filepath.Join(output, name)); err != nil {
 			return errors.Wrapf(err, "failed to move tmp directory to %s directory", name)
 		}

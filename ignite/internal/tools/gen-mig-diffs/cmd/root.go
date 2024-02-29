@@ -38,7 +38,7 @@ func NewRootCmd() *cobra.Command {
 			var (
 				from, _           = cmd.Flags().GetString(flagFrom)
 				to, _             = cmd.Flags().GetString(flagTo)
-				source, _         = cmd.Flags().GetString(flagSource)
+				repoSource, _     = cmd.Flags().GetString(flagSource)
 				output, _         = cmd.Flags().GetString(flagOutput)
 				repoURL, _        = cmd.Flags().GetString(flagRepoURL)
 				repoOutput, _     = cmd.Flags().GetString(flagRepoOutput)
@@ -55,23 +55,27 @@ func NewRootCmd() *cobra.Command {
 				return errors.Wrapf(err, "failed to parse to version %s", to)
 			}
 
-			repoOptions := []repo.Options{repo.WithSource(source)}
+			repoOptions := make([]repo.Options, 0)
+			if repoCleanup {
+				repoOptions = append(repoOptions, repo.WithCleanup())
+			}
+			if repoSource != "" {
+				repoOptions = append(repoOptions, repo.WithSource(repoSource))
+			}
 			if repoURL != "" {
 				repoOptions = append(repoOptions, repo.WithRepoURL(repoURL))
 			}
 			if repoOutput != "" {
 				repoOptions = append(repoOptions, repo.WithRepoOutput(repoOutput))
 			}
-			if repoCleanup {
-				repoOptions = append(repoOptions, repo.WithCleanup())
-			}
+
 			igniteRepo, err := repo.New(fromVer, toVer, session, repoOptions...)
 			if err != nil {
 				return err
 			}
 			defer igniteRepo.Cleanup()
 
-			fromBin, toBin, err := igniteRepo.GenerateBinaries()
+			fromBin, toBin, err := igniteRepo.GenerateBinaries(cmd.Context())
 			if err != nil {
 				return err
 			}
@@ -84,14 +88,14 @@ func NewRootCmd() *cobra.Command {
 				scaffoldOptions = append(scaffoldOptions, scaffold.WithCachePath(scaffoldCache))
 			}
 
-			session.StartSpinner(fmt.Sprintf("Running scaffold commands for v%s...", igniteRepo.From.String()))
-			fromDir, err := scaffold.Run(fromBin, igniteRepo.From, scaffoldOptions...)
+			session.StartSpinner(fmt.Sprintf("Running scaffold commands for %s...", igniteRepo.From.Original()))
+			fromDir, err := scaffold.Run(cmd.Context(), fromBin, igniteRepo.From, scaffoldOptions...)
 			if err != nil {
 				return err
 			}
 
-			session.StartSpinner(fmt.Sprintf("Running scaffold commands for v%s...", igniteRepo.To.String()))
-			toDir, err := scaffold.Run(toBin, igniteRepo.To, scaffoldOptions...)
+			session.StartSpinner(fmt.Sprintf("Running scaffold commands for %s...", igniteRepo.To.Original()))
+			toDir, err := scaffold.Run(cmd.Context(), toBin, igniteRepo.To, scaffoldOptions...)
 			if err != nil {
 				return err
 			}
@@ -119,7 +123,7 @@ func NewRootCmd() *cobra.Command {
 	cmd.Flags().StringP(flagFrom, "f", "", "Version of ignite or path to ignite source code to generate the diff from")
 	cmd.Flags().StringP(flagTo, "t", "", "Version of ignite or path to ignite source code to generate the diff to")
 	cmd.Flags().StringP(flagOutput, "o", "./diffs", "Output directory to save the migration diff files")
-	cmd.Flags().StringP(flagSource, "s", "", "Path to ignite source code repository (optional)")
+	cmd.Flags().StringP(flagSource, "s", "", "Path to ignite source code repository. Set the source automatically set the cleanup to false")
 	cmd.Flags().String(flagRepoURL, "", "Git URL for the Ignite repository")
 	cmd.Flags().String(flagRepoOutput, "", "Output path to clone the ignite repository")
 	cmd.Flags().Bool(flagRepoCleanup, true, "Cleanup the repository path after use")
