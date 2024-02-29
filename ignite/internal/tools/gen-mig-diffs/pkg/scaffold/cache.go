@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-// cache represents a cache for executed scaffold commands.
+// cache represents a cache for executed scaffold commandList.
 type cache struct {
 	cachePath  string
 	cachesPath map[string]string
@@ -60,20 +60,6 @@ func (c *cache) saveCache(name, path string) error {
 
 	c.cachesPath[name] = cachePath
 	return nil
-}
-
-// cacheExist checks if a cache path exist.
-func (c *cache) cacheExist(name string) bool {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-	cachePath, ok := c.cachesPath[name]
-	if !ok {
-		return false
-	}
-	if _, err := os.Stat(cachePath); os.IsNotExist(err) {
-		return false
-	}
-	return true
 }
 
 // get return the cache path

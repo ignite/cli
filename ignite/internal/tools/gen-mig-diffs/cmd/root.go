@@ -89,14 +89,20 @@ func NewRootCmd() *cobra.Command {
 			}
 
 			session.StartSpinner(fmt.Sprintf("Running scaffold commands for %s...", igniteRepo.From.Original()))
-			fromDir, err := scaffold.Run(cmd.Context(), fromBin, igniteRepo.From, scaffoldOptions...)
+			sFrom, err := scaffold.New(fromBin, igniteRepo.From, scaffoldOptions...)
 			if err != nil {
+				return err
+			}
+			if err := sFrom.Run(cmd.Context()); err != nil {
 				return err
 			}
 
 			session.StartSpinner(fmt.Sprintf("Running scaffold commands for %s...", igniteRepo.To.Original()))
-			toDir, err := scaffold.Run(cmd.Context(), toBin, igniteRepo.To, scaffoldOptions...)
+			sTo, err := scaffold.New(toBin, igniteRepo.To, scaffoldOptions...)
 			if err != nil {
+				return err
+			}
+			if err := sTo.Run(cmd.Context()); err != nil {
 				return err
 			}
 
@@ -104,7 +110,7 @@ func NewRootCmd() *cobra.Command {
 			session.EventBus().SendInfo(fmt.Sprintf("Scaffolded code for commands at %s", output))
 
 			session.StartSpinner("Calculating diff...")
-			diffs, err := diff.CalculateDiffs(fromDir, toDir)
+			diffs, err := diff.CalculateDiffs(sFrom.Output, sTo.Output)
 			if err != nil {
 				return errors.Wrap(err, "failed to calculate diff")
 			}

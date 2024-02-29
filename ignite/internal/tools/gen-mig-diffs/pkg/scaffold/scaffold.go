@@ -15,21 +15,28 @@ import (
 var v027 = semver.MustParse("v0.27.0")
 
 type (
-	// Scaffold represents a set of commands and prerequisites scaffold commands that are required to run before them.
+	// Scaffold holder the Scaffold logic.
 	Scaffold struct {
+		Output      string
+		binary      string
+		version     *semver.Version
+		cache       *cache
+		cachePath   string
+		commandList Commands
+	}
+	// Command represents a set of commandList and prerequisites scaffold commandList that are required to run before them.
+	Command struct {
 		// Name is the unique identifier of the command
 		Name string
-		// Prerequisites is the names of commands that need to be run before this command set
+		// Prerequisites is the names of commandList that need to be run before this command set
 		Prerequisites []string
-		// Commands is the list of scaffold commands that are going to be run
-		// The commands will be prefixed with "ignite scaffold" and executed in order
+		// Commands is the list of scaffold commandList that are going to be run
+		// The commandList will be prefixed with "ignite scaffold" and executed in order
 		Commands []string
 	}
 
-	Commands map[string]Scaffold
-)
+	Commands map[string]Command
 
-type (
 	// options represents configuration for the generator.
 	options struct {
 		cachePath string
@@ -50,7 +57,7 @@ func newOptions() options {
 	}
 }
 
-// WithOutput set the ignite scaffold output.
+// WithOutput set the ignite scaffold Output.
 func WithOutput(output string) Options {
 	return func(o *options) {
 		o.output = output
@@ -64,69 +71,77 @@ func WithCachePath(cachePath string) Options {
 	}
 }
 
-// WithCommandList set the migration docs output.
+// WithCommandList set the migration docs Output.
 func WithCommandList(commands Commands) Options {
 	return func(o *options) {
 		o.commands = commands
 	}
 }
 
-// Run execute the scaffold commands based in the binary semantic version.
-func Run(ctx context.Context, binary string, ver *semver.Version, options ...Options) (string, error) {
+// New returns a new Scaffold.
+func New(binary string, ver *semver.Version, options ...Options) (*Scaffold, error) {
 	opts := newOptions()
 	for _, apply := range options {
 		apply(&opts)
 	}
 
-	cache := newCache(opts.cachePath)
 	output, err := filepath.Abs(opts.output)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	output = filepath.Join(output, ver.Original())
 
-	for _, c := range opts.commands {
-		if err := runCommand(ctx, cache, binary, output, c.Name, c.Prerequisites, c.Commands, ver, opts.commands); err != nil {
-			return "", err
-		}
-		if err := applyPostScaffoldExceptions(ver, c.Name, output); err != nil {
-			return "", err
-		}
-	}
-	return output, nil
+	return &Scaffold{
+		binary:      binary,
+		version:     ver,
+		cache:       newCache(opts.cachePath),
+		cachePath:   opts.cachePath,
+		Output:      opts.output,
+		commandList: opts.commands,
+	}, nil
 }
 
-func runCommand(
-	ctx context.Context,
-	cache *cache,
-	binary, output, name string,
-	prerequisites, scaffoldCommands []string,
-	ver *semver.Version,
-	commandList Commands,
-) error {
-	// TODO add cache for duplicated scaffoldCommands.
-	for _, p := range prerequisites {
-		c, ok := commandList[p]
-		if !ok {
-			return errors.Errorf("command %s not found", name)
-		}
-		if err := runCommand(ctx, cache, binary, output, name, c.Prerequisites, c.Commands, ver, commandList); err != nil {
+// Run execute the scaffold commandList based in the binary semantic version.
+func (s *Scaffold) Run(ctx context.Context) error {
+	for _, c := range s.commandList {
+		if err := s.runCommand(ctx, c.Name, c.Prerequisites, c.Commands); err != nil {
 			return err
 		}
-	}
-
-	for _, cmd := range scaffoldCommands {
-		if err := executeScaffold(ctx, binary, name, cmd, output, ver); err != nil {
+		if err := applyPostScaffoldExceptions(s.version, c.Name, s.Output); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func executeScaffold(ctx context.Context, binary, name, cmd, output string, ver *semver.Version) error {
-	args := append([]string{binary, "scaffold"}, strings.Fields(cmd)...)
-	args = append(args, "--path", filepath.Join(output, name))
-	args = applyPreExecuteExceptions(ver, args)
+func (s *Scaffold) runCommand(
+	ctx context.Context,
+	name string,
+	prerequisites, scaffoldCommands []string,
+) error {
+	// TODO add cache for duplicated scaffoldCommands.
+	for _, p := range prerequisites {
+		c, ok := s.commandList[p]
+		if !ok {
+			return errors.Errorf("command %s not found", name)
+		}
+		if err := s.runCommand(ctx, name, c.Prerequisites, c.Commands); err != nil {
+			return err
+		}
+	}
+
+	for _, cmd := range scaffoldCommands {
+		if err := s.executeScaffold(ctx, name, cmd); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *Scaffold) executeScaffold(ctx context.Context, name, cmd string) error {
+	args := append([]string{s.binary, "scaffold"}, strings.Fields(cmd)...)
+	args = append(args, "--path", filepath.Join(s.Output, name))
+	args = applyPreExecuteExceptions(s.version, args)
 
 	if err := exec.Exec(ctx, args); err != nil {
 		return errors.Wrapf(err, "failed to execute ignite scaffold command: %s", cmd)
@@ -146,7 +161,7 @@ func applyPreExecuteExceptions(ver *semver.Version, args []string) []string {
 	return args
 }
 
-// applyPostScaffoldExceptions this function we can manipulate the output of scaffold commands after
+// applyPostScaffoldExceptions this function we can manipulate the Output of scaffold commandList after
 // they have been executed in order to compensate for differences in versions.
 func applyPostScaffoldExceptions(ver *semver.Version, name string, output string) error {
 	// In versions <0.27.0, "scaffold chain" command always creates a new directory with the name of
