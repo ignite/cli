@@ -1,6 +1,6 @@
 package scaffold
 
-var DefaultCommands = Commands{
+var defaultCommands = Commands{
 	"chain": Scaffold{
 		Commands: []string{"chain example --no-module"},
 	},

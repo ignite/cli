@@ -10,6 +10,8 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/diff"
 )
 
+type Diffs map[string][]gotextdiff.Unified
+
 var diffIgnoreGlobs = []string{
 	".git/**",
 	"**.md",
@@ -29,7 +31,7 @@ var diffIgnoreGlobs = []string{
 	"**.json",
 }
 
-func CalculateDiffs(fromDir, toDir string) (map[string][]gotextdiff.Unified, error) {
+func CalculateDiffs(fromDir, toDir string) (Diffs, error) {
 	paths := make([]string, 0)
 	err := filepath.Walk(fromDir, func(path string, info os.FileInfo, err error) error {
 		if err == nil && info.IsDir() && path != fromDir {
@@ -41,7 +43,7 @@ func CalculateDiffs(fromDir, toDir string) (map[string][]gotextdiff.Unified, err
 		return nil, err
 	}
 
-	diffs := make(map[string][]gotextdiff.Unified)
+	diffs := make(Diffs)
 	for _, s := range paths {
 		name := filepath.Base(s)
 		from := filepath.Join(fromDir, name)
@@ -68,7 +70,7 @@ func CalculateDiffs(fromDir, toDir string) (map[string][]gotextdiff.Unified, err
 }
 
 // subtractBaseDiffs removes chain and module diffs from other diffs.
-func subtractBaseDiffs(diffs map[string][]gotextdiff.Unified) map[string][]gotextdiff.Unified {
+func subtractBaseDiffs(diffs Diffs) Diffs {
 	chainDiff := diffs["chain"]
 	moduleDiff := diffs["module"]
 	for name, d := range diffs {
@@ -91,7 +93,8 @@ func subtractUnifieds(a, b []gotextdiff.Unified) []gotextdiff.Unified {
 	return a
 }
 
-func SaveDiffs(diffs map[string][]gotextdiff.Unified, outputPath string) error {
+// SaveDiffs save all migration diffs to the output path.
+func SaveDiffs(diffs Diffs, outputPath string) error {
 	if err := os.MkdirAll(outputPath, os.ModePerm); err != nil {
 		return err
 	}

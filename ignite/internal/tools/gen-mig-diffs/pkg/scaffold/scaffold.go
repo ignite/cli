@@ -12,6 +12,8 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
+var v027 = semver.MustParse("v0.27.0")
+
 type (
 	// Scaffold represents a set of commands and prerequisites scaffold commands that are required to run before them.
 	Scaffold struct {
@@ -24,7 +26,7 @@ type (
 		Commands []string
 	}
 
-	Commands = map[string]Scaffold
+	Commands map[string]Scaffold
 )
 
 type (
@@ -44,31 +46,32 @@ func newOptions() options {
 	return options{
 		cachePath: filepath.Join(tmpDir, "migration-cache"),
 		output:    filepath.Join(tmpDir, "migration"),
-		commands:  DefaultCommands,
+		commands:  defaultCommands,
 	}
 }
 
 // WithOutput set the ignite scaffold output.
 func WithOutput(output string) Options {
-	return func(m *options) {
-		m.output = output
+	return func(o *options) {
+		o.output = output
 	}
 }
 
 // WithCachePath set the ignite scaffold cache path.
 func WithCachePath(cachePath string) Options {
-	return func(m *options) {
-		m.cachePath = cachePath
+	return func(o *options) {
+		o.cachePath = cachePath
 	}
 }
 
 // WithCommandList set the migration docs output.
 func WithCommandList(commands Commands) Options {
-	return func(m *options) {
-		m.commands = commands
+	return func(o *options) {
+		o.commands = commands
 	}
 }
 
+// Run execute the scaffold commands based in the binary semantic version.
 func Run(binary string, ver *semver.Version, options ...Options) (string, error) {
 	opts := newOptions()
 	for _, apply := range options {
@@ -128,21 +131,23 @@ func executeScaffold(binary, name, cmd, output string, ver *semver.Version) erro
 	return nil
 }
 
-// In this function we can manipulate command arguments before executing it in order to compensate for differences in versions.
+// applyPreExecuteExceptions this function we can manipulate command arguments before executing it in
+// order to compensate for differences in versions.
 func applyPreExecuteExceptions(ver *semver.Version, args []string) []string {
 	// In versions <0.27.0, "scaffold chain" command always creates a new directory with the name of chain at the given --path
 	// so we need to append "example" to the path if the command is not "chain"
-	if ver.LessThan(semver.MustParse("v0.27.0")) && args[2] != "chain" {
+	if ver.LessThan(v027) && args[2] != "chain" {
 		args[len(args)-1] = filepath.Join(args[len(args)-1], "example")
 	}
 	return args
 }
 
-// In this function we can manipulate the output of scaffold commands after they have been executed in order to compensate for differences in versions.
+// applyPostScaffoldExceptions this function we can manipulate the output of scaffold commands after
+// they have been executed in order to compensate for differences in versions.
 func applyPostScaffoldExceptions(ver *semver.Version, name string, output string) error {
 	// In versions <0.27.0, "scaffold chain" command always creates a new directory with the name of chain at the given --path
 	// so we need to move the directory to the parent directory.
-	if ver.LessThan(semver.MustParse("v0.27.0")) {
+	if ver.LessThan(v027) {
 		if err := os.Rename(filepath.Join(output, name, "example"), filepath.Join(output, "example_tmp")); err != nil {
 			return errors.Wrapf(err, "failed to move %s directory to tmp directory", name)
 		}

@@ -19,24 +19,25 @@ import (
 
 const (
 	defaultRepoURL    = "https://github.com/ignite/cli.git"
-	defaultRepoPath   = "src/github.com/ignite/cli"
 	defaultBinaryPath = "dist/ignite"
 )
 
 type (
 	// Generator is used to generate migration diffs.
 	Generator struct {
-		From, To         *semver.Version
-		tempDir, repoDir string
-		repo             *git.Repository
-		session          *cliui.Session
+		From, To *semver.Version
+		source   string
+		repo     *git.Repository
+		session  *cliui.Session
+		cleanup  bool
 	}
 
 	// options represents configuration for the generator.
 	options struct {
-		source   string
-		repoPath string
-		repoURL  string
+		source  string
+		output  string
+		repoURL string
+		cleanup bool
 	}
 	// Options configures the generator.
 	Options func(*options)
@@ -44,32 +45,53 @@ type (
 
 // newOptions returns a options with default options.
 func newOptions() options {
+	tmpDir := os.TempDir()
 	return options{
-		source:   "",
-		repoPath: defaultRepoPath,
-		repoURL:  defaultRepoURL,
+		source:  "",
+		output:  filepath.Join(tmpDir, "migration-source"),
+		repoURL: defaultRepoURL,
 	}
 }
 
 // WithSource set the repo source Options.
 func WithSource(source string) Options {
-	return func(m *options) {
-		m.source = source
-	}
-}
-
-// WithRepoPath set the repo path Options.
-func WithRepoPath(repoPath string) Options {
-	return func(m *options) {
-		m.repoPath = repoPath
+	return func(o *options) {
+		o.source = source
+		// Do not clean up if set the source.
+		o.cleanup = false
 	}
 }
 
 // WithRepoURL set the repo URL Options.
 func WithRepoURL(repoURL string) Options {
-	return func(m *options) {
-		m.repoURL = repoURL
+	return func(o *options) {
+		o.repoURL = repoURL
 	}
+}
+
+// WithRepoOutput set the repo output Options.
+func WithRepoOutput(output string) Options {
+	return func(o *options) {
+		o.output = output
+	}
+}
+
+// WithCleanup cleanup folders after use.
+func WithCleanup() Options {
+	return func(o *options) {
+		o.cleanup = true
+	}
+}
+
+// validate options
+func (o options) validate() error {
+	if o.source != "" && (o.repoURL != defaultRepoURL) {
+		return errors.New("cannot set source and repo URL at the same time")
+	}
+	if o.source != "" && o.cleanup {
+		return errors.New("cannot set source and cleanup the repo")
+	}
+	return nil
 }
 
 // New creates a new generator for migration diffs between from and to versions of ignite cli
@@ -79,38 +101,47 @@ func New(from, to *semver.Version, session *cliui.Session, options ...Options) (
 	for _, apply := range options {
 		apply(&opts)
 	}
+	if err := opts.validate(); err != nil {
+		return nil, err
+	}
 
 	tempDir, err := os.MkdirTemp("", ".migdoc")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create temporary directory")
 	}
+
+	session.StopSpinner()
 	session.EventBus().SendInfo(fmt.Sprintf("Created temporary directory: %s", tempDir))
 
 	var (
-		repoDir = opts.source
-		repo    *git.Repository
+		source = opts.source
+		repo   *git.Repository
 	)
-	if repoDir != "" {
-		repo, err = git.PlainOpen(repoDir)
+	if source != "" {
+		repo, err = git.PlainOpen(source)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to open ignite repository")
 		}
 
-		session.EventBus().SendInfo(fmt.Sprintf("Using ignite repository at: %s", repoDir))
+		session.EventBus().SendInfo(fmt.Sprintf("Using ignite repository at: %s", source))
 	} else {
 		session.StartSpinner("Cloning ignite repository...")
 
-		repoDir = filepath.Join(tempDir, opts.repoPath)
-		repo, err = git.PlainClone(repoDir, false, &git.CloneOptions{URL: opts.repoURL})
+		source = opts.output
+		if err := os.RemoveAll(source); err != nil {
+			return nil, errors.Wrap(err, "failed to clean the output directory")
+		}
+
+		repo, err = git.PlainClone(source, false, &git.CloneOptions{URL: opts.repoURL, Depth: 1})
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to clone ignite repository")
 		}
 
 		session.StopSpinner()
-		session.EventBus().SendInfo(fmt.Sprintf("Cloned ignite repository to: %s", repoDir))
+		session.EventBus().SendInfo(fmt.Sprintf("Cloned ignite repository to: %s", source))
 	}
 
-	versions, err := getRepoVersionTags(repoDir)
+	versions, err := getRepoVersionTags(source)
 	if err != nil {
 		return nil, err
 	}
@@ -123,8 +154,7 @@ func New(from, to *semver.Version, session *cliui.Session, options ...Options) (
 	return &Generator{
 		From:    from,
 		To:      to,
-		tempDir: tempDir,
-		repoDir: repoDir,
+		source:  source,
 		repo:    repo,
 		session: session,
 	}, nil
@@ -167,13 +197,14 @@ func getRepoVersionTags(repoDir string) (semver.Collection, error) {
 
 // Cleanup cleanup all temporary directories.
 func (g *Generator) Cleanup() {
-	err := os.RemoveAll(g.tempDir)
-	if err != nil {
+	if !g.cleanup {
+		return
+	}
+	if err := os.RemoveAll(g.source); err != nil {
 		g.session.EventBus().SendError(err)
 		return
 	}
-
-	g.session.EventBus().SendInfo(fmt.Sprintf("Removed temporary directory: %s", g.tempDir))
+	g.session.EventBus().SendInfo(fmt.Sprintf("Removed temporary directory: %s", g.source))
 }
 
 // validateVersionRange checks if the provided fromVer and toVer exist in the versions and if any of them is nil, then it picks default values.
@@ -243,12 +274,12 @@ func (g *Generator) buildIgniteCli(ver *semver.Version) (string, error) {
 		return "", err
 	}
 
-	err := exec.Exec(context.Background(), []string{"make", "build"}, exec.StepOption(step.Workdir(g.repoDir)))
+	err := exec.Exec(context.Background(), []string{"make", "build"}, exec.StepOption(step.Workdir(g.source)))
 	if err != nil {
 		return "", errors.Wrap(err, "failed to build ignite cli using make build")
 	}
 
-	binPath := filepath.Join(g.repoDir, defaultBinaryPath)
+	binPath := filepath.Join(g.source, defaultBinaryPath)
 
 	g.session.StopSpinner()
 	g.session.EventBus().SendInfo(fmt.Sprintf("Built ignite cli for v%s", ver))
@@ -265,15 +296,13 @@ func (g *Generator) checkoutToTag(tag string) error {
 
 	// Reset and clean the git directory before the checkout to avoid conflicts.
 	if err := wt.Reset(&git.ResetOptions{Mode: git.HardReset}); err != nil {
-		return errors.Wrapf(err, "failed to reset %s", g.repoDir)
+		return errors.Wrapf(err, "failed to reset %s", g.source)
 	}
 	if err := wt.Clean(&git.CleanOptions{Dir: true}); err != nil {
-		return errors.Wrapf(err, "failed to reset %s", g.repoDir)
+		return errors.Wrapf(err, "failed to reset %s", g.source)
 	}
-
 	if err = wt.Checkout(&git.CheckoutOptions{Branch: plumbing.NewTagReferenceName(tag)}); err != nil {
 		return errors.Wrapf(err, "failed to checkout tag %s", tag)
 	}
-
 	return nil
 }

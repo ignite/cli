@@ -14,10 +14,15 @@ import (
 )
 
 const (
-	fromFlag   = "from"
-	toFlag     = "to"
-	sourceFlag = "source"
-	outputFlag = "output"
+	flagFrom           = "from"
+	flagTo             = "to"
+	flagOutput         = "output"
+	flagSource         = "repo-source"
+	flagRepoURL        = "repo-url"
+	flagRepoOutput     = "repo-output"
+	flagRepoCleanup    = "repo-cleanup"
+	flagScaffoldOutput = "scaffold-output"
+	flagScaffoldCache  = "scaffold-cache"
 )
 
 // NewRootCmd creates a new root command.
@@ -31,10 +36,15 @@ func NewRootCmd() *cobra.Command {
 			defer session.End()
 
 			var (
-				from, _   = cmd.Flags().GetString(fromFlag)
-				to, _     = cmd.Flags().GetString(toFlag)
-				source, _ = cmd.Flags().GetString(sourceFlag)
-				output, _ = cmd.Flags().GetString(outputFlag)
+				from, _           = cmd.Flags().GetString(flagFrom)
+				to, _             = cmd.Flags().GetString(flagTo)
+				source, _         = cmd.Flags().GetString(flagSource)
+				output, _         = cmd.Flags().GetString(flagOutput)
+				repoURL, _        = cmd.Flags().GetString(flagRepoURL)
+				repoOutput, _     = cmd.Flags().GetString(flagRepoOutput)
+				repoCleanup, _    = cmd.Flags().GetBool(flagRepoCleanup)
+				scaffoldOutput, _ = cmd.Flags().GetString(flagScaffoldOutput)
+				scaffoldCache, _  = cmd.Flags().GetString(flagScaffoldCache)
 			)
 			fromVer, err := semver.NewVersion(from)
 			if err != nil && from != "" {
@@ -45,7 +55,17 @@ func NewRootCmd() *cobra.Command {
 				return errors.Wrapf(err, "failed to parse to version %s", to)
 			}
 
-			igniteRepo, err := repo.New(fromVer, toVer, session, repo.WithSource(source))
+			repoOptions := []repo.Options{repo.WithSource(source)}
+			if repoURL != "" {
+				repoOptions = append(repoOptions, repo.WithRepoURL(repoURL))
+			}
+			if repoOutput != "" {
+				repoOptions = append(repoOptions, repo.WithRepoOutput(repoOutput))
+			}
+			if repoCleanup {
+				repoOptions = append(repoOptions, repo.WithCleanup())
+			}
+			igniteRepo, err := repo.New(fromVer, toVer, session, repoOptions...)
 			if err != nil {
 				return err
 			}
@@ -56,14 +76,22 @@ func NewRootCmd() *cobra.Command {
 				return err
 			}
 
+			scaffoldOptions := make([]scaffold.Options, 0)
+			if scaffoldOutput != "" {
+				scaffoldOptions = append(scaffoldOptions, scaffold.WithOutput(scaffoldOutput))
+			}
+			if scaffoldCache != "" {
+				scaffoldOptions = append(scaffoldOptions, scaffold.WithCachePath(scaffoldCache))
+			}
+
 			session.StartSpinner(fmt.Sprintf("Running scaffold commands for v%s...", igniteRepo.From.String()))
-			fromDir, err := scaffold.Run(fromBin, igniteRepo.From)
+			fromDir, err := scaffold.Run(fromBin, igniteRepo.From, scaffoldOptions...)
 			if err != nil {
 				return err
 			}
 
 			session.StartSpinner(fmt.Sprintf("Running scaffold commands for v%s...", igniteRepo.To.String()))
-			toDir, err := scaffold.Run(toBin, igniteRepo.To)
+			toDir, err := scaffold.Run(toBin, igniteRepo.To, scaffoldOptions...)
 			if err != nil {
 				return err
 			}
@@ -88,10 +116,15 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringP(fromFlag, "f", "", "Version of ignite or path to ignite source code to generate the diff from")
-	cmd.Flags().StringP(toFlag, "t", "", "Version of ignite or path to ignite source code to generate the diff to")
-	cmd.Flags().StringP(sourceFlag, "s", "", "Path to ignite source code repository (optional)")
-	cmd.Flags().StringP(outputFlag, "o", "./diffs", "Output directory to save the migration diff files")
+	cmd.Flags().StringP(flagFrom, "f", "", "Version of ignite or path to ignite source code to generate the diff from")
+	cmd.Flags().StringP(flagTo, "t", "", "Version of ignite or path to ignite source code to generate the diff to")
+	cmd.Flags().StringP(flagOutput, "o", "./diffs", "Output directory to save the migration diff files")
+	cmd.Flags().StringP(flagSource, "s", "", "Path to ignite source code repository (optional)")
+	cmd.Flags().String(flagRepoURL, "", "Git URL for the Ignite repository")
+	cmd.Flags().String(flagRepoOutput, "", "Output path to clone the ignite repository")
+	cmd.Flags().Bool(flagRepoCleanup, true, "Cleanup the repository path after use")
+	cmd.Flags().String(flagScaffoldOutput, "", "Output path to clone the ignite repository")
+	cmd.Flags().String(flagScaffoldCache, "", "Output path to clone the ignite repository")
 
 	return cmd
 }
