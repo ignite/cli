@@ -78,6 +78,7 @@ func Run(ctx context.Context, binary string, ver *semver.Version, options ...Opt
 		apply(&opts)
 	}
 
+	cache := newCache(opts.cachePath)
 	output, err := filepath.Abs(opts.output)
 	if err != nil {
 		return "", err
@@ -85,7 +86,7 @@ func Run(ctx context.Context, binary string, ver *semver.Version, options ...Opt
 	output = filepath.Join(output, ver.Original())
 
 	for _, c := range opts.commands {
-		if err := runCommand(ctx, binary, output, c.Name, c.Prerequisites, c.Commands, ver, opts.commands); err != nil {
+		if err := runCommand(ctx, cache, binary, output, c.Name, c.Prerequisites, c.Commands, ver, opts.commands); err != nil {
 			return "", err
 		}
 		if err := applyPostScaffoldExceptions(ver, c.Name, output); err != nil {
@@ -97,6 +98,7 @@ func Run(ctx context.Context, binary string, ver *semver.Version, options ...Opt
 
 func runCommand(
 	ctx context.Context,
+	cache *cache,
 	binary, output, name string,
 	prerequisites, scaffoldCommands []string,
 	ver *semver.Version,
@@ -108,7 +110,7 @@ func runCommand(
 		if !ok {
 			return errors.Errorf("command %s not found", name)
 		}
-		if err := runCommand(ctx, binary, output, name, c.Prerequisites, c.Commands, ver, commandList); err != nil {
+		if err := runCommand(ctx, cache, binary, output, name, c.Prerequisites, c.Commands, ver, commandList); err != nil {
 			return err
 		}
 	}
