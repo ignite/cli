@@ -31,26 +31,27 @@ var diffIgnoreGlobs = []string{
 	"**.json",
 }
 
+// CalculateDiffs calculate the diff from two directories.
 func CalculateDiffs(fromDir, toDir string) (Diffs, error) {
-	paths := make([]string, 0)
-	err := filepath.Walk(fromDir, func(path string, info os.FileInfo, err error) error {
-		if err == nil && info.IsDir() && path != fromDir {
-			paths = append(paths, path)
-		}
-		return nil
-	})
+	paths, err := readRootFolders(fromDir)
 	if err != nil {
 		return nil, err
 	}
+	toPaths, err := readRootFolders(toDir)
+	if err != nil {
+		return nil, err
+	}
+	for key, value := range toPaths {
+		paths[key] = value
+	}
 
 	diffs := make(Diffs)
-	for _, s := range paths {
-		name := filepath.Base(s)
-		from := filepath.Join(fromDir, name)
+	for path, _ := range paths {
+		from := filepath.Join(fromDir, path)
 		if err := os.MkdirAll(from, os.ModePerm); err != nil {
 			return nil, err
 		}
-		to := filepath.Join(toDir, name)
+		to := filepath.Join(toDir, path)
 		if err := os.MkdirAll(to, os.ModePerm); err != nil {
 			return nil, err
 		}
@@ -64,9 +65,47 @@ func CalculateDiffs(fromDir, toDir string) (Diffs, error) {
 			return nil, err
 		}
 
-		diffs[name] = computedDiff
+		diffs[path] = computedDiff
 	}
 	return subtractBaseDiffs(diffs), nil
+}
+
+// SaveDiffs save all migration diffs to the output path.
+func SaveDiffs(diffs Diffs, outputPath string) error {
+	if err := os.MkdirAll(outputPath, os.ModePerm); err != nil {
+		return err
+	}
+
+	for name, diffs := range diffs {
+		output, err := os.Create(filepath.Join(outputPath, name+".diff"))
+		if err != nil {
+			return err
+		}
+		for _, d := range diffs {
+			output.WriteString(fmt.Sprint(d))
+			output.WriteString("\n")
+		}
+		if err := output.Close(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// readRootFolders return a map of all root folders from a directory.
+func readRootFolders(dir string) (map[string]struct{}, error) {
+	paths := make(map[string]struct{})
+	dirEntries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+	for _, entry := range dirEntries {
+		if entry.IsDir() {
+			paths[entry.Name()] = struct{}{}
+		}
+	}
+	return paths, nil
 }
 
 // subtractBaseDiffs removes chain and module diffs from other diffs.
@@ -91,27 +130,4 @@ func subtractUnifieds(a, b []gotextdiff.Unified) []gotextdiff.Unified {
 		}
 	}
 	return a
-}
-
-// SaveDiffs save all migration diffs to the output path.
-func SaveDiffs(diffs Diffs, outputPath string) error {
-	if err := os.MkdirAll(outputPath, os.ModePerm); err != nil {
-		return err
-	}
-
-	for name, diffs := range diffs {
-		output, err := os.Create(filepath.Join(outputPath, name+".diff"))
-		if err != nil {
-			return err
-		}
-		for _, d := range diffs {
-			output.WriteString(fmt.Sprint(d))
-			output.WriteString("\n")
-		}
-		if err := output.Close(); err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
