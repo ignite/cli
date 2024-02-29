@@ -10,6 +10,7 @@ import (
 
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/randstr"
 )
 
 var v027 = semver.MustParse("v0.27.0")
@@ -24,16 +25,6 @@ type (
 		cachePath   string
 		commandList Commands
 	}
-	// Command represents a set of commandList and prerequisites scaffold commandList that are required to run before them.
-	Command struct {
-		// Prerequisites is the names of commandList that need to be run before this command set
-		Prerequisites []string
-		// Commands is the list of scaffold commandList that are going to be run
-		// The commandList will be prefixed with "ignite scaffold" and executed in order
-		Commands []string
-	}
-
-	Commands map[string]Command
 
 	// options represents configuration for the generator.
 	options struct {
@@ -47,7 +38,7 @@ type (
 
 // newOptions returns a options with default options.
 func newOptions() options {
-	tmpDir := os.TempDir()
+	tmpDir := filepath.Join(os.TempDir(), randstr.Runes(4))
 	return options{
 		cachePath: filepath.Join(tmpDir, "migration-cache"),
 		output:    filepath.Join(tmpDir, "migration"),
@@ -87,56 +78,73 @@ func New(binary string, ver *semver.Version, options ...Options) (*Scaffold, err
 	if err != nil {
 		return nil, err
 	}
+
+	c, err := newCache(opts.cachePath)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := opts.commands.Validate(); err != nil {
+		return nil, err
+	}
+
 	return &Scaffold{
 		binary:      binary,
 		version:     ver,
-		cache:       newCache(opts.cachePath),
+		cache:       c,
 		cachePath:   opts.cachePath,
 		Output:      filepath.Join(output, ver.Original()),
 		commandList: opts.commands,
 	}, nil
 }
 
-// Run execute the scaffold commandList based in the binary semantic version.
+// Run execute the scaffold command based in the binary semantic version.
 func (s *Scaffold) Run(ctx context.Context) error {
-	for name, c := range s.commandList {
-		if err := s.runCommand(ctx, name, c.Prerequisites, c.Commands); err != nil {
+	if err := os.RemoveAll(s.Output); err != nil {
+		return errors.Wrapf(err, "failed to remove the scaffold output directory: %s", s.Output)
+	}
+
+	for _, command := range s.commandList {
+		if err := s.runCommand(ctx, command.Name, command); err != nil {
 			return err
 		}
-		if err := applyPostScaffoldExceptions(s.version, name, s.Output); err != nil {
+		if err := applyPostScaffoldExceptions(s.version, command.Name, s.Output); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (s *Scaffold) runCommand(
-	ctx context.Context,
-	name string,
-	prerequisites, scaffoldCommands []string,
-) error {
-	// TODO add cache for duplicated scaffoldCommands.
-	for _, name := range prerequisites {
-		c, ok := s.commandList[name]
-		if !ok {
-			return errors.Errorf("command %s not found", name)
+func (s *Scaffold) runCommand(ctx context.Context, name string, command Command) error {
+	path := filepath.Join(s.Output, name)
+	if command.Prerequisite != "" {
+		reqCmd, err := s.commandList.Get(command.Prerequisite)
+		if err != nil {
+			return errors.Wrapf(err, "pre-requisite command %s from %s not found", command.Prerequisite, name)
 		}
-		if err := s.runCommand(ctx, name, c.Prerequisites, c.Commands); err != nil {
-			return err
+
+		if s.cache.has(command.Prerequisite) {
+			if err := s.cache.get(command.Prerequisite, path); err != nil {
+				return errors.Wrapf(err, "failed to get cache key %s", command.Prerequisite)
+			}
+		} else {
+			if err := s.runCommand(ctx, name, reqCmd); err != nil {
+				return err
+			}
 		}
 	}
 
-	for _, cmd := range scaffoldCommands {
-		if err := s.executeScaffold(ctx, name, cmd); err != nil {
+	for _, cmd := range command.Commands {
+		if err := s.executeScaffold(ctx, cmd, path); err != nil {
 			return err
 		}
 	}
-	return nil
+	return s.cache.save(command.Name, path)
 }
 
-func (s *Scaffold) executeScaffold(ctx context.Context, name, cmd string) error {
+func (s *Scaffold) executeScaffold(ctx context.Context, cmd, path string) error {
 	args := append([]string{s.binary, "scaffold"}, strings.Fields(cmd)...)
-	args = append(args, "--path", filepath.Join(s.Output, name))
+	args = append(args, "--path", path)
 	args = applyPreExecuteExceptions(s.version, args)
 
 	if err := exec.Exec(ctx, args); err != nil {
@@ -157,7 +165,7 @@ func applyPreExecuteExceptions(ver *semver.Version, args []string) []string {
 	return args
 }
 
-// applyPostScaffoldExceptions this function we can manipulate the Output of scaffold commandList after
+// applyPostScaffoldExceptions this function we can manipulate the Output of scaffold command after
 // they have been executed in order to compensate for differences in versions.
 func applyPostScaffoldExceptions(ver *semver.Version, name string, output string) error {
 	// In versions <0.27.0, "scaffold chain" command always creates a new directory with the name of

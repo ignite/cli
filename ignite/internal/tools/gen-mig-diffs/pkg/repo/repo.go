@@ -83,7 +83,7 @@ func WithCleanup() Options {
 	}
 }
 
-// validate options
+// validate options.
 func (o options) validate() error {
 	if o.source != "" && (o.repoURL != defaultRepoURL) {
 		return errors.New("cannot set source and repo URL at the same time")
