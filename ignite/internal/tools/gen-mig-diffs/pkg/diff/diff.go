@@ -46,7 +46,7 @@ func CalculateDiffs(fromDir, toDir string) (Diffs, error) {
 	}
 
 	diffs := make(Diffs)
-	for path, _ := range paths {
+	for path := range paths {
 		from := filepath.Join(fromDir, path)
 		if err := os.MkdirAll(from, os.ModePerm); err != nil {
 			return nil, err

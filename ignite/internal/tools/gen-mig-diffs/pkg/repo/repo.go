@@ -101,17 +101,11 @@ func New(from, to *semver.Version, session *cliui.Session, options ...Options) (
 	for _, apply := range options {
 		apply(&opts)
 	}
-	if err := opts.validate(); err != nil {
+
+	err := opts.validate()
+	if err != nil {
 		return nil, err
 	}
-
-	tempDir, err := os.MkdirTemp("", ".migdoc")
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create temporary directory")
-	}
-
-	session.StopSpinner()
-	session.EventBus().SendInfo(fmt.Sprintf("Created temporary directory: %s", tempDir))
 
 	var (
 		source = opts.source
@@ -123,6 +117,7 @@ func New(from, to *semver.Version, session *cliui.Session, options ...Options) (
 			return nil, errors.Wrap(err, "failed to open ignite repository")
 		}
 
+		session.StopSpinner()
 		session.EventBus().SendInfo(fmt.Sprintf("Using ignite repository at: %s", source))
 	} else {
 		session.StartSpinner("Cloning ignite repository...")
