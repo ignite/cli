@@ -26,8 +26,6 @@ type (
 	}
 	// Command represents a set of commandList and prerequisites scaffold commandList that are required to run before them.
 	Command struct {
-		// Name is the unique identifier of the command
-		Name string
 		// Prerequisites is the names of commandList that need to be run before this command set
 		Prerequisites []string
 		// Commands is the list of scaffold commandList that are going to be run
@@ -89,25 +87,23 @@ func New(binary string, ver *semver.Version, options ...Options) (*Scaffold, err
 	if err != nil {
 		return nil, err
 	}
-	output = filepath.Join(output, ver.Original())
-
 	return &Scaffold{
 		binary:      binary,
 		version:     ver,
 		cache:       newCache(opts.cachePath),
 		cachePath:   opts.cachePath,
-		Output:      opts.output,
+		Output:      filepath.Join(output, ver.Original()),
 		commandList: opts.commands,
 	}, nil
 }
 
 // Run execute the scaffold commandList based in the binary semantic version.
 func (s *Scaffold) Run(ctx context.Context) error {
-	for _, c := range s.commandList {
-		if err := s.runCommand(ctx, c.Name, c.Prerequisites, c.Commands); err != nil {
+	for name, c := range s.commandList {
+		if err := s.runCommand(ctx, name, c.Prerequisites, c.Commands); err != nil {
 			return err
 		}
-		if err := applyPostScaffoldExceptions(s.version, c.Name, s.Output); err != nil {
+		if err := applyPostScaffoldExceptions(s.version, name, s.Output); err != nil {
 			return err
 		}
 	}
@@ -120,8 +116,8 @@ func (s *Scaffold) runCommand(
 	prerequisites, scaffoldCommands []string,
 ) error {
 	// TODO add cache for duplicated scaffoldCommands.
-	for _, p := range prerequisites {
-		c, ok := s.commandList[p]
+	for _, name := range prerequisites {
+		c, ok := s.commandList[name]
 		if !ok {
 			return errors.Errorf("command %s not found", name)
 		}
@@ -153,7 +149,7 @@ func (s *Scaffold) executeScaffold(ctx context.Context, name, cmd string) error 
 // order to compensate for differences in versions.
 func applyPreExecuteExceptions(ver *semver.Version, args []string) []string {
 	// In versions <0.27.0, "scaffold chain" command always creates a new directory with the
-	// name of chain at the given --path so we need to append "example" to the path if the
+	// name of chain at the given '--path' so we need to append "example" to the path if the
 	// command is not "chain".
 	if ver.LessThan(v027) && args[2] != "chain" {
 		args[len(args)-1] = filepath.Join(args[len(args)-1], "example")
@@ -177,6 +173,5 @@ func applyPostScaffoldExceptions(ver *semver.Version, name string, output string
 			return errors.Wrapf(err, "failed to move tmp directory to %s directory", name)
 		}
 	}
-
 	return nil
 }
