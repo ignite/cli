@@ -21,7 +21,7 @@ func TestCheckForbiddenComponentName(t *testing.T) {
 		},
 		{
 			name:        "should prevent forbidden name",
-			compName:    "oracle",
+			compName:    "genesis",
 			shouldError: true,
 		},
 	}

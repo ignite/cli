@@ -10,14 +10,16 @@
 
 ### Changes
 
+- [#3993](https://github.com/ignite/cli/pull/3993) Oracle scaffolding was deprecated and has been removed
 - [#3959](https://github.com/ignite/cli/pull/3959) Remove app name prefix from the `.gitignore` file
-- [#3962](https://github.com/ignite/cli/pull/3962) Rename all RPC endpoints and autocli commands generated for `map`/`list`/`single` types 
+- [#3962](https://github.com/ignite/cli/pull/3962) Rename all RPC endpoints and autocli commands generated for `map`/`list`/`single` types
 - [#3972](https://github.com/ignite/cli/pull/3972) Skip Ignite app loading for some base commands that don't allow apps
 - [#3976](https://github.com/ignite/cli/pull/3976) Remove error checks for Cobra command value get calls
 - [#3983](https://github.com/ignite/cli/pull/3983) Bump `cosmos-sdk` to `v0.50.4` and `ibc-go` to `v8.1.0`
 
 ### Fixes
 
+- [#3995](https://github.com/ignite/cli/pull/3995) Fix interface check for ibc modules
 - [#3953](https://github.com/ignite/cli/pull/3953) Fix apps `Stdout` is redirected to `Stderr`
 - [#3863](https://github.com/ignite/cli/pull/3963) Fix breaking issue for app client API when reading app chain info
 - [#3969](https://github.com/ignite/cli/pull/3969) Get first config validator using a getter to avoid index errors
