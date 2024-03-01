@@ -130,7 +130,6 @@ func checkForbiddenComponentName(name multiformatname.Name) error {
 	// Check with names already used from the scaffolded code
 	switch name.LowerCase {
 	case
-		"oracle",
 		"logger",
 		"keeper",
 		"query",
@@ -195,32 +194,6 @@ func checkGoReservedWord(name string) error {
 		"uint8",
 		"uintptr":
 		return errors.Errorf("%s is a Go built-in identifier", name)
-	}
-	return nil
-}
-
-// checkForbiddenOracleFieldName returns true if the name is forbidden as an oracle field name.
-//
-// Deprecated: This function is no longer maintained.
-func checkForbiddenOracleFieldName(name string) error {
-	mfName, err := multiformatname.NewName(name, multiformatname.NoNumber)
-	if err != nil {
-		return err
-	}
-
-	// Check with names already used from the scaffolded code
-	switch mfName.UpperCase {
-	case
-		"CLIENTID",
-		"ORACLESCRIPTID",
-		"SOURCECHANNEL",
-		"CALLDATA",
-		"ASKCOUNT",
-		"MINCOUNT",
-		"FEELIMIT",
-		"PREPAREGAS",
-		"EXECUTEGAS":
-		return errors.Errorf("%s is used by Ignite scaffolder", name)
 	}
 	return nil
 }
