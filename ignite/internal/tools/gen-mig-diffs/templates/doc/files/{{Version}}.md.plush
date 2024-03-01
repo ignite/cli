@@ -8,6 +8,7 @@ description: <%= ShortDescription %>
 
 <%= Description %>
 ### **Chain migration diffs**
+
 <%= Diffs %>
 ### **Details**
 
