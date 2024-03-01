@@ -95,6 +95,8 @@ func NewRootCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
+			defer sFrom.Cleanup()
+
 			if err := sFrom.Run(cmd.Context()); err != nil {
 				return err
 			}
@@ -106,6 +108,8 @@ func NewRootCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
+			defer sTo.Cleanup()
+
 			if err := sTo.Run(cmd.Context()); err != nil {
 				return err
 			}
@@ -124,7 +128,7 @@ func NewRootCmd() *cobra.Command {
 			if err = diff.SaveDiffs(diffs, output); err != nil {
 				return errors.Wrap(err, "failed to save diff map")
 			}
-			session.Println("Migration diffs generated successfully at", output)
+			session.Printf("Migration diffs generated successfully at %s\n", output)
 
 			return nil
 		},

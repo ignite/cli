@@ -1,12 +1,12 @@
 package scaffold
 
 import (
-	"io"
 	"os"
 	"path/filepath"
 	"sync"
 
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/xos"
 )
 
 // cache represents a cache for executed scaffold command.
@@ -30,7 +30,7 @@ func (c *cache) save(name, path string) error {
 	defer c.mu.Unlock()
 
 	dstPath := filepath.Join(c.cachePath, name)
-	if err := copyFiles(path, dstPath); err != nil {
+	if err := xos.CopyFolder(path, dstPath); err != nil {
 		return err
 	}
 
@@ -70,48 +70,8 @@ func (c *cache) get(name, dstPath string) error {
 	if err != nil {
 		return err
 	}
-	if err := copyFiles(cachePath, dstPath); err != nil {
+	if err := xos.CopyFolder(cachePath, dstPath); err != nil {
 		return errors.Wrapf(err, "error to copy cache from %s to %s", cachePath, dstPath)
 	}
 	return nil
-}
-
-// copyFiles copy all files from the source path to the destination path.
-func copyFiles(srcPath, dstPath string) error {
-	srcInfo, err := os.Stat(srcPath)
-	switch {
-	case os.IsNotExist(err):
-		return errors.Wrapf(err, "cache %s not exist in the path", srcPath)
-	case err != nil:
-		return err
-	case !srcInfo.IsDir():
-		return errors.Wrapf(err, "cache %s is not a directory", srcPath)
-	}
-
-	// Walk through the original path and copy all content to the cache path.
-	return filepath.Walk(srcPath, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		relPath, err := filepath.Rel(srcPath, path)
-		if err != nil {
-			return err
-		}
-		dstPath := filepath.Join(dstPath, relPath)
-		if info.IsDir() {
-			return os.MkdirAll(dstPath, info.Mode())
-		}
-		srcFile, err := os.Open(path)
-		if err != nil {
-			return err
-		}
-		defer srcFile.Close()
-		dstFile, err := os.Create(dstPath)
-		if err != nil {
-			return err
-		}
-		defer dstFile.Close()
-		_, err = io.Copy(dstFile, srcFile)
-		return err
-	})
 }

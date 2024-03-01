@@ -115,6 +115,14 @@ func (s *Scaffold) Run(ctx context.Context) error {
 	return nil
 }
 
+// Cleanup cleanup all temporary directories.
+func (s *Scaffold) Cleanup() error {
+	if err := os.RemoveAll(s.cachePath); err != nil {
+		return err
+	}
+	return os.RemoveAll(s.Output)
+}
+
 func (s *Scaffold) runCommand(ctx context.Context, name string, command Command) error {
 	path := filepath.Join(s.Output, name)
 	if command.Prerequisite != "" {

@@ -3,6 +3,7 @@ package repo
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"sort"
@@ -27,6 +28,7 @@ type (
 	Generator struct {
 		From, To *semver.Version
 		source   string
+		binPath  string
 		repo     *git.Repository
 		session  *cliui.Session
 		cleanup  bool
@@ -37,6 +39,7 @@ type (
 		source  string
 		output  string
 		repoURL string
+		binPath string
 		cleanup bool
 	}
 	// Options configures the generator.
@@ -48,6 +51,7 @@ func newOptions() options {
 	tmpDir := os.TempDir()
 	return options{
 		source:  "",
+		binPath: filepath.Join(tmpDir, "bin"),
 		output:  filepath.Join(tmpDir, "migration-source"),
 		repoURL: defaultRepoURL,
 	}
@@ -73,6 +77,13 @@ func WithRepoURL(repoURL string) Options {
 func WithRepoOutput(output string) Options {
 	return func(o *options) {
 		o.output = output
+	}
+}
+
+// WithBinPath set the binary path to build the source.
+func WithBinPath(binPath string) Options {
+	return func(o *options) {
+		o.binPath = binPath
 	}
 }
 
@@ -146,12 +157,18 @@ func New(from, to *semver.Version, session *cliui.Session, options ...Options) (
 		return nil, err
 	}
 
+	binPath, err := filepath.Abs(opts.binPath)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Generator{
 		From:    from,
 		To:      to,
 		source:  source,
 		repo:    repo,
 		session: session,
+		binPath: binPath,
 	}, nil
 }
 
@@ -274,10 +291,15 @@ func (g *Generator) buildIgniteCli(ctx context.Context, ver *semver.Version) (st
 		return "", errors.Wrap(err, "failed to build ignite cli using make build")
 	}
 
-	binPath := filepath.Join(g.source, defaultBinaryPath)
+	// Copy the built binary to the binary path.
+	genBinaryPath := filepath.Join(g.source, defaultBinaryPath)
+	binPath := filepath.Join(g.binPath, ver.Original(), "ignite")
+	if err := copyFile(genBinaryPath, binPath); err != nil {
+		return "", err
+	}
 
 	g.session.StopSpinner()
-	g.session.EventBus().SendInfo(fmt.Sprintf("Built ignite cli for %s", ver.Original()))
+	g.session.EventBus().SendInfo(fmt.Sprintf("Built ignite cli for %s at %s", ver.Original(), binPath))
 
 	return binPath, nil
 }
@@ -288,7 +310,6 @@ func (g *Generator) checkoutToTag(tag string) error {
 	if err != nil {
 		return err
 	}
-
 	// Reset and clean the git directory before the checkout to avoid conflicts.
 	if err := wt.Reset(&git.ResetOptions{Mode: git.HardReset}); err != nil {
 		return errors.Wrapf(err, "failed to reset %s", g.source)
@@ -300,4 +321,44 @@ func (g *Generator) checkoutToTag(tag string) error {
 		return errors.Wrapf(err, "failed to checkout tag %s", tag)
 	}
 	return nil
+}
+
+// copyFile copy a file to a destination directory. Creates the directory if not exist.
+func copyFile(srcPath, dstPath string) error {
+	dstDir := filepath.Dir(dstPath)
+	if err := os.RemoveAll(dstDir); err != nil {
+		return err
+	}
+	if err := os.MkdirAll(dstDir, os.ModePerm); err != nil {
+		return err
+	}
+
+	src, err := os.Open(srcPath)
+	if err != nil {
+		return errors.Wrap(err, "failed to open source file")
+	}
+	defer src.Close()
+
+	dst, err := os.Create(dstPath)
+	if err != nil {
+		return errors.Wrap(err, "failed to create destination file")
+	}
+	defer dst.Close()
+
+	_, err = io.Copy(dst, src)
+	if err != nil {
+		return errors.Wrap(err, "failed to copy data: %s")
+	}
+	// Sync to ensure data is flushed to disk.
+	err = dst.Sync()
+	if err != nil {
+		return errors.Wrap(err, "failed to sync destination file")
+	}
+
+	// Set executable permissions on the destination file.
+	err = os.Chmod(dstPath, 0o755)
+	if err != nil {
+		return errors.Wrap(err, "failed to set executable permissions")
+	}
+	return err
 }
