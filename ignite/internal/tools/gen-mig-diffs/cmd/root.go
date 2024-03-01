@@ -154,6 +154,10 @@ func NewRootCmd() *cobra.Command {
 				Diffs:       string(formatedDiffs),
 				Description: releaseDescription,
 			})
+			if err != nil {
+				return errors.Wrap(err, "failed to create the doc generator object")
+			}
+
 			if _, err := xgenny.RunWithValidation(placeholder.New(), g); err != nil {
 				return err
 			}
