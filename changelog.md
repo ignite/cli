@@ -13,6 +13,7 @@
 
 ### Fixes
 
+- [#3995](https://github.com/ignite/cli/pull/3995) Fix interface check for ibc modules
 - [#3953](https://github.com/ignite/cli/pull/3953) Fix apps `Stdout` is redirected to `Stderr`
 - [#3863](https://github.com/ignite/cli/pull/3963) Fix breaking issue for app client API when reading app chain info
 
