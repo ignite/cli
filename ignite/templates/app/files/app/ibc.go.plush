@@ -197,13 +197,8 @@ func RegisterIBC(registry cdctypes.InterfaceRegistry) map[string]appmodule.AppMo
 		solomachine.ModuleName:      solomachine.AppModule{},
 	}
 
-       for name, m := range modules {
-            ibcModule := module.CoreAppModuleBasicAdaptor(name, m)
-            if mod, ok := ibcModule.(interface {
-			RegisterInterfaces(registry cdctypes.InterfaceRegistry)
-		}); ok {
-			mod.RegisterInterfaces(registry)
-		}
+    for name, m := range modules {
+		module.CoreAppModuleBasicAdaptor(name, m).RegisterInterfaces(registry)
 	}
 
 	return modules
