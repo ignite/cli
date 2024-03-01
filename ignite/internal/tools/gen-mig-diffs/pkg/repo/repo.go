@@ -186,8 +186,7 @@ Commit: %[2]v
 Author: %[3]v
 Date: %[4]v
 
-%[5]v
-`,
+%[5]v`,
 		g.To.Original(),
 		tagObj.Hash.String(),
 		tagObj.Tagger.String(),

@@ -7,11 +7,8 @@ description: <%= ShortDescription %>
 ## **<%= ToVersion %>**
 
 <%= Description %>
-
 ### **Chain migration diffs**
-
 <%= Diffs %>
-
 ### **Details**
 
 - **The CLI tools automatically generated this file**;
