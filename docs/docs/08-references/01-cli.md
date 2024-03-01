@@ -3023,11 +3023,13 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 
 * [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 * [ignite scaffold chain](#ignite-scaffold-chain)	 - New Cosmos SDK blockchain
+* [ignite scaffold configs](#ignite-scaffold-configs)	 - Configs for a custom Cosmos SDK module
 * [ignite scaffold list](#ignite-scaffold-list)	 - CRUD for data stored as an array
 * [ignite scaffold map](#ignite-scaffold-map)	 - CRUD for data stored as key-value pairs
 * [ignite scaffold message](#ignite-scaffold-message)	 - Message to perform state transition on the blockchain
 * [ignite scaffold module](#ignite-scaffold-module)	 - Custom Cosmos SDK module
 * [ignite scaffold packet](#ignite-scaffold-packet)	 - Message for sending an IBC packet
+* [ignite scaffold params](#ignite-scaffold-params)	 - Parameters for a custom Cosmos SDK module
 * [ignite scaffold query](#ignite-scaffold-query)	 - Query for fetching data from a blockchain
 * [ignite scaffold react](#ignite-scaffold-react)	 - React web app template
 * [ignite scaffold single](#ignite-scaffold-single)	 - CRUD for data stored in a single location
@@ -3090,14 +3092,53 @@ ignite scaffold chain [name] [flags]
 **Options**
 
 ```
-      --address-prefix string   account address prefix (default "cosmos")
-      --clear-cache             clear the build cache (advanced)
-  -h, --help                    help for chain
-      --minimal                 create a minimal blockchain (with the minimum required Cosmos SDK modules)
-      --no-module               create a project without a default module
-      --params strings          add default module parameters
-  -p, --path string             create a project in a specific path
-      --skip-git                skip Git repository initialization
+      --address-prefix string    account address prefix (default "cosmos")
+      --clear-cache              clear the build cache (advanced)
+  -h, --help                     help for chain
+      --minimal                  create a minimal blockchain (with the minimum required Cosmos SDK modules)
+      --module-configs strings   add module configs
+      --no-module                create a project without a default module
+      --params strings           add default module parameters
+  -p, --path string              create a project in a specific path
+      --skip-git                 skip Git repository initialization
+```
+
+**SEE ALSO**
+
+* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+
+
+## ignite scaffold configs
+
+Configs for a custom Cosmos SDK module
+
+**Synopsis**
+
+Scaffold a new config for a Cosmos SDK module.
+
+A Cosmos SDK module can have configurations. An example of a config is "address prefix" of the
+"auth" module. A config can be scaffolded into a module using the "--module-configs" into
+the scaffold module command or using the "scaffold configs" command. By default 
+configs are of type "string", but you can specify a type for each config. For example:
+
+	ignite scaffold configs foo baz:uint bar:bool
+
+Refer to Cosmos SDK documentation to learn more about modules, dependencies and
+configs.
+
+
+```
+ignite scaffold configs [configs]... [flags]
+```
+
+**Options**
+
+```
+      --clear-cache     clear the build cache (advanced)
+  -h, --help            help for configs
+      --module string   module to add the query into (default: app's main module)
+  -p, --path string     path of the app (default ".")
+  -y, --yes             answers interactive yes/no questions with yes
 ```
 
 **SEE ALSO**
@@ -3438,15 +3479,16 @@ ignite scaffold module [name] [flags]
 **Options**
 
 ```
-      --clear-cache            clear the build cache (advanced)
-      --dep strings            add a dependency on another module
-  -h, --help                   help for module
-      --ibc                    add IBC functionality
-      --ordering string        channel ordering of the IBC module [none|ordered|unordered] (default "none")
-      --params strings         add module parameters
-  -p, --path string            path of the app (default ".")
-      --require-registration   fail if module can't be registered
-  -y, --yes                    answers interactive yes/no questions with yes
+      --clear-cache              clear the build cache (advanced)
+      --dep strings              add a dependency on another module
+  -h, --help                     help for module
+      --ibc                      add IBC functionality
+      --module-configs strings   add module configs
+      --ordering string          channel ordering of the IBC module [none|ordered|unordered] (default "none")
+      --params strings           add module parameters
+  -p, --path string              path of the app (default ".")
+      --require-registration     fail if module can't be registered
+  -y, --yes                      answers interactive yes/no questions with yes
 ```
 
 **SEE ALSO**
@@ -3476,6 +3518,46 @@ ignite scaffold packet [packetName] [field1] [field2] ... --module [moduleName] 
       --no-message      disable send message scaffolding
   -p, --path string     path of the app (default ".")
       --signer string   label for the message signer (default: creator)
+  -y, --yes             answers interactive yes/no questions with yes
+```
+
+**SEE ALSO**
+
+* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+
+
+## ignite scaffold params
+
+Parameters for a custom Cosmos SDK module
+
+**Synopsis**
+
+Scaffold a new parameter for a Cosmos SDK module.
+
+A Cosmos SDK module can have parameters (or "params"). Params are values that
+can be set at the genesis of the blockchain and can be modified while the
+blockchain is running. An example of a param is "Inflation rate change" of the
+"mint" module. A params can be scaffolded into a module using the "--params" into
+the scaffold module command or using the "scaffold params" command. By default 
+params are of type "string", but you can specify a type for each param. For example:
+
+	ignite scaffold params foo baz:uint bar:bool
+
+Refer to Cosmos SDK documentation to learn more about modules, dependencies and
+params.
+
+
+```
+ignite scaffold params [param]... [flags]
+```
+
+**Options**
+
+```
+      --clear-cache     clear the build cache (advanced)
+  -h, --help            help for params
+      --module string   module to add the query into. Default: app's main module
+  -p, --path string     path of the app (default ".")
   -y, --yes             answers interactive yes/no questions with yes
 ```
 
