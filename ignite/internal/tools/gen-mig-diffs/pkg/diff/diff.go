@@ -1,6 +1,7 @@
 package diff
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -8,6 +9,7 @@ import (
 	"github.com/hexops/gotextdiff"
 
 	"github.com/ignite/cli/v28/ignite/pkg/diff"
+	"github.com/ignite/cli/v28/ignite/pkg/xstrings"
 )
 
 type Diffs map[string][]gotextdiff.Unified
@@ -91,6 +93,19 @@ func SaveDiffs(diffs Diffs, outputPath string) error {
 	}
 
 	return nil
+}
+
+// FormatDiffs format all diffs in a single markdown byte array.
+func FormatDiffs(diffs Diffs) ([]byte, error) {
+	buffer := &bytes.Buffer{}
+	for name, diffs := range diffs {
+		buffer.WriteString(fmt.Sprintf("#### **%s diff**\n\n", xstrings.ToUpperFirst(name)))
+		for _, d := range diffs {
+			buffer.WriteString(fmt.Sprint(d))
+			buffer.WriteString("\n\n")
+		}
+	}
+	return buffer.Bytes(), nil
 }
 
 // readRootFolders return a map of all root folders from a directory.

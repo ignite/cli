@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/spf13/cobra"
@@ -9,8 +10,11 @@ import (
 	"github.com/ignite/cli/v28/ignite/internal/tools/gen-mig-diffs/pkg/diff"
 	"github.com/ignite/cli/v28/ignite/internal/tools/gen-mig-diffs/pkg/repo"
 	"github.com/ignite/cli/v28/ignite/internal/tools/gen-mig-diffs/pkg/scaffold"
+	"github.com/ignite/cli/v28/ignite/internal/tools/gen-mig-diffs/templates/doc"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 )
 
 const (
@@ -23,6 +27,8 @@ const (
 	flagRepoCleanup    = "repo-cleanup"
 	flagScaffoldOutput = "scaffold-output"
 	flagScaffoldCache  = "scaffold-cache"
+
+	defaultDocPath = "docs/docs/06-migration"
 )
 
 // NewRootCmd creates a new root command.
@@ -76,6 +82,11 @@ func NewRootCmd() *cobra.Command {
 			}
 			defer igniteRepo.Cleanup()
 
+			releaseDescription, err := igniteRepo.ReleaseDescription()
+			if err != nil {
+				return errors.Wrapf(err, "failed to fetch the release tag %s description", igniteRepo.To.Original())
+			}
+
 			fromBin, toBin, err := igniteRepo.GenerateBinaries(cmd.Context())
 			if err != nil {
 				return err
@@ -122,13 +133,32 @@ func NewRootCmd() *cobra.Command {
 			if err != nil {
 				return errors.Wrap(err, "failed to calculate diff")
 			}
+
+			formatedDiffs, err := diff.FormatDiffs(diffs)
+			if err != nil {
+				return errors.Wrap(err, "failed to save diff map")
+			}
 			session.StopSpinner()
 			session.EventBus().SendInfo("Diff calculated successfully")
 
-			if err = diff.SaveDiffs(diffs, output); err != nil {
-				return errors.Wrap(err, "failed to save diff map")
+			output, err = filepath.Abs(output)
+			if err != nil {
+				return errors.Wrap(err, "failed to find the abs path")
 			}
-			session.Printf("Migration diffs generated successfully at %s\n", output)
+
+			// Generate the docs file.
+			g, err := doc.NewGenerator(doc.Options{
+				Path:        output,
+				FromVersion: igniteRepo.From,
+				ToVersion:   igniteRepo.To,
+				Diffs:       string(formatedDiffs),
+				Description: releaseDescription,
+			})
+			if _, err := xgenny.RunWithValidation(placeholder.New(), g); err != nil {
+				return err
+			}
+
+			session.Printf("Migration doc generated successfully at %s\n", output)
 
 			return nil
 		},
@@ -136,7 +166,7 @@ func NewRootCmd() *cobra.Command {
 
 	cmd.Flags().StringP(flagFrom, "f", "", "Version of ignite or path to ignite source code to generate the diff from")
 	cmd.Flags().StringP(flagTo, "t", "", "Version of ignite or path to ignite source code to generate the diff to")
-	cmd.Flags().StringP(flagOutput, "o", "./diffs", "Output directory to save the migration diff files")
+	cmd.Flags().StringP(flagOutput, "o", defaultDocPath, "Output directory to save the migration document")
 	cmd.Flags().StringP(flagSource, "s", "", "Path to ignite source code repository. Set the source automatically set the cleanup to false")
 	cmd.Flags().String(flagRepoURL, "", "Git URL for the Ignite repository")
 	cmd.Flags().String(flagRepoOutput, "", "Output path to clone the ignite repository")

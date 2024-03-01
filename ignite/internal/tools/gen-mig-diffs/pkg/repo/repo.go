@@ -147,7 +147,7 @@ func New(from, to *semver.Version, session *cliui.Session, options ...Options) (
 		session.EventBus().SendInfo(fmt.Sprintf("Cloned ignite repository to: %s", source))
 	}
 
-	versions, err := getRepoVersionTags(source)
+	versions, err := getRepoVersionTags(repo)
 	if err != nil {
 		return nil, err
 	}
@@ -172,39 +172,30 @@ func New(from, to *semver.Version, session *cliui.Session, options ...Options) (
 	}, nil
 }
 
-// getRepoVersionTags returns a sorted collection of semver tags from the ignite cli repository.
-func getRepoVersionTags(repoDir string) (semver.Collection, error) {
-	repo, err := git.PlainOpen(repoDir)
+func (g *Generator) ReleaseDescription() (string, error) {
+	tag, err := g.repo.Tag(g.To.Original())
 	if err != nil {
-		return nil, err
+		return "", errors.Wrapf(err, "failed to get tag %s", g.To.Original())
 	}
-
-	tags, err := repo.Tags()
+	tagObj, err := g.repo.TagObject(tag.Hash())
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get tags")
+		return "", errors.Wrapf(err, "failed to get tag object %s", tag.Hash().String())
 	}
+	description := fmt.Sprintf(`Tag: %[1]v
+Commit: %[2]v
+Author: %[3]v
+Date: %[4]v
 
-	// Iterate over all tags in the repository and pick valid semver tags
-	var versions semver.Collection
-	err = tags.ForEach(func(ref *plumbing.Reference) error {
-		name := ref.Name()
-		if name.IsTag() {
-			ver, err := semver.NewVersion(name.Short())
-			if err != nil {
-				// Do nothing as it's not a semver tag
-				return nil
-			}
-			versions = append(versions, ver)
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to iterate over tags")
-	}
+%[5]v
+`,
+		g.To.Original(),
+		tagObj.Hash.String(),
+		tagObj.Tagger.String(),
+		tagObj.Tagger.When.Format("Jan 2 15:04:05 2006"),
+		tagObj.Message,
+	)
 
-	sort.Sort(versions)
-
-	return versions, nil
+	return description, nil
 }
 
 // Cleanup cleanup all temporary directories.
@@ -217,53 +208,6 @@ func (g *Generator) Cleanup() {
 		return
 	}
 	g.session.EventBus().SendInfo(fmt.Sprintf("Removed temporary directory: %s", g.source))
-}
-
-// validateVersionRange checks if the provided fromVer and toVer exist in the versions and if any of them is nil, then it picks default values.
-func validateVersionRange(fromVer, toVer *semver.Version, versions semver.Collection) (*semver.Version, *semver.Version, error) {
-	// Unable to generate migration document if there are less than two releases!
-	if versions.Len() < 2 {
-		return nil, nil, errors.New("At least two semver tags are required")
-	}
-
-	versionMap := make(map[string]*semver.Version)
-	for _, ver := range versions {
-		versionMap[ver.String()] = ver
-	}
-
-	// Picking default values for fromVer and toVer such that:
-	// If both fromVer and toVer are not provided, then generate migration document for second last and last semver tags
-	// If only fromVer is not provided, then use the tag before toVer as fromVer
-	// If only toVer is not provided, then use the last tag as toVer
-	if toVer != nil {
-		if _, found := versionMap[toVer.String()]; !found {
-			return nil, nil, errors.Errorf("tag %s not found", toVer)
-		}
-	} else {
-		toVer = versions[versions.Len()-1]
-	}
-
-	// Replace fromVer and toVer with equivalent semver tags from versions
-	if fromVer != nil {
-		if _, found := versionMap[fromVer.String()]; !found {
-			return nil, nil, errors.Errorf("tag %s not found", fromVer)
-		}
-	} else {
-		sort.Search(versions.Len(), func(i int) bool {
-			if versions[i].LessThan(toVer) {
-				fromVer = versions[i]
-				return false
-			}
-			return true
-		})
-	}
-
-	// Unable to generate migration document if fromVer is greater or equal to toVer
-	if fromVer.GreaterThan(toVer) || fromVer.Equal(toVer) {
-		return nil, nil, errors.Errorf("from version %s should be less than to version %s", fromVer, toVer)
-	}
-
-	return fromVer, toVer, nil
 }
 
 func (g *Generator) GenerateBinaries(ctx context.Context) (string, string, error) {
@@ -321,6 +265,83 @@ func (g *Generator) checkoutToTag(tag string) error {
 		return errors.Wrapf(err, "failed to checkout tag %s", tag)
 	}
 	return nil
+}
+
+// getRepoVersionTags returns a sorted collection of semver tags from the ignite cli repository.
+func getRepoVersionTags(repo *git.Repository) (semver.Collection, error) {
+	tags, err := repo.Tags()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get tags")
+	}
+
+	// Iterate over all tags in the repository and pick valid semver tags
+	var versions semver.Collection
+	err = tags.ForEach(func(ref *plumbing.Reference) error {
+		name := ref.Name()
+		if name.IsTag() {
+			ver, err := semver.NewVersion(name.Short())
+			if err != nil {
+				// Do nothing as it's not a semver tag
+				return nil
+			}
+			versions = append(versions, ver)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to iterate over tags")
+	}
+
+	sort.Sort(versions)
+
+	return versions, nil
+}
+
+// validateVersionRange checks if the provided fromVer and toVer exist in the versions and if any of them is nil, then it picks default values.
+func validateVersionRange(fromVer, toVer *semver.Version, versions semver.Collection) (*semver.Version, *semver.Version, error) {
+	// Unable to generate migration document if there are less than two releases!
+	if versions.Len() < 2 {
+		return nil, nil, errors.New("At least two semver tags are required")
+	}
+
+	versionMap := make(map[string]*semver.Version)
+	for _, ver := range versions {
+		versionMap[ver.String()] = ver
+	}
+
+	// Picking default values for fromVer and toVer such that:
+	// If both fromVer and toVer are not provided, then generate migration document for second last and last semver tags
+	// If only fromVer is not provided, then use the tag before toVer as fromVer
+	// If only toVer is not provided, then use the last tag as toVer
+	if toVer != nil {
+		if _, found := versionMap[toVer.String()]; !found {
+			return nil, nil, errors.Errorf("tag %s not found", toVer)
+		}
+	} else {
+		toVer = versions[versions.Len()-1]
+	}
+
+	// Replace fromVer and toVer with equivalent semver tags from versions
+	if fromVer != nil {
+		if _, found := versionMap[fromVer.String()]; !found {
+			return nil, nil, errors.Errorf("tag %s not found", fromVer)
+		}
+	} else {
+		sort.Search(versions.Len(), func(i int) bool {
+			if versions[i].LessThan(toVer) {
+				fromVer = versions[i]
+				return false
+			}
+			return true
+		})
+	}
+
+	// Unable to generate migration document if fromVer is greater or equal to toVer
+	if fromVer.GreaterThan(toVer) || fromVer.Equal(toVer) {
+		return nil, nil, errors.Errorf("from version %s should be less than to version %s", fromVer, toVer)
+	}
+
+	return fromVer, toVer, nil
 }
 
 // copyFile copy a file to a destination directory. Creates the directory if not exist.
