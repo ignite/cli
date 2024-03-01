@@ -16,13 +16,6 @@ const (
 	PlaceholderProtoTxRPC     = "// this line is used by starport scaffolding # proto/tx/rpc"
 	PlaceholderProtoTxMessage = "// this line is used by starport scaffolding # proto/tx/message"
 
-	// Placeholders for Oracle
-	PlaceholderProtoTxImport          = "// this line is used by starport scaffolding # proto/tx/import"
-	PlaceholderOraclePacketModuleRecv = "// this line is used by starport scaffolding # oracle/packet/module/recv"
-	PlaceholderOraclePacketModuleAck  = "// this line is used by starport scaffolding # oracle/packet/module/ack"
-	PlaceholderOracleModuleRecv       = "// this line is used by starport scaffolding # oracle/module/recv"
-	PlaceholderOracleModuleAck        = "// this line is used by starport scaffolding # oracle/module/ack"
-
 	// Placeholders AutoCLI
 	PlaceholderAutoCLIQuery = "// this line is used by ignite scaffolding # autocli/query"
 	PlaceholderAutoCLITx    = "// this line is used by ignite scaffolding # autocli/tx"
