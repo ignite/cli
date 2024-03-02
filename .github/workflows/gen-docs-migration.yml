@@ -1,9 +1,7 @@
-name: Generate Docs
-
+name: Generate Migration Docs
 on:
-  push:
-    branches:
-      - main
+  release:
+    types: [published]
 
 jobs:
   cli:
@@ -15,17 +13,19 @@ jobs:
         with:
           go-version: '1.21'
 
-      - name: Generate CLI Docs
-        run: ./scripts/gen-cli-docs
+      - name: Generate Scaffold Migration Docs
+        run: go run ./ignite/internal/tools/gen-mig-diffs/main.go
 
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v4
         with:
-          title: "docs(cli): update generated docs"
-          commit-message: "docs(cli): update generated docs"
+          title: "docs(migration): update generated docs"
+          commit-message: "docs(migration): update generated docs"
           body: ""
-          branch: feat/gen-cli-docs
+          branch: feat/gen-migration-docs
+          add-paths: |
+            docs/
 
       - name: Check outputs
         run: |
