@@ -21,12 +21,11 @@ func (k msgServer) Create<%= TypeName.UpperCamel %>(ctx context.Context,  msg *t
 		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "failed to get next id")
 	}
 
-    err = k.<%= TypeName.UpperCamel %>.Set(
+    if err = k.<%= TypeName.UpperCamel %>.Set(
         ctx,
         nextId,
         <%= TypeName.LowerCamel %>,
-    )
-    if err != nil {
+    ); err != nil {
         return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "failed to set <%= TypeName.LowerCamel %>")
     }
 

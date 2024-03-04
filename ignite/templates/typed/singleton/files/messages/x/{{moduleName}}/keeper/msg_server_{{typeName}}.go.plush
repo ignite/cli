@@ -26,7 +26,7 @@ func (k msgServer) Create<%= TypeName.UpperCamel %>(ctx context.Context,  msg *t
    		ctx,
    		<%= TypeName.LowerCamel %>,
    	); err != nil {
-        return nil
+        return nil, err
     }
 
 	return &types.MsgCreate<%= TypeName.UpperCamel %>Response{}, nil
@@ -49,7 +49,9 @@ func (k msgServer) Update<%= TypeName.UpperCamel %>(ctx context.Context,  msg *t
     	<%= field.Name.UpperCamel %>: msg.<%= field.Name.UpperCamel %>,<% } %>
 	}
 
-	k.<%= TypeName.UpperCamel %>.Set(ctx, <%= TypeName.LowerCamel %>)
+	if err := k.<%= TypeName.UpperCamel %>.Set(ctx, <%= TypeName.LowerCamel %>); err != nil {
+        return nil, err
+    }
 
 	return &types.MsgUpdate<%= TypeName.UpperCamel %>Response{}, nil
 }
