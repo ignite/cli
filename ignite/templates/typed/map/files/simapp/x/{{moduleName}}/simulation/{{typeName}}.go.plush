@@ -31,8 +31,8 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(
 			<%= index.Name.UpperCamel %>: <%= index.ValueLoop() %>,<% } %>
 		}
 
-		_, found := k.Get<%= TypeName.UpperCamel %>(ctx <%= for (index) in Indexes { %>, msg.<%= index.Name.UpperCamel %><% } %>)
-		if found {
+		found, err := k.<%= TypeName.UpperCamel %>.Has(ctx <%= for (index) in Indexes { %>, msg.<%= index.Name.UpperCamel %><% } %>)
+		if err == nil && found {
 			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.UpperCamel %> already exist"), nil, nil
 		}
 

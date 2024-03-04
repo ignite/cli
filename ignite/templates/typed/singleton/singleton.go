@@ -329,7 +329,9 @@ func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) gen
 
 		templateModuleInit := `// Set if defined
 if genState.%[3]v != nil {
-	k.Set%[3]v(ctx, *genState.%[3]v)
+	if err := k.%[3]v.Set(ctx, *genState.%[3]v); err != nil {
+		return err
+	}
 }
 %[1]v`
 		replacementModuleInit := fmt.Sprintf(
@@ -341,8 +343,8 @@ if genState.%[3]v != nil {
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisModuleInit, replacementModuleInit)
 
 		templateModuleExport := `// Get all %[2]v
-%[2]v, found := k.Get%[3]v(ctx)
-if found {
+%[2]v, err := k.%[3]v.Get(ctx)
+if err == nil {
 	genesis.%[3]v = &%[2]v
 }
 %[1]v`

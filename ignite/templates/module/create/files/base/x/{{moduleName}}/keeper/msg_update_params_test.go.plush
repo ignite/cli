@@ -13,7 +13,6 @@ func TestMsgUpdateParams(t *testing.T) {
 	k, ms, ctx := setupMsgServer(t)
 	params := types.DefaultParams()
 	require.NoError(t, k.Params.Set(ctx, params))
-	wctx := sdk.UnwrapSDKContext(ctx)
 
 	// default params
 	testCases := []struct {
@@ -51,7 +50,7 @@ func TestMsgUpdateParams(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			_, err := ms.UpdateParams(wctx, tc.input)
+			_, err := ms.UpdateParams(ctx, tc.input)
 
 			if tc.expErr {
 				require.Error(t, err)
