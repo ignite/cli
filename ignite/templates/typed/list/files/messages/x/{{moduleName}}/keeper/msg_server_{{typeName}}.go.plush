@@ -6,32 +6,36 @@ import (
 
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 
-func (k msgServer) Create<%= TypeName.UpperCamel %>(goCtx context.Context,  msg *types.MsgCreate<%= TypeName.UpperCamel %>) (*types.MsgCreate<%= TypeName.UpperCamel %>Response, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
+func (k msgServer) Create<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgCreate<%= TypeName.UpperCamel %>) (*types.MsgCreate<%= TypeName.UpperCamel %>Response, error) {
     var <%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{
         <%= MsgSigner.UpperCamel %>: msg.<%= MsgSigner.UpperCamel %>,<%= for (field) in Fields { %>
         <%= field.Name.UpperCamel %>: msg.<%= field.Name.UpperCamel %>,<% } %>
     }
 
-    id := k.Append<%= TypeName.UpperCamel %>(
+    nextId, err := k.<%= TypeName.UpperCamel %>Seq.Next(ctx)
+	if err != nil {
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "failed to get next id")
+	}
+
+    err = k.<%= TypeName.UpperCamel %>.Set(
         ctx,
+        nextId,
         <%= TypeName.LowerCamel %>,
     )
+    if err != nil {
+        return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "failed to set <%= TypeName.LowerCamel %>")
+    }
 
 	return &types.MsgCreate<%= TypeName.UpperCamel %>Response{
-	    Id: id,
+	    Id: nextId,
 	}, nil
 }
 
-func (k msgServer) Update<%= TypeName.UpperCamel %>(goCtx context.Context,  msg *types.MsgUpdate<%= TypeName.UpperCamel %>) (*types.MsgUpdate<%= TypeName.UpperCamel %>Response, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
+func (k msgServer) Update<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgUpdate<%= TypeName.UpperCamel %>) (*types.MsgUpdate<%= TypeName.UpperCamel %>Response, error) {
     var <%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{
 		<%= MsgSigner.UpperCamel %>: msg.<%= MsgSigner.UpperCamel %>,
 		Id:      msg.Id,<%= for (field) in Fields { %>
@@ -39,9 +43,13 @@ func (k msgServer) Update<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
 	}
 
     // Checks that the element exists
-    val, found := k.Get<%= TypeName.UpperCamel %>(ctx, msg.Id)
-    if !found {
-        return nil, errorsmod.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
+    val, err := k.<%= TypeName.UpperCamel %>.Get(ctx, msg.Id)
+    if err != nil {
+        if errors.Is(err, collections.ErrNotFound) {
+			return nil, errorsmod.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
+		}
+
+        return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "failed to get <%= TypeName.LowerCamel %>")
     }
 
     // Checks if the msg <%= MsgSigner.LowerCamel %> is the same as the current owner
@@ -49,18 +57,22 @@ func (k msgServer) Update<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
         return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
     }
 
-	k.Set<%= TypeName.UpperCamel %>(ctx, <%= TypeName.LowerCamel %>)
+	if err := k.<%= TypeName.UpperCamel %>.Set(ctx, msg.Id, <%= TypeName.LowerCamel %>); err != nil {
+        return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "failed to update <%= TypeName.LowerCamel %>")
+    }
 
 	return &types.MsgUpdate<%= TypeName.UpperCamel %>Response{}, nil
 }
 
-func (k msgServer) Delete<%= TypeName.UpperCamel %>(goCtx context.Context,  msg *types.MsgDelete<%= TypeName.UpperCamel %>) (*types.MsgDelete<%= TypeName.UpperCamel %>Response, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
+func (k msgServer) Delete<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgDelete<%= TypeName.UpperCamel %>) (*types.MsgDelete<%= TypeName.UpperCamel %>Response, error) {
     // Checks that the element exists
-    val, found := k.Get<%= TypeName.UpperCamel %>(ctx, msg.Id)
-    if !found {
-        return nil, errorsmod.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
+    val, err := k.<%= TypeName.UpperCamel %>.Get(ctx, msg.Id)
+    if err != nil {
+        if errors.Is(err, collections.ErrNotFound) {
+			return nil, errorsmod.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
+		}
+
+        return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "failed to get <%= TypeName.LowerCamel %>")
     }
 
     // Checks if the msg <%= MsgSigner.LowerCamel %> is the same as the current owner
@@ -68,7 +80,9 @@ func (k msgServer) Delete<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
         return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
     }
 
-	k.Remove<%= TypeName.UpperCamel %>(ctx, msg.Id)
+	if err := k.<%= TypeName.UpperCamel %>.Remove(ctx, msg.Id); err != nil {
+        return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "failed to delete <%= TypeName.LowerCamel %>")
+    }
 
 	return &types.MsgDelete<%= TypeName.UpperCamel %>Response{}, nil
 }

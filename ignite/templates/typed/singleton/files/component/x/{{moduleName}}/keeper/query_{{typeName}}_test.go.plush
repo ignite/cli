@@ -10,6 +10,7 @@ import (
 	keepertest "<%= ModulePath %>/testutil/keeper"
 	"<%= ModulePath %>/testutil/nullify"
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+	"<%= ModulePath %>/x/<%= ModuleName %>/keeper"
 )
 
 func Test<%= TypeName.UpperCamel %>Query(t *testing.T) {

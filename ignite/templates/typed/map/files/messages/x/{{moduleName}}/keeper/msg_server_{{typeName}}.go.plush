@@ -5,20 +5,19 @@ import (
 
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 
-func (k msgServer) Create<%= TypeName.UpperCamel %>(goCtx context.Context,  msg *types.MsgCreate<%= TypeName.UpperCamel %>) (*types.MsgCreate<%= TypeName.UpperCamel %>Response, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
+func (k msgServer) Create<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgCreate<%= TypeName.UpperCamel %>) (*types.MsgCreate<%= TypeName.UpperCamel %>Response, error) {
     // Check if the value already exists
-    _, isFound := k.Get<%= TypeName.UpperCamel %>(
+    ok, err := k.<%= TypeName.UpperCamel %>.Has(
         ctx,
-        <%= for (i, index) in Indexes { %>msg.<%= index.Name.UpperCamel %>,
+        <%= for (i, index) in Indexes { %>msg.<%= index.Name.UpperCamel %>, // TODO need to limit max nb of indexes
         <% } %>)
-    if isFound {
+    if err != nil {
+        return nil, errorsmod.Wrap(sdkerrors.ErrLogic, err.Error())
+    } else if ok {
         return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "index already set")
     }
 
@@ -29,16 +28,19 @@ func (k msgServer) Create<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
         <% } %>
     }
 
-   k.Set<%= TypeName.UpperCamel %>(
+    if err := k.Set<%= TypeName.UpperCamel %>(
    		ctx,
+        <%= for (i, index) in Indexes { %>msg.<%= index.Name.UpperCamel %>,
+        <% } %>
    		<%= TypeName.LowerCamel %>,
-   	)
-	return &types.MsgCreate<%= TypeName.UpperCamel %>Response{}, nil
+   	); err != nil {
+        return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "failed to set <%= index.Name.UpperCamel %>")
+    }
+	
+    return &types.MsgCreate<%= TypeName.UpperCamel %>Response{}, nil
 }
 
-func (k msgServer) Update<%= TypeName.UpperCamel %>(goCtx context.Context,  msg *types.MsgUpdate<%= TypeName.UpperCamel %>) (*types.MsgUpdate<%= TypeName.UpperCamel %>Response, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
+func (k msgServer) Update<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgUpdate<%= TypeName.UpperCamel %>) (*types.MsgUpdate<%= TypeName.UpperCamel %>Response, error) {
     // Check if the value exists
     valFound, isFound := k.Get<%= TypeName.UpperCamel %>(
         ctx,
@@ -65,9 +67,7 @@ func (k msgServer) Update<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
 	return &types.MsgUpdate<%= TypeName.UpperCamel %>Response{}, nil
 }
 
-func (k msgServer) Delete<%= TypeName.UpperCamel %>(goCtx context.Context,  msg *types.MsgDelete<%= TypeName.UpperCamel %>) (*types.MsgDelete<%= TypeName.UpperCamel %>Response, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
+func (k msgServer) Delete<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgDelete<%= TypeName.UpperCamel %>) (*types.MsgDelete<%= TypeName.UpperCamel %>Response, error) {
     // Check if the value exists
     valFound, isFound := k.Get<%= TypeName.UpperCamel %>(
         ctx,

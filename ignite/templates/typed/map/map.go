@@ -19,6 +19,11 @@ import (
 	"github.com/ignite/cli/v28/ignite/templates/typed"
 )
 
+/*
+TODO add the following in keeper.go
+		TypeName    collections.Map[string, types.TypeName]
+*/
+
 var (
 	//go:embed files/messages/* files/messages/**/*
 	fsMessages embed.FS

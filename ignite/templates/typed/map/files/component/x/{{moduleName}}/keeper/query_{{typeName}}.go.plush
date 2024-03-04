@@ -11,19 +11,21 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (s queryServer) List<%= TypeName.UpperCamel %>(ctx context.Context, req *types.QueryAll<%= TypeName.UpperCamel %>Request) (*types.QueryAll<%= TypeName.UpperCamel %>Response, error) {
+func (q queryServer) List<%= TypeName.UpperCamel %>(ctx context.Context, req *types.QueryAll<%= TypeName.UpperCamel %>Request) (*types.QueryAll<%= TypeName.UpperCamel %>Response, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
 	var <%= TypeName.LowerCamel %>s []types.<%= TypeName.UpperCamel %>
 
-    store := runtime.KVStoreAdapter(s.k.storeService.OpenKVStore(ctx))
+	// TODO use collections
+
+    store := runtime.KVStoreAdapter(q.k.storeService.OpenKVStore(ctx))
 	<%= TypeName.LowerCamel %>Store := prefix.NewStore(store, types.KeyPrefix(types.<%= TypeName.UpperCamel %>KeyPrefix))
 
 	pageRes, err := query.Paginate(<%= TypeName.LowerCamel %>Store, req.Pagination, func(key []byte, value []byte) error {
 		var <%= TypeName.LowerCamel %> types.<%= TypeName.UpperCamel %>
-		if err := s.k.cdc.Unmarshal(value, &<%= TypeName.LowerCamel %>); err != nil {
+		if err := q.k.cdc.Unmarshal(value, &<%= TypeName.LowerCamel %>); err != nil {
 			return err
 		}
 
@@ -38,16 +40,16 @@ func (s queryServer) List<%= TypeName.UpperCamel %>(ctx context.Context, req *ty
 	return &types.QueryAll<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: <%= TypeName.LowerCamel %>s, Pagination: pageRes}, nil
 }
 
-func (s queryServer) Get<%= TypeName.UpperCamel %>(ctx context.Context, req *types.QueryGet<%= TypeName.UpperCamel %>Request) (*types.QueryGet<%= TypeName.UpperCamel %>Response, error) {
+func (q queryServer) Get<%= TypeName.UpperCamel %>(ctx context.Context, req *types.QueryGet<%= TypeName.UpperCamel %>Request) (*types.QueryGet<%= TypeName.UpperCamel %>Response, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
-	val, found := s.k.Get<%= TypeName.UpperCamel %>(
+	val, err := q.k.<%= TypeName.UpperCamel %>.Get(
 	    ctx,
 	    <%= for (i, index) in Indexes { %>req.<%= index.Name.UpperCamel %>,
         <% } %>)
-	if !found {
+	if err != nil {
 	    return nil, status.Error(codes.NotFound, "not found")
 	}
 

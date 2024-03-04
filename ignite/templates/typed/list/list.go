@@ -18,6 +18,13 @@ import (
 	"github.com/ignite/cli/v28/ignite/templates/typed"
 )
 
+/*
+TODO add the following in keeper.go
+
+		TypeNameSeq collections.Sequence
+		TypeName    collections.Map[uint64, types.TypeName]
+*/
+
 var (
 	//go:embed files/component/* files/component/**/*
 	fsComponent embed.FS
@@ -291,9 +298,9 @@ func typesKeyModify(opts *typed.Options) genny.RunFn {
 			return err
 		}
 		content := f.String() + fmt.Sprintf(`
-const (
-	%[1]vKey= "%[1]v/value/"
-	%[1]vCountKey= "%[1]v/count/"
+var (
+	%[1]vKey= collections.NewPrefix("%[1]v/value/")
+	%[1]vCountKey= collections.NewPrefix("%[1]v/count/")
 )
 `, opts.TypeName.UpperCamel)
 		newFile := genny.NewFileS(path, content)

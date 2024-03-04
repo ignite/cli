@@ -14,8 +14,8 @@ func (k msgServer) Create<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
     // Check if the value already exists
-    _, isFound := k.Get<%= TypeName.UpperCamel %>(ctx)
-    if isFound {
+    _, found := k.<%= TypeName.UpperCamel %>.Has(ctx)
+    if found {
         return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "already set")
     }
 
@@ -35,8 +35,8 @@ func (k msgServer) Update<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
     // Check if the value exists
-    valFound, isFound := k.Get<%= TypeName.UpperCamel %>(ctx)
-    if !isFound {
+    valFound, err := k.<%= TypeName.UpperCamel %>.Get(ctx)
+    if err != nil {
         return nil, errorsmod.Wrap(sdkerrors.ErrKeyNotFound, "not set")
     }
 
@@ -55,12 +55,10 @@ func (k msgServer) Update<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
 	return &types.MsgUpdate<%= TypeName.UpperCamel %>Response{}, nil
 }
 
-func (k msgServer) Delete<%= TypeName.UpperCamel %>(goCtx context.Context,  msg *types.MsgDelete<%= TypeName.UpperCamel %>) (*types.MsgDelete<%= TypeName.UpperCamel %>Response, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
+func (k msgServer) Delete<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgDelete<%= TypeName.UpperCamel %>) (*types.MsgDelete<%= TypeName.UpperCamel %>Response, error) {
     // Check if the value exists
-    valFound, isFound := k.Get<%= TypeName.UpperCamel %>(ctx)
-    if !isFound {
+    valFound, err := k.<%= TypeName.UpperCamel %>.Get(ctx)
+    if err != nil {
         return nil, errorsmod.Wrap(sdkerrors.ErrKeyNotFound, "not set")
     }
 

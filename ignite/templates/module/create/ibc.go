@@ -170,7 +170,7 @@ PortID = "%[1]v"`
 		// PlaceholderIBCKeysPort
 		templatePort := `var (
 	// PortKey defines the key to store the port ID in store
-	PortKey = KeyPrefix("%[1]v-port-")
+	PortKey = collections.NewPrefix("%[1]v-port-")
 )`
 		replacementPort := fmt.Sprintf(templatePort, opts.ModuleName)
 		content = replacer.Replace(content, module.PlaceholderIBCKeysPort, replacementPort)
