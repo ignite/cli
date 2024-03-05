@@ -2,8 +2,8 @@ package keeper
 
 import (
 	"context"
-	"collections"
-
+	
+	"cosmossdk.io/collections"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
@@ -20,7 +20,7 @@ func (q queryServer) List<%= TypeName.UpperCamel %>(ctx context.Context, req *ty
 
 	pageRes, err := query.CollectionPaginate(
 		ctx,
-		q.k.<%= TypeName.LowerCamel %>,
+		q.k.<%= TypeName.UpperCamel %>,
 		req.Pagination,
 		func(_ uint64, value types.<%= TypeName.UpperCamel %>) (types.<%= TypeName.UpperCamel %>, error){
 			return value, nil

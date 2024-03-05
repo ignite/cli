@@ -111,7 +111,6 @@ func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunF
 		}
 
 		templateKeeperType := `%[2]v collections.Item[types.%[2]v]
-
 	%[1]v`
 		replacementModuleType := fmt.Sprintf(
 			templateKeeperType,
@@ -121,7 +120,6 @@ func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunF
 		content := replacer.Replace(f.String(), typed.PlaceholderCollectionType, replacementModuleType)
 
 		templateKeeperInstantiate := `%[2]v: collections.NewItem(sb, types.%[2]vKey, "%[3]v", codec.CollValue[types.%[2]v](cdc)),
-
 	%[1]v`
 		replacementInstantiate := fmt.Sprintf(
 			templateKeeperInstantiate,

@@ -313,8 +313,7 @@ func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunF
 		}
 
 		templateKeeperType := `%[2]vSeq collections.Sequence
-	%[2]v    collections.Map[uint64, %[2]v]
-
+	%[2]v    collections.Map[uint64, types.%[2]v]
 	%[1]v`
 		replacementModuleType := fmt.Sprintf(
 			templateKeeperType,
