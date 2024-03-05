@@ -136,6 +136,17 @@ func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunF
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderCollectionType, replacementModuleType)
 
+		templateKeeperInstantiate := `%[2]v: collections.NewMap(sb, types.%[2]vKey, "%[3]v", collections.StringKey, codec.CollValue[types.%[2]v](cdc)),
+
+	%[1]v`
+		replacementInstantiate := fmt.Sprintf(
+			templateKeeperInstantiate,
+			typed.PlaceholderCollectionInstantiate,
+			opts.TypeName.UpperCamel,
+			opts.TypeName.LowerCamel,
+		)
+		content = replacer.Replace(content, typed.PlaceholderCollectionInstantiate, replacementInstantiate)
+
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

@@ -70,6 +70,7 @@ func NewKeeper(
 		<%= for (dependency) in dependencies { %>
 		<%= toVariableName(dependency.KeeperName()) %>: <%= toVariableName(dependency.KeeperName()) %>,<% } %>
 		Params:  collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
+		// this line is used by starport scaffolding # collection/instantiate
 	}
 	
 	schema, err := sb.Build()
