@@ -9,7 +9,7 @@ import (
 )
 
 // TODO use released version of app-consumer
-const consumerPlugin = "github.com/ignite/apps/consumer@tbruyelle/feat/consumer-app"
+const consumerPlugin = "github.com/ignite/apps/consumer"
 
 // ConsumerWriteGenesis writes validators in the consumer module genesis.
 // NOTE(tb): Using a plugin for this task avoids having the interchain-security
