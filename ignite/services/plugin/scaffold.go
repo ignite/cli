@@ -51,13 +51,12 @@ func Scaffold(ctx context.Context, dir, moduleName string, sharedHost bool) (str
 	pctx.Set("SharedHost", sharedHost)
 
 	g.Transformer(xgenny.Transformer(pctx))
-	r := genny.WetRunner(ctx)
-	err := r.With(g)
-	if err != nil {
+	r := xgenny.NewRunner(ctx, finalDir)
+	if err := r.Run(g); err != nil {
 		return "", errors.WithStack(err)
 	}
 
-	if err := r.Run(); err != nil {
+	if _, err := r.ApplyModifications(); err != nil {
 		return "", errors.WithStack(err)
 	}
 

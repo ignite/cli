@@ -7,8 +7,6 @@ import (
 	"os"
 	"path"
 
-	"github.com/gobuffalo/genny/v2"
-
 	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
@@ -18,6 +16,7 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v28/ignite/pkg/xast"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v28/ignite/templates/app"
 )
 
@@ -176,12 +175,11 @@ func (d Doctor) createToolsFile(ctx context.Context, toolsFilename string) error
 		return err
 	}
 
-	runner := genny.WetRunner(ctx)
-	if err := runner.With(g); err != nil {
+	runner := xgenny.NewRunner(ctx, pathInfo.Root)
+	if err := runner.Run(g); err != nil {
 		return err
 	}
-
-	if err := runner.Run(); err != nil {
+	if _, err := runner.ApplyModifications(); err != nil {
 		return err
 	}
 
