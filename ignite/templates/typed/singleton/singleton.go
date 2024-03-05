@@ -52,8 +52,8 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 		)
 	)
 
-	g.RunFn(typesKeyModify(opts))
 	g.RunFn(protoRPCModify(opts))
+	g.RunFn(typesKeyModify(opts))
 	g.RunFn(keeperModify(replacer, opts))
 	g.RunFn(clientCliQueryModify(replacer, opts))
 	g.RunFn(genesisProtoModify(opts))
@@ -112,7 +112,7 @@ func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunF
 
 		templateKeeperType := `%[2]v collections.Item[types.%[2]v]
 
-%[1]v`
+	%[1]v`
 		replacementModuleType := fmt.Sprintf(
 			templateKeeperType,
 			typed.PlaceholderCollectionType,
@@ -356,7 +356,7 @@ func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) gen
 		templateModuleInit := `// Set if defined
 if genState.%[3]v != nil {
 	if err := k.%[3]v.Set(ctx, *genState.%[3]v); err != nil {
-		return err
+		panic(err)
 	}
 }
 %[1]v`

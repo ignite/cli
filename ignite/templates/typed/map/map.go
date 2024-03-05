@@ -128,7 +128,7 @@ func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunF
 
 		templateKeeperType := `%[2]v collections.Map[string, types.%[2]v]
 
-%[1]v`
+	%[1]v`
 		replacementModuleType := fmt.Sprintf(
 			templateKeeperType,
 			typed.PlaceholderCollectionType,

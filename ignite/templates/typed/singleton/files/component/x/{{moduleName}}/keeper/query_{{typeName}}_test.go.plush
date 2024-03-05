@@ -16,7 +16,10 @@ import (
 func Test<%= TypeName.UpperCamel %>Query(t *testing.T) {
 	k, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 	qs := keeper.NewQueryServerImpl(k)
-	item := createTest<%= TypeName.UpperCamel %>(k, ctx)
+	item := types.<%= TypeName.UpperCamel %>{}
+	err := k.<%= TypeName.UpperCamel %>.Set(ctx, item)
+	require.NoError(t, err)
+
 	tests := []struct {
 		desc     string
 		request  *types.QueryGet<%= TypeName.UpperCamel %>Request

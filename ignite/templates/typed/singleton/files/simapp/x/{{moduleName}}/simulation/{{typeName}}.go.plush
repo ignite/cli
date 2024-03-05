@@ -27,8 +27,8 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(
 			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),
 		}
 
-		_, err := k.<%= TypeName.UpperCamel %>.Get(ctx)
-		if !errors.Is(err, collections.ErrNotFound) {
+		found, err := k.<%= TypeName.UpperCamel %>.Has(ctx)
+		if err == nil && found {
 			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.UpperCamel %> already exist"), nil, nil
 		}
 
@@ -64,7 +64,7 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> store is empty"), nil, nil
 		}
-		simAccount, found = FindAccount(accs, <%= TypeName.LowerCamel %>.<%= MsgSigner.UpperCamel %>)
+		simAccount, found := FindAccount(accs, <%= TypeName.LowerCamel %>.<%= MsgSigner.UpperCamel %>)
 		if !found {
 			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found"), nil, nil
 		}
@@ -102,7 +102,7 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 		if !errors.Is(err, collections.ErrNotFound) {
 			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> store is empty"), nil, nil
 		}
-		simAccount, found = FindAccount(accs, <%= TypeName.LowerCamel %>.<%= MsgSigner.UpperCamel %>)
+		simAccount, found := FindAccount(accs, <%= TypeName.LowerCamel %>.<%= MsgSigner.UpperCamel %>)
 		if !found {
 			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found"), nil, nil
 		}
