@@ -21,7 +21,7 @@ func createN<%= TypeName.UpperCamel %>(keeper keeper.Keeper, ctx context.Context
 	for i := range items {
 		iu := uint64(i)
 		items[i].Id = iu
-		_ = keeper.<%= TypeName.UpperCamel%>.Set(ctx, items[i])
+		_ = keeper.<%= TypeName.UpperCamel%>.Set(ctx, iu, items[i])
 		_ = keeper.<%= TypeName.UpperCamel%>Seq.Set(ctx, iu)
 	}
 	return items

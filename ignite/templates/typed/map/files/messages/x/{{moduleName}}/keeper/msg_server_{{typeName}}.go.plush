@@ -5,8 +5,8 @@ import (
 
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
     "cosmossdk.io/collections"
-	errorsmod "cosmossdk.io/errors"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+    errorsmod "cosmossdk.io/errors"
+    sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 
