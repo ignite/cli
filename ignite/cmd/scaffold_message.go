@@ -4,7 +4,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
-	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v28/ignite/services/scaffolder"
 )
@@ -120,12 +119,13 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sm, err := sc.AddMessage(cmd.Context(), cacheStorage, placeholder.New(), module, args[0], args[1:], resFields, options...)
+	runner := xgenny.NewRunner(cmd.Context(), appPath)
+	err = sc.AddMessage(cmd.Context(), cacheStorage, runner, module, args[0], args[1:], resFields, options...)
 	if err != nil {
 		return err
 	}
 
-	modificationsStr, err := xgenny.SourceModificationToString(sm)
+	modificationsStr, err := runner.ApplyModifications()
 	if err != nil {
 		return err
 	}

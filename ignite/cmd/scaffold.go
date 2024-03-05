@@ -11,7 +11,6 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v28/ignite/pkg/xgit"
 	"github.com/ignite/cli/v28/ignite/services/scaffolder"
@@ -218,12 +217,13 @@ func scaffoldType(
 		return err
 	}
 
-	sm, err := sc.AddType(cmd.Context(), cacheStorage, typeName, placeholder.New(), kind, options...)
+	runner := xgenny.NewRunner(cmd.Context(), appPath)
+	err = sc.AddType(cmd.Context(), cacheStorage, typeName, runner, kind, options...)
 	if err != nil {
 		return err
 	}
 
-	modificationsStr, err := xgenny.SourceModificationToString(sm)
+	modificationsStr, err := runner.ApplyModifications()
 	if err != nil {
 		return err
 	}

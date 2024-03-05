@@ -6,7 +6,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
-	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v28/ignite/services/scaffolder"
 )
@@ -65,12 +64,13 @@ func scaffoldParamsHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sm, err := sc.CreateParams(cmd.Context(), cacheStorage, placeholder.New(), moduleName, params...)
+	runner := xgenny.NewRunner(cmd.Context(), appPath)
+	err = sc.CreateParams(cmd.Context(), cacheStorage, runner, moduleName, params...)
 	if err != nil {
 		return err
 	}
 
-	modificationsStr, err := xgenny.SourceModificationToString(sm)
+	modificationsStr, err := runner.ApplyModifications()
 	if err != nil {
 		return err
 	}

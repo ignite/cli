@@ -11,7 +11,6 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v28/ignite/templates/field"
 	modulecreate "github.com/ignite/cli/v28/ignite/templates/module/create"
@@ -21,37 +20,37 @@ import (
 func (s Scaffolder) CreateParams(
 	ctx context.Context,
 	cacheStorage cache.Storage,
-	tracer *placeholder.Tracer,
+	runner *xgenny.Runner,
 	moduleName string,
 	params ...string,
-) (sm xgenny.SourceModification, err error) {
+) error {
 	// If no module is provided, we add the type to the app's module
 	if moduleName == "" {
 		moduleName = s.modpath.Package
 	}
 	mfName, err := multiformatname.NewName(moduleName, multiformatname.NoNumber)
 	if err != nil {
-		return sm, err
+		return err
 	}
 	moduleName = mfName.LowerCase
 
 	// Check if the module already exist
 	ok, err := moduleExists(s.path, moduleName)
 	if err != nil {
-		return sm, err
+		return err
 	}
 	if !ok {
-		return sm, errors.Errorf("the module %v not exist", moduleName)
+		return errors.Errorf("the module %v not exist", moduleName)
 	}
 
 	if err := checkParamCreated(s.path, moduleName, params); err != nil {
-		return sm, err
+		return err
 	}
 
 	// Parse params with the associated type
 	paramsFields, err := field.ParseFields(params, checkForbiddenTypeIndex)
 	if err != nil {
-		return sm, err
+		return err
 	}
 
 	opts := modulecreate.ParamsOptions{
@@ -63,16 +62,14 @@ func (s Scaffolder) CreateParams(
 
 	g, err := modulecreate.NewModuleParam(opts)
 	if err != nil {
-		return sm, err
+		return err
 	}
 	gens := []*genny.Generator{g}
 
-	sm, err = xgenny.RunWithValidation(tracer, gens...)
-	if err != nil {
-		return sm, err
+	if err := runner.Run(gens...); err != nil {
+		return err
 	}
-
-	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
+	return finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
 // checkParamCreated checks if the parameter has been already created.

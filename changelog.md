@@ -7,6 +7,7 @@
 - [#3977](https://github.com/ignite/cli/pull/3977) Add `chain lint` command to lint the chain's codebase using `golangci-lint`
 - [#3770](https://github.com/ignite/cli/pull/3770) Add `scaffold configs` and `scaffold params` commands
 - [#3985](https://github.com/ignite/cli/pull/3985) Make some `cmd` pkg functions public
+- [#4001](https://github.com/ignite/cli/pull/4001) Improve `xgenny` dry run
 
 ### Changes
 
@@ -23,7 +24,6 @@
 - [#3953](https://github.com/ignite/cli/pull/3953) Fix apps `Stdout` is redirected to `Stderr`
 - [#3863](https://github.com/ignite/cli/pull/3963) Fix breaking issue for app client API when reading app chain info
 - [#3969](https://github.com/ignite/cli/pull/3969) Get first config validator using a getter to avoid index errors
-- [#4000](https://github.com/ignite/cli/pull/4000) Run all dry runners before the wet run in the `xgenny` pkg
 
 ## [`v28.2.0`](https://github.com/ignite/cli/releases/tag/v28.2.0)
 

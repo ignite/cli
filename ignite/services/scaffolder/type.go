@@ -121,10 +121,10 @@ func (s Scaffolder) AddType(
 	ctx context.Context,
 	cacheStorage cache.Storage,
 	typeName string,
-	tracer *placeholder.Tracer,
+	runner *xgenny.Runner,
 	kind AddTypeKind,
 	options ...AddTypeOption,
-) (sm xgenny.SourceModification, err error) {
+) error {
 	// apply options.
 	o := newAddTypeOptions(s.modpath.Package)
 	for _, apply := range append(options, AddTypeOption(kind)) {
@@ -133,36 +133,36 @@ func (s Scaffolder) AddType(
 
 	mfName, err := multiformatname.NewName(o.moduleName, multiformatname.NoNumber)
 	if err != nil {
-		return sm, err
+		return err
 	}
 	moduleName := mfName.LowerCase
 
 	name, err := multiformatname.NewName(typeName)
 	if err != nil {
-		return sm, err
+		return err
 	}
 
 	if err := checkComponentValidity(s.path, moduleName, name, o.withoutMessage); err != nil {
-		return sm, err
+		return err
 	}
 
 	// Check and parse provided fields
 	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, o.fields); err != nil {
-		return sm, err
+		return err
 	}
 	tFields, err := parseTypeFields(o)
 	if err != nil {
-		return sm, err
+		return err
 	}
 
 	mfSigner, err := multiformatname.NewName(o.signer)
 	if err != nil {
-		return sm, err
+		return err
 	}
 
 	isIBC, err := isIBCModule(s.path, moduleName)
 	if err != nil {
-		return sm, err
+		return err
 	}
 
 	var (
@@ -184,7 +184,7 @@ func (s Scaffolder) AddType(
 	// Check and support MsgServer convention
 	gens, err = supportMsgServer(
 		gens,
-		tracer,
+		runner.Tracer(),
 		s.path,
 		&modulecreate.MsgServerOptions{
 			ModuleName: opts.ModuleName,
@@ -194,32 +194,31 @@ func (s Scaffolder) AddType(
 		},
 	)
 	if err != nil {
-		return sm, err
+		return err
 	}
 
 	// create the type generator depending on the model
 	switch {
 	case o.isList:
-		g, err = list.NewGenerator(tracer, opts)
+		g, err = list.NewGenerator(runner.Tracer(), opts)
 	case o.isMap:
-		g, err = mapGenerator(tracer, opts, o.indexes)
+		g, err = mapGenerator(runner.Tracer(), opts, o.indexes)
 	case o.isSingleton:
-		g, err = singleton.NewGenerator(tracer, opts)
+		g, err = singleton.NewGenerator(runner.Tracer(), opts)
 	default:
 		g, err = dry.NewGenerator(opts)
 	}
 	if err != nil {
-		return sm, err
+		return err
 	}
 
 	// run the generation
 	gens = append(gens, g)
-	sm, err = xgenny.RunWithValidation(tracer, gens...)
-	if err != nil {
-		return sm, err
+	if err := runner.Run(gens...); err != nil {
+		return err
 	}
 
-	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
+	return finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
 // checkForbiddenTypeIndex returns true if the name is forbidden as a index name.

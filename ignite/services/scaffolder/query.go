@@ -8,7 +8,6 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v28/ignite/templates/field"
 	"github.com/ignite/cli/v28/ignite/templates/query"
@@ -18,49 +17,49 @@ import (
 func (s Scaffolder) AddQuery(
 	ctx context.Context,
 	cacheStorage cache.Storage,
-	tracer *placeholder.Tracer,
+	runner *xgenny.Runner,
 	moduleName,
 	queryName,
 	description string,
 	reqFields,
 	resFields []string,
 	paginated bool,
-) (sm xgenny.SourceModification, err error) {
+) error {
 	// If no module is provided, we add the type to the app's module
 	if moduleName == "" {
 		moduleName = s.modpath.Package
 	}
 	mfName, err := multiformatname.NewName(moduleName, multiformatname.NoNumber)
 	if err != nil {
-		return sm, err
+		return err
 	}
 	moduleName = mfName.LowerCase
 
 	name, err := multiformatname.NewName(queryName)
 	if err != nil {
-		return sm, err
+		return err
 	}
 
 	if err := checkComponentValidity(s.path, moduleName, name, true); err != nil {
-		return sm, err
+		return err
 	}
 
 	// Check and parse provided request fields
 	if ok := containsCustomTypes(reqFields); ok {
-		return sm, errors.New("query request params can't contain custom type")
+		return errors.New("query request params can't contain custom type")
 	}
 	parsedReqFields, err := field.ParseFields(reqFields, checkGoReservedWord)
 	if err != nil {
-		return sm, err
+		return err
 	}
 
 	// Check and parse provided response fields
 	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, resFields); err != nil {
-		return sm, err
+		return err
 	}
 	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord)
 	if err != nil {
-		return sm, err
+		return err
 	}
 
 	var (
@@ -79,13 +78,13 @@ func (s Scaffolder) AddQuery(
 	)
 
 	// Scaffold
-	g, err = query.NewGenerator(tracer, opts)
+	g, err = query.NewGenerator(runner.Tracer(), opts)
 	if err != nil {
-		return sm, err
+		return err
 	}
-	sm, err = xgenny.RunWithValidation(tracer, g)
-	if err != nil {
-		return sm, err
+
+	if err := runner.Run(g); err != nil {
+		return err
 	}
-	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
+	return finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
 }

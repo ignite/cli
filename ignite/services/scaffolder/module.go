@@ -32,7 +32,6 @@ import (
 	appanalysis "github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/app"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/validation"
 	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v28/ignite/templates/field"
@@ -41,11 +40,8 @@ import (
 )
 
 const (
-	extrasImport  = "github.com/tendermint/spm-extras"
-	extrasVersion = "v0.1.0"
-	appPkg        = "app"
-	moduleDir     = "x"
-	modulePkg     = "module"
+	moduleDir = "x"
+	modulePkg = "module"
 )
 
 var (
@@ -170,28 +166,28 @@ func WithDependencies(dependencies []modulecreate.Dependency) ModuleCreationOpti
 func (s Scaffolder) CreateModule(
 	ctx context.Context,
 	cacheStorage cache.Storage,
-	tracer *placeholder.Tracer,
+	runner *xgenny.Runner,
 	moduleName string,
 	options ...ModuleCreationOption,
-) (sm xgenny.SourceModification, err error) {
+) error {
 	mfName, err := multiformatname.NewName(moduleName, multiformatname.NoNumber)
 	if err != nil {
-		return sm, err
+		return err
 	}
 	moduleName = mfName.LowerCase
 
 	// Check if the module name is valid
 	if err := checkModuleName(s.path, moduleName); err != nil {
-		return sm, err
+		return err
 	}
 
 	// Check if the module already exist
 	ok, err := moduleExists(s.path, moduleName)
 	if err != nil {
-		return sm, err
+		return err
 	}
 	if ok {
-		return sm, errors.Errorf("the module %v already exists", moduleName)
+		return errors.Errorf("the module %v already exists", moduleName)
 	}
 
 	// Apply the options
@@ -203,18 +199,18 @@ func (s Scaffolder) CreateModule(
 	// Parse params with the associated type
 	params, err := field.ParseFields(creationOpts.params, checkForbiddenTypeIndex)
 	if err != nil {
-		return sm, err
+		return err
 	}
 
 	// Parse configs with the associated type
 	configs, err := field.ParseFields(creationOpts.moduleConfigs, checkForbiddenTypeIndex)
 	if err != nil {
-		return sm, err
+		return err
 	}
 
 	// Check dependencies
 	if err := checkDependencies(creationOpts.dependencies, s.path); err != nil {
-		return sm, err
+		return err
 	}
 
 	opts := &modulecreate.CreateOptions{
@@ -231,32 +227,30 @@ func (s Scaffolder) CreateModule(
 
 	g, err := modulecreate.NewGenerator(opts)
 	if err != nil {
-		return sm, err
+		return err
 	}
 	gens := []*genny.Generator{g}
 
 	// Scaffold IBC module
 	if opts.IsIBC {
-		g, err = modulecreate.NewIBC(tracer, opts)
+		g, err = modulecreate.NewIBC(runner.Tracer(), opts)
 		if err != nil {
-			return sm, err
+			return err
 		}
 		gens = append(gens, g)
 	}
-	sm, err = xgenny.RunWithValidation(tracer, gens...)
-	if err != nil {
-		return sm, err
+	if err := runner.Run(gens...); err != nil {
+		return err
 	}
 
 	// Modify app.go to register the module
-	newSourceModification, runErr := xgenny.RunWithValidation(tracer, modulecreate.NewAppModify(tracer, opts))
-	sm.Merge(newSourceModification)
+	err = runner.Run(modulecreate.NewAppModify(runner.Tracer(), opts))
 	var validationErr validation.Error
-	if runErr != nil && !errors.As(runErr, &validationErr) {
-		return sm, runErr
+	if err != nil && !errors.As(err, &validationErr) {
+		return err
 	}
 
-	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
+	return finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
 // moduleExists checks if the module exists in the app.

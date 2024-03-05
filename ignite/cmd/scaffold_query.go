@@ -6,7 +6,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
-	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v28/ignite/services/scaffolder"
 )
@@ -71,12 +70,13 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sm, err := sc.AddQuery(cmd.Context(), cacheStorage, placeholder.New(), module, args[0], desc, args[1:], resFields, paginated)
+	runner := xgenny.NewRunner(cmd.Context(), appPath)
+	err = sc.AddQuery(cmd.Context(), cacheStorage, runner, module, args[0], desc, args[1:], resFields, paginated)
 	if err != nil {
 		return err
 	}
 
-	modificationsStr, err := xgenny.SourceModificationToString(sm)
+	modificationsStr, err := runner.ApplyModifications()
 	if err != nil {
 		return err
 	}

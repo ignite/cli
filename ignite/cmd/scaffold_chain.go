@@ -5,8 +5,8 @@ import (
 
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
-	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/xfilepath"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v28/ignite/services/scaffolder"
 )
 
@@ -116,10 +116,11 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	runner := xgenny.NewRunner(cmd.Context(), appPath)
 	appdir, err := scaffolder.Init(
 		cmd.Context(),
 		cacheStorage,
-		placeholder.New(),
+		runner,
 		appPath,
 		name,
 		addressPrefix,
@@ -138,5 +139,8 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	if _, err := runner.ApplyModifications(); err != nil {
+		return err
+	}
 	return session.Printf(tplScaffoldChainSuccess, path)
 }

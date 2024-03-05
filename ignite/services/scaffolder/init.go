@@ -11,7 +11,7 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v28/ignite/pkg/xgit"
 	"github.com/ignite/cli/v28/ignite/templates/app"
 	"github.com/ignite/cli/v28/ignite/templates/field"
@@ -23,7 +23,7 @@ import (
 func Init(
 	ctx context.Context,
 	cacheStorage cache.Storage,
-	tracer *placeholder.Tracer,
+	runner *xgenny.Runner,
 	root, name, addressPrefix string,
 	noDefaultModule, skipGit, minimal bool,
 	params, moduleConfigs []string,
@@ -46,7 +46,7 @@ func Init(
 	path = filepath.Join(root, appFolder)
 
 	// create the project
-	err = generate(ctx, tracer, pathInfo, addressPrefix, path, noDefaultModule, minimal, params, moduleConfigs)
+	err = generate(ctx, runner, pathInfo, addressPrefix, path, noDefaultModule, minimal, params, moduleConfigs)
 	if err != nil {
 		return "", err
 	}
@@ -69,7 +69,7 @@ func Init(
 //nolint:interfacer
 func generate(
 	ctx context.Context,
-	tracer *placeholder.Tracer,
+	runner *xgenny.Runner,
 	pathInfo gomodulepath.Path,
 	addressPrefix,
 	absRoot string,
@@ -112,22 +112,12 @@ func generate(
 		return err
 	}
 
-	run := func(runner *genny.Runner, gen *genny.Generator) error {
-		if err := runner.With(gen); err != nil {
-			return err
-		}
-		runner.Root = absRoot
-		return runner.Run()
-	}
-	if err := run(genny.WetRunner(ctx), g); err != nil {
-		return err
-	}
-
 	if err := cosmosgen.InstallDepTools(ctx, absRoot); err != nil {
 		return err
 	}
 
 	// generate module template
+	gens := []*genny.Generator{g}
 	if !noDefaultModule {
 		opts := &modulecreate.CreateOptions{
 			ModuleName: pathInfo.Package, // App name
@@ -146,15 +136,8 @@ func generate(
 		if err != nil {
 			return err
 		}
-		if err := run(genny.WetRunner(ctx), g); err != nil {
-			return err
-		}
-		g = modulecreate.NewAppModify(tracer, opts)
-		if err := run(genny.WetRunner(ctx), g); err != nil {
-			return err
-		}
-
+		gens = append(gens, g, modulecreate.NewAppModify(runner.Tracer(), opts))
 	}
-
-	return nil
+	runner.Root = absRoot
+	return runner.Run(gens...)
 }

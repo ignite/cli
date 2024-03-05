@@ -2,68 +2,72 @@ package xgenny
 
 import (
 	"context"
+	"io"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/genny/v2"
-	"github.com/gobuffalo/logger"
 	"github.com/gobuffalo/packd"
 
-	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
-	"github.com/ignite/cli/v28/ignite/pkg/validation"
+	"github.com/ignite/cli/v28/ignite/pkg/randstr"
+	"github.com/ignite/cli/v28/ignite/pkg/xos"
 )
 
-var _ validation.Error = (*dryRunError)(nil)
-
-type dryRunError struct {
-	error
+type Runner struct {
+	*genny.Runner
+	ctx     context.Context
+	tracer  *placeholder.Tracer
+	tmpPath string
+	path    string
+	sm      SourceModification
 }
 
-// ValidationInfo returns validation info.
-func (d *dryRunError) ValidationInfo() string {
-	return d.Error()
-}
-
-// DryRunner is a genny DryRunner with a logger.
-func DryRunner(ctx context.Context) *genny.Runner {
-	runner := genny.DryRunner(ctx)
-	runner.Logger = logger.New(genny.DefaultLogLvl)
-	return runner
-}
-
-// RunWithValidation checks the generators with a dry run and then execute the wet runner to the generators.
-func RunWithValidation(
-	tracer *placeholder.Tracer,
-	gens ...*genny.Generator,
-) (sm SourceModification, err error) {
-	// run executes the provided runner with the provided generator
-	run := func(runner *genny.Runner, gens []*genny.Generator) error {
-		for _, gen := range gens {
-			if err := runner.With(gen); err != nil {
-				return err
-			}
-			if err := runner.Run(); err != nil {
-				return err
-			}
-		}
-		return nil
+// NewRunner is a xgenny Runner with a logger.
+func NewRunner(ctx context.Context, appPath string) *Runner {
+	var (
+		runner  = genny.WetRunner(ctx)
+		tmpPath = filepath.Join(os.TempDir(), randstr.Runes(5))
+	)
+	runner.FileFn = func(f genny.File) (genny.File, error) {
+		return wetFileFn(f, tmpPath, appPath)
 	}
-	// check with a dry runner the generators
-	dryRunner := DryRunner(context.Background())
-	if err := run(dryRunner, gens); err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			return sm, &dryRunError{err}
-		}
-		return sm, err
+	return &Runner{
+		ctx:     ctx,
+		Runner:  runner,
+		tracer:  placeholder.New(),
+		path:    appPath,
+		tmpPath: tmpPath,
 	}
-	if err := tracer.Err(); err != nil {
-		return sm, err
+}
+
+func (r *Runner) Tracer() *placeholder.Tracer {
+	return r.tracer
+}
+
+func (r *Runner) ApplyModifications() (SourceModification, error) {
+	return r.sm, xos.CopyFolder(r.tmpPath, r.path)
+}
+
+// Run all generators into a temp folder for we can apply the modifications later.
+func (r *Runner) Run(gens ...*genny.Generator) error {
+	// execute the modification with a wet runner
+	for _, gen := range gens {
+		if err := r.With(gen); err != nil {
+			return err
+		}
+		if err := r.Runner.Run(); err != nil {
+			return err
+		}
+	}
+	if err := r.tracer.Err(); err != nil {
+		return err
 	}
 
 	// fetch the source modification
-	sm = NewSourceModification()
-	for _, file := range dryRunner.Results().Files {
+	sm := NewSourceModification()
+	for _, file := range r.Results().Files {
 		fileName := file.Name()
 		_, err := os.Stat(fileName)
 
@@ -72,18 +76,55 @@ func RunWithValidation(
 			// if the file doesn't exist in the source, it means it has been created by the runner
 			sm.AppendCreatedFiles(fileName)
 		} else if err != nil {
-			return sm, err
+			return err
 		} else {
 			// the file has been modified by the runner
 			sm.AppendModifiedFiles(fileName)
 		}
 	}
+	r.sm = sm
+	return nil
+}
 
-	// execute the modification with a wet runner
-	if err := run(genny.WetRunner(context.Background()), gens); err != nil {
-		return sm, err
+func wetFileFn(f genny.File, tmpPath, appPath string) (genny.File, error) {
+	if d, ok := f.(genny.Dir); ok {
+		if err := os.MkdirAll(d.Name(), d.Perm); err != nil {
+			return f, err
+		}
+		return d, nil
 	}
-	return sm, nil
+
+	var err error
+	if !filepath.IsAbs(appPath) {
+		appPath, err = filepath.Abs(appPath)
+		if err != nil {
+			return f, err
+		}
+	}
+
+	name := f.Name()
+	if !filepath.IsAbs(name) {
+		name = filepath.Join(appPath, name)
+	}
+	relPath, err := filepath.Rel(appPath, name)
+	if err != nil {
+		return f, err
+	}
+
+	dstPath := filepath.Join(tmpPath, relPath)
+	dir := filepath.Dir(dstPath)
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return f, err
+	}
+	ff, err := os.Create(dstPath)
+	if err != nil {
+		return f, err
+	}
+	defer ff.Close()
+	if _, err := io.Copy(ff, f); err != nil {
+		return f, err
+	}
+	return f, nil
 }
 
 // Box will mount each file in the Box and wrap it, already existing files are ignored.

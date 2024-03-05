@@ -11,7 +11,6 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v28/ignite/templates/field"
 	modulecreate "github.com/ignite/cli/v28/ignite/templates/module/create"
@@ -21,10 +20,10 @@ import (
 func (s Scaffolder) CreateConfigs(
 	ctx context.Context,
 	cacheStorage cache.Storage,
-	tracer *placeholder.Tracer,
+	runner *xgenny.Runner,
 	moduleName string,
 	configs ...string,
-) (sm xgenny.SourceModification, err error) {
+) error {
 	appName := s.modpath.Package
 	// If no module is provided, we add the type to the app's module
 	if moduleName == "" {
@@ -32,27 +31,27 @@ func (s Scaffolder) CreateConfigs(
 	}
 	mfName, err := multiformatname.NewName(moduleName, multiformatname.NoNumber)
 	if err != nil {
-		return sm, err
+		return err
 	}
 	moduleName = mfName.LowerCase
 
 	// Check if the module already exist
 	ok, err := moduleExists(s.path, moduleName)
 	if err != nil {
-		return sm, err
+		return err
 	}
 	if !ok {
-		return sm, errors.Errorf("the module %v not exist", moduleName)
+		return errors.Errorf("the module %v not exist", moduleName)
 	}
 
 	if err := checkConfigCreated(s.path, appName, moduleName, configs); err != nil {
-		return sm, err
+		return err
 	}
 
 	// Parse config with the associated type
 	configsFields, err := field.ParseFields(configs, checkForbiddenTypeIndex)
 	if err != nil {
-		return sm, err
+		return err
 	}
 
 	opts := modulecreate.ConfigsOptions{
@@ -64,16 +63,15 @@ func (s Scaffolder) CreateConfigs(
 
 	g, err := modulecreate.NewModuleConfigs(opts)
 	if err != nil {
-		return sm, err
+		return err
 	}
 	gens := []*genny.Generator{g}
 
-	sm, err = xgenny.RunWithValidation(tracer, gens...)
-	if err != nil {
-		return sm, err
+	if err := runner.Run(gens...); err != nil {
+		return err
 	}
 
-	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
+	return finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
 }
 
 // checkConfigCreated checks if the config has been already created.
