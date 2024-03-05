@@ -92,7 +92,8 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 				require.ErrorIs(t, err, tc.err)
 			} else {
 				require.NoError(t, err)
-				_, found := k.<%= TypeName.UpperCamel %>.Has(ctx)
+				found, err := k.<%= TypeName.UpperCamel %>.Has(ctx)
+				require.NoError(t, err)
 				require.False(t, found)
 			}
 		})

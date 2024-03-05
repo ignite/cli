@@ -12,7 +12,10 @@ import (
 
 func (k msgServer) Create<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgCreate<%= TypeName.UpperCamel %>) (*types.MsgCreate<%= TypeName.UpperCamel %>Response, error) {
     // Check if the value already exists
-    _, found := k.<%= TypeName.UpperCamel %>.Has(ctx)
+    found, err := k.<%= TypeName.UpperCamel %>.Has(ctx)
+    if err != nil {
+        return nil, errorsmod.Wrap(sdkerrors.ErrLogic, err.Error())
+    }
     if found {
         return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "already set")
     }
@@ -58,17 +61,19 @@ func (k msgServer) Update<%= TypeName.UpperCamel %>(ctx context.Context,  msg *t
 
 func (k msgServer) Delete<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgDelete<%= TypeName.UpperCamel %>) (*types.MsgDelete<%= TypeName.UpperCamel %>Response, error) {
     // Check if the value exists
-    valFound, err := k.<%= TypeName.UpperCamel %>.Get(ctx)
+    val, err := k.<%= TypeName.UpperCamel %>.Get(ctx)
     if err != nil {
         return nil, errorsmod.Wrap(sdkerrors.ErrKeyNotFound, "not set")
     }
 
     // Checks if the msg <%= MsgSigner.LowerCamel %> is the same as the current owner
-    if msg.<%= MsgSigner.UpperCamel %> != valFound.<%= MsgSigner.UpperCamel %> {
+    if msg.<%= MsgSigner.UpperCamel %> != val.<%= MsgSigner.UpperCamel %> {
         return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
     }
 
-	k.Remove<%= TypeName.UpperCamel %>(ctx)
+	if err := k.<%= TypeName.UpperCamel %>.Remove(ctx); err != nil {
+        return nil, errorsmod.Wrap(sdkerrors.ErrLogic, err.Error())
+    }
 
 	return &types.MsgDelete<%= TypeName.UpperCamel %>Response{}, nil
 }

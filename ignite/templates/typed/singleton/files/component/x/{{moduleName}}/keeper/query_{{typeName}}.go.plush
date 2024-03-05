@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (q queryServer) Get<%= TypeName.UpperCamel %>(goCtx context.Context, req *types.QueryGet<%= TypeName.UpperCamel %>Request) (*types.QueryGet<%= TypeName.UpperCamel %>Response, error) {
+func (q queryServer) Get<%= TypeName.UpperCamel %>(ctx context.Context, req *types.QueryGet<%= TypeName.UpperCamel %>Request) (*types.QueryGet<%= TypeName.UpperCamel %>Response, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}

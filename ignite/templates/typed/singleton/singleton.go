@@ -54,6 +54,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 
 	g.RunFn(typesKeyModify(opts))
 	g.RunFn(protoRPCModify(opts))
+	g.RunFn(keeperModify(replacer, opts))
 	g.RunFn(clientCliQueryModify(replacer, opts))
 	g.RunFn(genesisProtoModify(opts))
 	g.RunFn(genesisTypesModify(replacer, opts))
@@ -82,6 +83,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 	return g, typed.Box(componentTemplate, opts, g)
 }
 
+// typesKeyModify modifies the keys.go file to add a new collection prefix
 func typesKeyModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/keys.go")
@@ -94,6 +96,30 @@ var (
 	%[1]vKey= collections.NewPrefix("%[1]v/value/")
 )
 `, opts.TypeName.UpperCamel)
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+// keeperModify modifies the keeper to add a new collections item type
+func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/keeper.go")
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		templateKeeperType := `%[2]v collections.Item[types.%[2]v]
+
+%[1]v`
+		replacementModuleType := fmt.Sprintf(
+			templateKeeperType,
+			typed.PlaceholderCollectionType,
+			opts.TypeName.UpperCamel,
+		)
+		content := replacer.Replace(f.String(), typed.PlaceholderCollectionType, replacementModuleType)
+
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

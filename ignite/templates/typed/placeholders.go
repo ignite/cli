@@ -22,4 +22,7 @@ const (
 	// Placeholders AutoCLI
 	PlaceholderAutoCLIQuery = "// this line is used by ignite scaffolding # autocli/query"
 	PlaceholderAutoCLITx    = "// this line is used by ignite scaffolding # autocli/tx"
+
+	// Placeholders Collections
+	PlaceholderCollectionType = "// this line is used by starport scaffolding # collection/type"
 )
