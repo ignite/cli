@@ -19,7 +19,10 @@ import (
 func createN<%= TypeName.UpperCamel %>(keeper keeper.Keeper, ctx context.Context, n int) []types.<%= TypeName.UpperCamel %> {
 	items := make([]types.<%= TypeName.UpperCamel %>, n)
 	for i := range items {
-		items[i].Id = keeper.<%= TypeName.UpperCamel%>.Set(i, items[i])
+		iu := uint64(i)
+		items[i].Id = iu
+		_ = keeper.<%= TypeName.UpperCamel%>.Set(ctx, items[i])
+		_ = keeper.<%= TypeName.UpperCamel%>Seq.Set(ctx, iu)
 	}
 	return items
 }
