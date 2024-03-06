@@ -130,6 +130,10 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	if err := sc.PostScaffold(cmd.Context(), cacheStorage); err != nil {
+		return err
+	}
+
 	session.Println(modificationsStr)
 	session.Printf("\n🎉 Created a message `%[1]v`.\n\n", args[0])
 

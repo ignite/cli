@@ -228,6 +228,10 @@ func scaffoldType(
 		return err
 	}
 
+	if err := sc.PostScaffold(cmd.Context(), cacheStorage); err != nil {
+		return err
+	}
+
 	session.Println(modificationsStr)
 	session.Printf("\n🎉 %s added. \n\n", typeName)
 

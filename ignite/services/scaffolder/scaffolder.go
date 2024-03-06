@@ -63,7 +63,11 @@ func New(appPath string) (Scaffolder, error) {
 	return s, nil
 }
 
-func finish(ctx context.Context, cacheStorage cache.Storage, path, gomodPath string) error {
+func (s Scaffolder) PostScaffold(ctx context.Context, cacheStorage cache.Storage) error {
+	return PostScaffold(ctx, cacheStorage, s.path, s.modpath.RawPath)
+}
+
+func PostScaffold(ctx context.Context, cacheStorage cache.Storage, path, gomodPath string) error {
 	err := protoc(ctx, cacheStorage, path, gomodPath)
 	if err != nil {
 		return err

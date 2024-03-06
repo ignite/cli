@@ -52,11 +52,7 @@ func Scaffold(ctx context.Context, dir, moduleName string, sharedHost bool) (str
 
 	g.Transformer(xgenny.Transformer(pctx))
 	r := xgenny.NewRunner(ctx, finalDir)
-	if err := r.Run(g); err != nil {
-		return "", errors.WithStack(err)
-	}
-
-	if _, err := r.ApplyModifications(); err != nil {
+	if _, err := r.RunAndApply(g); err != nil {
 		return "", errors.WithStack(err)
 	}
 

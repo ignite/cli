@@ -225,7 +225,7 @@ func (s Scaffolder) CreateModule(
 		Dependencies: creationOpts.dependencies,
 	}
 
-	g, err := modulecreate.NewGenerator(opts)
+	g, err := modulecreate.NewGenerator(runner.Tracer(), opts)
 	if err != nil {
 		return err
 	}
@@ -239,18 +239,13 @@ func (s Scaffolder) CreateModule(
 		}
 		gens = append(gens, g)
 	}
-	if err := runner.Run(gens...); err != nil {
-		return err
-	}
 
-	// Modify app.go to register the module
-	err = runner.Run(modulecreate.NewAppModify(runner.Tracer(), opts))
+	err = runner.Run(gens...)
 	var validationErr validation.Error
 	if err != nil && !errors.As(err, &validationErr) {
 		return err
 	}
-
-	return finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
+	return nil
 }
 
 // moduleExists checks if the module exists in the app.

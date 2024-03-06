@@ -6,13 +6,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gobuffalo/genny/v2"
-
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
-	"github.com/ignite/cli/v28/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
-	"github.com/ignite/cli/v28/ignite/pkg/xgit"
 	"github.com/ignite/cli/v28/ignite/templates/app"
 	"github.com/ignite/cli/v28/ignite/templates/field"
 	modulecreate "github.com/ignite/cli/v28/ignite/templates/module/create"
@@ -27,10 +23,10 @@ func Init(
 	root, name, addressPrefix string,
 	noDefaultModule, skipGit, minimal bool,
 	params, moduleConfigs []string,
-) (path string, err error) {
+) (path string, gomodule string, err error) {
 	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	// Create a new folder named as the blockchain when a custom path is not specified
@@ -40,52 +36,46 @@ func Init(
 	}
 
 	if root, err = filepath.Abs(root); err != nil {
-		return "", err
+		return path, gomodule, err
 	}
-
 	path = filepath.Join(root, appFolder)
+	gomodule = pathInfo.RawPath
 
 	// create the project
-	err = generate(ctx, runner, pathInfo, addressPrefix, path, noDefaultModule, minimal, params, moduleConfigs)
-	if err != nil {
-		return "", err
+	if _, err = generate(
+		runner,
+		pathInfo,
+		addressPrefix,
+		path,
+		noDefaultModule,
+		minimal,
+		params,
+		moduleConfigs,
+	); err != nil {
+		return path, gomodule, err
 	}
-
-	err = finish(ctx, cacheStorage, path, pathInfo.RawPath)
-	if err != nil {
-		return "", err
-	}
-
-	if !skipGit {
-		// Initialize git repository and perform the first commit
-		if err := xgit.InitAndCommit(path); err != nil {
-			return "", err
-		}
-	}
-
-	return path, nil
+	return path, pathInfo.RawPath, nil
 }
 
 //nolint:interfacer
 func generate(
-	ctx context.Context,
 	runner *xgenny.Runner,
 	pathInfo gomodulepath.Path,
 	addressPrefix,
 	absRoot string,
 	noDefaultModule, minimal bool,
 	params, moduleConfigs []string,
-) error {
+) (xgenny.SourceModification, error) {
 	// Parse params with the associated type
 	paramsFields, err := field.ParseFields(params, checkForbiddenTypeIndex)
 	if err != nil {
-		return err
+		return xgenny.SourceModification{}, err
 	}
 
 	// Parse configs with the associated type
 	configsFields, err := field.ParseFields(moduleConfigs, checkForbiddenTypeIndex)
 	if err != nil {
-		return err
+		return xgenny.SourceModification{}, err
 	}
 
 	githubPath := gomodulepath.ExtractAppPath(pathInfo.RawPath)
@@ -105,19 +95,19 @@ func generate(
 		IsChainMinimal:   minimal,
 	})
 	if err != nil {
-		return err
+		return xgenny.SourceModification{}, err
 	}
 	// Create the 'testutil' package with the test helpers
 	if err := testutil.Register(g, absRoot); err != nil {
-		return err
-	}
-
-	if err := cosmosgen.InstallDepTools(ctx, absRoot); err != nil {
-		return err
+		return xgenny.SourceModification{}, err
 	}
 
 	// generate module template
-	gens := []*genny.Generator{g}
+	smc, err := runner.RunAndApply(g)
+	if err != nil {
+		return smc, err
+	}
+
 	if !noDefaultModule {
 		opts := &modulecreate.CreateOptions{
 			ModuleName: pathInfo.Package, // App name
@@ -130,14 +120,22 @@ func generate(
 		}
 		// Check if the module name is valid
 		if err := checkModuleName(opts.AppPath, opts.ModuleName); err != nil {
-			return err
+			return smc, err
 		}
-		g, err = modulecreate.NewGenerator(opts)
+
+		g, err = modulecreate.NewGenerator(runner.Tracer(), opts)
 		if err != nil {
-			return err
+			return smc, err
 		}
-		gens = append(gens, g, modulecreate.NewAppModify(runner.Tracer(), opts))
+
+		runner.Path = runner.TempPath
+		// generate module template
+		smm, err := runner.RunAndApply(g)
+		if err != nil {
+			return smc, err
+		}
+		smc.Merge(smm)
 	}
-	runner.Root = absRoot
-	return runner.Run(gens...)
+
+	return smc, err
 }

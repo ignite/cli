@@ -27,10 +27,10 @@ func CheckBufFiles(appPath string) bool {
 	return true
 }
 
-func BoxBufFiles(runner *xgenny.Runner, appPath string) error {
+func BoxBufFiles(runner *xgenny.Runner, appPath string) (xgenny.SourceModification, error) {
 	g, err := app.NewBufGenerator(appPath)
 	if err != nil {
-		return err
+		return xgenny.SourceModification{}, err
 	}
-	return runner.Run(g)
+	return runner.RunAndApply(g)
 }

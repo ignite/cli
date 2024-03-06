@@ -73,6 +73,10 @@ func scaffoldConfigsHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	if err := sc.PostScaffold(cmd.Context(), cacheStorage); err != nil {
+		return err
+	}
+
 	session.Println(modificationsStr)
 	session.Printf("\n🎉 New configs added to the module:\n\n- %s\n\n", strings.Join(configs, "\n- "))
 

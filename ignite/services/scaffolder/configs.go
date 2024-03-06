@@ -5,8 +5,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gobuffalo/genny/v2"
-
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/goanalysis"
@@ -65,13 +63,8 @@ func (s Scaffolder) CreateConfigs(
 	if err != nil {
 		return err
 	}
-	gens := []*genny.Generator{g}
 
-	if err := runner.Run(gens...); err != nil {
-		return err
-	}
-
-	return finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
+	return runner.Run(g)
 }
 
 // checkConfigCreated checks if the config has been already created.

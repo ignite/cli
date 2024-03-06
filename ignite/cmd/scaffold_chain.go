@@ -4,9 +4,11 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/xfilepath"
 	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v28/ignite/pkg/xgit"
 	"github.com/ignite/cli/v28/ignite/services/scaffolder"
 )
 
@@ -117,7 +119,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	runner := xgenny.NewRunner(cmd.Context(), appPath)
-	appdir, err := scaffolder.Init(
+	appdir, gomodule, err := scaffolder.Init(
 		cmd.Context(),
 		cacheStorage,
 		runner,
@@ -142,5 +144,21 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 	if _, err := runner.ApplyModifications(); err != nil {
 		return err
 	}
+
+	if err := cosmosgen.InstallDepTools(cmd.Context(), appdir); err != nil {
+		return err
+	}
+
+	if err := scaffolder.PostScaffold(cmd.Context(), cacheStorage, appdir, gomodule); err != nil {
+		return err
+	}
+
+	if !skipGit {
+		// Initialize git repository and perform the first commit
+		if err := xgit.InitAndCommit(path); err != nil {
+			return err
+		}
+	}
+
 	return session.Printf(tplScaffoldChainSuccess, path)
 }

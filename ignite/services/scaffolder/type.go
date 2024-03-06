@@ -213,12 +213,7 @@ func (s Scaffolder) AddType(
 	}
 
 	// run the generation
-	gens = append(gens, g)
-	if err := runner.Run(gens...); err != nil {
-		return err
-	}
-
-	return finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
+	return runner.Run(append(gens, g)...)
 }
 
 // checkForbiddenTypeIndex returns true if the name is forbidden as a index name.

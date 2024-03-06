@@ -191,6 +191,11 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+
+	if err := sc.PostScaffold(cmd.Context(), cacheStorage); err != nil {
+		return err
+	}
+
 	session.Println(modificationsStr)
 
 	return session.Print(msg.String())

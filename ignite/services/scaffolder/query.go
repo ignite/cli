@@ -83,8 +83,5 @@ func (s Scaffolder) AddQuery(
 		return err
 	}
 
-	if err := runner.Run(g); err != nil {
-		return err
-	}
-	return finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
+	return runner.Run(g)
 }

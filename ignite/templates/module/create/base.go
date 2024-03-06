@@ -17,7 +17,7 @@ import (
 )
 
 // NewGenerator returns the generator to scaffold a module inside an app.
-func NewGenerator(opts *CreateOptions) (*genny.Generator, error) {
+func NewGenerator(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generator, error) {
 	var (
 		g = genny.New()
 
@@ -59,18 +59,13 @@ func NewGenerator(opts *CreateOptions) (*genny.Generator, error) {
 	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 
-	return g, nil
-}
-
-// NewAppModify returns generator with modifications required to register a module in the app.
-func NewAppModify(replacer placeholder.Replacer, opts *CreateOptions) *genny.Generator {
-	g := genny.New()
 	g.RunFn(appModify(replacer, opts))
 	g.RunFn(appConfigModify(replacer, opts))
 	if opts.IsIBC {
 		g.RunFn(appIBCModify(replacer, opts))
 	}
-	return g
+
+	return g, nil
 }
 
 func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {

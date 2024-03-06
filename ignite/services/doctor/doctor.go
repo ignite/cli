@@ -176,10 +176,7 @@ func (d Doctor) createToolsFile(ctx context.Context, toolsFilename string) error
 	}
 
 	runner := xgenny.NewRunner(ctx, pathInfo.Root)
-	if err := runner.Run(g); err != nil {
-		return err
-	}
-	if _, err := runner.ApplyModifications(); err != nil {
+	if _, err := runner.RunAndApply(g); err != nil {
 		return err
 	}
 

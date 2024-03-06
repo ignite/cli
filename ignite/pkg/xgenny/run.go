@@ -17,11 +17,10 @@ import (
 
 type Runner struct {
 	*genny.Runner
-	ctx     context.Context
-	tracer  *placeholder.Tracer
-	tmpPath string
-	path    string
-	sm      SourceModification
+	Path     string
+	ctx      context.Context
+	tracer   *placeholder.Tracer
+	TempPath string
 }
 
 // NewRunner is a xgenny Runner with a logger.
@@ -30,24 +29,57 @@ func NewRunner(ctx context.Context, appPath string) *Runner {
 		runner  = genny.WetRunner(ctx)
 		tmpPath = filepath.Join(os.TempDir(), randstr.Runes(5))
 	)
+	r := &Runner{
+		ctx:      ctx,
+		Runner:   runner,
+		Path:     appPath,
+		TempPath: tmpPath,
+		tracer:   placeholder.New(),
+	}
 	runner.FileFn = func(f genny.File) (genny.File, error) {
-		return wetFileFn(f, tmpPath, appPath)
+		return wetFileFn(r, f)
 	}
-	return &Runner{
-		ctx:     ctx,
-		Runner:  runner,
-		tracer:  placeholder.New(),
-		path:    appPath,
-		tmpPath: tmpPath,
-	}
+	return r
 }
 
 func (r *Runner) Tracer() *placeholder.Tracer {
 	return r.tracer
 }
 
+// ApplyModifications copy all modifications from the temporary folder to the target path.
 func (r *Runner) ApplyModifications() (SourceModification, error) {
-	return r.sm, xos.CopyFolder(r.tmpPath, r.path)
+	sm := NewSourceModification()
+	if _, err := os.Stat(r.TempPath); os.IsNotExist(err) {
+		return sm, nil
+	}
+
+	err := xos.CopyFolder(r.TempPath, r.Path)
+	if err != nil {
+		return sm, nil
+	}
+
+	// fetch the source modification
+	for _, file := range r.Results().Files {
+		fileName := file.Name()
+		_, err := os.Stat(fileName)
+		switch {
+		case os.IsNotExist(err):
+			sm.AppendCreatedFiles(fileName) // if the file doesn't exist in the source, it means it has been created by the runner
+		case err != nil:
+			return sm, err
+		default:
+			sm.AppendModifiedFiles(fileName) // the file has been modified by the runner
+		}
+	}
+	return sm, os.RemoveAll(r.TempPath)
+}
+
+// RunAndApply run the generators and apply the modifications to the target path.
+func (r *Runner) RunAndApply(gens ...*genny.Generator) (SourceModification, error) {
+	if err := r.Run(gens...); err != nil {
+		return SourceModification{}, err
+	}
+	return r.ApplyModifications()
 }
 
 // Run all generators into a temp folder for we can apply the modifications later.
@@ -64,29 +96,10 @@ func (r *Runner) Run(gens ...*genny.Generator) error {
 	if err := r.tracer.Err(); err != nil {
 		return err
 	}
-
-	// fetch the source modification
-	sm := NewSourceModification()
-	for _, file := range r.Results().Files {
-		fileName := file.Name()
-		_, err := os.Stat(fileName)
-
-		//nolint:gocritic
-		if os.IsNotExist(err) {
-			// if the file doesn't exist in the source, it means it has been created by the runner
-			sm.AppendCreatedFiles(fileName)
-		} else if err != nil {
-			return err
-		} else {
-			// the file has been modified by the runner
-			sm.AppendModifiedFiles(fileName)
-		}
-	}
-	r.sm = sm
 	return nil
 }
 
-func wetFileFn(f genny.File, tmpPath, appPath string) (genny.File, error) {
+func wetFileFn(runner *Runner, f genny.File) (genny.File, error) {
 	if d, ok := f.(genny.Dir); ok {
 		if err := os.MkdirAll(d.Name(), d.Perm); err != nil {
 			return f, err
@@ -95,8 +108,8 @@ func wetFileFn(f genny.File, tmpPath, appPath string) (genny.File, error) {
 	}
 
 	var err error
-	if !filepath.IsAbs(appPath) {
-		appPath, err = filepath.Abs(appPath)
+	if !filepath.IsAbs(runner.Path) {
+		runner.Path, err = filepath.Abs(runner.Path)
 		if err != nil {
 			return f, err
 		}
@@ -104,14 +117,14 @@ func wetFileFn(f genny.File, tmpPath, appPath string) (genny.File, error) {
 
 	name := f.Name()
 	if !filepath.IsAbs(name) {
-		name = filepath.Join(appPath, name)
+		name = filepath.Join(runner.Path, name)
 	}
-	relPath, err := filepath.Rel(appPath, name)
+	relPath, err := filepath.Rel(runner.Path, name)
 	if err != nil {
 		return f, err
 	}
 
-	dstPath := filepath.Join(tmpPath, relPath)
+	dstPath := filepath.Join(runner.TempPath, relPath)
 	dir := filepath.Dir(dstPath)
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return f, err
@@ -138,7 +151,7 @@ func Box(g *genny.Generator, box packd.Walker) error {
 		filePath := strings.TrimSuffix(f.Name(), ".plush")
 		_, err = os.Stat(filePath)
 		if os.IsNotExist(err) {
-			// path doesn't exist. move on.
+			// Path doesn't exist. move on.
 			g.File(f)
 			return nil
 		}
