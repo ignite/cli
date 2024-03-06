@@ -77,7 +77,7 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 	}
 
 	faucetOptions := []cosmosfaucet.Option{
-		cosmosfaucet.Account(*conf.Faucet.Name, "", ""),
+		cosmosfaucet.Account(*conf.Faucet.Name, "", "", "", ""),
 		cosmosfaucet.ChainID(id),
 		cosmosfaucet.OpenAPI(apiAddress),
 		cosmosfaucet.Version(c.Version),
