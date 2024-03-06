@@ -53,6 +53,8 @@ const (
 	optionVestingAmount                    = "--vesting-amount"
 	optionVestingEndTime                   = "--vesting-end-time"
 	optionBroadcastMode                    = "--broadcast-mode"
+	optionAccount                          = "--account"
+	optionIndex                            = "--index"
 
 	constTendermint = "tendermint"
 	constJSON       = "json"
@@ -185,7 +187,7 @@ func (c ChainCmd) InitCommand(moniker string) step.Option {
 }
 
 // AddKeyCommand returns the command to add a new key in the chain keyring.
-func (c ChainCmd) AddKeyCommand(accountName, coinType string) step.Option {
+func (c ChainCmd) AddKeyCommand(accountName, coinType, accountNumber, addressIndex string) step.Option {
 	command := []string{
 		commandKeys,
 		"add",
@@ -196,13 +198,19 @@ func (c ChainCmd) AddKeyCommand(accountName, coinType string) step.Option {
 	if coinType != "" {
 		command = append(command, optionCoinType, coinType)
 	}
+	if accountNumber != "" {
+		command = append(command, optionAccount, accountNumber)
+	}
+	if addressIndex != "" {
+		command = append(command, optionIndex, addressIndex)
+	}
 	command = c.attachKeyringBackend(command)
 
 	return c.cliCommand(command)
 }
 
 // RecoverKeyCommand returns the command to recover a key into the chain keyring from a mnemonic.
-func (c ChainCmd) RecoverKeyCommand(accountName, coinType string) step.Option {
+func (c ChainCmd) RecoverKeyCommand(accountName, coinType, accountNumber, addressIndex string) step.Option {
 	command := []string{
 		commandKeys,
 		"add",
@@ -211,6 +219,12 @@ func (c ChainCmd) RecoverKeyCommand(accountName, coinType string) step.Option {
 	}
 	if coinType != "" {
 		command = append(command, optionCoinType, coinType)
+	}
+	if accountNumber != "" {
+		command = append(command, optionAccount, accountNumber)
+	}
+	if addressIndex != "" {
+		command = append(command, optionIndex, addressIndex)
 	}
 	command = c.attachKeyringBackend(command)
 
