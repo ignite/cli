@@ -42,7 +42,7 @@ import (
 )
 
 // registerIBCModules register IBC keepers and non dependency inject modules.
-func (app *App) registerIBCModules() {
+func (app *App) registerIBCModules(appOpts servertypes.AppOptions) error {
 	// set up non depinject support modules store keys
 	if err := app.RegisterStores(
 		storetypes.NewKVStoreKey(capabilitytypes.StoreKey),
@@ -231,12 +231,8 @@ func RegisterIBC(registry cdctypes.InterfaceRegistry) map[string]appmodule.AppMo
 		ibcconsumertypes.ModuleName: ibcconsumer.AppModule{},
 	}
 
-	for _, module := range modules {
-		if mod, ok := module.(interface {
-			RegisterInterfaces(registry cdctypes.InterfaceRegistry)
-		}); ok {
-			mod.RegisterInterfaces(registry)
-		}
+    for name, m := range modules {
+		module.CoreAppModuleBasicAdaptor(name, m).RegisterInterfaces(registry)
 	}
 
 	return modules
