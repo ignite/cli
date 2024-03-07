@@ -55,7 +55,7 @@ func (app *App) registerIBCModules(appOpts servertypes.AppOptions) error {
 		storetypes.NewMemoryStoreKey(capabilitytypes.MemStoreKey),
 		storetypes.NewTransientStoreKey(paramstypes.TStoreKey),
 	); err != nil {
-		panic(err)
+		return err
 	}
 
 	// register the key tables for legacy param subspaces
@@ -212,8 +212,10 @@ func (app *App) registerIBCModules(appOpts servertypes.AppOptions) error {
 		ibctm.AppModule{},
 		solomachine.AppModule{},
 	); err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }
 
 // Since the IBC modules don't support dependency injection, we need to
