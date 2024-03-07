@@ -1,10 +1,12 @@
 package scaffolder
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 	"strings"
 
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v28/ignite/templates/app"
@@ -15,6 +17,7 @@ import (
 
 // Init initializes a new app with name and given options.
 func Init(
+	ctx context.Context,
 	runner *xgenny.Runner,
 	root, name, addressPrefix string,
 	noDefaultModule, minimal bool,
@@ -39,6 +42,7 @@ func Init(
 
 	// create the project
 	_, err = generate(
+		ctx,
 		runner,
 		pathInfo,
 		addressPrefix,
@@ -53,6 +57,7 @@ func Init(
 
 //nolint:interfacer
 func generate(
+	ctx context.Context,
 	runner *xgenny.Runner,
 	pathInfo gomodulepath.Path,
 	addressPrefix,
@@ -101,6 +106,10 @@ func generate(
 	runner.Path = absRoot
 	smc, err := runner.RunAndApply(g)
 	if err != nil {
+		return smc, err
+	}
+
+	if err := cosmosgen.InstallDepTools(ctx, absRoot); err != nil {
 		return smc, err
 	}
 

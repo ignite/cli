@@ -73,13 +73,17 @@ func PostScaffold(ctx context.Context, cacheStorage cache.Storage, path, gomodPa
 		return err
 	}
 
+	if err := gocmd.ModTidy(ctx, path); err != nil {
+		return err
+	}
+
 	if err := gocmd.Fmt(ctx, path); err != nil {
 		return err
 	}
 
 	_ = gocmd.GoImports(ctx, path) // goimports installation could fail, so ignore the error
 
-	return gocmd.ModTidy(ctx, path)
+	return nil
 }
 
 func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodPath string) error {
