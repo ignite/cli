@@ -5,10 +5,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/gobuffalo/genny/v2"
-	"github.com/gobuffalo/packd"
 
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/randstr"
@@ -142,23 +140,4 @@ func wetFileFn(runner *Runner, f genny.File) (genny.File, error) {
 		return f, err
 	}
 	return f, nil
-}
-
-// Box will mount each file in the Box and wrap it, already existing files are ignored.
-func Box(g *genny.Generator, box packd.Walker) error {
-	return box.Walk(func(path string, bf packd.File) error {
-		f := genny.NewFile(path, bf)
-		f, err := g.Transform(f)
-		if err != nil {
-			return err
-		}
-		filePath := strings.TrimSuffix(f.Name(), ".plush")
-		_, err = os.Stat(filePath)
-		if os.IsNotExist(err) {
-			// Path doesn't exist. move on.
-			g.File(f)
-			return nil
-		}
-		return err
-	})
 }
