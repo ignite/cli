@@ -97,8 +97,14 @@ func SaveDiffs(diffs Diffs, outputPath string) error {
 
 // FormatDiffs format all diffs in a single markdown byte array.
 func FormatDiffs(diffs Diffs) ([]byte, error) {
+	if len(diffs) == 0 {
+		return []byte{}, nil
+	}
 	buffer := &bytes.Buffer{}
 	for name, diffs := range diffs {
+		if len(diffs) == 0 {
+			continue
+		}
 		buffer.WriteString(fmt.Sprintf("#### **%s diff**\n\n", xstrings.ToUpperFirst(name)))
 		for i, d := range diffs {
 			buffer.WriteString(fmt.Sprint(d))
