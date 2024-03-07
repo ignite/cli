@@ -60,7 +60,6 @@ var (
 		capabilitytypes.ModuleName,
 		authtypes.ModuleName,
 		banktypes.ModuleName,
-		ibcconsumertypes.ModuleName,
 		slashingtypes.ModuleName,
 		crisistypes.ModuleName,
 		ibcexported.ModuleName,
@@ -79,6 +78,7 @@ var (
 		group.ModuleName,
 		consensustypes.ModuleName,
 		circuittypes.ModuleName,
+		ibcconsumertypes.ModuleName,
 		// chain modules
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	}

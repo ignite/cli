@@ -174,8 +174,8 @@ func (app *App) registerIBCModules(appOpts servertypes.AppOptions) error {
 		ibcfee.NewAppModule(app.IBCFeeKeeper),
 		icamodule.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper),
 		capability.NewAppModule(app.appCodec, *app.CapabilityKeeper, false),
-		ibctm.AppModule{},
-		solomachine.AppModule{},
+		ibctm.NewAppModule(),
+		solomachine.NewAppModule(),
 	); err != nil {
 		return err
 	}
