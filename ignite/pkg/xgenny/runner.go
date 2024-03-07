@@ -95,10 +95,7 @@ func (r *Runner) Run(gens ...*genny.Generator) error {
 			return err
 		}
 	}
-	if err := r.tracer.Err(); err != nil {
-		return err
-	}
-	return nil
+	return r.tracer.Err()
 }
 
 func wetFileFn(runner *Runner, f genny.File) (genny.File, error) {
