@@ -37,11 +37,11 @@ func Init(
 	if root, err = filepath.Abs(root); err != nil {
 		return "", "", err
 	}
+
 	var (
 		path     = filepath.Join(root, appFolder)
 		gomodule = pathInfo.RawPath
 	)
-
 	// create the project
 	_, err = generate(
 		ctx,

@@ -160,7 +160,12 @@ func (d *Doctor) FixDependencyTools(ctx context.Context) error {
 }
 
 func (d Doctor) createToolsFile(ctx context.Context, toolsFilename string) error {
-	pathInfo, err := gomodulepath.ParseAt(".")
+	absPath, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	pathInfo, err := gomodulepath.ParseAt(absPath)
 	if err != nil {
 		return err
 	}
@@ -175,7 +180,7 @@ func (d Doctor) createToolsFile(ctx context.Context, toolsFilename string) error
 		return err
 	}
 
-	runner := xgenny.NewRunner(ctx, pathInfo.Root)
+	runner := xgenny.NewRunner(ctx, absPath)
 	if _, err := runner.RunAndApply(g); err != nil {
 		return err
 	}
