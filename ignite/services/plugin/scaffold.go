@@ -53,7 +53,7 @@ func Scaffold(ctx context.Context, dir, moduleName string, sharedHost bool) (str
 	g.Transformer(xgenny.Transformer(pctx))
 	r := xgenny.NewRunner(ctx, finalDir)
 	if _, err := r.RunAndApply(g); err != nil {
-		return "", errors.WithStack(err)
+		return "", err
 	}
 
 	if err := gocmd.ModTidy(ctx, finalDir); err != nil {

@@ -53,6 +53,10 @@ func (r *Runner) ApplyModifications() (SourceModification, error) {
 		return sm, nil
 	}
 
+	// Create the target path and copy the content from the temporary folder.
+	if err := os.MkdirAll(r.Path, os.ModePerm); err != nil {
+		return sm, nil
+	}
 	err := xos.CopyFolder(r.TempPath, r.Path)
 	if err != nil {
 		return sm, nil
