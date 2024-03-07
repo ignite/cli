@@ -130,13 +130,13 @@ func generate(
 			return smc, err
 		}
 
-		g, err = modulecreate.NewGenerator(runner.Tracer(), opts)
+		g, err = modulecreate.NewGenerator(opts)
 		if err != nil {
 			return smc, err
 		}
 
 		// generate module template
-		smm, err := runner.RunAndApply(g)
+		smm, err := runner.RunAndApply(g, modulecreate.NewAppModify(runner.Tracer(), opts))
 		if err != nil {
 			return smc, err
 		}

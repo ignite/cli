@@ -221,7 +221,7 @@ func (s Scaffolder) CreateModule(
 		Dependencies: creationOpts.dependencies,
 	}
 
-	g, err := modulecreate.NewGenerator(runner.Tracer(), opts)
+	g, err := modulecreate.NewGenerator(opts)
 	if err != nil {
 		return err
 	}
@@ -235,6 +235,7 @@ func (s Scaffolder) CreateModule(
 		}
 		gens = append(gens, g)
 	}
+	gens = append(gens, modulecreate.NewAppModify(runner.Tracer(), opts))
 
 	err = runner.Run(gens...)
 	var validationErr validation.Error
