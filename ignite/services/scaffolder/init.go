@@ -22,7 +22,7 @@ func Init(
 	root, name, addressPrefix string,
 	noDefaultModule, minimal bool,
 	params, moduleConfigs []string,
-) (path string, gomodule string, err error) {
+) (string, string, error) {
 	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
 		return "", "", err
@@ -37,8 +37,10 @@ func Init(
 	if root, err = filepath.Abs(root); err != nil {
 		return "", "", err
 	}
-	path = filepath.Join(root, appFolder)
-	gomodule = pathInfo.RawPath
+	var (
+		path     = filepath.Join(root, appFolder)
+		gomodule = pathInfo.RawPath
+	)
 
 	// create the project
 	_, err = generate(
@@ -52,7 +54,7 @@ func Init(
 		params,
 		moduleConfigs,
 	)
-	return path, pathInfo.RawPath, err
+	return path, gomodule, err
 }
 
 //nolint:interfacer
