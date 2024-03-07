@@ -6,7 +6,6 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
@@ -119,7 +118,6 @@ func TypeWithSigner(signer string) AddTypeOption {
 // if no module is given, the type will be scaffolded inside the app's default module.
 func (s Scaffolder) AddType(
 	ctx context.Context,
-	cacheStorage cache.Storage,
 	typeName string,
 	runner *xgenny.Runner,
 	kind AddTypeKind,

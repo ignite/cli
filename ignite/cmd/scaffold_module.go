@@ -178,7 +178,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	runner := xgenny.NewRunner(cmd.Context(), appPath)
-	if err := sc.CreateModule(cmd.Context(), cacheStorage, runner, name, options...); err != nil {
+	if err := sc.CreateModule(runner, name, options...); err != nil {
 		var validationErr validation.Error
 		if !requireRegistration && errors.As(err, &validationErr) {
 			fmt.Fprintf(&msg, "Can't register module '%s'.\n", name)

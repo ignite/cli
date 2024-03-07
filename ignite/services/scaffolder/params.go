@@ -1,11 +1,9 @@
 package scaffolder
 
 import (
-	"context"
 	"path/filepath"
 	"strings"
 
-	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
@@ -16,8 +14,6 @@ import (
 
 // CreateParams creates a new params in the scaffolded module.
 func (s Scaffolder) CreateParams(
-	ctx context.Context,
-	cacheStorage cache.Storage,
 	runner *xgenny.Runner,
 	moduleName string,
 	params ...string,

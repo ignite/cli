@@ -120,14 +120,11 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 
 	runner := xgenny.NewRunner(cmd.Context(), appPath)
 	appdir, gomodule, err := scaffolder.Init(
-		cmd.Context(),
-		cacheStorage,
 		runner,
 		appPath,
 		name,
 		addressPrefix,
 		noDefaultModule,
-		skipGit,
 		minimal,
 		params,
 		moduleConfigs,

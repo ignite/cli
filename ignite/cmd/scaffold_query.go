@@ -71,7 +71,7 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	runner := xgenny.NewRunner(cmd.Context(), appPath)
-	err = sc.AddQuery(cmd.Context(), cacheStorage, runner, module, args[0], desc, args[1:], resFields, paginated)
+	err = sc.AddQuery(cmd.Context(), runner, module, args[0], desc, args[1:], resFields, paginated)
 	if err != nil {
 		return err
 	}

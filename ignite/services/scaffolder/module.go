@@ -1,7 +1,6 @@
 package scaffolder
 
 import (
-	"context"
 	"go/token"
 	"os"
 	"path/filepath"
@@ -28,7 +27,6 @@ import (
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	appanalysis "github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/app"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
@@ -164,8 +162,6 @@ func WithDependencies(dependencies []modulecreate.Dependency) ModuleCreationOpti
 
 // CreateModule creates a new empty module in the scaffolded app.
 func (s Scaffolder) CreateModule(
-	ctx context.Context,
-	cacheStorage cache.Storage,
 	runner *xgenny.Runner,
 	moduleName string,
 	options ...ModuleCreationOption,

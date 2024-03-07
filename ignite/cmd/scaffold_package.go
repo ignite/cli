@@ -73,7 +73,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	runner := xgenny.NewRunner(cmd.Context(), appPath)
-	err = sc.AddPacket(cmd.Context(), cacheStorage, runner, module, packet, packetFields, ackFields, options...)
+	err = sc.AddPacket(cmd.Context(), runner, module, packet, packetFields, ackFields, options...)
 	if err != nil {
 		return err
 	}

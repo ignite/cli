@@ -1,12 +1,10 @@
 package scaffolder
 
 import (
-	"context"
 	"fmt"
 	"path/filepath"
 	"strings"
 
-	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v28/ignite/templates/app"
@@ -17,11 +15,9 @@ import (
 
 // Init initializes a new app with name and given options.
 func Init(
-	ctx context.Context,
-	cacheStorage cache.Storage,
 	runner *xgenny.Runner,
 	root, name, addressPrefix string,
-	noDefaultModule, skipGit, minimal bool,
+	noDefaultModule, minimal bool,
 	params, moduleConfigs []string,
 ) (path string, gomodule string, err error) {
 	pathInfo, err := gomodulepath.Parse(name)
@@ -36,13 +32,13 @@ func Init(
 	}
 
 	if root, err = filepath.Abs(root); err != nil {
-		return path, gomodule, err
+		return "", "", err
 	}
 	path = filepath.Join(root, appFolder)
 	gomodule = pathInfo.RawPath
 
 	// create the project
-	if _, err = generate(
+	_, err = generate(
 		runner,
 		pathInfo,
 		addressPrefix,
@@ -51,10 +47,8 @@ func Init(
 		minimal,
 		params,
 		moduleConfigs,
-	); err != nil {
-		return path, gomodule, err
-	}
-	return path, pathInfo.RawPath, nil
+	)
+	return path, pathInfo.RawPath, err
 }
 
 //nolint:interfacer
@@ -103,6 +97,8 @@ func generate(
 	}
 
 	// generate module template
+	runner.Root = absRoot
+	runner.Path = absRoot
 	smc, err := runner.RunAndApply(g)
 	if err != nil {
 		return smc, err
@@ -128,7 +124,6 @@ func generate(
 			return smc, err
 		}
 
-		runner.Path = runner.TempPath
 		// generate module template
 		smm, err := runner.RunAndApply(g)
 		if err != nil {
