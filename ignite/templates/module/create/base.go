@@ -91,11 +91,11 @@ func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.R
 			),
 			xast.WithLastNamedImport(
 				"_",
-				fmt.Sprintf("%[1]v/x/%[2]v/module", opts.AppName, opts.ModulePath),
+				fmt.Sprintf("%[1]v/x/%[2]v/module", opts.ModulePath, opts.ModuleName),
 			),
 			xast.WithLastNamedImport(
-				fmt.Sprintf("%[1]vmodulev1", opts.ModuleName),
-				fmt.Sprintf("%[1]v/x/%[2]v/types", opts.AppName, opts.ModulePath),
+				fmt.Sprintf("%[1]vmoduletypes", opts.ModuleName),
+				fmt.Sprintf("%[1]v/x/%[2]v/types", opts.ModulePath, opts.ModuleName),
 			),
 		)
 		if err != nil {
