@@ -98,7 +98,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 		// Import
 		content, err := xast.AppendImports(
 			f.String(),
-			xast.WithNamedImport("host", "github.com/cosmos/ibc-go/v8/modules/core/24-host", -1),
+			xast.WithLastNamedImport("host", "github.com/cosmos/ibc-go/v8/modules/core/24-host"),
 		)
 		if err != nil {
 			return err
