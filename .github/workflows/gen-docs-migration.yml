@@ -1,7 +1,7 @@
 name: Generate Migration Docs
 on:
   release:
-    types: [published]
+    types: [ published ]
 
 jobs:
   cli:
@@ -14,7 +14,7 @@ jobs:
           go-version: '1.21'
 
       - name: Generate Scaffold Migration Docs
-        run: go run ./ignite/internal/tools/gen-mig-diffs/main.go
+        run: ./scripts/gen-mig-diffs
 
       - name: Create Pull Request
         id: cpr
