@@ -105,7 +105,6 @@ func generate(
 
 	// generate module template
 	runner.Root = absRoot
-	runner.Path = absRoot
 	smc, err := runner.RunAndApply(g)
 	if err != nil {
 		return smc, err

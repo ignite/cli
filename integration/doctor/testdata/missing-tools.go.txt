@@ -15,9 +15,6 @@ exists $GOPATH/bin/protoc-gen-grpc-gateway
 version: 1
 -- go.mod --
 module github.com/ignite/cli
-require (
-	github.com/bufbuild/buf v1.29.0
-)
 
 require (
 	github.com/bufbuild/buf v1.29.0

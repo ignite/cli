@@ -15,10 +15,9 @@ import (
 
 type Runner struct {
 	*genny.Runner
-	Path     string
-	ctx      context.Context
-	tracer   *placeholder.Tracer
-	TempPath string
+	ctx     context.Context
+	tracer  *placeholder.Tracer
+	tmpPath string
 }
 
 // NewRunner is a xgenny Runner with a logger.
@@ -27,12 +26,12 @@ func NewRunner(ctx context.Context, appPath string) *Runner {
 		runner  = genny.WetRunner(ctx)
 		tmpPath = filepath.Join(os.TempDir(), randstr.Runes(5))
 	)
+	runner.Root = appPath
 	r := &Runner{
-		ctx:      ctx,
-		Runner:   runner,
-		Path:     appPath,
-		TempPath: tmpPath,
-		tracer:   placeholder.New(),
+		ctx:     ctx,
+		Runner:  runner,
+		tmpPath: tmpPath,
+		tracer:  placeholder.New(),
 	}
 	runner.FileFn = func(f genny.File) (genny.File, error) {
 		return wetFileFn(r, f)
@@ -47,15 +46,15 @@ func (r *Runner) Tracer() *placeholder.Tracer {
 // ApplyModifications copy all modifications from the temporary folder to the target path.
 func (r *Runner) ApplyModifications() (SourceModification, error) {
 	sm := NewSourceModification()
-	if _, err := os.Stat(r.TempPath); os.IsNotExist(err) {
+	if _, err := os.Stat(r.tmpPath); os.IsNotExist(err) {
 		return sm, nil
 	}
 
 	// Create the target path and copy the content from the temporary folder.
-	if err := os.MkdirAll(r.Path, os.ModePerm); err != nil {
+	if err := os.MkdirAll(r.Root, os.ModePerm); err != nil {
 		return sm, nil
 	}
-	err := xos.CopyFolder(r.TempPath, r.Path)
+	err := xos.CopyFolder(r.tmpPath, r.Root)
 	if err != nil {
 		return sm, nil
 	}
@@ -73,7 +72,7 @@ func (r *Runner) ApplyModifications() (SourceModification, error) {
 			sm.AppendModifiedFiles(fileName) // the file has been modified by the runner
 		}
 	}
-	return sm, os.RemoveAll(r.TempPath)
+	return sm, os.RemoveAll(r.tmpPath)
 }
 
 // RunAndApply run the generators and apply the modifications to the target path.
@@ -107,8 +106,8 @@ func wetFileFn(runner *Runner, f genny.File) (genny.File, error) {
 	}
 
 	var err error
-	if !filepath.IsAbs(runner.Path) {
-		runner.Path, err = filepath.Abs(runner.Path)
+	if !filepath.IsAbs(runner.Root) {
+		runner.Root, err = filepath.Abs(runner.Root)
 		if err != nil {
 			return f, err
 		}
@@ -116,14 +115,14 @@ func wetFileFn(runner *Runner, f genny.File) (genny.File, error) {
 
 	name := f.Name()
 	if !filepath.IsAbs(name) {
-		name = filepath.Join(runner.Path, name)
+		name = filepath.Join(runner.Root, name)
 	}
-	relPath, err := filepath.Rel(runner.Path, name)
+	relPath, err := filepath.Rel(runner.Root, name)
 	if err != nil {
 		return f, err
 	}
 
-	dstPath := filepath.Join(runner.TempPath, relPath)
+	dstPath := filepath.Join(runner.tmpPath, relPath)
 	dir := filepath.Dir(dstPath)
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return f, err
