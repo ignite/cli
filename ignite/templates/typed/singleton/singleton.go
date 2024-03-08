@@ -233,8 +233,6 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			return err
 		}
 
-		content := typed.PatchGenesisTypeImport(replacer, f.String())
-
 		templateTypesDefault := `%[2]v: nil,
 %[1]v`
 		replacementTypesDefault := fmt.Sprintf(
@@ -242,7 +240,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			typed.PlaceholderGenesisTypesDefault,
 			opts.TypeName.UpperCamel,
 		)
-		content = replacer.Replace(content, typed.PlaceholderGenesisTypesDefault, replacementTypesDefault)
+		content := replacer.Replace(f.String(), typed.PlaceholderGenesisTypesDefault, replacementTypesDefault)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
