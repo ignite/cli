@@ -17,6 +17,7 @@ type Runner struct {
 	*genny.Runner
 	ctx     context.Context
 	tracer  *placeholder.Tracer
+	results []genny.File
 	tmpPath string
 }
 
@@ -32,6 +33,7 @@ func NewRunner(ctx context.Context, appPath string) *Runner {
 		Runner:  runner,
 		tmpPath: tmpPath,
 		tracer:  placeholder.New(),
+		results: make([]genny.File, 0),
 	}
 	runner.FileFn = func(f genny.File) (genny.File, error) {
 		return wetFileFn(r, f)
@@ -45,7 +47,22 @@ func (r *Runner) Tracer() *placeholder.Tracer {
 
 // ApplyModifications copy all modifications from the temporary folder to the target path.
 func (r *Runner) ApplyModifications() (SourceModification, error) {
+	// fetch the source modification
 	sm := NewSourceModification()
+	for _, file := range r.results {
+		fileName := file.Name()
+		_, err := os.Stat(fileName)
+		switch {
+		case os.IsNotExist(err):
+			sm.AppendCreatedFiles(fileName) // if the file doesn't exist in the source, it means it has been created by the runner
+		case err != nil:
+			return sm, err
+		default:
+			sm.AppendModifiedFiles(fileName) // the file has been modified by the runner
+		}
+	}
+	r.results = make([]genny.File, 0)
+
 	if _, err := os.Stat(r.tmpPath); os.IsNotExist(err) {
 		return sm, nil
 	}
@@ -59,19 +76,6 @@ func (r *Runner) ApplyModifications() (SourceModification, error) {
 		return sm, nil
 	}
 
-	// fetch the source modification
-	for _, file := range r.Results().Files {
-		fileName := file.Name()
-		_, err := os.Stat(fileName)
-		switch {
-		case os.IsNotExist(err):
-			sm.AppendCreatedFiles(fileName) // if the file doesn't exist in the source, it means it has been created by the runner
-		case err != nil:
-			return sm, err
-		default:
-			sm.AppendModifiedFiles(fileName) // the file has been modified by the runner
-		}
-	}
 	return sm, os.RemoveAll(r.tmpPath)
 }
 
@@ -94,6 +98,7 @@ func (r *Runner) Run(gens ...*genny.Generator) error {
 			return err
 		}
 	}
+	r.results = append(r.results, r.Results().Files...)
 	return r.tracer.Err()
 }
 
