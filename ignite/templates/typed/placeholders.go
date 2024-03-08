@@ -8,7 +8,6 @@ const (
 	Placeholder4 = "<!-- this line is used by starport scaffolding # 4 -->"
 
 	// Genesis
-	PlaceholderGenesisTypesImport   = "// this line is used by starport scaffolding # genesis/types/import"
 	PlaceholderGenesisTypesDefault  = "// this line is used by starport scaffolding # genesis/types/default"
 	PlaceholderGenesisTypesValidate = "// this line is used by starport scaffolding # genesis/types/validate"
 	PlaceholderGenesisModuleInit    = "// this line is used by starport scaffolding # genesis/module/init"
