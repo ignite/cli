@@ -9,6 +9,7 @@
 - [#3985](https://github.com/ignite/cli/pull/3985) Make some `cmd` pkg functions public
 - [#3967](https://github.com/ignite/cli/issues/3967) Add HD wallet parameters `address index` and `account number` to the chain account config
 - [#3718](https://github.com/ignite/cli/pull/3718) Add `gen-mig-diffs` tool app to compare scaffold output of two versions of ignite
+- [#4004](https://github.com/ignite/cli/pull/4004) Remove all import placeholders using the `xast` pkg
 
 ### Changes
 
