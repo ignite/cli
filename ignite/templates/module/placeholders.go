@@ -7,7 +7,6 @@ const (
 
 	// Placeholders in app.go
 	PlaceholderSgAppKeeperDeclaration = "// this line is used by starport scaffolding # stargate/app/keeperDeclaration"
-	PlaceholderSgAppKeeperDefinition  = "// this line is used by starport scaffolding # stargate/app/keeperDefinition"
 	PlaceholderSgAppInitGenesis       = "// this line is used by starport scaffolding # stargate/app/initGenesis"
 	PlaceholderSgAppBeginBlockers     = "// this line is used by starport scaffolding # stargate/app/beginBlockers"
 	PlaceholderSgAppEndBlockers       = "// this line is used by starport scaffolding # stargate/app/endBlockers"

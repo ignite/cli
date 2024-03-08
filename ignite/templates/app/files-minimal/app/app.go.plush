@@ -179,7 +179,7 @@ func New(
 		&app.StakingKeeper,
 		&app.DistrKeeper,
 		&app.ConsensusParamsKeeper,
-		// this line is used by starport scaffolding # stargate/app/keeperDefinition
+
 	); err != nil {
 		panic(err)
 	}

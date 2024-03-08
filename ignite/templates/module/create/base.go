@@ -175,14 +175,18 @@ func appModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 		content = replacer.Replace(content, module.PlaceholderSgAppKeeperDeclaration, replacement)
 
 		// Keeper definition
-		template = `&app.%[2]vKeeper,
-		%[1]v`
-		replacement = fmt.Sprintf(
-			template,
-			module.PlaceholderSgAppKeeperDefinition,
-			xstrings.Title(opts.ModuleName),
+		content, err = xast.ModifyFunction(
+			content,
+			"New",
+			xast.AppendInsideFuncCall(
+				"Inject",
+				fmt.Sprintf("\n&app.%[1]vKeeper", xstrings.Title(opts.ModuleName)),
+				-1,
+			),
 		)
-		content = replacer.Replace(content, module.PlaceholderSgAppKeeperDefinition, replacement)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(appPath, content)
 		return r.File(newFile)
