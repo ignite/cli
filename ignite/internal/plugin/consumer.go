@@ -8,7 +8,7 @@ import (
 	"github.com/ignite/cli/v28/ignite/services/plugin"
 )
 
-// TODO use released version of app-consumer
+// TODO use released version of app-consumer.
 const consumerPlugin = "github.com/ignite/apps/consumer"
 
 // ConsumerWriteGenesis writes validators in the consumer module genesis.
