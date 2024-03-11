@@ -25,7 +25,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v29/ignite/pkg/goanalysis"
-	yamlmap "github.com/ignite/cli/v29/ignite/pkg/yaml"
+	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
 	envtest "github.com/ignite/cli/v29/integration"
 )
 
@@ -66,21 +66,21 @@ var (
 				Coins: []string{"500token", "100000000stake"},
 				Host:  ":4501",
 			},
-			Genesis: yamlmap.Map{"chain_id": "mars-1"},
+			Genesis: xyaml.Map{"chain_id": "mars-1"},
 		},
 		Validators: []v1.Validator{
 			{
 				Name:   "alice",
 				Bonded: "100000000stake",
-				Client: yamlmap.Map{"keyring-backend": keyring.BackendTest},
-				App: yamlmap.Map{
-					"api":      yamlmap.Map{"address": ":1318"},
-					"grpc":     yamlmap.Map{"address": ":9092"},
-					"grpc-web": yamlmap.Map{"address": ":9093"},
+				Client: xyaml.Map{"keyring-backend": keyring.BackendTest},
+				App: xyaml.Map{
+					"api":      xyaml.Map{"address": ":1318"},
+					"grpc":     xyaml.Map{"address": ":9092"},
+					"grpc-web": xyaml.Map{"address": ":9093"},
 				},
-				Config: yamlmap.Map{
-					"p2p": yamlmap.Map{"laddr": ":26658"},
-					"rpc": yamlmap.Map{"laddr": ":26658", "pprof_laddr": ":6061"},
+				Config: xyaml.Map{
+					"p2p": xyaml.Map{"laddr": ":26658"},
+					"rpc": xyaml.Map{"laddr": ":26658", "pprof_laddr": ":6061"},
 				},
 				Home: "$HOME/.mars",
 			},
@@ -117,21 +117,21 @@ var (
 				Coins: []string{"500token", "100000000stake"},
 				Host:  ":4500",
 			},
-			Genesis: yamlmap.Map{"chain_id": "earth-1"},
+			Genesis: xyaml.Map{"chain_id": "earth-1"},
 		},
 		Validators: []v1.Validator{
 			{
 				Name:   "alice",
 				Bonded: "100000000stake",
-				Client: yamlmap.Map{"keyring-backend": keyring.BackendTest},
-				App: yamlmap.Map{
-					"api":      yamlmap.Map{"address": ":1317"},
-					"grpc":     yamlmap.Map{"address": ":9090"},
-					"grpc-web": yamlmap.Map{"address": ":9091"},
+				Client: xyaml.Map{"keyring-backend": keyring.BackendTest},
+				App: xyaml.Map{
+					"api":      xyaml.Map{"address": ":1317"},
+					"grpc":     xyaml.Map{"address": ":9090"},
+					"grpc-web": xyaml.Map{"address": ":9091"},
 				},
-				Config: yamlmap.Map{
-					"p2p": yamlmap.Map{"laddr": ":26656"},
-					"rpc": yamlmap.Map{"laddr": ":26656", "pprof_laddr": ":6060"},
+				Config: xyaml.Map{
+					"p2p": xyaml.Map{"laddr": ":26656"},
+					"rpc": xyaml.Map{"laddr": ":26656", "pprof_laddr": ":6060"},
 				},
 				Home: "$HOME/.earth",
 			},
@@ -260,11 +260,11 @@ func runChain(
 	cfg.Validators[0].Home = homePath
 
 	cfg.Faucet.Host = genAddr(ports[0])
-	cfg.Validators[0].App["api"] = yamlmap.Map{"address": genAddr(ports[1])}
-	cfg.Validators[0].App["grpc"] = yamlmap.Map{"address": genAddr(ports[2])}
-	cfg.Validators[0].App["grpc-web"] = yamlmap.Map{"address": genAddr(ports[3])}
-	cfg.Validators[0].Config["p2p"] = yamlmap.Map{"laddr": genAddr(ports[4])}
-	cfg.Validators[0].Config["rpc"] = yamlmap.Map{
+	cfg.Validators[0].App["api"] = xyaml.Map{"address": genAddr(ports[1])}
+	cfg.Validators[0].App["grpc"] = xyaml.Map{"address": genAddr(ports[2])}
+	cfg.Validators[0].App["grpc-web"] = xyaml.Map{"address": genAddr(ports[3])}
+	cfg.Validators[0].Config["p2p"] = xyaml.Map{"laddr": genAddr(ports[4])}
+	cfg.Validators[0].Config["rpc"] = xyaml.Map{
 		"laddr":       genAddr(ports[5]),
 		"pprof_laddr": genAddr(ports[6]),
 	}

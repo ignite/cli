@@ -24,10 +24,6 @@ build:
 snapcraft:
 	@sed -i 's/{{version}}/'$(version)'/' packaging/snap/snapcraft.yaml
 
-## prepare flatpak manifest for release
-flatpak:
-	@sed -i 's/{{version}}/'$(version)'/' packaging/flatpak/com.ignite.Ignite.yml
-
 ## mocks: generate mocks
 mocks:
 	@echo Generating mocks

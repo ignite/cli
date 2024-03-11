@@ -1,4 +1,4 @@
-package yaml
+package xyaml
 
 // Map defines a map type that uses strings as key value.
 // The map implements the Unmarshaller interface to convert

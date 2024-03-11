@@ -1,4 +1,4 @@
-package yaml_test
+package xyaml_test
 
 import (
 	"testing"
@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"
 
-	xyaml "github.com/ignite/cli/v29/ignite/pkg/yaml"
+	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
 )
 
 func TestUnmarshalWithCustomMapType(t *testing.T) {
