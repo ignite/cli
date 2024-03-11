@@ -76,8 +76,6 @@ import (
 	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 
-	// this line is used by starport scaffolding # stargate/app/moduleImport
-
 	"<%= ModulePath %>/docs"
 )
 
@@ -278,7 +276,7 @@ func New(
 		&app.NFTKeeper,
 		&app.GroupKeeper,
 		&app.CircuitBreakerKeeper,
-		// this line is used by starport scaffolding # stargate/app/keeperDefinition
+
 	); err != nil {
 		panic(err)
 	}
