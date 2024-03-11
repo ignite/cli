@@ -18,7 +18,7 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/v28/ignite/pkg/randstr"
 	"github.com/ignite/cli/v28/ignite/pkg/xurl"
-	xyaml "github.com/ignite/cli/v28/ignite/pkg/yaml"
+	"github.com/ignite/cli/v28/ignite/pkg/xyaml"
 	envtest "github.com/ignite/cli/v28/integration"
 )
 
