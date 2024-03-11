@@ -18,6 +18,7 @@
 - [#3976](https://github.com/ignite/cli/pull/3976) Remove error checks for Cobra command value get calls
 - [#3983](https://github.com/ignite/cli/pull/3983) Bump `cosmos-sdk` to `v0.50.4` and `ibc-go` to `v8.1.0`
 - [#4002](https://github.com/ignite/cli/pull/4002) Bump buf build
+- [#4008](https://github.com/ignite/cli/pull/4008) Rename `pkg/yaml` to `pkg/xyaml`
 
 ### Fixes
 
