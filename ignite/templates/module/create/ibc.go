@@ -11,6 +11,7 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v28/ignite/pkg/xast"
 	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v28/ignite/pkg/xstrings"
 	"github.com/ignite/cli/v28/ignite/templates/field/plushhelpers"
@@ -95,10 +96,13 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 		}
 
 		// Import
-		templateImport := `host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
-%s`
-		replacementImport := fmt.Sprintf(templateImport, typed.PlaceholderGenesisTypesImport)
-		content := replacer.Replace(f.String(), typed.PlaceholderGenesisTypesImport, replacementImport)
+		content, err := xast.AppendImports(
+			f.String(),
+			xast.WithLastNamedImport("host", "github.com/cosmos/ibc-go/v8/modules/core/24-host"),
+		)
+		if err != nil {
+			return err
+		}
 
 		// Default genesis
 		templateDefault := `PortId: PortID,
@@ -189,11 +193,20 @@ func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunF
 		}
 
 		// Import
-		templateImport := `%[1]v
-%[2]vmodule "%[3]v/x/%[2]v/module"
-%[2]vmoduletypes "%[3]v/x/%[2]v/types"`
-		replacementImport := fmt.Sprintf(templateImport, module.PlaceholderIBCImport, opts.ModuleName, opts.ModulePath)
-		content := replacer.Replace(f.String(), module.PlaceholderIBCImport, replacementImport)
+		content, err := xast.AppendImports(
+			f.String(),
+			xast.WithLastNamedImport(
+				fmt.Sprintf("%[1]vmodule", opts.ModuleName),
+				fmt.Sprintf("%[1]v/x/%[2]v/module", opts.ModulePath, opts.ModuleName),
+			),
+			xast.WithLastNamedImport(
+				fmt.Sprintf("%[1]vmoduletypes", opts.ModuleName),
+				fmt.Sprintf("%[1]v/x/%[2]v/types", opts.ModulePath, opts.ModuleName),
+			),
+		)
+		if err != nil {
+			return err
+		}
 
 		// create IBC module
 		templateIBCModule := `%[2]vIBCModule := ibcfee.NewIBCMiddleware(%[2]vmodule.NewIBCModule(app.%[3]vKeeper), app.IBCFeeKeeper)

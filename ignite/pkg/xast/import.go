@@ -27,13 +27,46 @@ type (
 	}
 )
 
-// WithImport add a new import. If the index is -1 will append in the end of the imports.
-func WithImport(repo, name string, index int) ImportOptions {
+// WithLastImport add a new import int the end.
+func WithLastImport(repo string) ImportOptions {
 	return func(c *importOpts) {
 		c.imports = append(c.imports, imp{
 			repo:  repo,
-			name:  name,
+			name:  "",
+			index: -1,
+		})
+	}
+}
+
+// WithImport add a new import. If the index is -1 will append in the end of the imports.
+func WithImport(repo string, index int) ImportOptions {
+	return func(c *importOpts) {
+		c.imports = append(c.imports, imp{
+			repo:  repo,
+			name:  "",
 			index: index,
+		})
+	}
+}
+
+// WithNamedImport add a new import with name. If the index is -1 will append in the end of the imports.
+func WithNamedImport(name, repo string, index int) ImportOptions {
+	return func(c *importOpts) {
+		c.imports = append(c.imports, imp{
+			name:  name,
+			repo:  repo,
+			index: index,
+		})
+	}
+}
+
+// WithLastNamedImport add a new import with name in the end of the imports.
+func WithLastNamedImport(name, repo string) ImportOptions {
+	return func(c *importOpts) {
+		c.imports = append(c.imports, imp{
+			name:  name,
+			repo:  repo,
+			index: -1,
 		})
 	}
 }
