@@ -18,7 +18,7 @@ func Test<%= Title %>(t *testing.T) {
 	var (
 		require = require.New(t)
 		env     = envtest.New(t)
-		app     = env.Scaffold("github.com/test/test")
+		app     = env.Scaffold(<%= AppName %>)
 	)
 
 	dir, err := os.Getwd()
