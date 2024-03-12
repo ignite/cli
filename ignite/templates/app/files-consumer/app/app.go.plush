@@ -324,6 +324,7 @@ func New(
 			},
 			IBCKeeper:      app.IBCKeeper,
 			ConsumerKeeper: app.ConsumerKeeper,
+			CircuitKeeper: app.CircuitBreakerKeeper,
 		},
 		logger,
 	)

@@ -12,13 +12,13 @@ import (
 	ibcconsumerkeeper "github.com/cosmos/interchain-security/v3/x/ccv/consumer/keeper"
 )
 
-// HandlerOptions extend the SDK's AnteHandler options by requiring the IBC
-// channel keeper.
+// HandlerOptions extend the SDK's AnteHandler options by requiring the IBC channel keeper.
 type HandlerOptions struct {
 	ante.HandlerOptions
 
 	IBCKeeper      *ibckeeper.Keeper
 	ConsumerKeeper ibcconsumerkeeper.Keeper
+	CircuitKeeper circuitante.CircuitBreaker
 }
 
 func NewAnteHandler(options HandlerOptions, logger log.Logger) (sdk.AnteHandler, error) {
@@ -39,7 +39,8 @@ func NewAnteHandler(options HandlerOptions, logger log.Logger) (sdk.AnteHandler,
 
 	anteDecorators := []sdk.AnteDecorator{
 		ante.NewSetUpContextDecorator(),
-		ante.NewExtensionOptionsDecorator(nil),
+		circuitante.NewCircuitBreakerDecorator(options.CircuitKeeper),
+		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
 		consumerante.NewDisabledModulesDecorator("/cosmos.evidence", "/cosmos.slashing"),
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),
