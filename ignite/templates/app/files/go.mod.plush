@@ -23,7 +23,14 @@ require (
 	cosmossdk.io/x/feegrant v0.1.0
 	cosmossdk.io/x/nft v0.1.0
 	cosmossdk.io/x/upgrade v0.1.1
+<<<<<<< HEAD
 	github.com/bufbuild/buf v1.28.1
+=======
+	<%= if (IsConsumerChain) { %>
+	github.com/cosmos/interchain-security/v3 v3.2.0-consumer-rc0.0.20231123140529-1819e73f6197
+	<% } %>
+	github.com/bufbuild/buf v1.30.0
+>>>>>>> 5ed96320 (feat: scaffold consumer chain (#3660))
 	github.com/cometbft/cometbft v0.38.5
 	github.com/cosmos/cosmos-db v1.0.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.4

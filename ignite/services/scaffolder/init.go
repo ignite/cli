@@ -25,8 +25,13 @@ func Init(
 	cacheStorage cache.Storage,
 	tracer *placeholder.Tracer,
 	root, name, addressPrefix string,
+<<<<<<< HEAD
 	noDefaultModule, skipGit, minimal bool,
 	params []string,
+=======
+	noDefaultModule, skipGit, minimal, isConsumerChain bool,
+	params, moduleConfigs []string,
+>>>>>>> 5ed96320 (feat: scaffold consumer chain (#3660))
 ) (path string, err error) {
 	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
@@ -46,8 +51,23 @@ func Init(
 	path = filepath.Join(root, appFolder)
 
 	// create the project
+<<<<<<< HEAD
 	err = generate(ctx, tracer, pathInfo, addressPrefix, path, noDefaultModule, minimal, params)
 	if err != nil {
+=======
+	if err := generate(
+		ctx,
+		tracer,
+		pathInfo,
+		addressPrefix,
+		path,
+		noDefaultModule,
+		minimal,
+		isConsumerChain,
+		params,
+		moduleConfigs,
+	); err != nil {
+>>>>>>> 5ed96320 (feat: scaffold consumer chain (#3660))
 		return "", err
 	}
 
@@ -73,8 +93,13 @@ func generate(
 	pathInfo gomodulepath.Path,
 	addressPrefix,
 	absRoot string,
+<<<<<<< HEAD
 	noDefaultModule, minimal bool,
 	params []string,
+=======
+	noDefaultModule, minimal, isConsumerChain bool,
+	params, moduleConfigs []string,
+>>>>>>> 5ed96320 (feat: scaffold consumer chain (#3660))
 ) error {
 	// Parse params with the associated type
 	paramsFields, err := field.ParseFields(params, checkForbiddenTypeIndex)
@@ -97,6 +122,7 @@ func generate(
 		BinaryNamePrefix: pathInfo.Root,
 		AddressPrefix:    addressPrefix,
 		IsChainMinimal:   minimal,
+		IsConsumerChain:  isConsumerChain,
 	})
 	if err != nil {
 		return err

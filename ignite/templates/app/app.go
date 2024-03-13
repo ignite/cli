@@ -19,6 +19,9 @@ var (
 
 	//go:embed files-minimal/* files-minimal/**/*
 	filesMinimal embed.FS
+
+	//go:embed files-consumer/* files-consumer/**/*
+	filesConsumer embed.FS
 )
 
 const (
@@ -32,27 +35,35 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 	if err != nil {
 		return nil, errors.Errorf("generator sub: %w", err)
 	}
-	g := genny.New()
 
-	var excludePrefix []string
+	var (
+		includePrefix = opts.IncludePrefixes
+		excludePrefix []string
+		overridesFS   = make(map[string]embed.FS)
+	)
 	if opts.IsChainMinimal {
 		// minimal chain does not have ibc
 		excludePrefix = append(excludePrefix, ibcConfig)
+		overridesFS["files-minimal"] = filesMinimal
+	}
+	if opts.IsConsumerChain {
+		overridesFS["files-consumer"] = filesConsumer
 	}
 
-	if err := g.SelectiveFS(subfs, opts.IncludePrefixes, nil, excludePrefix, nil); err != nil {
+	g := genny.New()
+	if err := g.SelectiveFS(subfs, includePrefix, nil, excludePrefix, nil); err != nil {
 		return g, errors.Errorf("generator fs: %w", err)
 	}
 
-	if opts.IsChainMinimal {
-		// Remove "files-minimal/" prefix
-		subfs, err := fs.Sub(filesMinimal, "files-minimal")
+	for prefix, embed := range overridesFS {
+		// Remove  prefix
+		subfs, err := fs.Sub(embed, prefix)
 		if err != nil {
-			return nil, errors.Errorf("generator sub minimal: %w", err)
+			return g, errors.Errorf("generator sub %s: %w", prefix, err)
 		}
-		// Override files from "files" with the ones from "files-minimal"
+		// Override files from "files" with the ones from embed
 		if err := g.FS(subfs); err != nil {
-			return g, errors.Errorf("generator fs minimal: %w", err)
+			return g, errors.Errorf("generator fs %s: %w", prefix, err)
 		}
 	}
 
@@ -62,6 +73,7 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 	ctx.Set("GitHubPath", opts.GitHubPath)
 	ctx.Set("BinaryNamePrefix", opts.BinaryNamePrefix)
 	ctx.Set("AddressPrefix", opts.AddressPrefix)
+	ctx.Set("IsConsumerChain", opts.IsConsumerChain)
 	ctx.Set("DepTools", cosmosgen.DepTools())
 	ctx.Set("IsChainMinimal", opts.IsChainMinimal)
 

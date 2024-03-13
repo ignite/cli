@@ -1,0 +1,9 @@
+{
+  "app_name": "test",
+  "app_version": "",
+  "genesis_time": "2024-01-19T10:27:44.742750573Z",
+  "chain_id": "test",
+  "initial_height": 1,
+  "app_hash": null,
+  "app_state": {}
+}
