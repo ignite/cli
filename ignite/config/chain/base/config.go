@@ -153,15 +153,29 @@ type Host struct {
 	API     string `yaml:"api"`
 }
 
+// Validation describes the kind of validation the chain has.
+type Validation string
+
+const (
+	// ValidationSovereign is when the chain has his own validator set.
+	// Note that an empty string is also considered as a sovereign validation,
+	// because this is the default value.
+	ValidationSovereign = "sovereign"
+	// ValidationConsumer is when the chain is validated by a provider chain.
+	// Such chain is called a consumer chain.
+	ValidationConsumer = "consumer"
+)
+
 // Config defines a struct with the fields that are common to all config versions.
 type Config struct {
-	Version  version.Version `yaml:"version"`
-	Build    Build           `yaml:"build,omitempty"`
-	Accounts []Account       `yaml:"accounts"`
-	Faucet   Faucet          `yaml:"faucet,omitempty"`
-	Client   Client          `yaml:"client,omitempty"`
-	Genesis  xyaml.Map       `yaml:"genesis,omitempty"`
-	Minimal  bool            `yaml:"minimal,omitempty"`
+	Validation Validation      `yaml:"validation,omitempty"`
+	Version    version.Version `yaml:"version"`
+	Build      Build           `yaml:"build,omitempty"`
+	Accounts   []Account       `yaml:"accounts"`
+	Faucet     Faucet          `yaml:"faucet,omitempty"`
+	Client     Client          `yaml:"client,omitempty"`
+	Genesis    xyaml.Map       `yaml:"genesis,omitempty"`
+	Minimal    bool            `yaml:"minimal,omitempty"`
 }
 
 // GetVersion returns the config version.
@@ -172,6 +186,14 @@ func (c Config) GetVersion() version.Version {
 // IsChainMinimal returns true if the chain is minimally scaffolded.
 func (c Config) IsChainMinimal() bool {
 	return c.Minimal
+}
+
+func (c Config) IsSovereignChain() bool {
+	return c.Validation == "" || c.Validation == ValidationSovereign
+}
+
+func (c Config) IsConsumerChain() bool {
+	return c.Validation == ValidationConsumer
 }
 
 // SetDefaults assigns default values to empty config fields.

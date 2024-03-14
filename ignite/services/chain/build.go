@@ -29,6 +29,7 @@ const (
 	releaseChecksumKey           = "release_checksum"
 	modChecksumKey               = "go_mod_checksum"
 	buildDirchangeCacheNamespace = "build.dirchange"
+	consumerDevel                = "consumer_devel"
 )
 
 // Build builds and installs app binaries.
@@ -70,6 +71,17 @@ func (c *Chain) build(
 		if err := c.generateFromConfig(ctx, cacheStorage, generateClients); err != nil {
 			return err
 		}
+	}
+
+	cfg, err := c.Config()
+	if err != nil {
+		return err
+	}
+	if cfg.IsConsumerChain() {
+		// When building a non-release consumer chain (which is the case for this
+		// build() method), enable consumerDevel (see templates consumer_devel and
+		// consumer_final for more info).
+		buildTags = append(buildTags, consumerDevel)
 	}
 
 	buildFlags, err := c.preBuild(ctx, cacheStorage, buildTags...)

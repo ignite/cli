@@ -8,10 +8,12 @@
 - [#3770](https://github.com/ignite/cli/pull/3770) Add `scaffold configs` and `scaffold params` commands
 - [#3985](https://github.com/ignite/cli/pull/3985) Make some `cmd` pkg functions public
 - [#3967](https://github.com/ignite/cli/issues/3967) Add HD wallet parameters `address index` and `account number` to the chain account config
+- [#3660](https://github.com/ignite/cli/pull/3660) Add ability to scaffold ICS consumer chain
 - [#4004](https://github.com/ignite/cli/pull/4004) Remove all import placeholders using the `xast` pkg
 
 ### Changes
 
+- [#4013](https://github.com/ignite/cli/pull/4013) Bump `cosmos-sdk` to `v0.50.5`
 - [#3993](https://github.com/ignite/cli/pull/3993) Oracle scaffolding was deprecated and has been removed
 - [#3959](https://github.com/ignite/cli/pull/3959) Remove app name prefix from the `.gitignore` file
 - [#3962](https://github.com/ignite/cli/pull/3962) Rename all RPC endpoints and autocli commands generated for `map`/`list`/`single` types

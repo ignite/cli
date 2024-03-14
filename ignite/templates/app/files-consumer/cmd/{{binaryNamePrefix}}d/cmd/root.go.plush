@@ -23,6 +23,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	"<%= ModulePath %>/app"
 )
@@ -46,6 +47,7 @@ func NewRootCmd() *cobra.Command {
 			depinject.Provide(
 				ProvideClientContext,
 				ProvideKeyring,
+				ProvideStakingKeeper,
 			),
 		),
 		&txConfigOpts,
@@ -161,7 +163,7 @@ func ProvideClientContext(
 		WithViper(app.Name) // env variable prefix
 
 	// Read the config again to overwrite the default values with the values from the config file
-	clientCtx, _ = config.ReadDefaultValuesFromDefaultClientConfig(clientCtx)
+	clientCtx, _ = config.ReadFromClientConfig(clientCtx)
 
 	return clientCtx
 }
@@ -173,4 +175,9 @@ func ProvideKeyring(clientCtx client.Context, addressCodec address.Codec) (clien
 	}
 
 	return keyring.NewAutoCLIKeyring(kb)
+}
+
+// This is a hack for root.go, needs to be reverted eventually.
+func ProvideStakingKeeper() stakingkeeper.Keeper {
+	return stakingkeeper.Keeper{}
 }

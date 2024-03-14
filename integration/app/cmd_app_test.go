@@ -211,3 +211,15 @@ func TestGenerateAppWithEmptyModule(t *testing.T) {
 
 	app.EnsureSteady()
 }
+
+func TestGenerateAConsumerApp(t *testing.T) {
+	var (
+		env = envtest.New(t)
+		app = env.Scaffold("github.com/test/blog", "--consumer")
+	)
+
+	_, statErr := os.Stat(filepath.Join(app.SourcePath(), "x", "blog"))
+	require.False(t, os.IsNotExist(statErr), "the default module should be scaffolded")
+
+	app.EnsureSteady()
+}

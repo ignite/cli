@@ -9,6 +9,7 @@ import (
 	"github.com/imdario/mergo"
 
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
+	"github.com/ignite/cli/v29/ignite/internal/plugin"
 	chaincmdrunner "github.com/ignite/cli/v29/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/view/accountview"
 	"github.com/ignite/cli/v29/ignite/pkg/confile"
@@ -171,11 +172,22 @@ func (c *Chain) InitAccounts(ctx context.Context, cfg *chainconfig.Config) error
 	c.ev.SendView(accounts, events.ProgressFinish())
 
 	// 0 length validator set when using network config
-	if len(cfg.Validators) != 0 {
-		_, err = c.IssueGentx(ctx, createValidatorFromConfig(cfg))
+	if len(cfg.Validators) == 0 {
+		return nil
 	}
-
-	return err
+	if cfg.IsConsumerChain() {
+		err := plugininternal.ConsumerWriteGenesis(ctx, c)
+		if err != nil {
+			return err
+		}
+	} else {
+		// Sovereign chain writes validators in gentxs.
+		_, err := c.IssueGentx(ctx, createValidatorFromConfig(cfg))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // IssueGentx generates a gentx from the validator information in chain config and imports it in the chain genesis.
@@ -196,12 +208,22 @@ func (c Chain) IssueGentx(ctx context.Context, v Validator) (string, error) {
 }
 
 // IsInitialized checks if the chain is initialized.
-// The check is performed by checking if the gentx dir exists in the config.
+// The check is performed by checking if the gentx dir exists in the config,
+// unless c is a consumer chain, in which case the check relies on checking if
+// the consumer genesis module is filled with validators.
 func (c *Chain) IsInitialized() (bool, error) {
 	home, err := c.Home()
 	if err != nil {
 		return false, err
 	}
+	cfg, err := c.Config()
+	if err != nil {
+		return false, err
+	}
+	if cfg.IsConsumerChain() {
+		return plugininternal.ConsumerIsInitialized(context.Background(), c)
+	}
+
 	gentxDir := filepath.Join(home, "config", "gentx")
 
 	if _, err := os.Stat(gentxDir); os.IsNotExist(err) {
