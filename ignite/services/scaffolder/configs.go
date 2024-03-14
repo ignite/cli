@@ -73,7 +73,7 @@ func (s Scaffolder) CreateConfigs(
 		return sm, err
 	}
 
-	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
+	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath, false)
 }
 
 // checkConfigCreated checks if the config has been already created.
