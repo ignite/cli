@@ -15,6 +15,7 @@ const (
 	flagMinimal         = "minimal"
 	flagNoDefaultModule = "no-module"
 	flagSkipGit         = "skip-git"
+	flagIsConsumer      = "consumer"
 
 	tplScaffoldChainSuccess = `
 ⭐️ Successfully created a new blockchain '%[1]v'.
@@ -85,6 +86,9 @@ about Cosmos SDK on https://docs.cosmos.network
 	c.Flags().StringSlice(flagModuleConfigs, []string{}, "add module configs")
 	c.Flags().Bool(flagSkipGit, false, "skip Git repository initialization")
 	c.Flags().Bool(flagMinimal, false, "create a minimal blockchain (with the minimum required Cosmos SDK modules)")
+	c.Flags().Bool(flagIsConsumer, false, "scafffold an ICS consumer chain")
+	// Cannot have both minimal and consumer flag
+	c.MarkFlagsMutuallyExclusive(flagIsConsumer, flagMinimal)
 
 	return c
 }
@@ -100,6 +104,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		noDefaultModule, _ = cmd.Flags().GetBool(flagNoDefaultModule)
 		skipGit, _         = cmd.Flags().GetBool(flagSkipGit)
 		minimal, _         = cmd.Flags().GetBool(flagMinimal)
+		isConsumer, _      = cmd.Flags().GetBool(flagIsConsumer)
 		params, _          = cmd.Flags().GetStringSlice(flagParams)
 		moduleConfigs, _   = cmd.Flags().GetStringSlice(flagModuleConfigs)
 	)
@@ -118,7 +123,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	runner := xgenny.NewRunner(cmd.Context(), appPath)
-	appdir, gomodule, err := scaffolder.Init(
+	appDir, goModule, err := scaffolder.Init(
 		cmd.Context(),
 		runner,
 		appPath,
@@ -126,6 +131,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		addressPrefix,
 		noDefaultModule,
 		minimal,
+		isConsumer,
 		params,
 		moduleConfigs,
 	)
@@ -133,7 +139,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	path, err := xfilepath.RelativePath(appdir)
+	path, err := xfilepath.RelativePath(appDir)
 	if err != nil {
 		return err
 	}
@@ -142,7 +148,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := scaffolder.PostScaffold(cmd.Context(), cacheStorage, appdir, gomodule); err != nil {
+	if err := scaffolder.PostScaffold(cmd.Context(), cacheStorage, appDir, goModule); err != nil {
 		return err
 	}
 

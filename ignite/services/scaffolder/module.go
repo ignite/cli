@@ -50,6 +50,7 @@ var (
 		"account":                    {},
 		"block":                      {},
 		"broadcast":                  {},
+		"consumer":                   {}, // ICS consumer module
 		"encode":                     {},
 		"multisign":                  {},
 		"sign":                       {},

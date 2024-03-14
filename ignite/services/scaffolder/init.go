@@ -20,7 +20,7 @@ func Init(
 	ctx context.Context,
 	runner *xgenny.Runner,
 	root, name, addressPrefix string,
-	noDefaultModule, minimal bool,
+	noDefaultModule, minimal, isConsumerChain bool,
 	params, moduleConfigs []string,
 ) (string, string, error) {
 	pathInfo, err := gomodulepath.Parse(name)
@@ -51,6 +51,7 @@ func Init(
 		path,
 		noDefaultModule,
 		minimal,
+		isConsumerChain,
 		params,
 		moduleConfigs,
 	)
@@ -64,7 +65,7 @@ func generate(
 	pathInfo gomodulepath.Path,
 	addressPrefix,
 	absRoot string,
-	noDefaultModule, minimal bool,
+	noDefaultModule, minimal, isConsumerChain bool,
 	params, moduleConfigs []string,
 ) (xgenny.SourceModification, error) {
 	// Parse params with the associated type
@@ -94,6 +95,7 @@ func generate(
 		BinaryNamePrefix: pathInfo.Root,
 		AddressPrefix:    addressPrefix,
 		IsChainMinimal:   minimal,
+		IsConsumerChain:  isConsumerChain,
 	})
 	if err != nil {
 		return xgenny.SourceModification{}, err
