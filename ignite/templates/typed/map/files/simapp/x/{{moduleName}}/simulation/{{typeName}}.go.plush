@@ -68,7 +68,7 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 		)
 
 		var all<%= TypeName.UpperCamel %> []types.<%= TypeName.UpperCamel %>
-		err := k.<%= TypeName.UpperCamel %>.Walk(ctx, nil, func(key uint64, value types.<%= TypeName.UpperCamel %>) (stop bool, err error) {
+		err := k.<%= TypeName.UpperCamel %>.Walk(ctx, nil, func(key string, value types.<%= TypeName.UpperCamel %>) (stop bool, err error) {
 			all<%= TypeName.UpperCamel %> = append(all<%= TypeName.UpperCamel %>, value)
 			return false, nil
 		})
@@ -122,7 +122,7 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 		)
 
 		var all<%= TypeName.UpperCamel %> []types.<%= TypeName.UpperCamel %>
-		err := k.<%= TypeName.UpperCamel %>.Walk(ctx, nil, func(key uint64, value types.<%= TypeName.UpperCamel %>) (stop bool, err error) {
+		err := k.<%= TypeName.UpperCamel %>.Walk(ctx, nil, func(key string, value types.<%= TypeName.UpperCamel %>) (stop bool, err error) {
 			all<%= TypeName.UpperCamel %> = append(all<%= TypeName.UpperCamel %>, value)
 			return false, nil
 		})

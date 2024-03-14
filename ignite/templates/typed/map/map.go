@@ -419,7 +419,9 @@ func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) gen
 
 		templateModuleInit := `// Set all the %[2]v
 for _, elem := range genState.%[3]vList {
-	k.Set%[3]v(ctx, elem)
+	if err := k.%[3]v.Set(ctx, elem.Index, elem); err != nil {
+		panic(err)
+	}
 }
 %[1]v`
 		replacementModuleInit := fmt.Sprintf(
@@ -431,7 +433,7 @@ for _, elem := range genState.%[3]vList {
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisModuleInit, replacementModuleInit)
 
 		templateModuleExport := `genesis.%[3]vList = k.GetAll%[3]v(ctx)
-%[1]v`
+%[1]v` // TODO(@julienrbrt) change GetAll to iterator
 		replacementModuleExport := fmt.Sprintf(
 			templateModuleExport,
 			typed.PlaceholderGenesisModuleExport,
