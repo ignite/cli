@@ -6,6 +6,7 @@
 
 - [#3985](https://github.com/ignite/cli/pull/3985) Make some `cmd` pkg functions public
 - [#3956](https://github.com/ignite/cli/pull/3956) Prepare for wasm app
+- [#3660](https://github.com/ignite/cli/pull/3660) Add ability to scaffold ICS consumer chain
 
 ### Changes
 

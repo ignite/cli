@@ -15,10 +15,10 @@ import (
 
 func TestPluginExecute(t *testing.T) {
 	tests := []struct {
-		name          string
-		pluginPath    string
-		expectedOut   string
-		expectedError string
+		name           string
+		pluginPath     string
+		expectedOutput string
+		expectedError  string
 	}{
 		{
 			name:          "fail: plugin doesnt exist",
@@ -26,12 +26,12 @@ func TestPluginExecute(t *testing.T) {
 			expectedError: "local app path \"/not/exists\" not found: stat /not/exists: no such file or directory",
 		},
 		{
-			name:        "ok: plugin execute ok ",
-			pluginPath:  "testdata/execute_ok",
-			expectedOut: "ok args=[arg1 arg2] chainid=id appPath=apppath configPath=configpath home=home rpcAddress=rpcPublicAddress\n",
+			name:           "ok: plugin execute ok",
+			pluginPath:     "testdata/execute_ok",
+			expectedOutput: "ok args=[arg1 arg2] chainid=id appPath=apppath configPath=configpath home=home rpcAddress=rpcPublicAddress\n",
 		},
 		{
-			name:          "ok: plugin execute fail ",
+			name:          "ok: plugin execute fail",
 			pluginPath:    "testdata/execute_fail",
 			expectedError: "fail",
 		},
@@ -64,7 +64,7 @@ func TestPluginExecute(t *testing.T) {
 				return
 			}
 			require.NoError(t, err)
-			require.Equal(t, tt.expectedOut, out)
+			require.Equal(t, tt.expectedOutput, out)
 		})
 	}
 }

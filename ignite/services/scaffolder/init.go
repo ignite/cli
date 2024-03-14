@@ -25,7 +25,7 @@ func Init(
 	cacheStorage cache.Storage,
 	tracer *placeholder.Tracer,
 	root, name, addressPrefix string,
-	noDefaultModule, skipGit, minimal bool,
+	noDefaultModule, skipGit, minimal, isConsumerChain bool,
 	params []string,
 ) (path string, err error) {
 	pathInfo, err := gomodulepath.Parse(name)
@@ -46,8 +46,17 @@ func Init(
 	path = filepath.Join(root, appFolder)
 
 	// create the project
-	err = generate(ctx, tracer, pathInfo, addressPrefix, path, noDefaultModule, minimal, params)
-	if err != nil {
+	if err := generate(
+		ctx,
+		tracer,
+		pathInfo,
+		addressPrefix,
+		path,
+		noDefaultModule,
+		minimal,
+		isConsumerChain,
+		params,
+	); err != nil {
 		return "", err
 	}
 
@@ -73,7 +82,7 @@ func generate(
 	pathInfo gomodulepath.Path,
 	addressPrefix,
 	absRoot string,
-	noDefaultModule, minimal bool,
+	noDefaultModule, minimal, isConsumerChain bool,
 	params []string,
 ) error {
 	// Parse params with the associated type
@@ -97,6 +106,7 @@ func generate(
 		BinaryNamePrefix: pathInfo.Root,
 		AddressPrefix:    addressPrefix,
 		IsChainMinimal:   minimal,
+		IsConsumerChain:  isConsumerChain,
 	})
 	if err != nil {
 		return err
