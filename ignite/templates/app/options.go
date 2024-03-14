@@ -11,6 +11,7 @@ type Options struct {
 	// IncludePrefixes is used to filter the files to include from the generator
 	IncludePrefixes []string
 	IsChainMinimal  bool
+	IsConsumerChain bool
 }
 
 // Validate that options are usable.

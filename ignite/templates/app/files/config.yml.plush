@@ -1,5 +1,6 @@
 version: 1
-accounts:
+validation: <%= if (IsConsumerChain) { %>consumer<% } else { %>sovereign<% } %>
+accounts: 
 - name: alice
   coins:
   - 20000token
