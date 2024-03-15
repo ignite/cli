@@ -284,7 +284,7 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 	}
 }
 
-// typesKeyModify modifies the keys.go file to add a new collection prefix
+// typesKeyModify modifies the keys.go file to add a new collection prefix.
 func typesKeyModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/keys.go")
@@ -303,7 +303,7 @@ var (
 	}
 }
 
-// keeperModify modifies the keeper to add a new collections item type
+// keeperModify modifies the keeper to add a new collections item type.
 func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/keeper.go")
