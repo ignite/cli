@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [`v28.3.0`](https://github.com/ignite/cli/releases/tag/v28.3.0)
+
 ### Features
 
 - [#3985](https://github.com/ignite/cli/pull/3985) Make some `cmd` pkg functions public
