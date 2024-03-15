@@ -20,3 +20,7 @@ var (
 )
 
 <%= if (isIBC) { %>// this line is used by starport scaffolding # ibc/keys/port<% } %>
+
+func KeyPrefix(p string) []byte {
+    return []byte(p)
+}
