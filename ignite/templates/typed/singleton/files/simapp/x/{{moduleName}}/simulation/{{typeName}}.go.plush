@@ -99,7 +99,7 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 			msg = &types.MsgUpdate<%= TypeName.UpperCamel %>{}
 			<%= TypeName.LowerCamel %>, err = k.<%= TypeName.UpperCamel %>.Get(ctx)
 		)
-		if !errors.Is(err, collections.ErrNotFound) {
+		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> store is empty"), nil, nil
 		}
 		simAccount, found := FindAccount(accs, <%= TypeName.LowerCamel %>.<%= MsgSigner.UpperCamel %>)
