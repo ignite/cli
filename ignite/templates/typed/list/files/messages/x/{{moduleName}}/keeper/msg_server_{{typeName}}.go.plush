@@ -11,15 +11,16 @@ import (
 
 
 func (k msgServer) Create<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgCreate<%= TypeName.UpperCamel %>) (*types.MsgCreate<%= TypeName.UpperCamel %>Response, error) {
-    var <%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{
-        <%= MsgSigner.UpperCamel %>: msg.<%= MsgSigner.UpperCamel %>,<%= for (field) in Fields { %>
-        <%= field.Name.UpperCamel %>: msg.<%= field.Name.UpperCamel %>,<% } %>
-    }
-
     nextId, err := k.<%= TypeName.UpperCamel %>Seq.Next(ctx)
 	if err != nil {
 		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "failed to get next id")
 	}
+
+    var <%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{
+        Id: nextId,
+        <%= MsgSigner.UpperCamel %>: msg.<%= MsgSigner.UpperCamel %>,<%= for (field) in Fields { %>
+        <%= field.Name.UpperCamel %>: msg.<%= field.Name.UpperCamel %>,<% } %>
+    }
 
     if err = k.<%= TypeName.UpperCamel %>.Set(
         ctx,
