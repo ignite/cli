@@ -294,10 +294,13 @@ func typesKeyModify(opts *typed.Options) genny.RunFn {
 		}
 		content := f.String() + fmt.Sprintf(`
 var (
-	%[1]vKey= collections.NewPrefix("%[1]v/value/")
-	%[1]vCountKey= collections.NewPrefix("%[1]v/count/")
+	%[1]vKey= collections.NewPrefix("%[2]v/value/")
+	%[1]vCountKey= collections.NewPrefix("%[2]v/count/")
 )
-`, opts.TypeName.UpperCamel)
+`,
+			opts.TypeName.UpperCamel,
+			opts.TypeName.LowerCase,
+		)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
