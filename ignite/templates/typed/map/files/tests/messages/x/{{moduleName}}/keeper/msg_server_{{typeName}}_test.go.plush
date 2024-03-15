@@ -26,11 +26,11 @@ func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
 		}
 		_, err := srv.Create<%= TypeName.UpperCamel %>(ctx, expected)
 		require.NoError(t, err)
-		rst, err := k.<%= TypeName.UpperCamel %>.Get(ctx,
+		rst, found := k.Get<%= TypeName.UpperCamel %>(ctx,
 		    <%= for (i, index) in Indexes { %>expected.<%= index.Name.UpperCamel %>,
             <% } %>
 		)
-		require.NoError(t, err)
+		require.True(t, found)
 		require.Equal(t, expected.<%= MsgSigner.UpperCamel %>, rst.<%= MsgSigner.UpperCamel %>)
 	}
 }
@@ -83,11 +83,11 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 				require.ErrorIs(t, err, tc.err)
 			} else {
 				require.NoError(t, err)
-				rst, err := k.<%= TypeName.UpperCamel %>.Get(ctx,
+				rst, found := k.Get<%= TypeName.UpperCamel %>(ctx,
 				    <%= for (i, index) in Indexes { %>expected.<%= index.Name.UpperCamel %>,
                     <% } %>
 				)
-				require.NoError(t, err)
+				require.True(t, found)
 				require.Equal(t, expected.<%= MsgSigner.UpperCamel %>, rst.<%= MsgSigner.UpperCamel %>)
 			}
 		})
@@ -141,11 +141,10 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 				require.ErrorIs(t, err, tc.err)
 			} else {
 				require.NoError(t, err)
-				found, err := k.<%= TypeName.UpperCamel %>.Has(ctx,
+				_, found := k.Get<%= TypeName.UpperCamel %>(ctx,
 				    <%= for (i, index) in Indexes { %>tc.request.<%= index.Name.UpperCamel %>,
                     <% } %>
 				)
-				require.NoError(t, err)
 				require.False(t, found)
 			}
 		})

@@ -4,60 +4,47 @@ import (
 	"context"
 
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
-    "cosmossdk.io/collections"
-    errorsmod "cosmossdk.io/errors"
-    sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errorsmod "cosmossdk.io/errors"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 
 func (k msgServer) Create<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgCreate<%= TypeName.UpperCamel %>) (*types.MsgCreate<%= TypeName.UpperCamel %>Response, error) {
     // Check if the value already exists
-    // TODO need to limit max nb of indexes
-    ok, err := k.<%= TypeName.UpperCamel %>.Has(
+    _, isFound := k.Get<%= TypeName.UpperCamel %>(
         ctx,
         <%= for (i, index) in Indexes { %>msg.<%= index.Name.UpperCamel %>,
         <% } %>)
-    if err != nil {
-        return nil, errorsmod.Wrap(sdkerrors.ErrLogic, err.Error())
-    } else if ok {
+    if isFound {
         return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "index already set")
     }
 
     var <%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{
-		<%= MsgSigner.UpperCamel %>: msg.<%= MsgSigner.UpperCamel %>,
-		<%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: msg.<%= index.Name.UpperCamel %>,
+        <%= MsgSigner.UpperCamel %>: msg.<%= MsgSigner.UpperCamel %>,
+        <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: msg.<%= index.Name.UpperCamel %>,
         <% } %><%= for (field) in Fields { %><%= field.Name.UpperCamel %>: msg.<%= field.Name.UpperCamel %>,
-		<% } %>
-	}
-
-    if err := k.<%= TypeName.UpperCamel %>.Set(
-   		ctx,
-        <%= for (i, index) in Indexes { %>msg.<%= index.Name.UpperCamel %>,
         <% } %>
-   		<%= TypeName.LowerCamel %>,
-   	); err != nil {
-        return nil, errorsmod.Wrap(sdkerrors.ErrLogic, err.Error())
     }
-	
-    return &types.MsgCreate<%= TypeName.UpperCamel %>Response{}, nil
+
+   k.Set<%= TypeName.UpperCamel %>(
+   		ctx,
+   		<%= TypeName.LowerCamel %>,
+   	)
+	return &types.MsgCreate<%= TypeName.UpperCamel %>Response{}, nil
 }
 
 func (k msgServer) Update<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgUpdate<%= TypeName.UpperCamel %>) (*types.MsgUpdate<%= TypeName.UpperCamel %>Response, error) {
     // Check if the value exists
-    val, err := k.<%= TypeName.UpperCamel %>.Get(
+    valFound, isFound := k.Get<%= TypeName.UpperCamel %>(
         ctx,
         <%= for (i, index) in Indexes { %>msg.<%= index.Name.UpperCamel %>,
     <% } %>)
-    if err != nil {
-        if errors.Is(err, collections.ErrNotFound) {
-            return nil, errorsmod.Wrap(sdkerrors.ErrKeyNotFound, "index not set")
-        }
-
-        return nil, errorsmod.Wrap(sdkerrors.ErrLogic, err.Error())
+    if !isFound {
+        return nil, errorsmod.Wrap(sdkerrors.ErrKeyNotFound, "index not set")
     }
 
     // Checks if the msg <%= MsgSigner.LowerCamel %> is the same as the current owner
-    if msg.<%= MsgSigner.UpperCamel %> != val.<%= MsgSigner.UpperCamel %> {
+    if msg.<%= MsgSigner.UpperCamel %> != valFound.<%= MsgSigner.UpperCamel %> {
         return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
     }
 
@@ -68,33 +55,27 @@ func (k msgServer) Update<%= TypeName.UpperCamel %>(ctx context.Context,  msg *t
 		<% } %>
 	}
 
-	if err := k.<%= TypeName.UpperCamel %>.Set(ctx, <%= TypeName.LowerCamel %>.Index, <%= TypeName.LowerCamel %>); err != nil {
-        return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "failed to set <%= TypeName.LowerCamel %>")
-    }
+	k.Set<%= TypeName.UpperCamel %>(ctx, <%= TypeName.LowerCamel %>)
 
 	return &types.MsgUpdate<%= TypeName.UpperCamel %>Response{}, nil
 }
 
 func (k msgServer) Delete<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgDelete<%= TypeName.UpperCamel %>) (*types.MsgDelete<%= TypeName.UpperCamel %>Response, error) {
     // Check if the value exists
-    val, err := k.<%= TypeName.UpperCamel %>.Get(
+    valFound, isFound := k.Get<%= TypeName.UpperCamel %>(
         ctx,
         <%= for (i, index) in Indexes { %>msg.<%= index.Name.UpperCamel %>,
     <% } %>)
-    if err != nil {
-        if errors.Is(err, collections.ErrNotFound) {
-            return nil, errorsmod.Wrap(sdkerrors.ErrKeyNotFound, "index not set")
-        }
-
-        return nil, errorsmod.Wrap(sdkerrors.ErrLogic, err.Error())
+    if !isFound {
+        return nil, errorsmod.Wrap(sdkerrors.ErrKeyNotFound, "index not set")
     }
 
     // Checks if the msg <%= MsgSigner.LowerCamel %> is the same as the current owner
-    if msg.<%= MsgSigner.UpperCamel %> != val.<%= MsgSigner.UpperCamel %> {
+    if msg.<%= MsgSigner.UpperCamel %> != valFound.<%= MsgSigner.UpperCamel %> {
         return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
     }
 
-	k.<%= TypeName.UpperCamel %>.Remove(
+	k.Remove<%= TypeName.UpperCamel %>(
 	    ctx,
 	<%= for (i, index) in Indexes { %>msg.<%= index.Name.UpperCamel %>,
     <% } %>)

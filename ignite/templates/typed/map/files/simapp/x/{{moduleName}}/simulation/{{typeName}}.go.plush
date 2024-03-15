@@ -31,8 +31,8 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(
 			<%= index.Name.UpperCamel %>: <%= index.ValueLoop() %>,<% } %>
 		}
 
-		found, err := k.<%= TypeName.UpperCamel %>.Has(ctx <%= for (index) in Indexes { %>, msg.<%= index.Name.UpperCamel %><% } %>)
-		if err == nil && found {
+		_, found := k.Get<%= TypeName.UpperCamel %>(ctx <%= for (index) in Indexes { %>, msg.<%= index.Name.UpperCamel %><% } %>)
+		if found {
 			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.UpperCamel %> already exist"), nil, nil
 		}
 
@@ -64,18 +64,9 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 			simAccount = simtypes.Account{}
 			<%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{}
 			msg = &types.MsgUpdate<%= TypeName.UpperCamel %>{}
+			all<%= TypeName.UpperCamel %> = k.GetAll<%= TypeName.UpperCamel %>(ctx)
 			found = false
 		)
-
-		var all<%= TypeName.UpperCamel %> []types.<%= TypeName.UpperCamel %>
-		err := k.<%= TypeName.UpperCamel %>.Walk(ctx, nil, func(key string, value types.<%= TypeName.UpperCamel %>) (stop bool, err error) {
-			all<%= TypeName.UpperCamel %> = append(all<%= TypeName.UpperCamel %>, value)
-			return false, nil
-		})
-		if err != nil {
-			panic(err)
-		}
-
 		for _, obj := range all<%= TypeName.UpperCamel %> {
 			simAccount, found = FindAccount(accs, obj.<%= MsgSigner.UpperCamel %>)
 			if found {
@@ -118,18 +109,9 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 			simAccount = simtypes.Account{}
 			<%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{}
 			msg = &types.MsgUpdate<%= TypeName.UpperCamel %>{}
+			all<%= TypeName.UpperCamel %> = k.GetAll<%= TypeName.UpperCamel %>(ctx)
 			found = false
 		)
-
-		var all<%= TypeName.UpperCamel %> []types.<%= TypeName.UpperCamel %>
-		err := k.<%= TypeName.UpperCamel %>.Walk(ctx, nil, func(key string, value types.<%= TypeName.UpperCamel %>) (stop bool, err error) {
-			all<%= TypeName.UpperCamel %> = append(all<%= TypeName.UpperCamel %>, value)
-			return false, nil
-		})
-		if err != nil {
-			panic(err)
-		}
-
 		for _, obj := range all<%= TypeName.UpperCamel %> {
 			simAccount, found = FindAccount(accs, obj.<%= MsgSigner.UpperCamel %>)
 			if found {

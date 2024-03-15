@@ -79,7 +79,6 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 	)
 
 	g.RunFn(protoRPCModify(opts))
-	g.RunFn(keeperModify(replacer, opts))
 	g.RunFn(clientCliQueryModify(replacer, opts))
 	g.RunFn(genesisProtoModify(opts))
 	g.RunFn(genesisTypesModify(replacer, opts))
@@ -116,39 +115,6 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 		}
 	}
 	return g, typed.Box(componentTemplate, opts, g)
-}
-
-// keeperModify modifies the keeper to add a new collections map type
-func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/keeper.go")
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		templateKeeperType := `%[2]v collections.Map[string, types.%[2]v]
-	%[1]v`
-		replacementModuleType := fmt.Sprintf(
-			templateKeeperType,
-			typed.PlaceholderCollectionType,
-			opts.TypeName.UpperCamel,
-		)
-		content := replacer.Replace(f.String(), typed.PlaceholderCollectionType, replacementModuleType)
-
-		templateKeeperInstantiate := `%[2]v: collections.NewMap(sb, types.%[2]vKey, "%[3]v", collections.StringKey, codec.CollValue[types.%[2]v](cdc)),
-	%[1]v`
-		replacementInstantiate := fmt.Sprintf(
-			templateKeeperInstantiate,
-			typed.PlaceholderCollectionInstantiate,
-			opts.TypeName.UpperCamel,
-			opts.TypeName.LowerCamel,
-		)
-		content = replacer.Replace(content, typed.PlaceholderCollectionInstantiate, replacementInstantiate)
-
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
 }
 
 // Modifies query.proto to add the required RPCs and Messages.
@@ -419,9 +385,7 @@ func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) gen
 
 		templateModuleInit := `// Set all the %[2]v
 for _, elem := range genState.%[3]vList {
-	if err := k.%[3]v.Set(ctx, elem.Index, elem); err != nil {
-		panic(err)
-	}
+	k.Set%[3]v(ctx, elem)
 }
 %[1]v`
 		replacementModuleInit := fmt.Sprintf(
@@ -433,7 +397,7 @@ for _, elem := range genState.%[3]vList {
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisModuleInit, replacementModuleInit)
 
 		templateModuleExport := `genesis.%[3]vList = k.GetAll%[3]v(ctx)
-%[1]v` // TODO(@julienrbrt) change GetAll to iterator
+%[1]v`
 		replacementModuleExport := fmt.Sprintf(
 			templateModuleExport,
 			typed.PlaceholderGenesisModuleExport,
