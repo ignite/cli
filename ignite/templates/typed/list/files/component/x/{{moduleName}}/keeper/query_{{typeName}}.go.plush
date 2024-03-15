@@ -16,9 +16,7 @@ func (q queryServer) List<%= TypeName.UpperCamel %>(ctx context.Context, req *ty
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
-	var <%= TypeName.LowerCamel %>s []types.<%= TypeName.UpperCamel %>
-
-	_, pageRes, err := query.CollectionPaginate(
+	<%= TypeName.LowerCamel %>s, pageRes, err := query.CollectionPaginate(
 		ctx,
 		q.k.<%= TypeName.UpperCamel %>,
 		req.Pagination,
