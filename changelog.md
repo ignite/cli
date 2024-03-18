@@ -14,7 +14,7 @@
 
 ### Changes
 
-- [](https://github.com/ignite/cli/pull/) Bump `cli-plugin-network` to `v0.2.2` due to dependencies issue.
+- [#4031](https://github.com/ignite/cli/pull/4031) Bump `cli-plugin-network` to `v0.2.2` due to dependencies issue.
 - [#4013](https://github.com/ignite/cli/pull/4013) Bump `cosmos-sdk` to `v0.50.5`
 - [#3993](https://github.com/ignite/cli/pull/3993) Oracle scaffolding was deprecated and has been removed
 - [#3959](https://github.com/ignite/cli/pull/3959) Remove app name prefix from the `.gitignore` file
