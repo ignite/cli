@@ -72,7 +72,7 @@ func (s Scaffolder) CreateParams(
 		return sm, err
 	}
 
-	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath)
+	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath, false)
 }
 
 // checkParamCreated checks if the parameter has been already created.
