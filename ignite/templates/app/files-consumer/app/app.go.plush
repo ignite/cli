@@ -67,7 +67,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	ibcconsumerkeeper "github.com/cosmos/interchain-security/v3/x/ccv/consumer/keeper"
 	ibcconsumertypes "github.com/cosmos/interchain-security/v3/x/ccv/consumer/types"
-	// this line is used by starport scaffolding # stargate/app/moduleImport
 
 	"<%= ModulePath %>/docs"
 )
