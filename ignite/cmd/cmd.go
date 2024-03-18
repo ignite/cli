@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -60,7 +61,7 @@ To get started, create a blockchain:
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			// Check for new versions only when shell completion scripts are not being
 			// generated to avoid invalid output to stdout when a new version is available
-			if cmd.Use != "completion" {
+			if cmd.Use != "completion" || !strings.HasPrefix(cmd.Use, cobra.ShellCompRequestCmd) {
 				checkNewVersion(cmd.Context())
 			}
 
@@ -85,7 +86,7 @@ To get started, create a blockchain:
 	c.AddCommand(deprecated()...)
 
 	// Don't load Ignite apps for level one commands that doesn't allow them
-	if len(os.Args) == 2 && slices.Contains(skipAppsLoadCommands, os.Args[1]) {
+	if len(os.Args) >= 2 && slices.Contains(skipAppsLoadCommands, os.Args[1]) {
 		return c, func() {}, nil
 	}
 
@@ -172,10 +173,6 @@ func flagGetClearCache(cmd *cobra.Command) bool {
 
 func deprecated() []*cobra.Command {
 	return []*cobra.Command{
-		{
-			Use:        "app",
-			Deprecated: "use `ignite scaffold chain` instead.",
-		},
 		{
 			Use:        "build",
 			Deprecated: "use `ignite chain build` instead.",
