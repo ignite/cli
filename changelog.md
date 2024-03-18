@@ -4,6 +4,7 @@
 
 ### Features
 
+- [#4019](https://github.com/ignite/cli/pull/4019) Add `skip-proto` flag to `s chain` command
 - [#3977](https://github.com/ignite/cli/pull/3977) Add `chain lint` command to lint the chain's codebase using `golangci-lint`
 - [#3770](https://github.com/ignite/cli/pull/3770) Add `scaffold configs` and `scaffold params` commands
 - [#3985](https://github.com/ignite/cli/pull/3985) Make some `cmd` pkg functions public
@@ -25,6 +26,7 @@
 
 ### Fixes
 
+- [#4021](https://github.com/ignite/cli/pull/4021) Set correct custom signer in `s list --signer <signer>`
 - [#3995](https://github.com/ignite/cli/pull/3995) Fix interface check for ibc modules
 - [#3953](https://github.com/ignite/cli/pull/3953) Fix apps `Stdout` is redirected to `Stderr`
 - [#3863](https://github.com/ignite/cli/pull/3963) Fix breaking issue for app client API when reading app chain info
