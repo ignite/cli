@@ -45,7 +45,6 @@ import (
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"google.golang.org/protobuf/types/known/durationpb"
 	ibcconsumertypes "github.com/cosmos/interchain-security/v3/x/ccv/consumer/types"
-	// this line is used by starport scaffolding # stargate/app/moduleImport
 )
 
 var (
