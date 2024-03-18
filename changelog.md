@@ -5,8 +5,6 @@
 ### Features
 
 - [#4019](https://github.com/ignite/cli/pull/4019) Add `skip-proto` flag to `s chain` command
-- [#3977](https://github.com/ignite/cli/pull/3977) Add `chain lint` command to lint the chain's codebase using `golangci-lint`
-- [#3770](https://github.com/ignite/cli/pull/3770) Add `scaffold configs` and `scaffold params` commands
 - [#3985](https://github.com/ignite/cli/pull/3985) Make some `cmd` pkg functions public
 - [#3956](https://github.com/ignite/cli/pull/3956) Prepare for wasm app
 - [#3660](https://github.com/ignite/cli/pull/3660) Add ability to scaffold ICS consumer chain

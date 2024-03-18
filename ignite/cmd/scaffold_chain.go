@@ -105,11 +105,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		minimal, _         = cmd.Flags().GetBool(flagMinimal)
 		isConsumer, _      = cmd.Flags().GetBool(flagIsConsumer)
 		params, _          = cmd.Flags().GetStringSlice(flagParams)
-<<<<<<< HEAD
-=======
-		moduleConfigs, _   = cmd.Flags().GetStringSlice(flagModuleConfigs)
 		skipProto, _       = cmd.Flags().GetBool(flagSkipProto)
->>>>>>> c05237b5 (feat(cli): add `skip-proto` flag to `s chain` command (#4019))
 	)
 
 	if noDefaultModule && len(params) > 0 {
