@@ -25,8 +25,13 @@ func Init(
 	cacheStorage cache.Storage,
 	tracer *placeholder.Tracer,
 	root, name, addressPrefix string,
+<<<<<<< HEAD
 	noDefaultModule, skipGit, minimal, isConsumerChain bool,
 	params []string,
+=======
+	noDefaultModule, skipGit, skipProto, minimal, isConsumerChain bool,
+	params, moduleConfigs []string,
+>>>>>>> c05237b5 (feat(cli): add `skip-proto` flag to `s chain` command (#4019))
 ) (path string, err error) {
 	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
@@ -60,8 +65,7 @@ func Init(
 		return "", err
 	}
 
-	err = finish(ctx, cacheStorage, path, pathInfo.RawPath)
-	if err != nil {
+	if err = finish(ctx, cacheStorage, path, pathInfo.RawPath, skipProto); err != nil {
 		return "", err
 	}
 

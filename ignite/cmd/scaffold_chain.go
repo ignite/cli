@@ -83,6 +83,7 @@ about Cosmos SDK on https://docs.cosmos.network
 	c.Flags().Bool(flagNoDefaultModule, false, "create a project without a default module")
 	c.Flags().StringSlice(flagParams, []string{}, "add default module parameters")
 	c.Flags().Bool(flagSkipGit, false, "skip Git repository initialization")
+	c.Flags().Bool(flagSkipProto, false, "skip proto generation")
 	c.Flags().Bool(flagMinimal, false, "create a minimal blockchain (with the minimum required Cosmos SDK modules)")
 	c.Flags().Bool(flagIsConsumer, false, "scafffold an ICS consumer chain")
 	// Cannot have both minimal and consumer flag
@@ -104,6 +105,11 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		minimal, _         = cmd.Flags().GetBool(flagMinimal)
 		isConsumer, _      = cmd.Flags().GetBool(flagIsConsumer)
 		params, _          = cmd.Flags().GetStringSlice(flagParams)
+<<<<<<< HEAD
+=======
+		moduleConfigs, _   = cmd.Flags().GetStringSlice(flagModuleConfigs)
+		skipProto, _       = cmd.Flags().GetBool(flagSkipProto)
+>>>>>>> c05237b5 (feat(cli): add `skip-proto` flag to `s chain` command (#4019))
 	)
 
 	if noDefaultModule && len(params) > 0 {
@@ -124,6 +130,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		addressPrefix,
 		noDefaultModule,
 		skipGit,
+		skipProto,
 		minimal,
 		isConsumer,
 		params,
