@@ -34,7 +34,6 @@
 - [#3863](https://github.com/ignite/cli/pull/3963) Fix breaking issue for app client API when reading app chain info
 - [#3969](https://github.com/ignite/cli/pull/3969) Get first config validator using a getter to avoid index errors
 - [#4000](https://github.com/ignite/cli/pull/4000) Run all dry runners before the wet run in the `xgenny` pkg
-- [#4026](https://github.com/ignite/cli/pull/4026) Fix keyring for `tx` commands
 
 ## [`v28.2.0`](https://github.com/ignite/cli/releases/tag/v28.2.0)
 
