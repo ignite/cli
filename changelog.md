@@ -27,6 +27,7 @@
 
 ### Fixes
 
+- [#4033](https://github.com/ignite/cli/pull/4033) Fix cobra completion using `fishshell`
 - [#4021](https://github.com/ignite/cli/pull/4021) Set correct custom signer in `s list --signer <signer>`
 - [#3995](https://github.com/ignite/cli/pull/3995) Fix interface check for ibc modules
 - [#3953](https://github.com/ignite/cli/pull/3953) Fix apps `Stdout` is redirected to `Stderr`
