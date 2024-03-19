@@ -4,6 +4,7 @@
 
 ### Features
 
+- [#4019](https://github.com/ignite/cli/pull/4019) Add `skip-proto` flag to `s chain` command
 - [#3977](https://github.com/ignite/cli/pull/3977) Add `chain lint` command to lint the chain's codebase using `golangci-lint`
 - [#3770](https://github.com/ignite/cli/pull/3770) Add `scaffold configs` and `scaffold params` commands
 - [#3985](https://github.com/ignite/cli/pull/3985) Make some `cmd` pkg functions public
@@ -14,6 +15,7 @@
 
 ### Changes
 
+- [#4031](https://github.com/ignite/cli/pull/4031) Bump `cli-plugin-network` to `v0.2.2` due to dependencies issue.
 - [#4013](https://github.com/ignite/cli/pull/4013) Bump `cosmos-sdk` to `v0.50.5`
 - [#3993](https://github.com/ignite/cli/pull/3993) Oracle scaffolding was deprecated and has been removed
 - [#3959](https://github.com/ignite/cli/pull/3959) Remove app name prefix from the `.gitignore` file
@@ -23,9 +25,11 @@
 - [#3983](https://github.com/ignite/cli/pull/3983) Bump `cosmos-sdk` to `v0.50.4` and `ibc-go` to `v8.1.0`
 - [#4002](https://github.com/ignite/cli/pull/4002) Bump buf build
 - [#4008](https://github.com/ignite/cli/pull/4008) Rename `pkg/yaml` to `pkg/xyaml`
+- [#4035](https://github.com/ignite/cli/pull/4035) Bump `cometbft` to `v0.38.6` and `ibc-go/v8` to `v8.1.1`
 
 ### Fixes
 
+- [#4021](https://github.com/ignite/cli/pull/4021) Set correct custom signer in `s list --signer <signer>`
 - [#3995](https://github.com/ignite/cli/pull/3995) Fix interface check for ibc modules
 - [#3953](https://github.com/ignite/cli/pull/3953) Fix apps `Stdout` is redirected to `Stderr`
 - [#3863](https://github.com/ignite/cli/pull/3963) Fix breaking issue for app client API when reading app chain info
