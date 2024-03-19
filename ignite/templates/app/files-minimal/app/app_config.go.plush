@@ -29,7 +29,6 @@ var (
 	// NOTE: Capability module must occur first so that it can initialize any capabilities
 	// so that other modules that want to create or claim capabilities afterwards in InitChain
 	// can do so safely.
-
 	genesisModuleOrder = []string{
 		// cosmos-sdk modules
 		authtypes.ModuleName,
