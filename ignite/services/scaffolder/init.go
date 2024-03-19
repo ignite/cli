@@ -25,7 +25,7 @@ func Init(
 	cacheStorage cache.Storage,
 	tracer *placeholder.Tracer,
 	root, name, addressPrefix string,
-	noDefaultModule, skipGit, minimal, isConsumerChain bool,
+	noDefaultModule, skipGit, skipProto, minimal, isConsumerChain bool,
 	params []string,
 ) (path string, err error) {
 	pathInfo, err := gomodulepath.Parse(name)
@@ -60,8 +60,7 @@ func Init(
 		return "", err
 	}
 
-	err = finish(ctx, cacheStorage, path, pathInfo.RawPath)
-	if err != nil {
+	if err = finish(ctx, cacheStorage, path, pathInfo.RawPath, skipProto); err != nil {
 		return "", err
 	}
 
