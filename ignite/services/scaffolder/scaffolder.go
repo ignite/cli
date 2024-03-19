@@ -63,10 +63,11 @@ func New(appPath string) (Scaffolder, error) {
 	return s, nil
 }
 
-func finish(ctx context.Context, cacheStorage cache.Storage, path, gomodPath string) error {
-	err := protoc(ctx, cacheStorage, path, gomodPath)
-	if err != nil {
-		return err
+func finish(ctx context.Context, cacheStorage cache.Storage, path, gomodPath string, skipProto bool) error {
+	if !skipProto {
+		if err := protoc(ctx, cacheStorage, path, gomodPath); err != nil {
+			return err
+		}
 	}
 
 	if err := gocmd.Fmt(ctx, path); err != nil {
