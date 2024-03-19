@@ -94,7 +94,7 @@ func TestConsumerPlugin(t *testing.T) {
 				chainer.EXPECT().ConfigPath().Return("configpath").Maybe()
 				chainer.EXPECT().Home().Return(path, nil).Maybe()
 				chainer.EXPECT().RPCPublicAddress().Return("rpcPublicAddress", nil).Maybe()
-				_, err = Execute(context.Background(), consumerPlugin, []string{"writeGenesis"}, plugin.WithChain(chainer))
+				_, err = Execute(context.Background(), PluginConsumerVersion, []string{"writeGenesis"}, plugin.WithChain(chainer))
 				require.NoError(t, err)
 			},
 			expectedOutput: "true",
@@ -117,7 +117,7 @@ func TestConsumerPlugin(t *testing.T) {
 
 			out, err := Execute(
 				context.Background(),
-				consumerPlugin,
+				PluginConsumerVersion,
 				tt.args,
 				plugin.WithChain(chainer),
 			)

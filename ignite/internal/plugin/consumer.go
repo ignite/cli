@@ -8,14 +8,16 @@ import (
 	"github.com/ignite/cli/v28/ignite/services/plugin"
 )
 
-// TODO use released version of app-consumer.
-const consumerPlugin = "github.com/ignite/apps/consumer"
+const (
+	PluginConsumerVersion = "v0.1.0"
+	PluginConsumerPath    = "github.com/ignite/apps/consumer@" + PluginConsumerVersion
+)
 
 // ConsumerWriteGenesis writes validators in the consumer module genesis.
 // NOTE(tb): Using a plugin for this task avoids having the interchain-security
 // dependency in Ignite.
 func ConsumerWriteGenesis(ctx context.Context, c plugin.Chainer) error {
-	_, err := Execute(ctx, consumerPlugin, []string{"writeGenesis"}, plugin.WithChain(c))
+	_, err := Execute(ctx, PluginConsumerPath, []string{"writeGenesis"}, plugin.WithChain(c))
 	if err != nil {
 		return errors.Errorf("execute consumer plugin 'writeGenesis': %w", err)
 	}
@@ -27,7 +29,7 @@ func ConsumerWriteGenesis(ctx context.Context, c plugin.Chainer) error {
 // NOTE(tb): Using a plugin for this task avoids having the interchain-security
 // dependency in Ignite.
 func ConsumerIsInitialized(ctx context.Context, c plugin.Chainer) (bool, error) {
-	out, err := Execute(ctx, consumerPlugin, []string{"isInitialized"}, plugin.WithChain(c))
+	out, err := Execute(ctx, PluginConsumerPath, []string{"isInitialized"}, plugin.WithChain(c))
 	if err != nil {
 		return false, errors.Errorf("execute consumer plugin 'isInitialized': %w", err)
 	}
