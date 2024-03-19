@@ -8,11 +8,8 @@ import (
 )
 
 
-func (k msgServer) <%= MsgName.UpperCamel %>(goCtx context.Context,  msg *types.Msg<%= MsgName.UpperCamel %>) (*types.Msg<%= MsgName.UpperCamel %>Response, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-    // TODO: Handling the message
-    _ = ctx
+func (k msgServer) <%= MsgName.UpperCamel %>(ctx context.Context,  msg *types.Msg<%= MsgName.UpperCamel %>) (*types.Msg<%= MsgName.UpperCamel %>Response, error) {
+    // TODO: Handle the message
 
 	return &types.Msg<%= MsgName.UpperCamel %>Response{}, nil
 }
