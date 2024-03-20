@@ -4,6 +4,7 @@
 
 ### Features
 
+- [#3707](https://github.com/ignite/cli/pull/3707) Add collections support.
 - [#4019](https://github.com/ignite/cli/pull/4019) Add `skip-proto` flag to `s chain` command
 - [#3977](https://github.com/ignite/cli/pull/3977) Add `chain lint` command to lint the chain's codebase using `golangci-lint`
 - [#3770](https://github.com/ignite/cli/pull/3770) Add `scaffold configs` and `scaffold params` commands
@@ -23,7 +24,9 @@
 - [#3976](https://github.com/ignite/cli/pull/3976) Remove error checks for Cobra command value get calls
 - [#3983](https://github.com/ignite/cli/pull/3983) Bump `cosmos-sdk` to `v0.50.4` and `ibc-go` to `v8.1.0`
 - [#4002](https://github.com/ignite/cli/pull/4002) Bump buf build
+- [#4010](https://github.com/ignite/cli/pull/4010) Use `AppName` instead `ModuleName` for scaffold a new App
 - [#4008](https://github.com/ignite/cli/pull/4008) Rename `pkg/yaml` to `pkg/xyaml`
+- [#4035](https://github.com/ignite/cli/pull/4035) Bump `cometbft` to `v0.38.6` and `ibc-go/v8` to `v8.1.1`
 
 ### Fixes
 

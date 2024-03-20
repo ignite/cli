@@ -3,6 +3,7 @@ package keeper
 import (
 	"fmt"
 
+	"cosmossdk.io/collections"
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/log"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -26,9 +27,14 @@ type (
 		storeService store.KVStoreService
 		logger       log.Logger
 
-        // the address capable of executing a MsgUpdateParams message. Typically, this
-        // should be the x/gov module account.
-        authority string
+		// the address capable of executing a MsgUpdateParams message.
+		// Typically, this should be the x/gov module account.
+		authority string
+
+		Schema       collections.Schema
+		Params       collections.Item[types.Params]
+		// this line is used by starport scaffolding # collection/type
+
         <%= if (isIBC) { %>
 		ibcKeeperFn        func() *ibckeeper.Keeper
 		capabilityScopedFn func(string) capabilitykeeper.ScopedKeeper
@@ -52,7 +58,9 @@ func NewKeeper(
 		panic(fmt.Sprintf("invalid authority address: %s", authority))
 	}
 
-	return Keeper{
+	sb := collections.NewSchemaBuilder(storeService)
+
+	k := Keeper{
 		cdc:          cdc,
 		storeService: storeService,
 		authority:    authority,
@@ -61,7 +69,17 @@ func NewKeeper(
         capabilityScopedFn:  capabilityScopedFn,<% } %>
 		<%= for (dependency) in dependencies { %>
 		<%= toVariableName(dependency.KeeperName()) %>: <%= toVariableName(dependency.KeeperName()) %>,<% } %>
+		Params:  collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
+		// this line is used by starport scaffolding # collection/instantiate
 	}
+	
+	schema, err := sb.Build()
+	if err != nil {
+		panic(err)
+	}
+	k.Schema = schema
+
+	return k
 }
 
 // GetAuthority returns the module's authority.

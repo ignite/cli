@@ -5,14 +5,11 @@ import (
 
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 
-func (k msgServer) Create<%= TypeName.UpperCamel %>(goCtx context.Context,  msg *types.MsgCreate<%= TypeName.UpperCamel %>) (*types.MsgCreate<%= TypeName.UpperCamel %>Response, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
+func (k msgServer) Create<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgCreate<%= TypeName.UpperCamel %>) (*types.MsgCreate<%= TypeName.UpperCamel %>Response, error) {
     // Check if the value already exists
     _, isFound := k.Get<%= TypeName.UpperCamel %>(
         ctx,
@@ -36,9 +33,7 @@ func (k msgServer) Create<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
 	return &types.MsgCreate<%= TypeName.UpperCamel %>Response{}, nil
 }
 
-func (k msgServer) Update<%= TypeName.UpperCamel %>(goCtx context.Context,  msg *types.MsgUpdate<%= TypeName.UpperCamel %>) (*types.MsgUpdate<%= TypeName.UpperCamel %>Response, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
+func (k msgServer) Update<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgUpdate<%= TypeName.UpperCamel %>) (*types.MsgUpdate<%= TypeName.UpperCamel %>Response, error) {
     // Check if the value exists
     valFound, isFound := k.Get<%= TypeName.UpperCamel %>(
         ctx,
@@ -65,9 +60,7 @@ func (k msgServer) Update<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
 	return &types.MsgUpdate<%= TypeName.UpperCamel %>Response{}, nil
 }
 
-func (k msgServer) Delete<%= TypeName.UpperCamel %>(goCtx context.Context,  msg *types.MsgDelete<%= TypeName.UpperCamel %>) (*types.MsgDelete<%= TypeName.UpperCamel %>Response, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
+func (k msgServer) Delete<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgDelete<%= TypeName.UpperCamel %>) (*types.MsgDelete<%= TypeName.UpperCamel %>Response, error) {
     // Check if the value exists
     valFound, isFound := k.Get<%= TypeName.UpperCamel %>(
         ctx,

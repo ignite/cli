@@ -1,5 +1,7 @@
 package types
 
+import "cosmossdk.io/collections"
+
 const (
 	// ModuleName defines the module name
 	ModuleName = "<%= moduleName %>"
@@ -14,7 +16,7 @@ const (
 )
 
 var (
-	ParamsKey = []byte("p_<%= moduleName %>")
+	ParamsKey = collections.NewPrefix("p_<%= moduleName %>")
 )
 
 <%= if (isIBC) { %>// this line is used by starport scaffolding # ibc/keys/port<% } %>
