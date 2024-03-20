@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	cosmosgenesis "github.com/ignite/cli/v28/ignite/pkg/cosmosutil/genesis"
+	cosmosgenesis "github.com/ignite/cli/v29/ignite/pkg/cosmosutil/genesis"
 )
 
 func TestModuleParamField(t *testing.T) {

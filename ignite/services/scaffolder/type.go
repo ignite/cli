@@ -6,18 +6,18 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/v28/ignite/pkg/errors"
-	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
-	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
-	"github.com/ignite/cli/v28/ignite/templates/field"
-	"github.com/ignite/cli/v28/ignite/templates/field/datatype"
-	modulecreate "github.com/ignite/cli/v28/ignite/templates/module/create"
-	"github.com/ignite/cli/v28/ignite/templates/typed"
-	"github.com/ignite/cli/v28/ignite/templates/typed/dry"
-	"github.com/ignite/cli/v28/ignite/templates/typed/list"
-	maptype "github.com/ignite/cli/v28/ignite/templates/typed/map"
-	"github.com/ignite/cli/v28/ignite/templates/typed/singleton"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v29/ignite/templates/field"
+	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
+	modulecreate "github.com/ignite/cli/v29/ignite/templates/module/create"
+	"github.com/ignite/cli/v29/ignite/templates/typed"
+	"github.com/ignite/cli/v29/ignite/templates/typed/dry"
+	"github.com/ignite/cli/v29/ignite/templates/typed/list"
+	maptype "github.com/ignite/cli/v29/ignite/templates/typed/map"
+	"github.com/ignite/cli/v29/ignite/templates/typed/singleton"
 )
 
 // AddTypeOption configures options for AddType.

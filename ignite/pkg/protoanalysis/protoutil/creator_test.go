@@ -6,7 +6,7 @@ import (
 	"github.com/emicklei/proto"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
 )
 
 // Imports.

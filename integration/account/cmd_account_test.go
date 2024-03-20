@@ -7,9 +7,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/v28/ignite/pkg/randstr"
-	envtest "github.com/ignite/cli/v28/integration"
+	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v29/ignite/pkg/randstr"
+	envtest "github.com/ignite/cli/v29/integration"
 )
 
 const testAccountMnemonic = "develop mansion drum glow husband trophy labor jelly fault run pause inside jazz foil page injury foam oppose fruit chunk segment morning series nation"

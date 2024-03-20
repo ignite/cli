@@ -4,6 +4,9 @@ go 1.21
 
 require (
 	github.com/hashicorp/go-plugin v1.6.0
-	github.com/ignite/cli/v28 v28.2.0
+	github.com/ignite/cli/v29 v29.0.0
 	github.com/stretchr/testify v1.8.4
 )
+
+// replace github.com/ignite/cli/v29 => github.com/ignite/cli/v29 main
+replace github.com/ignite/cli/v29 => github.com/ignite/cli/v29 f4ce3f1acd08a1e5e789e983caa1eeb658a3c130

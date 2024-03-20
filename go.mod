@@ -1,4 +1,4 @@
-module github.com/ignite/cli/v28
+module github.com/ignite/cli/v29
 
 go 1.21.1
 

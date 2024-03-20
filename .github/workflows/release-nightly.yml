@@ -82,5 +82,5 @@ jobs:
           release_name: "nightly"
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
-          ldflags: -s -w -X github.com/ignite/cli/v28/ignite/version.Version=nightly
+          ldflags: -s -w -X github.com/ignite/cli/v29/ignite/version.Version=nightly
           retry: 10
