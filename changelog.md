@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [`v28.3.0`](https://github.com/ignite/cli/releases/tag/v28.3.0)
+
 ### Features
 
 - [#4019](https://github.com/ignite/cli/pull/4019) Add `skip-proto` flag to `s chain` command
