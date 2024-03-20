@@ -3,6 +3,8 @@ package simulation
 import (
 	"math/rand"
 
+	"cosmossdk.io/collections"
+
 	"<%= ModulePath %>/x/<%= ModuleName %>/keeper"
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -25,8 +27,8 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(
 			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),
 		}
 
-		_, found := k.Get<%= TypeName.UpperCamel %>(ctx)
-		if found {
+		found, err := k.<%= TypeName.UpperCamel %>.Has(ctx)
+		if err == nil && found {
 			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.UpperCamel %> already exist"), nil, nil
 		}
 
@@ -57,12 +59,12 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 		var (
 			simAccount = simtypes.Account{}
 			msg = &types.MsgUpdate<%= TypeName.UpperCamel %>{}
-			<%= TypeName.LowerCamel %>, found = k.Get<%= TypeName.UpperCamel %>(ctx)
+			<%= TypeName.LowerCamel %>, err = k.<%= TypeName.UpperCamel %>.Get(ctx)
 		)
-		if !found {
+		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> store is empty"), nil, nil
 		}
-		simAccount, found = FindAccount(accs, <%= TypeName.LowerCamel %>.<%= MsgSigner.UpperCamel %>)
+		simAccount, found := FindAccount(accs, <%= TypeName.LowerCamel %>.<%= MsgSigner.UpperCamel %>)
 		if !found {
 			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found"), nil, nil
 		}
@@ -95,12 +97,12 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 		var (
 			simAccount = simtypes.Account{}
 			msg = &types.MsgUpdate<%= TypeName.UpperCamel %>{}
-			<%= TypeName.LowerCamel %>, found = k.Get<%= TypeName.UpperCamel %>(ctx)
+			<%= TypeName.LowerCamel %>, err = k.<%= TypeName.UpperCamel %>.Get(ctx)
 		)
-		if !found {
+		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> store is empty"), nil, nil
 		}
-		simAccount, found = FindAccount(accs, <%= TypeName.LowerCamel %>.<%= MsgSigner.UpperCamel %>)
+		simAccount, found := FindAccount(accs, <%= TypeName.LowerCamel %>.<%= MsgSigner.UpperCamel %>)
 		if !found {
 			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found"), nil, nil
 		}

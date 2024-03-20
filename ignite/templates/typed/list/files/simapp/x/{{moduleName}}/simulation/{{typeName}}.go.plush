@@ -53,9 +53,18 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 			simAccount = simtypes.Account{}
 			<%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{}
 			msg = &types.MsgUpdate<%= TypeName.UpperCamel %>{}
-			all<%= TypeName.UpperCamel %> = k.GetAll<%= TypeName.UpperCamel %>(ctx)
 			found = false
 		)
+
+		var all<%= TypeName.UpperCamel %> []types.<%= TypeName.UpperCamel %>
+		err := k.<%= TypeName.UpperCamel %>.Walk(ctx, nil, func(key uint64, value types.<%= TypeName.UpperCamel %>) (stop bool, err error) {
+			all<%= TypeName.UpperCamel %> = append(all<%= TypeName.UpperCamel %>, value)
+			return false, nil
+		})
+		if err != nil {
+			panic(err)
+		}
+		
 		for _, obj := range all<%= TypeName.UpperCamel %> {
 			simAccount, found = FindAccount(accs, obj.<%= MsgSigner.UpperCamel %>)
 			if found {
@@ -97,9 +106,18 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 			simAccount = simtypes.Account{}
 			<%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{}
 			msg = &types.MsgUpdate<%= TypeName.UpperCamel %>{}
-			all<%= TypeName.UpperCamel %> = k.GetAll<%= TypeName.UpperCamel %>(ctx)
 			found = false
 		)
+
+		var all<%= TypeName.UpperCamel %> []types.<%= TypeName.UpperCamel %>
+		err := k.<%= TypeName.UpperCamel %>.Walk(ctx, nil, func(key uint64, value types.<%= TypeName.UpperCamel %>) (stop bool, err error) {
+			all<%= TypeName.UpperCamel %> = append(all<%= TypeName.UpperCamel %>, value)
+			return false, nil
+		})
+		if err != nil {
+			panic(err)
+		}
+
 		for _, obj := range all<%= TypeName.UpperCamel %> {
 			simAccount, found = FindAccount(accs, obj.<%= MsgSigner.UpperCamel %>)
 			if found {
