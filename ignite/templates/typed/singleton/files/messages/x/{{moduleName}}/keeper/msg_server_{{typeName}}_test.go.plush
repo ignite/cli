@@ -18,8 +18,8 @@ func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
 	expected := &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>}
     _, err := srv.Create<%= TypeName.UpperCamel %>(ctx, expected)
     require.NoError(t, err)
-    rst, found := k.Get<%= TypeName.UpperCamel %>(ctx)
-    require.True(t, found)
+    rst, err := k.<%= TypeName.UpperCamel %>.Get(ctx)
+    require.Nil(t, err)
     require.Equal(t, expected.<%= MsgSigner.UpperCamel %>, rst.<%= MsgSigner.UpperCamel %>)
 }
 
@@ -54,8 +54,8 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 				require.ErrorIs(t, err, tc.err)
 			} else {
 				require.NoError(t, err)
-				rst, found := k.Get<%= TypeName.UpperCamel %>(ctx)
-				require.True(t, found)
+				rst, err := k.<%= TypeName.UpperCamel %>.Get(ctx)
+				require.Nil(t, err)
 				require.Equal(t, expected.<%= MsgSigner.UpperCamel %>, rst.<%= MsgSigner.UpperCamel %>)
 			}
 		})
@@ -92,7 +92,8 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 				require.ErrorIs(t, err, tc.err)
 			} else {
 				require.NoError(t, err)
-				_, found := k.Get<%= TypeName.UpperCamel %>(ctx)
+				found, err := k.<%= TypeName.UpperCamel %>.Has(ctx)
+				require.NoError(t, err)
 				require.False(t, found)
 			}
 		})
