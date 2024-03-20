@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 var golangCiLintVersion = "latest"

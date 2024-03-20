@@ -3,10 +3,10 @@ package chain
 import (
 	"path/filepath"
 
-	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
-	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
-	"github.com/ignite/cli/v28/ignite/pkg/xos"
-	"github.com/ignite/cli/v28/ignite/templates/app"
+	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v29/ignite/pkg/xos"
+	"github.com/ignite/cli/v29/ignite/templates/app"
 )
 
 var bufFiles = []string{

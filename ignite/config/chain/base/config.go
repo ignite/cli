@@ -3,8 +3,8 @@ package base
 import (
 	"github.com/imdario/mergo"
 
-	"github.com/ignite/cli/v28/ignite/config/chain/version"
-	"github.com/ignite/cli/v28/ignite/pkg/xyaml"
+	"github.com/ignite/cli/v29/ignite/config/chain/version"
+	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
 )
 
 var (

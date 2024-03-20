@@ -6,10 +6,10 @@ toolchain go1.21.5
 
 require (
 	github.com/hashicorp/go-plugin v1.5.2
-	github.com/ignite/cli/v28 v28.0.0
+	github.com/ignite/cli/v29 v29.0.0
 )
 
-replace github.com/ignite/cli/v28 => ../../../../..
+replace github.com/ignite/cli/v29 => ../../../../..
 
 require (
 	dario.cat/mergo v1.0.0 // indirect

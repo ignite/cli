@@ -1,8 +1,8 @@
 package v0
 
 import (
-	v1 "github.com/ignite/cli/v28/ignite/config/chain/v1"
-	"github.com/ignite/cli/v28/ignite/config/chain/version"
+	v1 "github.com/ignite/cli/v29/ignite/config/chain/v1"
+	"github.com/ignite/cli/v29/ignite/config/chain/version"
 )
 
 // ConvertNext converts the current config version to the next one.
