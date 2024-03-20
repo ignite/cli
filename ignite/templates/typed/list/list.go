@@ -10,12 +10,12 @@ import (
 	"github.com/emicklei/proto"
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/v28/ignite/pkg/errors"
-	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
-	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
-	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
-	"github.com/ignite/cli/v28/ignite/templates/typed"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v29/ignite/templates/typed"
 )
 
 var (
@@ -53,6 +53,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 
 	g.RunFn(protoQueryModify(opts))
 	g.RunFn(typesKeyModify(opts))
+	g.RunFn(keeperModify(replacer, opts))
 	g.RunFn(clientCliQueryModify(replacer, opts))
 
 	// Genesis modifications
@@ -283,6 +284,7 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 	}
 }
 
+// typesKeyModify modifies the keys.go file to add a new collection prefix.
 func typesKeyModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/keys.go")
@@ -291,11 +293,49 @@ func typesKeyModify(opts *typed.Options) genny.RunFn {
 			return err
 		}
 		content := f.String() + fmt.Sprintf(`
-const (
-	%[1]vKey= "%[1]v/value/"
-	%[1]vCountKey= "%[1]v/count/"
+var (
+	%[1]vKey= collections.NewPrefix("%[2]v/value/")
+	%[1]vCountKey= collections.NewPrefix("%[2]v/count/")
 )
-`, opts.TypeName.UpperCamel)
+`,
+			opts.TypeName.UpperCamel,
+			opts.TypeName.LowerCase,
+		)
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+// keeperModify modifies the keeper to add a new collections item type.
+func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/keeper.go")
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		templateKeeperType := `%[2]vSeq collections.Sequence
+	%[2]v    collections.Map[uint64, types.%[2]v]
+	%[1]v`
+		replacementModuleType := fmt.Sprintf(
+			templateKeeperType,
+			typed.PlaceholderCollectionType,
+			opts.TypeName.UpperCamel,
+		)
+		content := replacer.Replace(f.String(), typed.PlaceholderCollectionType, replacementModuleType)
+
+		templateKeeperInstantiate := `%[2]vSeq: collections.NewSequence(sb, types.%[2]vCountKey, "%[3]v"),
+	%[2]v:    collections.NewMap(sb, types.%[2]vKey, "%[3]v_seq", collections.Uint64Key, codec.CollValue[types.%[2]v](cdc)),
+	%[1]v`
+		replacementInstantiate := fmt.Sprintf(
+			templateKeeperInstantiate,
+			typed.PlaceholderCollectionInstantiate,
+			opts.TypeName.UpperCamel,
+			opts.TypeName.LowerCamel,
+		)
+		content = replacer.Replace(content, typed.PlaceholderCollectionInstantiate, replacementInstantiate)
+
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

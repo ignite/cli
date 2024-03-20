@@ -13,18 +13,18 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
-	"github.com/ignite/cli/v28/ignite/pkg/errors"
-	"github.com/ignite/cli/v28/ignite/pkg/gocmd"
-	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
+	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 )
 
 //go:embed template/*
 var fsPluginSource embed.FS
 
-// Scaffold generates a plugin structure under dir/path.Base(moduleName).
-func Scaffold(ctx context.Context, dir, moduleName string, sharedHost bool) (string, error) {
+// Scaffold generates a plugin structure under dir/path.Base(appName).
+func Scaffold(ctx context.Context, dir, appName string, sharedHost bool) (string, error) {
 	var (
-		name     = filepath.Base(moduleName)
+		name     = filepath.Base(appName)
 		title    = toTitle(name)
 		finalDir = path.Join(dir, name)
 		g        = genny.New()
@@ -45,7 +45,7 @@ func Scaffold(ctx context.Context, dir, moduleName string, sharedHost bool) (str
 	}
 
 	pctx := plush.NewContextWithContext(ctx)
-	pctx.Set("ModuleName", moduleName)
+	pctx.Set("AppName", appName)
 	pctx.Set("Name", name)
 	pctx.Set("Title", title)
 	pctx.Set("SharedHost", sharedHost)

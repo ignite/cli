@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path"
 	"runtime"
 	"runtime/debug"
 	"strings"
@@ -13,13 +14,13 @@ import (
 	"github.com/blang/semver/v4"
 	"github.com/google/go-github/v48/github"
 
-	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
-	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
-	"github.com/ignite/cli/v28/ignite/pkg/errors"
-	"github.com/ignite/cli/v28/ignite/pkg/gitpod"
-	"github.com/ignite/cli/v28/ignite/pkg/xexec"
+	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
+	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/gitpod"
+	"github.com/ignite/cli/v29/ignite/pkg/xexec"
 )
 
 const (
@@ -87,6 +88,13 @@ func resolveDevVersion(ctx context.Context) string {
 	tag, err := getLatestReleaseTag(ctx)
 	if err != nil {
 		return Version
+	}
+
+	// if the module version is higher than the latest tag, use the module version
+	if info, ok := debug.ReadBuildInfo(); ok {
+		if version := path.Base(info.Main.Path); version > tag {
+			tag = fmt.Sprintf("%s.0.0", version)
+		}
 	}
 
 	if Version == versionDev {

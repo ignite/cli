@@ -10,10 +10,22 @@ import (
 	"google.golang.org/grpc/status"
 
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+	"<%= ModulePath %>/x/<%= ModuleName %>/keeper"
 	"<%= ModulePath %>/testutil/nullify"
 	"<%= ModulePath %>/x/<%= ModuleName %>/keeper"
 	keepertest "<%= ModulePath %>/testutil/keeper"
 )
+
+func createN<%= TypeName.UpperCamel %>(keeper keeper.Keeper, ctx context.Context, n int) []types.<%= TypeName.UpperCamel %> {
+	items := make([]types.<%= TypeName.UpperCamel %>, n)
+	for i := range items {
+		iu := uint64(i)
+		items[i].Id = iu
+		_ = keeper.<%= TypeName.UpperCamel%>.Set(ctx, iu, items[i])
+		_ = keeper.<%= TypeName.UpperCamel%>Seq.Set(ctx, iu)
+	}
+	return items
+}
 
 func Test<%= TypeName.UpperCamel %>QuerySingle(t *testing.T) {
 	k, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)

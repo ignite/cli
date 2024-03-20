@@ -7,9 +7,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/v28/ignite/config/chain/base"
-	v1 "github.com/ignite/cli/v28/ignite/config/chain/v1"
-	"github.com/ignite/cli/v28/ignite/pkg/xnet"
+	"github.com/ignite/cli/v29/ignite/config/chain/base"
+	v1 "github.com/ignite/cli/v29/ignite/config/chain/v1"
+	"github.com/ignite/cli/v29/ignite/pkg/xnet"
 )
 
 func TestConfigDecode(t *testing.T) {

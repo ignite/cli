@@ -2,22 +2,27 @@ package keeper
 
 import (
 	"context"
+	"errors"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/collections"
+
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-func (s queryServer) Get<%= TypeName.UpperCamel %>(goCtx context.Context, req *types.QueryGet<%= TypeName.UpperCamel %>Request) (*types.QueryGet<%= TypeName.UpperCamel %>Response, error) {
+func (q queryServer) Get<%= TypeName.UpperCamel %>(ctx context.Context, req *types.QueryGet<%= TypeName.UpperCamel %>Request) (*types.QueryGet<%= TypeName.UpperCamel %>Response, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
-	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	val, found := s.k.Get<%= TypeName.UpperCamel %>(ctx)
-	if !found {
-	    return nil, status.Error(codes.NotFound, "not found")
+	val, err := q.k.<%= TypeName.UpperCamel %>.Get(ctx)
+	if err != nil {
+		if errors.Is(err, collections.ErrNotFound) {
+			return nil, status.Error(codes.NotFound, "not found")
+		}
+
+		return nil, status.Error(codes.Internal, "internal error")
 	}
 
 	return &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: val}, nil

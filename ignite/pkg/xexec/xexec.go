@@ -5,7 +5,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/ignite/cli/v28/ignite/pkg/goenv"
+	"github.com/ignite/cli/v29/ignite/pkg/goenv"
 )
 
 // IsExec checks if a file is executable by anyone.

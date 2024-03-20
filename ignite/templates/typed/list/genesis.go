@@ -6,12 +6,12 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/v28/ignite/pkg/errors"
-	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
-	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis/protoutil"
-	"github.com/ignite/cli/v28/ignite/pkg/xast"
-	"github.com/ignite/cli/v28/ignite/templates/module"
-	"github.com/ignite/cli/v28/ignite/templates/typed"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v29/ignite/pkg/xast"
+	"github.com/ignite/cli/v29/ignite/templates/module"
+	"github.com/ignite/cli/v29/ignite/templates/typed"
 )
 
 func genesisModify(replacer placeholder.Replacer, opts *typed.Options, g *genny.Generator) {
@@ -125,11 +125,15 @@ func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) gen
 
 		templateModuleInit := `// Set all the %[2]v
 for _, elem := range genState.%[3]vList {
-	k.Set%[3]v(ctx, elem)
+	if err := k.%[3]v.Set(ctx, elem.Id, elem); err != nil {
+		panic(err)
+	}
 }
 
 // Set %[2]v count
-k.Set%[3]vCount(ctx, genState.%[3]vCount)
+if err := k.%[3]vSeq.Set(ctx, genState.%[3]vCount); err != nil {
+	panic(err)
+}
 %[1]v`
 		replacementModuleInit := fmt.Sprintf(
 			templateModuleInit,
@@ -139,8 +143,20 @@ k.Set%[3]vCount(ctx, genState.%[3]vCount)
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisModuleInit, replacementModuleInit)
 
-		templateModuleExport := `genesis.%[2]vList = k.GetAll%[2]v(ctx)
-genesis.%[2]vCount = k.Get%[2]vCount(ctx)
+		templateModuleExport := `
+err = k.%[2]v.Walk(ctx, nil, func(key uint64, elem types.%[2]v) (bool, error) {
+		genesis.%[2]vList = append(genesis.%[2]vList, elem)
+		return false, nil
+})
+if err != nil {
+	panic(err)
+}
+
+genesis.%[2]vCount, err = k.%[2]vSeq.Peek(ctx)
+if err != nil {
+	panic(err)
+}
+
 %[1]v`
 		replacementModuleExport := fmt.Sprintf(
 			templateModuleExport,

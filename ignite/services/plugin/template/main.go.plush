@@ -6,8 +6,9 @@ import (
 
 	hplugin "github.com/hashicorp/go-plugin"
 
-	"github.com/ignite/cli/v28/ignite/services/plugin"
-	"<%= ModuleName %>/cmd"
+
+	"github.com/ignite/cli/v29/ignite/services/plugin"
+	"<%= AppName %>/cmd"
 )
 
 type app struct{}
