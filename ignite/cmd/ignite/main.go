@@ -8,15 +8,15 @@ import (
 
 	"google.golang.org/grpc/status"
 
-	ignitecmd "github.com/ignite/cli/v28/ignite/cmd"
-	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
-	"github.com/ignite/cli/v28/ignite/internal/analytics"
-	"github.com/ignite/cli/v28/ignite/pkg/clictx"
-	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
-	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
-	"github.com/ignite/cli/v28/ignite/pkg/errors"
-	"github.com/ignite/cli/v28/ignite/pkg/validation"
-	"github.com/ignite/cli/v28/ignite/pkg/xstrings"
+	ignitecmd "github.com/ignite/cli/v29/ignite/cmd"
+	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
+	"github.com/ignite/cli/v29/ignite/internal/analytics"
+	"github.com/ignite/cli/v29/ignite/pkg/clictx"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/validation"
+	"github.com/ignite/cli/v29/ignite/pkg/xstrings"
 )
 
 func main() {

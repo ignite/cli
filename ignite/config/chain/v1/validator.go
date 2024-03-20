@@ -1,7 +1,7 @@
 package v1
 
 import (
-	"github.com/ignite/cli/v28/ignite/pkg/xyaml"
+	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
 )
 
 // Validator holds info related to validator settings.

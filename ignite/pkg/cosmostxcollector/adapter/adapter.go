@@ -3,8 +3,8 @@ package adapter
 import (
 	"context"
 
-	"github.com/ignite/cli/v28/ignite/pkg/cosmosclient"
-	"github.com/ignite/cli/v28/ignite/pkg/cosmostxcollector/query"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmostxcollector/query"
 )
 
 // Saver is the interface that wraps the transactions save method.

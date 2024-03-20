@@ -3,8 +3,8 @@ package v1
 import (
 	"github.com/mitchellh/mapstructure"
 
-	baseconfig "github.com/ignite/cli/v28/ignite/config/chain/base"
-	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	baseconfig "github.com/ignite/cli/v29/ignite/config/chain/base"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 func DefaultServers() Servers {

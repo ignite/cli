@@ -6,8 +6,8 @@ import (
 
 	"github.com/iancoleman/strcase"
 
-	"github.com/ignite/cli/v28/ignite/pkg/errors"
-	"github.com/ignite/cli/v28/ignite/pkg/xstrings"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/xstrings"
 )
 
 // Name represents a name with multiple naming convention representations.

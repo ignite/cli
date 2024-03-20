@@ -3,7 +3,7 @@ package cosmosver
 import (
 	"regexp"
 
-	"github.com/ignite/cli/v28/ignite/pkg/gomodule"
+	"github.com/ignite/cli/v29/ignite/pkg/gomodule"
 )
 
 var (

@@ -6,13 +6,13 @@ import (
 	"github.com/gookit/color"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/v28/ignite/pkg/cliui"
-	"github.com/ignite/cli/v28/ignite/pkg/cliui/cliquiz"
-	"github.com/ignite/cli/v28/ignite/pkg/cliui/entrywriter"
-	"github.com/ignite/cli/v28/ignite/pkg/cosmosaccount"
-	"github.com/ignite/cli/v28/ignite/pkg/errors"
-	"github.com/ignite/cli/v28/ignite/pkg/relayer"
-	relayerconfig "github.com/ignite/cli/v28/ignite/pkg/relayer/config"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/cliquiz"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/entrywriter"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/relayer"
+	relayerconfig "github.com/ignite/cli/v29/ignite/pkg/relayer/config"
 )
 
 const (
