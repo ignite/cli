@@ -1,6 +1,6 @@
 package scaffold
 
-import "github.com/ignite/cli/v28/ignite/pkg/errors"
+import "github.com/ignite/cli/v29/ignite/pkg/errors"
 
 type (
 	// Command represents a set of command and prerequisites scaffold command that are required to run before them.

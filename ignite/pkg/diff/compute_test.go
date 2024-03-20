@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/v28/ignite/pkg/diff"
+	"github.com/ignite/cli/v29/ignite/pkg/diff"
 )
 
 func TestComputeFS(t *testing.T) {

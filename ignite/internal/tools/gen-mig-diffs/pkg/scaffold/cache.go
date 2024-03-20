@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/ignite/cli/v28/ignite/pkg/errors"
-	"github.com/ignite/cli/v28/ignite/pkg/xos"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/xos"
 )
 
 // cache represents a cache for executed scaffold command.

@@ -8,9 +8,9 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 
-	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/v28/ignite/pkg/errors"
-	"github.com/ignite/cli/v28/ignite/pkg/randstr"
+	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/randstr"
 )
 
 var v027 = semver.MustParse("v0.27.0")

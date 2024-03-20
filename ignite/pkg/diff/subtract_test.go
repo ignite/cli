@@ -6,7 +6,7 @@ import (
 
 	"github.com/hexops/gotextdiff"
 
-	"github.com/ignite/cli/v28/ignite/pkg/diff"
+	"github.com/ignite/cli/v29/ignite/pkg/diff"
 )
 
 func TestSubtract(t *testing.T) {
