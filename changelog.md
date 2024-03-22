@@ -5,29 +5,44 @@
 ### Features
 
 - [#3707](https://github.com/ignite/cli/pull/3707) Add collections support.
-- [#4019](https://github.com/ignite/cli/pull/4019) Add `skip-proto` flag to `s chain` command
 - [#3977](https://github.com/ignite/cli/pull/3977) Add `chain lint` command to lint the chain's codebase using `golangci-lint`
 - [#3770](https://github.com/ignite/cli/pull/3770) Add `scaffold configs` and `scaffold params` commands
 - [#3985](https://github.com/ignite/cli/pull/3985) Make some `cmd` pkg functions public
 - [#4001](https://github.com/ignite/cli/pull/4001) Improve `xgenny` dry run
 - [#3967](https://github.com/ignite/cli/issues/3967) Add HD wallet parameters `address index` and `account number` to the chain account config
-- [#3660](https://github.com/ignite/cli/pull/3660) Add ability to scaffold ICS consumer chain
 - [#4004](https://github.com/ignite/cli/pull/4004) Remove all import placeholders using the `xast` pkg
 
 ### Changes
 
-- [#4031](https://github.com/ignite/cli/pull/4031) Bump `cli-plugin-network` to `v0.2.2` due to dependencies issue.
-- [#4013](https://github.com/ignite/cli/pull/4013) Bump `cosmos-sdk` to `v0.50.5`
 - [#3993](https://github.com/ignite/cli/pull/3993) Oracle scaffolding was deprecated and has been removed
 - [#3959](https://github.com/ignite/cli/pull/3959) Remove app name prefix from the `.gitignore` file
 - [#3962](https://github.com/ignite/cli/pull/3962) Rename all RPC endpoints and autocli commands generated for `map`/`list`/`single` types
-- [#3972](https://github.com/ignite/cli/pull/3972) Skip Ignite app loading for some base commands that don't allow apps
 - [#3976](https://github.com/ignite/cli/pull/3976) Remove error checks for Cobra command value get calls
-- [#3983](https://github.com/ignite/cli/pull/3983) Bump `cosmos-sdk` to `v0.50.4` and `ibc-go` to `v8.1.0`
 - [#4002](https://github.com/ignite/cli/pull/4002) Bump buf build
-- [#4010](https://github.com/ignite/cli/pull/4010) Use `AppName` instead `ModuleName` for scaffold a new App
 - [#4008](https://github.com/ignite/cli/pull/4008) Rename `pkg/yaml` to `pkg/xyaml`
+
+### Fixes
+
+- [#3969](https://github.com/ignite/cli/pull/3969) Get first config validator using a getter to avoid index errors
+- [#4000](https://github.com/ignite/cli/pull/4000) Run all dry runners before the wet run in the `xgenny` pkg
+
+## [`v28.3.0`](https://github.com/ignite/cli/releases/tag/v28.3.0)
+
+### Features
+
+- [#4019](https://github.com/ignite/cli/pull/4019) Add `skip-proto` flag to `s chain` command
+- [#3985](https://github.com/ignite/cli/pull/3985) Make some `cmd` pkg functions public
+- [#3956](https://github.com/ignite/cli/pull/3956) Prepare for wasm app
+- [#3660](https://github.com/ignite/cli/pull/3660) Add ability to scaffold ICS consumer chain
+
+### Changes
+
 - [#4035](https://github.com/ignite/cli/pull/4035) Bump `cometbft` to `v0.38.6` and `ibc-go/v8` to `v8.1.1`
+- [#4031](https://github.com/ignite/cli/pull/4031) Bump `cli-plugin-network` to `v0.2.2` due to dependencies issue.
+- [#4013](https://github.com/ignite/cli/pull/4013) Bump `cosmos-sdk` to `v0.50.5`
+- [#4010](https://github.com/ignite/cli/pull/4010) Use `AppName` instead `ModuleName` for scaffold a new App
+- [#3972](https://github.com/ignite/cli/pull/3972) Skip Ignite app loading for some base commands that don't allow apps
+- [#3983](https://github.com/ignite/cli/pull/3983) Bump `cosmos-sdk` to `v0.50.4` and `ibc-go` to `v8.1.0`
 
 ### Fixes
 
@@ -35,8 +50,6 @@
 - [#3995](https://github.com/ignite/cli/pull/3995) Fix interface check for ibc modules
 - [#3953](https://github.com/ignite/cli/pull/3953) Fix apps `Stdout` is redirected to `Stderr`
 - [#3863](https://github.com/ignite/cli/pull/3963) Fix breaking issue for app client API when reading app chain info
-- [#3969](https://github.com/ignite/cli/pull/3969) Get first config validator using a getter to avoid index errors
-- [#4000](https://github.com/ignite/cli/pull/4000) Run all dry runners before the wet run in the `xgenny` pkg
 
 ## [`v28.2.0`](https://github.com/ignite/cli/releases/tag/v28.2.0)
 
