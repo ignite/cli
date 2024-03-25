@@ -140,12 +140,12 @@ func (s Scaffolder) AddType(
 		return err
 	}
 
-	if err := checkComponentValidity(s.path, moduleName, name, o.withoutMessage); err != nil {
+	if err := checkComponentValidity(s.Path, moduleName, name, o.withoutMessage); err != nil {
 		return err
 	}
 
 	// Check and parse provided fields
-	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, o.fields); err != nil {
+	if err := checkCustomTypes(ctx, s.Path, s.modpath.Package, moduleName, o.fields); err != nil {
 		return err
 	}
 	tFields, err := parseTypeFields(o)
@@ -158,7 +158,7 @@ func (s Scaffolder) AddType(
 		return err
 	}
 
-	isIBC, err := isIBCModule(s.path, moduleName)
+	isIBC, err := isIBCModule(s.Path, moduleName)
 	if err != nil {
 		return err
 	}
@@ -167,7 +167,7 @@ func (s Scaffolder) AddType(
 		g    *genny.Generator
 		opts = &typed.Options{
 			AppName:      s.modpath.Package,
-			AppPath:      s.path,
+			AppPath:      s.Path,
 			ModulePath:   s.modpath.RawPath,
 			ModuleName:   moduleName,
 			TypeName:     name,
@@ -183,7 +183,7 @@ func (s Scaffolder) AddType(
 	gens, err = supportMsgServer(
 		gens,
 		runner.Tracer(),
-		s.path,
+		s.Path,
 		&modulecreate.MsgServerOptions{
 			ModuleName: opts.ModuleName,
 			ModulePath: opts.ModulePath,

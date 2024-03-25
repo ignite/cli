@@ -30,7 +30,7 @@ func (s Scaffolder) CreateConfigs(
 	moduleName = mfName.LowerCase
 
 	// Check if the module already exist
-	ok, err := moduleExists(s.path, moduleName)
+	ok, err := moduleExists(s.Path, moduleName)
 	if err != nil {
 		return err
 	}
@@ -38,7 +38,7 @@ func (s Scaffolder) CreateConfigs(
 		return errors.Errorf("the module %v not exist", moduleName)
 	}
 
-	if err := checkConfigCreated(s.path, appName, moduleName, configs); err != nil {
+	if err := checkConfigCreated(s.Path, appName, moduleName, configs); err != nil {
 		return err
 	}
 
@@ -52,7 +52,7 @@ func (s Scaffolder) CreateConfigs(
 		ModuleName: moduleName,
 		Configs:    configsFields,
 		AppName:    s.modpath.Package,
-		AppPath:    s.path,
+		AppPath:    s.Path,
 	}
 
 	g, err := modulecreate.NewModuleConfigs(opts)

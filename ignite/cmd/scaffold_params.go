@@ -64,7 +64,7 @@ func scaffoldParamsHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	runner := xgenny.NewRunner(cmd.Context(), appPath)
+	runner := xgenny.NewRunner(cmd.Context(), sc.Path)
 	err = sc.CreateParams(runner, moduleName, params...)
 	if err != nil {
 		return err

@@ -62,7 +62,7 @@ func scaffoldConfigsHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	runner := xgenny.NewRunner(cmd.Context(), appPath)
+	runner := xgenny.NewRunner(cmd.Context(), sc.Path)
 	err = sc.CreateConfigs(runner, moduleName, configs...)
 	if err != nil {
 		return err

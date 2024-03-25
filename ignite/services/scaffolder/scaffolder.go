@@ -21,8 +21,8 @@ type Scaffolder struct {
 	// Version of the chain
 	Version cosmosver.Version
 
-	// path of the app.
-	path string
+	// Path of the app.
+	Path string
 
 	// modpath represents the go module path of the app.
 	modpath gomodulepath.Path
@@ -56,7 +56,7 @@ func New(appPath string) (Scaffolder, error) {
 
 	s := Scaffolder{
 		Version: ver,
-		path:    path,
+		Path:    path,
 		modpath: modpath,
 	}
 
@@ -64,7 +64,7 @@ func New(appPath string) (Scaffolder, error) {
 }
 
 func (s Scaffolder) PostScaffold(ctx context.Context, cacheStorage cache.Storage, skipProto bool) error {
-	return PostScaffold(ctx, cacheStorage, s.path, s.modpath.RawPath, skipProto)
+	return PostScaffold(ctx, cacheStorage, s.Path, s.modpath.RawPath, skipProto)
 }
 
 func PostScaffold(ctx context.Context, cacheStorage cache.Storage, path, gomodPath string, skipProto bool) error {

@@ -70,7 +70,7 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	runner := xgenny.NewRunner(cmd.Context(), appPath)
+	runner := xgenny.NewRunner(cmd.Context(), sc.Path)
 	err = sc.AddQuery(cmd.Context(), runner, module, args[0], desc, args[1:], resFields, paginated)
 	if err != nil {
 		return err

@@ -177,7 +177,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	runner := xgenny.NewRunner(cmd.Context(), appPath)
+	runner := xgenny.NewRunner(cmd.Context(), sc.Path)
 	if err := sc.CreateModule(runner, name, options...); err != nil {
 		var validationErr validation.Error
 		if !requireRegistration && errors.As(err, &validationErr) {

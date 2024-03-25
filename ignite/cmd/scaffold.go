@@ -217,7 +217,7 @@ func scaffoldType(
 		return err
 	}
 
-	runner := xgenny.NewRunner(cmd.Context(), appPath)
+	runner := xgenny.NewRunner(cmd.Context(), sc.Path)
 	err = sc.AddType(cmd.Context(), typeName, runner, kind, options...)
 	if err != nil {
 		return err

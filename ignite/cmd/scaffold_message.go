@@ -119,7 +119,7 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	runner := xgenny.NewRunner(cmd.Context(), appPath)
+	runner := xgenny.NewRunner(cmd.Context(), sc.Path)
 	err = sc.AddMessage(cmd.Context(), runner, module, args[0], args[1:], resFields, options...)
 	if err != nil {
 		return err
