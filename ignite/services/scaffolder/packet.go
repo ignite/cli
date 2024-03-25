@@ -9,7 +9,6 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/field"
 	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
 	"github.com/ignite/cli/v29/ignite/templates/ibc"
@@ -52,7 +51,6 @@ func PacketWithSigner(signer string) PacketOption {
 // AddPacket adds a new type stype to scaffolded app by using optional type fields.
 func (s Scaffolder) AddPacket(
 	ctx context.Context,
-	runner *xgenny.Runner,
 	moduleName,
 	packetName string,
 	packetFields,
@@ -76,7 +74,7 @@ func (s Scaffolder) AddPacket(
 		return err
 	}
 
-	if err := checkComponentValidity(s.Path, moduleName, name, o.withoutMessage); err != nil {
+	if err := checkComponentValidity(s.path, moduleName, name, o.withoutMessage); err != nil {
 		return err
 	}
 
@@ -86,7 +84,7 @@ func (s Scaffolder) AddPacket(
 	}
 
 	// Module must implement IBC
-	ok, err := isIBCModule(s.Path, moduleName)
+	ok, err := isIBCModule(s.path, moduleName)
 	if err != nil {
 		return err
 	}
@@ -100,7 +98,7 @@ func (s Scaffolder) AddPacket(
 	}
 
 	// Check and parse packet fields
-	if err := checkCustomTypes(ctx, s.Path, s.modpath.Package, moduleName, packetFields); err != nil {
+	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, packetFields); err != nil {
 		return err
 	}
 	parsedPacketFields, err := field.ParseFields(packetFields, checkForbiddenPacketField, signer)
@@ -109,7 +107,7 @@ func (s Scaffolder) AddPacket(
 	}
 
 	// check and parse acknowledgment fields
-	if err := checkCustomTypes(ctx, s.Path, s.modpath.Package, moduleName, ackFields); err != nil {
+	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, ackFields); err != nil {
 		return err
 	}
 	parsedAcksFields, err := field.ParseFields(ackFields, checkGoReservedWord, signer)
@@ -122,7 +120,7 @@ func (s Scaffolder) AddPacket(
 		g    *genny.Generator
 		opts = &ibc.PacketOptions{
 			AppName:    s.modpath.Package,
-			AppPath:    s.Path,
+			AppPath:    s.path,
 			ModulePath: s.modpath.RawPath,
 			ModuleName: moduleName,
 			PacketName: name,
@@ -132,11 +130,11 @@ func (s Scaffolder) AddPacket(
 			MsgSigner:  mfSigner,
 		}
 	)
-	g, err = ibc.NewPacket(runner.Tracer(), opts)
+	g, err = ibc.NewPacket(s.Tracer(), opts)
 	if err != nil {
 		return err
 	}
-	return runner.Run(g)
+	return s.Run(g)
 }
 
 // isIBCModule returns true if the provided module implements the IBC module interface
@@ -155,7 +153,7 @@ func isIBCModule(appPath string, moduleName string) (bool, error) {
 		return true, err
 	}
 
-	// check the legacy path
+	// check the legacy Path
 	absPathLegacy, err := filepath.Abs(filepath.Join(appPath, moduleDir, moduleName, ibcModuleImplementation))
 	if err != nil {
 		return false, err

@@ -7,14 +7,12 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/field"
 	modulecreate "github.com/ignite/cli/v29/ignite/templates/module/create"
 )
 
 // CreateConfigs creates a new configs in the scaffolded module.
 func (s Scaffolder) CreateConfigs(
-	runner *xgenny.Runner,
 	moduleName string,
 	configs ...string,
 ) error {
@@ -30,7 +28,7 @@ func (s Scaffolder) CreateConfigs(
 	moduleName = mfName.LowerCase
 
 	// Check if the module already exist
-	ok, err := moduleExists(s.Path, moduleName)
+	ok, err := moduleExists(s.path, moduleName)
 	if err != nil {
 		return err
 	}
@@ -38,7 +36,7 @@ func (s Scaffolder) CreateConfigs(
 		return errors.Errorf("the module %v not exist", moduleName)
 	}
 
-	if err := checkConfigCreated(s.Path, appName, moduleName, configs); err != nil {
+	if err := checkConfigCreated(s.path, appName, moduleName, configs); err != nil {
 		return err
 	}
 
@@ -52,7 +50,7 @@ func (s Scaffolder) CreateConfigs(
 		ModuleName: moduleName,
 		Configs:    configsFields,
 		AppName:    s.modpath.Package,
-		AppPath:    s.Path,
+		AppPath:    s.path,
 	}
 
 	g, err := modulecreate.NewModuleConfigs(opts)
@@ -60,7 +58,7 @@ func (s Scaffolder) CreateConfigs(
 		return err
 	}
 
-	return runner.Run(g)
+	return s.Run(g)
 }
 
 // checkConfigCreated checks if the config has been already created.

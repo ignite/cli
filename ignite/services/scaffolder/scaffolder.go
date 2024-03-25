@@ -6,6 +6,8 @@ import (
 	"context"
 	"path/filepath"
 
+	"github.com/gobuffalo/genny/v2"
+
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis"
@@ -13,6 +15,8 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/version"
 )
 
@@ -21,15 +25,18 @@ type Scaffolder struct {
 	// Version of the chain
 	Version cosmosver.Version
 
-	// Path of the app.
-	Path string
+	// path of the app.
+	path string
 
-	// modpath represents the go module path of the app.
+	// modpath represents the go module Path of the app.
 	modpath gomodulepath.Path
+
+	// runner represents the scaffold xgenny runner.
+	runner *xgenny.Runner
 }
 
 // New creates a new scaffold app.
-func New(appPath string) (Scaffolder, error) {
+func New(context context.Context, appPath string) (Scaffolder, error) {
 	path, err := filepath.Abs(appPath)
 	if err != nil {
 		return Scaffolder{}, err
@@ -56,15 +63,28 @@ func New(appPath string) (Scaffolder, error) {
 
 	s := Scaffolder{
 		Version: ver,
-		Path:    path,
+		path:    path,
 		modpath: modpath,
+		runner:  xgenny.NewRunner(context, path),
 	}
 
 	return s, nil
 }
 
+func (s Scaffolder) ApplyModifications() (xgenny.SourceModification, error) {
+	return s.runner.ApplyModifications()
+}
+
+func (s Scaffolder) Tracer() *placeholder.Tracer {
+	return s.runner.Tracer()
+}
+
+func (s Scaffolder) Run(gens ...*genny.Generator) error {
+	return s.runner.Run(gens...)
+}
+
 func (s Scaffolder) PostScaffold(ctx context.Context, cacheStorage cache.Storage, skipProto bool) error {
-	return PostScaffold(ctx, cacheStorage, s.Path, s.modpath.RawPath, skipProto)
+	return PostScaffold(ctx, cacheStorage, s.path, s.modpath.RawPath, skipProto)
 }
 
 func PostScaffold(ctx context.Context, cacheStorage cache.Storage, path, gomodPath string, skipProto bool) error {

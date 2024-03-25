@@ -9,7 +9,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/field"
 	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
 	modulecreate "github.com/ignite/cli/v29/ignite/templates/module/create"
@@ -119,7 +118,6 @@ func TypeWithSigner(signer string) AddTypeOption {
 func (s Scaffolder) AddType(
 	ctx context.Context,
 	typeName string,
-	runner *xgenny.Runner,
 	kind AddTypeKind,
 	options ...AddTypeOption,
 ) error {
@@ -140,12 +138,12 @@ func (s Scaffolder) AddType(
 		return err
 	}
 
-	if err := checkComponentValidity(s.Path, moduleName, name, o.withoutMessage); err != nil {
+	if err := checkComponentValidity(s.path, moduleName, name, o.withoutMessage); err != nil {
 		return err
 	}
 
 	// Check and parse provided fields
-	if err := checkCustomTypes(ctx, s.Path, s.modpath.Package, moduleName, o.fields); err != nil {
+	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, o.fields); err != nil {
 		return err
 	}
 	tFields, err := parseTypeFields(o)
@@ -158,7 +156,7 @@ func (s Scaffolder) AddType(
 		return err
 	}
 
-	isIBC, err := isIBCModule(s.Path, moduleName)
+	isIBC, err := isIBCModule(s.path, moduleName)
 	if err != nil {
 		return err
 	}
@@ -167,7 +165,7 @@ func (s Scaffolder) AddType(
 		g    *genny.Generator
 		opts = &typed.Options{
 			AppName:      s.modpath.Package,
-			AppPath:      s.Path,
+			AppPath:      s.path,
 			ModulePath:   s.modpath.RawPath,
 			ModuleName:   moduleName,
 			TypeName:     name,
@@ -182,8 +180,8 @@ func (s Scaffolder) AddType(
 	// Check and support MsgServer convention
 	gens, err = supportMsgServer(
 		gens,
-		runner.Tracer(),
-		s.Path,
+		s.runner.Tracer(),
+		s.path,
 		&modulecreate.MsgServerOptions{
 			ModuleName: opts.ModuleName,
 			ModulePath: opts.ModulePath,
@@ -198,11 +196,11 @@ func (s Scaffolder) AddType(
 	// create the type generator depending on the model
 	switch {
 	case o.isList:
-		g, err = list.NewGenerator(runner.Tracer(), opts)
+		g, err = list.NewGenerator(s.Tracer(), opts)
 	case o.isMap:
-		g, err = mapGenerator(runner.Tracer(), opts, o.indexes)
+		g, err = mapGenerator(s.Tracer(), opts, o.indexes)
 	case o.isSingleton:
-		g, err = singleton.NewGenerator(runner.Tracer(), opts)
+		g, err = singleton.NewGenerator(s.Tracer(), opts)
 	default:
 		g, err = dry.NewGenerator(opts)
 	}
@@ -211,7 +209,7 @@ func (s Scaffolder) AddType(
 	}
 
 	// run the generation
-	return runner.Run(append(gens, g)...)
+	return s.Run(append(gens, g)...)
 }
 
 // checkForbiddenTypeIndex returns true if the name is forbidden as a index name.

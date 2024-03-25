@@ -7,7 +7,6 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/field"
 	"github.com/ignite/cli/v29/ignite/templates/query"
 )
@@ -15,7 +14,6 @@ import (
 // AddQuery adds a new query to scaffolded app.
 func (s Scaffolder) AddQuery(
 	ctx context.Context,
-	runner *xgenny.Runner,
 	moduleName,
 	queryName,
 	description string,
@@ -38,7 +36,7 @@ func (s Scaffolder) AddQuery(
 		return err
 	}
 
-	if err := checkComponentValidity(s.Path, moduleName, name, true); err != nil {
+	if err := checkComponentValidity(s.path, moduleName, name, true); err != nil {
 		return err
 	}
 
@@ -52,7 +50,7 @@ func (s Scaffolder) AddQuery(
 	}
 
 	// Check and parse provided response fields
-	if err := checkCustomTypes(ctx, s.Path, s.modpath.Package, moduleName, resFields); err != nil {
+	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, resFields); err != nil {
 		return err
 	}
 	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord)
@@ -64,7 +62,7 @@ func (s Scaffolder) AddQuery(
 		g    *genny.Generator
 		opts = &query.Options{
 			AppName:     s.modpath.Package,
-			AppPath:     s.Path,
+			AppPath:     s.path,
 			ModulePath:  s.modpath.RawPath,
 			ModuleName:  moduleName,
 			QueryName:   name,
@@ -76,10 +74,10 @@ func (s Scaffolder) AddQuery(
 	)
 
 	// Scaffold
-	g, err = query.NewGenerator(runner.Tracer(), opts)
+	g, err = query.NewGenerator(s.Tracer(), opts)
 	if err != nil {
 		return err
 	}
 
-	return runner.Run(g)
+	return s.Run(g)
 }

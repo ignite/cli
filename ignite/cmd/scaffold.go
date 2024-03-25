@@ -11,7 +11,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/pkg/xgit"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
 	"github.com/ignite/cli/v29/ignite/version"
@@ -207,7 +206,7 @@ func scaffoldType(
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
 
-	sc, err := scaffolder.New(appPath)
+	sc, err := scaffolder.New(cmd.Context(), appPath)
 	if err != nil {
 		return err
 	}
@@ -217,13 +216,12 @@ func scaffoldType(
 		return err
 	}
 
-	runner := xgenny.NewRunner(cmd.Context(), sc.Path)
-	err = sc.AddType(cmd.Context(), typeName, runner, kind, options...)
+	err = sc.AddType(cmd.Context(), typeName, kind, options...)
 	if err != nil {
 		return err
 	}
 
-	modificationsStr, err := runner.ApplyModifications()
+	modificationsStr, err := sc.ApplyModifications()
 	if err != nil {
 		return err
 	}

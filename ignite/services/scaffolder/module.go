@@ -31,7 +31,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/v29/ignite/pkg/validation"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/field"
 	"github.com/ignite/cli/v29/ignite/templates/module"
 	modulecreate "github.com/ignite/cli/v29/ignite/templates/module/create"
@@ -163,7 +162,6 @@ func WithDependencies(dependencies []modulecreate.Dependency) ModuleCreationOpti
 
 // CreateModule creates a new empty module in the scaffolded app.
 func (s Scaffolder) CreateModule(
-	runner *xgenny.Runner,
 	moduleName string,
 	options ...ModuleCreationOption,
 ) error {
@@ -174,12 +172,12 @@ func (s Scaffolder) CreateModule(
 	moduleName = mfName.LowerCase
 
 	// Check if the module name is valid
-	if err := checkModuleName(s.Path, moduleName); err != nil {
+	if err := checkModuleName(s.path, moduleName); err != nil {
 		return err
 	}
 
 	// Check if the module already exist
-	ok, err := moduleExists(s.Path, moduleName)
+	ok, err := moduleExists(s.path, moduleName)
 	if err != nil {
 		return err
 	}
@@ -206,7 +204,7 @@ func (s Scaffolder) CreateModule(
 	}
 
 	// Check dependencies
-	if err := checkDependencies(creationOpts.dependencies, s.Path); err != nil {
+	if err := checkDependencies(creationOpts.dependencies, s.path); err != nil {
 		return err
 	}
 
@@ -216,7 +214,7 @@ func (s Scaffolder) CreateModule(
 		Params:       params,
 		Configs:      configs,
 		AppName:      s.modpath.Package,
-		AppPath:      s.Path,
+		AppPath:      s.path,
 		IsIBC:        creationOpts.ibc,
 		IBCOrdering:  creationOpts.ibcChannelOrdering,
 		Dependencies: creationOpts.dependencies,
@@ -230,15 +228,15 @@ func (s Scaffolder) CreateModule(
 
 	// Scaffold IBC module
 	if opts.IsIBC {
-		g, err = modulecreate.NewIBC(runner.Tracer(), opts)
+		g, err = modulecreate.NewIBC(s.Tracer(), opts)
 		if err != nil {
 			return err
 		}
 		gens = append(gens, g)
 	}
-	gens = append(gens, modulecreate.NewAppModify(runner.Tracer(), opts))
+	gens = append(gens, modulecreate.NewAppModify(s.Tracer(), opts))
 
-	err = runner.Run(gens...)
+	err = s.Run(gens...)
 	var validationErr validation.Error
 	if err != nil && !errors.As(err, &validationErr) {
 		return err

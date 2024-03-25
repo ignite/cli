@@ -8,7 +8,6 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/field"
 	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
 	"github.com/ignite/cli/v29/ignite/templates/message"
@@ -57,7 +56,6 @@ func WithoutSimulation() MessageOption {
 // AddMessage adds a new message to scaffolded app.
 func (s Scaffolder) AddMessage(
 	ctx context.Context,
-	runner *xgenny.Runner,
 	moduleName,
 	msgName string,
 	fields,
@@ -85,12 +83,12 @@ func (s Scaffolder) AddMessage(
 		return err
 	}
 
-	if err := checkComponentValidity(s.Path, moduleName, name, false); err != nil {
+	if err := checkComponentValidity(s.path, moduleName, name, false); err != nil {
 		return err
 	}
 
 	// Check and parse provided fields
-	if err := checkCustomTypes(ctx, s.Path, s.modpath.Package, moduleName, fields); err != nil {
+	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, fields); err != nil {
 		return err
 	}
 	parsedMsgFields, err := field.ParseFields(fields, checkForbiddenMessageField, scaffoldingOpts.signer)
@@ -99,7 +97,7 @@ func (s Scaffolder) AddMessage(
 	}
 
 	// Check and parse provided response fields
-	if err := checkCustomTypes(ctx, s.Path, s.modpath.Package, moduleName, resFields); err != nil {
+	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, resFields); err != nil {
 		return err
 	}
 	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord, scaffoldingOpts.signer)
@@ -116,7 +114,7 @@ func (s Scaffolder) AddMessage(
 		g    *genny.Generator
 		opts = &message.Options{
 			AppName:      s.modpath.Package,
-			AppPath:      s.Path,
+			AppPath:      s.path,
 			ModulePath:   s.modpath.RawPath,
 			ModuleName:   moduleName,
 			MsgName:      name,
@@ -132,8 +130,8 @@ func (s Scaffolder) AddMessage(
 	var gens []*genny.Generator
 	gens, err = supportMsgServer(
 		gens,
-		runner.Tracer(),
-		s.Path,
+		s.Tracer(),
+		s.path,
 		&modulecreate.MsgServerOptions{
 			ModuleName: opts.ModuleName,
 			ModulePath: opts.ModulePath,
@@ -146,13 +144,13 @@ func (s Scaffolder) AddMessage(
 	}
 
 	// Scaffold
-	g, err = message.NewGenerator(runner.Tracer(), opts)
+	g, err = message.NewGenerator(s.Tracer(), opts)
 	if err != nil {
 		return err
 	}
 	gens = append(gens, g)
 
-	return runner.Run(gens...)
+	return s.Run(gens...)
 }
 
 // checkForbiddenMessageField returns true if the name is forbidden as a message name.

@@ -7,14 +7,12 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/field"
 	modulecreate "github.com/ignite/cli/v29/ignite/templates/module/create"
 )
 
 // CreateParams creates a new params in the scaffolded module.
 func (s Scaffolder) CreateParams(
-	runner *xgenny.Runner,
 	moduleName string,
 	params ...string,
 ) error {
@@ -29,7 +27,7 @@ func (s Scaffolder) CreateParams(
 	moduleName = mfName.LowerCase
 
 	// Check if the module already exist
-	ok, err := moduleExists(s.Path, moduleName)
+	ok, err := moduleExists(s.path, moduleName)
 	if err != nil {
 		return err
 	}
@@ -37,7 +35,7 @@ func (s Scaffolder) CreateParams(
 		return errors.Errorf("the module %v not exist", moduleName)
 	}
 
-	if err := checkParamCreated(s.Path, moduleName, params); err != nil {
+	if err := checkParamCreated(s.path, moduleName, params); err != nil {
 		return err
 	}
 
@@ -51,7 +49,7 @@ func (s Scaffolder) CreateParams(
 		ModuleName: moduleName,
 		Params:     paramsFields,
 		AppName:    s.modpath.Package,
-		AppPath:    s.Path,
+		AppPath:    s.path,
 	}
 
 	g, err := modulecreate.NewModuleParam(opts)
@@ -59,7 +57,7 @@ func (s Scaffolder) CreateParams(
 		return err
 	}
 
-	return runner.Run(g)
+	return s.Run(g)
 }
 
 // checkParamCreated checks if the parameter has been already created.
