@@ -10,9 +10,7 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/validation"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
 	modulecreate "github.com/ignite/cli/v29/ignite/templates/module/create"
 )
@@ -29,14 +27,6 @@ const (
 	flagModuleConfigs       = "module-configs"
 	flagIBCOrdering         = "ordering"
 	flagRequireRegistration = "require-registration"
-
-	govDependencyWarning = `⚠️ If your app has been scaffolded with Ignite CLI 0.16.x or below
-Please make sure that your module keeper definition is defined after gov module keeper definition in app/app.go:
-
-app.GovKeeper = ...
-...
-[your module keeper definition]
-`
 )
 
 // NewScaffoldModule returns the command to scaffold a Cosmos SDK module.
@@ -181,13 +171,12 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	var msg bytes.Buffer
 	fmt.Fprintf(&msg, "\n🎉 Module created %s.\n\n", name)
 
-	sc, err := scaffolder.New(appPath)
+	sc, err := scaffolder.New(cmd.Context(), appPath)
 	if err != nil {
 		return err
 	}
 
-	sm, err := sc.CreateModule(cmd.Context(), cacheStorage, placeholder.New(), name, options...)
-	if err != nil {
+	if err := sc.CreateModule(name, options...); err != nil {
 		var validationErr validation.Error
 		if !requireRegistration && errors.As(err, &validationErr) {
 			fmt.Fprintf(&msg, "Can't register module '%s'.\n", name)
@@ -195,25 +184,17 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		} else {
 			return err
 		}
-	} else {
-		modificationsStr, err := xgenny.SourceModificationToString(sm)
-		if err != nil {
-			return err
-		}
-
-		session.Println(modificationsStr)
+	}
+	modificationsStr, err := sc.ApplyModifications()
+	if err != nil {
+		return err
 	}
 
-	// in previously scaffolded apps gov keeper is defined below the scaffolded module keeper definition
-	// therefore we must warn the user to manually move the definition if it's the case
-	// https://github.com/ignite/cli/issues/818#issuecomment-865736052
-	for _, name := range dependencies {
-		if name == "Gov" {
-			session.Print(govDependencyWarning)
-
-			break
-		}
+	if err := sc.PostScaffold(cmd.Context(), cacheStorage, false); err != nil {
+		return err
 	}
+
+	session.Println(modificationsStr)
 
 	return session.Print(msg.String())
 }
