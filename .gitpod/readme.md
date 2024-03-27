@@ -38,20 +38,6 @@ ignite chain serve
 
 ## Install Ignite CLI locally
 
-You can install Ignite using [HomeBrew](https://formulae.brew.sh/formula/ignite) on macOS and GNU/Linux:
-
-```sh
-brew install ignite
-```
-
-Or using Snap on GNU/Linux:
-
-```sh
-snap install ignite --classic
-```
-
-Or manually using the following command:
-
 ```sh
 curl https://get.ignite.com/cli | bash
 ```
