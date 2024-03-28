@@ -42,7 +42,7 @@ jobs:
           jq --arg version "v$DOCUSAURUS_VERSION" 'del(.[] | select(. == $version))' versions.json > versions.json.tmp
           mv versions.json.tmp versions.json
           rm -rf versioned_docs/version-v$DOCUSAURUS_VERSION
-          rm -rf versioned_sidebars/version-$DOCUSAURUS_VERSION-sidebars.json
+          rm -rf versioned_sidebars/version-v$DOCUSAURUS_VERSION-sidebars.json
           yarn run docusaurus docs:version v$DOCUSAURUS_VERSION
         working-directory: ./docs
 
