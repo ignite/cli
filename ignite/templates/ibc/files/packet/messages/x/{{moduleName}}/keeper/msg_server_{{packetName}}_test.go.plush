@@ -1,25 +1,33 @@
-package keeper
+package keeper_test
 
 import (
 	"testing"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/require"
-	"<%= ModulePath %>/testutil/sample"
+
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+
+	keepertest "<%= ModulePath %>/testutil/keeper"
+    "<%= ModulePath %>/x/<%= moduleName %>/keeper"
+	"<%= ModulePath %>/x/<%= moduleName %>/types"
 )
 
 func TestMsgServerSend<%= packetName.UpperCamel %>(t *testing.T) {
-	t.Skip() // TODO -- rewrite as msg server test
+	k, ctx, addressCodec := keepertest.<%= title(moduleName) %>Keeper(t)
+	<%= MsgSigner.LowerCamel %>, err := addressCodec.BytesToString([]byte("signerAddr__________________"))
+	require.NoError(t, err)
+	srv := keeper.NewMsgServerImpl(k)
 
 	tests := []struct {
 		name string
-		msg  MsgSend<%= packetName.UpperCamel %>
+		msg  types.MsgSend<%= packetName.UpperCamel %>
 		err  error
 	}{
 		{
 			name: "invalid address",
-			msg: MsgSend<%= packetName.UpperCamel %>{
-				<%= MsgSigner.UpperCamel %>: "invalid_address",
+			msg: types.MsgSend<%= packetName.UpperCamel %>{
+				<%= MsgSigner.UpperCamel %>: "invalid address",
 				Port:             "port",
 				ChannelID:        "channel-0",
 				TimeoutTimestamp: 100,
@@ -27,8 +35,8 @@ func TestMsgServerSend<%= packetName.UpperCamel %>(t *testing.T) {
 			err: sdkerrors.ErrInvalidAddress,
 		}, {
 			name: "invalid port",
-			msg: MsgSend<%= packetName.UpperCamel %>{
-				<%= MsgSigner.UpperCamel %>: sample.AccAddress(),
+			msg: types.MsgSend<%= packetName.UpperCamel %>{
+				<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
 				Port:             "",
 				ChannelID:        "channel-0",
 				TimeoutTimestamp: 100,
@@ -36,8 +44,8 @@ func TestMsgServerSend<%= packetName.UpperCamel %>(t *testing.T) {
 			err: sdkerrors.ErrInvalidRequest,
 		}, {
 			name: "invalid channel",
-			msg: MsgSend<%= packetName.UpperCamel %>{
-				<%= MsgSigner.UpperCamel %>: sample.AccAddress(),
+			msg: types.MsgSend<%= packetName.UpperCamel %>{
+				<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
 				Port:             "port",
 				ChannelID:        "",
 				TimeoutTimestamp: 100,
@@ -45,8 +53,8 @@ func TestMsgServerSend<%= packetName.UpperCamel %>(t *testing.T) {
 			err: sdkerrors.ErrInvalidRequest,
 		}, {
 			name: "invalid timeout",
-			msg: MsgSend<%= packetName.UpperCamel %>{
-				<%= MsgSigner.UpperCamel %>: sample.AccAddress(),
+			msg: types.MsgSend<%= packetName.UpperCamel %>{
+				<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
 				Port:             "port",
 				ChannelID:        "channel-0",
 				TimeoutTimestamp: 0,
@@ -54,19 +62,20 @@ func TestMsgServerSend<%= packetName.UpperCamel %>(t *testing.T) {
 			err: sdkerrors.ErrInvalidRequest,
 		}, {
 			name: "valid message",
-			msg: MsgSend<%= packetName.UpperCamel %>{
-				<%= MsgSigner.UpperCamel %>: sample.AccAddress(),
+			msg: types.MsgSend<%= packetName.UpperCamel %>{
+				<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
 				Port:             "port",
 				ChannelID:        "channel-0",
 				TimeoutTimestamp: 100,
 			},
+			err: channeltypes.ErrChannelCapabilityNotFound,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := tt.msg.ValidateBasic()
+			_, err = srv.Send<%= packetName.UpperCamel %>(ctx, &tt.msg)
 			if tt.err != nil {
-				require.ErrorIs(t, err, tt.err)
+				require.ErrorContains(t, err, tt.err.Error())
 				return
 			}
 			require.NoError(t, err)
