@@ -10,7 +10,7 @@ import (
 
 func (k msgServer) <%= MsgName.UpperCamel %>(ctx context.Context,  msg *types.Msg<%= MsgName.UpperCamel %>) (*types.Msg<%= MsgName.UpperCamel %>Response, error) {
 	if _, err := k.addressCodec.StringToBytes(<%= MsgSigner.LowerCamel %>); err != nil {
-		return errorsmod.Wrap(err, "invalid authority address")
+		return nil, errorsmod.Wrap(err, "invalid authority address")
 	}
 
     // TODO: Handle the message
