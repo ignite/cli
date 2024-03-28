@@ -49,7 +49,7 @@ func <%= title(moduleName) %>Keeper(t testing.TB) (keeper.Keeper, sdk.Context, a
 
 	// Initialize params
 	if err := k.Params.Set(ctx, types.DefaultParams()); err != nil {
-		panic(err)
+		t.Fatalf("failed to set params: %v", err)
 	}
 
 	return k, ctx, addressCodec
