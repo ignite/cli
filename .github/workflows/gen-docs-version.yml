@@ -39,7 +39,7 @@ jobs:
             DOCUSAURUS_VERSION=${MAJOR_VERSION:1}
           fi
 
-          jq 'del(.[] | select(. == "v$DOCUSAURUS_VERSION"))' versions.json > versions.json.tmp
+          jq --arg version "v$DOCUSAURUS_VERSION" 'del(.[] | select(. == $version))' versions.json > versions.json.tmp
           mv versions.json.tmp versions.json
           rm -rf versioned_docs/version-$DOCUSAURUS_VERSION
           rm -rf versioned_sidebars/version-$DOCUSAURUS_VERSION-sidebars.json
