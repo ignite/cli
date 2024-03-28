@@ -12,6 +12,8 @@
 
 ### Changes
 
+- [#4058](https://github.com/ignite/cli/pull/4058) Simplify scaffolded modules by including `ValidateBasic()` logic in message handler.
+- [#4058](https://github.com/ignite/cli/pull/4058) Use `address.Codec` instead of `AccAddressFromBech32`.
 - [#3993](https://github.com/ignite/cli/pull/3993) Oracle scaffolding was deprecated and has been removed
 - [#3959](https://github.com/ignite/cli/pull/3959) Remove app name prefix from the `.gitignore` file
 - [#3962](https://github.com/ignite/cli/pull/3962) Rename all RPC endpoints and autocli commands generated for `map`/`list`/`single` types

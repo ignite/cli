@@ -11,6 +11,10 @@ import (
 
 
 func (k msgServer) Create<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgCreate<%= TypeName.UpperCamel %>) (*types.MsgCreate<%= TypeName.UpperCamel %>Response, error) {
+    if _, err := k.addressCodec.StringToBytes(msg.<%= MsgSigner.UpperCamel %>); err != nil {
+        return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", err))
+    }
+
     nextId, err := k.<%= TypeName.UpperCamel %>Seq.Next(ctx)
 	if err != nil {
 		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "failed to get next id")
@@ -36,6 +40,10 @@ func (k msgServer) Create<%= TypeName.UpperCamel %>(ctx context.Context,  msg *t
 }
 
 func (k msgServer) Update<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgUpdate<%= TypeName.UpperCamel %>) (*types.MsgUpdate<%= TypeName.UpperCamel %>Response, error) {
+    if _, err := k.addressCodec.StringToBytes(msg.<%= MsgSigner.UpperCamel %>); err != nil {
+        return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", err))
+    }
+
     var <%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{
 		<%= MsgSigner.UpperCamel %>: msg.<%= MsgSigner.UpperCamel %>,
 		Id:      msg.Id,<%= for (field) in Fields { %>
@@ -65,6 +73,10 @@ func (k msgServer) Update<%= TypeName.UpperCamel %>(ctx context.Context,  msg *t
 }
 
 func (k msgServer) Delete<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgDelete<%= TypeName.UpperCamel %>) (*types.MsgDelete<%= TypeName.UpperCamel %>Response, error) {
+    if _, err := k.addressCodec.StringToBytes(msg.<%= MsgSigner.UpperCamel %>); err != nil {
+        return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", err))
+    }
+
     // Checks that the element exists
     val, err := k.<%= TypeName.UpperCamel %>.Get(ctx, msg.Id)
     if err != nil {
