@@ -6,6 +6,8 @@ import (
 	"context"
 	"path/filepath"
 
+	"github.com/gobuffalo/genny/v2"
+
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis"
@@ -13,6 +15,8 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/version"
 )
 
@@ -24,12 +28,15 @@ type Scaffolder struct {
 	// path of the app.
 	path string
 
-	// modpath represents the go module path of the app.
+	// modpath represents the go module Path of the app.
 	modpath gomodulepath.Path
+
+	// runner represents the scaffold xgenny runner.
+	runner *xgenny.Runner
 }
 
 // New creates a new scaffold app.
-func New(appPath string) (Scaffolder, error) {
+func New(context context.Context, appPath string) (Scaffolder, error) {
 	path, err := filepath.Abs(appPath)
 	if err != nil {
 		return Scaffolder{}, err
@@ -58,16 +65,37 @@ func New(appPath string) (Scaffolder, error) {
 		Version: ver,
 		path:    path,
 		modpath: modpath,
+		runner:  xgenny.NewRunner(context, path),
 	}
 
 	return s, nil
 }
 
-func finish(ctx context.Context, cacheStorage cache.Storage, path, gomodPath string, skipProto bool) error {
+func (s Scaffolder) ApplyModifications() (xgenny.SourceModification, error) {
+	return s.runner.ApplyModifications()
+}
+
+func (s Scaffolder) Tracer() *placeholder.Tracer {
+	return s.runner.Tracer()
+}
+
+func (s Scaffolder) Run(gens ...*genny.Generator) error {
+	return s.runner.Run(gens...)
+}
+
+func (s Scaffolder) PostScaffold(ctx context.Context, cacheStorage cache.Storage, skipProto bool) error {
+	return PostScaffold(ctx, cacheStorage, s.path, s.modpath.RawPath, skipProto)
+}
+
+func PostScaffold(ctx context.Context, cacheStorage cache.Storage, path, gomodPath string, skipProto bool) error {
 	if !skipProto {
 		if err := protoc(ctx, cacheStorage, path, gomodPath); err != nil {
 			return err
 		}
+	}
+
+	if err := gocmd.ModTidy(ctx, path); err != nil {
+		return err
 	}
 
 	if err := gocmd.Fmt(ctx, path); err != nil {
@@ -76,7 +104,7 @@ func finish(ctx context.Context, cacheStorage cache.Storage, path, gomodPath str
 
 	_ = gocmd.GoImports(ctx, path) // goimports installation could fail, so ignore the error
 
-	return gocmd.ModTidy(ctx, path)
+	return nil
 }
 
 func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodPath string) error {

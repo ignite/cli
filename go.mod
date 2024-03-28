@@ -44,7 +44,6 @@ require (
 	github.com/go-delve/delve v1.21.0
 	github.com/go-git/go-git/v5 v5.11.0
 	github.com/gobuffalo/genny/v2 v2.1.0
-	github.com/gobuffalo/logger v1.0.7
 	github.com/gobuffalo/packd v1.0.2
 	github.com/gobuffalo/plush/v4 v4.1.19
 	github.com/gobwas/glob v0.2.3
@@ -246,6 +245,7 @@ require (
 	github.com/gobuffalo/flect v0.3.0 // indirect
 	github.com/gobuffalo/github_flavored_markdown v1.1.4 // indirect
 	github.com/gobuffalo/helpers v0.6.7 // indirect
+	github.com/gobuffalo/logger v1.0.7 // indirect
 	github.com/gobuffalo/tags/v3 v3.1.4 // indirect
 	github.com/gobuffalo/validate/v3 v3.3.3 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
