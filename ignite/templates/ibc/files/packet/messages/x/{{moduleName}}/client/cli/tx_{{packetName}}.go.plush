@@ -50,9 +50,7 @@ func CmdSend<%= packetName.UpperCamel %>() *cobra.Command {
             }
 
 			msg := types.NewMsgSend<%= packetName.UpperCamel %>(<%= MsgSigner.LowerCamel %>, srcPort, srcChannel, timeoutTimestamp<%= for (i, field) in fields { %>, arg<%= field.Name.UpperCamel %><% } %>)
-			if err := msg.ValidateBasic(); err != nil {
-				return err
-			}
+			
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}

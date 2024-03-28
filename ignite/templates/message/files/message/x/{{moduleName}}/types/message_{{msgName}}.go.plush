@@ -1,25 +1,8 @@
 package types
 
-import (
-	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-)
-
-var _ sdk.Msg = &Msg<%= MsgName.UpperCamel %>{}
-
 func NewMsg<%= MsgName.UpperCamel %>(<%= MsgSigner.LowerCamel %> string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.DataType() %><% } %>) *Msg<%= MsgName.UpperCamel %> {
   return &Msg<%= MsgName.UpperCamel %>{
 		<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,<%= for (field) in Fields { %>
     <%= field.Name.UpperCamel %>: <%= field.Name.LowerCamel %>,<% } %>
 	}
 }
-
-func (msg *Msg<%= MsgName.UpperCamel %>) ValidateBasic() error {
-  _, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
-  	if err != nil {
-  		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid <%= MsgSigner.LowerCamel %> address (%s)", err)
-  	}
-  return nil
-}
-

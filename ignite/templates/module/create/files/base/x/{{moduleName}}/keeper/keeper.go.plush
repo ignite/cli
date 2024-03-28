@@ -5,6 +5,7 @@ import (
 
 	"cosmossdk.io/collections"
 	"cosmossdk.io/core/store"
+	"cosmossdk.io/core/address"
 	"cosmossdk.io/log"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -24,6 +25,7 @@ import (
 type (
 	Keeper struct {
 		cdc          codec.BinaryCodec
+		addressCodec address.Codec
 		storeService store.KVStoreService
 		logger       log.Logger
 
@@ -46,6 +48,7 @@ type (
 
 func NewKeeper(
     cdc codec.BinaryCodec,
+	addressCodec address.Codec,
 	storeService store.KVStoreService,
     logger log.Logger,
 	authority string,<%= if (isIBC) { %>
@@ -54,14 +57,15 @@ func NewKeeper(
     <%= for (dependency) in dependencies { %>
     <%= toVariableName(dependency.KeeperName()) %> types.<%= dependency.KeeperName() %>,<% } %>
 ) Keeper {
-	if _, err := sdk.AccAddressFromBech32(authority); err != nil {
-		panic(fmt.Sprintf("invalid authority address: %s", authority))
+	if _, err := addressCodec.StringToBytes(authority); err != nil {
+		panic(fmt.Sprintf("invalid authority address %s: %s", authority, err))
 	}
 
 	sb := collections.NewSchemaBuilder(storeService)
 
 	k := Keeper{
 		cdc:          cdc,
+		addressCodec: addressCodec,
 		storeService: storeService,
 		authority:    authority,
 		logger:       logger,<%= if (isIBC) { %>
