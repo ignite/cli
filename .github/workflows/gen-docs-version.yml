@@ -39,7 +39,8 @@ jobs:
             DOCUSAURUS_VERSION=${MAJOR_VERSION:1}
           fi
 
-          jq -i 'del(.[] | select(. == "v$DOCUSAURUS_VERSION"))' versions.json
+          jq 'del(.[] | select(. == "v$DOCUSAURUS_VERSION"))' versions.json > versions.json.tmp
+          mv versions.json.tmp versions.json
           rm -rf versioned_docs/version-$DOCUSAURUS_VERSION
           rm -rf versioned_sidebars/version-$DOCUSAURUS_VERSION-sidebars.json
           yarn run docusaurus docs:version v$DOCUSAURUS_VERSION
