@@ -10,6 +10,7 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
+<<<<<<< HEAD
 	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
@@ -21,6 +22,20 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/xast"
 	"github.com/ignite/cli/v28/ignite/services/chain"
 	"github.com/ignite/cli/v28/ignite/services/doctor"
+=======
+	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v29/ignite/pkg/xast"
+	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v29/ignite/services/chain"
+	"github.com/ignite/cli/v29/ignite/services/doctor"
+>>>>>>> 2ad41ee3 (feat(pkg): improve xgenny dry run (#4001))
 )
 
 const (
@@ -200,7 +215,8 @@ func bufMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPa
 		}
 	}
 
-	sm, err := chain.BoxBufFiles(appPath)
+	runner := xgenny.NewRunner(cmd.Context(), appPath)
+	sm, err := chain.BoxBufFiles(runner, appPath)
 	if err != nil {
 		return err
 	}

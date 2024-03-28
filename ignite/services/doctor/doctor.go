@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 
+<<<<<<< HEAD
 	"github.com/gobuffalo/genny/v2"
 
 	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
@@ -19,6 +20,19 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v28/ignite/pkg/xast"
 	"github.com/ignite/cli/v28/ignite/templates/app"
+=======
+	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/events"
+	"github.com/ignite/cli/v29/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v29/ignite/pkg/xast"
+	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v29/ignite/templates/app"
+>>>>>>> 2ad41ee3 (feat(pkg): improve xgenny dry run (#4001))
 )
 
 const (
@@ -161,7 +175,12 @@ func (d *Doctor) FixDependencyTools(ctx context.Context) error {
 }
 
 func (d Doctor) createToolsFile(ctx context.Context, toolsFilename string) error {
-	pathInfo, err := gomodulepath.ParseAt(".")
+	absPath, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	pathInfo, err := gomodulepath.ParseAt(absPath)
 	if err != nil {
 		return err
 	}
@@ -176,12 +195,8 @@ func (d Doctor) createToolsFile(ctx context.Context, toolsFilename string) error
 		return err
 	}
 
-	runner := genny.WetRunner(ctx)
-	if err := runner.With(g); err != nil {
-		return err
-	}
-
-	if err := runner.Run(); err != nil {
+	runner := xgenny.NewRunner(ctx, absPath)
+	if _, err := runner.RunAndApply(g); err != nil {
 		return err
 	}
 

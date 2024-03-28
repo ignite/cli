@@ -7,6 +7,7 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
+<<<<<<< HEAD
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
@@ -15,6 +16,13 @@ import (
 	"github.com/ignite/cli/v28/ignite/templates/field"
 	"github.com/ignite/cli/v28/ignite/templates/field/datatype"
 	"github.com/ignite/cli/v28/ignite/templates/ibc"
+=======
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v29/ignite/templates/field"
+	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
+	"github.com/ignite/cli/v29/ignite/templates/ibc"
+>>>>>>> 2ad41ee3 (feat(pkg): improve xgenny dry run (#4001))
 )
 
 const (
@@ -54,14 +62,12 @@ func PacketWithSigner(signer string) PacketOption {
 // AddPacket adds a new type stype to scaffolded app by using optional type fields.
 func (s Scaffolder) AddPacket(
 	ctx context.Context,
-	cacheStorage cache.Storage,
-	tracer *placeholder.Tracer,
 	moduleName,
 	packetName string,
 	packetFields,
 	ackFields []string,
 	options ...PacketOption,
-) (sm xgenny.SourceModification, err error) {
+) error {
 	// apply options.
 	o := newPacketOptions()
 	for _, apply := range options {
@@ -70,31 +76,31 @@ func (s Scaffolder) AddPacket(
 
 	mfName, err := multiformatname.NewName(moduleName, multiformatname.NoNumber)
 	if err != nil {
-		return sm, err
+		return err
 	}
 	moduleName = mfName.LowerCase
 
 	name, err := multiformatname.NewName(packetName)
 	if err != nil {
-		return sm, err
+		return err
 	}
 
 	if err := checkComponentValidity(s.path, moduleName, name, o.withoutMessage); err != nil {
-		return sm, err
+		return err
 	}
 
 	mfSigner, err := multiformatname.NewName(o.signer)
 	if err != nil {
-		return sm, err
+		return err
 	}
 
 	// Module must implement IBC
 	ok, err := isIBCModule(s.path, moduleName)
 	if err != nil {
-		return sm, err
+		return err
 	}
 	if !ok {
-		return sm, errors.Errorf("the module %s doesn't implement IBC module interface", moduleName)
+		return errors.Errorf("the module %s doesn't implement IBC module interface", moduleName)
 	}
 
 	signer := ""
@@ -104,20 +110,20 @@ func (s Scaffolder) AddPacket(
 
 	// Check and parse packet fields
 	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, packetFields); err != nil {
-		return sm, err
+		return err
 	}
 	parsedPacketFields, err := field.ParseFields(packetFields, checkForbiddenPacketField, signer)
 	if err != nil {
-		return sm, err
+		return err
 	}
 
 	// check and parse acknowledgment fields
 	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, ackFields); err != nil {
-		return sm, err
+		return err
 	}
 	parsedAcksFields, err := field.ParseFields(ackFields, checkGoReservedWord, signer)
 	if err != nil {
-		return sm, err
+		return err
 	}
 
 	// Generate the packet
@@ -135,15 +141,11 @@ func (s Scaffolder) AddPacket(
 			MsgSigner:  mfSigner,
 		}
 	)
-	g, err = ibc.NewPacket(tracer, opts)
+	g, err = ibc.NewPacket(s.Tracer(), opts)
 	if err != nil {
-		return sm, err
+		return err
 	}
-	sm, err = xgenny.RunWithValidation(tracer, g)
-	if err != nil {
-		return sm, err
-	}
-	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath, false)
+	return s.Run(g)
 }
 
 // isIBCModule returns true if the provided module implements the IBC module interface
@@ -162,7 +164,7 @@ func isIBCModule(appPath string, moduleName string) (bool, error) {
 		return true, err
 	}
 
-	// check the legacy path
+	// check the legacy Path
 	absPathLegacy, err := filepath.Abs(filepath.Join(appPath, moduleDir, moduleName, ibcModuleImplementation))
 	if err != nil {
 		return false, err
