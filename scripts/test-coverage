@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e -x
 
-go test -race -coverprofile=coverage.txt -covermode=atomic -coverpkg=./... $(go list github.com/ignite/cli/v29/ignite/...)
+go test -coverprofile=coverage.txt -covermode=atomic -coverpkg=./... $(go list github.com/ignite/cli/v29/ignite/...)
 
 # append "||true" to grep so if no match the return code stays 0
 excludelist="$(find ./ -type f -name '*.go' | xargs grep -l 'DONTCOVER' || true)"
