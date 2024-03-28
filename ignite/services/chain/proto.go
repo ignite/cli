@@ -3,7 +3,6 @@ package chain
 import (
 	"path/filepath"
 
-	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/pkg/xos"
 	"github.com/ignite/cli/v29/ignite/templates/app"
@@ -28,10 +27,10 @@ func CheckBufFiles(appPath string) bool {
 	return true
 }
 
-func BoxBufFiles(appPath string) (xgenny.SourceModification, error) {
+func BoxBufFiles(runner *xgenny.Runner, appPath string) (xgenny.SourceModification, error) {
 	g, err := app.NewBufGenerator(appPath)
 	if err != nil {
 		return xgenny.SourceModification{}, err
 	}
-	return xgenny.RunWithValidation(placeholder.New(), g)
+	return runner.RunAndApply(g)
 }
