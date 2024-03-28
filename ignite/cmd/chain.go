@@ -19,6 +19,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
+	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/services/chain"
 	"github.com/ignite/cli/v29/ignite/services/doctor"
 )
@@ -201,7 +202,8 @@ func bufMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPa
 		}
 	}
 
-	sm, err := chain.BoxBufFiles(appPath)
+	runner := xgenny.NewRunner(cmd.Context(), appPath)
+	sm, err := chain.BoxBufFiles(runner, appPath)
 	if err != nil {
 		return err
 	}
