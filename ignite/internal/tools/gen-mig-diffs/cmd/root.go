@@ -162,7 +162,12 @@ func NewRootCmd() *cobra.Command {
 				return err
 			}
 
-			session.EventBus().SendInfo(fmt.Sprintf("Migration doc generated successfully at %s\n%s", output, sm))
+			if len(sm.CreatedFiles()) == 0 {
+				return errors.Errorf("migration doc not created at %s", output)
+			}
+			session.EventBus().SendInfo(
+				fmt.Sprintf("Migration doc generated successfully at %s", sm.CreatedFiles()[0]),
+			)
 
 			return nil
 		},
