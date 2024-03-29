@@ -73,9 +73,10 @@ func (sm *SourceModification) Merge(newSm SourceModification) {
 	sm.AppendCreatedFiles(newSm.CreatedFiles()...)
 }
 
-func SourceModificationToString(sm SourceModification) (string, error) {
+// String convert to string value.
+func (sm *SourceModification) String() (string, error) {
 	// get file names and add prefix
-	var files []string
+	files := make([]string, 0)
 	for _, modified := range sm.ModifiedFiles() {
 		// get the relative app path from the current directory
 		relativePath, err := xfilepath.RelativePath(modified)
