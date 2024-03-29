@@ -13,7 +13,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/internal/tools/gen-mig-diffs/templates/doc"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 )
 
@@ -158,11 +157,12 @@ func NewRootCmd() *cobra.Command {
 				return errors.Wrap(err, "failed to create the doc generator object")
 			}
 
-			if _, err := xgenny.RunWithValidation(placeholder.New(), g); err != nil {
+			sm, err := xgenny.NewRunner(cmd.Context(), output).RunAndApply(g)
+			if err != nil {
 				return err
 			}
 
-			session.Printf("Migration doc generated successfully at %s\n", output)
+			session.EventBus().SendInfo(fmt.Sprintf("Migration doc generated successfully at %s\n%s", output, sm))
 
 			return nil
 		},
