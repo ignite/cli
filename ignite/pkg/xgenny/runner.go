@@ -22,12 +22,12 @@ type Runner struct {
 }
 
 // NewRunner is a xgenny Runner with a logger.
-func NewRunner(ctx context.Context, appPath string) *Runner {
+func NewRunner(ctx context.Context, root string) *Runner {
 	var (
 		runner  = genny.WetRunner(ctx)
 		tmpPath = filepath.Join(os.TempDir(), randstr.Runes(5))
 	)
-	runner.Root = appPath
+	runner.Root = root
 	r := &Runner{
 		ctx:     ctx,
 		Runner:  runner,
