@@ -12,7 +12,7 @@ updates:
       time: "10:00"
     labels:
       - "dependencies"
-      - "go"
+      - "component:go"
       - "skip-changelog"
     open-pull-requests-limit: 0
 
@@ -23,7 +23,7 @@ updates:
       time: "10:00"
     labels:
       - "dependencies"
-      - "javascript"
+      - "component:js"
       - "skip-changelog"
     open-pull-requests-limit: 0
 
