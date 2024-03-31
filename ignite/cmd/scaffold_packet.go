@@ -5,8 +5,6 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
 )
 
@@ -68,17 +66,26 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 		options = append(options, scaffolder.PacketWithSigner(signer))
 	}
 
-	sc, err := scaffolder.New(appPath)
+	sc, err := scaffolder.New(cmd.Context(), appPath)
 	if err != nil {
 		return err
 	}
 
-	sm, err := sc.AddPacket(cmd.Context(), cacheStorage, placeholder.New(), module, packet, packetFields, ackFields, options...)
+	err = sc.AddPacket(cmd.Context(), module, packet, packetFields, ackFields, options...)
 	if err != nil {
 		return err
 	}
 
-	modificationsStr, err := xgenny.SourceModificationToString(sm)
+	sm, err := sc.ApplyModifications()
+	if err != nil {
+		return err
+	}
+
+	if err := sc.PostScaffold(cmd.Context(), cacheStorage, false); err != nil {
+		return err
+	}
+
+	modificationsStr, err := sm.String()
 	if err != nil {
 		return err
 	}

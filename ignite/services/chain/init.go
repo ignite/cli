@@ -9,7 +9,7 @@ import (
 	"github.com/imdario/mergo"
 
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
-	"github.com/ignite/cli/v29/ignite/internal/plugin"
+	plugininternal "github.com/ignite/cli/v29/ignite/internal/plugin"
 	chaincmdrunner "github.com/ignite/cli/v29/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/view/accountview"
 	"github.com/ignite/cli/v29/ignite/pkg/confile"

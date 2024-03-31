@@ -5,8 +5,9 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/xfilepath"
+	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v29/ignite/pkg/xgit"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
 )
 
@@ -123,16 +124,14 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	appDir, err := scaffolder.Init(
+	runner := xgenny.NewRunner(cmd.Context(), appPath)
+	appDir, goModule, err := scaffolder.Init(
 		cmd.Context(),
-		cacheStorage,
-		placeholder.New(),
+		runner,
 		appPath,
 		name,
 		addressPrefix,
 		noDefaultModule,
-		skipGit,
-		skipProto,
 		minimal,
 		isConsumer,
 		params,
@@ -145,6 +144,21 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 	path, err := xfilepath.RelativePath(appDir)
 	if err != nil {
 		return err
+	}
+
+	if _, err := runner.ApplyModifications(); err != nil {
+		return err
+	}
+
+	if err := scaffolder.PostScaffold(cmd.Context(), cacheStorage, appDir, goModule, skipProto); err != nil {
+		return err
+	}
+
+	if !skipGit {
+		// Initialize git repository and perform the first commit
+		if err := xgit.InitAndCommit(path); err != nil {
+			return err
+		}
 	}
 
 	return session.Printf(tplScaffoldChainSuccess, path)
