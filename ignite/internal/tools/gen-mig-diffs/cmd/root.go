@@ -181,7 +181,7 @@ func NewRootCmd() *cobra.Command {
 	cmd.Flags().String(flagRepoOutput, "", "Output path to clone the ignite repository")
 	cmd.Flags().Bool(flagRepoCleanup, true, "Cleanup the repository path after use")
 	cmd.Flags().String(flagScaffoldOutput, "", "Output path to clone the ignite repository")
-	cmd.Flags().String(flagScaffoldCache, "", "Output path to clone the ignite repository")
+	cmd.Flags().String(flagScaffoldCache, "", "Path to cache directory")
 
 	return cmd
 }
