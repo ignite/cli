@@ -40,7 +40,7 @@ func (k msgServer) Create<%= TypeName.UpperCamel %>(ctx context.Context,  msg *t
 
 func (k msgServer) Update<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgUpdate<%= TypeName.UpperCamel %>) (*types.MsgUpdate<%= TypeName.UpperCamel %>Response, error) {
     if _, err := k.addressCodec.StringToBytes(msg.<%= MsgSigner.UpperCamel %>); err != nil {
-        return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", err))
+        return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid signer address: %s", err))
     }
 
     // Check if the value exists
@@ -71,7 +71,7 @@ func (k msgServer) Update<%= TypeName.UpperCamel %>(ctx context.Context,  msg *t
 
 func (k msgServer) Delete<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgDelete<%= TypeName.UpperCamel %>) (*types.MsgDelete<%= TypeName.UpperCamel %>Response, error) {
     if _, err := k.addressCodec.StringToBytes(msg.<%= MsgSigner.UpperCamel %>); err != nil {
-        return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", err))
+        return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid signer address: %s", err))
     }
 
     // Check if the value exists
