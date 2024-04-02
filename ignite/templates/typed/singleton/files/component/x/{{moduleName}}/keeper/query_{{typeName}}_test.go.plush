@@ -14,7 +14,7 @@ import (
 )
 
 func Test<%= TypeName.UpperCamel %>Query(t *testing.T) {
-	k, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
+	k, ctx, _ := keepertest.<%= title(ModuleName) %>Keeper(t)
 	qs := keeper.NewQueryServerImpl(k)
 	item := types.<%= TypeName.UpperCamel %>{}
 	err := k.<%= TypeName.UpperCamel %>.Set(ctx, item)

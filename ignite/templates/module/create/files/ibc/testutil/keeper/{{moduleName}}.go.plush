@@ -3,6 +3,7 @@ package keeper
 import (
 	"testing"
 
+	"cosmossdk.io/core/address"
 	"cosmossdk.io/log"
 	"cosmossdk.io/store"
 	"cosmossdk.io/store/metrics"
@@ -25,7 +26,7 @@ import (
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
-func <%= title(moduleName) %>Keeper(t testing.TB) (keeper.Keeper, sdk.Context) {
+func <%= title(moduleName) %>Keeper(t testing.TB) (keeper.Keeper, sdk.Context, address.Codec) {
 	storeKey := storetypes.NewKVStoreKey(types.StoreKey)
 	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)
 
@@ -39,6 +40,7 @@ func <%= title(moduleName) %>Keeper(t testing.TB) (keeper.Keeper, sdk.Context) {
 	appCodec := codec.NewProtoCodec(registry)
 	capabilityKeeper := capabilitykeeper.NewKeeper(appCodec, storeKey, memStoreKey)
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
+	addressCodec := addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix())
 
 	scopedKeeper := capabilityKeeper.ScopeToModule(ibcexported.ModuleName)
 	portKeeper := portkeeper.NewKeeper(scopedKeeper)
@@ -46,6 +48,7 @@ func <%= title(moduleName) %>Keeper(t testing.TB) (keeper.Keeper, sdk.Context) {
 
 	k := keeper.NewKeeper(
         appCodec,
+		addressCodec,
         runtime.NewKVStoreService(storeKey),
         log.NewNopLogger(),
         authority.String(),
@@ -64,8 +67,8 @@ func <%= title(moduleName) %>Keeper(t testing.TB) (keeper.Keeper, sdk.Context) {
 
 	// Initialize params
 	if err := k.Params.Set(ctx, types.DefaultParams()); err != nil {
-		panic(err)
+		t.Fatalf("failed to set params: %v", err)
 	}
 
-	return k, ctx
+	return k, ctx, addressCodec
 }

@@ -1,13 +1,5 @@
 package types
 
-import (
-	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-)
-
-var _ sdk.Msg = &MsgCreate<%= TypeName.UpperCamel %>{}
-
 func NewMsgCreate<%= TypeName.UpperCamel %>(
     <%= MsgSigner.LowerCamel %> string,
     <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.DataType() %>,
@@ -21,16 +13,6 @@ func NewMsgCreate<%= TypeName.UpperCamel %>(
         <% } %>
 	}
 }
-
-func (msg *MsgCreate<%= TypeName.UpperCamel %>) ValidateBasic() error {
-  _, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
-  	if err != nil {
-  		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid <%= MsgSigner.LowerCamel %> address (%s)", err)
-  	}
-  return nil
-}
-
-var _ sdk.Msg = &MsgUpdate<%= TypeName.UpperCamel %>{}
 
 func NewMsgUpdate<%= TypeName.UpperCamel %>(
     <%= MsgSigner.LowerCamel %> string,
@@ -46,16 +28,6 @@ func NewMsgUpdate<%= TypeName.UpperCamel %>(
 	}
 }
 
-func (msg *MsgUpdate<%= TypeName.UpperCamel %>) ValidateBasic() error {
-  _, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
-  if err != nil {
-    return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid <%= MsgSigner.LowerCamel %> address (%s)", err)
-  }
-   return nil
-}
-
-var _ sdk.Msg = &MsgDelete<%= TypeName.UpperCamel %>{}
-
 func NewMsgDelete<%= TypeName.UpperCamel %>(
     <%= MsgSigner.LowerCamel %> string,
     <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.DataType() %>,
@@ -66,12 +38,4 @@ func NewMsgDelete<%= TypeName.UpperCamel %>(
 		<%= for (index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.Name.LowerCamel %>,
         <% } %>
 	}
-}
-
-func (msg *MsgDelete<%= TypeName.UpperCamel %>) ValidateBasic() error {
-  _, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
-  if err != nil {
-    return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid <%= MsgSigner.LowerCamel %> address (%s)", err)
-  }
-  return nil
 }
