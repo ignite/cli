@@ -26,7 +26,7 @@ func createN<%= TypeName.UpperCamel %>(keeper keeper.Keeper, ctx context.Context
 }
 
 func Test<%= TypeName.UpperCamel %>Get(t *testing.T) {
-	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
+	keeper, ctx, _ := keepertest.<%= title(ModuleName) %>Keeper(t)
 	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
 	for _, item := range items {
 		rst, found := keeper.Get<%= TypeName.UpperCamel %>(ctx,
@@ -41,7 +41,7 @@ func Test<%= TypeName.UpperCamel %>Get(t *testing.T) {
 	}
 }
 func Test<%= TypeName.UpperCamel %>Remove(t *testing.T) {
-	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
+	keeper, ctx, _ := keepertest.<%= title(ModuleName) %>Keeper(t)
 	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
 	for _, item := range items {
 		keeper.Remove<%= TypeName.UpperCamel %>(ctx,
@@ -57,7 +57,7 @@ func Test<%= TypeName.UpperCamel %>Remove(t *testing.T) {
 }
 
 func Test<%= TypeName.UpperCamel %>GetAll(t *testing.T) {
-	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
+	keeper, ctx, _ := keepertest.<%= title(ModuleName) %>Keeper(t)
 	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
 	require.ElementsMatch(t,
 		nullify.Fill(items),
