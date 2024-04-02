@@ -37,7 +37,7 @@ const (
 )
 
 // List of CLI level one commands that should not load Ignite app instances.
-var skipAppsLoadCommands = []string{"version", "help", "docs", "completion"}
+var skipAppsLoadCommands = []string{"version", "help", "docs", "completion", "__complete", "__completeNoDesc"}
 
 // New creates a new root command for `Ignite CLI` with its sub commands.
 // Returns the cobra.Command, a cleanup function and an error. The cleanup
@@ -48,7 +48,7 @@ func New(ctx context.Context) (*cobra.Command, func(), error) {
 	c := &cobra.Command{
 		Use:   "ignite",
 		Short: "Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain",
-		Long: `Ignite CLI is a tool for creating sovereign blockchains built with Cosmos SDK, the world’s
+		Long: `Ignite CLI is a tool for creating sovereign blockchains built with Cosmos SDK, the world's
 most popular modular blockchain framework. Ignite CLI offers everything you need to scaffold,
 test, build, and launch your blockchain.
 
