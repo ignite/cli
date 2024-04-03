@@ -1,4 +1,4 @@
-package scaffold
+package cache
 
 import (
 	"os"
@@ -9,23 +9,23 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/xos"
 )
 
-// cache represents a cache for executed scaffold command.
-type cache struct {
+// Cache represents a cache for executed scaffold command.
+type Cache struct {
 	cachePath  string
 	cachesPath map[string]string
 	mu         sync.RWMutex
 }
 
-// newCache initializes a new Cache instance.
-func newCache(path string) (*cache, error) {
-	return &cache{
+// New initializes a new Cache instance.
+func New(path string) (*Cache, error) {
+	return &Cache{
 		cachePath:  path,
 		cachesPath: make(map[string]string),
 	}, os.MkdirAll(path, os.ModePerm)
 }
 
-// save creates a new cache.
-func (c *cache) save(name, path string) error {
+// Save creates a new cache.
+func (c *Cache) Save(name, path string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -38,8 +38,8 @@ func (c *cache) save(name, path string) error {
 	return nil
 }
 
-// has return if the cache exist.
-func (c *cache) has(name string) bool {
+// Has return if the cache exist.
+func (c *Cache) Has(name string) bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -54,8 +54,8 @@ func (c *cache) has(name string) bool {
 	return true
 }
 
-// get return the cache path and copy all files to the destination path.
-func (c *cache) get(name, dstPath string) error {
+// Get return the cache path and copy all files to the destination path.
+func (c *Cache) Get(name, dstPath string) error {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 

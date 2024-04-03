@@ -8,6 +8,7 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 
+	"github.com/ignite/cli/v29/ignite/internal/tools/gen-mig-diffs/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/randstr"
@@ -21,7 +22,7 @@ type (
 		Output      string
 		binary      string
 		version     *semver.Version
-		cache       *cache
+		cache       *cache.Cache
 		cachePath   string
 		commandList Commands
 	}
@@ -79,7 +80,7 @@ func New(binary string, ver *semver.Version, options ...Options) (*Scaffold, err
 		return nil, err
 	}
 
-	c, err := newCache(opts.cachePath)
+	c, err := cache.New(opts.cachePath)
 	if err != nil {
 		return nil, err
 	}
@@ -131,8 +132,8 @@ func (s *Scaffold) runCommand(ctx context.Context, name string, command Command)
 			return errors.Wrapf(err, "pre-requisite command %s from %s not found", command.Prerequisite, name)
 		}
 
-		if s.cache.has(command.Prerequisite) {
-			if err := s.cache.get(command.Prerequisite, path); err != nil {
+		if s.cache.Has(command.Prerequisite) {
+			if err := s.cache.Get(command.Prerequisite, path); err != nil {
 				return errors.Wrapf(err, "failed to get cache key %s", command.Prerequisite)
 			}
 		} else {
@@ -147,7 +148,7 @@ func (s *Scaffold) runCommand(ctx context.Context, name string, command Command)
 			return err
 		}
 	}
-	return s.cache.save(command.Name, path)
+	return s.cache.Save(command.Name, path)
 }
 
 func (s *Scaffold) executeScaffold(ctx context.Context, cmd, path string) error {
@@ -165,7 +166,7 @@ func (s *Scaffold) executeScaffold(ctx context.Context, cmd, path string) error 
 // order to compensate for differences in versions.
 func applyPreExecuteExceptions(ver *semver.Version, args []string) []string {
 	// In versions <0.27.0, "scaffold chain" command always creates a new directory with the
-	// name of chain at the given '--path' so we need to append "example" to the path if the
+	// name of chain at the given '--path', so we need to append "example" to the path if the
 	// command is not "chain".
 	if ver.LessThan(v027) && args[2] != "chain" {
 		args[len(args)-1] = filepath.Join(args[len(args)-1], "example")
@@ -177,7 +178,7 @@ func applyPreExecuteExceptions(ver *semver.Version, args []string) []string {
 // they have been executed in order to compensate for differences in versions.
 func applyPostScaffoldExceptions(ver *semver.Version, name string, output string) error {
 	// In versions <0.27.0, "scaffold chain" command always creates a new directory with the name of
-	// chain at the given --path so we need to move the directory to the parent directory.
+	// chain at the given '--path', so we need to move the directory to the parent directory.
 	if ver.LessThan(v027) {
 		if err := os.Rename(filepath.Join(output, name, "example"), filepath.Join(output, "example_tmp")); err != nil {
 			return errors.Wrapf(err, "failed to move %s directory to tmp directory", name)
