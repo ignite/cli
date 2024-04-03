@@ -408,7 +408,7 @@ func copyFile(srcPath, dstPath string) error {
 
 // verifyRepoSource checks if the repose source path is the same from the provider URL
 // and returns the *git.Repository object.
-func verifyRepoSource(source, URL string) (*git.Repository, error) {
+func verifyRepoSource(source, url string) (*git.Repository, error) {
 	repo, err := git.PlainOpen(source)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to open ignite repository")
@@ -418,7 +418,7 @@ func verifyRepoSource(source, URL string) (*git.Repository, error) {
 		return nil, errors.Wrap(err, "failed to open ignite repository")
 	}
 	for _, remoteURL := range remote.Config().URLs {
-		if strings.TrimSuffix(URL, ".git") == strings.TrimSuffix(remoteURL, ".git") {
+		if strings.TrimSuffix(url, ".git") == strings.TrimSuffix(remoteURL, ".git") {
 			return repo, nil
 		}
 	}
