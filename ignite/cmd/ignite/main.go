@@ -36,7 +36,7 @@ func run() int {
 	// find command and send to analytics
 	subCmd, _, err := cmd.Find(os.Args[1:])
 	if err != nil {
-		cmd.Printf("%v\n", err)
+		fmt.Printf("%v\n", err)
 		return exitCodeError
 	}
 	var wg sync.WaitGroup
@@ -48,7 +48,7 @@ func run() int {
 	}
 
 	if errors.Is(ctx.Err(), context.Canceled) || errors.Is(err, context.Canceled) {
-		cmd.Printf("aborted")
+		fmt.Println("aborted")
 		return exitCodeOK
 	}
 
@@ -68,10 +68,10 @@ func run() int {
 		// Make sure the error message starts with an upper case character
 		msg = xstrings.ToUpperFirst(msg)
 
-		cmd.Printf("%s %s\n", icons.NotOK, colors.Error(msg))
+		fmt.Printf("%s %s\n", icons.NotOK, colors.Error(msg))
 
 		if errors.As(err, &versionErr) {
-			cmd.Println("Use a more recent CLI version or upgrade blockchain app's config")
+			fmt.Println("Use a more recent CLI version or upgrade blockchain app's config")
 		}
 
 		return exitCodeError
