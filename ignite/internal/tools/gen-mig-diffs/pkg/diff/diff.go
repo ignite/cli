@@ -112,7 +112,6 @@ func FormatDiffs(diffs Diffs) ([]byte, error) {
 		}
 		buffer.WriteString("```\n\n")
 	}
-	buffer.WriteString("\n")
 	return buffer.Bytes(), nil
 }
 
