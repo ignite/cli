@@ -37,7 +37,7 @@ const (
 )
 
 // List of CLI level one commands that should not load Ignite app instances.
-var skipAppsLoadCommands = []string{"version", "help", "docs", "completion", "__complete", "__completeNoDesc"}
+var skipAppsLoadCommands = []string{"version", "help", "docs", "completion", cobra.ShellCompRequestCmd, cobra.ShellCompNoDescRequestCmd}
 
 // New creates a new root command for `Ignite CLI` with its sub commands.
 // Returns the cobra.Command, a cleanup function and an error. The cleanup
@@ -58,6 +58,7 @@ To get started, create a blockchain:
 `,
 		SilenceUsage:  true,
 		SilenceErrors: true,
+		Args:          cobra.MinimumNArgs(0), // note(@julienrbrt): without this, ignite __complete(noDesc) hidden commands are not working.
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			// Check for new versions only when shell completion scripts are not being
 			// generated to avoid invalid output to stdout when a new version is available
@@ -84,6 +85,7 @@ To get started, create a blockchain:
 		NewCompletionCmd(),
 	)
 	c.AddCommand(deprecated()...)
+	c.SetContext(ctx)
 
 	// Don't load Ignite apps for level one commands that doesn't allow them
 	if len(os.Args) >= 2 && slices.Contains(skipAppsLoadCommands, os.Args[1]) {
