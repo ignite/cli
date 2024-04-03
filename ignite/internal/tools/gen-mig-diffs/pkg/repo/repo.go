@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
+	"time"
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/go-git/go-git/v5"
@@ -19,7 +21,7 @@ import (
 )
 
 const (
-	defaultRepoURL    = "https://github.com/ignite/cli.git"
+	DefaultRepoURL    = "https://github.com/ignite/cli.git"
 	defaultBinaryPath = "dist/ignite"
 )
 
@@ -47,14 +49,24 @@ type (
 )
 
 // newOptions returns a options with default options.
-func newOptions() options {
-	tmpDir := os.TempDir()
+func newOptions() (options, error) {
+	var (
+		tmpDir  = os.TempDir()
+		binPath = filepath.Join(tmpDir, "bin")
+		output  = filepath.Join(tmpDir, "migration-source")
+	)
+	if err := os.RemoveAll(binPath); err != nil {
+		return options{}, errors.Wrap(err, "failed to clean the output directory")
+	}
+	if err := os.RemoveAll(output); err != nil {
+		return options{}, errors.Wrap(err, "failed to clean the output directory")
+	}
 	return options{
 		source:  "",
 		binPath: filepath.Join(tmpDir, "bin"),
 		output:  filepath.Join(tmpDir, "migration-source"),
-		repoURL: defaultRepoURL,
-	}
+		repoURL: DefaultRepoURL,
+	}, nil
 }
 
 // WithSource set the repo source Options.
@@ -96,7 +108,7 @@ func WithCleanup() Options {
 
 // validate options.
 func (o options) validate() error {
-	if o.source != "" && (o.repoURL != defaultRepoURL) {
+	if o.source != "" && (o.repoURL != DefaultRepoURL) {
 		return errors.New("cannot set source and repo URL at the same time")
 	}
 	if o.source != "" && o.cleanup {
@@ -108,13 +120,15 @@ func (o options) validate() error {
 // New creates a new generator for migration diffs between from and to versions of ignite cli
 // If source is empty, then it clones the ignite cli repository to a temporary directory and uses it as the source.
 func New(from, to *semver.Version, session *cliui.Session, options ...Options) (*Generator, error) {
-	opts := newOptions()
+	opts, err := newOptions()
+	if err != nil {
+		return nil, err
+	}
+
 	for _, apply := range options {
 		apply(&opts)
 	}
-
-	err := opts.validate()
-	if err != nil {
+	if err := opts.validate(); err != nil {
 		return nil, err
 	}
 
@@ -123,7 +137,7 @@ func New(from, to *semver.Version, session *cliui.Session, options ...Options) (
 		repo   *git.Repository
 	)
 	if source != "" {
-		repo, err = git.PlainOpen(source)
+		repo, err = verifyRepoSource(source, opts.repoURL)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to open ignite repository")
 		}
@@ -134,11 +148,10 @@ func New(from, to *semver.Version, session *cliui.Session, options ...Options) (
 		session.StartSpinner("Cloning ignite repository...")
 
 		source = opts.output
-		if err := os.RemoveAll(source); err != nil {
-			return nil, errors.Wrap(err, "failed to clean the output directory")
-		}
-
 		repo, err = git.PlainClone(source, false, &git.CloneOptions{URL: opts.repoURL, Depth: 1})
+		if errors.Is(err, git.ErrRepositoryAlreadyExists) {
+			repo, err = verifyRepoSource(source, opts.repoURL)
+		}
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to clone ignite repository")
 		}
@@ -172,15 +185,36 @@ func New(from, to *semver.Version, session *cliui.Session, options ...Options) (
 	}, nil
 }
 
+// ReleaseDescription generate the release description based in the tag data, if not exist, from the commit data.
 func (g *Generator) ReleaseDescription() (string, error) {
 	tag, err := g.repo.Tag(g.To.Original())
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to get tag %s", g.To.Original())
 	}
+
+	var (
+		author string
+		date   time.Time
+		msg    string
+	)
 	tagObj, err := g.repo.TagObject(tag.Hash())
-	if err != nil {
+	switch {
+	case errors.Is(err, plumbing.ErrObjectNotFound):
+		commit, err := g.repo.CommitObject(tag.Hash())
+		if err != nil {
+			return "", errors.Wrapf(err, "failed to get commit %s", g.To.Original())
+		}
+		author = commit.Author.String()
+		date = commit.Author.When
+		msg = commit.Message
+	case err != nil:
 		return "", errors.Wrapf(err, "failed to get tag object %s", tag.Hash().String())
+	default:
+		author = tagObj.Tagger.String()
+		date = tagObj.Tagger.When
+		msg = tagObj.Message
 	}
+
 	description := fmt.Sprintf(`Tag: %[1]v
 Commit: %[2]v
 Author: %[3]v
@@ -188,12 +222,11 @@ Date: %[4]v
 
 %[5]v`,
 		g.To.Original(),
-		tagObj.Hash.String(),
-		tagObj.Tagger.String(),
-		tagObj.Tagger.When.Format("Jan 2 15:04:05 2006"),
-		tagObj.Message,
+		tag.Hash().String(),
+		author,
+		msg,
+		date.Format("Jan 2 15:04:05 2006"),
 	)
-
 	return description, nil
 }
 
@@ -381,4 +414,23 @@ func copyFile(srcPath, dstPath string) error {
 		return errors.Wrap(err, "failed to set executable permissions")
 	}
 	return err
+}
+
+// verifyRepoSource checks if the repose source path is the same from the provider URL
+// and returns the *git.Repository object.
+func verifyRepoSource(source, URL string) (*git.Repository, error) {
+	repo, err := git.PlainOpen(source)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to open ignite repository")
+	}
+	remote, err := repo.Remote("origin")
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to open ignite repository")
+	}
+	for _, remoteURL := range remote.Config().URLs {
+		if strings.TrimSuffix(URL, ".git") == strings.TrimSuffix(remoteURL, ".git") {
+			return repo, nil
+		}
+	}
+	return nil, errors.Wrap(err, "repository folder does not match the repo URL")
 }

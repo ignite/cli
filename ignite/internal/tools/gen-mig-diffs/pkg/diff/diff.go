@@ -107,7 +107,9 @@ func FormatDiffs(diffs Diffs) ([]byte, error) {
 		}
 		buffer.WriteString(fmt.Sprintf("#### **%s diff**\n\n", xstrings.ToUpperFirst(name)))
 		for i, d := range diffs {
+			buffer.WriteString("```diff")
 			buffer.WriteString(fmt.Sprint(d))
+			buffer.WriteString("```\n")
 			if i < len(diffs)-1 {
 				buffer.WriteString("\n\n")
 			}

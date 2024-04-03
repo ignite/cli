@@ -173,14 +173,14 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringP(flagFrom, "f", "", "Version of ignite or path to ignite source code to generate the diff from")
-	cmd.Flags().StringP(flagTo, "t", "", "Version of ignite or path to ignite source code to generate the diff to")
+	cmd.Flags().StringP(flagFrom, "f", "", "Version of Ignite or path to Ignite source code to generate the diff from")
+	cmd.Flags().StringP(flagTo, "t", "", "Version of Ignite or path to Ignite source code to generate the diff to")
 	cmd.Flags().StringP(flagOutput, "o", defaultDocPath, "Output directory to save the migration document")
-	cmd.Flags().StringP(flagSource, "s", "", "Path to ignite source code repository. Set the source automatically set the cleanup to false")
-	cmd.Flags().String(flagRepoURL, "", "Git URL for the Ignite repository")
-	cmd.Flags().String(flagRepoOutput, "", "Output path to clone the ignite repository")
+	cmd.Flags().StringP(flagSource, "s", "", "Path to Ignite source code repository. Set the source automatically set the cleanup to false")
+	cmd.Flags().String(flagRepoURL, repo.DefaultRepoURL, "Git URL for the Ignite repository")
+	cmd.Flags().String(flagRepoOutput, "", "Output path to clone the Ignite repository")
 	cmd.Flags().Bool(flagRepoCleanup, true, "Cleanup the repository path after use")
-	cmd.Flags().String(flagScaffoldOutput, "", "Output path to clone the ignite repository")
+	cmd.Flags().String(flagScaffoldOutput, "", "Output path to clone the Ignite repository")
 	cmd.Flags().String(flagScaffoldCache, "", "Path to cache directory")
 
 	return cmd
