@@ -42,7 +42,6 @@ type (
 		output  string
 		repoURL string
 		binPath string
-		cleanup bool
 	}
 	// Options configures the generator.
 	Options func(*options)
@@ -73,8 +72,6 @@ func newOptions() (options, error) {
 func WithSource(source string) Options {
 	return func(o *options) {
 		o.source = source
-		// Do not clean up if set the source.
-		o.cleanup = false
 	}
 }
 
@@ -99,19 +96,12 @@ func WithBinPath(binPath string) Options {
 	}
 }
 
-// WithCleanup cleanup folders after use.
-func WithCleanup() Options {
-	return func(o *options) {
-		o.cleanup = true
-	}
-}
-
 // validate options.
 func (o options) validate() error {
 	if o.source != "" && (o.repoURL != DefaultRepoURL) {
 		return errors.New("cannot set source and repo URL at the same time")
 	}
-	if o.source != "" && o.cleanup {
+	if o.source != "" {
 		return errors.New("cannot set source and cleanup the repo")
 	}
 	return nil

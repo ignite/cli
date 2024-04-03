@@ -23,7 +23,6 @@ const (
 	flagSource         = "repo-source"
 	flagRepoURL        = "repo-url"
 	flagRepoOutput     = "repo-output"
-	flagRepoCleanup    = "repo-cleanup"
 	flagScaffoldOutput = "scaffold-output"
 	flagScaffoldCache  = "scaffold-cache"
 
@@ -47,7 +46,6 @@ func NewRootCmd() *cobra.Command {
 				output, _         = cmd.Flags().GetString(flagOutput)
 				repoURL, _        = cmd.Flags().GetString(flagRepoURL)
 				repoOutput, _     = cmd.Flags().GetString(flagRepoOutput)
-				repoCleanup, _    = cmd.Flags().GetBool(flagRepoCleanup)
 				scaffoldOutput, _ = cmd.Flags().GetString(flagScaffoldOutput)
 				scaffoldCache, _  = cmd.Flags().GetString(flagScaffoldCache)
 			)
@@ -62,9 +60,6 @@ func NewRootCmd() *cobra.Command {
 
 			// Check or download the source and generate the binaries for each version.
 			repoOptions := make([]repo.Options, 0)
-			if repoCleanup {
-				repoOptions = append(repoOptions, repo.WithCleanup())
-			}
 			if repoSource != "" {
 				repoOptions = append(repoOptions, repo.WithSource(repoSource))
 			}
@@ -179,7 +174,6 @@ func NewRootCmd() *cobra.Command {
 	cmd.Flags().StringP(flagSource, "s", "", "Path to Ignite source code repository. Set the source automatically set the cleanup to false")
 	cmd.Flags().String(flagRepoURL, repo.DefaultRepoURL, "Git URL for the Ignite repository")
 	cmd.Flags().String(flagRepoOutput, "", "Output path to clone the Ignite repository")
-	cmd.Flags().Bool(flagRepoCleanup, true, "Cleanup the repository path after use")
 	cmd.Flags().String(flagScaffoldOutput, "", "Output path to clone the Ignite repository")
 	cmd.Flags().String(flagScaffoldCache, "", "Path to cache directory")
 
