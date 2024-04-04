@@ -25,13 +25,14 @@ import (
 )
 
 const (
-	msgMigration             = "Migrating blockchain config file from v%d to v%d..."
-	msgMigrationPrefix       = "Your blockchain config version is v%d and the latest is v%d."
-	msgMigrationPrompt       = "Would you like to upgrade your config file to v%d"
-	msgMigrationBuf          = "Now ignite supports the `buf.build` (https://buf.build) registry to manage the protobuf dependencies. The embed protoc binary was deprecated and, your blockchain is still using it. Would you like to upgrade and add the `buf.build` config files to `proto/` folder"
-	msgMigrationBufProtoPath = "Ignite proto directory path from the chain config doesn't match the proto directory path from your `buf.work.yaml`. Do you want to add the proto path `%[1]v` to the directories list from the buf work file?"
-	msgMigrationAddTools     = "Some required imports are missing in %s file: %s. Would you like to add them"
-	msgMigrationRemoveTools  = "File %s contains deprecated imports: %s. Would you like to remove them"
+	msgMigration              = "Migrating blockchain config file from v%d to v%d..."
+	msgMigrationPrefix        = "Your blockchain config version is v%d and the latest is v%d."
+	msgMigrationPrompt        = "Would you like to upgrade your config file to v%d"
+	msgMigrationBuf           = "Now ignite supports the `buf.build` (https://buf.build) registry to manage the protobuf dependencies. The embed protoc binary was deprecated and, your blockchain is still using it. Would you like to upgrade and add the `buf.build` config files to `proto/` folder"
+	msgMigrationBufProtoPath  = "Ignite proto directory path from the chain config doesn't match the proto directory path from the chain `buf.work.yaml`. Do you want to add the proto path `%[1]v` to the directories list from the buf work file"
+	msgMigrationBufProtoPaths = "Chain `buf.work.yaml` file contains directories that don't exist anymore (%[1]v). Do you want to delete them"
+	msgMigrationAddTools      = "Some required imports are missing in %s file: %s. Would you like to add them"
+	msgMigrationRemoveTools   = "File %s contains deprecated imports: %s. Would you like to remove them"
 )
 
 var ErrProtocUnsupported = errors.New("code generation using protoc is only supported by Ignite CLI v0.26.1 or older")
@@ -221,7 +222,7 @@ func bufMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPa
 	}
 
 	// check if the buf.work.yaml has the same proto path from the config file.
-	hasProtoPath, err := chain.CheckBufProtoPath(appPath, protoPath)
+	hasProtoPath, missingPaths, err := chain.CheckBufProtoPath(appPath, protoPath)
 	if err != nil {
 		return err
 	}
@@ -234,6 +235,18 @@ func bufMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPa
 		}
 
 		if err := chain.AddBufProtoPath(appPath, protoPath); err != nil {
+			return err
+		}
+	}
+
+	if len(missingPaths) > 0 {
+		if !getYes(cmd) {
+			if err := session.AskConfirm(fmt.Sprintf(msgMigrationBufProtoPaths, strings.Join(missingPaths, ", "))); err != nil {
+				return nil
+			}
+		}
+
+		if err := chain.RemoveBufProtoPath(appPath, missingPaths...); err != nil {
 			return err
 		}
 	}

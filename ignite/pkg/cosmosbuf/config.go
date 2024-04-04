@@ -11,7 +11,8 @@ const workFilename = "buf.work.yaml"
 
 // BufWork represents the buf.work.yaml file.
 type BufWork struct {
-	path        string   `yaml:"-"`
+	appPath     string   `yaml:"-"`
+	filePath    string   `yaml:"-"`
 	Version     string   `yaml:"version"`
 	Directories []string `yaml:"directories"`
 }
@@ -26,13 +27,40 @@ func ParseBufWork(appPath string) (BufWork, error) {
 	}
 	defer f.Close()
 
-	var w BufWork
+	w := BufWork{appPath: appPath, filePath: path}
 	return w, yaml.NewDecoder(f).Decode(&w)
 }
 
-// AddProtoPath change the name of a proto directory path into the buf work file.
+// MissingDirectories check if the directories inside the buf work exist.
+func (w BufWork) MissingDirectories() ([]string, error) {
+	missingPaths := make([]string, 0)
+	for _, dir := range w.Directories {
+		protoDir := filepath.Join(w.appPath, dir)
+		if _, err := os.Stat(protoDir); os.IsNotExist(err) {
+			missingPaths = append(missingPaths, dir)
+		} else if !os.IsNotExist(err) {
+			return nil, err
+		}
+	}
+	return missingPaths, nil
+}
+
+// AddProtoPath add a proto directory path from the buf work file.
 func (w BufWork) AddProtoPath(newPath string) error {
 	w.Directories = append(w.Directories, newPath)
+	return w.save()
+}
+
+// RemoveProtoPaths remove a list a proto directory paths from the buf work file.
+func (w BufWork) RemoveProtoPaths(paths ...string) error {
+	for _, path := range paths {
+		for i, dir := range w.Directories {
+			if dir == path {
+				w.Directories = append(w.Directories[:i], w.Directories[i+1:]...)
+				break
+			}
+		}
+	}
 	return w.save()
 }
 
@@ -48,10 +76,10 @@ func (w BufWork) HasProtoPath(path string) bool {
 
 // save saves the buf work file.
 func (w BufWork) save() error {
-	file, err := os.OpenFile(w.path, os.O_WRONLY|os.O_TRUNC, 0o755)
+	file, err := os.OpenFile(w.filePath, os.O_WRONLY|os.O_TRUNC, 0o755)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
-	return yaml.NewEncoder(file).Encode(w)
+	return yaml.NewEncoder(file).Encode(&w)
 }

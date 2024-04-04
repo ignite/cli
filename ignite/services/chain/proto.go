@@ -13,13 +13,18 @@ import (
 )
 
 // CheckBufProtoPath check if the proto path exist into the directory list in the buf.work.yaml file.
-func CheckBufProtoPath(appPath, protoPath string) (bool, error) {
+func CheckBufProtoPath(appPath, protoPath string) (bool, []string, error) {
 	workFile, err := cosmosbuf.ParseBufWork(appPath)
 	if err != nil {
-		return false, err
+		return false, nil, err
 	}
 
-	return workFile.HasProtoPath(protoPath), nil
+	missing, err := workFile.MissingDirectories()
+	if err != nil {
+		return false, nil, err
+	}
+
+	return workFile.HasProtoPath(protoPath), missing, nil
 }
 
 // AddBufProtoPath add the proto path into the directory list in the buf.work.yaml file.
@@ -30,6 +35,16 @@ func AddBufProtoPath(appPath, protoPath string) error {
 	}
 
 	return workFile.AddProtoPath(protoPath)
+}
+
+// RemoveBufProtoPath add the proto path into the directory list in the buf.work.yaml file.
+func RemoveBufProtoPath(appPath string, protoPaths ...string) error {
+	workFile, err := cosmosbuf.ParseBufWork(appPath)
+	if err != nil {
+		return err
+	}
+
+	return workFile.RemoveProtoPaths(protoPaths...)
 }
 
 // CheckBufFiles check if the buf files exist.

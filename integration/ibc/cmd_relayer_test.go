@@ -45,7 +45,7 @@ var (
 					Mnemonic: "slide moment original seven milk crawl help text kick fluid boring awkward doll wonder sure fragile plate grid hard next casual expire okay body",
 				},
 				{
-					Name:     "bob",
+					Name:     bobName,
 					Coins:    []string{"100000000000token", "10000000000000000000stake"},
 					Mnemonic: "trap possible liquid elite embody host segment fantasy swim cable digital eager tiny broom burden diary earn hen grow engine pigeon fringe claim program",
 				},
@@ -90,7 +90,7 @@ var (
 					Mnemonic: "slide moment original seven milk crawl help text kick fluid boring awkward doll wonder sure fragile plate grid hard next casual expire okay body",
 				},
 				{
-					Name:     "bob",
+					Name:     bobName,
 					Coins:    []string{"100000000000token", "10000000000000000000stake"},
 					Mnemonic: "trap possible liquid elite embody host segment fantasy swim cable digital eager tiny broom burden diary earn hen grow engine pigeon fringe claim program",
 				},
