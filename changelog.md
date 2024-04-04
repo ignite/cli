@@ -5,6 +5,7 @@
 ### Fixes
 
 - [#4062](https://github.com/ignite/cli/pull/4062) Avoid nil `scopedKeeper` in `TransmitXXX` functions
+- [#3969](https://github.com/ignite/cli/pull/3969) Get first config validator using a getter to avoid index errors
 
 ## [`v28.3.0`](https://github.com/ignite/cli/releases/tag/v28.3.0)
 
@@ -30,7 +31,6 @@
 - [#3995](https://github.com/ignite/cli/pull/3995) Fix interface check for ibc modules
 - [#3953](https://github.com/ignite/cli/pull/3953) Fix apps `Stdout` is redirected to `Stderr`
 - [#3863](https://github.com/ignite/cli/pull/3963) Fix breaking issue for app client API when reading app chain info
-- [#3969](https://github.com/ignite/cli/pull/3969) Get first config validator using a getter to avoid index errors
 
 ## [`v28.2.0`](https://github.com/ignite/cli/releases/tag/v28.2.0)
 
