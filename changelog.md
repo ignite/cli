@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changes
+
+- [#3959](https://github.com/ignite/cli/pull/3959) Remove app name prefix from the `.gitignore` file
+
 ### Fixes
 
 - [#4033](https://github.com/ignite/cli/pull/4033) Fix cobra completion using `fishshell`
