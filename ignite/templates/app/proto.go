@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
+	"github.com/ignite/cli/v29/ignite/pkg/xembed"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 )
 
@@ -22,4 +23,8 @@ func NewBufGenerator(appPath string) (*genny.Generator, error) {
 		)
 	)
 	return g, xgenny.Box(g, template)
+}
+
+func BufFiles() ([]string, error) {
+	return xembed.FileList(fsProto, "files")
 }

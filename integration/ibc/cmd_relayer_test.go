@@ -38,12 +38,6 @@ var (
 	marsConfig = v1.Config{
 		Config: base.Config{
 			Version: 1,
-			Build: base.Build{
-				Proto: base.Proto{
-					Path:            "proto",
-					ThirdPartyPaths: []string{"third_party/proto", "proto_vendor"},
-				},
-			},
 			Accounts: []base.Account{
 				{
 					Name:     "alice",
@@ -89,12 +83,6 @@ var (
 	earthConfig = v1.Config{
 		Config: base.Config{
 			Version: 1,
-			Build: base.Build{
-				Proto: base.Proto{
-					Path:            "proto",
-					ThirdPartyPaths: []string{"third_party/proto", "proto_vendor"},
-				},
-			},
 			Accounts: []base.Account{
 				{
 					Name:     "alice",

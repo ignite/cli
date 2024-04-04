@@ -6,6 +6,7 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
+	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/v29/ignite/templates/field"
@@ -18,6 +19,7 @@ import (
 type messageOptions struct {
 	description       string
 	signer            string
+	protoPath         string
 	withoutSimulation bool
 }
 
@@ -26,6 +28,7 @@ func newMessageOptions(messageName string) messageOptions {
 	return messageOptions{
 		description: fmt.Sprintf("Broadcast message %s", messageName),
 		signer:      "creator",
+		protoPath:   defaults.ProtoPath,
 	}
 }
 
@@ -43,6 +46,13 @@ func WithDescription(desc string) MessageOption {
 func WithSigner(signer string) MessageOption {
 	return func(m *messageOptions) {
 		m.signer = signer
+	}
+}
+
+// WithProtoPath provides a custom proto appPath.
+func WithProtoPath(protoPath string) MessageOption {
+	return func(m *messageOptions) {
+		m.protoPath = protoPath
 	}
 }
 
@@ -83,12 +93,19 @@ func (s Scaffolder) AddMessage(
 		return err
 	}
 
-	if err := checkComponentValidity(s.path, moduleName, name, false); err != nil {
+	if err := checkComponentValidity(s.appPath, moduleName, name, false); err != nil {
 		return err
 	}
 
 	// Check and parse provided fields
-	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, fields); err != nil {
+	if err := checkCustomTypes(
+		ctx,
+		s.appPath,
+		s.modpath.Package,
+		scaffoldingOpts.protoPath,
+		moduleName,
+		fields,
+	); err != nil {
 		return err
 	}
 	parsedMsgFields, err := field.ParseFields(fields, checkForbiddenMessageField, scaffoldingOpts.signer)
@@ -97,7 +114,14 @@ func (s Scaffolder) AddMessage(
 	}
 
 	// Check and parse provided response fields
-	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, resFields); err != nil {
+	if err := checkCustomTypes(
+		ctx,
+		s.appPath,
+		s.modpath.Package,
+		scaffoldingOpts.protoPath,
+		moduleName,
+		resFields,
+	); err != nil {
 		return err
 	}
 	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord, scaffoldingOpts.signer)
@@ -114,7 +138,8 @@ func (s Scaffolder) AddMessage(
 		g    *genny.Generator
 		opts = &message.Options{
 			AppName:      s.modpath.Package,
-			AppPath:      s.path,
+			AppPath:      s.appPath,
+			ProtoPath:    s.protoPath,
 			ModulePath:   s.modpath.RawPath,
 			ModuleName:   moduleName,
 			MsgName:      name,
@@ -131,12 +156,13 @@ func (s Scaffolder) AddMessage(
 	gens, err = supportMsgServer(
 		gens,
 		s.Tracer(),
-		s.path,
+		s.appPath,
 		&modulecreate.MsgServerOptions{
 			ModuleName: opts.ModuleName,
 			ModulePath: opts.ModulePath,
 			AppName:    opts.AppName,
 			AppPath:    opts.AppPath,
+			ProtoPath:  opts.ProtoPath,
 		},
 	)
 	if err != nil {

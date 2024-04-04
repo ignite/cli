@@ -2,29 +2,30 @@ package chain
 
 import (
 	"path/filepath"
+	"strings"
 
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/pkg/xos"
 	"github.com/ignite/cli/v29/ignite/templates/app"
 )
 
-var bufFiles = []string{
-	"buf.work.yaml",
-	"proto/buf.gen.gogo.yaml",
-	"proto/buf.gen.pulsar.yaml",
-	"proto/buf.gen.swagger.yaml",
-	"proto/buf.gen.ts.yaml",
-	"proto/buf.lock",
-	"proto/buf.yaml",
-}
+const defaultProtoFolder = "proto/"
 
-func CheckBufFiles(appPath string) bool {
-	for _, bufFile := range bufFiles {
+func CheckBufFiles(appPath, protoPath string) (bool, error) {
+	files, err := app.BufFiles()
+	if err != nil {
+		return false, nil
+	}
+	for _, bufFile := range files {
+		bufFile, ok := strings.CutPrefix(bufFile, defaultProtoFolder)
+		if ok {
+			bufFile = filepath.Join(protoPath, bufFile)
+		}
 		if !xos.FileExists(filepath.Join(appPath, bufFile)) {
-			return false
+			return false, nil
 		}
 	}
-	return true
+	return true, nil
 }
 
 func BoxBufFiles(runner *xgenny.Runner, appPath string) (xgenny.SourceModification, error) {

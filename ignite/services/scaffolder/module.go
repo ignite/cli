@@ -172,12 +172,12 @@ func (s Scaffolder) CreateModule(
 	moduleName = mfName.LowerCase
 
 	// Check if the module name is valid
-	if err := checkModuleName(s.path, moduleName); err != nil {
+	if err := checkModuleName(s.appPath, moduleName); err != nil {
 		return err
 	}
 
 	// Check if the module already exist
-	ok, err := moduleExists(s.path, moduleName)
+	ok, err := moduleExists(s.appPath, moduleName)
 	if err != nil {
 		return err
 	}
@@ -204,7 +204,7 @@ func (s Scaffolder) CreateModule(
 	}
 
 	// Check dependencies
-	if err := checkDependencies(creationOpts.dependencies, s.path); err != nil {
+	if err := checkDependencies(creationOpts.dependencies, s.appPath); err != nil {
 		return err
 	}
 
@@ -214,7 +214,8 @@ func (s Scaffolder) CreateModule(
 		Params:       params,
 		Configs:      configs,
 		AppName:      s.modpath.Package,
-		AppPath:      s.path,
+		AppPath:      s.appPath,
+		ProtoPath:    s.protoPath,
 		IsIBC:        creationOpts.ibc,
 		IBCOrdering:  creationOpts.ibcChannelOrdering,
 		Dependencies: creationOpts.dependencies,

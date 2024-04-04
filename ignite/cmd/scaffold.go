@@ -203,10 +203,15 @@ func scaffoldType(
 		}
 	}
 
+	protoPath, err := getProtoPathFromConfig(cmd)
+	if err != nil {
+		return err
+	}
+
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
 
-	sc, err := scaffolder.New(cmd.Context(), appPath)
+	sc, err := scaffolder.New(cmd.Context(), appPath, protoPath)
 	if err != nil {
 		return err
 	}

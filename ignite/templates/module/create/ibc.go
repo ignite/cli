@@ -130,7 +130,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 //   - Existence of a message named 'GenesisState' in genesis.proto.
 func genesisProtoModify(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "genesis.proto")
+		path := filepath.Join(opts.AppPath, opts.ProtoPath, opts.AppName, opts.ModuleName, "genesis.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

@@ -21,8 +21,6 @@ const (
 	componentMessage = "message"
 	componentQuery   = "query"
 	componentPacket  = "packet"
-
-	protoFolder = "proto"
 )
 
 // checkComponentValidity performs various checks common to all components to verify if it can be scaffolded.
@@ -109,8 +107,8 @@ func checkComponentCreated(appPath, moduleName string, compName multiformatname.
 }
 
 // checkCustomTypes returns error if one of the types is invalid.
-func checkCustomTypes(ctx context.Context, path, appName, module string, fields []string) error {
-	protoPath := filepath.Join(path, protoFolder, appName, module)
+func checkCustomTypes(ctx context.Context, appPath, appName, protoPath, module string, fields []string) error {
+	path := filepath.Join(appPath, protoPath, appName, module)
 	customFieldTypes := make([]string, 0)
 	for _, field := range fields {
 		ft, ok := fieldType(field)
@@ -122,7 +120,7 @@ func checkCustomTypes(ctx context.Context, path, appName, module string, fields 
 			customFieldTypes = append(customFieldTypes, ft)
 		}
 	}
-	return protoanalysis.HasMessages(ctx, protoPath, customFieldTypes...)
+	return protoanalysis.HasMessages(ctx, path, customFieldTypes...)
 }
 
 // checkForbiddenComponentName returns true if the name is forbidden as a component name.

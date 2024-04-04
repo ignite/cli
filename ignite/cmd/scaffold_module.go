@@ -131,6 +131,11 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	protoPath, err := getProtoPathFromConfig(cmd)
+	if err != nil {
+		return err
+	}
+
 	cacheStorage, err := newCache(cmd)
 	if err != nil {
 		return err
@@ -171,7 +176,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	var msg bytes.Buffer
 	fmt.Fprintf(&msg, "\n🎉 Module created %s.\n\n", name)
 
-	sc, err := scaffolder.New(cmd.Context(), appPath)
+	sc, err := scaffolder.New(cmd.Context(), appPath, protoPath)
 	if err != nil {
 		return err
 	}

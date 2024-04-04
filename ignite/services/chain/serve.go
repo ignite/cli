@@ -294,7 +294,12 @@ func (c *Chain) refreshServe() {
 }
 
 func (c *Chain) watchAppBackend(ctx context.Context) error {
-	watchPaths := appBackendSourceWatchPaths
+	conf, err := c.Config()
+	if err != nil {
+		return err
+	}
+
+	watchPaths := appBackendSourceWatchPaths(conf.Build.Proto.Path)
 	if c.ConfigPath() != "" {
 		watchPaths = append(watchPaths, c.ConfigPath())
 	}
@@ -323,6 +328,8 @@ func (c *Chain) serve(
 	if err != nil {
 		return &CannotBuildAppError{err}
 	}
+
+	sourceWatchPaths := appBackendSourceWatchPaths(conf.Build.Proto.Path)
 
 	commands, err := c.Commands(ctx)
 	if err != nil {
@@ -358,7 +365,7 @@ func (c *Chain) serve(
 
 	// check if source has been modified since last serve
 	// if the state must not be reset but the source has changed, we rebuild the chain and import the exported state
-	sourceModified, err := dirchange.HasDirChecksumChanged(dirCache, sourceChecksumKey, c.app.Path, appBackendSourceWatchPaths...)
+	sourceModified, err := dirchange.HasDirChecksumChanged(dirCache, sourceChecksumKey, c.app.Path, sourceWatchPaths...)
 	if err != nil {
 		return err
 	}
@@ -437,7 +444,7 @@ func (c *Chain) serve(
 		}
 	}
 
-	if err := dirchange.SaveDirChecksum(dirCache, sourceChecksumKey, c.app.Path, appBackendSourceWatchPaths...); err != nil {
+	if err := dirchange.SaveDirChecksum(dirCache, sourceChecksumKey, c.app.Path, sourceWatchPaths...); err != nil {
 		return err
 	}
 

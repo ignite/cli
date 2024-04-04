@@ -6,6 +6,7 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
+	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
@@ -27,6 +28,7 @@ type AddTypeKind func(*addTypeOptions)
 
 type addTypeOptions struct {
 	moduleName string
+	protoPath  string
 	fields     []string
 
 	isList      bool
@@ -45,6 +47,7 @@ func newAddTypeOptions(moduleName string) addTypeOptions {
 	return addTypeOptions{
 		moduleName: moduleName,
 		signer:     "creator",
+		protoPath:  defaults.ProtoPath,
 	}
 }
 
@@ -138,12 +141,12 @@ func (s Scaffolder) AddType(
 		return err
 	}
 
-	if err := checkComponentValidity(s.path, moduleName, name, o.withoutMessage); err != nil {
+	if err := checkComponentValidity(s.appPath, moduleName, name, o.withoutMessage); err != nil {
 		return err
 	}
 
 	// Check and parse provided fields
-	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, o.fields); err != nil {
+	if err := checkCustomTypes(ctx, s.appPath, s.modpath.Package, o.protoPath, moduleName, o.fields); err != nil {
 		return err
 	}
 	tFields, err := parseTypeFields(o)
@@ -156,7 +159,7 @@ func (s Scaffolder) AddType(
 		return err
 	}
 
-	isIBC, err := isIBCModule(s.path, moduleName)
+	isIBC, err := isIBCModule(s.appPath, moduleName)
 	if err != nil {
 		return err
 	}
@@ -165,7 +168,8 @@ func (s Scaffolder) AddType(
 		g    *genny.Generator
 		opts = &typed.Options{
 			AppName:      s.modpath.Package,
-			AppPath:      s.path,
+			AppPath:      s.appPath,
+			ProtoPath:    s.protoPath,
 			ModulePath:   s.modpath.RawPath,
 			ModuleName:   moduleName,
 			TypeName:     name,
@@ -181,7 +185,7 @@ func (s Scaffolder) AddType(
 	gens, err = supportMsgServer(
 		gens,
 		s.runner.Tracer(),
-		s.path,
+		s.appPath,
 		&modulecreate.MsgServerOptions{
 			ModuleName: opts.ModuleName,
 			ModulePath: opts.ModulePath,

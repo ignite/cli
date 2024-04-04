@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
@@ -82,7 +83,7 @@ func generate(
 
 	githubPath := gomodulepath.ExtractAppPath(pathInfo.RawPath)
 	if !strings.Contains(githubPath, "/") {
-		// A username must be added when the app module path has a single element
+		// A username must be added when the app module appPath has a single element
 		githubPath = fmt.Sprintf("username/%s", githubPath)
 	}
 
@@ -122,6 +123,7 @@ func generate(
 			ModulePath: pathInfo.RawPath,
 			AppName:    pathInfo.Package,
 			AppPath:    absRoot,
+			ProtoPath:  defaults.ProtoPath,
 			Params:     paramsFields,
 			Configs:    configsFields,
 			IsIBC:      false,

@@ -14,6 +14,7 @@ type (
 		ModuleName string
 		AppName    string
 		AppPath    string
+		ProtoPath  string
 		Configs    field.Fields
 	}
 
@@ -22,6 +23,7 @@ type (
 		ModuleName string
 		AppName    string
 		AppPath    string
+		ProtoPath  string
 		Params     field.Fields
 	}
 
@@ -31,6 +33,7 @@ type (
 		ModulePath string
 		AppName    string
 		AppPath    string
+		ProtoPath  string
 		Params     field.Fields
 		Configs    field.Fields
 
@@ -58,6 +61,7 @@ type (
 		ModulePath string
 		AppName    string
 		AppPath    string
+		ProtoPath  string
 	}
 )
 

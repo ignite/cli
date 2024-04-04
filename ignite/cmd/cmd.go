@@ -1,6 +1,7 @@
 package ignitecmd
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"os"
@@ -12,6 +13,7 @@ import (
 	flag "github.com/spf13/pflag"
 
 	"github.com/ignite/cli/v29/ignite/config"
+	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	uilog "github.com/ignite/cli/v29/ignite/pkg/cliui/log"
@@ -137,6 +139,33 @@ func flagSetConfig() *flag.FlagSet {
 func getConfig(cmd *cobra.Command) (config string) {
 	config, _ = cmd.Flags().GetString(flagConfig)
 	return
+}
+
+func getRawConfig(cmd *cobra.Command) ([]byte, string, error) {
+	configPath := getConfig(cmd)
+
+	path := flagGetPath(cmd)
+	path, err := filepath.Abs(path)
+	if err != nil {
+		return nil, "", err
+	}
+
+	if configPath == "" {
+		if configPath, err = chainconfig.LocateDefault(path); err != nil {
+			return nil, "", err
+		}
+	}
+
+	rawConfig, err := os.ReadFile(configPath)
+	return rawConfig, configPath, err
+}
+
+func getProtoPathFromConfig(cmd *cobra.Command) (string, error) {
+	rawCfg, _, err := getRawConfig(cmd)
+	if err != nil {
+		return "", err
+	}
+	return chainconfig.ReadProtoPath(bytes.NewReader(rawCfg))
 }
 
 func flagSetYes() *flag.FlagSet {

@@ -27,7 +27,7 @@ func (s Scaffolder) CreateParams(
 	moduleName = mfName.LowerCase
 
 	// Check if the module already exist
-	ok, err := moduleExists(s.path, moduleName)
+	ok, err := moduleExists(s.appPath, moduleName)
 	if err != nil {
 		return err
 	}
@@ -35,7 +35,7 @@ func (s Scaffolder) CreateParams(
 		return errors.Errorf("the module %v not exist", moduleName)
 	}
 
-	if err := checkParamCreated(s.path, moduleName, params); err != nil {
+	if err := checkParamCreated(s.appPath, moduleName, params); err != nil {
 		return err
 	}
 
@@ -49,7 +49,8 @@ func (s Scaffolder) CreateParams(
 		ModuleName: moduleName,
 		Params:     paramsFields,
 		AppName:    s.modpath.Package,
-		AppPath:    s.path,
+		AppPath:    s.appPath,
+		ProtoPath:  s.protoPath,
 	}
 
 	g, err := modulecreate.NewModuleParam(opts)

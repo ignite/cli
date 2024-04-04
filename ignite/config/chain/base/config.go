@@ -3,28 +3,9 @@ package base
 import (
 	"github.com/imdario/mergo"
 
+	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/config/chain/version"
 	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
-)
-
-var (
-	// DefaultGRPCAddress is the default GRPC address.
-	DefaultGRPCAddress = "0.0.0.0:9090"
-
-	// DefaultGRPCWebAddress is the default GRPC-Web address.
-	DefaultGRPCWebAddress = "0.0.0.0:9091"
-
-	// DefaultAPIAddress is the default API address.
-	DefaultAPIAddress = "0.0.0.0:1317"
-
-	// DefaultRPCAddress is the default RPC address.
-	DefaultRPCAddress = "0.0.0.0:26657"
-
-	// DefaultP2PAddress is the default P2P address.
-	DefaultP2PAddress = "0.0.0.0:26656"
-
-	// DefaultPProfAddress is the default Prof address.
-	DefaultPProfAddress = "0.0.0.0:6060"
 )
 
 // Account holds the options related to setting up Cosmos wallets.
@@ -76,7 +57,7 @@ type Client struct {
 	OpenAPI OpenAPI `yaml:"openapi,omitempty"`
 }
 
-// TSClient configures code generation for Typescript Client.
+// Typescript configures code generation for Typescript Client.
 type Typescript struct {
 	// Path configures out location for generated Typescript Client code.
 	Path string `yaml:"path"`
@@ -206,12 +187,12 @@ func DefaultConfig() Config {
 	return Config{
 		Build: Build{
 			Proto: Proto{
-				Path:            "proto",
+				Path:            defaults.ProtoPath,
 				ThirdPartyPaths: []string{"third_party/proto", "proto_vendor"},
 			},
 		},
 		Faucet: Faucet{
-			Host: "0.0.0.0:4500",
+			Host: defaults.FaucetHost,
 		},
 	}
 }

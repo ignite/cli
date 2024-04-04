@@ -191,7 +191,15 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, app
 }
 
 func bufMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPath string) error {
-	hasFiles := chain.CheckBufFiles(appPath)
+	protoPath, err := getProtoPathFromConfig(cmd)
+	if err != nil {
+		return err
+	}
+
+	hasFiles, err := chain.CheckBufFiles(appPath, protoPath)
+	if err != nil {
+		return err
+	}
 	if hasFiles {
 		return nil
 	}
@@ -214,15 +222,8 @@ func bufMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPa
 	return nil
 }
 
-func configMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPath string) (err error) {
-	configPath := getConfig(cmd)
-	if configPath == "" {
-		if configPath, err = chainconfig.LocateDefault(appPath); err != nil {
-			return err
-		}
-	}
-
-	rawCfg, err := os.ReadFile(configPath)
+func configMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPath string) error {
+	rawCfg, configPath, err := getRawConfig(cmd)
 	if err != nil {
 		return err
 	}

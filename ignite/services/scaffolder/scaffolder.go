@@ -25,8 +25,11 @@ type Scaffolder struct {
 	// Version of the chain
 	Version cosmosver.Version
 
-	// path of the app.
-	path string
+	// appPath path of the app.
+	appPath string
+
+	// protoPath path of the proto folder.
+	protoPath string
 
 	// modpath represents the go module Path of the app.
 	modpath gomodulepath.Path
@@ -36,7 +39,7 @@ type Scaffolder struct {
 }
 
 // New creates a new scaffold app.
-func New(context context.Context, appPath string) (Scaffolder, error) {
+func New(context context.Context, appPath, protoPath string) (Scaffolder, error) {
 	path, err := filepath.Abs(appPath)
 	if err != nil {
 		return Scaffolder{}, err
@@ -62,10 +65,11 @@ func New(context context.Context, appPath string) (Scaffolder, error) {
 	}
 
 	s := Scaffolder{
-		Version: ver,
-		path:    path,
-		modpath: modpath,
-		runner:  xgenny.NewRunner(context, path),
+		Version:   ver,
+		appPath:   path,
+		protoPath: protoPath,
+		modpath:   modpath,
+		runner:    xgenny.NewRunner(context, path),
 	}
 
 	return s, nil
@@ -84,7 +88,7 @@ func (s Scaffolder) Run(gens ...*genny.Generator) error {
 }
 
 func (s Scaffolder) PostScaffold(ctx context.Context, cacheStorage cache.Storage, skipProto bool) error {
-	return PostScaffold(ctx, cacheStorage, s.path, s.modpath.RawPath, skipProto)
+	return PostScaffold(ctx, cacheStorage, s.appPath, s.modpath.RawPath, skipProto)
 }
 
 func PostScaffold(ctx context.Context, cacheStorage cache.Storage, path, gomodPath string, skipProto bool) error {

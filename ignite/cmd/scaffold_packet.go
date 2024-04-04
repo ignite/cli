@@ -54,6 +54,11 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 	ackFields, _ := cmd.Flags().GetStringSlice(flagAck)
 	noMessage, _ := cmd.Flags().GetBool(flagNoMessage)
 
+	protoPath, err := getProtoPathFromConfig(cmd)
+	if err != nil {
+		return err
+	}
+
 	cacheStorage, err := newCache(cmd)
 	if err != nil {
 		return err
@@ -66,7 +71,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 		options = append(options, scaffolder.PacketWithSigner(signer))
 	}
 
-	sc, err := scaffolder.New(cmd.Context(), appPath)
+	sc, err := scaffolder.New(cmd.Context(), appPath, protoPath)
 	if err != nil {
 		return err
 	}
