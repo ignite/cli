@@ -6,7 +6,6 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/v29/ignite/templates/field"
@@ -19,7 +18,6 @@ import (
 type messageOptions struct {
 	description       string
 	signer            string
-	protoPath         string
 	withoutSimulation bool
 }
 
@@ -28,7 +26,6 @@ func newMessageOptions(messageName string) messageOptions {
 	return messageOptions{
 		description: fmt.Sprintf("Broadcast message %s", messageName),
 		signer:      "creator",
-		protoPath:   defaults.ProtoPath,
 	}
 }
 
@@ -46,13 +43,6 @@ func WithDescription(desc string) MessageOption {
 func WithSigner(signer string) MessageOption {
 	return func(m *messageOptions) {
 		m.signer = signer
-	}
-}
-
-// WithProtoPath provides a custom proto appPath.
-func WithProtoPath(protoPath string) MessageOption {
-	return func(m *messageOptions) {
-		m.protoPath = protoPath
 	}
 }
 
@@ -102,7 +92,7 @@ func (s Scaffolder) AddMessage(
 		ctx,
 		s.appPath,
 		s.modpath.Package,
-		scaffoldingOpts.protoPath,
+		s.protoPath,
 		moduleName,
 		fields,
 	); err != nil {
@@ -118,7 +108,7 @@ func (s Scaffolder) AddMessage(
 		ctx,
 		s.appPath,
 		s.modpath.Package,
-		scaffoldingOpts.protoPath,
+		s.protoPath,
 		moduleName,
 		resFields,
 	); err != nil {

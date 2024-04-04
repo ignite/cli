@@ -7,7 +7,6 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/v29/ignite/templates/field"
@@ -23,14 +22,12 @@ const (
 type packetOptions struct {
 	withoutMessage bool
 	signer         string
-	protoPath      string
 }
 
 // newPacketOptions returns a packetOptions with default options.
 func newPacketOptions() packetOptions {
 	return packetOptions{
-		signer:    "creator",
-		protoPath: defaults.ProtoPath,
+		signer: "creator",
 	}
 }
 
@@ -48,13 +45,6 @@ func PacketWithoutMessage() PacketOption {
 func PacketWithSigner(signer string) PacketOption {
 	return func(m *packetOptions) {
 		m.signer = signer
-	}
-}
-
-// PacketWithProtoPath provides a custom proto appPath.
-func PacketWithProtoPath(protoPath string) PacketOption {
-	return func(m *packetOptions) {
-		m.protoPath = protoPath
 	}
 }
 
@@ -108,7 +98,7 @@ func (s Scaffolder) AddPacket(
 	}
 
 	// Check and parse packet fields
-	if err := checkCustomTypes(ctx, s.appPath, s.modpath.Package, o.protoPath, moduleName, packetFields); err != nil {
+	if err := checkCustomTypes(ctx, s.appPath, s.modpath.Package, s.protoPath, moduleName, packetFields); err != nil {
 		return err
 	}
 	parsedPacketFields, err := field.ParseFields(packetFields, checkForbiddenPacketField, signer)
@@ -117,7 +107,7 @@ func (s Scaffolder) AddPacket(
 	}
 
 	// check and parse acknowledgment fields
-	if err := checkCustomTypes(ctx, s.appPath, s.modpath.Package, o.protoPath, moduleName, ackFields); err != nil {
+	if err := checkCustomTypes(ctx, s.appPath, s.modpath.Package, s.protoPath, moduleName, ackFields); err != nil {
 		return err
 	}
 	parsedAcksFields, err := field.ParseFields(ackFields, checkGoReservedWord, signer)

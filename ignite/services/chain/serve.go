@@ -15,6 +15,7 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/config"
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
+	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	chaincmdrunner "github.com/ignite/cli/v29/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
@@ -294,14 +295,14 @@ func (c *Chain) refreshServe() {
 }
 
 func (c *Chain) watchAppBackend(ctx context.Context) error {
-	conf, err := c.Config()
-	if err != nil {
-		return err
-	}
+	watchPaths := appBackendSourceWatchPaths(defaults.ProtoPath)
 
-	watchPaths := appBackendSourceWatchPaths(conf.Build.Proto.Path)
 	if c.ConfigPath() != "" {
-		watchPaths = append(watchPaths, c.ConfigPath())
+		conf, err := c.Config()
+		if err != nil {
+			return err
+		}
+		watchPaths = append(appBackendSourceWatchPaths(conf.Build.Proto.Path), c.ConfigPath())
 	}
 
 	return localfs.Watch(

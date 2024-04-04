@@ -6,7 +6,6 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
@@ -28,7 +27,6 @@ type AddTypeKind func(*addTypeOptions)
 
 type addTypeOptions struct {
 	moduleName string
-	protoPath  string
 	fields     []string
 
 	isList      bool
@@ -47,7 +45,6 @@ func newAddTypeOptions(moduleName string) addTypeOptions {
 	return addTypeOptions{
 		moduleName: moduleName,
 		signer:     "creator",
-		protoPath:  defaults.ProtoPath,
 	}
 }
 
@@ -114,13 +111,6 @@ func TypeWithSigner(signer string) AddTypeOption {
 	}
 }
 
-// TypeWithProtoPath provides a custom proto path.
-func TypeWithProtoPath(protoPath string) AddTypeOption {
-	return func(o *addTypeOptions) {
-		o.protoPath = protoPath
-	}
-}
-
 // AddType adds a new type to a scaffolded app.
 // if none of the list, map or singleton given, a dry type without anything extra (like a storage layer, models, CLI etc.)
 // will be scaffolded.
@@ -153,7 +143,7 @@ func (s Scaffolder) AddType(
 	}
 
 	// Check and parse provided fields
-	if err := checkCustomTypes(ctx, s.appPath, s.modpath.Package, o.protoPath, moduleName, o.fields); err != nil {
+	if err := checkCustomTypes(ctx, s.appPath, s.modpath.Package, s.protoPath, moduleName, o.fields); err != nil {
 		return err
 	}
 	tFields, err := parseTypeFields(o)
