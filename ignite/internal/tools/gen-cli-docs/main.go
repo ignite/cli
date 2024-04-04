@@ -73,7 +73,10 @@ func run(outPath string) error {
 	defer cleanUp()
 
 	// Run ExecuteC so cobra adds the completion command.
-	cmd, _ = cmd.ExecuteC()
+	cmd, err = cmd.ExecuteC()
+	if err != nil {
+		return err
+	}
 
 	return generate(cmd, outPath)
 }
