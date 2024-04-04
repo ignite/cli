@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -36,7 +37,7 @@ const (
 )
 
 // List of CLI level one commands that should not load Ignite app instances.
-var skipAppsLoadCommands = []string{"version", "help", "docs", "completion"}
+var skipAppsLoadCommands = []string{"version", "help", "docs", "completion", cobra.ShellCompRequestCmd, cobra.ShellCompNoDescRequestCmd}
 
 // New creates a new root command for `Ignite CLI` with its sub commands.
 // Returns the cobra.Command, a cleanup function and an error. The cleanup
@@ -47,7 +48,7 @@ func New(ctx context.Context) (*cobra.Command, func(), error) {
 	c := &cobra.Command{
 		Use:   "ignite",
 		Short: "Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain",
-		Long: `Ignite CLI is a tool for creating sovereign blockchains built with Cosmos SDK, the world’s
+		Long: `Ignite CLI is a tool for creating sovereign blockchains built with Cosmos SDK, the world's
 most popular modular blockchain framework. Ignite CLI offers everything you need to scaffold,
 test, build, and launch your blockchain.
 
@@ -57,10 +58,11 @@ To get started, create a blockchain:
 `,
 		SilenceUsage:  true,
 		SilenceErrors: true,
+		Args:          cobra.MinimumNArgs(0), // note(@julienrbrt): without this, ignite __complete(noDesc) hidden commands are not working.
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			// Check for new versions only when shell completion scripts are not being
 			// generated to avoid invalid output to stdout when a new version is available
-			if cmd.Use != "completion" {
+			if cmd.Use != "completion" || !strings.HasPrefix(cmd.Use, cobra.ShellCompRequestCmd) {
 				checkNewVersion(cmd.Context())
 			}
 
@@ -83,9 +85,10 @@ To get started, create a blockchain:
 		NewCompletionCmd(),
 	)
 	c.AddCommand(deprecated()...)
+	c.SetContext(ctx)
 
 	// Don't load Ignite apps for level one commands that doesn't allow them
-	if len(os.Args) == 2 && slices.Contains(skipAppsLoadCommands, os.Args[1]) {
+	if len(os.Args) >= 2 && slices.Contains(skipAppsLoadCommands, os.Args[1]) {
 		return c, func() {}, nil
 	}
 
@@ -172,10 +175,6 @@ func flagGetClearCache(cmd *cobra.Command) bool {
 
 func deprecated() []*cobra.Command {
 	return []*cobra.Command{
-		{
-			Use:        "app",
-			Deprecated: "use `ignite scaffold chain` instead.",
-		},
 		{
 			Use:        "build",
 			Deprecated: "use `ignite chain build` instead.",
