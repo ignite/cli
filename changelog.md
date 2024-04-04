@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- [#4033](https://github.com/ignite/cli/pull/4033) Fix cobra completion using `fishshell`
 - [#4062](https://github.com/ignite/cli/pull/4062) Avoid nil `scopedKeeper` in `TransmitXXX` functions
 
 ## [`v28.3.0`](https://github.com/ignite/cli/releases/tag/v28.3.0)
