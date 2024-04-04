@@ -92,6 +92,7 @@ func generate(
 		ModulePath:       pathInfo.RawPath,
 		AppName:          pathInfo.Package,
 		AppPath:          absRoot,
+		ProtoPath:        defaults.ProtoPath,
 		GitHubPath:       githubPath,
 		BinaryNamePrefix: pathInfo.Root,
 		AddressPrefix:    addressPrefix,

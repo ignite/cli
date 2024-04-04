@@ -211,7 +211,7 @@ func bufMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPa
 	}
 
 	runner := xgenny.NewRunner(cmd.Context(), appPath)
-	sm, err := chain.BoxBufFiles(runner, appPath)
+	sm, err := chain.BoxBufFiles(runner, appPath, protoPath)
 	if err != nil {
 		return err
 	}

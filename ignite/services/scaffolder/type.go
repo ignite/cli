@@ -114,6 +114,13 @@ func TypeWithSigner(signer string) AddTypeOption {
 	}
 }
 
+// TypeWithProtoPath provides a custom proto path.
+func TypeWithProtoPath(protoPath string) AddTypeOption {
+	return func(o *addTypeOptions) {
+		o.protoPath = protoPath
+	}
+}
+
 // AddType adds a new type to a scaffolded app.
 // if none of the list, map or singleton given, a dry type without anything extra (like a storage layer, models, CLI etc.)
 // will be scaffolded.

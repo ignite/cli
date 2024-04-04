@@ -70,6 +70,7 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 	ctx := plush.NewContext()
 	ctx.Set("ModulePath", opts.ModulePath)
 	ctx.Set("AppName", opts.AppName)
+	ctx.Set("ProtoPath", opts.ProtoPath)
 	ctx.Set("GitHubPath", opts.GitHubPath)
 	ctx.Set("BinaryNamePrefix", opts.BinaryNamePrefix)
 	ctx.Set("AddressPrefix", opts.AddressPrefix)
