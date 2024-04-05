@@ -12,7 +12,6 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/config/chain/base"
-	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	v1 "github.com/ignite/cli/v29/ignite/config/chain/v1"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
@@ -62,7 +61,7 @@ var (
 func TestChangeProtoPath(t *testing.T) {
 	var (
 		env     = envtest.New(t)
-		app     = env.Scaffold("github.com/test/protopath")
+		app     = env.Scaffold("github.com/test/protopath", "--proto-dir", newProtoPath)
 		appPath = app.SourcePath()
 		cfgPath = filepath.Join(appPath, chain.ConfigFilenames[0])
 	)
@@ -73,10 +72,6 @@ func TestChangeProtoPath(t *testing.T) {
 	require.NoError(t, yaml.NewEncoder(file).Encode(cfg))
 	require.NoError(t, file.Close())
 	app.SetConfigPath(cfgPath)
-
-	oldProtoPath := filepath.Join(appPath, defaults.ProtoDir)
-	protoPath := filepath.Join(appPath, newProtoPath)
-	require.NoError(t, os.Rename(oldProtoPath, protoPath))
 
 	env.Must(env.Exec("create a list with a custom proto path",
 		step.NewSteps(step.New(
