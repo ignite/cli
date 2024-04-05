@@ -6,16 +6,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-
-	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 )
 
 func TestBufFiles(t *testing.T) {
 	want := []string{"buf.work.yaml"}
-	protoDir, err := os.ReadDir(filepath.Join("files", defaults.ProtoDir))
+	protoDir, err := os.ReadDir("files/{{protoDir}}")
 	require.NoError(t, err)
 	for _, e := range protoDir {
-		want = append(want, filepath.Join(defaults.ProtoDir, e.Name()))
+		want = append(want, filepath.Join("{{protoDir}}", e.Name()))
 	}
 
 	got, err := BufFiles()
