@@ -26,7 +26,7 @@ require (
 	<%= if (IsConsumerChain) { %>
 	github.com/cosmos/interchain-security/v3 v3.2.0-consumer-rc0.0.20231123140529-1819e73f6197
 	<% } %>
-	github.com/bufbuild/buf v1.30.0
+	github.com/bufbuild/buf v1.30.1
 	github.com/cometbft/cometbft v0.38.6
 	github.com/cosmos/cosmos-db v1.0.2
 	github.com/cosmos/cosmos-proto v1.0.0-beta.4
