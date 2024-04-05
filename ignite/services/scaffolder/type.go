@@ -143,7 +143,7 @@ func (s Scaffolder) AddType(
 	}
 
 	// Check and parse provided fields
-	if err := checkCustomTypes(ctx, s.appPath, s.modpath.Package, s.protoPath, moduleName, o.fields); err != nil {
+	if err := checkCustomTypes(ctx, s.appPath, s.modpath.Package, s.protoDir, moduleName, o.fields); err != nil {
 		return err
 	}
 	tFields, err := parseTypeFields(o)
@@ -166,7 +166,7 @@ func (s Scaffolder) AddType(
 		opts = &typed.Options{
 			AppName:      s.modpath.Package,
 			AppPath:      s.appPath,
-			ProtoPath:    s.protoPath,
+			ProtoDir:     s.protoDir,
 			ModulePath:   s.modpath.RawPath,
 			ModuleName:   moduleName,
 			TypeName:     name,

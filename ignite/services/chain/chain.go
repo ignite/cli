@@ -525,12 +525,12 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 	return chaincmdrunner.New(ctx, cc, ccrOptions...)
 }
 
-func appBackendSourceWatchPaths(protoPath string) []string {
+func appBackendSourceWatchPaths(protoDir string) []string {
 	return []string{
 		"app",
 		"cmd",
 		"x",
 		"third_party",
-		protoPath,
+		protoDir,
 	}
 }

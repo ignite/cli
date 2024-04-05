@@ -92,7 +92,7 @@ func (s Scaffolder) AddMessage(
 		ctx,
 		s.appPath,
 		s.modpath.Package,
-		s.protoPath,
+		s.protoDir,
 		moduleName,
 		fields,
 	); err != nil {
@@ -108,7 +108,7 @@ func (s Scaffolder) AddMessage(
 		ctx,
 		s.appPath,
 		s.modpath.Package,
-		s.protoPath,
+		s.protoDir,
 		moduleName,
 		resFields,
 	); err != nil {
@@ -129,7 +129,7 @@ func (s Scaffolder) AddMessage(
 		opts = &message.Options{
 			AppName:      s.modpath.Package,
 			AppPath:      s.appPath,
-			ProtoPath:    s.protoPath,
+			ProtoDir:     s.protoDir,
 			ModulePath:   s.modpath.RawPath,
 			ModuleName:   moduleName,
 			MsgName:      name,
@@ -152,7 +152,7 @@ func (s Scaffolder) AddMessage(
 			ModulePath: opts.ModulePath,
 			AppName:    opts.AppName,
 			AppPath:    opts.AppPath,
-			ProtoPath:  opts.ProtoPath,
+			ProtoDir:   opts.ProtoDir,
 		},
 	)
 	if err != nil {

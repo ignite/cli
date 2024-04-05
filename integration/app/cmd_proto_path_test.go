@@ -74,13 +74,69 @@ func TestChangeProtoPath(t *testing.T) {
 	require.NoError(t, file.Close())
 	app.SetConfigPath(cfgPath)
 
-	oldProtoPath := filepath.Join(appPath, defaults.ProtoPath)
+	oldProtoPath := filepath.Join(appPath, defaults.ProtoDir)
 	protoPath := filepath.Join(appPath, newProtoPath)
 	require.NoError(t, os.Rename(oldProtoPath, protoPath))
 
 	env.Must(env.Exec("create a list with a custom proto path",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "user", "email"),
+			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "listUser", "email", "-p", newProtoPath),
+			step.Workdir(app.SourcePath()),
+		)),
+	))
+
+	env.Must(env.Exec("create a map with a custom proto path",
+		step.NewSteps(step.New(
+			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "mapUser", "email", "-p", newProtoPath),
+			step.Workdir(app.SourcePath()),
+		)),
+	))
+
+	env.Must(env.Exec("create a single with a custom proto path",
+		step.NewSteps(step.New(
+			step.Exec(envtest.IgniteApp, "s", "single", "--yes", "singleUser", "email", "-p", newProtoPath),
+			step.Workdir(app.SourcePath()),
+		)),
+	))
+
+	env.Must(env.Exec("create a query with a custom proto path",
+		step.NewSteps(step.New(
+			step.Exec(envtest.IgniteApp, "s", "query", "--yes", "foo", "-p", newProtoPath),
+			step.Workdir(app.SourcePath()),
+		)),
+	))
+
+	env.Must(env.Exec("create a new module with parameter",
+		step.NewSteps(step.New(
+			step.Exec(envtest.IgniteApp,
+				"s",
+				"module",
+				"--yes",
+				"foo",
+				"--params",
+				"bla,baz:uint,bar:bool",
+				"--require-registration",
+				"-p",
+				newProtoPath,
+			),
+			step.Workdir(app.SourcePath()),
+		)),
+	))
+
+	env.Must(env.Exec("create a new module parameters in the mars module",
+		step.NewSteps(step.New(
+			step.Exec(envtest.IgniteApp,
+				"s",
+				"params",
+				"--yes",
+				"foo",
+				"bar:uint",
+				"baz:bool",
+				"--module",
+				"foo",
+				"-p",
+				newProtoPath,
+			),
 			step.Workdir(app.SourcePath()),
 		)),
 	))

@@ -118,7 +118,7 @@ func ReadProtoPath(configFile io.Reader) (string, error) {
 	}
 	path := c.Build.Proto.Path
 	if path == "" {
-		path = defaults.ProtoPath
+		path = defaults.ProtoDir
 	}
 	return path, nil
 }

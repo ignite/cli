@@ -186,7 +186,7 @@ func (g *generator) setup(ctx context.Context) (err error) {
 				cacheable = true
 			)
 			if len(modules) > 0 {
-				includes, cacheable, err = g.resolveIncludes(ctx, path, defaults.ProtoPath)
+				includes, cacheable, err = g.resolveIncludes(ctx, path, defaults.ProtoDir)
 				if err != nil {
 					return err
 				}

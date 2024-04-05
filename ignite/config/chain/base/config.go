@@ -187,7 +187,7 @@ func DefaultConfig() Config {
 	return Config{
 		Build: Build{
 			Proto: Proto{
-				Path:            defaults.ProtoPath,
+				Path:            defaults.ProtoDir,
 				ThirdPartyPaths: []string{"third_party/proto", "proto_vendor"},
 			},
 		},

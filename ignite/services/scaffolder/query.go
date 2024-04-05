@@ -50,7 +50,7 @@ func (s Scaffolder) AddQuery(
 	}
 
 	// Check and parse provided response fields
-	if err := checkCustomTypes(ctx, s.appPath, s.modpath.Package, s.protoPath, moduleName, resFields); err != nil {
+	if err := checkCustomTypes(ctx, s.appPath, s.modpath.Package, s.protoDir, moduleName, resFields); err != nil {
 		return err
 	}
 	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord)
@@ -63,7 +63,7 @@ func (s Scaffolder) AddQuery(
 		opts = &query.Options{
 			AppName:     s.modpath.Package,
 			AppPath:     s.appPath,
-			ProtoPath:   s.protoPath,
+			ProtoDir:    s.protoDir,
 			ModulePath:  s.modpath.RawPath,
 			ModuleName:  moduleName,
 			QueryName:   name,

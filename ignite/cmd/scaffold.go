@@ -23,6 +23,7 @@ const (
 	flagNoSimulation = "no-simulation"
 	flagResponse     = "response"
 	flagDescription  = "desc"
+	flagProtoDir     = "proto-dir"
 
 	msgCommitPrefix = "Your saved project changes have not been committed.\nTo enable reverting to your current state, commit your saved changes."
 	msgCommitPrompt = "Do you want to proceed without committing your saved changes"
@@ -131,6 +132,9 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 		NewScaffoldReact(),
 	)
 
+	// Add flags required for the configMigrationPreRunHandler
+	c.PersistentFlags().AddFlagSet(flagSetProtoDir())
+
 	return c
 }
 
@@ -182,6 +186,7 @@ func scaffoldType(
 		withoutSimulation = flagGetNoSimulation(cmd)
 		signer            = flagGetSigner(cmd)
 		appPath           = flagGetPath(cmd)
+		protoDir          = flagGetProtoDir(cmd)
 	)
 
 	var options []scaffolder.AddTypeOption
@@ -203,15 +208,10 @@ func scaffoldType(
 		}
 	}
 
-	protoPath, err := getProtoPathFromConfig(cmd)
-	if err != nil {
-		return err
-	}
-
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
 
-	sc, err := scaffolder.New(cmd.Context(), appPath, protoPath)
+	sc, err := scaffolder.New(cmd.Context(), appPath, protoDir)
 	if err != nil {
 		return err
 	}

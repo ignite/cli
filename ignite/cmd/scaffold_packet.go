@@ -41,6 +41,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 		packetFields = args[1:]
 		signer       = flagGetSigner(cmd)
 		appPath      = flagGetPath(cmd)
+		protoDir     = flagGetProtoDir(cmd)
 	)
 
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
@@ -54,11 +55,6 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 	ackFields, _ := cmd.Flags().GetStringSlice(flagAck)
 	noMessage, _ := cmd.Flags().GetBool(flagNoMessage)
 
-	protoPath, err := getProtoPathFromConfig(cmd)
-	if err != nil {
-		return err
-	}
-
 	cacheStorage, err := newCache(cmd)
 	if err != nil {
 		return err
@@ -71,7 +67,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 		options = append(options, scaffolder.PacketWithSigner(signer))
 	}
 
-	sc, err := scaffolder.New(cmd.Context(), appPath, protoPath)
+	sc, err := scaffolder.New(cmd.Context(), appPath, protoDir)
 	if err != nil {
 		return err
 	}

@@ -51,7 +51,7 @@ func (s Scaffolder) CreateConfigs(
 		Configs:    configsFields,
 		AppName:    s.modpath.Package,
 		AppPath:    s.appPath,
-		ProtoPath:  s.protoPath,
+		ProtoDir:   s.protoDir,
 	}
 
 	g, err := modulecreate.NewModuleConfigs(opts)

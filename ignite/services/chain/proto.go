@@ -12,8 +12,8 @@ import (
 	"github.com/ignite/cli/v29/ignite/templates/app"
 )
 
-// CheckBufProtoPath check if the proto path exist into the directory list in the buf.work.yaml file.
-func CheckBufProtoPath(appPath, protoPath string) (bool, []string, error) {
+// CheckBufProtoDir check if the proto path exist into the directory list in the buf.work.yaml file.
+func CheckBufProtoDir(appPath, protoDir string) (bool, []string, error) {
 	workFile, err := cosmosbuf.ParseBufWork(appPath)
 	if err != nil {
 		return false, nil, err
@@ -24,39 +24,39 @@ func CheckBufProtoPath(appPath, protoPath string) (bool, []string, error) {
 		return false, nil, err
 	}
 
-	return workFile.HasProtoPath(protoPath), missing, nil
+	return workFile.HasProtoDir(protoDir), missing, nil
 }
 
-// AddBufProtoPath add the proto path into the directory list in the buf.work.yaml file.
-func AddBufProtoPath(appPath, protoPath string) error {
+// AddBufProtoDir add the proto path into the directory list in the buf.work.yaml file.
+func AddBufProtoDir(appPath, protoDir string) error {
 	workFile, err := cosmosbuf.ParseBufWork(appPath)
 	if err != nil {
 		return err
 	}
 
-	return workFile.AddProtoPath(protoPath)
+	return workFile.AddProtoDir(protoDir)
 }
 
-// RemoveBufProtoPath add the proto path into the directory list in the buf.work.yaml file.
-func RemoveBufProtoPath(appPath string, protoPaths ...string) error {
+// RemoveBufProtoDirs add the proto path into the directory list in the buf.work.yaml file.
+func RemoveBufProtoDirs(appPath string, protoDirs ...string) error {
 	workFile, err := cosmosbuf.ParseBufWork(appPath)
 	if err != nil {
 		return err
 	}
 
-	return workFile.RemoveProtoPaths(protoPaths...)
+	return workFile.RemoveProtoDirs(protoDirs...)
 }
 
 // CheckBufFiles check if the buf files exist.
-func CheckBufFiles(appPath, protoPath string) (bool, error) {
+func CheckBufFiles(appPath, protoDir string) (bool, error) {
 	files, err := app.BufFiles()
 	if err != nil {
 		return false, nil
 	}
 	for _, bufFile := range files {
-		bufFile, ok := strings.CutPrefix(bufFile, fmt.Sprintf("%s/", defaults.ProtoPath))
+		bufFile, ok := strings.CutPrefix(bufFile, fmt.Sprintf("%s/", defaults.ProtoDir))
 		if ok {
-			bufFile = filepath.Join(protoPath, bufFile)
+			bufFile = filepath.Join(protoDir, bufFile)
 		}
 		if !xos.FileExists(filepath.Join(appPath, bufFile)) {
 			return false, nil
@@ -66,8 +66,8 @@ func CheckBufFiles(appPath, protoPath string) (bool, error) {
 }
 
 // BoxBufFiles box all buf files.
-func BoxBufFiles(runner *xgenny.Runner, appPath, protoPath string) (xgenny.SourceModification, error) {
-	g, err := app.NewBufGenerator(appPath, protoPath)
+func BoxBufFiles(runner *xgenny.Runner, appPath, protoDir string) (xgenny.SourceModification, error) {
+	g, err := app.NewBufGenerator(appPath, protoDir)
 	if err != nil {
 		return xgenny.SourceModification{}, err
 	}

@@ -45,14 +45,14 @@ func (w BufWork) MissingDirectories() ([]string, error) {
 	return missingPaths, nil
 }
 
-// AddProtoPath add a proto directory path from the buf work file.
-func (w BufWork) AddProtoPath(newPath string) error {
+// AddProtoDir add a proto directory path from the buf work file.
+func (w BufWork) AddProtoDir(newPath string) error {
 	w.Directories = append(w.Directories, newPath)
 	return w.save()
 }
 
-// RemoveProtoPaths remove a list a proto directory paths from the buf work file.
-func (w BufWork) RemoveProtoPaths(paths ...string) error {
+// RemoveProtoDirs remove a list a proto directory paths from the buf work file.
+func (w BufWork) RemoveProtoDirs(paths ...string) error {
 	for _, path := range paths {
 		for i, dir := range w.Directories {
 			if dir == path {
@@ -64,8 +64,8 @@ func (w BufWork) RemoveProtoPaths(paths ...string) error {
 	return w.save()
 }
 
-// HasProtoPath returns true if the proto path exist into the directories slice.
-func (w BufWork) HasProtoPath(path string) bool {
+// HasProtoDir returns true if the proto path exist into the directories slice.
+func (w BufWork) HasProtoDir(path string) bool {
 	for _, dirPath := range w.Directories {
 		if path == dirPath {
 			return true

@@ -12,10 +12,10 @@ import (
 
 func TestBufFiles(t *testing.T) {
 	want := []string{"buf.work.yaml"}
-	protoDir, err := os.ReadDir(filepath.Join("files", defaults.ProtoPath))
+	protoDir, err := os.ReadDir(filepath.Join("files", defaults.ProtoDir))
 	require.NoError(t, err)
 	for _, e := range protoDir {
-		want = append(want, filepath.Join(defaults.ProtoPath, e.Name()))
+		want = append(want, filepath.Join(defaults.ProtoDir, e.Name()))
 	}
 
 	got, err := BufFiles()

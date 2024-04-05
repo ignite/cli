@@ -295,7 +295,7 @@ func (c *Chain) refreshServe() {
 }
 
 func (c *Chain) watchAppBackend(ctx context.Context) error {
-	watchPaths := appBackendSourceWatchPaths(defaults.ProtoPath)
+	watchPaths := appBackendSourceWatchPaths(defaults.ProtoDir)
 
 	if c.ConfigPath() != "" {
 		conf, err := c.Config()

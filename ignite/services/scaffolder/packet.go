@@ -98,7 +98,7 @@ func (s Scaffolder) AddPacket(
 	}
 
 	// Check and parse packet fields
-	if err := checkCustomTypes(ctx, s.appPath, s.modpath.Package, s.protoPath, moduleName, packetFields); err != nil {
+	if err := checkCustomTypes(ctx, s.appPath, s.modpath.Package, s.protoDir, moduleName, packetFields); err != nil {
 		return err
 	}
 	parsedPacketFields, err := field.ParseFields(packetFields, checkForbiddenPacketField, signer)
@@ -107,7 +107,7 @@ func (s Scaffolder) AddPacket(
 	}
 
 	// check and parse acknowledgment fields
-	if err := checkCustomTypes(ctx, s.appPath, s.modpath.Package, s.protoPath, moduleName, ackFields); err != nil {
+	if err := checkCustomTypes(ctx, s.appPath, s.modpath.Package, s.protoDir, moduleName, ackFields); err != nil {
 		return err
 	}
 	parsedAcksFields, err := field.ParseFields(ackFields, checkGoReservedWord, signer)
@@ -121,7 +121,7 @@ func (s Scaffolder) AddPacket(
 		opts = &ibc.PacketOptions{
 			AppName:    s.modpath.Package,
 			AppPath:    s.appPath,
-			ProtoPath:  s.protoPath,
+			ProtoDir:   s.protoDir,
 			ModulePath: s.modpath.RawPath,
 			ModuleName: moduleName,
 			PacketName: name,

@@ -15,7 +15,7 @@ import (
 type Options struct {
 	AppName      string
 	AppPath      string
-	ProtoPath    string
+	ProtoDir     string
 	ModuleName   string
 	ModulePath   string
 	TypeName     multiformatname.Name
@@ -34,7 +34,7 @@ func (opts *Options) Validate() error {
 
 // ProtoFile returns the path to the proto folder within the generated app.
 func (opts *Options) ProtoFile(fname string) string {
-	return filepath.Join(opts.AppPath, opts.ProtoPath, opts.AppName, opts.ModuleName, fname)
+	return filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, fname)
 }
 
 // ProtoTypeImport Return the protobuf import statement for this type.

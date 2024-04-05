@@ -107,8 +107,8 @@ func checkComponentCreated(appPath, moduleName string, compName multiformatname.
 }
 
 // checkCustomTypes returns error if one of the types is invalid.
-func checkCustomTypes(ctx context.Context, appPath, appName, protoPath, module string, fields []string) error {
-	path := filepath.Join(appPath, protoPath, appName, module)
+func checkCustomTypes(ctx context.Context, appPath, appName, protoDir, module string, fields []string) error {
+	path := filepath.Join(appPath, protoDir, appName, module)
 	customFieldTypes := make([]string, 0)
 	for _, field := range fields {
 		ft, ok := fieldType(field)

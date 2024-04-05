@@ -215,7 +215,7 @@ func (s Scaffolder) CreateModule(
 		Configs:      configs,
 		AppName:      s.modpath.Package,
 		AppPath:      s.appPath,
-		ProtoPath:    s.protoPath,
+		ProtoDir:     s.protoDir,
 		IsIBC:        creationOpts.ibc,
 		IBCOrdering:  creationOpts.ibcChannelOrdering,
 		Dependencies: creationOpts.dependencies,

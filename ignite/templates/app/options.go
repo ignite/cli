@@ -4,7 +4,7 @@ package app
 type Options struct {
 	AppName          string
 	AppPath          string
-	ProtoPath        string
+	ProtoDir         string
 	GitHubPath       string
 	BinaryNamePrefix string
 	ModulePath       string

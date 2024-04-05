@@ -20,7 +20,7 @@ func supportMsgServer(
 	opts *modulecreate.MsgServerOptions,
 ) ([]*genny.Generator, error) {
 	// Check if convention used
-	msgServerDefined, err := isMsgServerDefined(appPath, opts.AppName, opts.ProtoPath, opts.ModuleName)
+	msgServerDefined, err := isMsgServerDefined(appPath, opts.AppName, opts.ProtoDir, opts.ModuleName)
 	if err != nil {
 		return nil, err
 	}

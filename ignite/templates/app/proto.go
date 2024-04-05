@@ -9,13 +9,14 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/xembed"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"
 )
 
 //go:embed files/proto/* files/buf.work.yaml.plush
 var fsProto embed.FS
 
 // NewBufGenerator returns the generator to buf build files.
-func NewBufGenerator(appPath, protoPath string) (*genny.Generator, error) {
+func NewBufGenerator(appPath, protoDir string) (*genny.Generator, error) {
 	var (
 		g        = genny.New()
 		template = xgenny.NewEmbedWalker(
@@ -29,8 +30,11 @@ func NewBufGenerator(appPath, protoPath string) (*genny.Generator, error) {
 	}
 
 	ctx := plush.NewContext()
-	ctx.Set("ProtoPath", protoPath)
+	ctx.Set("ProtoDir", protoDir)
+
+	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(xgenny.Transformer(ctx))
+	g.Transformer(genny.Replace("{{protoDir}}", protoDir))
 
 	return g, nil
 }

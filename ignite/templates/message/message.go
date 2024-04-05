@@ -44,6 +44,7 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(xgenny.Transformer(ctx))
+	g.Transformer(genny.Replace("{{protoDir}}", opts.ProtoDir))
 	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{msgName}}", opts.MsgName.Snake))
@@ -87,7 +88,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *Options) (*genny.Generato
 //   - A service named "Msg" to exist in the proto file, it appends the RPCs inside it.
 func protoTxRPCModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, opts.ProtoPath, opts.AppName, opts.ModuleName, "tx.proto")
+		path := filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, "tx.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -118,7 +119,7 @@ func protoTxRPCModify(opts *Options) genny.RunFn {
 
 func protoTxMessageModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, opts.ProtoPath, opts.AppName, opts.ModuleName, "tx.proto")
+		path := filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, "tx.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

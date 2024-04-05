@@ -14,7 +14,7 @@ type (
 		ModuleName string
 		AppName    string
 		AppPath    string
-		ProtoPath  string
+		ProtoDir   string
 		Configs    field.Fields
 	}
 
@@ -23,7 +23,7 @@ type (
 		ModuleName string
 		AppName    string
 		AppPath    string
-		ProtoPath  string
+		ProtoDir   string
 		Params     field.Fields
 	}
 
@@ -33,7 +33,7 @@ type (
 		ModulePath string
 		AppName    string
 		AppPath    string
-		ProtoPath  string
+		ProtoDir   string
 		Params     field.Fields
 		Configs    field.Fields
 
@@ -61,7 +61,7 @@ type (
 		ModulePath string
 		AppName    string
 		AppPath    string
-		ProtoPath  string
+		ProtoDir   string
 	}
 )
 

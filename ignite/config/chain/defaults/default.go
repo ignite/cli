@@ -19,8 +19,8 @@ const (
 	// PProfAddress is the default Prof address.
 	PProfAddress = "0.0.0.0:6060"
 
-	// ProtoPath is the default proto path.
-	ProtoPath = "proto"
+	// ProtoDir is the default proto directory path.
+	ProtoDir = "proto"
 
 	// FaucetHost is the default faucet host.
 	FaucetHost = "0.0.0.0:4500"

@@ -15,6 +15,7 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/config"
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
+	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	uilog "github.com/ignite/cli/v29/ignite/pkg/cliui/log"
@@ -133,6 +134,17 @@ func getHome(cmd *cobra.Command) (home string) {
 	return
 }
 
+func flagSetProtoDir() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.String(flagProtoDir, defaults.ProtoDir, "chain proto directory")
+	return fs
+}
+
+func flagGetProtoDir(cmd *cobra.Command) (config string) {
+	config, _ = cmd.Flags().GetString(flagProtoDir)
+	return
+}
+
 func flagSetConfig() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.StringP(flagConfig, "c", "", "path to Ignite config file (default: ./config.yml)")
@@ -163,7 +175,7 @@ func getRawConfig(cmd *cobra.Command) ([]byte, string, error) {
 	return rawConfig, configPath, err
 }
 
-func getProtoPathFromConfig(cmd *cobra.Command) (string, error) {
+func getProtoDirFromConfig(cmd *cobra.Command) (string, error) {
 	rawCfg, _, err := getRawConfig(cmd)
 	if err != nil {
 		return "", err

@@ -86,12 +86,8 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		signer            = flagGetSigner(cmd)
 		appPath           = flagGetPath(cmd)
 		withoutSimulation = flagGetNoSimulation(cmd)
+		protoDir          = flagGetProtoDir(cmd)
 	)
-
-	protoPath, err := getProtoPathFromConfig(cmd)
-	if err != nil {
-		return err
-	}
 
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
@@ -118,7 +114,7 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		options = append(options, scaffolder.WithoutSimulation())
 	}
 
-	sc, err := scaffolder.New(cmd.Context(), appPath, protoPath)
+	sc, err := scaffolder.New(cmd.Context(), appPath, protoDir)
 	if err != nil {
 		return err
 	}
