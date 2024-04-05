@@ -136,7 +136,12 @@ func preRunHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	return bufMigrationPreRunHandler(cmd, session, appPath)
+	protoDir, err := getProtoDirFromConfig(cmd)
+	if err != nil {
+		return err
+	}
+
+	return bufMigrationPreRunHandler(cmd, session, appPath, protoDir)
 }
 
 func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPath string) error {
@@ -192,12 +197,7 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, app
 	return os.WriteFile(toolsFilename, buf.Bytes(), 0o644)
 }
 
-func bufMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPath string) error {
-	protoDir, err := getProtoDirFromConfig(cmd)
-	if err != nil {
-		return err
-	}
-
+func bufMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPath, protoDir string) error {
 	// check if the buf files exist.
 	hasFiles, err := chain.CheckBufFiles(appPath, protoDir)
 	if err != nil {

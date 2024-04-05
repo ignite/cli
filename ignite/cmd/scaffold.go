@@ -143,10 +143,12 @@ func migrationPreRunHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	session := cliui.New()
+	var (
+		path     = flagGetPath(cmd)
+		protoDir = flagGetProtoDir(cmd)
+		session  = cliui.New()
+	)
 	defer session.End()
-
-	path := flagGetPath(cmd)
 	path, err := filepath.Abs(path)
 	if err != nil {
 		return err
@@ -170,7 +172,7 @@ func migrationPreRunHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return bufMigrationPreRunHandler(cmd, session, appPath)
+	return bufMigrationPreRunHandler(cmd, session, appPath, protoDir)
 }
 
 func scaffoldType(
