@@ -14,6 +14,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/config/chain/base"
 	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	v1 "github.com/ignite/cli/v29/ignite/config/chain/v1"
+	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
 	envtest "github.com/ignite/cli/v29/integration"
 )
@@ -76,6 +77,13 @@ func TestChangeProtoPath(t *testing.T) {
 	oldProtoPath := filepath.Join(appPath, defaults.ProtoPath)
 	protoPath := filepath.Join(appPath, newProtoPath)
 	require.NoError(t, os.Rename(oldProtoPath, protoPath))
+
+	env.Must(env.Exec("create a list with a custom proto path",
+		step.NewSteps(step.New(
+			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "user", "email"),
+			step.Workdir(app.SourcePath()),
+		)),
+	))
 
 	app.EnsureSteady()
 }
