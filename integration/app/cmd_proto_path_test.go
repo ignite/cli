@@ -75,28 +75,28 @@ func TestChangeProtoPath(t *testing.T) {
 
 	env.Must(env.Exec("create a list with a custom proto path",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "listUser", "email", "-p", newProtoPath),
+			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "listUser", "email", "--proto-dir", newProtoPath),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create a map with a custom proto path",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "mapUser", "email", "-p", newProtoPath),
+			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "mapUser", "email", "--proto-dir", newProtoPath),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create a single with a custom proto path",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "single", "--yes", "singleUser", "email", "-p", newProtoPath),
+			step.Exec(envtest.IgniteApp, "s", "single", "--yes", "singleUser", "email", "--proto-dir", newProtoPath),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create a query with a custom proto path",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "query", "--yes", "foo", "-p", newProtoPath),
+			step.Exec(envtest.IgniteApp, "s", "query", "--yes", "foo", "--proto-dir", newProtoPath),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
