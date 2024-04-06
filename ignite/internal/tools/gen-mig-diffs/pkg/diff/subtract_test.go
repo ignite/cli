@@ -1,12 +1,10 @@
-package diff_test
+package diff
 
 import (
 	"reflect"
 	"testing"
 
 	"github.com/hexops/gotextdiff"
-
-	"github.com/ignite/cli/v29/ignite/pkg/diff"
 )
 
 func TestSubtract(t *testing.T) {
@@ -172,8 +170,8 @@ func TestSubtract(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := diff.Subtract(tt.args.a, tt.args.b); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Subtract() = %v, want %v", got, tt.want)
+			if got := subtract(tt.args.a, tt.args.b); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("subtract() = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -22,7 +22,6 @@ require (
 	github.com/99designs/keyring v1.2.2
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/DATA-DOG/go-sqlmock v1.5.0
-	github.com/Masterminds/semver/v3 v3.2.0
 	github.com/blang/semver/v4 v4.0.0
 	github.com/briandowns/spinner v1.23.0
 	github.com/bufbuild/buf v1.29.0
@@ -46,7 +45,6 @@ require (
 	github.com/gobuffalo/genny/v2 v2.1.0
 	github.com/gobuffalo/packd v1.0.2
 	github.com/gobuffalo/plush/v4 v4.1.19
-	github.com/gobwas/glob v0.2.3
 	github.com/goccy/go-yaml v1.11.2
 	github.com/golangci/golangci-lint v1.55.2
 	github.com/google/go-github/v48 v48.2.0
@@ -55,7 +53,6 @@ require (
 	github.com/gorilla/rpc v1.2.1
 	github.com/hashicorp/go-hclog v1.5.0
 	github.com/hashicorp/go-plugin v1.6.0
-	github.com/hexops/gotextdiff v1.0.3
 	github.com/iancoleman/strcase v0.3.0
 	github.com/ignite/ignite-files/nodetime v0.0.4
 	github.com/ignite/ignite-files/protoc v0.0.1
@@ -248,6 +245,7 @@ require (
 	github.com/gobuffalo/logger v1.0.7 // indirect
 	github.com/gobuffalo/tags/v3 v3.1.4 // indirect
 	github.com/gobuffalo/validate/v3 v3.3.3 // indirect
+	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
 	github.com/gofrs/flock v0.8.1 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
@@ -296,6 +294,7 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/yamux v0.1.1 // indirect
 	github.com/hdevalence/ed25519consensus v0.1.0 // indirect
+	github.com/hexops/gotextdiff v1.0.3 // indirect
 	github.com/huandu/skiplist v1.2.0 // indirect
 	github.com/huandu/xstrings v1.4.0 // indirect
 	github.com/improbable-eng/grpc-web v0.15.0 // indirect

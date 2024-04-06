@@ -1,12 +1,10 @@
-package diff_test
+package diff
 
 import (
 	"testing"
 	"testing/fstest"
 
 	"github.com/stretchr/testify/require"
-
-	"github.com/ignite/cli/v29/ignite/pkg/diff"
 )
 
 func TestComputeFS(t *testing.T) {
@@ -38,7 +36,7 @@ func TestComputeFS(t *testing.T) {
 		},
 	}
 
-	unified, err := diff.ComputeFS(origin, modified)
+	unified, err := computeFS(origin, modified)
 	require.NoError(err)
 	require.Len(unified, 3)
 	expectedFiles := []string{"foo.txt", "new.txt", "pkg/main.go"}
@@ -47,7 +45,7 @@ func TestComputeFS(t *testing.T) {
 	}
 
 	// Test ignoring files
-	unified, err = diff.ComputeFS(origin, modified, "**.go")
+	unified, err = computeFS(origin, modified, "**.go")
 	require.NoError(err)
 	require.Len(unified, 2)
 	expectedFiles = []string{"foo.txt", "new.txt"}

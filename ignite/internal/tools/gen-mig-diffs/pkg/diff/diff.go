@@ -8,7 +8,6 @@ import (
 
 	"github.com/hexops/gotextdiff"
 
-	"github.com/ignite/cli/v29/ignite/pkg/diff"
 	"github.com/ignite/cli/v29/ignite/pkg/xstrings"
 )
 
@@ -58,7 +57,7 @@ func CalculateDiffs(fromDir, toDir string) (Diffs, error) {
 			return nil, err
 		}
 
-		computedDiff, err := diff.ComputeFS(
+		computedDiff, err := computeFS(
 			os.DirFS(from),
 			os.DirFS(to),
 			diffIgnoreGlobs...,
@@ -147,7 +146,7 @@ func subtractUnifieds(a, b []gotextdiff.Unified) []gotextdiff.Unified {
 	for i, ad := range a {
 		for _, bd := range b {
 			if ad.From == bd.From && ad.To == bd.To {
-				a[i] = diff.Subtract(ad, bd)
+				a[i] = subtract(ad, bd)
 			}
 		}
 	}

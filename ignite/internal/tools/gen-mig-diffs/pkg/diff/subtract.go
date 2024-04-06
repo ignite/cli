@@ -6,8 +6,8 @@ import (
 	"github.com/hexops/gotextdiff"
 )
 
-// Subtract two unified diffs from each other.
-func Subtract(a, b gotextdiff.Unified) gotextdiff.Unified {
+// subtract two unified diffs from each other.
+func subtract(a, b gotextdiff.Unified) gotextdiff.Unified {
 	return gotextdiff.Unified{
 		From:  a.From,
 		To:    a.To,

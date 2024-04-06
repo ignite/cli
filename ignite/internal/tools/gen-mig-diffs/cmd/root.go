@@ -7,13 +7,14 @@ import (
 	"github.com/Masterminds/semver/v3"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/v29/ignite/internal/tools/gen-mig-diffs/pkg/diff"
-	"github.com/ignite/cli/v29/ignite/internal/tools/gen-mig-diffs/pkg/repo"
-	"github.com/ignite/cli/v29/ignite/internal/tools/gen-mig-diffs/pkg/scaffold"
-	"github.com/ignite/cli/v29/ignite/internal/tools/gen-mig-diffs/templates/doc"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
+
+	"github.com/ignite/mig-diffs/pkg/diff"
+	"github.com/ignite/mig-diffs/pkg/repo"
+	"github.com/ignite/mig-diffs/pkg/scaffold"
+	"github.com/ignite/mig-diffs/templates/doc"
 )
 
 const (

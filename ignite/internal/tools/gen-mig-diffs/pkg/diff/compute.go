@@ -14,9 +14,9 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
-// ComputeFS computes the unified diffs between the origin and modified filesystems.
+// computeFS computes the unified diffs between the origin and modified filesystems.
 // but ignores files that match the given globs.
-func ComputeFS(origin, modified fs.FS, ignoreGlobs ...string) ([]gotextdiff.Unified, error) {
+func computeFS(origin, modified fs.FS, ignoreGlobs ...string) ([]gotextdiff.Unified, error) {
 	compiledGlobs, err := compileGlobs(ignoreGlobs)
 	if err != nil {
 		return nil, err
