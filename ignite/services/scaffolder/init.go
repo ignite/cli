@@ -20,7 +20,7 @@ import (
 func Init(
 	ctx context.Context,
 	runner *xgenny.Runner,
-	root, name, addressPrefix string,
+	root, name, addressPrefix, protoDir string,
 	noDefaultModule, minimal, isConsumerChain bool,
 	params, moduleConfigs []string,
 ) (string, string, error) {
@@ -49,6 +49,7 @@ func Init(
 		runner,
 		pathInfo,
 		addressPrefix,
+		protoDir,
 		path,
 		noDefaultModule,
 		minimal,
@@ -65,6 +66,7 @@ func generate(
 	runner *xgenny.Runner,
 	pathInfo gomodulepath.Path,
 	addressPrefix,
+	protoDir,
 	absRoot string,
 	noDefaultModule, minimal, isConsumerChain bool,
 	params, moduleConfigs []string,
@@ -92,7 +94,7 @@ func generate(
 		ModulePath:       pathInfo.RawPath,
 		AppName:          pathInfo.Package,
 		AppPath:          absRoot,
-		ProtoDir:         defaults.ProtoDir,
+		ProtoDir:         protoDir,
 		GitHubPath:       githubPath,
 		BinaryNamePrefix: pathInfo.Root,
 		AddressPrefix:    addressPrefix,
