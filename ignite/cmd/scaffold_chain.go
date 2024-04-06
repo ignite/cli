@@ -152,7 +152,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := scaffolder.PostScaffold(cmd.Context(), cacheStorage, appDir, goModule, skipProto); err != nil {
+	if err := scaffolder.PostScaffold(cmd.Context(), cacheStorage, appDir, protoDir, goModule, skipProto); err != nil {
 		return err
 	}
 

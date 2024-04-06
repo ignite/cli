@@ -88,12 +88,12 @@ func (s Scaffolder) Run(gens ...*genny.Generator) error {
 }
 
 func (s Scaffolder) PostScaffold(ctx context.Context, cacheStorage cache.Storage, skipProto bool) error {
-	return PostScaffold(ctx, cacheStorage, s.appPath, s.modpath.RawPath, skipProto)
+	return PostScaffold(ctx, cacheStorage, s.appPath, s.protoDir, s.modpath.RawPath, skipProto)
 }
 
-func PostScaffold(ctx context.Context, cacheStorage cache.Storage, path, gomodPath string, skipProto bool) error {
+func PostScaffold(ctx context.Context, cacheStorage cache.Storage, path, protoDir, gomodPath string, skipProto bool) error {
 	if !skipProto {
-		if err := protoc(ctx, cacheStorage, path, gomodPath); err != nil {
+		if err := protoc(ctx, cacheStorage, path, protoDir, gomodPath); err != nil {
 			return err
 		}
 	}
@@ -111,7 +111,7 @@ func PostScaffold(ctx context.Context, cacheStorage cache.Storage, path, gomodPa
 	return nil
 }
 
-func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodPath string) error {
+func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, protoDir, gomodPath string) error {
 	confpath, err := chainconfig.LocateDefault(projectPath)
 	if err != nil {
 		return err
@@ -167,5 +167,5 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 		options = append(options, cosmosgen.WithOpenAPIGeneration(openAPIPath))
 	}
 
-	return cosmosgen.Generate(ctx, cacheStorage, projectPath, conf.Build.Proto.Path, gomodPath, options...)
+	return cosmosgen.Generate(ctx, cacheStorage, projectPath, protoDir, gomodPath, options...)
 }
