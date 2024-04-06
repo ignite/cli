@@ -109,7 +109,7 @@ func TestChangeProtoPath(t *testing.T) {
 				"--yes",
 				"foo",
 				"--params",
-				"bla,baz:uint,bar:bool",
+				"bla,baz:uint",
 				"--require-registration",
 				"-p",
 				newProtoPath,
@@ -118,15 +118,14 @@ func TestChangeProtoPath(t *testing.T) {
 		)),
 	))
 
-	env.Must(env.Exec("create a new module parameters in the mars module",
+	env.Must(env.Exec("create a new module parameter in the mars module",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp,
 				"s",
 				"params",
 				"--yes",
 				"foo",
-				"bar:uint",
-				"baz:bool",
+				"bar:int",
 				"--module",
 				"foo",
 				"-p",
