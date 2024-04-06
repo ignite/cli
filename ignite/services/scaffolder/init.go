@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
@@ -126,7 +125,7 @@ func generate(
 			ModulePath: pathInfo.RawPath,
 			AppName:    pathInfo.Package,
 			AppPath:    absRoot,
-			ProtoDir:   defaults.ProtoDir,
+			ProtoDir:   protoDir,
 			Params:     paramsFields,
 			Configs:    configsFields,
 			IsIBC:      false,
