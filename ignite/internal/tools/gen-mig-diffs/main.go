@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ignite/mig-diffs/cmd"
+	"github.com/ignite/cli/ignite/internal/tools/gen-mig-diffs/cmd"
 )
 
 func main() {
