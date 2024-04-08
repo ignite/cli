@@ -454,7 +454,6 @@ func TestBlogIBC(t *testing.T) {
 	env.Must(env.Exec("configure the hermes relayer app",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp,
-				"relayer",
 				"hermes",
 				"configure",
 				earthChainID,
@@ -474,7 +473,7 @@ func TestBlogIBC(t *testing.T) {
 	go func() {
 		env.Must(env.Exec("run the hermes relayer",
 			step.NewSteps(step.New(
-				step.Exec(envtest.IgniteApp, "relayer", "hermes", "start", earthChainID, marsChainID),
+				step.Exec(envtest.IgniteApp, "hermes", "start", earthChainID, marsChainID),
 			)),
 			envtest.ExecCtx(ctx),
 		))
@@ -631,5 +630,5 @@ func TestBlogIBC(t *testing.T) {
 	// TODO test ibc using the blog post methods:
 	// step.Exec(app.Binary(), "tx", "blog", "send-ibc-post", "transfer", "channel-0", "Hello", "Hello_Mars-Alice_from_Earth", "--chain-id", earthChainID, "--from", "alice", "--node", earthGRPC, "--output", "json", "--log_format", "json", "--yes")
 	// TODO test ibc using the hermes ft-transfer:
-	// step.Exec(envtest.IgniteApp, "relayer", "hermes", "exec", "--", "--config", earthConfig, "tx", "ft-transfer", "--timeout-seconds", "1000", "--dst-chain", earthChainID, "--src-chain", marsChainID, "--src-port", "transfer", "--src-channel", "channel-0", "--amount", "100000", "--denom", "stake", "--output", "json", "--log_format", "json", "--yes")
+	// step.Exec(envtest.IgniteApp, "hermes", "exec", "--", "--config", earthConfig, "tx", "ft-transfer", "--timeout-seconds", "1000", "--dst-chain", earthChainID, "--src-chain", marsChainID, "--src-port", "transfer", "--src-channel", "channel-0", "--amount", "100000", "--denom", "stake", "--output", "json", "--log_format", "json", "--yes")
 }
