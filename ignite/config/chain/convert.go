@@ -36,5 +36,7 @@ func MigrateLatest(current io.Reader, latest io.Writer) error {
 		return err
 	}
 
-	return yaml.NewEncoder(latest).Encode(cfg)
+	encoder := yaml.NewEncoder(latest)
+	encoder.SetIndent(2)
+	return encoder.Encode(cfg)
 }

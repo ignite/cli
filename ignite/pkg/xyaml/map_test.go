@@ -40,5 +40,5 @@ func TestUnmarshalWithNativeMapType(t *testing.T) {
 	// Assert
 	require.NoError(t, err)
 	require.NotNil(t, output["foo"])
-	require.IsType(t, (map[interface{}]interface{})(nil), output["foo"])
+	require.IsType(t, (map[string]interface{})(nil), output["foo"])
 }
