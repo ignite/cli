@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	v0 "github.com/ignite/cli/v29/ignite/config/chain/v0"
 	v1 "github.com/ignite/cli/v29/ignite/config/chain/v1"

@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/cosmos/cosmos-sdk/types/bech32"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	"github.com/ignite/cli/v29/ignite/config/chain/version"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"

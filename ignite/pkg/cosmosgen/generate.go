@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"slices"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"

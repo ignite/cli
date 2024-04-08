@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
 )
