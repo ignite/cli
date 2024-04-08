@@ -237,7 +237,6 @@ func discoverRuntimeAppModules(chainRoot string) ([]string, error) {
 		}
 		return nil
 	})
-
 	if err != nil {
 		return nil, err
 	}
