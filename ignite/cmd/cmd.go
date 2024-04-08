@@ -76,8 +76,6 @@ To get started, create a blockchain:
 		NewGenerate(),
 		NewNode(),
 		NewAccount(),
-		NewRelayer(),
-		NewTools(),
 		NewDocs(),
 		NewVersion(),
 		NewApp(),
