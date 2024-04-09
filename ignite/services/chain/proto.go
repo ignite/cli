@@ -1,11 +1,8 @@
 package chain
 
 import (
-	"fmt"
 	"path/filepath"
-	"strings"
 
-	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/pkg/xos"
@@ -54,7 +51,7 @@ func CheckBufFiles(appPath, protoDir string) (bool, error) {
 		return false, nil
 	}
 	for _, bufFile := range files {
-		bufFile, ok := strings.CutPrefix(bufFile, fmt.Sprintf("%s/", defaults.ProtoDir))
+		bufFile, ok := app.CutTemplatePrefix(bufFile)
 		if ok {
 			bufFile = filepath.Join(protoDir, bufFile)
 		}

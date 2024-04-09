@@ -2,6 +2,7 @@ package app
 
 import (
 	"embed"
+	"fmt"
 	"strings"
 
 	"github.com/gobuffalo/genny/v2"
@@ -37,6 +38,10 @@ func NewBufGenerator(appPath, protoDir string) (*genny.Generator, error) {
 	g.Transformer(genny.Replace("{{protoDir}}", protoDir))
 
 	return g, nil
+}
+
+func CutTemplatePrefix(name string) (string, bool) {
+	return strings.CutPrefix(name, fmt.Sprintf("%s/", "{{protoDir}}"))
 }
 
 // BufFiles returns a list of Buf.Build files.
