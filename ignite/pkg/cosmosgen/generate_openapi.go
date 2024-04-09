@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sort"
 
 	"github.com/iancoleman/strcase"
 
@@ -13,8 +12,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/v29/ignite/pkg/dirchange"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/nodetime"
-	swaggercombine "github.com/ignite/cli/v29/ignite/pkg/nodetime/programs/swagger-combine"
+	swaggercombine "github.com/ignite/cli/v29/ignite/pkg/swagger-combine"
 	"github.com/ignite/cli/v29/ignite/pkg/xos"
 )
 
@@ -34,18 +32,8 @@ func (g *generator) openAPITemplateForSTA() string {
 func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 	var (
 		specDirs []string
-		conf     = swaggercombine.Config{
-			Swagger: "2.0",
-			Info: swaggercombine.Info{
-				Title: "HTTP API Console",
-			},
-		}
+		conf     = swaggercombine.New("HTTP API Console", g.gomodPath)
 	)
-	command, cleanup, err := nodetime.Command(nodetime.CommandSwaggerCombine)
-	if err != nil {
-		return err
-	}
-	defer cleanup()
 	defer func() {
 		for _, dir := range specDirs {
 			os.RemoveAll(dir)
@@ -149,16 +137,8 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 		}
 	}
 
-	sort.Slice(conf.APIs, func(a, b int) bool { return conf.APIs[a].ID < conf.APIs[b].ID })
-
-	// ensure out dir exists.
-	outDir := filepath.Dir(out)
-	if err := os.MkdirAll(outDir, 0o766); err != nil {
-		return err
-	}
-
 	// combine specs into one and save to out.
-	if err := swaggercombine.Combine(ctx, conf, command, out); err != nil {
+	if err := conf.Combine(out); err != nil {
 		return err
 	}
 
@@ -168,19 +148,9 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 func (g *generator) generateModuleOpenAPISpec(ctx context.Context, m module.Module, out string) error {
 	var (
 		specDirs []string
-		conf     = swaggercombine.Config{
-			Swagger: "2.0",
-			Info: swaggercombine.Info{
-				Title: "HTTP API Console " + m.Pkg.Name,
-			},
-		}
+		title    = "HTTP API Console " + m.Pkg.Name
+		conf     = swaggercombine.New(title, g.gomodPath)
 	)
-	command, cleanup, err := nodetime.Command(nodetime.CommandSwaggerCombine)
-	if err != nil {
-		return err
-	}
-	defer cleanup()
-
 	defer func() {
 		for _, dir := range specDirs {
 			os.RemoveAll(dir)
@@ -236,13 +206,6 @@ func (g *generator) generateModuleOpenAPISpec(ctx context.Context, m module.Modu
 		return err
 	}
 
-	sort.Slice(conf.APIs, func(a, b int) bool { return conf.APIs[a].ID < conf.APIs[b].ID })
-
-	// ensure out dir exists.
-	outDir := filepath.Dir(out)
-	if err := os.MkdirAll(outDir, 0o766); err != nil {
-		return err
-	}
 	// combine specs into one and save to out.
-	return swaggercombine.Combine(ctx, conf, command, out)
+	return conf.Combine(out)
 }
