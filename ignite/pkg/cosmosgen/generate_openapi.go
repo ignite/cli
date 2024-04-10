@@ -145,6 +145,8 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 	return dirchange.SaveDirChecksum(specCache, out, g.appPath, out)
 }
 
+// generateModuleOpenAPISpec generates a spec for a module where it's source code resides at src.
+// and adds needed swaggercombine configure for it.
 func (g *generator) generateModuleOpenAPISpec(ctx context.Context, m module.Module, out string) error {
 	var (
 		specDirs []string
@@ -157,54 +159,33 @@ func (g *generator) generateModuleOpenAPISpec(ctx context.Context, m module.Modu
 		}
 	}()
 
-	// gen generates a spec for a module where it's source code resides at src.
-	// and adds needed swaggercombine configure for it.
-	gen := func(m module.Module) (err error) {
-		dir, err := os.MkdirTemp("", "gen-openapi-module-spec")
-		if err != nil {
-			return err
-		}
-
-		err = g.buf.Generate(ctx, m.Pkg.Path, dir, g.openAPITemplateForSTA(), "module.proto")
-		if err != nil {
-			return err
-		}
-
-		specs, err := xos.FindFiles(dir, xos.JSONFile)
-		if err != nil {
-			return err
-		}
-
-		for _, spec := range specs {
-			if err != nil {
-				return err
-			}
-			if err := conf.AddSpec(strcase.ToCamel(m.Pkg.Name), spec, false); err != nil {
-				return err
-			}
-		}
-		specDirs = append(specDirs, dir)
-
-		return nil
-	}
-
 	// generate specs for each module and persist them in the file system
 	// after add their path and config to swaggercombine.Config so we can combine them
 	// into a single spec.
-
-	add := func(modules []module.Module) error {
-		for _, m := range modules {
-			if err := gen(m); err != nil {
-				return err
-			}
-		}
-		return nil
-	}
-
-	// protoc openapi generator acts weird on concurrent run, so do not use goroutines here.
-	if err := add([]module.Module{m}); err != nil {
+	dir, err := os.MkdirTemp("", "gen-openapi-module-spec")
+	if err != nil {
 		return err
 	}
+
+	err = g.buf.Generate(ctx, m.Pkg.Path, dir, g.openAPITemplateForSTA(), "module.proto")
+	if err != nil {
+		return err
+	}
+
+	specs, err := xos.FindFiles(dir, xos.JSONFile)
+	if err != nil {
+		return err
+	}
+
+	for _, spec := range specs {
+		if err != nil {
+			return err
+		}
+		if err := conf.AddSpec(strcase.ToCamel(m.Pkg.Name), spec, false); err != nil {
+			return err
+		}
+	}
+	specDirs = append(specDirs, dir)
 
 	// combine specs into one and save to out.
 	return conf.Combine(out)
