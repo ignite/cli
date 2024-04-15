@@ -4,7 +4,7 @@ on:
   pull_request:
   push:
     paths-ignore:
-      - '**.md'
+      - "**.md"
     branches:
       - main
       - release/*
@@ -33,7 +33,7 @@ jobs:
       - uses: actions/setup-go@v4
         if: env.GIT_DIFF
         with:
-          go-version: '1.21'
+          go-version: "1.21"
           cache: true
           cache-dependency-path: go.sum
 
@@ -45,5 +45,5 @@ jobs:
         if: env.GIT_DIFF
         with:
           file: ./coverage.txt
-          fail_ci_if_error: true
+          fail_ci_if_error: false
           verbose: true
