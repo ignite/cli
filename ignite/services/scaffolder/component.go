@@ -119,9 +119,15 @@ func checkCustomTypes(ctx context.Context, path, appName, module string, fields 
 		}
 
 		if _, ok := datatype.IsSupportedType(datatype.Name(ft)); !ok {
+			// sanatized the custom type name
+			if str := strings.Split(ft, "."); len(str) > 1 { // <- sanitize in IsSupportedType
+				ft = str[1]
+			}
+
 			customFieldTypes = append(customFieldTypes, ft)
 		}
 	}
+
 	return protoanalysis.HasMessages(ctx, protoPath, customFieldTypes...)
 }
 

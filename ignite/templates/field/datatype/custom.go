@@ -32,3 +32,27 @@ var DataCustom = DataType{
 	GoCLIImports: []GoImport{{Name: "encoding/json"}},
 	NonIndex:     true,
 }
+
+// DataCustomSlice is a custom data array type definition.
+var DataCustomSlice = DataType{
+	DataType:         func(datatype string) string { return fmt.Sprintf("[]*%s", datatype) },
+	DefaultTestValue: "null",
+	ProtoType: func(datatype, name string, index int) string {
+		return fmt.Sprintf("repeated %s %s = %d", datatype, name, index)
+	},
+	GenesisArgs: func(name multiformatname.Name, value int) string {
+		return fmt.Sprintf("%s: []types.%s{},\n", name.UpperCamel, name.UpperCamel)
+	},
+	CLIArgs: func(name multiformatname.Name, datatype, prefix string, argIndex int) string {
+		return fmt.Sprintf(`%[1]v%[2]v := []types.%[3]v{}
+					err = json.Unmarshal([]byte(args[%[4]v]), %[1]v%[2]v)
+    				if err != nil {
+                		return err
+            		}`, prefix, name.UpperCamel, datatype, argIndex)
+	},
+	ToProtoField: func(datatype, name string, index int) *proto.NormalField {
+		return protoutil.NewField(name, datatype, index, protoutil.Repeated())
+	},
+	GoCLIImports: []GoImport{{Name: "encoding/json"}},
+	NonIndex:     true,
+}

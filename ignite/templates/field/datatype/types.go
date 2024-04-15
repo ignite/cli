@@ -30,6 +30,8 @@ const (
 	Coins Name = "array.coin"
 	// Custom represents the custom type name.
 	Custom Name = Name(TypeCustom)
+	// CustomSlice represents the custom array type name.
+	CustomSlice Name = "array." + TypeCustom
 
 	// StringSliceAlias represents the string array type name alias.
 	StringSliceAlias Name = "strings"
@@ -40,8 +42,8 @@ const (
 	// CoinSliceAlias represents the coin array type name alias.
 	CoinSliceAlias Name = "coins"
 
-	// TypeCustom represents the string type name id.
-	TypeCustom = "customstarporttype"
+	// TypeCustom represents the custom type name.
+	TypeCustom = "customignitetype"
 )
 
 // supportedTypes all support data types and definitions.
@@ -60,6 +62,7 @@ var supportedTypes = map[Name]DataType{
 	Coins:            DataCoinSlice,
 	CoinSliceAlias:   DataCoinSlice,
 	Custom:           DataCustom,
+	CustomSlice:      DataCustomSlice,
 }
 
 // Name represents the Alias Name for the data type.
