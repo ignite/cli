@@ -23,8 +23,7 @@ To get started, create a blockchain:
 **Options**
 
 ```
-  -h, --help         help for ignite
-      --out string   .md file path to place Ignite CLI docs inside (default ".")
+  -h, --help   help for ignite
 ```
 
 **SEE ALSO**
