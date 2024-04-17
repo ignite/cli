@@ -204,10 +204,6 @@ func checkNewVersion(ctx context.Context) {
 	fmt.Printf("⬆️ Ignite CLI %s is available! To upgrade: https://docs.ignite.com/welcome/install#upgrade", next)
 }
 
-func printSection(session *cliui.Session, title string) error {
-	return session.Printf("------\n%s\n------\n\n", title)
-}
-
 func newCache(cmd *cobra.Command) (cache.Storage, error) {
 	cacheRootDir, err := config.DirPath()
 	if err != nil {
