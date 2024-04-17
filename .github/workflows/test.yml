@@ -18,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ ubuntu-latest, macos-latest ]
     steps:
       - uses: actions/checkout@v4
       - uses: technote-space/get-diff-action@v6.1.2
@@ -33,7 +33,7 @@ jobs:
       - uses: actions/setup-go@v5
         if: env.GIT_DIFF
         with:
-          go-version: "1.22"
+          go-version: 'stable'
           cache: true
           cache-dependency-path: go.sum
 
