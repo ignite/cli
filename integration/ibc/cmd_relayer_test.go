@@ -596,7 +596,7 @@ func TestBlogIBC(t *testing.T) {
 		balanceOutput   = &bytes.Buffer{}
 		balanceResponse QueryBalances
 	)
-	env.Must(env.Exec("check ibc balance", step.NewSteps(
+	steps := step.NewSteps(
 		step.New(
 			step.Stdout(balanceOutput),
 			step.Exec(
@@ -626,7 +626,8 @@ func TestBlogIBC(t *testing.T) {
 				return nil
 			}),
 		),
-	)))
+	)
+	env.Must(env.Exec("check ibc balance", steps, envtest.ExecRetry()))
 
 	// TODO test ibc using the blog post methods:
 	// step.Exec(app.Binary(), "tx", "blog", "send-ibc-post", "transfer", "channel-0", "Hello", "Hello_Mars-Alice_from_Earth", "--chain-id", earthChainID, "--from", "alice", "--node", earthGRPC, "--output", "json", "--log_format", "json", "--yes")
