@@ -607,6 +607,7 @@ func TestBlogIBC(t *testing.T) {
 				receiverAddr,
 				"--node", marsRPC,
 				"--home", marsHome,
+				"--chain-id", marsChainID,
 				"--log_format", "json",
 				"--output", "json",
 			),
@@ -614,8 +615,10 @@ func TestBlogIBC(t *testing.T) {
 				if execErr != nil {
 					return execErr
 				}
-				if err := json.Unmarshal(balanceOutput.Bytes(), &balanceResponse); err != nil {
-					return fmt.Errorf("unmarshalling tx response: %w", err)
+
+				output := balanceOutput.Bytes()
+				if err := json.Unmarshal(output, &balanceResponse); err != nil {
+					return fmt.Errorf("unmarshalling query response error: %w, response: %s", err, string(output))
 				}
 				if balanceResponse.Balances.Empty() {
 					return fmt.Errorf("empty balances")
@@ -623,6 +626,7 @@ func TestBlogIBC(t *testing.T) {
 				if !strings.HasPrefix(balanceResponse.Balances[0].Denom, "ibc/") {
 					return fmt.Errorf("invalid ibc balance: %v", balanceResponse.Balances[0])
 				}
+
 				return nil
 			}),
 		),
