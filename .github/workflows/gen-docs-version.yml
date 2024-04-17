@@ -1,14 +1,14 @@
 name: Docusaurus add version
 on:
   release:
-    types: [published]
+    types: [ published ]
 
 jobs:
   gen-docs-version:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Cache node_modules
         uses: actions/cache@v3
