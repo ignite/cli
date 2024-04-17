@@ -617,6 +617,7 @@ func TestBlogIBC(t *testing.T) {
 				}
 
 				output := balanceOutput.Bytes()
+				defer balanceOutput.Reset()
 				if err := json.Unmarshal(output, &balanceResponse); err != nil {
 					return fmt.Errorf("unmarshalling query response error: %w, response: %s", err, string(output))
 				}
