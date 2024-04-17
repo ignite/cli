@@ -1,14 +1,14 @@
 name: Docusaurus add version
 on:
   release:
-    types: [published]
+    types: [ published ]
 
 jobs:
   gen-docs-version:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Cache node_modules
         uses: actions/cache@v3
@@ -47,7 +47,7 @@ jobs:
         working-directory: ./docs
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v6
         with:
           title: "chore: docusaurus deploy version ${{ github.ref_name }}"
           commit-message: "chore(docs): deploy version ${{ github.ref_name }}"

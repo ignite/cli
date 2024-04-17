@@ -2,7 +2,7 @@ name: Publish Ignite to Snapcraft
 
 on:
   release:
-    types: [published]
+    types: [ published ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -14,9 +14,9 @@ jobs:
 
     steps:
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
-          go-version: "1.21"
+          go-version: 'stable'
 
       - name: Checkout
         uses: actions/checkout@v4
