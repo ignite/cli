@@ -1,6 +1,6 @@
 //go:build !relayer
 
-package ibc_test
+package relayer_test
 
 import (
 	"bytes"
