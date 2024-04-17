@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 6
     steps:
-      - uses: actions/checkout@v3.4.0
+      - uses: actions/checkout@v4
       - uses: technote-space/get-diff-action@v6.1.2
         with:
           PATTERNS: |
@@ -28,13 +28,13 @@ jobs:
             go.mod
             go.sum
 
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v5
         if: env.GIT_DIFF
         with:
           go-version-file: go.mod
           cache: false
 
-      - uses: golangci/golangci-lint-action@v3
+      - uses: golangci/golangci-lint-action@v4
         if: env.GIT_DIFF
         with:
           version: v1.54.2
