@@ -178,9 +178,6 @@ func (g *generator) generateModuleOpenAPISpec(ctx context.Context, m module.Modu
 	}
 
 	for _, spec := range specs {
-		if err != nil {
-			return err
-		}
 		if err := conf.AddSpec(strcase.ToCamel(m.Pkg.Name), spec, false); err != nil {
 			return err
 		}
