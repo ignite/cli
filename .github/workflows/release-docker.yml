@@ -2,7 +2,7 @@ name: Release Docker Image
 
 on:
   release:
-    types: [published]
+    types: [ published ]
   schedule:
     - cron: "0 0 * * *" # every day at midnight
 
@@ -34,11 +34,11 @@ jobs:
     name: Push Docker image to Docker Hub
     if: needs.check-latest-run.outputs.last_sha != github.sha
     runs-on: ubuntu-latest
-    needs: [consecutiveness, check-latest-run]
+    needs: [ consecutiveness, check-latest-run ]
 
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
