@@ -10,6 +10,7 @@
 - [#4001](https://github.com/ignite/cli/pull/4001) Improve `xgenny` dry run
 - [#3967](https://github.com/ignite/cli/issues/3967) Add HD wallet parameters `address index` and `account number` to the chain account config
 - [#4004](https://github.com/ignite/cli/pull/4004) Remove all import placeholders using the `xast` pkg
+- [#4077](https://github.com/ignite/cli/pull/4077) Merge the swagger files manually instead use nodetime `swagger-combine`
 
 ### Changes
 
