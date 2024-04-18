@@ -11,6 +11,7 @@
 - [#3967](https://github.com/ignite/cli/issues/3967) Add HD wallet parameters `address index` and `account number` to the chain account config
 - [#4004](https://github.com/ignite/cli/pull/4004) Remove all import placeholders using the `xast` pkg
 - [#4071](https://github.com/ignite/cli/pull/4071) Support custom proto path
+- [#4077](https://github.com/ignite/cli/pull/4077) Merge the swagger files manually instead use nodetime `swagger-combine`
 
 ### Changes
 
