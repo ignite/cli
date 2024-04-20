@@ -11,6 +11,7 @@
 - [#3967](https://github.com/ignite/cli/issues/3967) Add HD wallet parameters `address index` and `account number` to the chain account config
 - [#4004](https://github.com/ignite/cli/pull/4004) Remove all import placeholders using the `xast` pkg
 - [#4076](https://github.com/ignite/cli/pull/4076) Remove the ignite `realyer` and `tools` commands with all ts-realyer logic
+- [#3718](https://github.com/ignite/cli/pull/3718) Add `gen-mig-diffs` tool app to compare scaffold output of two versions of ignite
 - [#4077](https://github.com/ignite/cli/pull/4077) Merge the swagger files manually instead use nodetime `swagger-combine`
 
 ### Changes
