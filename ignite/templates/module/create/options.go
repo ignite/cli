@@ -9,12 +9,34 @@ import (
 )
 
 type (
+<<<<<<< HEAD
+=======
+	// ConfigsOptions represents the options to scaffold a Cosmos SDK module configs.
+	ConfigsOptions struct {
+		ModuleName string
+		AppName    string
+		AppPath    string
+		ProtoDir   string
+		Configs    field.Fields
+	}
+
+	// ParamsOptions represents the options to scaffold a Cosmos SDK module parameters.
+	ParamsOptions struct {
+		ModuleName string
+		AppName    string
+		AppPath    string
+		ProtoDir   string
+		Params     field.Fields
+	}
+
+>>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	// CreateOptions represents the options to scaffold a Cosmos SDK module.
 	CreateOptions struct {
 		ModuleName string
 		ModulePath string
 		AppName    string
 		AppPath    string
+		ProtoDir   string
 		Params     field.Fields
 
 		// True if the module should implement the IBC module interface
@@ -41,6 +63,7 @@ type (
 		ModulePath string
 		AppName    string
 		AppPath    string
+		ProtoDir   string
 	}
 )
 

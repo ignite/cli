@@ -142,6 +142,7 @@ func (s Scaffolder) AddType(
 		return sm, err
 	}
 
+<<<<<<< HEAD
 	if err := checkComponentValidity(s.path, moduleName, name, o.withoutMessage); err != nil {
 		return sm, err
 	}
@@ -149,6 +150,15 @@ func (s Scaffolder) AddType(
 	// Check and parse provided fields
 	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, o.fields); err != nil {
 		return sm, err
+=======
+	if err := checkComponentValidity(s.appPath, moduleName, name, o.withoutMessage); err != nil {
+		return err
+	}
+
+	// Check and parse provided fields
+	if err := checkCustomTypes(ctx, s.appPath, s.modpath.Package, s.protoDir, moduleName, o.fields); err != nil {
+		return err
+>>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	}
 	tFields, err := parseTypeFields(o)
 	if err != nil {
@@ -160,7 +170,7 @@ func (s Scaffolder) AddType(
 		return sm, err
 	}
 
-	isIBC, err := isIBCModule(s.path, moduleName)
+	isIBC, err := isIBCModule(s.appPath, moduleName)
 	if err != nil {
 		return sm, err
 	}
@@ -169,7 +179,8 @@ func (s Scaffolder) AddType(
 		g    *genny.Generator
 		opts = &typed.Options{
 			AppName:      s.modpath.Package,
-			AppPath:      s.path,
+			AppPath:      s.appPath,
+			ProtoDir:     s.protoDir,
 			ModulePath:   s.modpath.RawPath,
 			ModuleName:   moduleName,
 			TypeName:     name,
@@ -184,8 +195,13 @@ func (s Scaffolder) AddType(
 	// Check and support MsgServer convention
 	gens, err = supportMsgServer(
 		gens,
+<<<<<<< HEAD
 		tracer,
 		s.path,
+=======
+		s.runner.Tracer(),
+		s.appPath,
+>>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 		&modulecreate.MsgServerOptions{
 			ModuleName: opts.ModuleName,
 			ModulePath: opts.ModulePath,

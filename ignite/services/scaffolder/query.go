@@ -41,8 +41,13 @@ func (s Scaffolder) AddQuery(
 		return sm, err
 	}
 
+<<<<<<< HEAD
 	if err := checkComponentValidity(s.path, moduleName, name, true); err != nil {
 		return sm, err
+=======
+	if err := checkComponentValidity(s.appPath, moduleName, name, true); err != nil {
+		return err
+>>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	}
 
 	// Check and parse provided request fields
@@ -55,8 +60,13 @@ func (s Scaffolder) AddQuery(
 	}
 
 	// Check and parse provided response fields
+<<<<<<< HEAD
 	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, resFields); err != nil {
 		return sm, err
+=======
+	if err := checkCustomTypes(ctx, s.appPath, s.modpath.Package, s.protoDir, moduleName, resFields); err != nil {
+		return err
+>>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	}
 	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord)
 	if err != nil {
@@ -67,7 +77,8 @@ func (s Scaffolder) AddQuery(
 		g    *genny.Generator
 		opts = &query.Options{
 			AppName:     s.modpath.Package,
-			AppPath:     s.path,
+			AppPath:     s.appPath,
+			ProtoDir:    s.protoDir,
 			ModulePath:  s.modpath.RawPath,
 			ModuleName:  moduleName,
 			QueryName:   name,

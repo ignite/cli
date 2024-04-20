@@ -80,32 +80,6 @@ func TestGenerateAnAppWithNoDefaultModuleAndCreateAModule(t *testing.T) {
 	))
 }
 
-func TestGenerateAnAppWithWasm(t *testing.T) {
-	t.Skip()
-
-	var (
-		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/blog")
-	)
-
-	env.Must(env.Exec("add Wasm module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "wasm", "--yes"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
-
-	env.Must(env.Exec("should not add Wasm module second time",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "wasm", "--yes"),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
-
-	app.EnsureSteady()
-}
-
 func TestGenerateAppWithEmptyModule(t *testing.T) {
 	var (
 		env = envtest.New(t)

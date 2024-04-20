@@ -7,9 +7,16 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+<<<<<<< HEAD
 	"github.com/ignite/cli/v28/ignite/config/chain/base"
 	v1 "github.com/ignite/cli/v28/ignite/config/chain/v1"
 	"github.com/ignite/cli/v28/ignite/pkg/xnet"
+=======
+	"github.com/ignite/cli/v29/ignite/config/chain/base"
+	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
+	v1 "github.com/ignite/cli/v29/ignite/config/chain/v1"
+	"github.com/ignite/cli/v29/ignite/pkg/xnet"
+>>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 )
 
 func TestConfigDecode(t *testing.T) {
@@ -99,12 +106,12 @@ func TestConfigValidatorDefaultServers(t *testing.T) {
 	require.NoError(t, err)
 
 	// Assert
-	require.Equal(t, base.DefaultGRPCAddress, servers.GRPC.Address)
-	require.Equal(t, base.DefaultGRPCWebAddress, servers.GRPCWeb.Address)
-	require.Equal(t, base.DefaultAPIAddress, servers.API.Address)
-	require.Equal(t, base.DefaultRPCAddress, servers.RPC.Address)
-	require.Equal(t, base.DefaultP2PAddress, servers.P2P.Address)
-	require.Equal(t, base.DefaultPProfAddress, servers.RPC.PProfAddress)
+	require.Equal(t, defaults.GRPCAddress, servers.GRPC.Address)
+	require.Equal(t, defaults.GRPCWebAddress, servers.GRPCWeb.Address)
+	require.Equal(t, defaults.APIAddress, servers.API.Address)
+	require.Equal(t, defaults.RPCAddress, servers.RPC.Address)
+	require.Equal(t, defaults.P2PAddress, servers.P2P.Address)
+	require.Equal(t, defaults.PProfAddress, servers.RPC.PProfAddress)
 }
 
 func TestConfigValidatorWithExistingServers(t *testing.T) {
@@ -141,10 +148,10 @@ func TestConfigValidatorWithExistingServers(t *testing.T) {
 	// Assert
 	require.Equal(t, rpcAddr, servers.RPC.Address)
 	require.Equal(t, apiAddr, servers.API.Address)
-	require.Equal(t, base.DefaultGRPCAddress, servers.GRPC.Address)
-	require.Equal(t, base.DefaultGRPCWebAddress, servers.GRPCWeb.Address)
-	require.Equal(t, base.DefaultP2PAddress, servers.P2P.Address)
-	require.Equal(t, base.DefaultPProfAddress, servers.RPC.PProfAddress)
+	require.Equal(t, defaults.GRPCAddress, servers.GRPC.Address)
+	require.Equal(t, defaults.GRPCWebAddress, servers.GRPCWeb.Address)
+	require.Equal(t, defaults.P2PAddress, servers.P2P.Address)
+	require.Equal(t, defaults.PProfAddress, servers.RPC.PProfAddress)
 }
 
 func TestConfigValidatorsWithExistingServers(t *testing.T) {
@@ -188,10 +195,10 @@ func TestConfigValidatorsWithExistingServers(t *testing.T) {
 	require.Equal(t, apiAddr, servers.API.Address)
 
 	// Assert: The second validator should have the ports incremented by 10
-	require.Equal(t, xnet.MustIncreasePortBy(base.DefaultGRPCAddress, inc), servers.GRPC.Address)
-	require.Equal(t, xnet.MustIncreasePortBy(base.DefaultGRPCWebAddress, inc), servers.GRPCWeb.Address)
-	require.Equal(t, xnet.MustIncreasePortBy(base.DefaultP2PAddress, inc), servers.P2P.Address)
-	require.Equal(t, xnet.MustIncreasePortBy(base.DefaultPProfAddress, inc), servers.RPC.PProfAddress)
+	require.Equal(t, xnet.MustIncreasePortBy(defaults.GRPCAddress, inc), servers.GRPC.Address)
+	require.Equal(t, xnet.MustIncreasePortBy(defaults.GRPCWebAddress, inc), servers.GRPCWeb.Address)
+	require.Equal(t, xnet.MustIncreasePortBy(defaults.P2PAddress, inc), servers.P2P.Address)
+	require.Equal(t, xnet.MustIncreasePortBy(defaults.PProfAddress, inc), servers.RPC.PProfAddress)
 }
 
 func TestConfigValidatorsDefaultServers(t *testing.T) {
@@ -221,12 +228,12 @@ func TestConfigValidatorsDefaultServers(t *testing.T) {
 	require.NoError(t, err)
 
 	// Assert: The second validator should have the ports incremented by 10
-	require.Equal(t, xnet.MustIncreasePortBy(base.DefaultGRPCAddress, inc), servers.GRPC.Address)
-	require.Equal(t, xnet.MustIncreasePortBy(base.DefaultGRPCWebAddress, inc), servers.GRPCWeb.Address)
-	require.Equal(t, xnet.MustIncreasePortBy(base.DefaultAPIAddress, inc), servers.API.Address)
-	require.Equal(t, xnet.MustIncreasePortBy(base.DefaultRPCAddress, inc), servers.RPC.Address)
-	require.Equal(t, xnet.MustIncreasePortBy(base.DefaultP2PAddress, inc), servers.P2P.Address)
-	require.Equal(t, xnet.MustIncreasePortBy(base.DefaultPProfAddress, inc), servers.RPC.PProfAddress)
+	require.Equal(t, xnet.MustIncreasePortBy(defaults.GRPCAddress, inc), servers.GRPC.Address)
+	require.Equal(t, xnet.MustIncreasePortBy(defaults.GRPCWebAddress, inc), servers.GRPCWeb.Address)
+	require.Equal(t, xnet.MustIncreasePortBy(defaults.APIAddress, inc), servers.API.Address)
+	require.Equal(t, xnet.MustIncreasePortBy(defaults.RPCAddress, inc), servers.RPC.Address)
+	require.Equal(t, xnet.MustIncreasePortBy(defaults.P2PAddress, inc), servers.P2P.Address)
+	require.Equal(t, xnet.MustIncreasePortBy(defaults.PProfAddress, inc), servers.RPC.PProfAddress)
 }
 
 func TestClone(t *testing.T) {

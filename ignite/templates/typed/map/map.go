@@ -122,7 +122,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 //   - Existence of a service with name "Query". Adds the rpc's there.
 func protoRPCModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := opts.ProtoPath("query.proto")
+		path := opts.ProtoFile("query.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -285,7 +285,7 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 //   - Existence of a message with name "GenesisState". Adds the field there.
 func genesisProtoModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := opts.ProtoPath("genesis.proto")
+		path := opts.ProtoFile("genesis.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -520,7 +520,7 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 //   - A service named "Msg" to exist in the proto file, it appends the RPCs inside it.
 func protoTxModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := opts.ProtoPath("tx.proto")
+		path := opts.ProtoFile("tx.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

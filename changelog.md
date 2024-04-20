@@ -39,6 +39,15 @@
 - [#4108](https://github.com/ignite/cli/pull/4108) Add `xast` package (cherry-picked from [#3770](https://github.com/ignite/cli/pull/3770))
 - [#4110](https://github.com/ignite/cli/pull/4110) Scaffold a consumer chain with `interchain-security` v5.0.0.
 - [#4117](https://github.com/ignite/cli/pull/4117), [#4125](https://github.com/ignite/cli/pull/4125) Support relative path when installing local plugins
+- [#3707](https://github.com/ignite/cli/pull/3707) Add collections support.
+- [#3977](https://github.com/ignite/cli/pull/3977) Add `chain lint` command to lint the chain's codebase using `golangci-lint`
+- [#3770](https://github.com/ignite/cli/pull/3770) Add `scaffold configs` and `scaffold params` commands
+- [#4001](https://github.com/ignite/cli/pull/4001) Improve `xgenny` dry run
+- [#3967](https://github.com/ignite/cli/issues/3967) Add HD wallet parameters `address index` and `account number` to the chain account config
+- [#4004](https://github.com/ignite/cli/pull/4004) Remove all import placeholders using the `xast` pkg
+- [#4071](https://github.com/ignite/cli/pull/4071) Support custom proto path
+- [#3718](https://github.com/ignite/cli/pull/3718) Add `gen-mig-diffs` tool app to compare scaffold output of two versions of ignite
+- [#4077](https://github.com/ignite/cli/pull/4077) Merge the swagger files manually instead use nodetime `swagger-combine`
 
 ### Changes
 

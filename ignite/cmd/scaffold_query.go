@@ -41,7 +41,10 @@ For detailed type information use ignite scaffold type --help.`,
 }
 
 func queryHandler(cmd *cobra.Command, args []string) error {
-	appPath := flagGetPath(cmd)
+	var (
+		appPath  = flagGetPath(cmd)
+		protoDir = flagGetProtoDir(cmd)
+	)
 
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
@@ -78,7 +81,11 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+<<<<<<< HEAD
 	sc, err := scaffolder.New(appPath)
+=======
+	sc, err := scaffolder.New(cmd.Context(), appPath, protoDir)
+>>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	if err != nil {
 		return err
 	}

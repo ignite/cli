@@ -22,12 +22,20 @@ import (
 // Init initializes a new app with name and given options.
 func Init(
 	ctx context.Context,
+<<<<<<< HEAD
 	cacheStorage cache.Storage,
 	tracer *placeholder.Tracer,
 	root, name, addressPrefix string,
 	noDefaultModule, skipGit, skipProto, minimal, isConsumerChain bool,
 	params []string,
 ) (path string, err error) {
+=======
+	runner *xgenny.Runner,
+	root, name, addressPrefix, protoDir string,
+	noDefaultModule, minimal, isConsumerChain bool,
+	params, moduleConfigs []string,
+) (string, string, error) {
+>>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
 		return "", err
@@ -51,6 +59,7 @@ func Init(
 		tracer,
 		pathInfo,
 		addressPrefix,
+		protoDir,
 		path,
 		noDefaultModule,
 		minimal,
@@ -80,6 +89,7 @@ func generate(
 	tracer *placeholder.Tracer,
 	pathInfo gomodulepath.Path,
 	addressPrefix,
+	protoDir,
 	absRoot string,
 	noDefaultModule, minimal, isConsumerChain bool,
 	params []string,
@@ -92,7 +102,7 @@ func generate(
 
 	githubPath := gomodulepath.ExtractAppPath(pathInfo.RawPath)
 	if !strings.Contains(githubPath, "/") {
-		// A username must be added when the app module path has a single element
+		// A username must be added when the app module appPath has a single element
 		githubPath = fmt.Sprintf("username/%s", githubPath)
 	}
 
@@ -101,6 +111,7 @@ func generate(
 		ModulePath:       pathInfo.RawPath,
 		AppName:          pathInfo.Package,
 		AppPath:          absRoot,
+		ProtoDir:         protoDir,
 		GitHubPath:       githubPath,
 		BinaryNamePrefix: pathInfo.Root,
 		AddressPrefix:    addressPrefix,
@@ -137,6 +148,7 @@ func generate(
 			ModulePath: pathInfo.RawPath,
 			AppName:    pathInfo.Package,
 			AppPath:    absRoot,
+			ProtoDir:   protoDir,
 			Params:     paramsFields,
 			IsIBC:      false,
 		}

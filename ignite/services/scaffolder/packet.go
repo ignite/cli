@@ -79,8 +79,13 @@ func (s Scaffolder) AddPacket(
 		return sm, err
 	}
 
+<<<<<<< HEAD
 	if err := checkComponentValidity(s.path, moduleName, name, o.withoutMessage); err != nil {
 		return sm, err
+=======
+	if err := checkComponentValidity(s.appPath, moduleName, name, o.withoutMessage); err != nil {
+		return err
+>>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	}
 
 	mfSigner, err := multiformatname.NewName(o.signer)
@@ -89,7 +94,7 @@ func (s Scaffolder) AddPacket(
 	}
 
 	// Module must implement IBC
-	ok, err := isIBCModule(s.path, moduleName)
+	ok, err := isIBCModule(s.appPath, moduleName)
 	if err != nil {
 		return sm, err
 	}
@@ -103,8 +108,13 @@ func (s Scaffolder) AddPacket(
 	}
 
 	// Check and parse packet fields
+<<<<<<< HEAD
 	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, packetFields); err != nil {
 		return sm, err
+=======
+	if err := checkCustomTypes(ctx, s.appPath, s.modpath.Package, s.protoDir, moduleName, packetFields); err != nil {
+		return err
+>>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	}
 	parsedPacketFields, err := field.ParseFields(packetFields, checkForbiddenPacketField, signer)
 	if err != nil {
@@ -112,8 +122,13 @@ func (s Scaffolder) AddPacket(
 	}
 
 	// check and parse acknowledgment fields
+<<<<<<< HEAD
 	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, ackFields); err != nil {
 		return sm, err
+=======
+	if err := checkCustomTypes(ctx, s.appPath, s.modpath.Package, s.protoDir, moduleName, ackFields); err != nil {
+		return err
+>>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	}
 	parsedAcksFields, err := field.ParseFields(ackFields, checkGoReservedWord, signer)
 	if err != nil {
@@ -125,7 +140,8 @@ func (s Scaffolder) AddPacket(
 		g    *genny.Generator
 		opts = &ibc.PacketOptions{
 			AppName:    s.modpath.Package,
-			AppPath:    s.path,
+			AppPath:    s.appPath,
+			ProtoDir:   s.protoDir,
 			ModulePath: s.modpath.RawPath,
 			ModuleName: moduleName,
 			PacketName: name,
