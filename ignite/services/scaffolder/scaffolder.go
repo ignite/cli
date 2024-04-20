@@ -25,8 +25,11 @@ type Scaffolder struct {
 	// Version of the chain
 	Version cosmosver.Version
 
-	// path of the app.
-	path string
+	// appPath path of the app.
+	appPath string
+
+	// protoDir path of the proto folder.
+	protoDir string
 
 	// modpath represents the go module Path of the app.
 	modpath gomodulepath.Path
@@ -36,7 +39,7 @@ type Scaffolder struct {
 }
 
 // New creates a new scaffold app.
-func New(context context.Context, appPath string) (Scaffolder, error) {
+func New(context context.Context, appPath, protoDir string) (Scaffolder, error) {
 	path, err := filepath.Abs(appPath)
 	if err != nil {
 		return Scaffolder{}, err
@@ -62,10 +65,11 @@ func New(context context.Context, appPath string) (Scaffolder, error) {
 	}
 
 	s := Scaffolder{
-		Version: ver,
-		path:    path,
-		modpath: modpath,
-		runner:  xgenny.NewRunner(context, path),
+		Version:  ver,
+		appPath:  path,
+		protoDir: protoDir,
+		modpath:  modpath,
+		runner:   xgenny.NewRunner(context, path),
 	}
 
 	return s, nil
@@ -84,12 +88,12 @@ func (s Scaffolder) Run(gens ...*genny.Generator) error {
 }
 
 func (s Scaffolder) PostScaffold(ctx context.Context, cacheStorage cache.Storage, skipProto bool) error {
-	return PostScaffold(ctx, cacheStorage, s.path, s.modpath.RawPath, skipProto)
+	return PostScaffold(ctx, cacheStorage, s.appPath, s.protoDir, s.modpath.RawPath, skipProto)
 }
 
-func PostScaffold(ctx context.Context, cacheStorage cache.Storage, path, gomodPath string, skipProto bool) error {
+func PostScaffold(ctx context.Context, cacheStorage cache.Storage, path, protoDir, gomodPath string, skipProto bool) error {
 	if !skipProto {
-		if err := protoc(ctx, cacheStorage, path, gomodPath); err != nil {
+		if err := protoc(ctx, cacheStorage, path, protoDir, gomodPath); err != nil {
 			return err
 		}
 	}
@@ -107,7 +111,7 @@ func PostScaffold(ctx context.Context, cacheStorage cache.Storage, path, gomodPa
 	return nil
 }
 
-func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodPath string) error {
+func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, protoDir, gomodPath string) error {
 	confpath, err := chainconfig.LocateDefault(projectPath)
 	if err != nil {
 		return err
@@ -163,5 +167,5 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 		options = append(options, cosmosgen.WithOpenAPIGeneration(openAPIPath))
 	}
 
-	return cosmosgen.Generate(ctx, cacheStorage, projectPath, conf.Build.Proto.Path, gomodPath, options...)
+	return cosmosgen.Generate(ctx, cacheStorage, projectPath, protoDir, gomodPath, options...)
 }
