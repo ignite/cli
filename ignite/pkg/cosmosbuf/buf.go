@@ -27,7 +27,46 @@ type (
 		sdkProtoDir string
 		cache       *protoanalysis.Cache
 	}
+
+	// genOptions represents the buf generate options.
+	genOptions struct {
+		flags          map[string]string
+		excludeFiles   []string
+		includeImports []string
+	}
+
+	// GenOptions represents the buf generate options function.
+	GenOptions func(o *genOptions)
 )
+
+func newGenOptions() *genOptions {
+	return &genOptions{
+		flags:          make(map[string]string),
+		excludeFiles:   make([]string, 0),
+		includeImports: make([]string, 0),
+	}
+}
+
+// WithGenerateFlag provides flag options for the buf generate command.
+func WithGenerateFlag(flag, value string) GenOptions {
+	return func(o *genOptions) {
+		o.flags[flag] = value
+	}
+}
+
+// ExcludeFiles exclude proto files.
+func ExcludeFiles(excludeFiles ...string) GenOptions {
+	return func(o *genOptions) {
+		o.excludeFiles = append(o.excludeFiles, excludeFiles...)
+	}
+}
+
+// IncludeImports include proto import.
+func IncludeImports(includeImports ...string) GenOptions {
+	return func(o *genOptions) {
+		o.includeImports = append(o.includeImports, includeImports...)
+	}
+}
 
 const (
 	binaryName      = "buf"
@@ -146,18 +185,19 @@ func (b Buf) Generate(
 	protoDir,
 	output,
 	template string,
-	excludeFilename ...string,
+	options ...GenOptions,
 ) (err error) {
-	var (
-		excluded = make(map[string]struct{})
-		flags    = map[string]string{
-			flagTemplate:    template,
-			flagOutput:      output,
-			flagErrorFormat: fmtJSON,
-			flagLogFormat:   fmtJSON,
-		}
-	)
-	for _, file := range excludeFilename {
+	opts := newGenOptions()
+	for _, apply := range options {
+		apply(opts)
+	}
+	opts.flags[flagTemplate] = template
+	opts.flags[flagOutput] = output
+	opts.flags[flagErrorFormat] = fmtJSON
+	opts.flags[flagLogFormat] = fmtJSON
+
+	excluded := make(map[string]struct{})
+	for _, file := range opts.excludeFiles {
 		excluded[file] = struct{}{}
 	}
 
@@ -197,7 +237,7 @@ func (b Buf) Generate(
 				continue
 			}
 
-			cmd, err := b.generateCommand(CMDGenerate, flags, file.Path)
+			cmd, err := b.generateCommand(CMDGenerate, opts.flags, file.Path)
 			if err != nil {
 				return err
 			}

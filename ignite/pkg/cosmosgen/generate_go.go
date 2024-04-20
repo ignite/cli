@@ -7,6 +7,7 @@ import (
 
 	"github.com/otiai10/copy"
 
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
@@ -31,7 +32,7 @@ func (g *generator) generateGoGo(ctx context.Context) error {
 	protoPath := filepath.Join(g.appPath, g.protoDir)
 
 	// code generate for each module.
-	err = g.buf.Generate(ctx, protoPath, tmp, g.gogoTemplate(), "module.proto")
+	err = g.buf.Generate(ctx, protoPath, tmp, g.gogoTemplate(), cosmosbuf.ExcludeFiles("module.proto"))
 	if err != nil {
 		return err
 	}

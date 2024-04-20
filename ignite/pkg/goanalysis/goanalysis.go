@@ -45,7 +45,6 @@ func DiscoverMain(path string) (pkgPaths []string, err error) {
 
 		return nil
 	})
-
 	if err != nil {
 		return nil, err
 	}
