@@ -19,7 +19,7 @@ import (
 func Init(
 	ctx context.Context,
 	runner *xgenny.Runner,
-	root, name, addressPrefix string,
+	root, name, addressPrefix, protoDir string,
 	noDefaultModule, minimal, isConsumerChain bool,
 	params, moduleConfigs []string,
 ) (string, string, error) {
@@ -48,6 +48,7 @@ func Init(
 		runner,
 		pathInfo,
 		addressPrefix,
+		protoDir,
 		path,
 		noDefaultModule,
 		minimal,
@@ -64,6 +65,7 @@ func generate(
 	runner *xgenny.Runner,
 	pathInfo gomodulepath.Path,
 	addressPrefix,
+	protoDir,
 	absRoot string,
 	noDefaultModule, minimal, isConsumerChain bool,
 	params, moduleConfigs []string,
@@ -82,7 +84,7 @@ func generate(
 
 	githubPath := gomodulepath.ExtractAppPath(pathInfo.RawPath)
 	if !strings.Contains(githubPath, "/") {
-		// A username must be added when the app module path has a single element
+		// A username must be added when the app module appPath has a single element
 		githubPath = fmt.Sprintf("username/%s", githubPath)
 	}
 
@@ -91,6 +93,7 @@ func generate(
 		ModulePath:       pathInfo.RawPath,
 		AppName:          pathInfo.Package,
 		AppPath:          absRoot,
+		ProtoDir:         protoDir,
 		GitHubPath:       githubPath,
 		BinaryNamePrefix: pathInfo.Root,
 		AddressPrefix:    addressPrefix,
@@ -122,6 +125,7 @@ func generate(
 			ModulePath: pathInfo.RawPath,
 			AppName:    pathInfo.Package,
 			AppPath:    absRoot,
+			ProtoDir:   protoDir,
 			Params:     paramsFields,
 			Configs:    configsFields,
 			IsIBC:      false,

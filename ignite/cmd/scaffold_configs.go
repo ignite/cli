@@ -46,6 +46,7 @@ func scaffoldConfigsHandler(cmd *cobra.Command, args []string) error {
 		configs    = args[0:]
 		appPath    = flagGetPath(cmd)
 		moduleName = flagGetModule(cmd)
+		protoDir   = flagGetProtoDir(cmd)
 	)
 
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
@@ -56,7 +57,7 @@ func scaffoldConfigsHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sc, err := scaffolder.New(cmd.Context(), appPath)
+	sc, err := scaffolder.New(cmd.Context(), appPath, protoDir)
 	if err != nil {
 		return err
 	}
