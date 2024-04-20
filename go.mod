@@ -58,7 +58,6 @@ require (
 	github.com/hashicorp/go-plugin v1.6.0
 	github.com/iancoleman/strcase v0.3.0
 	github.com/ignite/ignite-files/nodetime v0.0.4
-	github.com/ignite/ignite-files/protoc v0.0.1
 	github.com/ignite/web v0.6.1
 	github.com/imdario/mergo v0.3.13
 	github.com/jpillora/chisel v1.9.1
