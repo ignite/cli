@@ -50,7 +50,6 @@ func Determine(path string) (v Version, err error) {
 
 		return nil
 	})
-
 	if err != nil {
 		return Version{}, err
 	}
@@ -94,7 +93,6 @@ func Determine(path string) (v Version, err error) {
 
 		return nil
 	})
-
 	if err != nil {
 		return Version{}, err
 	}
