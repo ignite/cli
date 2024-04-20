@@ -442,6 +442,7 @@ func TestBlogIBC(t *testing.T) {
 	env.Must(env.Exec("configure the hermes relayer app",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp,
+				"relayer",
 				"hermes",
 				"configure",
 				earthChainID,
@@ -461,7 +462,7 @@ func TestBlogIBC(t *testing.T) {
 	go func() {
 		env.Must(env.Exec("run the hermes relayer",
 			step.NewSteps(step.New(
-				step.Exec(envtest.IgniteApp, "hermes", "start", earthChainID, marsChainID),
+				step.Exec(envtest.IgniteApp, "relayer", "hermes", "start", earthChainID, marsChainID),
 			)),
 			envtest.ExecCtx(ctx),
 		))
