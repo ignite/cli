@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	v1 "github.com/ignite/cli/v29/ignite/config/chain/v1"
