@@ -31,24 +31,21 @@ func Test<%= TypeName.UpperCamel %>QuerySingle(t *testing.T) {
 		{
 			desc:     "First",
 			request:  &types.QueryGet<%= TypeName.UpperCamel %>Request{
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: msgs[0].<%= index.Name.UpperCamel %>,
-                <% } %>
+			    <%= Index.Name.UpperCamel %>: msgs[0].<%= Index.Name.UpperCamel %>,
 			},
 			response: &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: msgs[0]},
 		},
 		{
 			desc:     "Second",
 			request:  &types.QueryGet<%= TypeName.UpperCamel %>Request{
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: msgs[1].<%= index.Name.UpperCamel %>,
-                <% } %>
+			    <%= Index.Name.UpperCamel %>: msgs[1].<%= Index.Name.UpperCamel %>,
 			},
 			response: &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: msgs[1]},
 		},
 		{
 			desc:    "KeyNotFound",
 			request: &types.QueryGet<%= TypeName.UpperCamel %>Request{
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>:<%= index.ValueInvalidIndex() %>,
-                <% } %>
+				<%= Index.Name.UpperCamel %>: msgs[0].<%= Index.ValueInvalidIndex() %>,
 			},
 			err:     status.Error(codes.NotFound, "not found"),
 		},

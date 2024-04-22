@@ -23,16 +23,12 @@ func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
 
 	for i := 0; i < 5; i++ {
 		expected := &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
-		    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueLoop() %>,
-            <% } %>
+		   <%= Index.Name.UpperCamel %>: <%= Index.ValueLoop() %>,
 		}
 		_, err := srv.Create<%= TypeName.UpperCamel %>(ctx, expected)
 		require.NoError(t, err)
-		rst, found := k.Get<%= TypeName.UpperCamel %>(ctx,
-		    <%= for (i, index) in Indexes { %>expected.<%= index.Name.UpperCamel %>,
-            <% } %>
-		)
-		require.True(t, found)
+		rst, err := k.<%= TypeName.UpperCamel %>.Get(ctx, expected.<%= Index.Name.UpperCamel %>)
+		require.NoError(t, err)
 		require.Equal(t, expected.<%= MsgSigner.UpperCamel %>, rst.<%= MsgSigner.UpperCamel %>)
 	}
 }
@@ -47,8 +43,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 
 	srv := keeper.NewMsgServerImpl(k)
 	expected := &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
-	    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
-        <% } %>
+	    <%= Index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
 	}
 	_, err = srv.Create<%= TypeName.UpperCamel %>(ctx, expected)
 	require.NoError(t, err)
@@ -61,32 +56,28 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 		{
 			desc:    "invalid address",
 			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: "invalid",
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
-                <% } %>
+			    <%= Index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
 			},
 			err:     sdkerrors.ErrInvalidAddress,
 		},
 		{
 			desc:    "unauthorized",
 			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: unauthorizedAddr,
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
-                <% } %>
+			    <%= Index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
 			},
 			err:     sdkerrors.ErrUnauthorized,
 		},
 		{
 			desc:    "key not found",
 			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueInvalidIndex() %>,
-                <% } %>
+			    <%= Index.Name.UpperCamel %>: <%= index.ValueInvalidIndex() %>,
 			},
 			err:     sdkerrors.ErrKeyNotFound,
 		},
 		{
 			desc:    "completed",
 			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
-                <% } %>
+			    <%= Index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
 			},
 		},
 	}
@@ -97,11 +88,8 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 				require.ErrorIs(t, err, tc.err)
 			} else {
 				require.NoError(t, err)
-				rst, found := k.Get<%= TypeName.UpperCamel %>(ctx,
-				    <%= for (i, index) in Indexes { %>expected.<%= index.Name.UpperCamel %>,
-                    <% } %>
-				)
-				require.True(t, found)
+				rst, err := k.<%= TypeName.UpperCamel %>.Get(ctx, expected.<%= Index.Name.UpperCamel %>)
+				require.NoError(t, err)
 				require.Equal(t, expected.<%= MsgSigner.UpperCamel %>, rst.<%= MsgSigner.UpperCamel %>)
 			}
 		})
@@ -118,8 +106,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 
 	srv := keeper.NewMsgServerImpl(k)
 	_, err = srv.Create<%= TypeName.UpperCamel %>(ctx, &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
-	    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
-        <% } %>
+	    <%= Index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
 	})
 	require.NoError(t, err)
 
@@ -131,32 +118,28 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 		{
 			desc:    "invalid address",
 			request: &types.MsgDelete<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: "invalid",
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
-                <% } %>
+			    <%= Index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
 			},
 			err:     sdkerrors.ErrInvalidAddress,
 		},
 		{
 			desc:    "unauthorized",
 			request: &types.MsgDelete<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: unauthorizedAddr,
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
-                <% } %>
+			    <%= Index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
 			},
 			err:     sdkerrors.ErrUnauthorized,
 		},
 		{
 			desc:    "key not found",
 			request: &types.MsgDelete<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueInvalidIndex() %>,
-                <% } %>
+			    <%= Index.Name.UpperCamel %>: <%= index.ValueInvalidIndex() %>,
 			},
 			err:     sdkerrors.ErrKeyNotFound,
 		},
 		{
 			desc:    "completed",
 			request: &types.MsgDelete<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
-                <% } %>
+			    <%= Index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
 			},
 		},
 	}
@@ -167,10 +150,8 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 				require.ErrorIs(t, err, tc.err)
 			} else {
 				require.NoError(t, err)
-				_, found := k.Get<%= TypeName.UpperCamel %>(ctx,
-				    <%= for (i, index) in Indexes { %>tc.request.<%= index.Name.UpperCamel %>,
-                    <% } %>
-				)
+				_, err := k.<%= TypeName.UpperCamel %>.Has(ctx, tc.request.<%= Index.Name.UpperCamel %>)
+				require.NoError(t, err)
 				require.False(t, found)
 			}
 		})
