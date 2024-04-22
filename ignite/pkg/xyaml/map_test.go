@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
 )
@@ -40,5 +40,5 @@ func TestUnmarshalWithNativeMapType(t *testing.T) {
 	// Assert
 	require.NoError(t, err)
 	require.NotNil(t, output["foo"])
-	require.IsType(t, (map[interface{}]interface{})(nil), output["foo"])
+	require.IsType(t, (map[string]interface{})(nil), output["foo"])
 }
