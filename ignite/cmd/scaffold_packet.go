@@ -41,6 +41,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 		packetFields = args[1:]
 		signer       = flagGetSigner(cmd)
 		appPath      = flagGetPath(cmd)
+		protoDir     = flagGetProtoDir(cmd)
 	)
 
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
@@ -66,7 +67,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 		options = append(options, scaffolder.PacketWithSigner(signer))
 	}
 
-	sc, err := scaffolder.New(cmd.Context(), appPath)
+	sc, err := scaffolder.New(cmd.Context(), appPath, protoDir)
 	if err != nil {
 		return err
 	}

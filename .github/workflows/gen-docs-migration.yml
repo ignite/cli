@@ -1,0 +1,34 @@
+name: Generate Migration Docs
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  cli:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+
+      - name: Generate Scaffold Migration Docs
+        run: ./scripts/gen-mig-diffs
+
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          title: "docs(migration): update generated docs"
+          commit-message: "docs(migration): update generated docs"
+          body: ""
+          branch: feat/gen-migration-docs
+          add-paths: |
+            docs/
+
+      - name: Check outputs
+        run: |
+          echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
+          echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
+

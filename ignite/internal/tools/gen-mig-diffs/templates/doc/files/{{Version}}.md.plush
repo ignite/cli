@@ -1,0 +1,17 @@
+---
+sidebar_position: <%= Position %>
+title: <%= ToVersion %>
+description: <%= ShortDescription %>
+---
+
+## **<%= ToVersion %>**
+
+<%= Description %>
+### **Chain migration diffs**
+
+<%= Diffs %>
+### **Details**
+
+- **The CLI tools automatically generated this file**;
+- Generated from <%= FromVersion %> to <%= ToVersion %>;
+- Generated <%= Date %>;

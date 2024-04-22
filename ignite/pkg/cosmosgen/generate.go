@@ -11,6 +11,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
+	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
@@ -123,7 +124,7 @@ func (g *generator) setup(ctx context.Context) (err error) {
 		return err
 	}
 
-	g.appIncludes, _, err = g.resolveIncludes(ctx, g.appPath)
+	g.appIncludes, _, err = g.resolveIncludes(ctx, g.appPath, g.protoDir)
 	if err != nil {
 		return err
 	}
@@ -185,7 +186,7 @@ func (g *generator) setup(ctx context.Context) (err error) {
 				cacheable = true
 			)
 			if len(modules) > 0 {
-				includes, cacheable, err = g.resolveIncludes(ctx, path)
+				includes, cacheable, err = g.resolveIncludes(ctx, path, defaults.ProtoDir)
 				if err != nil {
 					return err
 				}
@@ -254,7 +255,7 @@ func (g *generator) generateBufIncludeFolder(ctx context.Context, modpath string
 	return protoPath, nil
 }
 
-func (g *generator) resolveIncludes(ctx context.Context, path string) (protoIncludes, bool, error) {
+func (g *generator) resolveIncludes(ctx context.Context, path, protoDir string) (protoIncludes, bool, error) {
 	// Init paths with the global include paths for protoc
 	paths, err := protocGlobalInclude()
 	if err != nil {
@@ -270,7 +271,7 @@ func (g *generator) resolveIncludes(ctx context.Context, path string) (protoIncl
 		protoPath = filepath.Join(g.sdkDir, "proto")
 	} else {
 		// Check that the app/package proto directory exists
-		protoPath = filepath.Join(path, g.protoDir)
+		protoPath = filepath.Join(path, protoDir)
 		fi, err := os.Stat(protoPath)
 		if err != nil && !os.IsNotExist(err) {
 			return protoIncludes{}, false, err
