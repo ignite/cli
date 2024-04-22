@@ -6,20 +6,19 @@ import (
 	"path/filepath"
 	"runtime"
 	"strconv"
-	"strings"
 	"sync"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/v29/ignite/pkg/gacli"
 	"github.com/ignite/cli/v29/ignite/pkg/gitpod"
+	"github.com/ignite/cli/v29/ignite/pkg/matomo"
 	"github.com/ignite/cli/v29/ignite/pkg/randstr"
 	"github.com/ignite/cli/v29/ignite/version"
 )
 
 const (
-	telemetryEndpoint  = "https://telemetry-cli.ignite.com"
+	telemetryEndpoint  = "https://pantani.matomo.cloud/matomo.php"
 	envDoNotTrack      = "DO_NOT_TRACK"
 	envCI              = "CI"
 	envGitHubActions   = "GITHUB_ACTIONS"
@@ -27,7 +26,7 @@ const (
 	igniteAnonIdentity = "anon_identity.json"
 )
 
-var gaclient gacli.Client
+var matomoClient matomo.Client
 
 // anonIdentity represents an analytics identity file.
 type anonIdentity struct {
@@ -38,7 +37,10 @@ type anonIdentity struct {
 }
 
 func init() {
-	gaclient = gacli.New(telemetryEndpoint)
+	matomoClient = matomo.New(
+		telemetryEndpoint,
+		matomo.WithIDSite(1),
+	)
 }
 
 // SendMetric send command metrics to analytics.
@@ -53,22 +55,20 @@ func SendMetric(wg *sync.WaitGroup, cmd *cobra.Command) {
 	}
 
 	path := cmd.CommandPath()
-	met := gacli.Metric{
-		Name:      cmd.Name(),
-		Cmd:       path,
-		Tag:       strings.ReplaceAll(path, " ", "+"),
-		OS:        runtime.GOOS,
-		Arch:      runtime.GOARCH,
-		SessionID: dntInfo.Name,
-		Version:   version.Version,
-		IsGitPod:  gitpod.IsOnGitpod(),
-		IsCI:      getIsCI(),
+	met := matomo.Metric{
+		Name:     cmd.Name(),
+		Cmd:      path,
+		OS:       runtime.GOOS,
+		Arch:     runtime.GOARCH,
+		Version:  version.Version,
+		IsGitPod: gitpod.IsOnGitpod(),
+		IsCI:     getIsCI(),
 	}
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		_ = gaclient.SendMetric(met)
+		_ = matomoClient.SendMetric(dntInfo.Name, met)
 	}()
 }
 
@@ -97,7 +97,7 @@ func checkDNT() (anonIdentity, error) {
 		return i, nil
 	}
 
-	i.Name = randstr.Runes(10)
+	i.Name = randstr.Runes(16)
 	i.DoNotTrack = false
 
 	prompt := promptui.Select{

@@ -1,3 +1,4 @@
+// Package gacli is a client for Google Analytics to send data points for hint-type=event.
 package gacli
 
 import (
@@ -79,7 +80,7 @@ func New(endpoint string, opts ...Option) Client {
 
 // Send sends metric event to analytics.
 func (c Client) Send(body Body) error {
-	// encode body
+	// encode body.
 	encoded, err := json.Marshal(body)
 	if err != nil {
 		return err
@@ -98,7 +99,7 @@ func (c Client) Send(body Body) error {
 	}
 	requestURL.RawQuery = v.Encode()
 
-	// Create an HTTP request with the payload
+	// Create an HTTP request with the payload.
 	resp, err := c.httpClient.Post(requestURL.String(), "application/json", bytes.NewBuffer(encoded))
 	if err != nil {
 		return errors.Wrapf(err, "error creating HTTP request: %s", requestURL.String())
@@ -107,7 +108,7 @@ func (c Client) Send(body Body) error {
 
 	if resp.StatusCode != http.StatusOK &&
 		resp.StatusCode != http.StatusNoContent {
-		return errors.Errorf("error to add analytics metric. Status code: %d", resp.StatusCode)
+		return errors.Errorf("error to add google analytics metric. Status code: %d", resp.StatusCode)
 	}
 	return nil
 }
