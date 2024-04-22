@@ -292,15 +292,15 @@ func TestConfigSave(t *testing.T) {
 				return cfg
 			},
 			expectedContent: `apps:
-- path: /path/to/plugin1
-- path: /path/to/plugin22
-  with:
-    bar: baz
-    foo: bar
-    key: val
-- path: /path/to/plugin3
-  with:
-    key: val
+    - path: /path/to/plugin1
+    - path: /path/to/plugin22
+      with:
+        bar: baz
+        foo: bar
+        key: val
+    - path: /path/to/plugin3
+      with:
+        key: val
 `,
 		},
 	}

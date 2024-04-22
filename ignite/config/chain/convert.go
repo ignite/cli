@@ -3,7 +3,7 @@ package chain
 import (
 	"io"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	"github.com/ignite/cli/v29/ignite/config/chain/version"
 )
@@ -36,5 +36,7 @@ func MigrateLatest(current io.Reader, latest io.Writer) error {
 		return err
 	}
 
-	return yaml.NewEncoder(latest).Encode(cfg)
+	encoder := yaml.NewEncoder(latest)
+	encoder.SetIndent(2)
+	return encoder.Encode(cfg)
 }
