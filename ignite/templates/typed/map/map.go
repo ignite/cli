@@ -42,10 +42,8 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 	// Tests are not generated for map with a custom index that contains only booleans
 	// because we can't generate reliable tests for this type
 	var generateTest bool
-	for _, index := range opts.Indexes {
-		if index.DatatypeName != datatype.Bool {
-			generateTest = true
-		}
+	if opts.Index.DatatypeName != datatype.Bool {
+		generateTest = true
 	}
 
 	var (
@@ -139,11 +137,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 			return errors.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 
-		var protoIndexes []string
-		for _, index := range opts.Indexes {
-			protoIndexes = append(protoIndexes, fmt.Sprintf("{%s}", index.ProtoFieldName()))
-		}
-		indexPath := strings.Join(protoIndexes, "/")
+		protoIndex := fmt.Sprintf("{%s}", opts.Index.ProtoFieldName())
 		appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
 		serviceQuery, err := protoutil.GetServiceByName(protoFile, "Query")
 		if err != nil {
@@ -159,7 +153,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 					"google.api.http",
 					fmt.Sprintf(
 						"/%s/%s/%s/%s",
-						appModulePath, opts.ModuleName, typenameSnake, indexPath,
+						appModulePath, opts.ModuleName, typenameSnake, protoIndex,
 					),
 					protoutil.Custom(),
 					protoutil.SetField("get"),
@@ -203,14 +197,10 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 		}
 
 		// Add the messages.
-		var queryIndexFields []*proto.NormalField
-		for i, index := range opts.Indexes {
-			queryIndexFields = append(queryIndexFields, index.ToProtoField(i+1))
-		}
 		paginationType, paginationName := "cosmos.base.query.v1beta1.Page", "pagination"
 		queryGetRequest := protoutil.NewMessage(
 			fmt.Sprintf("QueryGet%sRequest", typenameUpper),
-			protoutil.WithFields(queryIndexFields...),
+			protoutil.WithFields(opts.Index.ToProtoField(1)),
 		)
 		gogoOption := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
 		queryGetResponse := protoutil.NewMessage(
@@ -249,11 +239,6 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 			return err
 		}
 
-		var positionalArgs string
-		for _, field := range opts.Indexes {
-			positionalArgs += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
-		}
-
 		template := `{
 			RpcMethod: "List%[2]v",
 			Use: "list-%[3]v",
@@ -264,7 +249,7 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 			Use: "get-%[3]v [id]",
 			Short: "Gets a %[4]v",
 			Alias: []string{"show-%[3]v"},
-			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
+			PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField:"%[5]s"}},
 		},
 		%[1]v`
 		replacement := fmt.Sprintf(
@@ -273,7 +258,7 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 			opts.TypeName.UpperCamel,
 			opts.TypeName.Kebab,
 			opts.TypeName.Original,
-			strings.TrimSpace(positionalArgs),
+			opts.Index.ProtoFieldName(),
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLIQuery, replacement)
 		newFile := genny.NewFileS(path, content)
@@ -344,11 +329,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		content = replacer.Replace(content, typed.PlaceholderGenesisTypesDefault, replacementTypesDefault)
 
 		// lines of code to call the key function with the indexes of the element
-		var indexArgs []string
-		for _, index := range opts.Indexes {
-			indexArgs = append(indexArgs, "elem."+index.Name.UpperCamel)
-		}
-		keyCall := fmt.Sprintf("%sKey(%s)", opts.TypeName.UpperCamel, strings.Join(indexArgs, ","))
+		keyCall := fmt.Sprintf("%sKey(elem.%s)", opts.TypeName.UpperCamel, opts.Index.Name.UpperCamel)
 
 		templateTypesValidate := `// Check for duplicated index in %[2]v
 %[2]vIndexMap := make(map[string]struct{})
@@ -422,9 +403,7 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		// Create a list of two different indexes to use as sample
 		sampleIndexes := make([]string, 2)
 		for i := 0; i < 2; i++ {
-			for _, index := range opts.Indexes {
-				sampleIndexes[i] += index.GenesisArgs(i)
-			}
+			sampleIndexes[i] = opts.Index.GenesisArgs(i)
 		}
 
 		templateState := `%[2]vList: []types.%[2]v{
@@ -468,9 +447,7 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 		// Create a list of two different indexes to use as sample
 		sampleIndexes := make([]string, 2)
 		for i := 0; i < 2; i++ {
-			for _, index := range opts.Indexes {
-				sampleIndexes[i] += index.GenesisArgs(i)
-			}
+			sampleIndexes[i] = opts.Index.GenesisArgs(i)
 		}
 
 		templateValid := `%[2]vList: []types.%[2]v{
@@ -563,19 +540,15 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		)
 
 		// Messages
-		var indexes []*proto.NormalField
-		for i, index := range opts.Indexes {
-			indexes = append(indexes, index.ToProtoField(i+2))
-		}
-
+		index := opts.Index.ToProtoField(2)
 		var fields []*proto.NormalField
 		for i, f := range opts.Fields {
-			fields = append(fields, f.ToProtoField(i+2+len(opts.Indexes)))
+			fields = append(fields, f.ToProtoField(i+3)) // +3 because of the index
 		}
 
 		// Ensure custom types are imported
 		var protoImports []*proto.Import
-		for _, imp := range append(opts.Fields.ProtoImports(), opts.Indexes.ProtoImports()...) {
+		for _, imp := range append(opts.Fields.ProtoImports(), opts.Index.ProtoImports()...) {
 			protoImports = append(protoImports, protoutil.NewImport(imp))
 		}
 		for _, f := range opts.Fields.Custom() {
@@ -590,7 +563,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		creator := protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)
 		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.LowerCamel)
 		commonFields := []*proto.NormalField{creator}
-		commonFields = append(commonFields, indexes...)
+		commonFields = append(commonFields, index)
 
 		msgCreate := protoutil.NewMessage(
 			"MsgCreate"+typenameUpper,
@@ -629,18 +602,16 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 			return err
 		}
 
+		index := fmt.Sprintf(`{ProtoField: "%s"}, `, opts.Index.ProtoFieldName())
+		indexStr := fmt.Sprintf("[%s] ", opts.Index.ProtoFieldName())
 		var positionalArgs, positionalArgsStr string
-		var indexes, indexesStr string
 		for _, field := range opts.Fields {
 			positionalArgs += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
 			positionalArgsStr += fmt.Sprintf("[%s] ", field.ProtoFieldName())
 		}
-		for _, field := range opts.Indexes {
-			indexes += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
-			indexesStr += fmt.Sprintf("[%s] ", field.ProtoFieldName())
-		}
-		positionalArgs = indexes + positionalArgs
-		positionalArgsStr = indexesStr + positionalArgsStr
+
+		positionalArgs = index + positionalArgs
+		positionalArgsStr = indexStr + positionalArgsStr
 
 		template := `{
 			RpcMethod: "Create%[2]v",
@@ -670,8 +641,8 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 			opts.TypeName.Original,
 			strings.TrimSpace(positionalArgs),
 			strings.TrimSpace(positionalArgsStr),
-			strings.TrimSpace(indexes),
-			strings.TrimSpace(indexesStr),
+			strings.TrimSpace(index),
+			strings.TrimSpace(indexStr),
 		)
 
 		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLITx, replacement)

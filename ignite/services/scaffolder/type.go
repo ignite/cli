@@ -33,7 +33,7 @@ type addTypeOptions struct {
 	isMap       bool
 	isSingleton bool
 
-	indexes []string
+	index string
 
 	withoutMessage    bool
 	withoutSimulation bool
@@ -55,12 +55,11 @@ func ListType() AddTypeKind {
 	}
 }
 
-// MapType makes the type stored in a key-value convention in the storage with a custom
-// index option.
-func MapType(indexes ...string) AddTypeKind {
+// MapType makes the type stored in a key-value convention in the storage with an index option.
+func MapType(index string) AddTypeKind {
 	return func(o *addTypeOptions) {
 		o.isMap = true
-		o.indexes = indexes
+		o.index = index
 	}
 }
 
@@ -198,7 +197,7 @@ func (s Scaffolder) AddType(
 	case o.isList:
 		g, err = list.NewGenerator(s.Tracer(), opts)
 	case o.isMap:
-		g, err = mapGenerator(s.Tracer(), opts, o.indexes)
+		g, err = mapGenerator(s.Tracer(), opts, o.index)
 	case o.isSingleton:
 		g, err = singleton.NewGenerator(s.Tracer(), opts)
 	default:
@@ -258,11 +257,15 @@ func parseTypeFields(opts addTypeOptions) (field.Fields, error) {
 }
 
 // mapGenerator returns the template generator for a map.
-func mapGenerator(replacer placeholder.Replacer, opts *typed.Options, indexes []string) (*genny.Generator, error) {
+func mapGenerator(replacer placeholder.Replacer, opts *typed.Options, index string) (*genny.Generator, error) {
 	// Parse indexes with the associated type
-	parsedIndexes, err := field.ParseFields(indexes, checkForbiddenTypeIndex)
+	parsedIndexes, err := field.ParseFields([]string{index}, checkForbiddenTypeIndex)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(parsedIndexes) == 0 {
+		return nil, errors.Errorf("no index found, a valid map index must be provided")
 	}
 
 	// Indexes and type fields must be disjoint
@@ -270,12 +273,11 @@ func mapGenerator(replacer placeholder.Replacer, opts *typed.Options, indexes []
 	for _, name := range opts.Fields {
 		exists[name.Name.LowerCamel] = struct{}{}
 	}
-	for _, index := range parsedIndexes {
-		if _, ok := exists[index.Name.LowerCamel]; ok {
-			return nil, errors.Errorf("%s cannot simultaneously be an index and a field", index.Name.Original)
-		}
+
+	if _, ok := exists[parsedIndexes[0].Name.LowerCamel]; ok {
+		return nil, errors.Errorf("%s cannot simultaneously be an index and a field", parsedIndexes[0].Name.Original)
 	}
 
-	opts.Indexes = parsedIndexes
+	opts.Index = parsedIndexes[0]
 	return maptype.NewGenerator(replacer, opts)
 }

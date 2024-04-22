@@ -3,8 +3,7 @@ package keeper
 import (
 	"context"
 
-	"cosmossdk.io/store/prefix"
-	"github.com/cosmos/cosmos-sdk/runtime"
+	"cosmossdk.io/collections"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 	"google.golang.org/grpc/codes"
@@ -18,7 +17,9 @@ func (s queryServer) List<%= TypeName.UpperCamel %>(ctx context.Context, req *ty
 
 	var <%= TypeName.LowerCamel %>s []types.<%= TypeName.UpperCamel %>
 
-    store := runtime.KVStoreAdapter(s.k.storeService.OpenKVStore(ctx))
+	// TODO use collections (query.CollectionPaginate)
+
+    {{/* store := runtime.KVStoreAdapter(s.k.storeService.OpenKVStore(ctx))
 	<%= TypeName.LowerCamel %>Store := prefix.NewStore(store, types.KeyPrefix(types.<%= TypeName.UpperCamel %>KeyPrefix))
 
 	pageRes, err := query.Paginate(<%= TypeName.LowerCamel %>Store, req.Pagination, func(key []byte, value []byte) error {
@@ -29,7 +30,7 @@ func (s queryServer) List<%= TypeName.UpperCamel %>(ctx context.Context, req *ty
 
 		<%= TypeName.LowerCamel %>s = append(<%= TypeName.LowerCamel %>s, <%= TypeName.LowerCamel %>)
 		return nil
-	})
+	}) */}}
 
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -43,12 +44,13 @@ func (s queryServer) Get<%= TypeName.UpperCamel %>(ctx context.Context, req *typ
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
-	val, found := s.k.Get<%= TypeName.UpperCamel %>(
-	    ctx,
-	    <%= for (i, index) in Indexes { %>req.<%= index.Name.UpperCamel %>,
-        <% } %>)
-	if !found {
-	    return nil, status.Error(codes.NotFound, "not found")
+	val, err := s.k.<%= TypeName.UpperCamel %>.Get(ctx, <%= Index.Name.UpperCamel %>)
+	if err != nil {
+		if errors.Is(err, collections.ErrNotFound) {
+			return nil, status.Error(codes.NotFound, "not found")
+		}
+
+		return nil, status.Error(codes.Internal, "internal error")
 	}
 
 	return &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: val}, nil
