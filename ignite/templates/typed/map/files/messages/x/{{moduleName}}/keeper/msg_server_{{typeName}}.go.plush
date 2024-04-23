@@ -6,8 +6,8 @@ import (
 
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
     "cosmossdk.io/collections"
-	errorsmod "cosmossdk.io/errors"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+    errorsmod "cosmossdk.io/errors"
+    sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 
@@ -31,11 +31,11 @@ func (k msgServer) Create<%= TypeName.UpperCamel %>(ctx context.Context,  msg *t
         <% } %>
     }
 
-    if err := k.<%= TypeName.UpperCamel %>.Set(ctx, <%= TypeName.LowerCamel %>); err != nil {
+    if err := k.<%= TypeName.UpperCamel %>.Set(ctx, <%= TypeName.LowerCamel %>.<%= Index.Name.UpperCamel %>, <%= TypeName.LowerCamel %>); err != nil {
         return nil, errorsmod.Wrap(sdkerrors.ErrLogic, err.Error())
     }
 
-	return &types.MsgCreate<%= TypeName.UpperCamel %>Response{}, nil
+    return &types.MsgCreate<%= TypeName.UpperCamel %>Response{}, nil
 }
 
 func (k msgServer) Update<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgUpdate<%= TypeName.UpperCamel %>) (*types.MsgUpdate<%= TypeName.UpperCamel %>Response, error) {
@@ -44,7 +44,7 @@ func (k msgServer) Update<%= TypeName.UpperCamel %>(ctx context.Context,  msg *t
     }
 
     // Check if the value exists
-    val, err := k.<%= TypeName.UpperCamel %>.Get(ctx, <%= msg.<%= Index.Name.UpperCamel %>)
+    val, err := k.<%= TypeName.UpperCamel %>.Get(ctx, msg.<%= Index.Name.UpperCamel %>)
     if err != nil {
         if errors.Is(err, collections.ErrNotFound) {
             return nil, errorsmod.Wrap(sdkerrors.ErrKeyNotFound, "index not set")

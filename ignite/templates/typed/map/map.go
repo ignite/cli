@@ -363,7 +363,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		content = replacer.Replace(content, typed.PlaceholderGenesisTypesDefault, replacementTypesDefault)
 
 		// lines of code to call the key function with the indexes of the element
-		keyCall := fmt.Sprintf("%sKey(elem.%s)", opts.TypeName.UpperCamel, opts.Index.Name.UpperCamel)
+		keyCall := fmt.Sprintf("string(elem.%s)", opts.Index.Name.UpperCamel)
 
 		templateTypesValidate := `// Check for duplicated index in %[2]v
 %[2]vIndexMap := make(map[string]struct{})
@@ -381,7 +381,7 @@ for _, elem := range gs.%[3]vList {
 			typed.PlaceholderGenesisTypesValidate,
 			opts.TypeName.LowerCamel,
 			opts.TypeName.UpperCamel,
-			fmt.Sprintf("string(%s)", keyCall),
+			keyCall,
 		)
 		content = replacer.Replace(content, typed.PlaceholderGenesisTypesValidate, replacementTypesValidate)
 

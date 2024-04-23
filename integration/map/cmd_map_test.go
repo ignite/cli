@@ -10,6 +10,8 @@ import (
 	envtest "github.com/ignite/cli/v29/integration"
 )
 
+// TODO verify multi-index isn't supported
+
 func TestCreateMap(t *testing.T) {
 	var (
 		env = envtest.New(t)
@@ -153,14 +155,6 @@ func TestCreateMap(t *testing.T) {
 			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "scavenge", "description", "--no-message"),
 			step.Workdir(app.SourcePath()),
 		)),
-	))
-
-	env.Must(env.Exec("should prevent creating a map with duplicated indexes",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "map_with_duplicated_index", "email", "--index", "foo,foo"),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating a map with an index present in fields",

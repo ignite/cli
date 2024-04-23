@@ -18,19 +18,8 @@ func (s queryServer) List<%= TypeName.UpperCamel %>(ctx context.Context, req *ty
 	var <%= TypeName.LowerCamel %>s []types.<%= TypeName.UpperCamel %>
 
 	// TODO use collections (query.CollectionPaginate)
-
-    {{/* store := runtime.KVStoreAdapter(s.k.storeService.OpenKVStore(ctx))
-	<%= TypeName.LowerCamel %>Store := prefix.NewStore(store, types.KeyPrefix(types.<%= TypeName.UpperCamel %>KeyPrefix))
-
-	pageRes, err := query.Paginate(<%= TypeName.LowerCamel %>Store, req.Pagination, func(key []byte, value []byte) error {
-		var <%= TypeName.LowerCamel %> types.<%= TypeName.UpperCamel %>
-		if err := s.k.cdc.Unmarshal(value, &<%= TypeName.LowerCamel %>); err != nil {
-			return err
-		}
-
-		<%= TypeName.LowerCamel %>s = append(<%= TypeName.LowerCamel %>s, <%= TypeName.LowerCamel %>)
-		return nil
-	}) */}}
+	var pageRes *query.PageResponse
+	var err error
 
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -44,7 +33,7 @@ func (s queryServer) Get<%= TypeName.UpperCamel %>(ctx context.Context, req *typ
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
-	val, err := s.k.<%= TypeName.UpperCamel %>.Get(ctx, <%= Index.Name.UpperCamel %>)
+	val, err := s.k.<%= TypeName.UpperCamel %>.Get(ctx, req.<%= Index.Name.UpperCamel %>)
 	if err != nil {
 		if errors.Is(err, collections.ErrNotFound) {
 			return nil, status.Error(codes.NotFound, "not found")

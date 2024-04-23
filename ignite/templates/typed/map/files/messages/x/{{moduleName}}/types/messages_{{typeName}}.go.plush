@@ -16,7 +16,7 @@ func NewMsgCreate<%= TypeName.UpperCamel %>(
 
 func NewMsgUpdate<%= TypeName.UpperCamel %>(
     <%= MsgSigner.LowerCamel %> string,
-    <%= Index.Name.LowerCamel %> <%= index.DataType() %>,
+    <%= Index.Name.LowerCamel %> <%= Index.DataType() %>,
     <%= for (field) in Fields { %><%= field.Name.LowerCamel %> <%= field.DataType() %>,
     <% } %>
 ) *MsgUpdate<%= TypeName.UpperCamel %> {
@@ -30,7 +30,7 @@ func NewMsgUpdate<%= TypeName.UpperCamel %>(
 
 func NewMsgDelete<%= TypeName.UpperCamel %>(
     <%= MsgSigner.LowerCamel %> string,
-    <%= Index.Name.LowerCamel %> <%= index.DataType() %>,
+    <%= Index.Name.LowerCamel %> <%= Index.DataType() %>,
     <% } %>
 ) *MsgDelete<%= TypeName.UpperCamel %> {
   return &MsgDelete<%= TypeName.UpperCamel %>{

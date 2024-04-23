@@ -15,15 +15,20 @@ func ExtendPlushContext(ctx *plush.Context) {
 	ctx.Set("mergeGoImports", mergeGoImports)
 	ctx.Set("mergeProtoImports", mergeProtoImports)
 	ctx.Set("mergeCustomImports", mergeCustomImports)
+	ctx.Set("appendFieldsAndMergeCustomImports", appendFieldsAndMergeCustomImports)
 	ctx.Set("title", xstrings.Title)
 	ctx.Set("toLower", strings.ToLower)
+}
+
+func appendFieldsAndMergeCustomImports(f field.Field, fields ...field.Fields) []string {
+	return mergeCustomImports(append(fields, field.Fields{f})...)
 }
 
 func mergeCustomImports(fields ...field.Fields) []string {
 	allImports := make([]string, 0)
 	exist := make(map[string]struct{})
-	for _, fields := range fields {
-		for _, customImport := range fields.Custom() {
+	for _, field := range fields {
+		for _, customImport := range field.Custom() {
 			if _, ok := exist[customImport]; ok {
 				continue
 			}

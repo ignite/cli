@@ -43,7 +43,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 
 	srv := keeper.NewMsgServerImpl(k)
 	expected := &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
-	    <%= Index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
+	    <%= Index.Name.UpperCamel %>: <%= Index.ValueIndex() %>,
 	}
 	_, err = srv.Create<%= TypeName.UpperCamel %>(ctx, expected)
 	require.NoError(t, err)
@@ -56,28 +56,28 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 		{
 			desc:    "invalid address",
 			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: "invalid",
-			    <%= Index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
+			    <%= Index.Name.UpperCamel %>: <%= Index.ValueIndex() %>,
 			},
 			err:     sdkerrors.ErrInvalidAddress,
 		},
 		{
 			desc:    "unauthorized",
 			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: unauthorizedAddr,
-			    <%= Index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
+			    <%= Index.Name.UpperCamel %>: <%= Index.ValueIndex() %>,
 			},
 			err:     sdkerrors.ErrUnauthorized,
 		},
 		{
 			desc:    "key not found",
 			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
-			    <%= Index.Name.UpperCamel %>: <%= index.ValueInvalidIndex() %>,
+			    <%= Index.Name.UpperCamel %>: <%= Index.ValueInvalidIndex() %>,
 			},
 			err:     sdkerrors.ErrKeyNotFound,
 		},
 		{
 			desc:    "completed",
 			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
-			    <%= Index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
+			    <%= Index.Name.UpperCamel %>: <%= Index.ValueIndex() %>,
 			},
 		},
 	}
@@ -106,7 +106,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 
 	srv := keeper.NewMsgServerImpl(k)
 	_, err = srv.Create<%= TypeName.UpperCamel %>(ctx, &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
-	    <%= Index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
+	    <%= Index.Name.UpperCamel %>: <%= Index.ValueIndex() %>,
 	})
 	require.NoError(t, err)
 
@@ -118,28 +118,28 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 		{
 			desc:    "invalid address",
 			request: &types.MsgDelete<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: "invalid",
-			    <%= Index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
+			    <%= Index.Name.UpperCamel %>: <%= Index.ValueIndex() %>,
 			},
 			err:     sdkerrors.ErrInvalidAddress,
 		},
 		{
 			desc:    "unauthorized",
 			request: &types.MsgDelete<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: unauthorizedAddr,
-			    <%= Index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
+			    <%= Index.Name.UpperCamel %>: <%= Index.ValueIndex() %>,
 			},
 			err:     sdkerrors.ErrUnauthorized,
 		},
 		{
 			desc:    "key not found",
 			request: &types.MsgDelete<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
-			    <%= Index.Name.UpperCamel %>: <%= index.ValueInvalidIndex() %>,
+			    <%= Index.Name.UpperCamel %>: <%= Index.ValueInvalidIndex() %>,
 			},
 			err:     sdkerrors.ErrKeyNotFound,
 		},
 		{
 			desc:    "completed",
 			request: &types.MsgDelete<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
-			    <%= Index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
+			    <%= Index.Name.UpperCamel %>: <%= Index.ValueIndex() %>,
 			},
 		},
 	}
@@ -150,7 +150,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 				require.ErrorIs(t, err, tc.err)
 			} else {
 				require.NoError(t, err)
-				_, err := k.<%= TypeName.UpperCamel %>.Has(ctx, tc.request.<%= Index.Name.UpperCamel %>)
+				foud, err := k.<%= TypeName.UpperCamel %>.Has(ctx, tc.request.<%= Index.Name.UpperCamel %>)
 				require.NoError(t, err)
 				require.False(t, found)
 			}
