@@ -102,7 +102,6 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		name               = args[0]
 		addressPrefix      = getAddressPrefix(cmd)
 		appPath            = flagGetPath(cmd)
-		protoDir           = flagGetProtoDir(cmd)
 		noDefaultModule, _ = cmd.Flags().GetBool(flagNoDefaultModule)
 		skipGit, _         = cmd.Flags().GetBool(flagSkipGit)
 		minimal, _         = cmd.Flags().GetBool(flagMinimal)
@@ -120,6 +119,11 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	cfg, _, err := getChainConfig(cmd)
+	if err != nil {
+		return err
+	}
+
 	cacheStorage, err := newCache(cmd)
 	if err != nil {
 		return err
@@ -132,7 +136,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		appPath,
 		name,
 		addressPrefix,
-		protoDir,
+		cfg.Build.Proto.Path,
 		noDefaultModule,
 		minimal,
 		isConsumer,
@@ -152,7 +156,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := scaffolder.PostScaffold(cmd.Context(), cacheStorage, appDir, protoDir, goModule, skipProto); err != nil {
+	if err := scaffolder.PostScaffold(cmd.Context(), cacheStorage, appDir, cfg.Build.Proto.Path, goModule, skipProto); err != nil {
 		return err
 	}
 

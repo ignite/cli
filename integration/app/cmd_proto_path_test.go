@@ -61,7 +61,7 @@ var (
 func TestChangeProtoPath(t *testing.T) {
 	var (
 		env     = envtest.New(t)
-		app     = env.Scaffold("github.com/test/protopath", "--proto-dir", newProtoPath)
+		app     = env.Scaffold("github.com/test/protopath")
 		appPath = app.SourcePath()
 		cfgPath = filepath.Join(appPath, chain.ConfigFilenames[0])
 	)
@@ -75,28 +75,28 @@ func TestChangeProtoPath(t *testing.T) {
 
 	env.Must(env.Exec("create a list with a custom proto path",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "listUser", "email", "--proto-dir", newProtoPath),
+			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "listUser", "email"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create a map with a custom proto path",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "mapUser", "email", "--proto-dir", newProtoPath),
+			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "mapUser", "email"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create a single with a custom proto path",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "single", "--yes", "singleUser", "email", "--proto-dir", newProtoPath),
+			step.Exec(envtest.IgniteApp, "s", "single", "--yes", "singleUser", "email"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create a query with a custom proto path",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "query", "--yes", "foo", "--proto-dir", newProtoPath),
+			step.Exec(envtest.IgniteApp, "s", "query", "--yes", "foo", "--proto-dir"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
@@ -111,8 +111,6 @@ func TestChangeProtoPath(t *testing.T) {
 				"--params",
 				"bla,baz:uint",
 				"--require-registration",
-				"-p",
-				newProtoPath,
 			),
 			step.Workdir(app.SourcePath()),
 		)),
@@ -128,8 +126,6 @@ func TestChangeProtoPath(t *testing.T) {
 				"bar:int",
 				"--module",
 				"foo",
-				"-p",
-				newProtoPath,
 			),
 			step.Workdir(app.SourcePath()),
 		)),

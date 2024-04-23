@@ -1,7 +1,6 @@
 package ignitecmd
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"os"
@@ -15,7 +14,6 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/config"
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
-	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	uilog "github.com/ignite/cli/v29/ignite/pkg/cliui/log"
@@ -31,6 +29,9 @@ const (
 	flagYes        = "yes"
 	flagClearCache = "clear-cache"
 	flagSkipProto  = "skip-proto"
+
+	ctxChainConfig     = "chain-config"
+	ctxChainConfigPath = "chain-config-path"
 
 	checkVersionTimeout = time.Millisecond * 600
 	cacheFileName       = "ignite_cache.db"
@@ -134,17 +135,6 @@ func getHome(cmd *cobra.Command) (home string) {
 	return
 }
 
-func flagSetProtoDir() *flag.FlagSet {
-	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.String(flagProtoDir, defaults.ProtoDir, "chain proto directory")
-	return fs
-}
-
-func flagGetProtoDir(cmd *cobra.Command) (config string) {
-	config, _ = cmd.Flags().GetString(flagProtoDir)
-	return
-}
-
 func flagSetConfig() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.StringP(flagConfig, "c", "", "path to Ignite config file (default: ./config.yml)")
@@ -156,7 +146,12 @@ func getConfig(cmd *cobra.Command) (config string) {
 	return
 }
 
-func getRawConfig(cmd *cobra.Command) ([]byte, string, error) {
+func getChainConfig(cmd *cobra.Command) (*chainconfig.Config, string, error) {
+	cfg, ok := cmd.Context().Value(ctxChainConfig).(*chainconfig.Config)
+	if ok {
+		configPath := cmd.Context().Value(ctxChainConfigPath).(string)
+		return cfg, configPath, nil
+	}
 	configPath := getConfig(cmd)
 
 	path := flagGetPath(cmd)
@@ -171,16 +166,15 @@ func getRawConfig(cmd *cobra.Command) ([]byte, string, error) {
 		}
 	}
 
-	rawConfig, err := os.ReadFile(configPath)
-	return rawConfig, configPath, err
-}
-
-func getProtoDirFromConfig(cmd *cobra.Command) (string, error) {
-	rawCfg, _, err := getRawConfig(cmd)
+	cfg, err = chainconfig.ParseFile(configPath)
 	if err != nil {
-		return "", err
+		return nil, "", err
 	}
-	return chainconfig.ReadProtoPath(bytes.NewReader(rawCfg))
+	ctx := context.WithValue(cmd.Context(), ctxChainConfig, cfg)
+	ctx = context.WithValue(ctx, ctxChainConfigPath, configPath)
+	cmd.SetContext(ctx)
+
+	return cfg, configPath, err
 }
 
 func flagSetYes() *flag.FlagSet {

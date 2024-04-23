@@ -128,7 +128,12 @@ func preRunHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	if err := configMigrationPreRunHandler(cmd, session, appPath); err != nil {
+	cfg, cfgPath, err := getChainConfig(cmd)
+	if err != nil {
+		return err
+	}
+
+	if err := configMigrationPreRunHandler(cmd, session, appPath, cfgPath); err != nil {
 		return err
 	}
 
@@ -136,12 +141,7 @@ func preRunHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	protoDir, err := getProtoDirFromConfig(cmd)
-	if err != nil {
-		return err
-	}
-
-	return bufMigrationPreRunHandler(cmd, session, appPath, protoDir)
+	return bufMigrationPreRunHandler(cmd, session, appPath, cfg.Build.Proto.Path)
 }
 
 func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPath string) error {
@@ -254,8 +254,8 @@ func bufMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPa
 	return nil
 }
 
-func configMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPath string) error {
-	rawCfg, configPath, err := getRawConfig(cmd)
+func configMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPath, cfgPath string) error {
+	rawCfg, err := os.ReadFile(cfgPath)
 	if err != nil {
 		return err
 	}
@@ -295,10 +295,9 @@ func configMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, ap
 			return err
 		}
 
-		if err := os.WriteFile(configPath, buf.Bytes(), 0o755); err != nil {
+		if err := os.WriteFile(cfgPath, buf.Bytes(), 0o755); err != nil {
 			return errors.Errorf("config file migration failed: %w", err)
 		}
 	}
-
 	return nil
 }
