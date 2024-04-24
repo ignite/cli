@@ -23,6 +23,7 @@ const (
 	flagNoSimulation = "no-simulation"
 	flagResponse     = "response"
 	flagDescription  = "desc"
+	flagProtoDir     = "proto-dir"
 
 	msgCommitPrefix = "Your saved project changes have not been committed.\nTo enable reverting to your current state, commit your saved changes."
 	msgCommitPrompt = "Do you want to proceed without committing your saved changes"
