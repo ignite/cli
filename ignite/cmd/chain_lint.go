@@ -14,7 +14,7 @@ func NewChainLint() *cobra.Command {
 		Short: "Lint codebase using golangci-lint",
 		Long:  "The lint command runs the golangci-lint tool to lint the codebase.",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			session := cliui.New(
 				cliui.StartSpinnerWithText("Linting..."),
 			)

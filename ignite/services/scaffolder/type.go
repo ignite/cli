@@ -73,7 +73,7 @@ func SingletonType() AddTypeKind {
 
 // DryType only creates a type with a basic definition.
 func DryType() AddTypeKind {
-	return func(o *addTypeOptions) {}
+	return func(*addTypeOptions) {}
 }
 
 // TypeWithModule module to scaffold type into.

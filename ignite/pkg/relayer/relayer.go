@@ -105,7 +105,7 @@ func (r Relayer) StartPaths(ctx context.Context, pathIDs ...string) error {
 	for _, id := range pathIDs {
 		id := id
 		g.Go(func() error {
-			return r.Start(ctx, conf, id, func(path relayerconf.Config) error {
+			return r.Start(ctx, conf, id, func(_ relayerconf.Config) error {
 				m.Lock()
 				defer m.Unlock()
 				return relayerconf.Save(conf)
