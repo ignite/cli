@@ -21,7 +21,7 @@ func NewModuleParam(opts ParamsOptions) (*genny.Generator, error) {
 
 func paramsProtoModify(opts ParamsOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "params.proto")
+		path := filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, "params.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

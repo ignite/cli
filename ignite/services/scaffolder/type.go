@@ -72,7 +72,7 @@ func SingletonType() AddTypeKind {
 
 // DryType only creates a type with a basic definition.
 func DryType() AddTypeKind {
-	return func(o *addTypeOptions) {}
+	return func(*addTypeOptions) {}
 }
 
 // TypeWithModule module to scaffold type into.
@@ -137,12 +137,12 @@ func (s Scaffolder) AddType(
 		return err
 	}
 
-	if err := checkComponentValidity(s.path, moduleName, name, o.withoutMessage); err != nil {
+	if err := checkComponentValidity(s.appPath, moduleName, name, o.withoutMessage); err != nil {
 		return err
 	}
 
 	// Check and parse provided fields
-	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, o.fields); err != nil {
+	if err := checkCustomTypes(ctx, s.appPath, s.modpath.Package, s.protoDir, moduleName, o.fields); err != nil {
 		return err
 	}
 	tFields, err := parseTypeFields(o)
@@ -155,7 +155,7 @@ func (s Scaffolder) AddType(
 		return err
 	}
 
-	isIBC, err := isIBCModule(s.path, moduleName)
+	isIBC, err := isIBCModule(s.appPath, moduleName)
 	if err != nil {
 		return err
 	}
@@ -164,7 +164,8 @@ func (s Scaffolder) AddType(
 		g    *genny.Generator
 		opts = &typed.Options{
 			AppName:      s.modpath.Package,
-			AppPath:      s.path,
+			AppPath:      s.appPath,
+			ProtoDir:     s.protoDir,
 			ModulePath:   s.modpath.RawPath,
 			ModuleName:   moduleName,
 			TypeName:     name,
@@ -180,7 +181,7 @@ func (s Scaffolder) AddType(
 	gens, err = supportMsgServer(
 		gens,
 		s.runner.Tracer(),
-		s.path,
+		s.appPath,
 		&modulecreate.MsgServerOptions{
 			ModuleName: opts.ModuleName,
 			ModulePath: opts.ModulePath,
