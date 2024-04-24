@@ -95,7 +95,7 @@ ignite chain serve
 To learn how to use Ignite CLI, check out the [Ignite CLI
 docs](https://docs.ignite.com). To learn more about how to build blockchain apps
 with Ignite CLI, see the [Ignite CLI Developer
-Tutorials](https://docs.ignite.com/guide).
+Tutorials](https://tutorials.ignite.com).
 
 To install Ignite CLI locally on GNU, Linux, or macOS, see [Install Ignite
 CLI](https://docs.ignite.com/welcome/install).
