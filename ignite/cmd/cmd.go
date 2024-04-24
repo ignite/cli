@@ -23,15 +23,19 @@ import (
 	"github.com/ignite/cli/v29/ignite/version"
 )
 
+type key int
+
+const (
+	keyChainConfig     key = iota
+	keyChainConfigPath key = iota
+)
+
 const (
 	flagPath       = "path"
 	flagHome       = "home"
 	flagYes        = "yes"
 	flagClearCache = "clear-cache"
 	flagSkipProto  = "skip-proto"
-
-	ctxChainConfig     = "chain-config"
-	ctxChainConfigPath = "chain-config-path"
 
 	checkVersionTimeout = time.Millisecond * 600
 	cacheFileName       = "ignite_cache.db"
@@ -147,9 +151,9 @@ func getConfig(cmd *cobra.Command) (config string) {
 }
 
 func getChainConfig(cmd *cobra.Command) (*chainconfig.Config, string, error) {
-	cfg, ok := cmd.Context().Value(ctxChainConfig).(*chainconfig.Config)
+	cfg, ok := cmd.Context().Value(keyChainConfig).(*chainconfig.Config)
 	if ok {
-		configPath := cmd.Context().Value(ctxChainConfigPath).(string)
+		configPath := cmd.Context().Value(keyChainConfigPath).(string)
 		return cfg, configPath, nil
 	}
 	configPath := getConfig(cmd)
@@ -170,8 +174,8 @@ func getChainConfig(cmd *cobra.Command) (*chainconfig.Config, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
-	ctx := context.WithValue(cmd.Context(), ctxChainConfig, cfg)
-	ctx = context.WithValue(ctx, ctxChainConfigPath, configPath)
+	ctx := context.WithValue(cmd.Context(), keyChainConfig, cfg)
+	ctx = context.WithValue(ctx, keyChainConfigPath, configPath)
 	cmd.SetContext(ctx)
 
 	return cfg, configPath, err
