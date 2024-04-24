@@ -25,12 +25,14 @@
 - [#4002](https://github.com/ignite/cli/pull/4002) Bump buf build
 - [#4008](https://github.com/ignite/cli/pull/4008) Rename `pkg/yaml` to `pkg/xyaml`
 - [#4075](https://github.com/ignite/cli/pull/4075) Use `gopkg.in/yaml.v3` instead `gopkg.in/yaml.v2`
+- [#4103](https://github.com/ignite/cli/pull/4103) Bump cosmos-sdk to `v0.50.6`
 
 ### Fixes
 
 - [#3969](https://github.com/ignite/cli/pull/3969) Get first config validator using a getter to avoid index errors
 - [#4000](https://github.com/ignite/cli/pull/4000) Run all dry runners before the wet run in the `xgenny` pkg
 - [#4086](https://github.com/ignite/cli/pull/4086) Retry to get the IBC balance if it fails the first time
+- [#4096](https://github.com/ignite/cli/pull/4096) Add new reserved names module and remove duplicated genesis order
 
 ## [`v28.3.0`](https://github.com/ignite/cli/releases/tag/v28.3.0)
 

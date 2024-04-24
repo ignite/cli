@@ -6,24 +6,29 @@ import (
 	"path/filepath"
 	"strings"
 
+	circuittypes "cosmossdk.io/x/circuit/types"
 	evidencetypes "cosmossdk.io/x/evidence/types"
-	feegranttypes "cosmossdk.io/x/feegrant"
+	"cosmossdk.io/x/feegrant"
+	"cosmossdk.io/x/nft"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	grouptypes "github.com/cosmos/cosmos-sdk/x/group"
+	"github.com/cosmos/cosmos-sdk/x/group"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
-	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	icatypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/types"
+	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"github.com/gobuffalo/genny/v2"
 
@@ -49,51 +54,63 @@ var (
 		"account":                    {},
 		"block":                      {},
 		"broadcast":                  {},
-		"consumer":                   {}, // ICS consumer module
 		"encode":                     {},
 		"multisign":                  {},
 		"sign":                       {},
 		"tx":                         {},
 		"txs":                        {},
-		ibcexported.ModuleName:       {},
-		transfertypes.ModuleName:     {},
-		authtypes.ModuleName:         {},
-		authztypes.ModuleName:        {},
-		banktypes.ModuleName:         {},
-		crisistypes.ModuleName:       {},
+		"consumer":                   {}, // ICS consumer module
+		"ccvconsumer":                {}, // ICS consumer module
+		"CCV":                        {}, // ICS consumer module
 		capabilitytypes.ModuleName:   {},
+		authtypes.ModuleName:         {},
+		banktypes.ModuleName:         {},
 		distributiontypes.ModuleName: {},
-		evidencetypes.ModuleName:     {},
-		feegranttypes.ModuleName:     {},
-		genutiltypes.ModuleName:      {},
-		govtypes.ModuleName:          {},
-		grouptypes.ModuleName:        {},
-		minttypes.ModuleName:         {},
-		paramstypes.ModuleName:       {},
-		slashingtypes.ModuleName:     {},
 		stakingtypes.ModuleName:      {},
+		slashingtypes.ModuleName:     {},
+		govtypes.ModuleName:          {},
+		minttypes.ModuleName:         {},
+		crisistypes.ModuleName:       {},
+		ibcexported.ModuleName:       {},
+		genutiltypes.ModuleName:      {},
+		evidencetypes.ModuleName:     {},
+		authz.ModuleName:             {},
+		ibctransfertypes.ModuleName:  {},
+		icatypes.ModuleName:          {},
+		ibcfeetypes.ModuleName:       {},
+		feegrant.ModuleName:          {},
+		paramstypes.ModuleName:       {},
 		upgradetypes.ModuleName:      {},
 		vestingtypes.ModuleName:      {},
+		circuittypes.ModuleName:      {},
+		nft.ModuleName:               {},
+		group.ModuleName:             {},
+		consensustypes.ModuleName:    {},
 	}
 
 	// defaultStoreKeys are the names of the default store keys defined in a Cosmos-SDK app.
 	// A new module's name can't have a defined store key in its prefix because of potential store key collision.
 	defaultStoreKeys = []string{
-		ibcexported.StoreKey,
-		transfertypes.StoreKey,
+		capabilitytypes.StoreKey,
 		authtypes.StoreKey,
 		banktypes.StoreKey,
-		capabilitytypes.StoreKey,
 		distributiontypes.StoreKey,
-		evidencetypes.StoreKey,
-		feegranttypes.StoreKey,
-		govtypes.StoreKey,
-		grouptypes.StoreKey,
-		minttypes.StoreKey,
-		paramstypes.StoreKey,
-		slashingtypes.StoreKey,
 		stakingtypes.StoreKey,
+		slashingtypes.StoreKey,
+		govtypes.StoreKey,
+		minttypes.StoreKey,
+		crisistypes.StoreKey,
+		ibcexported.StoreKey,
+		evidencetypes.StoreKey,
+		ibctransfertypes.StoreKey,
+		ibcfeetypes.StoreKey,
+		feegrant.StoreKey,
+		paramstypes.StoreKey,
 		upgradetypes.StoreKey,
+		circuittypes.StoreKey,
+		nft.StoreKey,
+		group.StoreKey,
+		consensustypes.StoreKey,
 	}
 )
 
