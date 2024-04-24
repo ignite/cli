@@ -401,7 +401,7 @@ func NewAppList() *cobra.Command {
 		Use:   "list",
 		Short: "List installed apps",
 		Long:  "Prints status and information of all installed Ignite Apps.",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			s := cliui.New(cliui.WithStdout(os.Stdout))
 			return printPlugins(cmd.Context(), s)
 		},
@@ -418,7 +418,7 @@ func NewAppUpdate() *cobra.Command {
 If no path is specified all declared apps are updated.`,
 		Example: "ignite app update github.com/org/my-app/",
 		Args:    cobra.MaximumNArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				// update all plugins
 				return plugin.Update(plugins...)
