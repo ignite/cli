@@ -8,7 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"gopkg.in/yaml.v3"
 
-	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/config/chain/version"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
@@ -101,26 +100,6 @@ func ReadConfigVersion(configFile io.Reader) (version.Version, error) {
 	err := yaml.NewDecoder(configFile).Decode(&c)
 
 	return c.Version, err
-}
-
-// ReadProtoPath reads the build proto path from the config.
-func ReadProtoPath(configFile io.Reader) (string, error) {
-	c := struct {
-		Build struct {
-			Proto struct {
-				Path string `yaml:"path"`
-			} `yaml:"proto"`
-		} `yaml:"build"`
-	}{}
-
-	if err := yaml.NewDecoder(configFile).Decode(&c); err != nil {
-		return "", err
-	}
-	path := c.Build.Proto.Path
-	if path == "" {
-		path = defaults.ProtoDir
-	}
-	return path, nil
 }
 
 func decodeConfig(r io.Reader, version version.Version) (version.Converter, error) {
