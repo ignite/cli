@@ -96,7 +96,7 @@ func TestChangeProtoPath(t *testing.T) {
 
 	env.Must(env.Exec("create a query with a custom proto path",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "query", "--yes", "foo", "--proto-dir"),
+			step.Exec(envtest.IgniteApp, "s", "query", "--yes", "foo"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
