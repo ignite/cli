@@ -17,7 +17,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/goanalysis"
-	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/services/chain"
@@ -117,13 +116,7 @@ func preRunHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New()
 	defer session.End()
 
-	path := flagGetPath(cmd)
-	path, err := filepath.Abs(path)
-	if err != nil {
-		return err
-	}
-
-	_, appPath, err := gomodulepath.Find(path)
+	appPath, err := goModulePath(cmd)
 	if err != nil {
 		return err
 	}

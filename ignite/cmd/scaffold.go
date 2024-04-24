@@ -1,8 +1,6 @@
 package ignitecmd
 
 import (
-	"path/filepath"
-
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
@@ -10,7 +8,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/xgit"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
 	"github.com/ignite/cli/v29/ignite/version"
@@ -140,10 +137,7 @@ func migrationPreRunHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	var (
-		path    = flagGetPath(cmd)
-		session = cliui.New()
-	)
+	session := cliui.New()
 	defer session.End()
 
 	cfg, _, err := getChainConfig(cmd)
@@ -151,12 +145,7 @@ func migrationPreRunHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	path, err = filepath.Abs(path)
-	if err != nil {
-		return err
-	}
-
-	_, appPath, err := gomodulepath.Find(path)
+	appPath, err := goModulePath(cmd)
 	if err != nil {
 		return err
 	}

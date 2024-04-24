@@ -20,6 +20,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gitpod"
 	"github.com/ignite/cli/v29/ignite/pkg/goenv"
+	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/version"
 )
 
@@ -128,6 +129,20 @@ func flagGetPath(cmd *cobra.Command) (path string) {
 	return
 }
 
+func goModulePath(cmd *cobra.Command) (string, error) {
+	path := flagGetPath(cmd)
+	path, err := filepath.Abs(path)
+	if err != nil {
+		return "", err
+	}
+
+	_, appPath, err := gomodulepath.Find(path)
+	if err != nil {
+		return "", err
+	}
+	return appPath, err
+}
+
 func flagSetHome() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.String(flagHome, "", "directory where the blockchain node is initialized")
@@ -158,8 +173,7 @@ func getChainConfig(cmd *cobra.Command) (*chainconfig.Config, string, error) {
 	}
 	configPath := getConfig(cmd)
 
-	path := flagGetPath(cmd)
-	path, err := filepath.Abs(path)
+	path, err := goModulePath(cmd)
 	if err != nil {
 		return nil, "", err
 	}
