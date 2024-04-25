@@ -114,13 +114,17 @@ params.
 
 func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	var (
-		name     = args[0]
-		appPath  = flagGetPath(cmd)
-		protoDir = flagGetProtoDir(cmd)
+		name    = args[0]
+		appPath = flagGetPath(cmd)
 	)
 
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
+
+	cfg, _, err := getChainConfig(cmd)
+	if err != nil {
+		return err
+	}
 
 	ibcModule, _ := cmd.Flags().GetBool(flagIBC)
 	ibcOrdering, _ := cmd.Flags().GetString(flagIBCOrdering)
@@ -172,7 +176,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	var msg bytes.Buffer
 	fmt.Fprintf(&msg, "\n🎉 Module created %s.\n\n", name)
 
-	sc, err := scaffolder.New(cmd.Context(), appPath, protoDir)
+	sc, err := scaffolder.New(cmd.Context(), appPath, cfg.Build.Proto.Path)
 	if err != nil {
 		return err
 	}
