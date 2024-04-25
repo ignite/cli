@@ -157,7 +157,7 @@ func TestCreateMap(t *testing.T) {
 				"map_with_invalid_index",
 				"email",
 				"--index",
-				"foo:strings",
+				"foo:unknown",
 				"--module",
 				"example",
 			),
