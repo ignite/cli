@@ -1,8 +1,6 @@
 package ignitecmd
 
 import (
-	"path/filepath"
-
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
@@ -10,7 +8,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/xgit"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
 	"github.com/ignite/cli/v29/ignite/version"
@@ -132,9 +129,6 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 		NewScaffoldReact(),
 	)
 
-	// Add flags required for the configMigrationPreRunHandler
-	c.PersistentFlags().AddFlagSet(flagSetProtoDir())
-
 	return c
 }
 
@@ -143,18 +137,15 @@ func migrationPreRunHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	var (
-		path     = flagGetPath(cmd)
-		protoDir = flagGetProtoDir(cmd)
-		session  = cliui.New()
-	)
+	session := cliui.New()
 	defer session.End()
-	path, err := filepath.Abs(path)
+
+	cfg, _, err := getChainConfig(cmd)
 	if err != nil {
 		return err
 	}
 
-	_, appPath, err := gomodulepath.Find(path)
+	appPath, err := goModulePath(cmd)
 	if err != nil {
 		return err
 	}
@@ -172,7 +163,7 @@ func migrationPreRunHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return bufMigrationPreRunHandler(cmd, session, appPath, protoDir)
+	return bufMigrationPreRunHandler(cmd, session, appPath, cfg.Build.Proto.Path)
 }
 
 func scaffoldType(
@@ -188,7 +179,6 @@ func scaffoldType(
 		withoutSimulation = flagGetNoSimulation(cmd)
 		signer            = flagGetSigner(cmd)
 		appPath           = flagGetPath(cmd)
-		protoDir          = flagGetProtoDir(cmd)
 	)
 
 	var options []scaffolder.AddTypeOption
@@ -213,7 +203,12 @@ func scaffoldType(
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
 
-	sc, err := scaffolder.New(cmd.Context(), appPath, protoDir)
+	cfg, _, err := getChainConfig(cmd)
+	if err != nil {
+		return err
+	}
+
+	sc, err := scaffolder.New(cmd.Context(), appPath, cfg.Build.Proto.Path)
 	if err != nil {
 		return err
 	}
