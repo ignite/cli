@@ -413,12 +413,16 @@ for _, elem := range genState.%[3]vList {
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisModuleInit, replacementModuleInit)
 
-		templateModuleExport := `genesis.%[3]vList = k.GetAll%[3]v(ctx)
-%[1]v` // TODO(@julienrbrt) change GetAll to iterator
+		templateModuleExport := `if err := k.%[2]v.Walk(ctx, nil, func(_ string, val types.%[2]v) (stop bool, err error) {
+		genesis.%[2]vList = append(genesis.%[2]vList, val)
+		return false, nil
+	}); err != nil {
+		panic(err)
+	}
+%[1]v`
 		replacementModuleExport := fmt.Sprintf(
 			templateModuleExport,
 			typed.PlaceholderGenesisModuleExport,
-			opts.TypeName.LowerCamel,
 			opts.TypeName.UpperCamel,
 		)
 		content = replacer.Replace(content, typed.PlaceholderGenesisModuleExport, replacementModuleExport)
