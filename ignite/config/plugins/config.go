@@ -2,9 +2,9 @@ package plugins
 
 import (
 	"os"
+	"slices"
 	"strings"
 
-	"golang.org/x/exp/slices"
 	"gopkg.in/yaml.v3"
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
