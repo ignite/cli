@@ -125,22 +125,41 @@ func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunF
 			return err
 		}
 
-		templateKeeperType := `%[2]v collections.Map[string, types.%[2]v]
+		templateKeeperType := `%[2]v collections.Map[%[3]v, types.%[2]v]
 	%[1]v`
 		replacementModuleType := fmt.Sprintf(
 			templateKeeperType,
 			typed.PlaceholderCollectionType,
 			opts.TypeName.UpperCamel,
+			opts.Index.DataType(),
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderCollectionType, replacementModuleType)
 
-		templateKeeperInstantiate := `%[2]v: collections.NewMap(sb, types.%[2]vKey, "%[3]v", collections.StringKey, codec.CollValue[types.%[2]v](cdc)),
+		// TODO(@julienrbrt): extend support
+		var collectionKeyValue string
+		switch opts.Index.DataType() {
+		case "string":
+			collectionKeyValue = "collections.StringKey"
+		case "int":
+			collectionKeyValue = "collections.Int32Key"
+		case "uint":
+			collectionKeyValue = "collections.Uint32Key"
+		case "byte":
+			collectionKeyValue = "collections.BytesKey"
+		case "bool":
+			collectionKeyValue = "collections.BoolKey"
+		default:
+			collectionKeyValue = "/* Add collection key value */"
+		}
+
+		templateKeeperInstantiate := `%[2]v: collections.NewMap(sb, types.%[2]vKey, "%[3]v", %[4]v, codec.CollValue[types.%[2]v](cdc)),
 	%[1]v`
 		replacementInstantiate := fmt.Sprintf(
 			templateKeeperInstantiate,
 			typed.PlaceholderCollectionInstantiate,
 			opts.TypeName.UpperCamel,
 			opts.TypeName.LowerCamel,
+			collectionKeyValue,
 		)
 		content = replacer.Replace(content, typed.PlaceholderCollectionInstantiate, replacementInstantiate)
 
@@ -400,7 +419,7 @@ func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) gen
 
 		templateModuleInit := `// Set all the %[2]v
 for _, elem := range genState.%[3]vList {
-	if err := k.%[3]v.Set(ctx, elem.Index, elem); err != nil {
+	if err := k.%[3]v.Set(ctx, elem.%[4]v, elem); err != nil {
 		panic(err)
 	}
 }
@@ -410,10 +429,11 @@ for _, elem := range genState.%[3]vList {
 			typed.PlaceholderGenesisModuleInit,
 			opts.TypeName.LowerCamel,
 			opts.TypeName.UpperCamel,
+			opts.Index.Name.UpperCamel,
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisModuleInit, replacementModuleInit)
 
-		templateModuleExport := `if err := k.%[2]v.Walk(ctx, nil, func(_ string, val types.%[2]v) (stop bool, err error) {
+		templateModuleExport := `if err := k.%[2]v.Walk(ctx, nil, func(_ %[3]v, val types.%[2]v) (stop bool, err error) {
 		genesis.%[2]vList = append(genesis.%[2]vList, val)
 		return false, nil
 	}); err != nil {
@@ -424,6 +444,7 @@ for _, elem := range genState.%[3]vList {
 			templateModuleExport,
 			typed.PlaceholderGenesisModuleExport,
 			opts.TypeName.UpperCamel,
+			opts.Index.DataType(),
 		)
 		content = replacer.Replace(content, typed.PlaceholderGenesisModuleExport, replacementModuleExport)
 

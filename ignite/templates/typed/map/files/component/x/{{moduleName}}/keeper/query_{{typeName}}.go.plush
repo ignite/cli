@@ -19,7 +19,7 @@ func (q queryServer) List<%= TypeName.UpperCamel %>(ctx context.Context, req *ty
 		ctx,
 		q.k.<%= TypeName.UpperCamel %>,
 		req.Pagination,
-		func(_ string, value types.<%= TypeName.UpperCamel %>) (types.<%= TypeName.UpperCamel %>, error){
+		func(_ <%= Index.DataType() %>, value types.<%= TypeName.UpperCamel %>) (types.<%= TypeName.UpperCamel %>, error){
 			return value, nil
 		},
 	)

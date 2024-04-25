@@ -65,7 +65,7 @@ func (k msgServer) Update<%= TypeName.UpperCamel %>(ctx context.Context,  msg *t
 		<% } %>
 	}
 
-    if err := k.<%= TypeName.UpperCamel %>.Set(ctx, <%= TypeName.LowerCamel %>.Index, <%= TypeName.LowerCamel %>); err != nil {
+    if err := k.<%= TypeName.UpperCamel %>.Set(ctx, <%= TypeName.LowerCamel %>.<%= Index.Name.UpperCamel %>, <%= TypeName.LowerCamel %>); err != nil {
         return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "failed to update <%= TypeName.LowerCamel %>")
     }
 
