@@ -5,11 +5,6 @@
 ### Changes
 
 - [#3959](https://github.com/ignite/cli/pull/3959) Remove app name prefix from the `.gitignore` file
-- [#3962](https://github.com/ignite/cli/pull/3962) Rename all RPC endpoints and autocli commands generated for `map`/`list`/`single` types
-- [#3976](https://github.com/ignite/cli/pull/3976) Remove error checks for Cobra command value get calls
-- [#4002](https://github.com/ignite/cli/pull/4002) Bump buf build
-- [#4008](https://github.com/ignite/cli/pull/4008) Rename `pkg/yaml` to `pkg/xyaml`
-- [#4075](https://github.com/ignite/cli/pull/4075) Use `gopkg.in/yaml.v3` instead `gopkg.in/yaml.v2`
 - [#4103](https://github.com/ignite/cli/pull/4103) Bump cosmos-sdk to `v0.50.6`
 
 ### Fixes
