@@ -140,10 +140,14 @@ func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunF
 		switch opts.Index.DataType() {
 		case "string":
 			collectionKeyValue = "collections.StringKey"
-		case "int":
+		case "int32":
 			collectionKeyValue = "collections.Int32Key"
-		case "uint":
+		case "int64":
+			collectionKeyValue = "collections.Int64Key"
+		case "uint32":
 			collectionKeyValue = "collections.Uint32Key"
+		case "uint64":
+			collectionKeyValue = "collections.Uint64Key"
 		case "byte":
 			collectionKeyValue = "collections.BytesKey"
 		case "bool":
