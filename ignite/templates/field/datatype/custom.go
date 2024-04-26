@@ -16,7 +16,7 @@ var DataCustom = DataType{
 	ProtoType: func(datatype, name string, index int) string {
 		return fmt.Sprintf("%s %s = %d", datatype, name, index)
 	},
-	GenesisArgs: func(name multiformatname.Name, value int) string {
+	GenesisArgs: func(name multiformatname.Name, _ int) string {
 		return fmt.Sprintf("%s: new(types.%s),\n", name.UpperCamel, name.UpperCamel)
 	},
 	CLIArgs: func(name multiformatname.Name, datatype, prefix string, argIndex int) string {
