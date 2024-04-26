@@ -34,7 +34,6 @@ meant to be edited by hand.
 
 	c.AddCommand(NewGenerateGo())
 	c.AddCommand(NewGenerateTSClient())
-	c.AddCommand(NewGenerateVuex())
 	c.AddCommand(NewGenerateComposables())
 	c.AddCommand(NewGenerateHooks())
 	c.AddCommand(NewGenerateOpenAPI())
