@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	PluginConsumerVersion = "consumer/v0.1.0"
+	PluginConsumerVersion = "36532a375ecec4a228dc9b320c1576a2a1fafd34"
 	PluginConsumerPath    = "github.com/ignite/apps/consumer@" + PluginConsumerVersion
 )
 
