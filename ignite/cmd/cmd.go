@@ -1,7 +1,6 @@
 package ignitecmd
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"os"
@@ -15,14 +14,21 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/config"
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
-	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	uilog "github.com/ignite/cli/v29/ignite/pkg/cliui/log"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gitpod"
 	"github.com/ignite/cli/v29/ignite/pkg/goenv"
+	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/version"
+)
+
+type key int
+
+const (
+	keyChainConfig     key = iota
+	keyChainConfigPath key = iota
 )
 
 const (
@@ -123,6 +129,20 @@ func flagGetPath(cmd *cobra.Command) (path string) {
 	return
 }
 
+func goModulePath(cmd *cobra.Command) (string, error) {
+	path := flagGetPath(cmd)
+	path, err := filepath.Abs(path)
+	if err != nil {
+		return "", err
+	}
+
+	_, appPath, err := gomodulepath.Find(path)
+	if err != nil {
+		return "", err
+	}
+	return appPath, err
+}
+
 func flagSetHome() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.String(flagHome, "", "directory where the blockchain node is initialized")
@@ -131,17 +151,6 @@ func flagSetHome() *flag.FlagSet {
 
 func getHome(cmd *cobra.Command) (home string) {
 	home, _ = cmd.Flags().GetString(flagHome)
-	return
-}
-
-func flagSetProtoDir() *flag.FlagSet {
-	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.String(flagProtoDir, defaults.ProtoDir, "chain proto directory")
-	return fs
-}
-
-func flagGetProtoDir(cmd *cobra.Command) (config string) {
-	config, _ = cmd.Flags().GetString(flagProtoDir)
 	return
 }
 
@@ -156,11 +165,15 @@ func getConfig(cmd *cobra.Command) (config string) {
 	return
 }
 
-func getRawConfig(cmd *cobra.Command) ([]byte, string, error) {
+func getChainConfig(cmd *cobra.Command) (*chainconfig.Config, string, error) {
+	cfg, ok := cmd.Context().Value(keyChainConfig).(*chainconfig.Config)
+	if ok {
+		configPath := cmd.Context().Value(keyChainConfigPath).(string)
+		return cfg, configPath, nil
+	}
 	configPath := getConfig(cmd)
 
-	path := flagGetPath(cmd)
-	path, err := filepath.Abs(path)
+	path, err := goModulePath(cmd)
 	if err != nil {
 		return nil, "", err
 	}
@@ -171,16 +184,15 @@ func getRawConfig(cmd *cobra.Command) ([]byte, string, error) {
 		}
 	}
 
-	rawConfig, err := os.ReadFile(configPath)
-	return rawConfig, configPath, err
-}
-
-func getProtoDirFromConfig(cmd *cobra.Command) (string, error) {
-	rawCfg, _, err := getRawConfig(cmd)
+	cfg, err = chainconfig.ParseFile(configPath)
 	if err != nil {
-		return "", err
+		return nil, "", err
 	}
-	return chainconfig.ReadProtoPath(bytes.NewReader(rawCfg))
+	ctx := context.WithValue(cmd.Context(), keyChainConfig, cfg)
+	ctx = context.WithValue(ctx, keyChainConfigPath, configPath)
+	cmd.SetContext(ctx)
+
+	return cfg, configPath, err
 }
 
 func flagSetYes() *flag.FlagSet {
