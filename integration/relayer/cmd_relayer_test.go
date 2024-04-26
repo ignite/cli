@@ -1,6 +1,6 @@
 //go:build !relayer
 
-package ibc_test
+package relayer_test
 
 import (
 	"bytes"
@@ -596,7 +596,7 @@ func TestBlogIBC(t *testing.T) {
 		balanceOutput   = &bytes.Buffer{}
 		balanceResponse QueryBalances
 	)
-	env.Must(env.Exec("check ibc balance", step.NewSteps(
+	steps := step.NewSteps(
 		step.New(
 			step.Stdout(balanceOutput),
 			step.Exec(
@@ -607,6 +607,7 @@ func TestBlogIBC(t *testing.T) {
 				receiverAddr,
 				"--node", marsRPC,
 				"--home", marsHome,
+				"--chain-id", marsChainID,
 				"--log_format", "json",
 				"--output", "json",
 			),
@@ -614,8 +615,11 @@ func TestBlogIBC(t *testing.T) {
 				if execErr != nil {
 					return execErr
 				}
-				if err := json.Unmarshal(balanceOutput.Bytes(), &balanceResponse); err != nil {
-					return fmt.Errorf("unmarshalling tx response: %w", err)
+
+				output := balanceOutput.Bytes()
+				defer balanceOutput.Reset()
+				if err := json.Unmarshal(output, &balanceResponse); err != nil {
+					return fmt.Errorf("unmarshalling query response error: %w, response: %s", err, string(output))
 				}
 				if balanceResponse.Balances.Empty() {
 					return fmt.Errorf("empty balances")
@@ -623,10 +627,12 @@ func TestBlogIBC(t *testing.T) {
 				if !strings.HasPrefix(balanceResponse.Balances[0].Denom, "ibc/") {
 					return fmt.Errorf("invalid ibc balance: %v", balanceResponse.Balances[0])
 				}
+
 				return nil
 			}),
 		),
-	)))
+	)
+	env.Must(env.Exec("check ibc balance", steps, envtest.ExecRetry()))
 
 	// TODO test ibc using the blog post methods:
 	// step.Exec(app.Binary(), "tx", "blog", "send-ibc-post", "transfer", "channel-0", "Hello", "Hello_Mars-Alice_from_Earth", "--chain-id", earthChainID, "--from", "alice", "--node", earthGRPC, "--output", "json", "--log_format", "json", "--yes")
