@@ -9,6 +9,7 @@
 ### Changes
 
 - [#3959](https://github.com/ignite/cli/pull/3959) Remove app name prefix from the `.gitignore` file
+- [#4103](https://github.com/ignite/cli/pull/4103) Bump cosmos-sdk to `v0.50.6`
 
 ### Fixes
 
