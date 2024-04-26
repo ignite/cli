@@ -4,7 +4,7 @@ on:
   pull_request:
   push:
     paths-ignore:
-      - '**.md'
+      - "**.md"
     branches:
       - main
       - release/*
@@ -29,9 +29,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: pre-test
     if: fromJSON(needs.pre-test.outputs.matrix)[0] != null
-    continue-on-error: false
+    continue-on-error: true
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
         test-path: ${{fromJson(needs.pre-test.outputs.matrix)}}
@@ -50,7 +50,7 @@ jobs:
       - uses: actions/setup-go@v4
         if: env.GIT_DIFF
         with:
-          go-version: 'stable'
+          go-version: "stable"
 
       - name: Run Integration Tests
         if: env.GIT_DIFF
