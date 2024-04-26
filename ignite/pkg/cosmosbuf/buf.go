@@ -10,7 +10,6 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis"
 	"github.com/ignite/cli/v29/ignite/pkg/xexec"
@@ -134,32 +133,6 @@ func (b Buf) Update(ctx context.Context, modDir string, dependencies ...string) 
 
 // Export runs the buf Export command for the files in the proto directory.
 func (b Buf) Export(ctx context.Context, protoDir, output string) error {
-	// Check if the proto directory is the Cosmos SDK one
-	// TODO(@julienrbrt): this whole custom handling can be deleted
-	// after https://github.com/cosmos/cosmos-sdk/pull/18993 in v29.
-	if strings.Contains(protoDir, cosmosver.CosmosSDKRepoName) {
-		if b.sdkProtoDir == "" {
-			// Copy Cosmos SDK proto path without the Buf workspace.
-			// This is done because the workspace contains a reference to
-			// a "orm/internal" proto folder that is not present by default
-			// in the SDK repository.
-			d, err := copySDKProtoDir(protoDir)
-			if err != nil {
-				return err
-			}
-
-			b.sdkProtoDir = d
-		}
-
-		// Split absolute path into an absolute prefix and a relative suffix
-		paths := strings.Split(protoDir, "/proto")
-		if len(paths) < 2 {
-			return errors.Errorf("invalid Cosmos SDK mod path: %s", protoDir)
-		}
-
-		// Use the SDK copy to resolve SDK proto files
-		protoDir = filepath.Join(b.sdkProtoDir, paths[1])
-	}
 	specs, err := xos.FindFiles(protoDir, xos.ProtoFile)
 	if err != nil {
 		return err
@@ -199,22 +172,6 @@ func (b Buf) Generate(
 	excluded := make(map[string]struct{})
 	for _, file := range opts.excludeFiles {
 		excluded[file] = struct{}{}
-	}
-
-	// TODO(@julienrbrt): this whole custom handling can be deleted
-	// after https://github.com/cosmos/cosmos-sdk/pull/18993 in v29.
-	if strings.Contains(protoDir, cosmosver.CosmosSDKRepoName) {
-		if b.sdkProtoDir == "" {
-			b.sdkProtoDir, err = copySDKProtoDir(protoDir)
-			if err != nil {
-				return err
-			}
-		}
-		dirs := strings.Split(protoDir, "/proto/")
-		if len(dirs) < 2 {
-			return errors.Errorf("invalid Cosmos SDK mod path: %s", dirs)
-		}
-		protoDir = filepath.Join(b.sdkProtoDir, dirs[1])
 	}
 
 	pkgs, err := protoanalysis.Parse(ctx, b.cache, protoDir)
