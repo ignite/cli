@@ -9,39 +9,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v29/ignite/pkg/xos"
 	envtest "github.com/ignite/cli/v29/integration"
 )
-
-func TestServeWithWasm(t *testing.T) {
-	t.Skip()
-
-	var (
-		env     = envtest.New(t)
-		app     = env.Scaffold("github.com/test/sgblog")
-		servers = app.RandomizeServerPorts()
-	)
-
-	env.Must(env.Exec("add Wasm module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "wasm", "--yes"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
-
-	var (
-		ctx, cancel       = context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
-		isBackendAliveErr error
-	)
-	go func() {
-		defer cancel()
-		isBackendAliveErr = env.IsAppServed(ctx, servers.API)
-	}()
-	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
-
-	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
-}
 
 func TestServeWithCustomHome(t *testing.T) {
 	var (
