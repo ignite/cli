@@ -27,9 +27,6 @@ type generateOptions struct {
 	jsOut            func(module.Module) string
 	tsClientRootPath string
 
-	vuexOut      func(module.Module) string
-	vuexRootPath string
-
 	composablesOut      func(module.Module) string
 	composablesRootPath string
 
@@ -52,13 +49,6 @@ func WithTSClientGeneration(out ModulePathFunc, tsClientRootPath string, useCach
 		o.jsOut = out
 		o.tsClientRootPath = tsClientRootPath
 		o.useCache = useCache
-	}
-}
-
-func WithVuexGeneration(out ModulePathFunc, vuexRootPath string) Option {
-	return func(o *generateOptions) {
-		o.vuexOut = out
-		o.vuexRootPath = vuexRootPath
 	}
 }
 
@@ -202,27 +192,6 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		if err := g.generateTS(ctx); err != nil {
 			return err
 		}
-	}
-
-	if g.opts.vuexOut != nil {
-		if err := g.generateVuex(); err != nil {
-			return err
-		}
-
-		// Update Vuex store dependencies when Vuex stores are generated.
-		// This update is required to link the "ts-client" folder so the
-		// package is available during development before publishing it.
-		if err := g.updateVuexDependencies(); err != nil {
-			return err
-		}
-
-		// Update Vue app dependencies when Vuex stores are generated.
-		// This update is required to link the "ts-client" folder so the
-		// package is available during development before publishing it.
-		if err := g.updateVueDependencies(); err != nil {
-			return err
-		}
-
 	}
 
 	if g.opts.composablesRootPath != "" {
