@@ -1,17 +1,20 @@
 package clidoc
 
 import (
-	"github.com/stretchr/testify/require"
+	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 type (
 	build struct {
-		Main    string   `yaml:"main,omitempty" doc:"doc of main"`
-		Binary  string   `yaml:"binary,omitempty" doc:""`
-		LDFlags []string `yaml:"ldflags,omitempty"`
-		Proto   proto    `yaml:"proto" doc:"doc of proto"`
-		Protos  []proto  `yaml:"protos" doc:"doc of protos"`
+		Main     string   `yaml:"main,omitempty" doc:"doc of main"`
+		Binary   string   `yaml:"binary,omitempty" doc:""`
+		LDFlags  []string `yaml:"ldflags,omitempty"`
+		Proto    proto    `yaml:"proto" doc:"doc of proto"`
+		PtrProto *proto   `yaml:"ptr_proto" doc:"doc of pointer proto"`
+		Protos   []proto  `yaml:"protos" doc:"doc of protos"`
 	}
 	proto struct {
 		Path            string   `yaml:"path" doc:"path of proto file"`
@@ -23,13 +26,13 @@ func TestGenDoc(t *testing.T) {
 	tests := []struct {
 		name string
 		v    interface{}
-		want []Doc
+		want Docs
 		err  error
 	}{
 		{
 			name: "Build struct",
 			v:    build{},
-			want: []Doc{
+			want: Docs{
 				{
 					Key:     "main",
 					Comment: "doc of main",
@@ -42,7 +45,7 @@ func TestGenDoc(t *testing.T) {
 				},
 				{
 					Key: "proto",
-					Value: []Doc{
+					Value: Docs{
 						{
 							Key:     "path",
 							Comment: "path of proto file",
@@ -55,8 +58,22 @@ func TestGenDoc(t *testing.T) {
 					Comment: "doc of proto",
 				},
 				{
+					Key: "ptr_proto",
+					Value: Docs{
+						{
+							Key:     "path",
+							Comment: "path of proto file",
+						},
+						{
+							Key:     "third_party_paths [array]",
+							Comment: "doc of third party paths",
+						},
+					},
+					Comment: "doc of pointer proto",
+				},
+				{
 					Key: "protos [array]",
-					Value: []Doc{
+					Value: Docs{
 						{
 							Key:     "path",
 							Comment: "path of proto file",
@@ -73,7 +90,7 @@ func TestGenDoc(t *testing.T) {
 		{
 			name: "Proto struct",
 			v:    proto{},
-			want: []Doc{
+			want: Docs{
 				{
 					Key:     "path",
 					Comment: "path of proto file",
@@ -99,6 +116,94 @@ func TestGenDoc(t *testing.T) {
 			}
 			require.NoError(t, err)
 			require.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestDocs_String(t *testing.T) {
+	tests := []struct {
+		name string
+		d    Docs
+		want string
+	}{
+		{
+			name: "many entries",
+			d: Docs{
+				{
+					Key:     "main",
+					Comment: "doc of main",
+				},
+				{
+					Key: "binary",
+				},
+				{
+					Key: "ldflags [array]",
+				},
+				{
+					Key: "proto",
+					Value: Docs{
+						{
+							Key:     "path",
+							Comment: "path of proto file",
+						},
+						{
+							Key:     "third_party_paths [array]",
+							Comment: "doc of third party paths",
+						},
+					},
+					Comment: "doc of proto",
+				},
+				{
+					Key: "protos [array]",
+					Value: Docs{
+						{
+							Key:     "path",
+							Comment: "path of proto file",
+						},
+						{
+							Key:     "third_party_paths [array]",
+							Comment: "doc of third party paths",
+						},
+					},
+					Comment: "doc of protos",
+				},
+			},
+			want: `
+- main: doc of main
+- binary: 
+- ldflags [array]: 
+- proto: doc of proto
+    - path: path of proto file
+    - third_party_paths [array]: doc of third party paths
+- protos [array]: doc of protos
+    - path: path of proto file
+    - third_party_paths [array]: doc of third party paths`,
+		},
+		{
+			name: "no entries",
+			d:    Docs{},
+		},
+		{
+			name: "two entries",
+			d: Docs{
+				{
+					Key:     "path",
+					Comment: "path of proto file",
+				},
+				{
+					Key:     "third_party_paths [array]",
+					Comment: "doc of third party paths",
+				},
+			},
+			want: `
+- path: path of proto file
+- third_party_paths [array]: doc of third party paths`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.d.String()
+			require.Equal(t, strings.TrimSpace(tt.want), strings.TrimSpace(got))
 		})
 	}
 }
