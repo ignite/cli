@@ -14,9 +14,9 @@ import (
 type Config struct {
 	base.Config `yaml:",inline"`
 
-	Validator Validator `yaml:"validator"`
-	Init      base.Init `yaml:"init"`
-	Host      base.Host `yaml:"host"`
+	Validator Validator `yaml:"validator" doc:"holds info related to validator settings"`
+	Init      base.Init `yaml:"init" doc:"overwrites sdk configurations with given values"`
+	Host      base.Host `yaml:"host" doc:"keeps configuration related to started servers"`
 }
 
 // Clone returns an identical copy of the instance.
