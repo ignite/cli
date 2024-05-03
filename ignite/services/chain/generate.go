@@ -22,10 +22,8 @@ type generateOptions struct {
 	isTSClientEnabled    bool
 	isComposablesEnabled bool
 	isHooksEnabled       bool
-	isVuexEnabled        bool
 	isOpenAPIEnabled     bool
 	tsClientPath         string
-	vuexPath             string
 	composablesPath      string
 	hooksPath            string
 }
@@ -49,16 +47,6 @@ func GenerateTSClient(path string, useCache bool) GenerateTarget {
 		o.isTSClientEnabled = true
 		o.tsClientPath = path
 		o.useCache = useCache
-	}
-}
-
-// GenerateVuex enables generating proto based Typescript Client and Vuex Stores.
-func GenerateVuex(path string) GenerateTarget {
-	return func(o *generateOptions) {
-		o.isOpenAPIEnabled = true
-		o.isTSClientEnabled = true
-		o.isVuexEnabled = true
-		o.vuexPath = path
 	}
 }
 
@@ -120,11 +108,6 @@ func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Stora
 			targets = append(targets, GenerateTSClient(p, true))
 		}
 
-		//nolint:staticcheck //ignore SA1019 until vuex config option is removed
-		if p := conf.Client.Vuex.Path; p != "" {
-			targets = append(targets, GenerateVuex(p))
-		}
-
 		if p := conf.Client.Composables.Path; p != "" {
 			targets = append(targets, GenerateComposables(p))
 		}
@@ -176,8 +159,8 @@ func (c *Chain) Generate(
 	}
 
 	var (
-		openAPIPath, tsClientPath, vuexPath, composablesPath, hooksPath string
-		updateConfig                                                    bool
+		openAPIPath, tsClientPath, composablesPath, hooksPath string
+		updateConfig                                          bool
 	)
 
 	if targetOptions.isOpenAPIEnabled {
@@ -217,31 +200,6 @@ func (c *Chain) Generate(
 				cosmosgen.TypescriptModulePath(tsClientPath),
 				tsClientPath,
 				targetOptions.useCache,
-			),
-		)
-	}
-
-	if targetOptions.isVuexEnabled {
-		vuexPath = targetOptions.vuexPath
-		if vuexPath == "" {
-			vuexPath = chainconfig.VuexPath(conf)
-
-			// When Vuex stores are generated make sure the config is updated
-			// with the output path when the client path option is empty.
-			conf.Client.Vuex.Path = vuexPath //nolint:staticcheck //ignore SA1019 until vuex config option is removed
-			updateConfig = true
-		}
-
-		// Non-absolute Vuex output paths must be treated as relative to the app directory
-		if !filepath.IsAbs(vuexPath) {
-			vuexPath = filepath.Join(c.app.Path, vuexPath)
-		}
-
-		vuexPath = c.joinGeneratedPath(vuexPath)
-		options = append(options,
-			cosmosgen.WithVuexGeneration(
-				cosmosgen.TypescriptModulePath(vuexPath),
-				vuexPath,
 			),
 		)
 	}
@@ -338,14 +296,6 @@ func (c *Chain) Generate(
 			)
 		}
 
-		if targetOptions.isVuexEnabled {
-			c.ev.Send(
-				fmt.Sprintf("Vuex stores path: %s", vuexPath),
-				events.Icon(icons.Bullet),
-				events.ProgressFinish(),
-			)
-		}
-
 		if targetOptions.isOpenAPIEnabled {
 			c.ev.Send(
 				fmt.Sprintf("OpenAPI path: %s", openAPIPath),
@@ -356,14 +306,6 @@ func (c *Chain) Generate(
 	}
 
 	return nil
-}
-
-func (c Chain) joinGeneratedPath(rootPath string) string {
-	if filepath.IsAbs(rootPath) {
-		return filepath.Join(rootPath, "generated")
-	}
-
-	return filepath.Join(c.app.Path, rootPath, "generated")
 }
 
 func (c Chain) saveClientConfig(client base.Client) error {
