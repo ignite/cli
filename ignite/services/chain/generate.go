@@ -308,14 +308,6 @@ func (c *Chain) Generate(
 	return nil
 }
 
-func (c Chain) joinGeneratedPath(rootPath string) string {
-	if filepath.IsAbs(rootPath) {
-		return filepath.Join(rootPath, "generated")
-	}
-
-	return filepath.Join(c.app.Path, rootPath, "generated")
-}
-
 func (c Chain) saveClientConfig(client base.Client) error {
 	path := c.ConfigPath()
 	file, err := os.Open(path)
