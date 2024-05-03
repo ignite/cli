@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"
 )
 
 //go:embed files/*
@@ -14,8 +15,9 @@ var fsFiles embed.FS
 
 // Options represents the options to scaffold a migration document.
 type Options struct {
-	Path   string
-	Config string
+	Path     string
+	FileName string
+	Config   string
 }
 
 // NewGenerator returns the generator to scaffold a migration doc.
@@ -35,7 +37,10 @@ func NewGenerator(opts Options) (*genny.Generator, error) {
 
 	ctx := plush.NewContext()
 	ctx.Set("Config", opts.Config)
+
+	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(xgenny.Transformer(ctx))
+	g.Transformer(genny.Replace("{{Name}}", opts.FileName))
 
 	return g, nil
 }

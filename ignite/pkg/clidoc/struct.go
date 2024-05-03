@@ -12,23 +12,30 @@ type (
 	// Doc represents the struct documentation with tag comments.
 	Doc struct {
 		Key     string
+		Type    string
 		Value   Docs
 		Comment string
 	}
 )
 
-// Strings convert Docs to string.
+// String converts Docs to a string.
 func (d Docs) String() string {
 	var sb strings.Builder
-	d.writeString(&sb, 0)
-	return sb.String()
+	// Initial call with a negative level to avoid unwanted dash at the top level
+	d.writeString(&sb, -1)
+	return strings.TrimSpace(sb.String())
 }
 
-// writeString appends the contents of Docs to b's buffer at level.
+// writeString appends the contents of Docs to sb's buffer at level.
 func (d Docs) writeString(sb *strings.Builder, level int) {
-	indent := strings.Repeat("    ", level)
+	indent := strings.Repeat("  ", level+1) // Two spaces per YAML indentation standard
 	for _, doc := range d {
-		sb.WriteString(fmt.Sprintf("%s- %s: %s\n", indent, doc.Key, doc.Comment))
+		sb.WriteString(indent)
+		if doc.Type != "" {
+			sb.WriteString(fmt.Sprintf("%s: [%s] # %s\n", doc.Key, doc.Type, doc.Comment))
+		} else {
+			sb.WriteString(fmt.Sprintf("%s: # %s\n", doc.Key, doc.Comment))
+		}
 		if len(doc.Value) > 0 {
 			doc.Value.writeString(sb, level+1)
 		}
@@ -62,32 +69,54 @@ func GenDoc(v interface{}) (fields Docs, err error) {
 			continue
 		}
 
-		var elemFields Docs
+		var (
+			elemFields Docs
+			elemType   string
+		)
 		switch field.Type.Kind() {
 		case reflect.Struct:
+			elemType = field.Type.Kind().String()
 			elemFields, err = GenDoc(reflect.New(field.Type).Elem().Interface())
 			if err != nil {
 				return nil, err
 			}
 		case reflect.Ptr:
+			elemType = field.Type.Elem().Kind().String()
 			elemFields, err = GenDoc(reflect.New(field.Type.Elem()).Elem().Interface())
 			if err != nil {
 				return nil, err
 			}
 		case reflect.Slice:
-			name = fmt.Sprintf("%s [array]", name)
+			elemType = fmt.Sprintf("[]%s", field.Type.Elem().Kind().String())
 			elemFields, err = GenDoc(reflect.New(field.Type.Elem()).Elem().Interface())
 			if err != nil {
 				return nil, err
 			}
 		default:
+			elemType = field.Type.Kind().String()
 		}
 		fields = append(fields, Doc{
 			Key:     name,
 			Comment: doc,
 			Value:   elemFields,
+			Type:    mapTypes(elemType),
 		})
 	}
 
 	return fields, nil
+}
+
+func mapTypes(doc string) string {
+	docTypes := map[string]string{
+		"[]struct": "list",
+		"struct":   "",
+		"[]map":    "list",
+		"map":      "",
+		"[]slice":  "list",
+		"slice":    "list",
+	}
+	if docType, ok := docTypes[doc]; ok {
+		return docType
+	}
+	return doc
 }

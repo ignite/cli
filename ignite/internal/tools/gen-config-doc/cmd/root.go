@@ -17,10 +17,12 @@ import (
 )
 
 const (
-	flagVersion = "version"
-	flagOutput  = "output"
+	flagVersion  = "version"
+	flagOutput   = "output"
+	flagFilename = "filename"
 
-	defaultDocPath = "docs/docs/08-references"
+	defaultFilename = "sample-config.yml"
+	defaultDocPath  = "docs/docs/08-references"
 )
 
 // NewRootCmd creates a new root command.
@@ -34,8 +36,9 @@ func NewRootCmd() *cobra.Command {
 			defer session.End()
 
 			var (
-				version, _ = cmd.Flags().GetString(flagVersion)
-				output, _  = cmd.Flags().GetString(flagOutput)
+				version, _  = cmd.Flags().GetString(flagVersion)
+				output, _   = cmd.Flags().GetString(flagOutput)
+				fileName, _ = cmd.Flags().GetString(flagFilename)
 			)
 
 			output, err = filepath.Abs(output)
@@ -58,8 +61,9 @@ func NewRootCmd() *cobra.Command {
 
 			// Generate the docs file.
 			g, err := doc.NewGenerator(doc.Options{
-				Path:   output,
-				Config: docs.String(),
+				Path:     output,
+				FileName: fileName,
+				Config:   docs.String(),
 			})
 			if err != nil {
 				return errors.Wrap(err, "failed to create the doc generator object")
@@ -84,6 +88,7 @@ func NewRootCmd() *cobra.Command {
 
 	cmd.Flags().StringP(flagVersion, "v", "v1", "Version of Ignite config file")
 	cmd.Flags().StringP(flagOutput, "o", defaultDocPath, "Output directory to save the config document")
+	cmd.Flags().StringP(flagFilename, "f", defaultFilename, "Document file name")
 
 	return cmd
 }
