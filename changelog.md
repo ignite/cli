@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- [#4108](https://github.com/ignite/cli/pull/4108) Add `xast` package (cherry-picked from [#3770](https://github.com/ignite/cli/pull/3770))
+
 ### Changes
 
 - [#3959](https://github.com/ignite/cli/pull/3959) Remove app name prefix from the `.gitignore` file
