@@ -25,15 +25,6 @@ const (
 
 	// CommandSwaggerCombine is https://www.npmjs.com/package/swagger-combine.
 	CommandSwaggerCombine CommandName = "swagger-combine"
-
-	// CommandIBCSetup is https://github.com/confio/ts-relayer/blob/main/spec/ibc-setup.md.
-	CommandIBCSetup = "ibc-setup"
-
-	// CommandIBCRelayer is https://github.com/confio/ts-relayer/blob/main/spec/ibc-relayer.md.
-	CommandIBCRelayer = "ibc-relayer"
-
-	// CommandXRelayer is a relayer wrapper for Ignite CLI made using the confio relayer.
-	CommandXRelayer = "xrelayer"
 )
 
 // CommandName represents a high level command under nodetime.

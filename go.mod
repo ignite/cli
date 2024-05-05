@@ -44,11 +44,16 @@ require (
 	github.com/goccy/go-yaml v1.11.2
 	github.com/golangci/golangci-lint v1.55.2
 	github.com/google/go-github/v48 v48.2.0
+<<<<<<< HEAD
 	github.com/google/go-querystring v1.1.0
 	github.com/gookit/color v1.5.4
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/rpc v1.2.1
 	github.com/hashicorp/go-hclog v1.5.0
+=======
+	github.com/gorilla/mux v1.8.1
+	github.com/hashicorp/go-hclog v1.6.3
+>>>>>>> 77b665f5 (feat!: remove the ignite `realyer` and `tools` commands with all ts-realyer logic (#4076))
 	github.com/hashicorp/go-plugin v1.6.0
 	github.com/iancoleman/strcase v0.3.0
 	github.com/ignite/ignite-files/nodetime v0.0.4
@@ -424,7 +429,6 @@ require (
 	github.com/uudashr/gocognit v1.1.2 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	github.com/xen0n/gosmopolitan v1.2.2 // indirect
-	github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778 // indirect
 	github.com/yagipy/maintidx v1.0.0 // indirect
 	github.com/yeya24/promlinter v0.2.0 // indirect
 	github.com/ykadowak/zerologlint v0.1.3 // indirect
