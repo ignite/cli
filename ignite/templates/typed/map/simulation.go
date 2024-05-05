@@ -22,7 +22,7 @@ func moduleSimulationModify(replacer placeholder.Replacer, opts *typed.Options) 
 		sampleIndexes := make([]string, 2)
 		for i := 0; i < 2; i++ {
 			sampleIndexes[i] = fmt.Sprintf("%s: sample.AccAddress(),\n", opts.MsgSigner.UpperCamel)
-			sampleIndexes[i] = opts.Index.GenesisArgs(i)
+			sampleIndexes[i] += opts.Index.GenesisArgs(i)
 		}
 
 		// simulation genesis state
