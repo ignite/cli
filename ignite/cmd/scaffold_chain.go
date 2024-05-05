@@ -3,6 +3,7 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/xfilepath"
@@ -88,6 +89,8 @@ about Cosmos SDK on https://docs.cosmos.network
 	c.Flags().Bool(flagSkipProto, false, "skip proto generation")
 	c.Flags().Bool(flagMinimal, false, "create a minimal blockchain (with the minimum required Cosmos SDK modules)")
 	c.Flags().Bool(flagIsConsumer, false, "scafffold an ICS consumer chain")
+	c.Flags().String(flagProtoDir, defaults.ProtoDir, "chain proto directory")
+
 	// Cannot have both minimal and consumer flag
 	c.MarkFlagsMutuallyExclusive(flagIsConsumer, flagMinimal)
 
@@ -99,9 +102,10 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 	defer session.End()
 
 	var (
-		name               = args[0]
-		addressPrefix      = getAddressPrefix(cmd)
-		appPath            = flagGetPath(cmd)
+		name          = args[0]
+		addressPrefix = getAddressPrefix(cmd)
+		appPath       = flagGetPath(cmd)
+
 		noDefaultModule, _ = cmd.Flags().GetBool(flagNoDefaultModule)
 		skipGit, _         = cmd.Flags().GetBool(flagSkipGit)
 		minimal, _         = cmd.Flags().GetBool(flagMinimal)
@@ -109,6 +113,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		params, _          = cmd.Flags().GetStringSlice(flagParams)
 		moduleConfigs, _   = cmd.Flags().GetStringSlice(flagModuleConfigs)
 		skipProto, _       = cmd.Flags().GetBool(flagSkipProto)
+		protoDir, _        = cmd.Flags().GetString(flagProtoDir)
 	)
 
 	if noDefaultModule {
@@ -131,6 +136,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		appPath,
 		name,
 		addressPrefix,
+		protoDir,
 		noDefaultModule,
 		minimal,
 		isConsumer,
@@ -150,7 +156,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := scaffolder.PostScaffold(cmd.Context(), cacheStorage, appDir, goModule, skipProto); err != nil {
+	if err := scaffolder.PostScaffold(cmd.Context(), cacheStorage, appDir, protoDir, goModule, skipProto); err != nil {
 		return err
 	}
 

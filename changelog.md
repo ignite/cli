@@ -10,6 +10,12 @@
 - [#4001](https://github.com/ignite/cli/pull/4001) Improve `xgenny` dry run
 - [#3967](https://github.com/ignite/cli/issues/3967) Add HD wallet parameters `address index` and `account number` to the chain account config
 - [#4004](https://github.com/ignite/cli/pull/4004) Remove all import placeholders using the `xast` pkg
+- [#4076](https://github.com/ignite/cli/pull/4076) Remove the ignite `relayer` and `tools` commands with all ts-relayer logic
+- [#4071](https://github.com/ignite/cli/pull/4071) Support custom proto path
+- [#3718](https://github.com/ignite/cli/pull/3718) Add `gen-mig-diffs` tool app to compare scaffold output of two versions of ignite
+- [#4077](https://github.com/ignite/cli/pull/4077) Merge the swagger files manually instead use nodetime `swagger-combine`
+- [#4100](https://github.com/ignite/cli/pull/4100) Set the `proto-dir` flag only for the `scaffold chain` command and use the proto path from the config
+- [#4111](https://github.com/ignite/cli/pull/4111) Remove vuex generation
 
 ### Changes
 
@@ -21,11 +27,16 @@
 - [#3976](https://github.com/ignite/cli/pull/3976) Remove error checks for Cobra command value get calls
 - [#4002](https://github.com/ignite/cli/pull/4002) Bump buf build
 - [#4008](https://github.com/ignite/cli/pull/4008) Rename `pkg/yaml` to `pkg/xyaml`
+- [#4075](https://github.com/ignite/cli/pull/4075) Use `gopkg.in/yaml.v3` instead `gopkg.in/yaml.v2`
+- [#4103](https://github.com/ignite/cli/pull/4103) Bump cosmos-sdk to `v0.50.6`
 
 ### Fixes
 
 - [#3969](https://github.com/ignite/cli/pull/3969) Get first config validator using a getter to avoid index errors
 - [#4000](https://github.com/ignite/cli/pull/4000) Run all dry runners before the wet run in the `xgenny` pkg
+- [#4086](https://github.com/ignite/cli/pull/4086) Retry to get the IBC balance if it fails the first time
+- [#4091](https://github.com/ignite/cli/pull/4091) Fix race conditions in the plugin logic
+- [#4096](https://github.com/ignite/cli/pull/4096) Add new reserved names module and remove duplicated genesis order
 
 ## [`v28.3.0`](https://github.com/ignite/cli/releases/tag/v28.3.0)
 
@@ -52,6 +63,7 @@
 - [#3995](https://github.com/ignite/cli/pull/3995) Fix interface check for ibc modules
 - [#3953](https://github.com/ignite/cli/pull/3953) Fix apps `Stdout` is redirected to `Stderr`
 - [#3863](https://github.com/ignite/cli/pull/3963) Fix breaking issue for app client API when reading app chain info
+- [#4112](https://github.com/ignite/cli/pull/4112) Remove duplicate SetCmdClientContextHandler
 
 ## [`v28.2.0`](https://github.com/ignite/cli/releases/tag/v28.2.0)
 

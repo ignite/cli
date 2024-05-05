@@ -11,7 +11,7 @@ Ignite CLI offers everything you need to scaffold, test, build, and launch your 
 
 **Synopsis**
 
-Ignite CLI is a tool for creating sovereign blockchains built with Cosmos SDK, the world’s
+Ignite CLI is a tool for creating sovereign blockchains built with Cosmos SDK, the world's
 most popular modular blockchain framework. Ignite CLI offers everything you need to scaffold,
 test, build, and launch your blockchain.
 

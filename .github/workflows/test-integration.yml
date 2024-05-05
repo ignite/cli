@@ -4,7 +4,7 @@ on:
   pull_request:
   push:
     paths-ignore:
-      - '**.md'
+      - "**.md"
     branches:
       - main
       - release/*
@@ -19,7 +19,7 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v3.4.0
+      - uses: actions/checkout@v4
       - name: Finding files and store to output
         id: set-matrix
         run: echo "matrix=$({ cd integration && find . -type d ! -name testdata -maxdepth 1 -print; } | tail -n +2 | cut -c 3- | jq -R . | jq -cs .)" >> $GITHUB_OUTPUT
@@ -29,14 +29,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: pre-test
     if: fromJSON(needs.pre-test.outputs.matrix)[0] != null
-    continue-on-error: false
+    continue-on-error: true
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
         test-path: ${{fromJson(needs.pre-test.outputs.matrix)}}
     steps:
-      - uses: actions/checkout@v3.4.0
+      - uses: actions/checkout@v4
       - uses: technote-space/get-diff-action@v6.1.2
         with:
           PATTERNS: |
@@ -47,10 +47,10 @@ jobs:
             go.sum
             **/testdata/**
 
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v5
         if: env.GIT_DIFF
         with:
-          go-version: 'stable'
+          go-version: "stable"
 
       - name: Run Integration Tests
         if: env.GIT_DIFF

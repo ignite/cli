@@ -91,6 +91,11 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
 
+	cfg, _, err := getChainConfig(cmd)
+	if err != nil {
+		return err
+	}
+
 	cacheStorage, err := newCache(cmd)
 	if err != nil {
 		return err
@@ -113,7 +118,7 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		options = append(options, scaffolder.WithoutSimulation())
 	}
 
-	sc, err := scaffolder.New(cmd.Context(), appPath)
+	sc, err := scaffolder.New(cmd.Context(), appPath, cfg.Build.Proto.Path)
 	if err != nil {
 		return err
 	}

@@ -13,13 +13,22 @@ import (
 	flag "github.com/spf13/pflag"
 
 	"github.com/ignite/cli/v29/ignite/config"
+	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	uilog "github.com/ignite/cli/v29/ignite/pkg/cliui/log"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gitpod"
 	"github.com/ignite/cli/v29/ignite/pkg/goenv"
+	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/version"
+)
+
+type key int
+
+const (
+	keyChainConfig     key = iota
+	keyChainConfigPath key = iota
 )
 
 const (
@@ -59,7 +68,7 @@ To get started, create a blockchain:
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		Args:          cobra.MinimumNArgs(0), // note(@julienrbrt): without this, ignite __complete(noDesc) hidden commands are not working.
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			// Check for new versions only when shell completion scripts are not being
 			// generated to avoid invalid output to stdout when a new version is available
 			if cmd.Use != "completion" || !strings.HasPrefix(cmd.Use, cobra.ShellCompRequestCmd) {
@@ -76,8 +85,6 @@ To get started, create a blockchain:
 		NewGenerate(),
 		NewNode(),
 		NewAccount(),
-		NewRelayer(),
-		NewTools(),
 		NewDocs(),
 		NewVersion(),
 		NewApp(),
@@ -120,6 +127,20 @@ func flagGetPath(cmd *cobra.Command) (path string) {
 	return
 }
 
+func goModulePath(cmd *cobra.Command) (string, error) {
+	path := flagGetPath(cmd)
+	path, err := filepath.Abs(path)
+	if err != nil {
+		return "", err
+	}
+
+	_, appPath, err := gomodulepath.Find(path)
+	if err != nil {
+		return "", err
+	}
+	return appPath, err
+}
+
 func flagSetHome() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.String(flagHome, "", "directory where the blockchain node is initialized")
@@ -140,6 +161,36 @@ func flagSetConfig() *flag.FlagSet {
 func getConfig(cmd *cobra.Command) (config string) {
 	config, _ = cmd.Flags().GetString(flagConfig)
 	return
+}
+
+func getChainConfig(cmd *cobra.Command) (*chainconfig.Config, string, error) {
+	cfg, ok := cmd.Context().Value(keyChainConfig).(*chainconfig.Config)
+	if ok {
+		configPath := cmd.Context().Value(keyChainConfigPath).(string)
+		return cfg, configPath, nil
+	}
+	configPath := getConfig(cmd)
+
+	path, err := goModulePath(cmd)
+	if err != nil {
+		return nil, "", err
+	}
+
+	if configPath == "" {
+		if configPath, err = chainconfig.LocateDefault(path); err != nil {
+			return nil, "", err
+		}
+	}
+
+	cfg, err = chainconfig.ParseFile(configPath)
+	if err != nil {
+		return nil, "", err
+	}
+	ctx := context.WithValue(cmd.Context(), keyChainConfig, cfg)
+	ctx = context.WithValue(ctx, keyChainConfigPath, configPath)
+	cmd.SetContext(ctx)
+
+	return cfg, configPath, err
 }
 
 func flagSetYes() *flag.FlagSet {
@@ -204,10 +255,6 @@ func checkNewVersion(ctx context.Context) {
 	}
 
 	fmt.Printf("⬆️ Ignite CLI %s is available! To upgrade: https://docs.ignite.com/welcome/install#upgrade", next)
-}
-
-func printSection(session *cliui.Session, title string) error {
-	return session.Printf("------\n%s\n------\n\n", title)
 }
 
 func newCache(cmd *cobra.Command) (cache.Storage, error) {

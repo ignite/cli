@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	v0 "github.com/ignite/cli/v29/ignite/config/chain/v0"
 	v1 "github.com/ignite/cli/v29/ignite/config/chain/v1"
@@ -29,10 +29,6 @@ var (
 	// DefaultReactPath defines the default relative path to use when scaffolding a React app.
 	// The path is relative to the app's directory.
 	DefaultReactPath = "react"
-
-	// DefaultVuexPath defines the default relative path to use when generating Vuex stores for a Vue app.
-	// The path is relative to the app's directory.
-	DefaultVuexPath = "vue/src/store"
 
 	// DefaultComposablesPath defines the default relative path to use when generating useQuery composables for a Vue app.
 	// The path is relative to the app's directory.
@@ -89,17 +85,6 @@ func TSClientPath(conf Config) string {
 	}
 
 	return DefaultTSClientPath
-}
-
-// VuexPath returns the relative path to the Vuex stores directory.
-// Path is relative to the app's directory.
-func VuexPath(conf *Config) string {
-	//nolint:staticcheck,nolintlint //ignore SA1019 until vuex config option is removed
-	if path := strings.TrimSpace(conf.Client.Vuex.Path); path != "" {
-		return filepath.Clean(path)
-	}
-
-	return DefaultVuexPath
 }
 
 // ComposablesPath returns the relative path to the Vue useQuery composables directory.

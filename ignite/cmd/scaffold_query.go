@@ -39,10 +39,13 @@ For detailed type information use ignite scaffold type --help.`,
 }
 
 func queryHandler(cmd *cobra.Command, args []string) error {
-	appPath := flagGetPath(cmd)
-
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
+
+	cfg, _, err := getChainConfig(cmd)
+	if err != nil {
+		return err
+	}
 
 	// Get the module to add the type into
 	module, _ := cmd.Flags().GetString(flagModule)
@@ -57,14 +60,17 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 		desc = fmt.Sprintf("Query %s", args[0])
 	}
 
-	paginated, _ := cmd.Flags().GetBool(flagPaginated)
+	var (
+		paginated, _ = cmd.Flags().GetBool(flagPaginated)
+		appPath      = flagGetPath(cmd)
+	)
 
 	cacheStorage, err := newCache(cmd)
 	if err != nil {
 		return err
 	}
 
-	sc, err := scaffolder.New(cmd.Context(), appPath)
+	sc, err := scaffolder.New(cmd.Context(), appPath, cfg.Build.Proto.Path)
 	if err != nil {
 		return err
 	}

@@ -46,6 +46,11 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
 
+	cfg, _, err := getChainConfig(cmd)
+	if err != nil {
+		return err
+	}
+
 	module, _ := cmd.Flags().GetString(flagModule)
 	if module == "" {
 		return errors.New("please specify a module to create the packet into: --module <module_name>")
@@ -66,7 +71,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 		options = append(options, scaffolder.PacketWithSigner(signer))
 	}
 
-	sc, err := scaffolder.New(cmd.Context(), appPath)
+	sc, err := scaffolder.New(cmd.Context(), appPath, cfg.Build.Proto.Path)
 	if err != nil {
 		return err
 	}
