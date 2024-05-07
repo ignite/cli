@@ -6,23 +6,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	circuittypes "cosmossdk.io/x/circuit/types"
-	evidencetypes "cosmossdk.io/x/evidence/types"
-	"cosmossdk.io/x/feegrant"
-	"cosmossdk.io/x/nft"
-	upgradetypes "cosmossdk.io/x/upgrade/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/cosmos/cosmos-sdk/x/group"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
@@ -73,19 +63,19 @@ var (
 		crisistypes.ModuleName:       {},
 		ibcexported.ModuleName:       {},
 		genutiltypes.ModuleName:      {},
-		evidencetypes.ModuleName:     {},
-		authz.ModuleName:             {},
+		"evidence":                   {},
+		"authz":                      {},
 		ibctransfertypes.ModuleName:  {},
 		icatypes.ModuleName:          {},
 		ibcfeetypes.ModuleName:       {},
-		feegrant.ModuleName:          {},
-		paramstypes.ModuleName:       {},
-		upgradetypes.ModuleName:      {},
-		vestingtypes.ModuleName:      {},
-		circuittypes.ModuleName:      {},
-		nft.ModuleName:               {},
-		group.ModuleName:             {},
-		consensustypes.ModuleName:    {},
+		"feegrant":                   {},
+		"params":                     {},
+		"upgrade":                    {},
+		"vesting":                    {},
+		"circuit":                    {},
+		"nft":                        {},
+		"group":                      {},
+		"consensus":                  {},
 	}
 
 	// defaultStoreKeys are the names of the default store keys defined in a Cosmos-SDK app.
@@ -101,16 +91,16 @@ var (
 		minttypes.StoreKey,
 		crisistypes.StoreKey,
 		ibcexported.StoreKey,
-		evidencetypes.StoreKey,
 		ibctransfertypes.StoreKey,
 		ibcfeetypes.StoreKey,
-		feegrant.StoreKey,
-		paramstypes.StoreKey,
-		upgradetypes.StoreKey,
-		circuittypes.StoreKey,
-		nft.StoreKey,
-		group.StoreKey,
-		consensustypes.StoreKey,
+		"evidence",
+		"feegrant",
+		"params",
+		"upgrade",
+		"circuit",
+		"nft",
+		"group",
+		"consensus",
 	}
 )
 
