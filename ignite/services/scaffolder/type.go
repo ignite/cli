@@ -260,8 +260,7 @@ func parseTypeFields(opts addTypeOptions) (field.Fields, error) {
 // mapGenerator returns the template generator for a map.
 func mapGenerator(replacer placeholder.Replacer, opts *typed.Options, index string) (*genny.Generator, error) {
 	// Parse indexes with the associated type
-	indexSplit := strings.Split(index, ",")
-	if len(indexSplit) > 1 {
+	if strings.Contains(index, ",") {
 		return nil, errors.Errorf("multi-index map isn't supported")
 	}
 
