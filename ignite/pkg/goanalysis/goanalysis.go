@@ -45,7 +45,6 @@ func DiscoverMain(path string) (pkgPaths []string, err error) {
 
 		return nil
 	})
-
 	if err != nil {
 		return nil, err
 	}
@@ -337,4 +336,60 @@ func ReplaceCode(pkgPath, oldFunctionName, newFunction string) (err error) {
 		}
 	}
 	return nil
+}
+
+// HasAnyStructFieldsInPkg finds the struct within a package folder and checks
+// if any of the fields are defined in the struct.
+func HasAnyStructFieldsInPkg(pkgPath, structName string, fields []string) (bool, error) {
+	absPath, err := filepath.Abs(pkgPath)
+	if err != nil {
+		return false, err
+	}
+	fileSet := token.NewFileSet()
+	all, err := parser.ParseDir(fileSet, absPath, nil, parser.ParseComments)
+	if err != nil {
+		return false, err
+	}
+
+	fieldsNames := make(map[string]struct{})
+	for _, field := range fields {
+		fieldsNames[strings.ToLower(field)] = struct{}{}
+	}
+
+	exist := false
+	for _, pkg := range all {
+		for _, f := range pkg.Files {
+			ast.Inspect(f, func(x ast.Node) bool {
+				typeSpec, ok := x.(*ast.TypeSpec)
+				if !ok {
+					return true
+				}
+
+				if _, ok := typeSpec.Type.(*ast.StructType); !ok ||
+					typeSpec.Name.Name != structName ||
+					typeSpec.Type == nil {
+					return true
+				}
+
+				// Check if the struct has fields.
+				structType, ok := typeSpec.Type.(*ast.StructType)
+				if !ok {
+					return true
+				}
+
+				// Iterate through the fields of the struct.
+				for _, field := range structType.Fields.List {
+					for _, fieldName := range field.Names {
+						if _, ok := fieldsNames[strings.ToLower(fieldName.Name)]; !ok {
+							continue
+						}
+						exist = true
+						return false
+					}
+				}
+				return true
+			})
+		}
+	}
+	return exist, nil
 }
