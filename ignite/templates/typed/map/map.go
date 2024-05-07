@@ -15,6 +15,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v29/ignite/templates/field"
 	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
 	"github.com/ignite/cli/v29/ignite/templates/module"
 	"github.com/ignite/cli/v29/ignite/templates/typed"
@@ -135,27 +136,6 @@ func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunF
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderCollectionType, replacementModuleType)
 
-		// TODO(@julienrbrt): extend support
-		var collectionKeyValue string
-		switch opts.Index.DataType() {
-		case "string":
-			collectionKeyValue = "collections.StringKey"
-		case "int32":
-			collectionKeyValue = "collections.Int32Key"
-		case "int64":
-			collectionKeyValue = "collections.Int64Key"
-		case "uint32":
-			collectionKeyValue = "collections.Uint32Key"
-		case "uint64":
-			collectionKeyValue = "collections.Uint64Key"
-		case "byte":
-			collectionKeyValue = "collections.BytesKey"
-		case "bool":
-			collectionKeyValue = "collections.BoolKey"
-		default:
-			collectionKeyValue = "/* Add collection key value */"
-		}
-
 		templateKeeperInstantiate := `%[2]v: collections.NewMap(sb, types.%[2]vKey, "%[3]v", %[4]v, codec.CollValue[types.%[2]v](cdc)),
 	%[1]v`
 		replacementInstantiate := fmt.Sprintf(
@@ -163,7 +143,7 @@ func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunF
 			typed.PlaceholderCollectionInstantiate,
 			opts.TypeName.UpperCamel,
 			opts.TypeName.LowerCamel,
-			collectionKeyValue,
+			dataTypeToCollectionKeyValue(opts.Index),
 		)
 		content = replacer.Replace(content, typed.PlaceholderCollectionInstantiate, replacementInstantiate)
 
@@ -747,4 +727,29 @@ func typesCodecModify(replacer placeholder.Replacer, opts *typed.Options) genny.
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
+}
+
+// TODO(@julienrbrt): extend support of dataTypeToCollectionKeyValue
+func dataTypeToCollectionKeyValue(f field.Field) string {
+	var collectionKeyValue string
+	switch f.DataType() {
+	case "string":
+		collectionKeyValue = "collections.StringKey"
+	case "int32":
+		collectionKeyValue = "collections.Int32Key"
+	case "int64":
+		collectionKeyValue = "collections.Int64Key"
+	case "uint32":
+		collectionKeyValue = "collections.Uint32Key"
+	case "uint64":
+		collectionKeyValue = "collections.Uint64Key"
+	case "byte":
+		collectionKeyValue = "collections.BytesKey"
+	case "bool":
+		collectionKeyValue = "collections.BoolKey"
+	default:
+		collectionKeyValue = "/* Add collection key value */"
+	}
+
+	return collectionKeyValue
 }
