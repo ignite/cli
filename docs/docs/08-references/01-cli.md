@@ -38,7 +38,6 @@ To get started, create a blockchain:
 * [ignite node](#ignite-node)	 - Make requests to a live blockchain node
 * [ignite relayer](#ignite-relayer)	 - Connect blockchains with an IBC relayer
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
-* [ignite tools](#ignite-tools)	 - Tools for advanced users
 * [ignite version](#ignite-version)	 - Print the current build information
 
 
@@ -1008,7 +1007,6 @@ meant to be edited by hand.
 * [ignite generate openapi](#ignite-generate-openapi)	 - OpenAPI spec for your chain
 * [ignite generate proto-go](#ignite-generate-proto-go)	 - Compile protocol buffer files to Go source code required by Cosmos SDK
 * [ignite generate ts-client](#ignite-generate-ts-client)	 - TypeScript frontend client
-* [ignite generate vuex](#ignite-generate-vuex)	 - *DEPRECATED* TypeScript frontend client and Vuex stores
 
 
 ## ignite generate composables
@@ -1160,35 +1158,6 @@ ignite generate ts-client [flags]
   -h, --help            help for ts-client
   -o, --output string   TypeScript client output path
       --use-cache       use build cache to speed-up generation
-  -y, --yes             answers interactive yes/no questions with yes
-```
-
-**Options inherited from parent commands**
-
-```
-      --clear-cache           clear the build cache (advanced)
-      --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
-  -p, --path string           path of the app (default ".")
-```
-
-**SEE ALSO**
-
-* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
-
-
-## ignite generate vuex
-
-*DEPRECATED* TypeScript frontend client and Vuex stores
-
-```
-ignite generate vuex [flags]
-```
-
-**Options**
-
-```
-  -h, --help            help for vuex
-  -o, --output string   Vuex store output path
   -y, --yes             answers interactive yes/no questions with yes
 ```
 
@@ -2876,6 +2845,10 @@ ignite node tx bank send [from_account_or_address] [to_account_or_address] [amou
 
 Connect blockchains with an IBC relayer
 
+```
+ignite relayer [flags]
+```
+
 **Options**
 
 ```
@@ -2885,71 +2858,6 @@ Connect blockchains with an IBC relayer
 **SEE ALSO**
 
 * [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-* [ignite relayer configure](#ignite-relayer-configure)	 - Configure source and target chains for relaying
-* [ignite relayer connect](#ignite-relayer-connect)	 - Link chains associated with paths and start relaying tx packets in between
-
-
-## ignite relayer configure
-
-Configure source and target chains for relaying
-
-```
-ignite relayer configure [flags]
-```
-
-**Options**
-
-```
-  -a, --advanced                  advanced configuration options for custom IBC modules
-  -h, --help                      help for configure
-      --keyring-backend string    keyring backend to store your account keys (default "test")
-      --keyring-dir string        accounts keyring directory (default "/home/runner/.ignite/accounts")
-      --ordered                   set the channel as ordered
-  -r, --reset                     reset the relayer config
-      --source-account string     source Account
-      --source-client-id string   use a custom client id for source
-      --source-faucet string      faucet address of the source chain
-      --source-gaslimit int       gas limit used for transactions on source chain
-      --source-gasprice string    gas price used for transactions on source chain
-      --source-port string        IBC port ID on the source chain
-      --source-prefix string      address prefix of the source chain
-      --source-rpc string         RPC address of the source chain
-      --source-version string     module version on the source chain
-      --target-account string     target Account
-      --target-client-id string   use a custom client id for target
-      --target-faucet string      faucet address of the target chain
-      --target-gaslimit int       gas limit used for transactions on target chain
-      --target-gasprice string    gas price used for transactions on target chain
-      --target-port string        IBC port ID on the target chain
-      --target-prefix string      address prefix of the target chain
-      --target-rpc string         RPC address of the target chain
-      --target-version string     module version on the target chain
-```
-
-**SEE ALSO**
-
-* [ignite relayer](#ignite-relayer)	 - Connect blockchains with an IBC relayer
-
-
-## ignite relayer connect
-
-Link chains associated with paths and start relaying tx packets in between
-
-```
-ignite relayer connect [<path>,...] [flags]
-```
-
-**Options**
-
-```
-  -h, --help                     help for connect
-      --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
-```
-
-**SEE ALSO**
-
-* [ignite relayer](#ignite-relayer)	 - Connect blockchains with an IBC relayer
 
 
 ## ignite scaffold
@@ -3101,6 +3009,7 @@ ignite scaffold chain [name] [flags]
       --no-module                create a project without a default module
       --params strings           add default module parameters
   -p, --path string              create a project in a specific path
+      --proto-dir string         chain proto directory (default "proto")
       --skip-git                 skip Git repository initialization
       --skip-proto               skip proto generation
 ```
@@ -3736,74 +3645,6 @@ ignite scaffold vue [flags]
 **SEE ALSO**
 
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
-
-
-## ignite tools
-
-Tools for advanced users
-
-**Options**
-
-```
-  -h, --help   help for tools
-```
-
-**SEE ALSO**
-
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-* [ignite tools ibc-relayer](#ignite-tools-ibc-relayer)	 - TypeScript implementation of an IBC relayer
-* [ignite tools ibc-setup](#ignite-tools-ibc-setup)	 - Collection of commands to quickly setup a relayer
-
-
-## ignite tools ibc-relayer
-
-TypeScript implementation of an IBC relayer
-
-```
-ignite tools ibc-relayer [--] [...] [flags]
-```
-
-**Examples**
-
-```
-ignite tools ibc-relayer -- -h
-```
-
-**Options**
-
-```
-  -h, --help   help for ibc-relayer
-```
-
-**SEE ALSO**
-
-* [ignite tools](#ignite-tools)	 - Tools for advanced users
-
-
-## ignite tools ibc-setup
-
-Collection of commands to quickly setup a relayer
-
-```
-ignite tools ibc-setup [--] [...] [flags]
-```
-
-**Examples**
-
-```
-ignite tools ibc-setup -- -h
-ignite tools ibc-setup -- init --src relayer_test_1 --dest relayer_test_2
-```
-
-**Options**
-
-```
-  -h, --help   help for ibc-setup
-```
-
-**SEE ALSO**
-
-* [ignite tools](#ignite-tools)	 - Tools for advanced users
 
 
 ## ignite version
