@@ -6,20 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
-	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
-	icatypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/types"
-	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"github.com/gobuffalo/genny/v2"
 
 	appanalysis "github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/app"
@@ -41,58 +27,58 @@ var (
 	// A new module's name can't be equal to a reserved name.
 	// A map is used for direct comparing.
 	reservedNames = map[string]struct{}{
-		"account":                    {},
-		"block":                      {},
-		"broadcast":                  {},
-		"encode":                     {},
-		"multisign":                  {},
-		"sign":                       {},
-		"tx":                         {},
-		"txs":                        {},
-		"consumer":                   {}, // ICS consumer module
-		"ccvconsumer":                {}, // ICS consumer module
-		"CCV":                        {}, // ICS consumer module
-		capabilitytypes.ModuleName:   {},
-		authtypes.ModuleName:         {},
-		banktypes.ModuleName:         {},
-		distributiontypes.ModuleName: {},
-		stakingtypes.ModuleName:      {},
-		slashingtypes.ModuleName:     {},
-		govtypes.ModuleName:          {},
-		minttypes.ModuleName:         {},
-		crisistypes.ModuleName:       {},
-		ibcexported.ModuleName:       {},
-		genutiltypes.ModuleName:      {},
-		"evidence":                   {},
-		"authz":                      {},
-		ibctransfertypes.ModuleName:  {},
-		icatypes.ModuleName:          {},
-		ibcfeetypes.ModuleName:       {},
-		"feegrant":                   {},
-		"params":                     {},
-		"upgrade":                    {},
-		"vesting":                    {},
-		"circuit":                    {},
-		"nft":                        {},
-		"group":                      {},
-		"consensus":                  {},
+		"account":            {},
+		"block":              {},
+		"broadcast":          {},
+		"encode":             {},
+		"multisign":          {},
+		"sign":               {},
+		"tx":                 {},
+		"txs":                {},
+		"consumer":           {}, // ICS consumer module
+		"ccvconsumer":        {}, // ICS consumer module
+		"CCV":                {}, // ICS consumer module
+		"capability":         {},
+		"auth":               {},
+		"bank":               {},
+		"distribution":       {},
+		"staking":            {},
+		"slashing":           {},
+		"gov":                {},
+		"mint":               {},
+		"crisis":             {},
+		"ibc":                {},
+		"genutil":            {},
+		"evidence":           {},
+		"authz":              {},
+		"transfer":           {}, // IBC transfer
+		"interchainaccounts": {},
+		"feeibc":             {},
+		"feegrant":           {},
+		"params":             {},
+		"upgrade":            {},
+		"vesting":            {},
+		"circuit":            {},
+		"nft":                {},
+		"group":              {},
+		"consensus":          {},
 	}
 
 	// defaultStoreKeys are the names of the default store keys defined in a Cosmos-SDK app.
 	// A new module's name can't have a defined store key in its prefix because of potential store key collision.
 	defaultStoreKeys = []string{
-		capabilitytypes.StoreKey,
-		authtypes.StoreKey,
-		banktypes.StoreKey,
-		distributiontypes.StoreKey,
-		stakingtypes.StoreKey,
-		slashingtypes.StoreKey,
-		govtypes.StoreKey,
-		minttypes.StoreKey,
-		crisistypes.StoreKey,
-		ibcexported.StoreKey,
-		ibctransfertypes.StoreKey,
-		ibcfeetypes.StoreKey,
+		"capability",
+		"acc", // auth module
+		"bank",
+		"distribution",
+		"staking",
+		"slashing",
+		"gov",
+		"mint",
+		"crisis",
+		"ibc",
+		"transfer", // IBC transfer
+		"feeibc",
 		"evidence",
 		"feegrant",
 		"params",
