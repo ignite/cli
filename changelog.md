@@ -18,6 +18,7 @@
 - [#4033](https://github.com/ignite/cli/pull/4033) Fix cobra completion using `fishshell`
 - [#4062](https://github.com/ignite/cli/pull/4062) Avoid nil `scopedKeeper` in `TransmitXXX` functions
 - [#3969](https://github.com/ignite/cli/pull/3969) Get first config validator using a getter to avoid index errors
+- [#4096](https://github.com/ignite/cli/pull/4096) Add new reserved names module and remove duplicated genesis order
 - [#4086](https://github.com/ignite/cli/pull/4086) Retry to get the IBC balance if it fails the first time
 - [#4112](https://github.com/ignite/cli/pull/4112) Remove duplicate SetCmdClientContextHandler
 
