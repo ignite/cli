@@ -236,6 +236,23 @@ func (p *Plugin) load(ctx context.Context) {
 	}
 
 	if p.IsLocalPath() {
+		// if directory is relative, make it absolute
+		if !filepath.IsAbs(p.srcPath) {
+			wd, err := os.Getwd()
+			if err != nil {
+				p.Error = errors.Errorf("failed to get working directory: %w", err)
+				return
+			}
+
+			srcPathAbs, err := filepath.Abs(p.srcPath)
+			if err != nil {
+				p.Error = errors.Errorf("failed to get absolute path of %s: %w", p.srcPath, err)
+				return
+			}
+
+			p.srcPath = filepath.Join(wd, srcPathAbs)
+		}
+
 		// trigger rebuild for local plugin if binary is outdated
 		if p.outdatedBinary() {
 			p.build(ctx)
