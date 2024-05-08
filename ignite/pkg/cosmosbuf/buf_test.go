@@ -6,42 +6,40 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestFindSDKPath(t *testing.T) {
-	testCases := []struct {
-		name     string
-		protoDir string
-		want     string
+func Test_join(t *testing.T) {
+	tests := []struct {
+		name   string
+		values []string
+		want   string
 	}{
 		{
-			name:     "full path",
-			protoDir: "/mod/github.com/cosmos/cosmos-sdk@v0.47.2/test/path/proto",
-			want:     "/mod/github.com/cosmos/cosmos-sdk@v0.47.2/proto",
+			name:   "empty",
+			values: []string{},
 		},
 		{
-			name:     "simple path",
-			protoDir: "myproto@v1/test/proto/animo/sdk",
-			want:     "myproto@v1/proto",
+			name:   "single",
+			values: []string{"foo"},
+			want:   `"foo"`,
 		},
 		{
-			name:     "only version",
-			protoDir: "test/myproto@v1",
-			want:     "test/myproto@v1/proto",
+			name:   "two",
+			values: []string{"foo", "bar"},
+			want:   `"foo","bar"`,
 		},
 		{
-			name:     "semantic version",
-			protoDir: "test/myproto@v0.3.1/test/proto",
-			want:     "test/myproto@v0.3.1/proto",
+			name:   "three",
+			values: []string{"foo", "bar", "baz"},
+			want:   `"foo","bar","baz"`,
 		},
 		{
-			name:     "no version (local)",
-			protoDir: "test/myproto/test/proto",
-			want:     "test/myproto/test/proto",
+			name:   "repeated",
+			values: []string{"foo", "bar", "baz", "foo", "bar", "baz"},
+			want:   `"foo","bar","baz","foo","bar","baz"`,
 		},
 	}
-
-	for _, tt := range testCases {
+	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := findSDKProtoPath(tt.protoDir)
+			got := join(tt.values...)
 			require.Equal(t, tt.want, got)
 		})
 	}

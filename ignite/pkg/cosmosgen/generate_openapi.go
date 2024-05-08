@@ -46,14 +46,14 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 
 	// gen generates a spec for a module where it's source code resides at src.
 	// and adds needed swaggercombine configure for it.
-	gen := func(src string, m module.Module) (err error) {
+	gen := func(protoPath string) (err error) {
 		dir, err := os.MkdirTemp("", "gen-openapi-module-spec")
 		if err != nil {
 			return err
 		}
 
-		checksumPaths := append([]string{m.Pkg.Path}, g.opts.includeDirs...)
-		checksum, err := dirchange.ChecksumFromPaths(src, checksumPaths...)
+		checksumPaths := append([]string{protoPath}, g.opts.includeDirs...)
+		checksum, err := dirchange.ChecksumFromPaths(protoPath, checksumPaths...)
 		if err != nil {
 			return err
 		}
@@ -72,7 +72,7 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 		}
 
 		hasAnySpecChanged = true
-		err = g.buf.Generate(ctx, m.Pkg.Path, dir, g.openAPITemplate(), "module.proto")
+		err = g.buf.Generate(ctx, protoPath, dir, g.openAPITemplate(), "module.proto")
 		if err != nil {
 			return err
 		}
@@ -99,26 +99,13 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 		return nil
 	}
 
-	// generate specs for each module and persist them in the file system
-	// after add their path and config to swaggercombine.Config so we can combine them
-	// into a single spec.
-
-	add := func(src string, modules []module.Module) error {
-		for _, m := range modules {
-			if err := gen(src, m); err != nil {
-				return err
-			}
-		}
-		return nil
-	}
-
 	// protoc openapi generator acts weird on concurrent run, so do not use goroutines here.
-	if err := add(g.appPath, g.appModules); err != nil {
+	if err := gen(g.protoDir); err != nil {
 		return err
 	}
 
 	for src, modules := range g.thirdModules {
-		if err := add(src, modules); err != nil {
+		if err := gen(src, modules); err != nil {
 			return err
 		}
 	}
