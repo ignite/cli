@@ -16,11 +16,6 @@ replace (
 
 require (
 	cosmossdk.io/math v1.3.0
-	cosmossdk.io/x/circuit v0.1.0
-	cosmossdk.io/x/evidence v0.1.0
-	cosmossdk.io/x/feegrant v0.1.0
-	cosmossdk.io/x/nft v0.1.1
-	cosmossdk.io/x/upgrade v0.1.0
 	github.com/99designs/keyring v1.2.2
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/DATA-DOG/go-sqlmock v1.5.2
@@ -38,8 +33,6 @@ require (
 	github.com/cosmos/cosmos-sdk v0.50.6
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.12
-	github.com/cosmos/ibc-go/modules/capability v1.0.0
-	github.com/cosmos/ibc-go/v8 v8.2.0
 	github.com/emicklei/proto v1.12.2
 	github.com/emicklei/proto-contrib v0.15.0
 	github.com/go-delve/delve v1.21.0
@@ -169,7 +162,6 @@ require (
 	github.com/cilium/ebpf v0.11.0 // indirect
 	github.com/ckaznocha/intrange v0.1.1 // indirect
 	github.com/cloudflare/circl v1.3.7 // indirect
-	github.com/cockroachdb/apd/v2 v2.0.2 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
 	github.com/cockroachdb/pebble v1.1.0 // indirect
 	github.com/cockroachdb/redact v1.1.5 // indirect
@@ -294,6 +286,7 @@ require (
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/go-metrics v0.5.3 // indirect
+	github.com/hashicorp/go-uuid v1.0.2 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
@@ -376,6 +369,7 @@ require (
 	github.com/oklog/run v1.1.0 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
+	github.com/onsi/ginkgo v1.16.4 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.0 // indirect
@@ -441,6 +435,7 @@ require (
 	github.com/tomarrell/wrapcheck/v2 v2.8.3 // indirect
 	github.com/tomasen/realip v0.0.0-20180522021738-f0c99a92ddce // indirect
 	github.com/tommy-muehle/go-mnd/v2 v2.5.1 // indirect
+	github.com/ugorji/go/codec v1.2.11 // indirect
 	github.com/ultraware/funlen v0.1.0 // indirect
 	github.com/ultraware/whitespace v0.1.0 // indirect
 	github.com/uudashr/gocognit v1.1.2 // indirect
