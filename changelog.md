@@ -17,6 +17,7 @@
 - [#4100](https://github.com/ignite/cli/pull/4100) Set the `proto-dir` flag only for the `scaffold chain` command and use the proto path from the config
 - [#4110](https://github.com/ignite/cli/pull/4110) Scaffold a consumer chain with `interchain-security` v5.0.0-rc0.
 - [#4111](https://github.com/ignite/cli/pull/4111) Remove vuex generation
+- [#4117](https://github.com/ignite/cli/pull/4117) Support relative path when installing local plugins
 
 ### Changes
 
