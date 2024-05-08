@@ -20,6 +20,8 @@ func TestPluginIsLocalPath(t *testing.T) {
 	assert.False(t, pluginsconfig.Plugin{}.IsLocalPath())
 	assert.False(t, pluginsconfig.Plugin{Path: "github.com/ignite/example"}.IsLocalPath())
 	assert.True(t, pluginsconfig.Plugin{Path: "/home/bob/example"}.IsLocalPath())
+	assert.True(t, pluginsconfig.Plugin{Path: "./example"}.IsLocalPath())
+	assert.True(t, pluginsconfig.Plugin{Path: "../example"}.IsLocalPath())
 }
 
 func TestPluginHasPath(t *testing.T) {
