@@ -31,7 +31,6 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	ctx.Set("Index", opts.Index)
 	ctx.Set("NoMessage", opts.NoMessage)
 	ctx.Set("protoPkgName", module.ProtoPackageName(appModulePath, opts.ModuleName, opts.ProtoVer))
-	ctx.Set("protoModulePkgName", module.ProtoModulePackageName(appModulePath, opts.ModuleName, opts.ProtoVer))
 	ctx.Set("strconv", func() bool {
 		strconv := false
 		for _, field := range opts.Fields {

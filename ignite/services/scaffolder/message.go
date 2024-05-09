@@ -147,7 +147,6 @@ func (s Scaffolder) AddMessage(
 	gens, err = supportMsgServer(
 		gens,
 		s.Tracer(),
-		s.appPath,
 		&modulecreate.MsgServerOptions{
 			ModuleName: opts.ModuleName,
 			ModulePath: opts.ModulePath,
