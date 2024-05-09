@@ -166,6 +166,7 @@ func (s Scaffolder) AddType(
 			AppName:      s.modpath.Package,
 			AppPath:      s.appPath,
 			ProtoDir:     s.protoDir,
+			ProtoVer:     "v1", // TODO(@julienrbrt): possibly in the future add flag to specify custom proto version.
 			ModulePath:   s.modpath.RawPath,
 			ModuleName:   moduleName,
 			TypeName:     name,
@@ -187,6 +188,8 @@ func (s Scaffolder) AddType(
 			ModulePath: opts.ModulePath,
 			AppName:    opts.AppName,
 			AppPath:    opts.AppPath,
+			ProtoDir:   opts.ProtoDir,
+			ProtoVer:   opts.ProtoVer,
 		},
 	)
 	if err != nil {

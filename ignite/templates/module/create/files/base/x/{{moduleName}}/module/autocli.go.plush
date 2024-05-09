@@ -3,7 +3,7 @@ package <%= moduleName %>
 import (
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 
-	modulev1 "<%= modulePath %>/api/<%= appName %>/<%= moduleName %>"
+	modulev1 "<%= modulePath %>/api/<%= appName %>/<%= moduleName %>/<%= protoVer %>"
 )
 
 // AutoCLIOptions implements the autocli.HasAutoCLIConfig interface.

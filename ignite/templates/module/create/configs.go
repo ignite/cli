@@ -1,7 +1,7 @@
 package modulecreate
 
 import (
-	"path/filepath"
+	"fmt"
 
 	"github.com/gobuffalo/genny/v2"
 
@@ -18,7 +18,7 @@ func NewModuleConfigs(opts ConfigsOptions) (*genny.Generator, error) {
 
 func configsProtoModify(opts ConfigsOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, "module/module.proto")
+		path := opts.ProtoFile(fmt.Sprintf("module/%s/module.proto", opts.ProtoVer))
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
