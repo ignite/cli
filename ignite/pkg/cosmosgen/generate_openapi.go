@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/iancoleman/strcase"
 
@@ -46,14 +47,14 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 
 	// gen generates a spec for a module where it's source code resides at src.
 	// and adds needed swaggercombine configure for it.
-	gen := func(src string, m module.Module) (err error) {
+	gen := func(appPath, protoPath string) (err error) {
+		name := extractName(appPath)
 		dir, err := os.MkdirTemp("", "gen-openapi-module-spec")
 		if err != nil {
 			return err
 		}
 
-		checksumPaths := append([]string{m.Pkg.Path}, g.opts.includeDirs...)
-		checksum, err := dirchange.ChecksumFromPaths(src, checksumPaths...)
+		checksum, err := dirchange.ChecksumFromPaths(appPath, protoPath)
 		if err != nil {
 			return err
 		}
@@ -68,12 +69,11 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 			if err := os.WriteFile(specPath, existingSpec, 0o644); err != nil {
 				return err
 			}
-			return conf.AddSpec(strcase.ToCamel(m.Pkg.Name), specPath, true)
+			return conf.AddSpec(name, specPath, true)
 		}
 
 		hasAnySpecChanged = true
-		err = g.buf.Generate(ctx, m.Pkg.Path, dir, g.openAPITemplate(), "module.proto")
-		if err != nil {
+		if err = g.buf.Generate(ctx, filepath.Join(appPath, g.protoDir), dir, g.openAPITemplate(), "module.proto"); err != nil {
 			return err
 		}
 
@@ -90,7 +90,7 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 			if err := specCache.Put(cacheKey, f); err != nil {
 				return err
 			}
-			if err := conf.AddSpec(strcase.ToCamel(m.Pkg.Name), spec, true); err != nil {
+			if err := conf.AddSpec(name, spec, true); err != nil {
 				return err
 			}
 		}
@@ -103,22 +103,13 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 	// after add their path and config to swaggercombine.Config so we can combine them
 	// into a single spec.
 
-	add := func(src string, modules []module.Module) error {
-		for _, m := range modules {
-			if err := gen(src, m); err != nil {
-				return err
-			}
-		}
-		return nil
-	}
-
 	// protoc openapi generator acts weird on concurrent run, so do not use goroutines here.
-	if err := add(g.appPath, g.appModules); err != nil {
+	if err := gen(g.appPath, g.protoDir); err != nil {
 		return err
 	}
 
-	for src, modules := range g.thirdModules {
-		if err := add(src, modules); err != nil {
+	for src := range g.thirdModules {
+		if err := gen(src, ""); err != nil {
 			return err
 		}
 	}
@@ -186,4 +177,13 @@ func (g *generator) generateModuleOpenAPISpec(ctx context.Context, m module.Modu
 
 	// combine specs into one and save to out.
 	return conf.Combine(out)
+}
+
+// extractName takes a full path and returns the name.
+func extractName(path string) string {
+	// Extract the last part of the path
+	lastPart := filepath.Base(path)
+	// If there is a version suffix (e.g., @v0.50), remove it
+	name := strings.Split(lastPart, "@")[0]
+	return strcase.ToCamel(name)
 }

@@ -17,7 +17,6 @@ import (
 
 // generateOptions used to configure code generation.
 type generateOptions struct {
-	includeDirs     []string
 	useCache        bool
 	updateBufModule bool
 	ev              events.Bus
@@ -80,14 +79,6 @@ func WithOpenAPIGeneration(out string) Option {
 	}
 }
 
-// IncludeDirs configures the third party proto dirs that used by app's proto.
-// relative to the projectPath.
-func IncludeDirs(dirs []string) Option {
-	return func(o *generateOptions) {
-		o.includeDirs = dirs
-	}
-}
-
 // UpdateBufModule enables Buf config proto dependencies update.
 // This option updates app's Buf config when proto packages or
 // Buf modules are found within the Go dependencies.
@@ -120,6 +111,10 @@ type generator struct {
 	thirdModules        map[string][]module.Module
 	thirdModuleIncludes map[string]protoIncludes
 	tmpDirs             []string
+}
+
+func (g *generator) protoPath() string {
+	return filepath.Join(g.appPath, g.protoDir)
 }
 
 func (g *generator) cleanup() {
