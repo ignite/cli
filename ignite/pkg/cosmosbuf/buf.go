@@ -3,13 +3,12 @@ package cosmosbuf
 import (
 	"context"
 	"fmt"
-	"strconv"
+	"path/filepath"
 	"strings"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis"
 	"github.com/ignite/cli/v29/ignite/pkg/xexec"
 	"github.com/ignite/cli/v29/ignite/pkg/xos"
 )
@@ -21,7 +20,6 @@ type (
 	// Buf represents the buf application structure.
 	Buf struct {
 		path         string
-		protoCache   *protoanalysis.Cache
 		storageCache cache.Cache[[]byte]
 	}
 )
@@ -32,7 +30,7 @@ const (
 	flagOutput      = "output"
 	flagErrorFormat = "error-format"
 	flagLogFormat   = "log-format"
-	flagExcludePath = "exclude-path"
+	flagPath        = "path"
 	flagOnly        = "only"
 	fmtJSON         = "json"
 
@@ -68,7 +66,6 @@ func New(cacheStorage cache.Storage) (Buf, error) {
 	return Buf{
 		path:         path,
 		storageCache: cache.New[[]byte](cacheStorage, specCacheNamespace),
-		protoCache:   protoanalysis.NewCache(),
 	}, nil
 }
 
@@ -87,7 +84,7 @@ func (b Buf) Update(ctx context.Context, modDir string, dependencies ...string) 
 		}
 	}
 
-	cmd, err := b.generateCommand(CMDMod, flags, "update", modDir)
+	cmd, err := b.command(CMDMod, flags, "update", modDir)
 	if err != nil {
 		return err
 	}
@@ -108,7 +105,7 @@ func (b Buf) Export(ctx context.Context, protoDir, output string) error {
 		flagOutput: output,
 	}
 
-	cmd, err := b.generateCommand(CMDExport, flags, protoDir)
+	cmd, err := b.command(CMDExport, flags, protoDir)
 	if err != nil {
 		return err
 	}
@@ -122,11 +119,16 @@ func (b Buf) Generate(
 	protoDir,
 	output,
 	template string,
-	excluded ...string,
+	excludedFile ...string,
 ) (err error) {
 	protoFiles, err := xos.FindFiles(protoDir, xos.ProtoFile)
 	if err != nil || len(protoFiles) == 0 {
 		return err
+	}
+
+	excluded := make(map[string]struct{})
+	for _, file := range excludedFile {
+		excluded[file] = struct{}{}
 	}
 
 	flags := map[string]string{
@@ -134,12 +136,18 @@ func (b Buf) Generate(
 		flagOutput:      output,
 		flagErrorFormat: fmtJSON,
 		flagLogFormat:   fmtJSON,
-		flagExcludePath: join(excluded...),
 	}
 
-	cmd, err := b.generateCommand(CMDGenerate, flags, protoDir)
+	cmd, err := b.command(CMDGenerate, flags, protoDir)
 	if err != nil {
 		return err
+	}
+
+	for _, path := range protoFiles {
+		if _, ok := excluded[filepath.Base(path)]; ok {
+			continue
+		}
+		cmd = append(cmd, fmt.Sprintf("--%s", flagPath), path)
 	}
 
 	return b.runCommand(ctx, cmd...)
@@ -153,8 +161,8 @@ func (b Buf) runCommand(ctx context.Context, cmd ...string) error {
 	return exec.Exec(ctx, cmd, execOpts...)
 }
 
-// generateCommand generate the buf CLI command.
-func (b Buf) generateCommand(
+// command generate the buf CLI command.
+func (b Buf) command(
 	c Command,
 	flags map[string]string,
 	args ...string,
@@ -175,21 +183,4 @@ func (b Buf) generateCommand(
 		)
 	}
 	return command, nil
-}
-
-func join(elems ...string) (value string) {
-	switch len(elems) {
-	case 0:
-		return ""
-	case 1:
-		return strconv.Quote(elems[0])
-	}
-
-	var b strings.Builder
-	b.WriteString(strconv.Quote(elems[0]))
-	for _, s := range elems[1:] {
-		b.WriteString(",")
-		b.WriteString(strconv.Quote(s))
-	}
-	return b.String()
 }

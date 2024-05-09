@@ -27,6 +27,13 @@ func TestFindFiles(t *testing.T) {
 			err:       nil,
 		},
 		{
+			name:      "test 3 json files with subfolder",
+			files:     []string{"testdata/file1.json", "file2.txt", "foo/file3.json", "file4.json"},
+			extension: "json",
+			want:      []string{"testdata/file1.json", "foo/file3.json", "file4.json"},
+			err:       nil,
+		},
+		{
 			name:      "test 1 txt files",
 			files:     []string{"file1.json", "file2.txt", "file3.json", "file4.json"},
 			extension: "txt",
@@ -59,6 +66,7 @@ func TestFindFiles(t *testing.T) {
 
 			for _, filename := range tt.files {
 				filePath := filepath.Join(tempDir, filename)
+				require.NoError(t, os.MkdirAll(filepath.Dir(filePath), 0o755))
 				file, err := os.Create(filePath)
 				require.NoError(t, err)
 				require.NoError(t, file.Close())
@@ -76,7 +84,7 @@ func TestFindFiles(t *testing.T) {
 			for i, filename := range tt.want {
 				want[i] = filepath.Join(tempDir, filename)
 			}
-			require.EqualValues(t, want, gotFiles)
+			require.ElementsMatch(t, want, gotFiles)
 		})
 	}
 }
