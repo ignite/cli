@@ -248,6 +248,39 @@ func GetImportByPath(f *proto.Proto, path string) (node *proto.Import, err error
 	return nil, errors.Errorf("import %s not found", path)
 }
 
+// GetFieldByName returns the field with the given name or nil if not found within a message.
+// Only traverses in proto.Message since they are the only nodes that contain fields:
+//
+//		f, _ := ParseProtoPath("foo.proto")
+//		m := GetMessageByName(f, "Foo")
+//		f := GetFieldByName(m, "Bar")
+//	 f.Name // "Bar"
+func GetFieldByName(f *proto.Message, name string) (node *proto.NormalField, err error) {
+	node, err = nil, nil
+	found := false
+	Apply(f,
+		func(c *Cursor) bool {
+			if m, ok := c.Node().(*proto.NormalField); ok {
+				if m.Name == name {
+					found = true
+					node = m
+					return false
+				}
+				// keep looking if we're in a Message
+				return true
+			}
+			// keep looking while we're in a proto.Message.
+			_, ok := c.Node().(*proto.Message)
+			return ok
+		},
+		// return immediately iff found.
+		func(*Cursor) bool { return !found })
+	if found {
+		return
+	}
+	return nil, errors.Errorf("field %s not found", name)
+}
+
 // HasMessage returns true if the given message is found in the given file.
 //
 //	f, _ := ParseProtoPath("foo.proto")
@@ -275,5 +308,15 @@ func HasService(f *proto.Proto, name string) bool {
 //	r := HasImport(f, "path.to.other.proto")
 func HasImport(f *proto.Proto, path string) bool {
 	_, err := GetImportByPath(f, path)
+	return err == nil
+}
+
+func HasField(f *proto.Proto, messageName, field string) bool {
+	msg, err := GetMessageByName(f, messageName)
+	if err != nil {
+		return false
+	}
+
+	_, err = GetFieldByName(msg, field)
 	return err == nil
 }
