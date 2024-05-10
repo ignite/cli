@@ -12,11 +12,12 @@ import (
 var (
 	// DataInt is an int data type definition.
 	DataInt = DataType{
-		DataType:          func(string) string { return "int32" },
-		DefaultTestValue:  "111",
-		ValueLoop:         "int32(i)",
-		ValueIndex:        "0",
-		ValueInvalidIndex: "100000",
+		DataType:                func(string) string { return "int32" },
+		CollectionsKeyValueName: func(string) string { return "collections.Int32Key" },
+		DefaultTestValue:        "111",
+		ValueLoop:               "int32(i)",
+		ValueIndex:              "0",
+		ValueInvalidIndex:       "100000",
 		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("int32 %s = %d", name, index)
 		},
@@ -45,8 +46,9 @@ var (
 
 	// DataIntSlice is an int array data type definition.
 	DataIntSlice = DataType{
-		DataType:         func(string) string { return "[]int32" },
-		DefaultTestValue: "1,2,3,4,5",
+		DataType:                func(string) string { return "[]int32" },
+		CollectionsKeyValueName: func(string) string { return "/* Add collection key value */" },
+		DefaultTestValue:        "1,2,3,4,5",
 		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("repeated int32 %s = %d", name, index)
 		},

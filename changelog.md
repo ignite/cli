@@ -18,6 +18,7 @@
 - [#4110](https://github.com/ignite/cli/pull/4110) Scaffold a consumer chain with `interchain-security` v5.0.0-rc0.
 - [#4111](https://github.com/ignite/cli/pull/4111) Remove vuex generation
 - [#4117](https://github.com/ignite/cli/pull/4117) Support relative path when installing local plugins
+- []() Support `bytes` as data type in the `scaffold` commands
 
 ### Changes
 
