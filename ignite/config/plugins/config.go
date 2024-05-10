@@ -2,9 +2,9 @@ package plugins
 
 import (
 	"os"
+	"slices"
 	"strings"
 
-	"golang.org/x/exp/slices"
 	"gopkg.in/yaml.v3"
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
@@ -83,7 +83,7 @@ func (p Plugin) IsGlobal() bool {
 
 // IsLocalPath returns true if the plugin path is a local directory.
 func (p Plugin) IsLocalPath() bool {
-	return strings.HasPrefix(p.Path, "/")
+	return strings.HasPrefix(p.Path, "/") || strings.HasPrefix(p.Path, ".")
 }
 
 // HasPath verifies if a plugin has the given path regardless of version.

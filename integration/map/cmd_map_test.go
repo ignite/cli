@@ -120,7 +120,7 @@ func TestCreateMap(t *testing.T) {
 				"email",
 				"emailIds:ints",
 				"--index",
-				"foo:string,bar:int,foobar:uint,barFoo:bool",
+				"bar:int",
 				"--module",
 				"example",
 			),
@@ -128,7 +128,7 @@ func TestCreateMap(t *testing.T) {
 		)),
 	))
 
-	env.Must(env.Exec("create a map with invalid index",
+	env.Must(env.Exec("create a map with invalid index (multi-index)",
 		step.NewSteps(step.New(
 			step.Exec(
 				envtest.IgniteApp,
@@ -138,7 +138,26 @@ func TestCreateMap(t *testing.T) {
 				"map_with_invalid_index",
 				"email",
 				"--index",
-				"foo:strings,bar:ints",
+				"foo:strings,bar:int",
+				"--module",
+				"example",
+			),
+			step.Workdir(app.SourcePath()),
+		)),
+		envtest.ExecShouldError(),
+	))
+
+	env.Must(env.Exec("create a map with invalid index (invalid type)",
+		step.NewSteps(step.New(
+			step.Exec(
+				envtest.IgniteApp,
+				"s",
+				"map",
+				"--yes",
+				"map_with_invalid_index",
+				"email",
+				"--index",
+				"foo:unknown",
 				"--module",
 				"example",
 			),
@@ -153,14 +172,6 @@ func TestCreateMap(t *testing.T) {
 			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "scavenge", "description", "--no-message"),
 			step.Workdir(app.SourcePath()),
 		)),
-	))
-
-	env.Must(env.Exec("should prevent creating a map with duplicated indexes",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "map_with_duplicated_index", "email", "--index", "foo,foo"),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating a map with an index present in fields",
