@@ -72,7 +72,7 @@ func TestFindFiles(t *testing.T) {
 				require.NoError(t, file.Close())
 			}
 
-			gotFiles, err := xos.FindFiles(tempDir, tt.extension)
+			gotFiles, err := xos.FindFilesExtension(tempDir, tt.extension)
 			if tt.err != nil {
 				require.Error(t, err)
 				require.ErrorIs(t, err, tt.err)

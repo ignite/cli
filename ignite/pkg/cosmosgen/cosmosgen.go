@@ -113,10 +113,6 @@ type generator struct {
 	tmpDirs             []string
 }
 
-func (g *generator) protoPath() string {
-	return filepath.Join(g.appPath, g.protoDir)
-}
-
 func (g *generator) cleanup() {
 	// Remove temporary directories created during generation
 	for _, path := range g.tmpDirs {

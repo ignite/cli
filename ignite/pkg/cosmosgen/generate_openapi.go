@@ -7,10 +7,12 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/blang/semver/v4"
 	"github.com/iancoleman/strcase"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
 	"github.com/ignite/cli/v29/ignite/pkg/dirchange"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	swaggercombine "github.com/ignite/cli/v29/ignite/pkg/swagger-combine"
@@ -47,14 +49,16 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 
 	// gen generates a spec for a module where it's source code resides at src.
 	// and adds needed swaggercombine configure for it.
-	gen := func(appPath, protoPath string) (err error) {
-		name := extractName(appPath)
+	gen := func(appPath, protoDir, name string) error {
+		name = strcase.ToCamel(name)
+		protoPath := filepath.Join(appPath, protoDir)
+
 		dir, err := os.MkdirTemp("", "gen-openapi-module-spec")
 		if err != nil {
 			return err
 		}
 
-		checksum, err := dirchange.ChecksumFromPaths(appPath, protoPath)
+		checksum, err := dirchange.ChecksumFromPaths(appPath, protoDir)
 		if err != nil {
 			return err
 		}
@@ -73,11 +77,18 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 		}
 
 		hasAnySpecChanged = true
-		if err = g.buf.Generate(ctx, filepath.Join(appPath, g.protoDir), dir, g.openAPITemplate(), "module.proto"); err != nil {
+		if err = g.buf.Generate(
+			ctx,
+			protoPath,
+			dir,
+			g.openAPITemplate(),
+			cosmosbuf.ExcludeFiles("module.proto"),
+			cosmosbuf.FileByFile(),
+		); err != nil {
 			return err
 		}
 
-		specs, err := xos.FindFiles(dir, xos.JSONFile)
+		specs, err := xos.FindFilesExtension(dir, xos.JSONFile)
 		if err != nil {
 			return err
 		}
@@ -104,12 +115,26 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 	// into a single spec.
 
 	// protoc openapi generator acts weird on concurrent run, so do not use goroutines here.
-	if err := gen(g.appPath, g.protoDir); err != nil {
+	if err := gen(g.appPath, g.protoDir, g.gomodPath); err != nil {
 		return err
 	}
 
-	for src := range g.thirdModules {
-		if err := gen(src, ""); err != nil {
+	doneMods := make(map[string]struct{})
+	for _, modules := range g.thirdModules {
+		if len(modules) == 0 {
+			continue
+		}
+		var (
+			m    = modules[0]
+			path = extractRootModulePath(m.Pkg.Path)
+		)
+
+		if _, ok := doneMods[path]; ok {
+			continue
+		}
+		doneMods[path] = struct{}{}
+
+		if err := gen(path, "", m.Name); err != nil {
 			return err
 		}
 	}
@@ -158,12 +183,12 @@ func (g *generator) generateModuleOpenAPISpec(ctx context.Context, m module.Modu
 		return err
 	}
 
-	err = g.buf.Generate(ctx, m.Pkg.Path, dir, g.openAPITemplateForSTA(), "module.proto")
+	err = g.buf.Generate(ctx, m.Pkg.Path, dir, g.openAPITemplateForSTA(), cosmosbuf.ExcludeFiles("module.proto"))
 	if err != nil {
 		return err
 	}
 
-	specs, err := xos.FindFiles(dir, xos.JSONFile)
+	specs, err := xos.FindFilesExtension(dir, xos.JSONFile)
 	if err != nil {
 		return err
 	}
@@ -179,11 +204,20 @@ func (g *generator) generateModuleOpenAPISpec(ctx context.Context, m module.Modu
 	return conf.Combine(out)
 }
 
-// extractName takes a full path and returns the name.
-func extractName(path string) string {
-	// Extract the last part of the path
-	lastPart := filepath.Base(path)
-	// If there is a version suffix (e.g., @v0.50), remove it
-	name := strings.Split(lastPart, "@")[0]
-	return strcase.ToCamel(name)
+func extractRootModulePath(fullPath string) string {
+	var (
+		segments   = strings.Split(fullPath, "/")
+		modulePath = "/"
+	)
+
+	for _, segment := range segments {
+		modulePath = filepath.Join(modulePath, segment)
+		segmentName := strings.Split(segment, "@")
+		if len(segmentName) > 1 {
+			if _, err := semver.ParseTolerant(segmentName[1]); err == nil {
+				return modulePath
+			}
+		}
+	}
+	return fullPath
 }
