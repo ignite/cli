@@ -67,6 +67,7 @@
 - [#3953](https://github.com/ignite/cli/pull/3953) Fix apps `Stdout` is redirected to `Stderr`
 - [#3863](https://github.com/ignite/cli/pull/3963) Fix breaking issue for app client API when reading app chain info
 - [#4112](https://github.com/ignite/cli/pull/4112) Remove duplicate SetCmdClientContextHandler
+- [#4132](https://github.com/ignite/cli/pull/4132) Remove `client.ReadPersistentCommandFlags`
 
 ## [`v28.2.0`](https://github.com/ignite/cli/releases/tag/v28.2.0)
 
