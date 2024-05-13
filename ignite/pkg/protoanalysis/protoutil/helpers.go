@@ -42,7 +42,7 @@ func AddAfterPackage(f *proto.Proto, v proto.Visitee) error {
 	if inserted {
 		return nil
 	}
-	return errors.New("could not find package statement")
+	return errors.New("could not find proto package statement")
 }
 
 // Fallback logic, try and use import after a package and if that fails
@@ -118,7 +118,7 @@ func AddImports(f *proto.Proto, fallback bool, imports ...*proto.Import) (err er
 		// recurse with the rest. (might be empty)
 		return AddImports(f, false, imports[1:]...)
 	}
-	return errors.New("unable to add import, no import statements found")
+	return errors.New("unable to add proto import, no import statements found")
 }
 
 // NextUniqueID goes through the fields of the given Message and returns
@@ -180,10 +180,11 @@ func GetMessageByName(f *proto.Proto, name string) (node *proto.Message, err err
 		},
 		// return immediately iff found.
 		func(*Cursor) bool { return !found })
+
 	if found {
 		return
 	}
-	return nil, errors.Errorf("message %s not found", name)
+	return nil, errors.Errorf("proto message %s not found", name)
 }
 
 // GetServiceByName returns the service with the given name or nil if not found.
@@ -192,8 +193,12 @@ func GetMessageByName(f *proto.Proto, name string) (node *proto.Message, err err
 //	f, _ := ParseProtoPath("foo.proto")
 //	s := GetServiceByName(f, "FooSrv")
 //	s.Name // "FooSrv"
-func GetServiceByName(f *proto.Proto, name string) (node *proto.Service, err error) {
-	node, err = nil, nil
+func GetServiceByName(f *proto.Proto, name string) (*proto.Service, error) {
+	var (
+		node *proto.Service
+		err  error
+	)
+
 	found := false
 	Apply(f,
 		func(c *Cursor) bool {
@@ -209,12 +214,15 @@ func GetServiceByName(f *proto.Proto, name string) (node *proto.Service, err err
 			_, ok := c.Node().(*proto.Proto)
 			return ok
 		},
+
 		// return immediately iff found.
-		func(*Cursor) bool { return !found })
+		func(*Cursor) bool { return !found },
+	)
 	if found {
-		return
+		return node, err
 	}
-	return nil, errors.Errorf("service %s not found", name)
+
+	return nil, errors.Errorf("proto service %s not found", name)
 }
 
 // GetImportByPath returns the import with the given path or nil if not found.
@@ -223,9 +231,13 @@ func GetServiceByName(f *proto.Proto, name string) (node *proto.Service, err err
 //	f, _ := ParseProtoPath("foo.proto")
 //	s := GetImportByPath(f, "other.proto")
 //	s.FileName // "other.proto"
-func GetImportByPath(f *proto.Proto, path string) (node *proto.Import, err error) {
+func GetImportByPath(f *proto.Proto, path string) (*proto.Import, error) {
+	var (
+		node *proto.Import
+		err  error
+	)
+
 	found := false
-	node, err = nil, nil
 	Apply(f,
 		func(c *Cursor) bool {
 			if i, ok := c.Node().(*proto.Import); ok {
@@ -240,12 +252,15 @@ func GetImportByPath(f *proto.Proto, path string) (node *proto.Import, err error
 			_, ok := c.Node().(*proto.Proto)
 			return ok
 		},
+
 		// return immediately iff found.
-		func(*Cursor) bool { return !found })
+		func(*Cursor) bool { return !found },
+	)
 	if found {
-		return
+		return node, err
 	}
-	return nil, errors.Errorf("import %s not found", path)
+
+	return nil, errors.Errorf("proto import %s not found", path)
 }
 
 // GetFieldByName returns the field with the given name or nil if not found within a message.
@@ -255,8 +270,12 @@ func GetImportByPath(f *proto.Proto, path string) (node *proto.Import, err error
 //		m := GetMessageByName(f, "Foo")
 //		f := GetFieldByName(m, "Bar")
 //	 f.Name // "Bar"
-func GetFieldByName(f *proto.Message, name string) (node *proto.NormalField, err error) {
-	node, err = nil, nil
+func GetFieldByName(f *proto.Message, name string) (*proto.NormalField, error) {
+	var (
+		node *proto.NormalField
+		err  error
+	)
+
 	found := false
 	Apply(f,
 		func(c *Cursor) bool {
@@ -274,11 +293,13 @@ func GetFieldByName(f *proto.Message, name string) (node *proto.NormalField, err
 			return ok
 		},
 		// return immediately iff found.
-		func(*Cursor) bool { return !found })
+		func(*Cursor) bool { return !found },
+	)
 	if found {
-		return
+		return node, err
 	}
-	return nil, errors.Errorf("field %s not found", name)
+
+	return nil, errors.Errorf("proto field %s not found", name)
 }
 
 // HasMessage returns true if the given message is found in the given file.
