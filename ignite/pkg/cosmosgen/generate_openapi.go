@@ -35,7 +35,7 @@ func (g *generator) openAPITemplateForSTA() string {
 func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 	var (
 		specDirs []string
-		conf     = swaggercombine.New("HTTP API Console", g.gomodPath)
+		conf     = swaggercombine.New("HTTP API Console", g.goModPath)
 	)
 	defer func() {
 		for _, dir := range specDirs {
@@ -124,7 +124,7 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 	// into a single spec.
 
 	// protoc openapi generator acts weird on concurrent run, so do not use goroutines here.
-	if err := gen(g.appPath, g.protoDir, g.gomodPath); err != nil {
+	if err := gen(g.appPath, g.protoDir, g.goModPath); err != nil {
 		return err
 	}
 
@@ -176,7 +176,7 @@ func (g *generator) generateModuleOpenAPISpec(ctx context.Context, m module.Modu
 	var (
 		specDirs []string
 		title    = "HTTP API Console " + m.Pkg.Name
-		conf     = swaggercombine.New(title, g.gomodPath)
+		conf     = swaggercombine.New(title, g.goModPath)
 	)
 	defer func() {
 		for _, dir := range specDirs {
@@ -192,7 +192,7 @@ func (g *generator) generateModuleOpenAPISpec(ctx context.Context, m module.Modu
 		return err
 	}
 
-	err = g.buf.Generate(ctx, m.Pkg.Path, dir, g.openAPITemplateForSTA(), cosmosbuf.ExcludeFiles("module.proto"))
+	err = g.buf.Generate(ctx, m.Pkg.Path, dir, g.openAPITemplateForSTA(), cosmosbuf.ExcludeFiles("*/module.proto"))
 	if err != nil {
 		return err
 	}

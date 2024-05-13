@@ -88,7 +88,7 @@ func FileByFile() GenOption {
 }
 
 // New creates a new Buf based on the installed binary.
-func New(cacheStorage cache.Storage) (Buf, error) {
+func New(cacheStorage cache.Storage, goModPath string) (Buf, error) {
 	path, err := xexec.ResolveAbsPath(binaryName)
 	if err != nil {
 		return Buf{}, err
@@ -98,8 +98,8 @@ func New(cacheStorage cache.Storage) (Buf, error) {
 	if err != nil {
 		return Buf{}, err
 	}
-	bufCachePath := filepath.Join(globalPath, "buf")
-	if err := os.Mkdir(bufCachePath, 0o700); err != nil && !os.IsExist(err) {
+	bufCachePath := filepath.Join(globalPath, "buf", goModPath)
+	if err := os.MkdirAll(bufCachePath, 0o755); err != nil && !os.IsExist(err) {
 		return Buf{}, err
 	}
 

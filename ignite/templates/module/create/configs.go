@@ -1,7 +1,6 @@
 package modulecreate
 
 import (
-	"fmt"
 	"path/filepath"
 
 	"github.com/gobuffalo/genny/v2"
@@ -37,7 +36,7 @@ func configsProtoModify(opts ConfigsOptions) genny.RunFn {
 		for _, paramField := range opts.Configs {
 			_, err := protoutil.GetFieldByName(params, paramField.Name.LowerCamel)
 			if err == nil {
-				return fmt.Errorf("duplicate field %s in %s", paramField.Name.LowerCamel, params.Name)
+				return errors.Errorf("duplicate field %s in %s", paramField.Name.LowerCamel, params.Name)
 			}
 
 			param := protoutil.NewField(

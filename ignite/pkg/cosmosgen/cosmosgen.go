@@ -101,7 +101,7 @@ type generator struct {
 	cacheStorage        cache.Storage
 	appPath             string
 	protoDir            string
-	gomodPath           string
+	goModPath           string
 	opts                *generateOptions
 	sdkImport           string
 	sdkDir              string
@@ -122,8 +122,8 @@ func (g *generator) cleanup() {
 
 // Generate generates code from protoDir of an SDK app residing at appPath with given options.
 // protoDir must be relative to the projectPath.
-func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir, gomodPath string, options ...Option) error {
-	b, err := cosmosbuf.New(cacheStorage)
+func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir, goModPath string, options ...Option) error {
+	b, err := cosmosbuf.New(cacheStorage, goModPath)
 	if err != nil {
 		return err
 	}
@@ -132,7 +132,7 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		buf:                 b,
 		appPath:             appPath,
 		protoDir:            protoDir,
-		gomodPath:           gomodPath,
+		goModPath:           goModPath,
 		opts:                &generateOptions{},
 		thirdModules:        make(map[string][]module.Module),
 		thirdModuleIncludes: make(map[string]protoIncludes),

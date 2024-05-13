@@ -24,7 +24,7 @@ func (g *generator) protoPath() string {
 }
 
 func (g *generator) generateGoGo(ctx context.Context) error {
-	return g.generate(ctx, g.gogoTemplate(), g.gomodPath, "module.proto")
+	return g.generate(ctx, g.gogoTemplate(), g.goModPath, "*/module.proto")
 }
 
 func (g *generator) generatePulsar(ctx context.Context) error {
