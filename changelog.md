@@ -7,6 +7,8 @@
 - [#4108](https://github.com/ignite/cli/pull/4108) Add `xast` package (cherry-picked from [#3770](https://github.com/ignite/cli/pull/3770))
 - [#4110](https://github.com/ignite/cli/pull/4110) Scaffold a consumer chain with `interchain-security` v5.0.0-rc0.
 - [#4117](https://github.com/ignite/cli/pull/4117) Support relative path when installing local plugins
+- [#4111](https://github.com/ignite/cli/pull/4111) Remove vuex generation
+- [#4117](https://github.com/ignite/cli/pull/4117), [#4125](https://github.com/ignite/cli/pull/4125) Support relative path when installing local plugins
 
 ### Changes
 

@@ -68,6 +68,16 @@ func TestNewPlugin(t *testing.T) {
 			},
 		},
 		{
+			name:      "ok: relative local plugin",
+			pluginCfg: pluginsconfig.Plugin{Path: "./testdata"},
+			expectedPlugin: Plugin{
+				srcPath: path.Join(wd, "testdata"),
+				name:    "testdata",
+				stdout:  os.Stdout,
+				stderr:  os.Stderr,
+			},
+		},
+		{
 			name:      "fail: remote plugin with only domain",
 			pluginCfg: pluginsconfig.Plugin{Path: "github.com"},
 			expectedPlugin: Plugin{

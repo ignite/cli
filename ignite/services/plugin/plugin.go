@@ -142,8 +142,19 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 		apply(p)
 	}
 
-	if strings.HasPrefix(pluginPath, "/") {
-		// This is a local plugin, check if the file exists
+	// This is a local plugin, check if the file exists
+	if tp := (&Plugin{Plugin: pluginsconfig.Plugin{Path: pluginPath}}); tp.IsLocalPath() {
+		// if directory is relative, make it absolute
+		if !filepath.IsAbs(pluginPath) {
+			pluginPathAbs, err := filepath.Abs(pluginPath)
+			if err != nil {
+				p.Error = errors.Errorf("failed to get absolute path of %s: %w", pluginPath, err)
+				return p
+			}
+
+			pluginPath = pluginPathAbs
+		}
+
 		st, err := os.Stat(pluginPath)
 		if err != nil {
 			p.Error = errors.Wrapf(err, "local app path %q not found", pluginPath)
@@ -157,6 +168,7 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 		p.name = path.Base(pluginPath)
 		return p
 	}
+
 	// This is a remote plugin, parse the URL
 	if i := strings.LastIndex(pluginPath, "@"); i != -1 {
 		// path contains a reference
@@ -236,23 +248,6 @@ func (p *Plugin) load(ctx context.Context) {
 	}
 
 	if p.IsLocalPath() {
-		// if directory is relative, make it absolute
-		if !filepath.IsAbs(p.srcPath) {
-			wd, err := os.Getwd()
-			if err != nil {
-				p.Error = errors.Errorf("failed to get working directory: %w", err)
-				return
-			}
-
-			srcPathAbs, err := filepath.Abs(p.srcPath)
-			if err != nil {
-				p.Error = errors.Errorf("failed to get absolute path of %s: %w", p.srcPath, err)
-				return
-			}
-
-			p.srcPath = filepath.Join(wd, srcPathAbs)
-		}
-
 		// trigger rebuild for local plugin if binary is outdated
 		if p.outdatedBinary() {
 			p.build(ctx)
