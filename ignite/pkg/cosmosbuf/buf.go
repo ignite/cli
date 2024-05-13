@@ -3,7 +3,6 @@ package cosmosbuf
 import (
 	"context"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -11,7 +10,6 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/xexec"
 	"github.com/ignite/cli/v29/ignite/pkg/xos"
@@ -156,18 +154,6 @@ func (b Buf) Generate(
 		apply(&opts)
 	}
 
-	// TODO(@julienrbrt): this whole custom handling can be deleted
-	// after https://github.com/cosmos/cosmos-sdk/pull/18993 in v29.
-	if strings.Contains(protoPath, cosmosver.CosmosSDKRepoName) {
-		if b.sdkProtoDir == "" {
-			b.sdkProtoDir, err = copySDKProtoDir(protoPath)
-			if err != nil {
-				return err
-			}
-		}
-		protoPath = b.sdkProtoDir
-	}
-
 	// find all proto files into the path
 	protoFiles, err := xos.FindFilesExtension(protoPath, xos.ProtoFile)
 	if err != nil || len(protoFiles) == 0 {
@@ -257,26 +243,4 @@ func (b Buf) command(
 		)
 	}
 	return command, nil
-}
-
-// findSDKProtoPath finds the Cosmos SDK proto folder path.
-func findSDKProtoPath(protoDir string) string {
-	paths := strings.Split(protoDir, "@")
-	if len(paths) < 2 {
-		return protoDir
-	}
-	version := strings.Split(paths[1], "/")[0]
-	return fmt.Sprintf("%s@%s/proto", paths[0], version)
-}
-
-// copySDKProtoDir copies the Cosmos SDK proto folder to a temporary directory.
-// The temporary directory must be removed by the caller.
-func copySDKProtoDir(protoDir string) (string, error) {
-	tmpDir, err := os.MkdirTemp("", "proto-sdk")
-	if err != nil {
-		return "", err
-	}
-
-	srcPath := findSDKProtoPath(protoDir)
-	return tmpDir, xos.CopyFolder(srcPath, tmpDir)
 }
