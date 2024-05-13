@@ -3,14 +3,15 @@ package cosmosbuf
 import (
 	"context"
 	"fmt"
-	"path/filepath"
 	"strings"
 
+	"github.com/gobwas/glob"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis"
 	"github.com/ignite/cli/v29/ignite/pkg/xexec"
 	"github.com/ignite/cli/v29/ignite/pkg/xos"
 )
@@ -21,14 +22,14 @@ type (
 
 	// Buf represents the buf application structure.
 	Buf struct {
-		path         string
-		sdkProtoDir  string
-		storageCache cache.Cache[[]byte]
+		path          string
+		storageCache  cache.Cache[[]byte]
+		analysisCache *protoanalysis.Cache
 	}
 
 	// genOptions used to configure code generation.
 	genOptions struct {
-		excluded   map[string]struct{}
+		excluded   []glob.Glob
 		fileByFile bool
 	}
 
@@ -68,16 +69,16 @@ var (
 	ErrProtoFilesNotFound = errors.New("no proto files found")
 )
 
-func ExcludeFiles(files ...string) GenOption {
+// ExcludeFiles exclude file names from the generate command using glob.
+func ExcludeFiles(patterns ...string) GenOption {
 	return func(o *genOptions) {
-		excluded := make(map[string]struct{})
-		for _, file := range files {
-			excluded[file] = struct{}{}
+		for _, pattern := range patterns {
+			o.excluded = append(o.excluded, glob.MustCompile(pattern))
 		}
-		o.excluded = excluded
 	}
 }
 
+// FileByFile runs the generate command for each proto file.
 func FileByFile() GenOption {
 	return func(o *genOptions) {
 		o.fileByFile = true
@@ -92,8 +93,9 @@ func New(cacheStorage cache.Storage) (Buf, error) {
 	}
 
 	return Buf{
-		path:         path,
-		storageCache: cache.New[[]byte](cacheStorage, specCacheNamespace),
+		path:          path,
+		storageCache:  cache.New[[]byte](cacheStorage, specCacheNamespace),
+		analysisCache: protoanalysis.NewCache(),
 	}, nil
 }
 
@@ -155,8 +157,8 @@ func (b Buf) Generate(
 	}
 
 	// find all proto files into the path
-	protoFiles, err := xos.FindFilesExtension(protoPath, xos.ProtoFile)
-	if err != nil || len(protoFiles) == 0 {
+	found, err := xos.FindFilesExtension(protoPath, xos.ProtoFile)
+	if err != nil || len(found) == 0 {
 		return err
 	}
 
@@ -166,11 +168,18 @@ func (b Buf) Generate(
 	}
 
 	// remove excluded and cached files
-	for i, file := range protoFiles {
-		if _, ok := opts.excluded[filepath.Base(file)]; ok {
-			protoFiles = append(protoFiles[:i], protoFiles[i+1:]...)
-		} else if _, ok := cached[file]; ok {
-			protoFiles = append(protoFiles[:i], protoFiles[i+1:]...)
+	protoFiles := make([]string, 0)
+	for _, file := range found {
+		okExclude := false
+		for _, g := range opts.excluded {
+			if g.Match(file) {
+				okExclude = true
+				break
+			}
+		}
+		_, okCached := cached[file]
+		if !okExclude && !okCached {
+			protoFiles = append(protoFiles, file)
 		}
 	}
 

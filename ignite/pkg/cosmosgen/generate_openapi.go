@@ -82,10 +82,19 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 			protoPath,
 			dir,
 			g.openAPITemplate(),
-			cosmosbuf.ExcludeFiles("module.proto"),
+			cosmosbuf.ExcludeFiles(
+				"*/module.proto",
+				"*/testutil/*",
+				"*/testdata/*",
+				"*/cosmos/orm/*",
+				"*/cosmos/reflection/*",
+				"*/cosmos/app/v1alpha1/*",
+				"*/cosmos/tx/config/v1/config.proto",
+				"*/cosmos/msg/textual/v1/textual.proto",
+			),
 			cosmosbuf.FileByFile(),
 		); err != nil {
-			return err
+			return errors.Wrapf(err, "failed to generate openapi spec %s, probally you need to exclude some proto files", protoPath)
 		}
 
 		specs, err := xos.FindFilesExtension(dir, xos.JSONFile)
