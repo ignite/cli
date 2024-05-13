@@ -3,15 +3,17 @@ package cosmosbuf
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/gobwas/glob"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/ignite/cli/v29/ignite/config"
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis"
 	"github.com/ignite/cli/v29/ignite/pkg/xexec"
 	"github.com/ignite/cli/v29/ignite/pkg/xos"
 )
@@ -22,9 +24,9 @@ type (
 
 	// Buf represents the buf application structure.
 	Buf struct {
-		path          string
-		storageCache  cache.Cache[[]byte]
-		analysisCache *protoanalysis.Cache
+		path         string
+		bufCachePath string
+		storageCache cache.Cache[string]
 	}
 
 	// genOptions used to configure code generation.
@@ -92,10 +94,19 @@ func New(cacheStorage cache.Storage) (Buf, error) {
 		return Buf{}, err
 	}
 
+	globalPath, err := config.DirPath()
+	if err != nil {
+		return Buf{}, err
+	}
+	bufCachePath := filepath.Join(globalPath, "buf")
+	if err := os.Mkdir(bufCachePath, 0o700); err != nil && !os.IsExist(err) {
+		return Buf{}, err
+	}
+
 	return Buf{
-		path:          path,
-		storageCache:  cache.New[[]byte](cacheStorage, specCacheNamespace),
-		analysisCache: protoanalysis.NewCache(),
+		path:         path,
+		bufCachePath: bufCachePath,
+		storageCache: cache.New[string](cacheStorage, specCacheNamespace),
 	}, nil
 }
 
@@ -156,20 +167,21 @@ func (b Buf) Generate(
 		apply(&opts)
 	}
 
-	// find all proto files into the path
-	found, err := xos.FindFilesExtension(protoPath, xos.ProtoFile)
-	if err != nil || len(found) == 0 {
+	// find all proto files into the path.
+	foundFiles, err := xos.FindFilesExtension(protoPath, xos.ProtoFile)
+	if err != nil || len(foundFiles) == 0 {
 		return err
 	}
 
-	cached, err := b.getDirCache(protoPath, output, template)
-	if err != nil {
+	// check if already exist a cache for the template.
+	key, found, err := b.getCache(protoPath, template, output)
+	if err != nil || found {
 		return err
 	}
 
-	// remove excluded and cached files
+	// remove excluded and cached files.
 	protoFiles := make([]string, 0)
-	for _, file := range found {
+	for _, file := range foundFiles {
 		okExclude := false
 		for _, g := range opts.excluded {
 			if g.Match(file) {
@@ -177,10 +189,12 @@ func (b Buf) Generate(
 				break
 			}
 		}
-		_, okCached := cached[file]
-		if !okExclude && !okCached {
+		if !okExclude {
 			protoFiles = append(protoFiles, file)
 		}
+	}
+	if len(protoFiles) == 0 {
+		return nil
 	}
 
 	flags := map[string]string{
@@ -219,7 +233,7 @@ func (b Buf) Generate(
 		}
 	}
 
-	return b.saveDirCache(output, template)
+	return b.saveCache(key, output)
 }
 
 // runCommand run the buf CLI command.

@@ -6,19 +6,15 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/otiai10/copy"
+
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/dirchange"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/xos"
 )
 
-func cacheKey(src, file, template string) (string, error) {
-	relPath, err := filepath.Rel(src, file)
-	if err != nil {
-		return "", err
-	}
-
-	checksum, err := dirchange.ChecksumFromPaths(src, relPath)
+func cacheKey(src, template string) (string, error) {
+	checksum, err := dirchange.ChecksumFromPaths(src, "")
 	if err != nil {
 		return "", err
 	}
@@ -34,73 +30,35 @@ func cacheKey(src, file, template string) (string, error) {
 	return key, nil
 }
 
-func (b Buf) getFileCache(src, file, template, output string) (bool, error) {
-	key, err := cacheKey(src, file, template)
+func (b Buf) getCache(src, template, output string) (string, bool, error) {
+	key, err := cacheKey(src, template)
 	if err != nil {
-		return false, err
+		return key, false, err
 	}
 
-	existingFile, err := b.storageCache.Get(key)
+	cachedPath, err := b.storageCache.Get(key)
 	if errors.Is(err, cache.ErrorNotFound) {
-		return false, nil
+		return key, false, nil
 	} else if err != nil {
-		return false, err
+		return key, false, err
 	}
 
-	relPath, err := filepath.Rel(src, file)
-	if err != nil {
-		return false, err
+	if err := copy.Copy(cachedPath, output); err != nil {
+		return "", false, errors.Wrapf(err, "buf get cache cannot copy path %s to %s", cachedPath, output)
 	}
-
-	filePath := filepath.Join(output, relPath)
-	if err := os.WriteFile(filePath, existingFile, 0o644); err != nil {
-		return false, err
-	}
-	return true, nil
+	return key, true, nil
 }
 
-func (b Buf) getDirCache(src, output, template string) (map[string]struct{}, error) {
-	result := make(map[string]struct{})
-	files, err := xos.FindFiles(src)
-	if err != nil {
-		return result, err
-	}
-
-	for _, file := range files {
-		ok, err := b.getFileCache(src, file, template, output)
-		if err != nil {
-			return result, err
-		}
-		if ok {
-			result[file] = struct{}{}
-		}
-	}
-	return result, nil
-}
-
-func (b Buf) saveFileCache(src, file, template string) error {
-	key, err := cacheKey(src, file, template)
-	if err != nil {
+func (b Buf) saveCache(key, src string) error {
+	cachePath := filepath.Join(b.bufCachePath, key)
+	if err := os.Mkdir(cachePath, 0o700); os.IsExist(err) {
+		return nil
+	} else if err != nil {
 		return err
 	}
 
-	f, err := os.ReadFile(file)
-	if err != nil {
-		return err
+	if err := copy.Copy(src, cachePath); err != nil {
+		return errors.Wrapf(err, "buf save cache cannot copy path %s to %s", src, cachePath)
 	}
-	return b.storageCache.Put(key, f)
-}
-
-func (b Buf) saveDirCache(src, template string) error {
-	files, err := xos.FindFiles(src)
-	if err != nil {
-		return err
-	}
-
-	for _, file := range files {
-		if err := b.saveFileCache(src, file, template); err != nil {
-			return err
-		}
-	}
-	return nil
+	return b.storageCache.Put(key, cachePath)
 }
