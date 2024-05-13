@@ -76,6 +76,11 @@ func RemoveDuplicates(plugins []Plugin) (unique []Plugin) {
 	return unique
 }
 
+// IsLocalPath returns true if the path is a local directory.
+func IsLocalPath(path string) bool {
+	return strings.HasPrefix(path, "/") || strings.HasPrefix(path, ".") || strings.HasPrefix(path, "~")
+}
+
 // IsGlobal returns whether the plugin is installed globally or locally for a chain.
 func (p Plugin) IsGlobal() bool {
 	return p.Global
@@ -83,7 +88,7 @@ func (p Plugin) IsGlobal() bool {
 
 // IsLocalPath returns true if the plugin path is a local directory.
 func (p Plugin) IsLocalPath() bool {
-	return strings.HasPrefix(p.Path, "/") || strings.HasPrefix(p.Path, ".")
+	return IsLocalPath(p.Path)
 }
 
 // HasPath verifies if a plugin has the given path regardless of version.
