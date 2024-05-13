@@ -36,6 +36,11 @@ func paramsProtoModify(opts ParamsOptions) genny.RunFn {
 			return errors.Errorf("couldn't find message 'Params' in %s: %w", path, err)
 		}
 		for _, paramField := range opts.Params {
+			_, err := protoutil.GetFieldByName(params, paramField.Name.LowerCamel)
+			if err == nil {
+				return fmt.Errorf("duplicate field %s in %s", paramField.Name.LowerCamel, params.Name)
+			}
+
 			param := protoutil.NewField(
 				paramField.Name.LowerCamel,
 				paramField.DataType(),

@@ -1,10 +1,10 @@
 package xstrings
 
 import (
+	"slices"
 	"strings"
 	"unicode"
 
-	"golang.org/x/exp/slices" // TODO: replace with slices.Contains when it will be available in stdlib (1.21)
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )

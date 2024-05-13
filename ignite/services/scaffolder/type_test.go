@@ -82,13 +82,13 @@ func TestParseTypeFields(t *testing.T) {
 		},
 		{
 			name:    "map type without simulation",
-			addKind: MapType("foo", "bar"),
+			addKind: MapType("foo"),
 			addOptions: []AddTypeOption{
 				TypeWithoutSimulation(),
 			},
 			expectedOptions: addTypeOptions{
 				moduleName:        testModuleName,
-				indexes:           []string{"foo", "bar"},
+				index:             "foo",
 				isMap:             true,
 				withoutSimulation: true,
 				signer:            testSigner,
