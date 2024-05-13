@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [`v28.4.0`](https://github.com/ignite/cli/releases/tag/v28.4.0)
+
 ### Features
 
 - [#4108](https://github.com/ignite/cli/pull/4108) Add `xast` package (cherry-picked from [#3770](https://github.com/ignite/cli/pull/3770))
