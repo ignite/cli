@@ -3,7 +3,7 @@ package <%= protoPkgName %>;
 
 import "amino/amino.proto";
 import "gogoproto/gogo.proto";
-import "<%= appName %>/<%= moduleName %>/params.proto";
+import "<%= appName %>/<%= moduleName %>/<%= protoVer %>/params.proto";
 
 option go_package = "<%= modulePath %>/x/<%= moduleName %>/types";
 

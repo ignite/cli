@@ -5,7 +5,7 @@ import "amino/amino.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
-import "<%= appName %>/<%= moduleName %>/params.proto";
+import "<%= appName %>/<%= moduleName %>/<%= protoVer %>/params.proto";
 
 option go_package = "<%= modulePath %>/x/<%= moduleName %>/types";
 
