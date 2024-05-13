@@ -21,7 +21,7 @@ type Options struct {
 	TypeName     multiformatname.Name
 	MsgSigner    multiformatname.Name
 	Fields       field.Fields
-	Indexes      field.Fields
+	Index        field.Field
 	NoMessage    bool
 	NoSimulation bool
 	IsIBC        bool
