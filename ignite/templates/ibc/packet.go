@@ -35,6 +35,7 @@ type PacketOptions struct {
 	AppName    string
 	AppPath    string
 	ProtoDir   string
+	ProtoVer   string
 	ModuleName string
 	ModulePath string
 	PacketName multiformatname.Name
@@ -42,6 +43,11 @@ type PacketOptions struct {
 	Fields     field.Fields
 	AckFields  field.Fields
 	NoMessage  bool
+}
+
+// ProtoFile returns the path to the proto folder.
+func (opts *PacketOptions) ProtoFile(fname string) string {
+	return filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, opts.ProtoVer, fname)
 }
 
 // NewPacket returns the generator to scaffold a packet in an IBC module.
@@ -83,6 +89,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	ctx.Set("moduleName", opts.ModuleName)
 	ctx.Set("ModulePath", opts.ModulePath)
 	ctx.Set("appName", opts.AppName)
+	ctx.Set("protoVer", opts.ProtoVer)
 	ctx.Set("packetName", opts.PacketName)
 	ctx.Set("MsgSigner", opts.MsgSigner)
 	ctx.Set("fields", opts.Fields)
@@ -93,6 +100,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	g.Transformer(genny.Replace("{{protoDir}}", opts.ProtoDir))
 	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
+	g.Transformer(genny.Replace("{{protoVer}}", opts.ProtoVer))
 	g.Transformer(genny.Replace("{{packetName}}", opts.PacketName.Snake))
 
 	// Create the 'testutil' package with the test helpers
@@ -183,7 +191,7 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 //   - Existence of a Oneof field named 'packet'.
 func protoModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, "packet.proto")
+		path := opts.ProtoFile("packet.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -248,8 +256,8 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 			protoImports = append(protoImports, protoutil.NewImport(imp))
 		}
 		for _, f := range append(opts.Fields.Custom(), opts.AckFields.Custom()...) {
-			protopath := fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f)
-			protoImports = append(protoImports, protoutil.NewImport(protopath))
+			protoPath := fmt.Sprintf("%[1]v/%[2]v/%[3]v/%[4]v.proto", opts.AppName, opts.ModuleName, opts.ProtoVer, f)
+			protoImports = append(protoImports, protoutil.NewImport(protoPath))
 		}
 		if err := protoutil.AddImports(protoFile, true, protoImports...); err != nil {
 			return errors.Errorf("failed while adding imports to %s: %w", path, err)
@@ -290,7 +298,7 @@ func eventModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 //     elements in the file.
 func protoTxModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, "tx.proto")
+		path := opts.ProtoFile("tx.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -341,7 +349,7 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 			protoImports = append(protoImports, protoutil.NewImport(imp))
 		}
 		for _, f := range opts.Fields.Custom() {
-			protopath := fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f)
+			protopath := fmt.Sprintf("%[1]v/%[2]v/%[3]v/%[4]v.proto", opts.AppName, opts.ModuleName, opts.ProtoVer, f)
 			protoImports = append(protoImports, protoutil.NewImport(protopath))
 		}
 		if err := protoutil.AddImports(protoFile, true, protoImports...); err != nil {

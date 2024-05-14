@@ -25,7 +25,7 @@ import (
 
 	// this line is used by starport scaffolding # 1
 
-	modulev1 "<%= modulePath %>/api/<%= appName %>/<%= moduleName %>/module"
+	modulev1 "<%= modulePath %>/api/<%= appName %>/<%= moduleName %>/module/<%= protoVer %>"
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 	<%= if (isIBC) { %>"<%= modulePath %>/x/<%= moduleName %>/client/cli"<% } %>
