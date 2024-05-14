@@ -1,5 +1,5 @@
 syntax = "proto3";
-package <%= protoPkgName %>.module;
+package <%= protoModulePkgName %>;
 
 import "cosmos/app/v1alpha1/module.proto";
 

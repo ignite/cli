@@ -6,9 +6,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
 )
 
-const (
-	FlagIndexes = "index"
-)
+const FlagIndexName = "index"
 
 // NewScaffoldMap returns a new command to scaffold a map.
 func NewScaffoldMap() *cobra.Command {
@@ -42,14 +40,7 @@ for the "hello" key.
 
 	blogd q blog show-post hello
 
-To customize the index, use the "--index" flag. Multiple indices can be
-provided, which simplifies querying values. For example:
-
-	ignite scaffold map product price desc --index category,guid
-
-With this command, you would get a "Product" value indexed by both a category
-and a GUID (globally unique ID). This will let you programmatically fetch
-product values that have the same category but are using different GUIDs.
+By default, the index is called "index", to customize the index, use the "--index" flag.
 
 Since the behavior of "list" and "map" scaffolding is very similar, you can use
 the "--no-message", "--module", "--signer" flags as well as the colon syntax for
@@ -67,12 +58,12 @@ For detailed type information use ignite scaffold type --help
 
 	c.Flags().AddFlagSet(flagSetYes())
 	c.Flags().AddFlagSet(flagSetScaffoldType())
-	c.Flags().StringSlice(FlagIndexes, []string{"index"}, "fields that index the value")
+	c.Flags().String(FlagIndexName, "index", "field that index the value")
 
 	return c
 }
 
 func scaffoldMapHandler(cmd *cobra.Command, args []string) error {
-	indexes, _ := cmd.Flags().GetStringSlice(FlagIndexes)
-	return scaffoldType(cmd, args, scaffolder.MapType(indexes...))
+	index, _ := cmd.Flags().GetString(FlagIndexName)
+	return scaffoldType(cmd, args, scaffolder.MapType(index))
 }

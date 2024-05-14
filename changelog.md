@@ -4,20 +4,24 @@
 
 ### Features
 
-- [#3707](https://github.com/ignite/cli/pull/3707) Add collections support.
+- [#3707](https://github.com/ignite/cli/pull/3707) and [#4094](https://github.com/ignite/cli/pull/4094) Add collections support.
 - [#3977](https://github.com/ignite/cli/pull/3977) Add `chain lint` command to lint the chain's codebase using `golangci-lint`
 - [#3770](https://github.com/ignite/cli/pull/3770) Add `scaffold configs` and `scaffold params` commands
 - [#4001](https://github.com/ignite/cli/pull/4001) Improve `xgenny` dry run
 - [#3967](https://github.com/ignite/cli/issues/3967) Add HD wallet parameters `address index` and `account number` to the chain account config
 - [#4004](https://github.com/ignite/cli/pull/4004) Remove all import placeholders using the `xast` pkg
+- [#4076](https://github.com/ignite/cli/pull/4076) Remove the ignite `relayer` and `tools` commands with all ts-relayer logic
 - [#4071](https://github.com/ignite/cli/pull/4071) Support custom proto path
 - [#3718](https://github.com/ignite/cli/pull/3718) Add `gen-mig-diffs` tool app to compare scaffold output of two versions of ignite
 - [#4077](https://github.com/ignite/cli/pull/4077) Merge the swagger files manually instead use nodetime `swagger-combine`
 - [#4100](https://github.com/ignite/cli/pull/4100) Set the `proto-dir` flag only for the `scaffold chain` command and use the proto path from the config
+- [#4110](https://github.com/ignite/cli/pull/4110) Scaffold a consumer chain with `interchain-security` v5.0.0-rc0.
 - [#4111](https://github.com/ignite/cli/pull/4111) Remove vuex generation
+- [#4117](https://github.com/ignite/cli/pull/4117), [#4125](https://github.com/ignite/cli/pull/4125) Support relative path when installing local plugins
 
 ### Changes
 
+- [#4094](https://github.com/ignite/cli/pull/4094) Scaffolding a multi-index map using `ignite s map foo bar baz --index foobar,foobaz` is no longer supported. Use one index instead of use `collections.IndexedMap`.
 - [#4058](https://github.com/ignite/cli/pull/4058) Simplify scaffolded modules by including `ValidateBasic()` logic in message handler.
 - [#4058](https://github.com/ignite/cli/pull/4058) Use `address.Codec` instead of `AccAddressFromBech32`.
 - [#3993](https://github.com/ignite/cli/pull/3993) Oracle scaffolding was deprecated and has been removed
@@ -28,6 +32,7 @@
 - [#4008](https://github.com/ignite/cli/pull/4008) Rename `pkg/yaml` to `pkg/xyaml`
 - [#4075](https://github.com/ignite/cli/pull/4075) Use `gopkg.in/yaml.v3` instead `gopkg.in/yaml.v2`
 - [#4103](https://github.com/ignite/cli/pull/4103) Bump cosmos-sdk to `v0.50.6`
+- [#4118](https://github.com/ignite/cli/pull/4118) Version scaffolded protos as `v1` to follow SDK structure.
 
 ### Fixes
 
@@ -36,6 +41,7 @@
 - [#4086](https://github.com/ignite/cli/pull/4086) Retry to get the IBC balance if it fails the first time
 - [#4091](https://github.com/ignite/cli/pull/4091) Fix race conditions in the plugin logic
 - [#4096](https://github.com/ignite/cli/pull/4096) Add new reserved names module and remove duplicated genesis order
+- [#4128](https://github.com/ignite/cli/pull/4128) Check for duplicate proto fields in config
 
 ## [`v28.3.0`](https://github.com/ignite/cli/releases/tag/v28.3.0)
 

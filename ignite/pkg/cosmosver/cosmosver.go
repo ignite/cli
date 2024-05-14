@@ -32,6 +32,7 @@ var (
 		StargateFortyFourVersion,
 		StargateFortyFiveThreeVersion,
 		StargateFortySevenTwoVersion,
+		StargateFiftyVersion,
 	}
 
 	// Latest is the latest known version of the Cosmos-SDK.

@@ -142,8 +142,19 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 		apply(p)
 	}
 
-	if strings.HasPrefix(pluginPath, "/") {
-		// This is a local plugin, check if the file exists
+	// This is a local plugin, check if the file exists
+	if pluginsconfig.IsLocalPath(pluginPath) {
+		// if directory is relative, make it absolute
+		if !filepath.IsAbs(pluginPath) {
+			pluginPathAbs, err := filepath.Abs(pluginPath)
+			if err != nil {
+				p.Error = errors.Errorf("failed to get absolute path of %s: %w", pluginPath, err)
+				return p
+			}
+
+			pluginPath = pluginPathAbs
+		}
+
 		st, err := os.Stat(pluginPath)
 		if err != nil {
 			p.Error = errors.Wrapf(err, "local app path %q not found", pluginPath)
@@ -157,6 +168,7 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 		p.name = path.Base(pluginPath)
 		return p
 	}
+
 	// This is a remote plugin, parse the URL
 	if i := strings.LastIndex(pluginPath, "@"); i != -1 {
 		// path contains a reference
