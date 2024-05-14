@@ -10,7 +10,6 @@ import (
 	"github.com/gobwas/glob"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite/cli/v29/ignite/config"
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
@@ -94,11 +93,11 @@ func New(cacheStorage cache.Storage, goModPath string) (Buf, error) {
 		return Buf{}, err
 	}
 
-	globalPath, err := config.DirPath()
+	bufCachePath, err := cachePath()
 	if err != nil {
 		return Buf{}, err
 	}
-	bufCachePath := filepath.Join(globalPath, "buf", goModPath)
+	bufCachePath = filepath.Join(bufCachePath, "buf", goModPath)
 	if err := os.MkdirAll(bufCachePath, 0o755); err != nil && !os.IsExist(err) {
 		return Buf{}, err
 	}

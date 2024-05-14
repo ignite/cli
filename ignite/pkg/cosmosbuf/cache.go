@@ -8,10 +8,27 @@ import (
 
 	"github.com/otiai10/copy"
 
+	"github.com/ignite/cli/v29/ignite/config"
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/dirchange"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
+
+func ClearCache() error {
+	path, err := cachePath()
+	if err != nil {
+		return err
+	}
+	return os.RemoveAll(path)
+}
+
+func cachePath() (string, error) {
+	globalPath, err := config.DirPath()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(globalPath, "buf"), nil
+}
 
 func cacheKey(src, template string) (string, error) {
 	checksum, err := dirchange.ChecksumFromPaths(src, "")
