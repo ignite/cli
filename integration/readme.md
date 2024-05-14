@@ -34,7 +34,7 @@ env.Must(env.Exec("create a list with bool",
         step.Workdir(path),
     )),
 ))
-env.EnsureAppIsSteady(path)
+env.EnsureSteady()
 ```
 
 - To check if the command returns an error, you can add the `envtest.ExecShouldError()` step:
@@ -47,5 +47,5 @@ env.Must(env.Exec("should prevent creating a list with duplicated fields",
     )),
     envtest.ExecShouldError(),
 ))
-env.EnsureAppIsSteady(path)
+env.EnsureSteady()
 ```
