@@ -8,9 +8,22 @@ import (
 )
 
 // ProtoPackageName creates a protocol buffer package name for an app module.
-func ProtoPackageName(appModulePath, moduleName string) string {
+func ProtoPackageName(appModulePath, moduleName, version string) string {
 	pathArray := strings.Split(appModulePath, "/")
-	path := []string{pathArray[len(pathArray)-1], moduleName}
+	path := []string{pathArray[len(pathArray)-1], moduleName, version}
+
+	// Make sure that the first path element can be used as proto package name.
+	// This is required for app module names like "github.com/username/repo" where
+	// "username" might be not be compatible with proto buffer package names.
+	path[0] = xstrings.NoNumberPrefix(path[0])
+
+	return cleanProtoPackageName(strings.Join(path, "."))
+}
+
+// ProtoModulePackageName creates a protocol buffer module package name for an app module.
+func ProtoModulePackageName(appModulePath, moduleName, version string) string {
+	pathArray := strings.Split(appModulePath, "/")
+	path := []string{pathArray[len(pathArray)-1], moduleName, "module", version}
 
 	// Make sure that the first path element can be used as proto package name.
 	// This is required for app module names like "github.com/username/repo" where

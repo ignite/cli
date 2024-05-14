@@ -122,6 +122,7 @@ func (s Scaffolder) AddPacket(
 			AppName:    s.modpath.Package,
 			AppPath:    s.appPath,
 			ProtoDir:   s.protoDir,
+			ProtoVer:   "v1", // TODO(@julienrbrt): possibly in the future add flag to specify custom proto version.
 			ModulePath: s.modpath.RawPath,
 			ModuleName: moduleName,
 			PacketName: name,
