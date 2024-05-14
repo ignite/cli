@@ -47,12 +47,14 @@ func NewGenerator(opts *CreateOptions) (*genny.Generator, error) {
 	ctx.Set("moduleName", opts.ModuleName)
 	ctx.Set("modulePath", opts.ModulePath)
 	ctx.Set("appName", opts.AppName)
+	ctx.Set("protoVer", opts.ProtoVer)
 	ctx.Set("dependencies", opts.Dependencies)
 	ctx.Set("params", opts.Params)
 	ctx.Set("configs", opts.Configs)
 	ctx.Set("isIBC", opts.IsIBC)
-	ctx.Set("apiPath", fmt.Sprintf("/%s/%s", appModulePath, opts.ModuleName))
-	ctx.Set("protoPkgName", module.ProtoPackageName(appModulePath, opts.ModuleName))
+	ctx.Set("apiPath", fmt.Sprintf("/%s/%s/%s", appModulePath, opts.ModuleName, opts.ProtoVer))
+	ctx.Set("protoPkgName", module.ProtoPackageName(appModulePath, opts.ModuleName, opts.ProtoVer))
+	ctx.Set("protoModulePkgName", module.ProtoModulePackageName(appModulePath, opts.ModuleName, opts.ProtoVer))
 	ctx.Set("toVariableName", strcase.ToLowerCamel)
 
 	plushhelpers.ExtendPlushContext(ctx)
@@ -60,6 +62,7 @@ func NewGenerator(opts *CreateOptions) (*genny.Generator, error) {
 	g.Transformer(genny.Replace("{{protoDir}}", opts.ProtoDir))
 	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
+	g.Transformer(genny.Replace("{{protoVer}}", opts.ProtoVer))
 
 	return g, nil
 }
@@ -88,7 +91,7 @@ func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.R
 			fConfig.String(),
 			xast.WithLastNamedImport(
 				fmt.Sprintf("%[1]vmodulev1", opts.ModuleName),
-				fmt.Sprintf("%[1]v/api/%[2]v/%[3]v/module", opts.ModulePath, opts.AppName, opts.ModuleName),
+				fmt.Sprintf("%[1]v/api/%[2]v/%[3]v/module/%[4]v", opts.ModulePath, opts.AppName, opts.ModuleName, opts.ProtoVer),
 			),
 			xast.WithLastNamedImport(
 				"_",

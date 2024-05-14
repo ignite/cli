@@ -52,6 +52,7 @@ func (s Scaffolder) CreateConfigs(
 		AppName:    s.modpath.Package,
 		AppPath:    s.appPath,
 		ProtoDir:   s.protoDir,
+		ProtoVer:   "v1", // TODO(@julienrbrt): possibly in the future add flag to specify custom proto version.
 	}
 
 	g, err := modulecreate.NewModuleConfigs(opts)

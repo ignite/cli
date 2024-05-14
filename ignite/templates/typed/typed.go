@@ -21,6 +21,7 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 
 	ctx := plush.NewContext()
 	ctx.Set("ModuleName", opts.ModuleName)
+	ctx.Set("ProtoVer", opts.ProtoVer)
 	ctx.Set("IsIBC", opts.IsIBC)
 	ctx.Set("AppName", opts.AppName)
 	ctx.Set("TypeName", opts.TypeName)
@@ -29,7 +30,7 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	ctx.Set("Fields", opts.Fields)
 	ctx.Set("Index", opts.Index)
 	ctx.Set("NoMessage", opts.NoMessage)
-	ctx.Set("protoPkgName", module.ProtoPackageName(appModulePath, opts.ModuleName))
+	ctx.Set("protoPkgName", module.ProtoPackageName(appModulePath, opts.ModuleName, opts.ProtoVer))
 	ctx.Set("strconv", func() bool {
 		strconv := false
 		for _, field := range opts.Fields {
@@ -45,6 +46,7 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	g.Transformer(genny.Replace("{{protoDir}}", opts.ProtoDir))
 	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
+	g.Transformer(genny.Replace("{{protoVer}}", opts.ProtoVer))
 	g.Transformer(genny.Replace("{{typeName}}", opts.TypeName.Snake))
 
 	// Create the 'testutil' package with the test helpers
