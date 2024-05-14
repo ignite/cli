@@ -729,6 +729,7 @@ func typesCodecModify(replacer placeholder.Replacer, opts *typed.Options) genny.
 	}
 }
 
+// dataTypeToCollectionKeyValue returns the date type of the collection value.
 // TODO(@julienrbrt): extend support of dataTypeToCollectionKeyValue.
 func dataTypeToCollectionKeyValue(f field.Field) string {
 	var collectionKeyValue string
