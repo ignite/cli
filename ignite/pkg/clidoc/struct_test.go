@@ -30,18 +30,21 @@ func TestGenDoc(t *testing.T) {
 		err  error
 	}{
 		{
-			name: "Build struct",
+			name: "build struct",
 			v:    build{},
 			want: Docs{
 				{
 					Key:     "main",
 					Comment: "doc of main",
+					Type:    "string",
 				},
 				{
-					Key: "binary",
+					Key:  "binary",
+					Type: "string",
 				},
 				{
-					Key: "ldflags [array]",
+					Key:  "ldflags",
+					Type: "[]string",
 				},
 				{
 					Key: "proto",
@@ -49,10 +52,12 @@ func TestGenDoc(t *testing.T) {
 						{
 							Key:     "path",
 							Comment: "path of proto file",
+							Type:    "string",
 						},
 						{
-							Key:     "third_party_paths [array]",
+							Key:     "third_party_paths",
 							Comment: "doc of third party paths",
+							Type:    "[]string",
 						},
 					},
 					Comment: "doc of proto",
@@ -63,24 +68,29 @@ func TestGenDoc(t *testing.T) {
 						{
 							Key:     "path",
 							Comment: "path of proto file",
+							Type:    "string",
 						},
 						{
-							Key:     "third_party_paths [array]",
+							Key:     "third_party_paths",
 							Comment: "doc of third party paths",
+							Type:    "[]string",
 						},
 					},
 					Comment: "doc of pointer proto",
 				},
 				{
-					Key: "protos [array]",
+					Key:  "protos",
+					Type: "list",
 					Value: Docs{
 						{
 							Key:     "path",
 							Comment: "path of proto file",
+							Type:    "string",
 						},
 						{
-							Key:     "third_party_paths [array]",
+							Key:     "third_party_paths",
 							Comment: "doc of third party paths",
+							Type:    "[]string",
 						},
 					},
 					Comment: "doc of protos",
@@ -88,16 +98,18 @@ func TestGenDoc(t *testing.T) {
 			},
 		},
 		{
-			name: "Proto struct",
+			name: "proto struct",
 			v:    proto{},
 			want: Docs{
 				{
 					Key:     "path",
 					Comment: "path of proto file",
+					Type:    "string",
 				},
 				{
-					Key:     "third_party_paths [array]",
+					Key:     "third_party_paths",
 					Comment: "doc of third party paths",
+					Type:    "[]string",
 				},
 			},
 		},
@@ -169,15 +181,15 @@ func TestDocs_String(t *testing.T) {
 				},
 			},
 			want: `
-- main: doc of main
-- binary: 
-- ldflags [array]: 
-- proto: doc of proto
-    - path: path of proto file
-    - third_party_paths [array]: doc of third party paths
-- protos [array]: doc of protos
-    - path: path of proto file
-    - third_party_paths [array]: doc of third party paths`,
+main: # doc of main
+binary: # 
+ldflags [array]: # 
+proto: # doc of proto
+  path: # path of proto file
+  third_party_paths [array]: # doc of third party paths
+protos [array]: # doc of protos
+  path: # path of proto file
+  third_party_paths [array]: # doc of third party paths`,
 		},
 		{
 			name: "no entries",
@@ -196,8 +208,8 @@ func TestDocs_String(t *testing.T) {
 				},
 			},
 			want: `
-- path: path of proto file
-- third_party_paths [array]: doc of third party paths`,
+path: # path of proto file
+third_party_paths [array]: # doc of third party paths`,
 		},
 	}
 	for _, tt := range tests {

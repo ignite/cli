@@ -67,7 +67,7 @@ type Gentx struct {
 	AccountNumber int `yaml:"account-number" doc:"account number of the signing account (offline mode only)"`
 
 	// BroadcastMode is the transaction broadcasting mode (sync|async|block) (default "sync").
-	BroadcastMode string `yaml:"broadcast-mode" doc:"transaction broadcasting mode (sync|async|block) (default "sync")"`
+	BroadcastMode string `yaml:"broadcast-mode" doc:"transaction broadcasting mode (sync|async|block) (default 'sync')"`
 
 	// DryRun is a boolean determining whether to ignore the --gas flag and perform a simulation of a transaction.
 	DryRun bool `yaml:"dry-run" doc:"boolean determining whether to ignore the --gas flag and perform a simulation of a transaction"`
@@ -82,7 +82,7 @@ type Gentx struct {
 	From string `yaml:"from" doc:"name or address of private key with which to sign"`
 
 	// From is the gas limit to set per-transaction; set to "auto" to calculate sufficient gas automatically (default 200000).
-	Gas string `yaml:"gas" doc:"gas limit to set per-transaction; set to "auto" to calculate sufficient gas automatically (default 200000)"`
+	Gas string `yaml:"gas" doc:"gas limit to set per-transaction; set to 'auto' to calculate sufficient gas automatically (default 200000)"`
 
 	// GasAdjustment is the adjustment factor to be multiplied against the estimate returned by the tx simulation; if the gas limit is set manually this flag is ignored  (default 1).
 	GasAdjustment string `yaml:"gas-adjustment" doc:"adjustment factor to be multiplied against the estimate returned by the tx simulation; if the gas limit is set manually this flag is ignored  (default 1)"`
@@ -97,7 +97,7 @@ type Gentx struct {
 	Identity string `yaml:"identity" doc:"identity signature (ex. UPort or Keybase)"`
 
 	// IP is the node's public IP (default "192.168.1.64").
-	IP string `yaml:"ip" doc:"node's public IP (default "192.168.1.64")"`
+	IP string `yaml:"ip" doc:"node's public IP (default '192.168.1.64')"`
 
 	// KeyringDir is the client Keyring directory; if omitted, the default 'home' directory will be used.
 	KeyringDir string `yaml:"keyring-dir" doc:"client Keyring directory; if omitted, the default 'home' directory will be used"`
@@ -109,7 +109,7 @@ type Gentx struct {
 	MinSelfDelegation string `yaml:"min-self-delegation" doc:"minimum self delegation required on the validator"`
 
 	// Node is <host>:<port> to tendermint rpc interface for this chain (default "tcp://localhost:26657").
-	Node string `yaml:"node" doc:"<host>:<port> to tendermint rpc interface for this chain (default "tcp://localhost:26657")"`
+	Node string `yaml:"node" doc:"<host>:<port> to tendermint rpc interface for this chain (default 'tcp://localhost:26657')"`
 
 	// NodeID is the node's NodeID.
 	NodeID string `yaml:"node-id" doc:"node's NodeID"`
@@ -121,7 +121,7 @@ type Gentx struct {
 	Offline bool `yaml:"offline" doc:"boolean determining the offline mode (does not allow any online functionality)"`
 
 	// Output is the output format (text|json) (default "json").
-	Output string `yaml:"output" doc:"output format (text|json) (default "json")"`
+	Output string `yaml:"output" doc:"output format (text|json) (default 'json')"`
 
 	// OutputDocument writes the genesis transaction JSON document to the given file instead of the default location.
 	OutputDocument string `yaml:"output-document" doc:"writes the genesis transaction JSON document to the given file instead of the default location"`

@@ -73,7 +73,7 @@ func GenDoc(v interface{}) (fields Docs, err error) {
 			elemFields Docs
 			elemType   string
 		)
-		switch field.Type.Kind() {
+		switch field.Type.Kind() { //nolint:exhaustive
 		case reflect.Struct:
 			elemType = field.Type.Kind().String()
 			elemFields, err = GenDoc(reflect.New(field.Type).Elem().Interface())
