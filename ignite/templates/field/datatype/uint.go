@@ -12,11 +12,12 @@ import (
 var (
 	// DataUint uint data type definition.
 	DataUint = DataType{
-		DataType:          func(string) string { return "uint64" },
-		DefaultTestValue:  "111",
-		ValueLoop:         "uint64(i)",
-		ValueIndex:        "0",
-		ValueInvalidIndex: "100000",
+		DataType:                func(string) string { return "uint64" },
+		CollectionsKeyValueName: func(string) string { return "collections.Uint64Key" },
+		DefaultTestValue:        "111",
+		ValueLoop:               "uint64(i)",
+		ValueIndex:              "0",
+		ValueInvalidIndex:       "100000",
 		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("uint64 %s = %d", name, index)
 		},
@@ -45,8 +46,9 @@ var (
 
 	// DataUintSlice uint array data type definition.
 	DataUintSlice = DataType{
-		DataType:         func(string) string { return "[]uint64" },
-		DefaultTestValue: "1,2,3,4,5",
+		DataType:                func(string) string { return "[]uint64" },
+		CollectionsKeyValueName: func(string) string { return collectionValueComment },
+		DefaultTestValue:        "1,2,3,4,5",
 		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("repeated uint64 %s = %d", name, index)
 		},

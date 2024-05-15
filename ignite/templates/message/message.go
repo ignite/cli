@@ -34,6 +34,7 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	}
 	ctx := plush.NewContext()
 	ctx.Set("ModuleName", opts.ModuleName)
+	ctx.Set("ProtoVer", opts.ProtoVer)
 	ctx.Set("AppName", opts.AppName)
 	ctx.Set("MsgName", opts.MsgName)
 	ctx.Set("MsgDesc", opts.MsgDesc)
@@ -47,6 +48,7 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	g.Transformer(genny.Replace("{{protoDir}}", opts.ProtoDir))
 	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
+	g.Transformer(genny.Replace("{{protoVer}}", opts.ProtoVer))
 	g.Transformer(genny.Replace("{{msgName}}", opts.MsgName.Snake))
 
 	// Create the 'testutil' package with the test helpers
@@ -88,7 +90,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *Options) (*genny.Generato
 //   - A service named "Msg" to exist in the proto file, it appends the RPCs inside it.
 func protoTxRPCModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, "tx.proto")
+		path := opts.ProtoFile("tx.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -119,7 +121,7 @@ func protoTxRPCModify(opts *Options) genny.RunFn {
 
 func protoTxMessageModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, "tx.proto")
+		path := opts.ProtoFile("tx.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -155,7 +157,7 @@ func protoTxMessageModify(opts *Options) genny.RunFn {
 			protoImports = append(protoImports, protoutil.NewImport(imp))
 		}
 		for _, f := range append(opts.ResFields.Custom(), opts.Fields.Custom()...) {
-			protoPath := fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f)
+			protoPath := fmt.Sprintf("%[1]v/%[2]v/%[3]v/%[4]v.proto", opts.AppName, opts.ModuleName, opts.ProtoVer, f)
 			protoImports = append(protoImports, protoutil.NewImport(protoPath))
 		}
 		if err = protoutil.AddImports(protoFile, true, protoImports...); err != nil {

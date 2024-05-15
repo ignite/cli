@@ -32,10 +32,11 @@ jobs:
           go-version-file: go.mod
           cache: false
 
-      - uses: golangci/golangci-lint-action@v4
+      - uses: golangci/golangci-lint-action@v6
         if: env.GIT_DIFF
         with:
           version: v1.54.2
           install-mode: goinstall
           args: --timeout 10m
           github-token: ${{ secrets.github_token }}
+          skip-save-cache: true

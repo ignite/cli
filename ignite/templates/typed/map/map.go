@@ -15,7 +15,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
-	"github.com/ignite/cli/v29/ignite/templates/field"
 	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
 	"github.com/ignite/cli/v29/ignite/templates/module"
 	"github.com/ignite/cli/v29/ignite/templates/typed"
@@ -117,7 +116,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 	return g, typed.Box(componentTemplate, opts, g)
 }
 
-// keeperModify modifies the keeper to add a new collections map type
+// keeperModify modifies the keeper to add a new collections map type.
 func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/keeper.go")
@@ -143,7 +142,7 @@ func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunF
 			typed.PlaceholderCollectionInstantiate,
 			opts.TypeName.UpperCamel,
 			opts.TypeName.LowerCamel,
-			dataTypeToCollectionKeyValue(opts.Index),
+			opts.Index.CollectionsKeyValueType(),
 		)
 		content = replacer.Replace(content, typed.PlaceholderCollectionInstantiate, replacementInstantiate)
 
@@ -224,7 +223,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 			protoImports = append(protoImports, protoutil.NewImport(imp))
 		}
 		for _, f := range opts.Fields.Custom() {
-			protoPath := fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f)
+			protoPath := fmt.Sprintf("%[1]v/%[2]v/%[3]v/%[4]v.proto", opts.AppName, opts.ModuleName, opts.ProtoVer, f)
 			protoImports = append(protoImports, protoutil.NewImport(protoPath))
 		}
 		// we already know an import exists, pass false for fallback.
@@ -597,7 +596,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 			protoImports = append(protoImports, protoutil.NewImport(imp))
 		}
 		for _, f := range opts.Fields.Custom() {
-			protoPath := fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f)
+			protoPath := fmt.Sprintf("%[1]v/%[2]v/%[3]v/%[4]v.proto", opts.AppName, opts.ModuleName, opts.ProtoVer, f)
 			protoImports = append(protoImports, protoutil.NewImport(protoPath))
 		}
 		// we already know an import exists, pass false for fallback.
@@ -727,29 +726,4 @@ func typesCodecModify(replacer placeholder.Replacer, opts *typed.Options) genny.
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
-}
-
-// TODO(@julienrbrt): extend support of dataTypeToCollectionKeyValue
-func dataTypeToCollectionKeyValue(f field.Field) string {
-	var collectionKeyValue string
-	switch f.DataType() {
-	case "string":
-		collectionKeyValue = "collections.StringKey"
-	case "int32":
-		collectionKeyValue = "collections.Int32Key"
-	case "int64":
-		collectionKeyValue = "collections.Int64Key"
-	case "uint32":
-		collectionKeyValue = "collections.Uint32Key"
-	case "uint64":
-		collectionKeyValue = "collections.Uint64Key"
-	case "byte":
-		collectionKeyValue = "collections.BytesKey"
-	case "bool":
-		collectionKeyValue = "collections.BoolKey"
-	default:
-		collectionKeyValue = "/* Add collection key value */"
-	}
-
-	return collectionKeyValue
 }

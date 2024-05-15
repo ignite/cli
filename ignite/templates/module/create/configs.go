@@ -18,7 +18,8 @@ func NewModuleConfigs(opts ConfigsOptions) (*genny.Generator, error) {
 
 func configsProtoModify(opts ConfigsOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, "module/module.proto")
+		// here we do not use opts.ProtoFile as it will append an extra opts.ProtoVer in the path
+		path := filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, "module", opts.ProtoVer, "module.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -32,7 +33,13 @@ func configsProtoModify(opts ConfigsOptions) genny.RunFn {
 		if err != nil {
 			return errors.Errorf("couldn't find message 'Module' in %s: %w", path, err)
 		}
+
 		for _, paramField := range opts.Configs {
+			_, err := protoutil.GetFieldByName(params, paramField.Name.LowerCamel)
+			if err == nil {
+				return errors.Errorf("duplicate field %s in %s", paramField.Name.LowerCamel, params.Name)
+			}
+
 			param := protoutil.NewField(
 				paramField.Name.LowerCamel,
 				paramField.DataType(),
