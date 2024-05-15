@@ -44,6 +44,8 @@ const (
 
 	// TypeCustom represents the string type name id.
 	TypeCustom = "customstarporttype"
+
+	collectionValueComment = "/* Add collection key value */"
 )
 
 // supportedTypes all support data types and definitions.

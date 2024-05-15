@@ -105,7 +105,7 @@ func (f Field) GenesisArgs(value int) string {
 }
 
 // CLIArgs returns the Datatype CLI args.
-// TODO(@julienrbrt): Once unused and fully replace by AutoCLI, remove CLIArgs from DataType
+// TODO(@julienrbrt): Once unused and fully replaced by AutoCLI, remove CLIArgs from DataType.
 func (f Field) CLIArgs(prefix string, argIndex int) string {
 	dt, ok := datatype.IsSupportedType(f.DatatypeName)
 	if !ok {

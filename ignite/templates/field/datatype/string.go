@@ -41,7 +41,7 @@ var (
 	// DataStringSlice is a string array data type definition.
 	DataStringSlice = DataType{
 		DataType:                func(string) string { return "[]string" },
-		CollectionsKeyValueName: func(string) string { return "/* Add collection key value */" },
+		CollectionsKeyValueName: func(string) string { return collectionValueComment },
 		DefaultTestValue:        "abc,xyz",
 		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("repeated string %s = %d", name, index)

@@ -12,7 +12,7 @@ import (
 // DataCustom is a custom data type definition.
 var DataCustom = DataType{
 	DataType:                func(datatype string) string { return fmt.Sprintf("*%s", datatype) },
-	CollectionsKeyValueName: func(string) string { return "/* Add collection key value */" },
+	CollectionsKeyValueName: func(string) string { return collectionValueComment },
 	DefaultTestValue:        "null",
 	ProtoType: func(datatype, name string, index int) string {
 		return fmt.Sprintf("%s %s = %d", datatype, name, index)

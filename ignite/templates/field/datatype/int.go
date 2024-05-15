@@ -47,7 +47,7 @@ var (
 	// DataIntSlice is an int array data type definition.
 	DataIntSlice = DataType{
 		DataType:                func(string) string { return "[]int32" },
-		CollectionsKeyValueName: func(string) string { return "/* Add collection key value */" },
+		CollectionsKeyValueName: func(string) string { return collectionValueComment },
 		DefaultTestValue:        "1,2,3,4,5",
 		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("repeated int32 %s = %d", name, index)

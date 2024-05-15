@@ -47,7 +47,7 @@ var (
 	// DataUintSlice uint array data type definition.
 	DataUintSlice = DataType{
 		DataType:                func(string) string { return "[]uint64" },
-		CollectionsKeyValueName: func(string) string { return "/* Add collection key value */" },
+		CollectionsKeyValueName: func(string) string { return collectionValueComment },
 		DefaultTestValue:        "1,2,3,4,5",
 		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("repeated uint64 %s = %d", name, index)
