@@ -60,6 +60,11 @@ func TestIsSupportedType(t *testing.T) {
 			ok:       true,
 		},
 		{
+			name:     "bytes",
+			typename: datatype.Bytes,
+			ok:       true,
+		},
+		{
 			name:     "custom",
 			typename: datatype.Custom,
 			ok:       true,
