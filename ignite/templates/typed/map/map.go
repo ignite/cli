@@ -117,7 +117,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 	return g, typed.Box(componentTemplate, opts, g)
 }
 
-// keeperModify modifies the keeper to add a new collections map type
+// keeperModify modifies the keeper to add a new collections map type.
 func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/keeper.go")
@@ -224,7 +224,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 			protoImports = append(protoImports, protoutil.NewImport(imp))
 		}
 		for _, f := range opts.Fields.Custom() {
-			protoPath := fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f)
+			protoPath := fmt.Sprintf("%[1]v/%[2]v/%[3]v/%[4]v.proto", opts.AppName, opts.ModuleName, opts.ProtoVer, f)
 			protoImports = append(protoImports, protoutil.NewImport(protoPath))
 		}
 		// we already know an import exists, pass false for fallback.
@@ -597,7 +597,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 			protoImports = append(protoImports, protoutil.NewImport(imp))
 		}
 		for _, f := range opts.Fields.Custom() {
-			protoPath := fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f)
+			protoPath := fmt.Sprintf("%[1]v/%[2]v/%[3]v/%[4]v.proto", opts.AppName, opts.ModuleName, opts.ProtoVer, f)
 			protoImports = append(protoImports, protoutil.NewImport(protoPath))
 		}
 		// we already know an import exists, pass false for fallback.
@@ -729,7 +729,8 @@ func typesCodecModify(replacer placeholder.Replacer, opts *typed.Options) genny.
 	}
 }
 
-// TODO(@julienrbrt): extend support of dataTypeToCollectionKeyValue
+// dataTypeToCollectionKeyValue returns the date type of the collection value.
+// TODO(@julienrbrt): extend support of dataTypeToCollectionKeyValue.
 func dataTypeToCollectionKeyValue(f field.Field) string {
 	var collectionKeyValue string
 	switch f.DataType() {

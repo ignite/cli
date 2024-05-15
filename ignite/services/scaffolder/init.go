@@ -126,6 +126,7 @@ func generate(
 			AppName:    pathInfo.Package,
 			AppPath:    absRoot,
 			ProtoDir:   protoDir,
+			ProtoVer:   "v1", // TODO(@julienrbrt): possibly in the future add flag to specify custom proto version.
 			Params:     paramsFields,
 			Configs:    configsFields,
 			IsIBC:      false,

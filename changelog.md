@@ -17,7 +17,7 @@
 - [#4100](https://github.com/ignite/cli/pull/4100) Set the `proto-dir` flag only for the `scaffold chain` command and use the proto path from the config
 - [#4110](https://github.com/ignite/cli/pull/4110) Scaffold a consumer chain with `interchain-security` v5.0.0-rc0.
 - [#4111](https://github.com/ignite/cli/pull/4111) Remove vuex generation
-- [#4117](https://github.com/ignite/cli/pull/4117) Support relative path when installing local plugins
+- [#4117](https://github.com/ignite/cli/pull/4117), [#4125](https://github.com/ignite/cli/pull/4125) Support relative path when installing local plugins
 
 ### Changes
 
@@ -32,6 +32,7 @@
 - [#4008](https://github.com/ignite/cli/pull/4008) Rename `pkg/yaml` to `pkg/xyaml`
 - [#4075](https://github.com/ignite/cli/pull/4075) Use `gopkg.in/yaml.v3` instead `gopkg.in/yaml.v2`
 - [#4103](https://github.com/ignite/cli/pull/4103) Bump cosmos-sdk to `v0.50.6`
+- [#4118](https://github.com/ignite/cli/pull/4118) Version scaffolded protos as `v1` to follow SDK structure.
 
 ### Fixes
 
@@ -40,6 +41,7 @@
 - [#4086](https://github.com/ignite/cli/pull/4086) Retry to get the IBC balance if it fails the first time
 - [#4091](https://github.com/ignite/cli/pull/4091) Fix race conditions in the plugin logic
 - [#4096](https://github.com/ignite/cli/pull/4096) Add new reserved names module and remove duplicated genesis order
+- [#4128](https://github.com/ignite/cli/pull/4128) Check for duplicate proto fields in config
 
 ## [`v28.3.0`](https://github.com/ignite/cli/releases/tag/v28.3.0)
 
