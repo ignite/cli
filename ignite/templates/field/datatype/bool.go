@@ -11,11 +11,12 @@ import (
 
 // DataBool bool data type definition.
 var DataBool = DataType{
-	DataType:          func(string) string { return "bool" },
-	DefaultTestValue:  "false",
-	ValueLoop:         "false",
-	ValueIndex:        "false",
-	ValueInvalidIndex: "false",
+	DataType:                func(string) string { return "bool" },
+	CollectionsKeyValueName: func(string) string { return "collections.BoolKey" },
+	DefaultTestValue:        "false",
+	ValueLoop:               "false",
+	ValueIndex:              "false",
+	ValueInvalidIndex:       "false",
 	ProtoType: func(_, name string, index int) string {
 		return fmt.Sprintf("bool %s = %d", name, index)
 	},
