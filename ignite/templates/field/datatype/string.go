@@ -13,7 +13,7 @@ var (
 	// DataString is a string data type definition.
 	DataString = DataType{
 		DataType:                func(string) string { return "string" },
-		CollectionsKeyValueName: func(string) string { return "collections.BytesKey" },
+		CollectionsKeyValueName: func(string) string { return "collections.StringKey" },
 		DefaultTestValue:        "xyz",
 		ValueLoop:               "strconv.Itoa(i)",
 		ValueIndex:              "strconv.Itoa(0)",
