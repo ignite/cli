@@ -41,6 +41,15 @@ func (f Field) ProtoType(index int) string {
 	return dt.ProtoType(f.Datatype, f.ProtoFieldName(), index)
 }
 
+// CollectionsKeyValueType returns the field collections key value type.
+func (f Field) CollectionsKeyValueType() string {
+	dt, ok := datatype.IsSupportedType(f.DatatypeName)
+	if !ok {
+		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
+	}
+	return dt.CollectionsKeyValueName(f.Datatype)
+}
+
 // DefaultTestValue returns the Datatype value default.
 func (f Field) DefaultTestValue() string {
 	dt, ok := datatype.IsSupportedType(f.DatatypeName)
@@ -96,6 +105,7 @@ func (f Field) GenesisArgs(value int) string {
 }
 
 // CLIArgs returns the Datatype CLI args.
+// TODO(@julienrbrt): Once unused and fully replaced by AutoCLI, remove CLIArgs from DataType.
 func (f Field) CLIArgs(prefix string, argIndex int) string {
 	dt, ok := datatype.IsSupportedType(f.DatatypeName)
 	if !ok {
