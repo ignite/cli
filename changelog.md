@@ -19,6 +19,7 @@
 - [#4111](https://github.com/ignite/cli/pull/4111) Remove vuex generation
 - [#4113](https://github.com/ignite/cli/pull/4113) Generate chain config documentation automatically #4113
 - [#4117](https://github.com/ignite/cli/pull/4117), [#4125](https://github.com/ignite/cli/pull/4125) Support relative path when installing local plugins
+- [#4131](https://github.com/ignite/cli/pull/4131) Support `bytes` as data type in the `scaffold` commands
 
 ### Changes
 
