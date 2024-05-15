@@ -39,6 +39,4 @@ jobs:
           install-mode: goinstall
           args: --timeout 10m
           github-token: ${{ secrets.github_token }}
-          skip-go-installation: true
-          skip-pkg-cache: true
-          skip-build-cache: true
+          skip-save-cache: true
