@@ -28,6 +28,8 @@ const (
 	Coin Name = "coin"
 	// Coins represents the coin array type name.
 	Coins Name = "array.coin"
+	// Bytes represents the bytes type name.
+	Bytes Name = "bytes"
 	// Custom represents the custom type name.
 	Custom Name = Name(TypeCustom)
 
@@ -42,10 +44,13 @@ const (
 
 	// TypeCustom represents the string type name id.
 	TypeCustom = "customstarporttype"
+
+	collectionValueComment = "/* Add collection key value */"
 )
 
 // supportedTypes all support data types and definitions.
 var supportedTypes = map[Name]DataType{
+	Bytes:            DataBytes,
 	String:           DataString,
 	StringSlice:      DataStringSlice,
 	StringSliceAlias: DataStringSlice,
@@ -67,20 +72,21 @@ type Name string
 
 // DataType represents the data types for code replacement.
 type DataType struct {
-	DataType          func(datatype string) string
-	ProtoType         func(datatype, name string, index int) string
-	GenesisArgs       func(name multiformatname.Name, value int) string
-	ProtoImports      []string
-	GoCLIImports      []GoImport
-	DefaultTestValue  string
-	ValueLoop         string
-	ValueIndex        string
-	ValueInvalidIndex string
-	ToBytes           func(name string) string
-	ToString          func(name string) string
-	ToProtoField      func(datatype, name string, index int) *proto.NormalField
-	CLIArgs           func(name multiformatname.Name, datatype, prefix string, argIndex int) string
-	NonIndex          bool
+	DataType                func(datatype string) string
+	ProtoType               func(datatype, name string, index int) string
+	CollectionsKeyValueName func(datatype string) string
+	GenesisArgs             func(name multiformatname.Name, value int) string
+	ProtoImports            []string
+	GoCLIImports            []GoImport
+	DefaultTestValue        string
+	ValueLoop               string
+	ValueIndex              string
+	ValueInvalidIndex       string
+	ToBytes                 func(name string) string
+	ToString                func(name string) string
+	ToProtoField            func(datatype, name string, index int) *proto.NormalField
+	CLIArgs                 func(name multiformatname.Name, datatype, prefix string, argIndex int) string
+	NonIndex                bool
 }
 
 // GoImport represents the go import repo name with the alias.
