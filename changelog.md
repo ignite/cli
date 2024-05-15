@@ -2,11 +2,12 @@
 
 ## Unreleased
 
+## [`v28.4.0`](https://github.com/ignite/cli/releases/tag/v28.4.0)
+
 ### Features
 
 - [#4108](https://github.com/ignite/cli/pull/4108) Add `xast` package (cherry-picked from [#3770](https://github.com/ignite/cli/pull/3770))
-- [#4110](https://github.com/ignite/cli/pull/4110) Scaffold a consumer chain with `interchain-security` v5.0.0-rc0.
-- [#4117](https://github.com/ignite/cli/pull/4117) Support relative path when installing local plugins
+- [#4110](https://github.com/ignite/cli/pull/4110) Scaffold a consumer chain with `interchain-security` v5.0.0.
 - [#4117](https://github.com/ignite/cli/pull/4117), [#4125](https://github.com/ignite/cli/pull/4125) Support relative path when installing local plugins
 
 ### Changes
@@ -16,11 +17,11 @@
 
 ### Fixes
 
+- [#3969](https://github.com/ignite/cli/pull/3969) Get first config validator using a getter to avoid index errors
 - [#4033](https://github.com/ignite/cli/pull/4033) Fix cobra completion using `fishshell`
 - [#4062](https://github.com/ignite/cli/pull/4062) Avoid nil `scopedKeeper` in `TransmitXXX` functions
-- [#3969](https://github.com/ignite/cli/pull/3969) Get first config validator using a getter to avoid index errors
-- [#4096](https://github.com/ignite/cli/pull/4096) Add new reserved names module and remove duplicated genesis order
 - [#4086](https://github.com/ignite/cli/pull/4086) Retry to get the IBC balance if it fails the first time
+- [#4096](https://github.com/ignite/cli/pull/4096) Add new reserved names module and remove duplicated genesis order
 - [#4112](https://github.com/ignite/cli/pull/4112) Remove duplicate SetCmdClientContextHandler
 
 ## [`v28.3.0`](https://github.com/ignite/cli/releases/tag/v28.3.0)
