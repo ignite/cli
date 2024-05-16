@@ -35,7 +35,7 @@ func TestUnwrap(t *testing.T) {
 		},
 		{
 			name: "should return not found with wrapped error",
-			err:  fmt.Errorf("oups: %w", status.Error(codes.NotFound, "test error 4")),
+			err:  errors.Errorf("oups: %w", status.Error(codes.NotFound, "test error 4")),
 			want: cosmoserror.ErrNotFound,
 		},
 		{
@@ -45,7 +45,7 @@ func TestUnwrap(t *testing.T) {
 		},
 		{
 			name: "should unwrap error",
-			err:  fmt.Errorf("test error 4: %w", errors.New("test error 6")),
+			err:  fmt.Errorf("test error 4: %w", errors.New("test error 6")), //nolint:forbidigo
 			want: errors.New("test error 6"),
 		},
 	}

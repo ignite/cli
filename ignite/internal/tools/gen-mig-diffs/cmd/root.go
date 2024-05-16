@@ -35,7 +35,7 @@ const (
 func NewRootCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "gen-mig-diffs",
-		Short: "GenerateBinaries migration diffs",
+		Short: "generate migration diffs from two different version",
 		Long:  "This tool is used to generate migration diff files for each of ignites scaffold commands",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			session := cliui.New()
