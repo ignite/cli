@@ -10,53 +10,48 @@ import (
 
 // Account holds the options related to setting up Cosmos wallets.
 type Account struct {
-	Name          string   `yaml:"name"`
-	Coins         []string `yaml:"coins,omitempty"`
-	Mnemonic      string   `yaml:"mnemonic,omitempty"`
-	Address       string   `yaml:"address,omitempty"`
-	CoinType      string   `yaml:"cointype,omitempty"`
-	AccountNumber string   `yaml:"account_number,omitempty"`
-	AddressIndex  string   `yaml:"address_index,omitempty"`
+	Name          string   `yaml:"name" doc:"local name of a key pair associated with an account"`
+	Coins         []string `yaml:"coins,omitempty" doc:"list of token balances for the account"`
+	Mnemonic      string   `yaml:"mnemonic,omitempty" doc:"account mnemonic"`
+	Address       string   `yaml:"address,omitempty" doc:"account address"`
+	CoinType      string   `yaml:"cointype,omitempty" doc:"coin type number for HD derivation (default 118)"`
+	AccountNumber string   `yaml:"account_number,omitempty" doc:"account number for HD derivation (less than equal 2147483647)"`
+	AddressIndex  string   `yaml:"address_index,omitempty" doc:"address index number for HD derivation (less than equal 2147483647)"`
 }
 
 // Build holds build configs.
 type Build struct {
-	Main    string   `yaml:"main,omitempty"`
-	Binary  string   `yaml:"binary,omitempty"`
-	LDFlags []string `yaml:"ldflags,omitempty"`
-	Proto   Proto    `yaml:"proto"`
+	Main    string   `yaml:"main,omitempty" doc:"build main path"`
+	Binary  string   `yaml:"binary,omitempty" doc:"binary path"`
+	LDFlags []string `yaml:"ldflags,omitempty" doc:"custom build ld flags"`
+	Proto   Proto    `yaml:"proto" doc:"holds proto build configs"`
 }
 
 // Proto holds proto build configs.
 type Proto struct {
 	// Path is the relative path of where app's proto files are located at.
-	Path string `yaml:"path"`
+	Path string `yaml:"path" doc:"relative path of where app's proto files are located at"`
 }
 
 // Client configures code generation for clients.
 type Client struct {
 	// TSClient configures code generation for Typescript Client.
-	Typescript Typescript `yaml:"typescript,omitempty"`
-
-	// Vuex configures code generation for Vuex stores.
-	//
-	// Deprecated: Will be removed eventually.
-	Vuex Vuex `yaml:"vuex,omitempty"`
+	Typescript Typescript `yaml:"typescript,omitempty" doc:"configures code generation for Typescript Client"`
 
 	// Composables configures code generation for Vue 3 composables.
-	Composables Composables `yaml:"composables,omitempty"`
+	Composables Composables `yaml:"composables,omitempty" doc:"configures code generation for Vue 3 composables"`
 
 	// Hooks configures code generation for React hooks.
-	Hooks Hooks `yaml:"hooks,omitempty"`
+	Hooks Hooks `yaml:"hooks,omitempty" doc:"configures code generation for React hooks"`
 
 	// OpenAPI configures OpenAPI spec generation for API.
-	OpenAPI OpenAPI `yaml:"openapi,omitempty"`
+	OpenAPI OpenAPI `yaml:"openapi,omitempty" doc:"configures OpenAPI spec generation for API"`
 }
 
 // Typescript configures code generation for Typescript Client.
 type Typescript struct {
 	// Path configures out location for generated Typescript Client code.
-	Path string `yaml:"path"`
+	Path string `yaml:"path" doc:"relative path of where app's typescript files are located at"`
 }
 
 // Vuex configures code generation for Vuex stores.
@@ -64,70 +59,70 @@ type Typescript struct {
 // Deprecated: Will be removed eventually.
 type Vuex struct {
 	// Path configures out location for generated Vuex stores code.
-	Path string `yaml:"path"`
+	Path string `yaml:"path" doc:"relative path of where app's vuex files are located at"`
 }
 
 // Composables configures code generation for vue-query hooks.
 type Composables struct {
 	// Path configures out location for generated vue-query hooks.
-	Path string `yaml:"path"`
+	Path string `yaml:"path" doc:"relative path of where app's composable files are located at"`
 }
 
 // Hooks configures code generation for react-query hooks.
 type Hooks struct {
 	// Path configures out location for generated vue-query hooks.
-	Path string `yaml:"path"`
+	Path string `yaml:"path" doc:"relative path of where app's hooks are located at"`
 }
 
 // OpenAPI configures OpenAPI spec generation for API.
 type OpenAPI struct {
-	Path string `yaml:"path"`
+	Path string `yaml:"path" doc:"relative path of where app's openapi files are located at"`
 }
 
 // Faucet configuration.
 type Faucet struct {
 	// Name is faucet account's name.
-	Name *string `yaml:"name"`
+	Name *string `yaml:"name" doc:"faucet account's name"`
 
 	// Coins holds type of coin denoms and amounts to distribute.
-	Coins []string `yaml:"coins"`
+	Coins []string `yaml:"coins" doc:"holds type of coin denoms and amounts to distribute"`
 
 	// CoinsMax holds of chain denoms and their max amounts that can be transferred to single user.
-	CoinsMax []string `yaml:"coins_max,omitempty"`
+	CoinsMax []string `yaml:"coins_max,omitempty" doc:"holds of chain denoms and their max amounts that can be transferred to single user"`
 
-	// LimitRefreshTime sets the timeframe at the end of which the limit will be refreshed
-	RateLimitWindow string `yaml:"rate_limit_window,omitempty"`
+	// LimitRefreshTime sets the timeframe at the end of which the limit will be refreshed.
+	RateLimitWindow string `yaml:"rate_limit_window,omitempty" doc:"sets the timeframe at the end of which the limit will be refreshed"`
 
-	// Host is the host of the faucet server
-	Host string `yaml:"host,omitempty"`
+	// Host is the host of the faucet server.
+	Host string `yaml:"host,omitempty" doc:"the host of the faucet server"`
 
 	// Port number for faucet server to listen at.
-	Port uint `yaml:"port,omitempty"`
+	Port uint `yaml:"port,omitempty" doc:"number for faucet server to listen at"`
 }
 
 // Init overwrites sdk configurations with given values.
 type Init struct {
 	// App overwrites appd's config/app.toml configs.
-	App xyaml.Map `yaml:"app"`
+	App xyaml.Map `yaml:"app" doc:"overwrites appd's config/app.toml configs"`
 
 	// Client overwrites appd's config/client.toml configs.
-	Client xyaml.Map `yaml:"client"`
+	Client xyaml.Map `yaml:"client" doc:"overwrites appd's config/client.toml configs"`
 
 	// Config overwrites appd's config/config.toml configs.
-	Config xyaml.Map `yaml:"config"`
+	Config xyaml.Map `yaml:"config" doc:"overwrites appd's config/config.toml configs"`
 
-	// Home overwrites default home directory used for the app
-	Home string `yaml:"home"`
+	// Home overwrites default home directory used for the app.
+	Home string `yaml:"home" doc:"overwrites default home directory used for the app"`
 }
 
 // Host keeps configuration related to started servers.
 type Host struct {
-	RPC     string `yaml:"rpc"`
-	P2P     string `yaml:"p2p"`
-	Prof    string `yaml:"prof"`
-	GRPC    string `yaml:"grpc"`
-	GRPCWeb string `yaml:"grpc-web"`
-	API     string `yaml:"api"`
+	RPC     string `yaml:"rpc" doc:"RPC server address"`
+	P2P     string `yaml:"p2p" doc:"P2P server address"`
+	Prof    string `yaml:"prof" doc:"Profiling server address"`
+	GRPC    string `yaml:"grpc" doc:"GRPC server address"`
+	GRPCWeb string `yaml:"grpc-web" doc:"GRPC Web server address"`
+	API     string `yaml:"api" doc:"API server address"`
 }
 
 // Validation describes the kind of validation the chain has.
@@ -145,14 +140,14 @@ const (
 
 // Config defines a struct with the fields that are common to all config versions.
 type Config struct {
-	Validation Validation      `yaml:"validation,omitempty"`
-	Version    version.Version `yaml:"version"`
-	Build      Build           `yaml:"build,omitempty"`
-	Accounts   []Account       `yaml:"accounts"`
-	Faucet     Faucet          `yaml:"faucet,omitempty"`
-	Client     Client          `yaml:"client,omitempty"`
-	Genesis    xyaml.Map       `yaml:"genesis,omitempty"`
-	Minimal    bool            `yaml:"minimal,omitempty"`
+	Validation Validation      `yaml:"validation,omitempty" doc:"describes the kind of validation the chain has"`
+	Version    version.Version `yaml:"version" doc:"defines the type for the config version number"`
+	Build      Build           `yaml:"build,omitempty" doc:"holds build configs"`
+	Accounts   []Account       `yaml:"accounts" doc:"holds the options related to setting up Cosmos wallets"`
+	Faucet     Faucet          `yaml:"faucet,omitempty" doc:"faucet configuration"`
+	Client     Client          `yaml:"client,omitempty" doc:"configures code generation for clients"`
+	Genesis    xyaml.Map       `yaml:"genesis,omitempty" doc:"custom genesis modifications"`
+	Minimal    bool            `yaml:"minimal,omitempty" doc:"minimal blockchain with the minimum required Cosmos SDK modules"`
 }
 
 // GetVersion returns the config version.
