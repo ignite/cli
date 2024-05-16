@@ -31,7 +31,7 @@ cd cli/ignite/internal/tools/gen-mig-diffs
 go install . && gen-mig-diffs -h
 ```
 
-- Run migration diff tools:
+3. Run migration diff tool:
 
 ```shell
 gen-mig-diffs --output temp/migs --from v0.27.2 --to v28.3.0
