@@ -12,7 +12,7 @@ The migration tool aims to streamline the update process for projects built with
 latest improvements and SDK stack.
 
 
-### Installation
+## Installation
 
 This tool is part of the internal tools of the Ignite CLI, located in the `ignite/internal/tools/gen-mig-diffs`
 directory and made it a standalone project.
