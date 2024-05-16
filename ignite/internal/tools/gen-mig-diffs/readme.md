@@ -11,6 +11,12 @@ in [PR #3718](https://github.com/ignite/cli/pull/3718).
 The migration tool aims to streamline the update process for projects built with Ignite CLI, ensuring they leverage the
 latest improvements and SDK stack.
 
+#### Features
+
+- Automated migration of chain scaffold files.
+- Detailed comparison and generation of migration differences.
+- Support for multiple versions of chain scaffolds.
+
 ## Installation
 
 It is located in the `ignite/internal/tools/gen-mig-diffs`
@@ -56,10 +62,3 @@ Flags:
       --scaffold-output string   Output path to clone the Ignite repository
   -t, --to string                Version of Ignite or path to Ignite source code to generate the diff to
 ```
-
-## Features
-
-- Automated migration of chain scaffold files.
-- Detailed comparison and generation of migration differences.
-- Support for multiple versions of chain scaffolds.
-
