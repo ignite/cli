@@ -23,7 +23,7 @@ func DefaultConfig() *Config {
 type Config struct {
 	base.Config `yaml:",inline"`
 
-	Validators []Validator `yaml:"validators"`
+	Validators []Validator `yaml:"validators" doc:"holds info related to validator list settings"`
 }
 
 func (c *Config) SetDefaults() error {
