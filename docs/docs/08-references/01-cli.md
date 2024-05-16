@@ -3202,14 +3202,7 @@ for the "hello" key.
 
 	blogd q blog show-post hello
 
-To customize the index, use the "--index" flag. Multiple indices can be
-provided, which simplifies querying values. For example:
-
-	ignite scaffold map product price desc --index category,guid
-
-With this command, you would get a "Product" value indexed by both a category
-and a GUID (globally unique ID). This will let you programmatically fetch
-product values that have the same category but are using different GUIDs.
+By default, the index is called "index", to customize the index, use the "--index" flag.
 
 Since the behavior of "list" and "map" scaffolding is very similar, you can use
 the "--no-message", "--module", "--signer" flags as well as the colon syntax for
@@ -3227,7 +3220,7 @@ ignite scaffold map NAME [field]... [flags]
 ```
       --clear-cache     clear the build cache (advanced)
   -h, --help            help for map
-      --index strings   fields that index the value (default [index])
+      --index string    field that index the value (default "index")
       --module string   specify which module to generate code in
       --no-message      skip generating message handling logic
       --no-simulation   skip simulation logic
