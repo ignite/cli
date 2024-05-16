@@ -3,7 +3,7 @@
 </div>
 
 This repository hosts the Chain Scaffold Migration Tool for Ignite CLI, designed to help developers migrate their
-projects from older versions to the latest release of the Ignite CLI framework.
+projects from older versions of Ignite to the latest release.
 This tool addresses compatibility and feature alignment as a detailed
 in [Issue #3699](https://github.com/ignite/cli/issues/3699) and implemented
 in [PR #3718](https://github.com/ignite/cli/pull/3718).
