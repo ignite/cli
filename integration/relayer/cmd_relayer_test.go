@@ -24,6 +24,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/availableport"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
 	envtest "github.com/ignite/cli/v29/integration"
@@ -491,14 +492,14 @@ func TestBlogIBC(t *testing.T) {
 					return execErr
 				}
 				if err := json.Unmarshal(queryOutput.Bytes(), &queryResponse); err != nil {
-					return fmt.Errorf("unmarshling tx response: %w", err)
+					return errors.Errorf("unmarshling tx response: %w", err)
 				}
 				if len(queryResponse.Channels) == 0 ||
 					len(queryResponse.Channels[0].ConnectionHops) == 0 {
-					return fmt.Errorf("channel not found")
+					return errors.Errorf("channel not found")
 				}
 				if queryResponse.Channels[0].State != "STATE_OPEN" {
-					return fmt.Errorf("channel is not open")
+					return errors.Errorf("channel is not open")
 				}
 				return nil
 			}),
@@ -542,7 +543,7 @@ func TestBlogIBC(t *testing.T) {
 					return execErr
 				}
 				if err := json.Unmarshal(txOutput.Bytes(), &txResponse); err != nil {
-					return fmt.Errorf("unmarshling tx response: %w", err)
+					return errors.Errorf("unmarshling tx response: %w", err)
 				}
 				return cmdrunner.New().Run(ctx, step.New(
 					step.Exec(
@@ -607,13 +608,13 @@ func TestBlogIBC(t *testing.T) {
 				output := balanceOutput.Bytes()
 				defer balanceOutput.Reset()
 				if err := json.Unmarshal(output, &balanceResponse); err != nil {
-					return fmt.Errorf("unmarshalling query response error: %w, response: %s", err, string(output))
+					return errors.Errorf("unmarshalling query response error: %w, response: %s", err, string(output))
 				}
 				if balanceResponse.Balances.Empty() {
-					return fmt.Errorf("empty balances")
+					return errors.Errorf("empty balances")
 				}
 				if !strings.HasPrefix(balanceResponse.Balances[0].Denom, "ibc/") {
-					return fmt.Errorf("invalid ibc balance: %v", balanceResponse.Balances[0])
+					return errors.Errorf("invalid ibc balance: %v", balanceResponse.Balances[0])
 				}
 
 				return nil
