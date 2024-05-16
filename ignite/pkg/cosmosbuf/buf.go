@@ -3,7 +3,6 @@ package cosmosbuf
 import (
 	"context"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -12,6 +11,7 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/v29/ignite/pkg/dircache"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/xexec"
 	"github.com/ignite/cli/v29/ignite/pkg/xos"
@@ -23,9 +23,8 @@ type (
 
 	// Buf represents the buf application structure.
 	Buf struct {
-		path         string
-		bufCachePath string
-		storageCache cache.Cache[string]
+		path  string
+		cache dircache.Cache
 	}
 
 	// genOptions used to configure code generation.
@@ -93,19 +92,15 @@ func New(cacheStorage cache.Storage, goModPath string) (Buf, error) {
 		return Buf{}, err
 	}
 
-	bufCachePath, err := cachePath()
+	bufCacheDir := filepath.Join("buf", goModPath)
+	c, err := dircache.New(cacheStorage, bufCacheDir, specCacheNamespace)
 	if err != nil {
-		return Buf{}, err
-	}
-	bufCachePath = filepath.Join(bufCachePath, "buf", goModPath)
-	if err := os.MkdirAll(bufCachePath, 0o755); err != nil && !os.IsExist(err) {
 		return Buf{}, err
 	}
 
 	return Buf{
-		path:         path,
-		bufCachePath: bufCachePath,
-		storageCache: cache.New[string](cacheStorage, specCacheNamespace),
+		path:  path,
+		cache: c,
 	}, nil
 }
 
@@ -173,8 +168,8 @@ func (b Buf) Generate(
 	}
 
 	// check if already exist a cache for the template.
-	key, err := b.copyCache(protoPath, template, output)
-	if err != nil && !errors.Is(err, ErrCacheNotFound) {
+	key, err := b.cache.CopyCache(protoPath, output, template)
+	if err != nil && !errors.Is(err, dircache.ErrCacheNotFound) {
 		return err
 	} else if err == nil {
 		return nil
@@ -234,7 +229,7 @@ func (b Buf) Generate(
 		}
 	}
 
-	return b.saveCache(key, output)
+	return b.cache.SaveCache(output, key)
 }
 
 // runCommand run the buf CLI command.
