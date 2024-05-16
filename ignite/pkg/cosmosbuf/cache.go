@@ -43,8 +43,7 @@ func cacheKey(src, template string) (string, error) {
 	if _, err := h.Write([]byte(template)); err != nil {
 		return "", err
 	}
-	key := fmt.Sprintf("%x", h.Sum(nil))
-	return key, nil
+	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
 func (b Buf) getCache(src, template, output string) (string, bool, error) {
