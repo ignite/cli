@@ -1,39 +1,10 @@
 package url
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
-
-func TestMatchesScpLike(t *testing.T) {
-	examples := []string{
-		// Most-extended case
-		"git@github.com:james/bond",
-		// Most-extended case with port
-		"git@github.com:22:james/bond",
-		// Most-extended case with numeric path
-		"git@github.com:007/bond",
-		// Most-extended case with port and numeric "username"
-		"git@github.com:22:007/bond",
-		// Single repo path
-		"git@github.com:bond",
-		// Single repo path with port
-		"git@github.com:22:bond",
-		// Single repo path with port and numeric repo
-		"git@github.com:22:007",
-		// Repo path ending with .git and starting with _
-		"git@github.com:22:_007.git",
-		"git@github.com:_007.git",
-		"git@github.com:_james.git",
-		"git@github.com:_james/bond.git",
-	}
-
-	for _, url := range examples {
-		fmt.Println(url)
-	}
-}
 
 func TestFindScpLikeComponents(t *testing.T) {
 	tests := []struct {
