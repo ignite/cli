@@ -18,7 +18,7 @@ directory and made it a standalone project.
 
 To set up this tool in your development environment:
 
-- Clone the Ignite CLI repository:
+1. Clone the Ignite CLI repository:
 
 ```shell
 git clone https://github.com/ignite/cli.git && \
