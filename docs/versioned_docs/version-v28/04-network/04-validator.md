@@ -28,7 +28,7 @@ Launch Id  Chain Id  Source                              Phase
 ```
 
 - `Launch ID` is the unique identifier of the chain on Ignite. This is the ID used to interact with the chain launch.
-- `Chain ID` represents the identifer of the chain network once it will be launched. It should be a unique identifier in
+- `Chain ID` represents the identifier of the chain network once it will be launched. It should be a unique identifier in
   practice but doesn't need to be unique on Ignite.
 - `Source` is the repository URL of the project.
 - `Phase` is the current phase of the chain launch. A chain can have 3 different phases:
