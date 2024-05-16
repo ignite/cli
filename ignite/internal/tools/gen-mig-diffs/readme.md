@@ -25,7 +25,7 @@ git clone https://github.com/ignite/cli.git && \
 cd cli/ignite/internal/tools/gen-mig-diffs
 ```
 
-- Install and show usage:
+2. Install and show usage:
 
 ```shell
 go install . && gen-mig-diffs -h
