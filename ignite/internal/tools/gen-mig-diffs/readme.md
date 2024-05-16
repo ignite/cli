@@ -13,7 +13,7 @@ latest improvements and SDK stack.
 
 ## Installation
 
-This tool is part of the internal tools of the Ignite CLI, located in the `ignite/internal/tools/gen-mig-diffs`
+It is located in the `ignite/internal/tools/gen-mig-diffs`
 directory and made it a standalone project.
 
 To set up this tool in your development environment:
