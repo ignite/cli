@@ -14,9 +14,9 @@ import (
 type Config struct {
 	base.Config `yaml:",inline"`
 
-	Validator Validator `yaml:"validator"`
-	Init      base.Init `yaml:"init"`
-	Host      base.Host `yaml:"host"`
+	Validator Validator `yaml:"validator" doc:"holds info related to validator settings"`
+	Init      base.Init `yaml:"init" doc:"overwrites sdk configurations with given values"`
+	Host      base.Host `yaml:"host" doc:"keeps configuration related to started servers"`
 }
 
 // Clone returns an identical copy of the instance.
@@ -32,6 +32,6 @@ func (c *Config) Decode(r io.Reader) error {
 
 // Validator holds info related to validator settings.
 type Validator struct {
-	Name   string `yaml:"name"`
-	Staked string `yaml:"staked"`
+	Name   string `yaml:"name" doc:"name of the validator"`
+	Staked string `yaml:"staked" doc:"how much the validator has staked"`
 }

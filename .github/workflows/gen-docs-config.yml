@@ -1,0 +1,38 @@
+name: Generate Config Doc
+on:
+  push:
+    paths:
+      - "ignite/config/chain/base/*"
+      - "ignite/config/chain/v*"
+    branches:
+      - main
+
+jobs:
+  cli:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+
+      - name: Generate Config Doc
+        run: ./scripts/gen-config-doc
+
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          title: "docs(config): update config doc"
+          commit-message: "docs(config): update config doc"
+          body: ""
+          branch: feat/gen-config-doc
+          add-paths: |
+            docs/
+
+      - name: Check outputs
+        run: |
+          echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
+          echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
+
