@@ -14,6 +14,8 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
+var ErrCacheNotFound = errors.New("cache not found")
+
 func ClearCache() error {
 	path, err := cachePath()
 	if err != nil {
@@ -46,23 +48,23 @@ func cacheKey(src, template string) (string, error) {
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
-func (b Buf) getCache(src, template, output string) (string, bool, error) {
+func (b Buf) copyCache(src, template, output string) (string, error) {
 	key, err := cacheKey(src, template)
 	if err != nil {
-		return key, false, err
+		return key, err
 	}
 
 	cachedPath, err := b.storageCache.Get(key)
 	if errors.Is(err, cache.ErrorNotFound) {
-		return key, false, nil
+		return key, ErrCacheNotFound
 	} else if err != nil {
-		return key, false, err
+		return key, err
 	}
 
 	if err := copy.Copy(cachedPath, output); err != nil {
-		return "", false, errors.Wrapf(err, "buf get cache cannot copy path %s to %s", cachedPath, output)
+		return "", errors.Wrapf(err, "buf get cache cannot copy path %s to %s", cachedPath, output)
 	}
-	return key, true, nil
+	return key, nil
 }
 
 func (b Buf) saveCache(key, src string) error {

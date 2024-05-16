@@ -173,9 +173,11 @@ func (b Buf) Generate(
 	}
 
 	// check if already exist a cache for the template.
-	key, found, err := b.getCache(protoPath, template, output)
-	if err != nil || found {
+	key, err := b.copyCache(protoPath, template, output)
+	if err != nil && !errors.Is(err, ErrCacheNotFound) {
 		return err
+	} else if err == nil {
+		return nil
 	}
 
 	// remove excluded and cached files.
