@@ -75,6 +75,7 @@ func cacheKey(src string, keys ...string) (string, error) {
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
+// CopyCache gets the cache folder based on the cache key from the storage and copies the folder to the output.
 func (c Cache) CopyCache(src, output string, keys ...string) (string, error) {
 	key, err := cacheKey(src, keys...)
 	if err != nil {
@@ -94,6 +95,7 @@ func (c Cache) CopyCache(src, output string, keys ...string) (string, error) {
 	return key, nil
 }
 
+// SaveCache copies the source to the cache folder and saves the path into the storage based on the key.
 func (c Cache) SaveCache(src, key string) error {
 	path := filepath.Join(c.path, key)
 	if err := os.Mkdir(path, 0o700); os.IsExist(err) {
