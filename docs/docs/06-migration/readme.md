@@ -13,15 +13,14 @@ If there is no documentation for the latest version of Ignite CLI, it's
 generally safe to assume that there were no breaking changes, and you can
 proceed with using the latest version with your project.
 
-# Create your own Migration Guide
+## Create your own Migration Guide
 
 The `gen-mig-diffs` tool helps developers manage and visualize code changes across multiple major versions of Ignite. With each major upgrade, the codebase might undergo significant changes, making it challenging for developers to track these differences after several updates. The `gen-mig-diffs` tool simplifies this process by scaffolding blockchains with both the old and new versions and displaying the differences.
-It is located in the [Ignite CLI Github repository](https://github.com/ignite/cli/tree/main/ignite/internal/tools/gen-mig-diffs)
-directory and made it a standalone project.
+
+It is located in the [Ignite CLI GitHub repository](https://github.com/ignite/cli/tree/main/ignite/internal/tools/gen-mig-diffs)
+directory and has been made into a standalone project.
 
 To set up this tool in your development environment:
-
-## Intro 
 
 ```shell
 gen-mig-diffs [flags]
@@ -44,9 +43,9 @@ cd cli/ignite/internal/tools/gen-mig-diffs
 go install . && gen-mig-diffs -h
 ```
 
-## Example Migration
+### Example Migration
 
-To generate migration diffs between versions 0.27.2 and 28.3.0, use the following command:
+As an example, to generate migration diffs between versions 0.27.2 and 28.3.0, use the following command:
 
 ```shell
 gen-mig-diffs --output temp/migration --from v0.27.2 --to v28.3.0
