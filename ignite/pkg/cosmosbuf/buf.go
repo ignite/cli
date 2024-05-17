@@ -168,7 +168,7 @@ func (b Buf) Generate(
 	}
 
 	// check if already exist a cache for the template.
-	key, err := b.cache.CopyCache(protoPath, output, template)
+	key, err := b.cache.CopyTo(protoPath, output, template)
 	if err != nil && !errors.Is(err, dircache.ErrCacheNotFound) {
 		return err
 	} else if err == nil {
@@ -229,7 +229,7 @@ func (b Buf) Generate(
 		}
 	}
 
-	return b.cache.SaveCache(output, key)
+	return b.cache.Save(output, key)
 }
 
 // runCommand run the buf CLI command.
