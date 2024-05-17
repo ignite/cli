@@ -29,7 +29,7 @@ require (
 	github.com/charmbracelet/glow v1.4.1
 	github.com/charmbracelet/lipgloss v0.6.0
 	github.com/cockroachdb/errors v1.11.1
-	github.com/cometbft/cometbft v0.38.6
+	github.com/cometbft/cometbft v0.38.7
 	github.com/cosmos/cosmos-sdk v0.50.6
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.12
@@ -70,9 +70,14 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.9.0
 	github.com/tbruyelle/mdgofmt v0.1.3
+<<<<<<< HEAD
 	github.com/vektra/mockery/v2 v2.36.1
 	go.etcd.io/bbolt v1.3.8
 	golang.org/x/exp v0.0.0-20240404231335-c0f41cb1a7a0
+=======
+	github.com/vektra/mockery/v2 v2.40.1
+	go.etcd.io/bbolt v1.3.9
+>>>>>>> b3633e52 (chore: bump cometbft to `v0.38.7` (#4149))
 	golang.org/x/mod v0.17.0
 	golang.org/x/sync v0.7.0
 	golang.org/x/term v0.19.0
@@ -446,7 +451,12 @@ require (
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/arch v0.0.0-20190927153633-4e8777c89be4 // indirect
 	golang.org/x/crypto v0.22.0 // indirect
+<<<<<<< HEAD
 	golang.org/x/exp/typeparams v0.0.0-20230307190834-24139beb5833 // indirect
+=======
+	golang.org/x/exp v0.0.0-20240404231335-c0f41cb1a7a0 // indirect
+	golang.org/x/exp/typeparams v0.0.0-20240314144324-c7f7c6466f7f // indirect
+>>>>>>> b3633e52 (chore: bump cometbft to `v0.38.7` (#4149))
 	golang.org/x/net v0.24.0 // indirect
 	golang.org/x/sys v0.19.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
