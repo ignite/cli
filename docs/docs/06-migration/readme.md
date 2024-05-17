@@ -21,7 +21,7 @@ directory and made it a standalone project.
 
 To set up this tool in your development environment:
 
-## Usage 
+## Intro 
 
 ```shell
 gen-mig-diffs [flags]
