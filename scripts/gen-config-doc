@@ -1,3 +1,7 @@
 #!/bin/bash
 
-go run ignite/internal/tools/gen-config-doc/*.go
+cd ignite/internal/tools/gen-config-doc || exit
+
+go run .
+
+rsync -av docs ../../../../
