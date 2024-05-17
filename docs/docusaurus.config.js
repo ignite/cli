@@ -28,13 +28,6 @@ const config = {
     locales: ["en"],
   },
 
-  scripts: [
-    {
-      async: true,
-      src: "https://www.googletagmanager.com/gtag/js?id=G-XL9GNV1KHW",
-    },
-  ],
-
   headTags: [
     {
       tagName: "script",
