@@ -35,6 +35,23 @@ const config = {
     },
   ],
 
+  headTags: [
+    {
+      tagName: "script",
+      attributes: {
+        type: "text/javascript",
+      },
+      innerHTML: `
+        var _mtm = window._mtm = window._mtm || [];
+        _mtm.push({'mtm.startTime': (new Date().getTime()), 'event': 'mtm.Start'});
+        (function() {
+            var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+            g.async=true; g.src='https://cdn.matomo.cloud/aibignite.matomo.cloud/container_py6JfPnv.js'; s.parentNode.insertBefore(g,s);
+        })();
+      `,
+    },
+  ],
+
   presets: [
     [
       "classic",
@@ -64,8 +81,7 @@ const config = {
     ({
       image: "img/og-image.jpg",
       announcementBar: {
-        content:
-          '<a target="_blank" rel="noopener noreferrer" href="https://ignite.com">← Back to Ignite</a>',
+        content: '<a target="_blank" rel="noopener noreferrer" href="https://ignite.com">← Back to Ignite</a>',
         isCloseable: false,
       },
       docs: {
@@ -265,6 +281,13 @@ const config = {
 
           return; // No redirect created if it doesn't contain /guide
         },
+      },
+    ],
+    [
+      "@docusaurus/plugin-google-gtag",
+      {
+        trackingID: "G-XL9GNV1KHW",
+        anonymizeIP: true,
       },
     ],
     async function myPlugin(context, options) {
