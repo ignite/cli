@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	telemetryEndpoint  = "https://pantani.matomo.cloud/matomo.php"
+	telemetryEndpoint  = "https://matomo-cli.ignite.com"
 	envDoNotTrack      = "DO_NOT_TRACK"
 	envCI              = "CI"
 	envGitHubActions   = "GITHUB_ACTIONS"
