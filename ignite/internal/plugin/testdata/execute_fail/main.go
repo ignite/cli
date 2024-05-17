@@ -2,34 +2,34 @@ package main
 
 import (
 	"context"
-	"errors"
 
 	hplugin "github.com/hashicorp/go-plugin"
 
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/services/plugin"
 )
 
 type app struct{}
 
-func (app) Manifest(ctx context.Context) (*plugin.Manifest, error) {
+func (app) Manifest(context.Context) (*plugin.Manifest, error) {
 	return &plugin.Manifest{
 		Name: "execute_fail",
 	}, nil
 }
 
-func (app) Execute(ctx context.Context, cmd *plugin.ExecutedCommand, api plugin.ClientAPI) error {
+func (app) Execute(context.Context, *plugin.ExecutedCommand, plugin.ClientAPI) error {
 	return errors.New("fail")
 }
 
-func (app) ExecuteHookPre(ctx context.Context, h *plugin.ExecutedHook, api plugin.ClientAPI) error {
+func (app) ExecuteHookPre(context.Context, *plugin.ExecutedHook, plugin.ClientAPI) error {
 	return nil
 }
 
-func (app) ExecuteHookPost(ctx context.Context, h *plugin.ExecutedHook, api plugin.ClientAPI) error {
+func (app) ExecuteHookPost(context.Context, *plugin.ExecutedHook, plugin.ClientAPI) error {
 	return nil
 }
 
-func (app) ExecuteHookCleanUp(ctx context.Context, h *plugin.ExecutedHook, api plugin.ClientAPI) error {
+func (app) ExecuteHookCleanUp(context.Context, *plugin.ExecutedHook, plugin.ClientAPI) error {
 	return nil
 }
 
