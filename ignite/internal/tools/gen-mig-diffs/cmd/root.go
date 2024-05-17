@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/Masterminds/semver/v3"
@@ -93,7 +94,7 @@ func NewRootCmd() *cobra.Command {
 			}
 
 			// Scaffold the default commands for each version.
-			scaffoldOptions := make([]scaffold.Options, 0)
+			scaffoldOptions := []scaffold.Option{scaffold.WithStderr(os.Stderr)}
 			if scaffoldOutput != "" {
 				scaffoldOptions = append(scaffoldOptions, scaffold.WithOutput(scaffoldOutput))
 			}
