@@ -44,7 +44,7 @@ func TestGenDoc(t *testing.T) {
 				},
 				{
 					Key:  "ldflags",
-					Type: "[]string",
+					Type: listName("string"),
 				},
 				{
 					Key: "proto",
@@ -57,7 +57,7 @@ func TestGenDoc(t *testing.T) {
 						{
 							Key:     "third_party_paths",
 							Comment: "doc of third party paths",
-							Type:    "[]string",
+							Type:    listName("string"),
 						},
 					},
 					Comment: "doc of proto",
@@ -73,7 +73,7 @@ func TestGenDoc(t *testing.T) {
 						{
 							Key:     "third_party_paths",
 							Comment: "doc of third party paths",
-							Type:    "[]string",
+							Type:    listName("string"),
 						},
 					},
 					Comment: "doc of pointer proto",
@@ -90,7 +90,7 @@ func TestGenDoc(t *testing.T) {
 						{
 							Key:     "third_party_paths",
 							Comment: "doc of third party paths",
-							Type:    "[]string",
+							Type:    listName("string"),
 						},
 					},
 					Comment: "doc of protos",
@@ -109,7 +109,7 @@ func TestGenDoc(t *testing.T) {
 				{
 					Key:     "third_party_paths",
 					Comment: "doc of third party paths",
-					Type:    "[]string",
+					Type:    listName("string"),
 				},
 			},
 		},
