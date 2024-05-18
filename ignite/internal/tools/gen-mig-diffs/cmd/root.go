@@ -94,7 +94,11 @@ func NewRootCmd() *cobra.Command {
 			}
 
 			// Scaffold the default commands for each version.
-			scaffoldOptions := []scaffold.Option{scaffold.WithStderr(os.Stderr)}
+			scaffoldOptions := []scaffold.Option{
+				scaffold.WithStderr(os.Stderr),
+				scaffold.WithStdout(os.Stdout),
+				scaffold.WithStdin(os.Stdin),
+			}
 			if scaffoldOutput != "" {
 				scaffoldOptions = append(scaffoldOptions, scaffold.WithOutput(scaffoldOutput))
 			}
