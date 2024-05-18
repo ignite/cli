@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 type (
@@ -51,11 +53,14 @@ func GenDoc(v interface{}) (fields Docs, err error) {
 	for i := 0; i < t.NumField(); i++ {
 		var (
 			field = t.Field(i)
-			doc   = field.Tag.Get("doc")
 			yaml  = field.Tag.Get("yaml")
+			doc   = field.Tag.Get("doc")
 		)
 
 		tags := strings.Split(yaml, ",")
+		if len(tags) == 0 {
+			return fields, errors.Errorf("no tags found in struct field %s", field.Name)
+		}
 		name := tags[0]
 		if name == "" {
 			name = strings.ToLower(field.Name)
