@@ -8,6 +8,8 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
+const listSuffix = "list"
+
 type (
 	// Docs represents a slice of Doc.
 	Docs []Doc
@@ -33,11 +35,13 @@ func (d Docs) writeString(sb *strings.Builder, level int) {
 	indent := strings.Repeat("  ", level+1) // Two spaces per YAML indentation standard
 	for _, doc := range d {
 		sb.WriteString(indent)
-		if doc.Type != "" {
-			sb.WriteString(fmt.Sprintf("%s: [%s] # %s\n", doc.Key, doc.Type, doc.Comment))
-		} else {
+		switch doc.Type {
+		case "":
 			sb.WriteString(fmt.Sprintf("%s: # %s\n", doc.Key, doc.Comment))
+		default:
+			sb.WriteString(fmt.Sprintf("%s: (%s) # %s\n", doc.Key, doc.Type, doc.Comment))
 		}
+
 		if len(doc.Value) > 0 {
 			doc.Value.writeString(sb, level+1)
 		}
@@ -92,7 +96,7 @@ func GenDoc(v interface{}) (fields Docs, err error) {
 				return nil, err
 			}
 		case reflect.Slice:
-			elemType = fmt.Sprintf("[]%s", field.Type.Elem().Kind().String())
+			elemType = listName(field.Type.Elem().Kind().String())
 			elemFields, err = GenDoc(reflect.New(field.Type.Elem()).Elem().Interface())
 			if err != nil {
 				return nil, err
@@ -111,14 +115,18 @@ func GenDoc(v interface{}) (fields Docs, err error) {
 	return fields, nil
 }
 
+func listName(name string) string {
+	return fmt.Sprintf("%s %s", name, listSuffix)
+}
+
 func mapTypes(doc string) string {
 	docTypes := map[string]string{
-		"[]struct": "list",
-		"struct":   "",
-		"[]map":    "list",
-		"map":      "",
-		"[]slice":  "list",
-		"slice":    "list",
+		"struct":           "",
+		"map":              "key/value",
+		"slice":            listSuffix,
+		listName("map"):    listSuffix,
+		listName("slice"):  listSuffix,
+		listName("struct"): listSuffix,
 	}
 	if docType, ok := docTypes[doc]; ok {
 		return docType
