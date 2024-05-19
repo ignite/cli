@@ -2,6 +2,7 @@ package cosmosgen
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -137,7 +138,11 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		return err
 	}
 
-	defer b.Cleanup()
+	defer func() {
+		if err := b.Cleanup(); err != nil {
+			fmt.Println("Cleanup error:", err)
+		}
+	}()
 
 	g := &generator{
 		buf:                 b,
