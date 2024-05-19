@@ -50,9 +50,7 @@ func (f *Flag) exportToFlagSet(fs *pflag.FlagSet) error {
 		}
 
 		fs.IntP(f.Name, f.Shorthand, v, f.Usage)
-		if err := fs.Set(f.Name, f.Value); err != nil {
-			return err
-		}
+		fs.Set(f.Name, f.Value)
 	case Flag_TYPE_FLAG_UINT:
 		v, err := strconv.ParseUint(f.DefaultValue, 10, 64)
 		if err != nil {
@@ -60,9 +58,7 @@ func (f *Flag) exportToFlagSet(fs *pflag.FlagSet) error {
 		}
 
 		fs.UintP(f.Name, f.Shorthand, uint(v), f.Usage)
-		if err := fs.Set(f.Name, f.Value); err != nil {
-			return err
-		}
+		fs.Set(f.Name, f.Value)
 	case Flag_TYPE_FLAG_INT64:
 		v, err := strconv.ParseInt(f.DefaultValue, 10, 64)
 		if err != nil {
@@ -70,9 +66,7 @@ func (f *Flag) exportToFlagSet(fs *pflag.FlagSet) error {
 		}
 
 		fs.Int64P(f.Name, f.Shorthand, v, f.Usage)
-		if err := fs.Set(f.Name, f.Value); err != nil {
-			return err
-		}
+		fs.Set(f.Name, f.Value)
 	case Flag_TYPE_FLAG_UINT64:
 		v, err := strconv.ParseUint(f.DefaultValue, 10, 64)
 		if err != nil {
@@ -80,20 +74,14 @@ func (f *Flag) exportToFlagSet(fs *pflag.FlagSet) error {
 		}
 
 		fs.Uint64P(f.Name, f.Shorthand, v, f.Usage)
-		if err := fs.Set(f.Name, f.Value); err != nil {
-			return err
-		}
+		fs.Set(f.Name, f.Value)
 	case Flag_TYPE_FLAG_STRING_SLICE:
 		s := strings.Trim(f.DefaultValue, "[]")
 		fs.StringSliceP(f.Name, f.Shorthand, strings.Fields(s), f.Usage)
-		if err := fs.Set(f.Name, strings.Trim(f.Value, "[]")); err != nil {
-			return err
-		}
+		fs.Set(f.Name, strings.Trim(f.Value, "[]"))
 	case Flag_TYPE_FLAG_STRING_UNSPECIFIED:
 		fs.StringP(f.Name, f.Shorthand, f.DefaultValue, f.Usage)
-		if err := fs.Set(f.Name, f.Value); err != nil {
-			return err
-		}
+		fs.Set(f.Name, f.Value)
 	}
 	return nil
 }
