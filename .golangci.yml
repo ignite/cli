@@ -1,5 +1,5 @@
 run:
-  tests: false
+  tests: true
   skip-dirs:
     - ignite/ui
 #   # timeout for analysis, e.g. 30s, 5m, default is 1m
