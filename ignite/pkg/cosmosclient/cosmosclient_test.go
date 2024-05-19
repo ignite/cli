@@ -44,6 +44,7 @@ type suite struct {
 }
 
 func newClient(t *testing.T, setup func(suite), opts ...cosmosclient.Option) cosmosclient.Client {
+	t.Helper()
 	s := suite{
 		rpcClient:        mocks.NewRPCClient(t),
 		accountRetriever: mocks.NewAccountRetriever(t),

@@ -215,5 +215,5 @@ func TestCheckForbiddenTypeIndexField(t *testing.T) {
 	}
 }
 
-func TestAddType(t *testing.T) {
+func TestAddType(_ *testing.T) {
 }

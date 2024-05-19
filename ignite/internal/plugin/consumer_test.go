@@ -37,6 +37,7 @@ func TestConsumerPlugin(t *testing.T) {
 			name: "fail: writeFenesis w/o genesis.json",
 			args: []string{"writeGenesis"},
 			setup: func(t *testing.T, path string) {
+				t.Helper()
 				// Add priv_validator_key.json to path
 				bz, err := os.ReadFile("testdata/consumer/config/priv_validator_key.json")
 				require.NoError(t, err)
@@ -50,6 +51,7 @@ func TestConsumerPlugin(t *testing.T) {
 			name: "ok: writeGenesis",
 			args: []string{"writeGenesis"},
 			setup: func(t *testing.T, path string) {
+				t.Helper()
 				// Add priv_validator_key.json to path
 				bz, err := os.ReadFile("testdata/consumer/config/priv_validator_key.json")
 				require.NoError(t, err)
@@ -72,6 +74,7 @@ func TestConsumerPlugin(t *testing.T) {
 			name: "ok: isInitialized returns true",
 			args: []string{"isInitialized"},
 			setup: func(t *testing.T, path string) {
+				t.Helper()
 				// isInitialized returns true if there's a consumer genesis with an
 				// InitialValSet length != 0
 				// Add priv_validator_key.json to path

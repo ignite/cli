@@ -17,6 +17,7 @@ const (
 )
 
 func randomBytes(t *testing.T, n int) []byte {
+	t.Helper()
 	bytes := make([]byte, n)
 	_, err := rand.Read(bytes)
 	require.NoError(t, err)

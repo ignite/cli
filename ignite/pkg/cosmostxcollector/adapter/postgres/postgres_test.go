@@ -161,7 +161,7 @@ func TestSave(t *testing.T) {
 		)
 	attrStmt.
 		ExpectExec().
-		WithArgs(evtID, string(evtAttr.Key), jsonEvtAttrValue).
+		WithArgs(evtID, evtAttr.Key, jsonEvtAttrValue).
 		WillReturnResult(insertResult)
 
 	mock.ExpectCommit()
@@ -539,6 +539,7 @@ func TestEventQueryWithEventAttrFilters(t *testing.T) {
 }
 
 func createMatchEqualSQLMock(t *testing.T) (*sql.DB, sqlmock.Sqlmock) {
+	t.Helper()
 	db, mock, err := sqlmock.New(
 		sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual),
 	)

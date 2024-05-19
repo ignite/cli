@@ -37,7 +37,10 @@ func TestServeHTTPCORS(t *testing.T) {
 			f.ServeHTTP(res, req)
 
 			// Assert
-			require.Equal(t, http.StatusNoContent, res.Result().StatusCode)
+			result := res.Result()
+			defer result.Body.Close() // Ensure the response body is closed
+
+			require.Equal(t, http.StatusNoContent, result.StatusCode)
 		})
 	}
 }

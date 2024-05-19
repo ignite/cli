@@ -28,6 +28,7 @@ func TestInitAndCommit(t *testing.T) {
 		{
 			name: "dir is not inside an existing repo",
 			dirFunc: func(t *testing.T) string {
+				t.Helper()
 				dir := t.TempDir()
 				err := os.WriteFile(path.Join(dir, "foo"), []byte("hello"), 0o755)
 				require.NoError(t, err)
@@ -42,6 +43,7 @@ func TestInitAndCommit(t *testing.T) {
 			// In this repo, there's no existing commit but a standalone uncommitted
 			// foo file that shouldn't be included in the xgit.InitAndCommit's commit.
 			dirFunc: func(t *testing.T) string {
+				t.Helper()
 				dir := t.TempDir()
 				_, err := git.PlainInit(dir, false)
 				require.NoError(t, err)
@@ -61,6 +63,7 @@ func TestInitAndCommit(t *testing.T) {
 		{
 			name: "dir is an existing repo",
 			dirFunc: func(t *testing.T) string {
+				t.Helper()
 				// In this repo, there's one existing commit, and an uncommitted baz file
 				// that must be included in the xgit.InitAndCommit's commit.
 				dir := t.TempDir()
@@ -143,6 +146,7 @@ func TestAreChangesCommitted(t *testing.T) {
 		{
 			name: "dir is not a git repo",
 			dirFunc: func(t *testing.T) string {
+				t.Helper()
 				return t.TempDir()
 			},
 			expectedResult: true,
@@ -150,6 +154,7 @@ func TestAreChangesCommitted(t *testing.T) {
 		{
 			name: "dir is a empty git repo",
 			dirFunc: func(t *testing.T) string {
+				t.Helper()
 				dir := t.TempDir()
 				_, err := git.PlainInit(dir, false)
 				require.NoError(t, err)
@@ -160,6 +165,7 @@ func TestAreChangesCommitted(t *testing.T) {
 		{
 			name: "dir is a dirty empty git repo",
 			dirFunc: func(t *testing.T) string {
+				t.Helper()
 				dir := t.TempDir()
 				_, err := git.PlainInit(dir, false)
 				require.NoError(t, err)
@@ -172,6 +178,7 @@ func TestAreChangesCommitted(t *testing.T) {
 		{
 			name: "dir is a cleaned git repo",
 			dirFunc: func(t *testing.T) string {
+				t.Helper()
 				dir := t.TempDir()
 				_, err := git.PlainInit(dir, false)
 				require.NoError(t, err)
@@ -194,6 +201,7 @@ func TestAreChangesCommitted(t *testing.T) {
 		{
 			name: "dir is a dirty git repo",
 			dirFunc: func(t *testing.T) string {
+				t.Helper()
 				dir := t.TempDir()
 				_, err := git.PlainInit(dir, false)
 				require.NoError(t, err)
@@ -389,6 +397,7 @@ func TestIsRepository(t *testing.T) {
 		{
 			name: "path is a repository",
 			dirFunc: func(t *testing.T) string {
+				t.Helper()
 				dir := t.TempDir()
 				_, err := git.PlainInit(dir, false)
 				require.NoError(t, err)
@@ -399,6 +408,7 @@ func TestIsRepository(t *testing.T) {
 		{
 			name: "path is not a repository",
 			dirFunc: func(t *testing.T) string {
+				t.Helper()
 				return t.TempDir()
 			},
 			expected: false,
@@ -406,6 +416,7 @@ func TestIsRepository(t *testing.T) {
 		{
 			name: "repository error",
 			dirFunc: func(t *testing.T) string {
+				t.Helper()
 				dir := t.TempDir()
 				err := os.Chmod(dir, 0)
 				require.NoError(t, err)

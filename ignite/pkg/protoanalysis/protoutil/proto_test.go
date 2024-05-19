@@ -91,7 +91,7 @@ service Msg {}
 // Test that the changes from adding a list with starport scaffold list <Type>
 // are applied correctly to tx.proto.
 func TestAddEmptyList_tx(t *testing.T) {
-	typename, modname := "Kirby", "chainname"
+	typename, modname := kirby, "chainname"
 	f, err := parseStringProto(txProto)
 	require.NoError(t, err)
 

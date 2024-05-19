@@ -258,6 +258,7 @@ func TestConfigSave(t *testing.T) {
 		{
 			name: "fail: config path is empty",
 			buildConfig: func(t *testing.T) *pluginsconfig.Config {
+				t.Helper()
 				return &pluginsconfig.Config{}
 			},
 			expectedError: "plugin config save: empty path",
@@ -265,6 +266,7 @@ func TestConfigSave(t *testing.T) {
 		{
 			name: "ok: config path is a file that doesn't exist",
 			buildConfig: func(t *testing.T) *pluginsconfig.Config {
+				t.Helper()
 				cfg, err := pluginsconfig.ParseDir(t.TempDir())
 				require.NoError(t, err)
 				return cfg
@@ -274,6 +276,7 @@ func TestConfigSave(t *testing.T) {
 		{
 			name: "ok: config path is an existing file",
 			buildConfig: func(t *testing.T) *pluginsconfig.Config {
+				t.Helper()
 				// copy testdata/igniteapps.yml to tmp because it will be modified
 				dir := t.TempDir()
 				bz, err := os.ReadFile("testdata/igniteapps.yml")

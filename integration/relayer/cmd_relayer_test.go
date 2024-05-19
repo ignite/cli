@@ -201,14 +201,14 @@ func (k Keeper) OnTimeoutIbcPostPacket(ctx sdk.Context, packet channeltypes.Pack
 type (
 	QueryChannels struct {
 		Channels []struct {
-			ChannelId      string   `json:"channel_id"`
+			ChannelID      string   `json:"channel_id"`
 			ConnectionHops []string `json:"connection_hops"`
 			Counterparty   struct {
-				ChannelId string `json:"channel_id"`
-				PortId    string `json:"port_id"`
+				ChannelID string `json:"channel_id"`
+				PortID    string `json:"port_id"`
 			} `json:"counterparty"`
 			Ordering string `json:"ordering"`
-			PortId   string `json:"port_id"`
+			PortID   string `json:"port_id"`
 			State    string `json:"state"`
 			Version  string `json:"version"`
 		} `json:"channels"`
@@ -220,8 +220,8 @@ type (
 )
 
 func runChain(
-	t *testing.T,
 	ctx context.Context,
+	t *testing.T,
 	env envtest.Env,
 	app envtest.App,
 	cfg v1.Config,
@@ -401,10 +401,10 @@ func TestBlogIBC(t *testing.T) {
 		availableport.WithMaxPort(5000),
 	)
 	require.NoError(t, err)
-	earthAPI, earthRPC, earthGRPC, earthFaucet := runChain(t, ctx, env, app, earthConfig, tmpDir, ports[:7])
+	earthAPI, earthRPC, earthGRPC, earthFaucet := runChain(ctx, t, env, app, earthConfig, tmpDir, ports[:7])
 	earthChainID := earthConfig.Genesis["chain_id"].(string)
 	earthHome := earthConfig.Validators[0].Home
-	marsAPI, marsRPC, marsGRPC, marsFaucet := runChain(t, ctx, env, app, marsConfig, tmpDir, ports[7:])
+	marsAPI, marsRPC, marsGRPC, marsFaucet := runChain(ctx, t, env, app, marsConfig, tmpDir, ports[7:])
 	marsChainID := marsConfig.Genesis["chain_id"].(string)
 	marsHome := marsConfig.Validators[0].Home
 

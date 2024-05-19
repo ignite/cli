@@ -331,15 +331,16 @@ func TestCreateMessage(t *testing.T) {
 		// options added first, then fields and then enums.
 		lenOpts, lenFields, lenEnums := len(test.options), len(test.fields), len(test.enums)
 		for i, field := range message.Elements {
-			if i < lenOpts {
+			switch {
+			case i < lenOpts:
 				opt, ok := field.(*proto.Option)
 				require.True(t, ok, "expected option, got %T", field)
 				require.Equal(t, test.options[i], opt, "expected %v, got %v", test.options[i], opt)
-			} else if i < lenOpts+lenFields {
+			case i < lenOpts+lenFields:
 				field, ok := field.(*proto.NormalField)
 				require.True(t, ok, "expected field, got %T", field)
 				require.Equal(t, test.fields[i-lenOpts], field, "expected %v, got %v", test.fields[i-lenOpts], field)
-			} else {
+			default:
 				enum, ok := field.(*proto.Enum)
 				require.True(t, ok, "expected enum, got %T", field)
 				require.Equal(t, test.enums[i-lenOpts-lenFields], enum, "expected %v, got %v", test.enums[i-lenOpts-lenFields], enum)

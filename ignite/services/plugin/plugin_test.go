@@ -260,6 +260,7 @@ func TestPluginLoad(t *testing.T) {
 		{
 			name: "ok: from local",
 			buildPlugin: func(t *testing.T) Plugin {
+				t.Helper()
 				path := scaffoldPlugin(t, t.TempDir(), "github.com/foo/bar", false)
 				return Plugin{
 					srcPath: path,

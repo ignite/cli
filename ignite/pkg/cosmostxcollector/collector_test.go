@@ -29,7 +29,7 @@ func TestCollector(t *testing.T) {
 			fromHeight,
 			mock.AnythingOfType("chan<- []cosmosclient.TX"),
 		).
-		Run(func(ctx context.Context, fromHeight int64, tc chan<- []cosmosclient.TX) {
+		Run(func(_ context.Context, _ int64, tc chan<- []cosmosclient.TX) {
 			defer close(tc)
 
 			// Send the collected block transactions
@@ -45,7 +45,7 @@ func TestCollector(t *testing.T) {
 			mock.Anything,
 			mock.AnythingOfType("[]cosmosclient.TX"),
 		).
-		Run(func(ctx context.Context, txs []cosmosclient.TX) {
+		Run(func(_ context.Context, txs []cosmosclient.TX) {
 			// Save the transactions
 			savedTXs = append(savedTXs, txs)
 		}).
@@ -74,7 +74,7 @@ func TestCollectorWithCollectError(t *testing.T) {
 			mock.AnythingOfType("int64"),
 			mock.AnythingOfType("chan<- []cosmosclient.TX"),
 		).
-		Run(func(ctx context.Context, fromHeight int64, tc chan<- []cosmosclient.TX) {
+		Run(func(_ context.Context, _ int64, tc chan<- []cosmosclient.TX) {
 			close(tc)
 		}).
 		Return(wantErr).
@@ -105,7 +105,7 @@ func TestCollectorWithSaveError(t *testing.T) {
 			mock.AnythingOfType("int64"),
 			mock.AnythingOfType("chan<- []cosmosclient.TX"),
 		).
-		Run(func(ctx context.Context, fromHeight int64, tc chan<- []cosmosclient.TX) {
+		Run(func(_ context.Context, _ int64, tc chan<- []cosmosclient.TX) {
 			defer close(tc)
 
 			// Send the collected block transactions

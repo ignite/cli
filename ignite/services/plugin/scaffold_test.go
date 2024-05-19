@@ -32,7 +32,7 @@ func TestScaffold(t *testing.T) {
 func TestScaffoldedConfig(t *testing.T) {
 	// Arrange
 	ctx := context.Background()
-	path := scaffoldApp(t, ctx, fooBarAppURI)
+	path := scaffoldApp(ctx, t, fooBarAppURI)
 
 	// Act
 	cfg := readConfig(t, path)
@@ -45,7 +45,7 @@ func TestScaffoldedConfig(t *testing.T) {
 func TestScaffoldedTests(t *testing.T) {
 	// Arrange
 	ctx := context.Background()
-	path := scaffoldApp(t, ctx, fooBarAppURI)
+	path := scaffoldApp(ctx, t, fooBarAppURI)
 	path = filepath.Join(path, "integration")
 
 	// Act
@@ -60,7 +60,7 @@ func TestScaffoldedTests(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func scaffoldApp(t *testing.T, ctx context.Context, path string) string {
+func scaffoldApp(ctx context.Context, t *testing.T, path string) string {
 	t.Helper()
 
 	path, err := plugin.Scaffold(ctx, t.TempDir(), path, false)
