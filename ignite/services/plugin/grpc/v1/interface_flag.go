@@ -34,61 +34,54 @@ func newDefaultFlagValueError(typeName, value string) error {
 }
 
 func (f *Flag) exportToFlagSet(fs *pflag.FlagSet) error {
-	var err error
 	switch f.Type {
 	case Flag_TYPE_FLAG_BOOL:
-		var v bool
-		if f.DefaultValue == "" {
-			f.DefaultValue = "false" // Ensure DefaultValue is set to a valid boolean string
-		}
-		v, err = strconv.ParseBool(f.DefaultValue)
+		v, err := strconv.ParseBool(f.DefaultValue)
 		if err != nil {
 			return newDefaultFlagValueError(cobraFlagTypeBool, f.DefaultValue)
 		}
+
 		fs.BoolP(f.Name, f.Shorthand, v, f.Usage)
-		err = fs.Set(f.Name, f.Value)
+		fs.Set(f.Name, f.Value)
 	case Flag_TYPE_FLAG_INT:
-		var v int
-		v, err = strconv.Atoi(f.DefaultValue)
+		v, err := strconv.Atoi(f.DefaultValue)
 		if err != nil {
 			return newDefaultFlagValueError(cobraFlagTypeInt, f.DefaultValue)
 		}
+
 		fs.IntP(f.Name, f.Shorthand, v, f.Usage)
-		err = fs.Set(f.Name, f.Value)
+		fs.Set(f.Name, f.Value)
 	case Flag_TYPE_FLAG_UINT:
-		var v uint64
-		v, err = strconv.ParseUint(f.DefaultValue, 10, 64)
+		v, err := strconv.ParseUint(f.DefaultValue, 10, 64)
 		if err != nil {
 			return newDefaultFlagValueError(cobraFlagTypeUint, f.DefaultValue)
 		}
+
 		fs.UintP(f.Name, f.Shorthand, uint(v), f.Usage)
-		err = fs.Set(f.Name, f.Value)
+		fs.Set(f.Name, f.Value)
 	case Flag_TYPE_FLAG_INT64:
-		var v int64
-		v, err = strconv.ParseInt(f.DefaultValue, 10, 64)
+		v, err := strconv.ParseInt(f.DefaultValue, 10, 64)
 		if err != nil {
 			return newDefaultFlagValueError(cobraFlagTypeInt64, f.DefaultValue)
 		}
+
 		fs.Int64P(f.Name, f.Shorthand, v, f.Usage)
-		err = fs.Set(f.Name, f.Value)
+		fs.Set(f.Name, f.Value)
 	case Flag_TYPE_FLAG_UINT64:
-		var v uint64
-		v, err = strconv.ParseUint(f.DefaultValue, 10, 64)
+		v, err := strconv.ParseUint(f.DefaultValue, 10, 64)
 		if err != nil {
-			return newDefaultFlagValueError(cobraFlagTypeUint64, f.DefaultValue)
+			return newDefaultFlagValueError(cobraFlagTypeInt64, f.DefaultValue)
 		}
+
 		fs.Uint64P(f.Name, f.Shorthand, v, f.Usage)
-		err = fs.Set(f.Name, f.Value)
+		fs.Set(f.Name, f.Value)
 	case Flag_TYPE_FLAG_STRING_SLICE:
 		s := strings.Trim(f.DefaultValue, "[]")
 		fs.StringSliceP(f.Name, f.Shorthand, strings.Fields(s), f.Usage)
-		err = fs.Set(f.Name, strings.Trim(f.Value, "[]"))
+		fs.Set(f.Name, strings.Trim(f.Value, "[]"))
 	case Flag_TYPE_FLAG_STRING_UNSPECIFIED:
 		fs.StringP(f.Name, f.Shorthand, f.DefaultValue, f.Usage)
-		err = fs.Set(f.Name, f.Value)
-	}
-	if err != nil {
-		return err
+		fs.Set(f.Name, f.Value)
 	}
 	return nil
 }
