@@ -1,9 +1,5 @@
 run:
   tests: false
-  skip-dirs:
-    - ignite/ui
-#   # timeout for analysis, e.g. 30s, 5m, default is 1m
-#   timeout: 5m
 
 linters:
   disable-all: true
@@ -48,6 +44,10 @@ linters:
     # - wsl
 
 linters-settings:
+  exclude-dirs:
+    - ignite/ui
+  #   # timeout for analysis, e.g. 30s, 5m, default is 1m
+  #   timeout: 5m
   forbidigo:
     forbid:
       - p: ^fmt\.Errorf$
