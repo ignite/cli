@@ -282,7 +282,7 @@ func (a App) EditConfig(apply func(*chainconfig.Config)) {
 
 	bz, err := yaml.Marshal(conf)
 	require.NoError(a.env.t, err)
-	err = os.WriteFile(a.configPath, bz, 0o644)
+	err = os.WriteFile(a.configPath, bz, 0o600)
 	require.NoError(a.env.t, err)
 }
 

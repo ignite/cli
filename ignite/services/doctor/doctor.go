@@ -87,7 +87,7 @@ func (d *Doctor) MigrateConfig(_ context.Context) error {
 			return errf(err)
 		}
 
-		if err := os.WriteFile(configPath, buf.Bytes(), 0o755); err != nil {
+		if err := os.WriteFile(configPath, buf.Bytes(), 0o600); err != nil {
 			return errf(errors.Errorf("config file migration failed: %w", err))
 		}
 

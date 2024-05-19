@@ -120,7 +120,7 @@ func Generate(ctx context.Context, outPath, specPath string, options ...Option) 
 	}
 
 	outTemplate := filepath.Join(templateTmpPath, "route-name.eta")
-	err = os.WriteFile(outTemplate, []byte(routeNameTemplate), 0o644)
+	err = os.WriteFile(outTemplate, []byte(routeNameTemplate), 0o600)
 	if err != nil {
 		return err
 	}
