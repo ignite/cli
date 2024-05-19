@@ -86,7 +86,7 @@ func TestLinkPluginCmds(t *testing.T) {
 	)
 
 	// helper to assert pluginInterface.Execute() calls
-	expectExecute := func(t *testing.T, ctx context.Context, p *mocks.PluginInterface, cmd *plugin.Command) {
+	expectExecute := func(t *testing.T, _ context.Context, p *mocks.PluginInterface, cmd *plugin.Command) {
 		t.Helper()
 		p.EXPECT().
 			Execute(
