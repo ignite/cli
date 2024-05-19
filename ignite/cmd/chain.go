@@ -288,7 +288,7 @@ func configMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, ap
 			return err
 		}
 
-		if err := os.WriteFile(cfgPath, buf.Bytes(), 0o755); err != nil {
+		if err := os.WriteFile(cfgPath, buf.Bytes(), 0o600); err != nil {
 			return errors.Errorf("config file migration failed: %w", err)
 		}
 	}
