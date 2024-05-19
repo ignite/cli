@@ -9,6 +9,7 @@ linters:
   disable-all: true
   enable:
     - bodyclose
+    - copyloopvar
     - decorder
     - depguard
     - dogsled

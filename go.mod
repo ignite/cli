@@ -1,8 +1,8 @@
 module github.com/ignite/cli/v29
 
-go 1.21.1
+go 1.22
 
-toolchain go1.21.3
+toolchain go1.22.3
 
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
