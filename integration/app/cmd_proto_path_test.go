@@ -7,15 +7,14 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-	"gopkg.in/yaml.v3"
-
 	"github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/config/chain/base"
 	v1 "github.com/ignite/cli/v29/ignite/config/chain/v1"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
 	envtest "github.com/ignite/cli/v29/integration"
+	"github.com/stretchr/testify/require"
+	"gopkg.in/yaml.v3"
 )
 
 const newProtoPath = "myProto"

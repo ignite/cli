@@ -3,9 +3,8 @@ package plugins_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	pluginsconfig "github.com/ignite/cli/v29/ignite/config/plugins"
+	"github.com/stretchr/testify/require"
 )
 
 func TestParseDir(t *testing.T) {

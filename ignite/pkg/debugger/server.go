@@ -10,9 +10,8 @@ import (
 	"github.com/go-delve/delve/service/debugger"
 	"github.com/go-delve/delve/service/rpc2"
 	"github.com/go-delve/delve/service/rpccommon"
-	"golang.org/x/sync/errgroup"
-
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"golang.org/x/sync/errgroup"
 )
 
 const (

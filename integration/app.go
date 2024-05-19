@@ -8,9 +8,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/stretchr/testify/require"
-	"gopkg.in/yaml.v3"
-
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	v1 "github.com/ignite/cli/v29/ignite/config/chain/v1"
 	"github.com/ignite/cli/v29/ignite/pkg/availableport"
@@ -18,6 +15,8 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
 	"github.com/ignite/cli/v29/ignite/pkg/goenv"
 	"github.com/ignite/cli/v29/ignite/pkg/xurl"
+	"github.com/stretchr/testify/require"
+	"gopkg.in/yaml.v3"
 )
 
 const ServeTimeout = time.Minute * 15

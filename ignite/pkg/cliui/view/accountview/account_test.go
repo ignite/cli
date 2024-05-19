@@ -3,9 +3,8 @@ package accountview_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/view/accountview"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAccountString(t *testing.T) {

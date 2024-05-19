@@ -7,9 +7,8 @@ import (
 	sdkmath "cosmossdk.io/math"
 	"github.com/cometbft/cometbft/crypto/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/require"
-
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosutil"
+	"github.com/stretchr/testify/require"
 )
 
 func TestParseGentx(t *testing.T) {

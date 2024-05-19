@@ -9,10 +9,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	envtest "github.com/ignite/cli/v29/integration"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCliWithCaching(t *testing.T) {
@@ -96,6 +95,7 @@ func TestCliWithCaching(t *testing.T) {
 }
 
 func deleteCachedFiles(t *testing.T, vueGenerated, openapiGenerated, typesDir string) {
+	t.Helper()
 	require.NoError(t, os.RemoveAll(vueGenerated))
 	require.NoError(t, os.Remove(openapiGenerated))
 

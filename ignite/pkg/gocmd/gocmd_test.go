@@ -5,10 +5,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestIsInstallError(t *testing.T) {

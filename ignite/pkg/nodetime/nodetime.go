@@ -10,9 +10,8 @@ import (
 	"io"
 	"sync"
 
-	"github.com/ignite/ignite-files/nodetime"
-
 	"github.com/ignite/cli/v29/ignite/pkg/localfs"
+	"github.com/ignite/ignite-files/nodetime"
 )
 
 // the list of CLIs included.

@@ -13,20 +13,32 @@ func NewCompletionCmd() *cobra.Command {
 		Short: "Generates shell completion script.",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 {
-				cmd.Help()
+				if err := cmd.Help(); err != nil {
+					cmd.PrintErrln("Error displaying help:", err)
+					os.Exit(1)
+				}
 				os.Exit(0)
 			}
+			var err error
 			switch args[0] {
 			case "bash":
-				cmd.Root().GenBashCompletion(os.Stdout)
+				err = cmd.Root().GenBashCompletion(os.Stdout)
 			case "zsh":
-				cmd.Root().GenZshCompletion(os.Stdout)
+				err = cmd.Root().GenZshCompletion(os.Stdout)
 			case "fish":
-				cmd.Root().GenFishCompletion(os.Stdout, true)
+				err = cmd.Root().GenFishCompletion(os.Stdout, true)
 			case "powershell":
-				cmd.Root().GenPowerShellCompletion(os.Stdout)
+				err = cmd.Root().GenPowerShellCompletion(os.Stdout)
 			default:
-				cmd.Help()
+				if err := cmd.Help(); err != nil {
+					cmd.PrintErrln("Error displaying help:", err)
+					os.Exit(1)
+				}
+				os.Exit(0)
+			}
+			if err != nil {
+				cmd.PrintErrln("Error generating completion script:", err)
+				os.Exit(1)
 			}
 		},
 	}

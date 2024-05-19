@@ -3,9 +3,8 @@ package chain
 import (
 	"io"
 
-	"gopkg.in/yaml.v3"
-
 	"github.com/ignite/cli/v29/ignite/config/chain/version"
+	"gopkg.in/yaml.v3"
 )
 
 // Build time check for the latest config version type.

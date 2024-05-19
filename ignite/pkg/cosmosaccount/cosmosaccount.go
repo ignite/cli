@@ -16,7 +16,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/go-bip39"
-
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 

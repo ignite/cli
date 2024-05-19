@@ -9,9 +9,8 @@ import (
 	"strings"
 	"time"
 
-	bolt "go.etcd.io/bbolt"
-
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	bolt "go.etcd.io/bbolt"
 )
 
 var ErrorNotFound = errors.New("no value was found with the provided key")

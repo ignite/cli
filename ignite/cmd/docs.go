@@ -1,11 +1,10 @@
 package ignitecmd
 
 import (
-	"github.com/spf13/cobra"
-
 	"github.com/ignite/cli/v29/docs"
 	"github.com/ignite/cli/v29/ignite/pkg/localfs"
 	"github.com/ignite/cli/v29/ignite/pkg/markdownviewer"
+	"github.com/spf13/cobra"
 )
 
 func NewDocs() *cobra.Command {

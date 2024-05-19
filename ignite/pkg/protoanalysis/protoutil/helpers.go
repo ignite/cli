@@ -2,7 +2,6 @@ package protoutil
 
 import (
 	"github.com/emicklei/proto"
-
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 

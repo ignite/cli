@@ -4,11 +4,10 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	v0testdata "github.com/ignite/cli/v29/ignite/config/chain/v0/testdata"
 	"github.com/ignite/cli/v29/ignite/config/testdata"
+	"github.com/stretchr/testify/require"
 )
 
 func TestConvertLatest(t *testing.T) {

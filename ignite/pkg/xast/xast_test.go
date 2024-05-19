@@ -6,10 +6,9 @@ import (
 	"go/token"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
+	"github.com/stretchr/testify/require"
 )
 
 func TestInspect(t *testing.T) {
@@ -25,14 +24,14 @@ func TestInspect(t *testing.T) {
 	}{
 		{
 			name: "random error",
-			f: func(n ast.Node) error {
+			f: func(ast.Node) error {
 				return errors.New("oups")
 			},
 			expectedError: "oups",
 		},
 		{
 			name: "stop error",
-			f: func(n ast.Node) error {
+			f: func(ast.Node) error {
 				calls++
 				return xast.ErrStop
 			},
@@ -40,7 +39,7 @@ func TestInspect(t *testing.T) {
 		},
 		{
 			name: "no error",
-			f: func(n ast.Node) error {
+			f: func(ast.Node) error {
 				calls++
 				return nil
 			},

@@ -9,9 +9,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/config/chain/base"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/entrywriter"
@@ -22,6 +19,8 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/xurl"
 	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
 	envtest "github.com/ignite/cli/v29/integration"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -30,6 +29,7 @@ const (
 )
 
 func assertBankBalanceOutput(t *testing.T, output string, balances string) {
+	t.Helper()
 	var table [][]string
 	coins, err := sdktypes.ParseCoinsNormalized(balances)
 	require.NoError(t, err, "wrong balances %s", balances)

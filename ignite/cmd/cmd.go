@@ -9,9 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
-	flag "github.com/spf13/pflag"
-
 	"github.com/ignite/cli/v29/ignite/config"
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
@@ -22,6 +19,8 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/goenv"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/version"
+	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
 )
 
 type key int

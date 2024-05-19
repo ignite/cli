@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 
 	"github.com/gobuffalo/genny/v2"
-
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	modulecreate "github.com/ignite/cli/v29/ignite/templates/module/create"
 )

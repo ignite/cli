@@ -3,9 +3,8 @@ package scaffolder
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCheckForbiddenComponentName(t *testing.T) {

@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny/v2"
-
 	appanalysis "github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/app"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"

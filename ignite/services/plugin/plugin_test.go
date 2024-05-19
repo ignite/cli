@@ -13,13 +13,12 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	hplugin "github.com/hashicorp/go-plugin"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-
 	pluginsconfig "github.com/ignite/cli/v29/ignite/config/plugins"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodule"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewPlugin(t *testing.T) {
@@ -192,7 +191,7 @@ func TestNewPlugin(t *testing.T) {
 }
 
 // Helper to make a local git repository with gofile committed.
-// Returns the repo directory and the git.Repository
+// Returns the repo directory and the git.Repository.
 func makeGitRepo(t *testing.T, name string) (string, *git.Repository) {
 	t.Helper()
 
@@ -240,6 +239,7 @@ func TestPluginLoad(t *testing.T) {
 		{
 			name: "fail: plugin is already in error",
 			buildPlugin: func(t *testing.T) Plugin {
+				t.Helper()
 				return Plugin{
 					Error: errors.New("oups"),
 				}
@@ -249,6 +249,7 @@ func TestPluginLoad(t *testing.T) {
 		{
 			name: "fail: no go files in srcPath",
 			buildPlugin: func(t *testing.T) Plugin {
+				t.Helper()
 				return Plugin{
 					srcPath: path.Join(wd, "testdata"),
 					name:    "testdata",
@@ -269,6 +270,7 @@ func TestPluginLoad(t *testing.T) {
 		{
 			name: "ok: from git repo",
 			buildPlugin: func(t *testing.T) Plugin {
+				t.Helper()
 				repoDir, _ := makeGitRepo(t, "remote")
 				cloneDir := t.TempDir()
 
@@ -283,6 +285,7 @@ func TestPluginLoad(t *testing.T) {
 		{
 			name: "fail: git repo doesnt exists",
 			buildPlugin: func(t *testing.T) Plugin {
+				t.Helper()
 				cloneDir := t.TempDir()
 
 				return Plugin{
@@ -297,6 +300,7 @@ func TestPluginLoad(t *testing.T) {
 		{
 			name: "ok: from git repo with tag",
 			buildPlugin: func(t *testing.T) Plugin {
+				t.Helper()
 				repoDir, repo := makeGitRepo(t, "remote-tag")
 				h, err := repo.Head()
 				require.NoError(t, err)
@@ -320,6 +324,7 @@ func TestPluginLoad(t *testing.T) {
 		{
 			name: "ok: from git repo with branch",
 			buildPlugin: func(t *testing.T) Plugin {
+				t.Helper()
 				repoDir, repo := makeGitRepo(t, "remote-branch")
 				w, err := repo.Worktree()
 				require.NoError(t, err)
@@ -343,6 +348,7 @@ func TestPluginLoad(t *testing.T) {
 		{
 			name: "ok: from git repo with hash",
 			buildPlugin: func(t *testing.T) Plugin {
+				t.Helper()
 				repoDir, repo := makeGitRepo(t, "remote-hash")
 				h, err := repo.Head()
 				require.NoError(t, err)
@@ -361,6 +367,7 @@ func TestPluginLoad(t *testing.T) {
 		{
 			name: "fail: git ref not found",
 			buildPlugin: func(t *testing.T) Plugin {
+				t.Helper()
 				repoDir, _ := makeGitRepo(t, "remote-no-ref")
 
 				cloneDir := t.TempDir()

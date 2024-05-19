@@ -3,13 +3,12 @@ package ignitecmd
 import (
 	"path/filepath"
 
-	"github.com/spf13/cobra"
-	flag "github.com/spf13/pflag"
-
 	"github.com/ignite/cli/v29/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/v29/ignite/services/chain"
+	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
 )
 
 const (

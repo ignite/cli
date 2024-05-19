@@ -7,8 +7,6 @@ import (
 	"sort"
 	"strings"
 
-	"golang.org/x/sync/errgroup"
-
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/v29/ignite/pkg/dirchange"
@@ -16,6 +14,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/nodetime/programs/sta"
 	tsproto "github.com/ignite/cli/v29/ignite/pkg/nodetime/programs/ts-proto"
 	"github.com/ignite/cli/v29/ignite/pkg/protoc"
+	"golang.org/x/sync/errgroup"
 )
 
 var (

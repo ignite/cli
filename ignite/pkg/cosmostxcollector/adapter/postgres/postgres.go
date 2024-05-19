@@ -9,11 +9,10 @@ import (
 	"net/url"
 
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
-	"github.com/lib/pq"
-
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmostxcollector/query"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/lib/pq"
 )
 
 const (

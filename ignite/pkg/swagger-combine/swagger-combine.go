@@ -10,7 +10,6 @@ import (
 	"github.com/go-openapi/analysis"
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/spec"
-
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 

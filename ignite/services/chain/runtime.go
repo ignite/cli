@@ -6,14 +6,13 @@ import (
 	"path/filepath"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/nqd/flat"
-	"github.com/pelletier/go-toml"
-
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/pkg/chaincmd"
 	chaincmdrunner "github.com/ignite/cli/v29/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/xurl"
+	"github.com/nqd/flat"
+	"github.com/pelletier/go-toml"
 )
 
 // Gentx wraps the "testd gentx"  command for generating a gentx for a validator.

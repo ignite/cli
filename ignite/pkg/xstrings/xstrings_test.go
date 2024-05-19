@@ -3,9 +3,8 @@ package xstrings_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/ignite/cli/v29/ignite/pkg/xstrings"
+	"github.com/stretchr/testify/require"
 )
 
 func TestTitle(t *testing.T) {

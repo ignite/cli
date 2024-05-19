@@ -4,7 +4,6 @@ import (
 	"embed"
 
 	"github.com/gobuffalo/genny/v2"
-
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/typed"
 )

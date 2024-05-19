@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/iancoleman/strcase"
-
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/v29/ignite/pkg/dirchange"

@@ -2,7 +2,6 @@ package cosmosutil
 
 import (
 	"github.com/cosmos/cosmos-sdk/types/bech32"
-
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 

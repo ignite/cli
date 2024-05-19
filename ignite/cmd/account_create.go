@@ -1,10 +1,9 @@
 package ignitecmd
 
 import (
-	"github.com/spf13/cobra"
-
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/spf13/cobra"
 )
 
 func NewAccountCreate() *cobra.Command {

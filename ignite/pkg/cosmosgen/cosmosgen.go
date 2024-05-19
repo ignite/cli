@@ -2,17 +2,17 @@ package cosmosgen
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/iancoleman/strcase"
-	gomodule "golang.org/x/mod/module"
-
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
 	"github.com/ignite/cli/v29/ignite/pkg/events"
+	gomodule "golang.org/x/mod/module"
 )
 
 // generateOptions used to configure code generation.
@@ -137,8 +137,11 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		return err
 	}
 
-	defer b.Cleanup()
-
+	defer func() {
+		if err := b.Cleanup(); err != nil {
+			fmt.Println("Cleanup error:", err)
+		}
+	}()
 	g := &generator{
 		buf:                 b,
 		appPath:             appPath,

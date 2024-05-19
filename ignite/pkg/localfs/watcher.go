@@ -8,9 +8,8 @@ import (
 	"sync"
 	"time"
 
-	wt "github.com/radovskyb/watcher"
-
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	wt "github.com/radovskyb/watcher"
 )
 
 type watcher struct {

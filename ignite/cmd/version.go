@@ -1,9 +1,8 @@
 package ignitecmd
 
 import (
-	"github.com/spf13/cobra"
-
 	"github.com/ignite/cli/v29/ignite/version"
+	"github.com/spf13/cobra"
 )
 
 // NewVersion creates a new version command to show the Ignite CLI version.

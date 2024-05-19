@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/plush/v4"
-
 	"github.com/ignite/cli/v29/ignite/pkg/xstrings"
 	"github.com/ignite/cli/v29/ignite/templates/field"
 	"github.com/ignite/cli/v29/ignite/templates/field/datatype"

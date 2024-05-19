@@ -3,9 +3,8 @@ package cosmosaccount_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosaccount"
+	"github.com/stretchr/testify/require"
 )
 
 const testAccountName = "myTestAccount"

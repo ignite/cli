@@ -4,9 +4,8 @@ import (
 	"regexp"
 	"strings"
 
-	"golang.org/x/mod/semver"
-
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"golang.org/x/mod/semver"
 )
 
 type (

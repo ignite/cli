@@ -3,9 +3,8 @@ package xast
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAppendImports(t *testing.T) {

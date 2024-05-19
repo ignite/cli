@@ -4,9 +4,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/ignite/cli/v29/ignite/pkg/xexec"
+	"github.com/stretchr/testify/require"
 )
 
 func TestIsExec(t *testing.T) {

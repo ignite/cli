@@ -7,13 +7,12 @@ import (
 	"encoding/json"
 	"io"
 
-	"sigs.k8s.io/yaml"
-
 	"github.com/ignite/cli/v29/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/truncatedbuffer"
+	"sigs.k8s.io/yaml"
 )
 
 // Runner provides high level access to a blockchain's commands.

@@ -4,9 +4,8 @@ import (
 	"testing"
 
 	"github.com/emicklei/proto"
-	"github.com/stretchr/testify/require"
-
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
+	"github.com/stretchr/testify/require"
 )
 
 // Imports.
@@ -74,7 +73,7 @@ func TestCreatePackage(t *testing.T) {
 	}
 }
 
-// Options
+// Options.
 func TestCreateOption(t *testing.T) {
 	cases := []struct {
 		name, constant, setField string
@@ -221,7 +220,7 @@ func TestCreateService(t *testing.T) {
 	}
 }
 
-// Fields
+// Fields.
 func TestCreateField(t *testing.T) {
 	cases := []struct {
 		name, typeName               string
@@ -387,7 +386,7 @@ func TestCreateEnumField(t *testing.T) {
 	}
 }
 
-// Enums:
+// Enums:.
 func TestCreateEnum(t *testing.T) {
 	cases := []struct {
 		name    string
@@ -435,7 +434,7 @@ func TestCreateEnum(t *testing.T) {
 	}
 }
 
-// OneOf fields:
+// OneOf fields:.
 func TestCreateOneofField(t *testing.T) {
 	cases := []struct {
 		name, typeName string
@@ -473,7 +472,7 @@ func TestCreateOneofField(t *testing.T) {
 	}
 }
 
-// Oneof:
+// Oneof:.
 func TestCreateOneof(t *testing.T) {
 	cases := []struct {
 		name    string

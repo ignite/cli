@@ -9,8 +9,6 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/moby/moby/pkg/archive"
-
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/checksum"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner"
@@ -22,6 +20,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
 	"github.com/ignite/cli/v29/ignite/pkg/xstrings"
+	"github.com/moby/moby/pkg/archive"
 )
 
 const (

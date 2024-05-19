@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/ignite/cli/v29/ignite/pkg/xtime"
-
 	"github.com/stretchr/testify/require"
 )
 

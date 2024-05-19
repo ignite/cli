@@ -11,14 +11,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	"golang.org/x/mod/modfile"
-	"golang.org/x/mod/module"
-
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
+	"golang.org/x/mod/modfile"
+	"golang.org/x/mod/module"
 )
 
 const pathCacheNamespace = "gomodule.path"
@@ -188,11 +187,10 @@ func FindModule(ctx context.Context, rootDir, path string) (Module, error) {
 
 	for dec.More() {
 		var m Module
-		if dec.Decode(&m); err != nil {
+		if err := dec.Decode(&m); err != nil {
 			if errors.Is(err, io.EOF) {
 				break
 			}
-
 			return Module{}, err
 		}
 

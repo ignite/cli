@@ -6,12 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
 	cliuimodel "github.com/ignite/cli/v29/ignite/pkg/cliui/model"
 	"github.com/ignite/cli/v29/ignite/pkg/events"
+	"github.com/stretchr/testify/require"
 )
 
 func TestStatusEventsView(t *testing.T) {

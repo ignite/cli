@@ -5,10 +5,9 @@ import (
 	"path"
 	"testing"
 
+	pluginsconfig "github.com/ignite/cli/v29/ignite/config/plugins"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-	pluginsconfig "github.com/ignite/cli/v29/ignite/config/plugins"
 )
 
 func TestPluginIsGlobal(t *testing.T) {

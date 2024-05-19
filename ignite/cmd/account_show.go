@@ -1,9 +1,8 @@
 package ignitecmd
 
 import (
-	"github.com/spf13/cobra"
-
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosaccount"
+	"github.com/spf13/cobra"
 )
 
 func NewAccountShow() *cobra.Command {

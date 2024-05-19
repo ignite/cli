@@ -1,11 +1,10 @@
 package base
 
 import (
-	"github.com/imdario/mergo"
-
 	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/config/chain/version"
 	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
+	"github.com/imdario/mergo"
 )
 
 // Account holds the options related to setting up Cosmos wallets.

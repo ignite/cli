@@ -3,11 +3,10 @@ package scaffolder
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/v29/ignite/templates/field"
 	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
+	"github.com/stretchr/testify/require"
 )
 
 func TestParseTypeFields(t *testing.T) {
@@ -148,7 +147,7 @@ func TestParseTypeFields(t *testing.T) {
 	}
 }
 
-// indirectly tests checkForbiddenTypeField()
+// indirectly tests checkForbiddenTypeField().
 func TestCheckForbiddenTypeIndexField(t *testing.T) {
 	tests := []struct {
 		name        string

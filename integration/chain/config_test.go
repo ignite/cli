@@ -8,12 +8,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/pkg/confile"
 	"github.com/ignite/cli/v29/ignite/pkg/randstr"
 	envtest "github.com/ignite/cli/v29/integration"
+	"github.com/stretchr/testify/require"
 )
 
 func TestOverwriteSDKConfigsAndChainID(t *testing.T) {

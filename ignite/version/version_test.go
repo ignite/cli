@@ -4,10 +4,9 @@ import (
 	"testing"
 
 	"github.com/blang/semver/v4"
-	"github.com/stretchr/testify/require"
-
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/v29/ignite/version"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAssertSupportedCosmosSDKVersion(t *testing.T) {

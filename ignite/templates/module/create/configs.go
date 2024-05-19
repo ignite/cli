@@ -4,7 +4,6 @@ import (
 	"path/filepath"
 
 	"github.com/gobuffalo/genny/v2"
-
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
 )

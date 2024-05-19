@@ -3,9 +3,8 @@ package genesis_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	cosmosgenesis "github.com/ignite/cli/v29/ignite/pkg/cosmosutil/genesis"
+	"github.com/stretchr/testify/require"
 )
 
 func TestModuleParamField(t *testing.T) {

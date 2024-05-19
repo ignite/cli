@@ -3,9 +3,8 @@ package errorview
 import (
 	"strings"
 
-	"github.com/muesli/reflow/wordwrap"
-
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
+	"github.com/muesli/reflow/wordwrap"
 )
 
 func NewError(err error) Error {

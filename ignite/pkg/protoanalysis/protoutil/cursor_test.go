@@ -61,7 +61,7 @@ func TestSimpleInsertAfter(t *testing.T) {
 }
 
 // Can really only panic with comments since
-// other elements in nodes aren't Visitees
+// other elements in nodes aren't Visitees.
 func TestInsertAfterPanic(t *testing.T) {
 	f, err := parseStringProto(`syntax = "proto3"
 	
@@ -120,7 +120,7 @@ func TestSimpleInsertBefore(t *testing.T) {
 }
 
 // Can really only panic with comments since
-// other elements in nodes aren't Visitees
+// other elements in nodes aren't Visitees.
 func TestInsertBeforePanic(t *testing.T) {
 	f, err := parseStringProto(`syntax = "proto3"
 	

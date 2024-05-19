@@ -5,10 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/ignite/cli/v29/ignite/pkg/clictx"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/stretchr/testify/require"
 )
 
 func TestDo(t *testing.T) {

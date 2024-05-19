@@ -13,7 +13,6 @@ import (
 
 	"github.com/blang/semver/v4"
 	"github.com/google/go-github/v48/github"
-
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"

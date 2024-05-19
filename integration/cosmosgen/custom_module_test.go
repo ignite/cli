@@ -6,13 +6,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/config/chain/base"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v29/ignite/pkg/xurl"
 	envtest "github.com/ignite/cli/v29/integration"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCustomModule(t *testing.T) {

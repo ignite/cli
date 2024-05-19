@@ -4,9 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/ignite/cli/v29/ignite/pkg/xtime"
+	"github.com/stretchr/testify/require"
 )
 
 func TestClockSystem(t *testing.T) {

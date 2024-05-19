@@ -7,9 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
-	flag "github.com/spf13/pflag"
-
 	pluginsconfig "github.com/ignite/cli/v29/ignite/config/plugins"
 	"github.com/ignite/cli/v29/ignite/pkg/clictx"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
@@ -20,6 +17,8 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/xgit"
 	"github.com/ignite/cli/v29/ignite/services/chain"
 	"github.com/ignite/cli/v29/ignite/services/plugin"
+	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
 )
 
 const (

@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/gobuffalo/genny/v2"
-
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis"

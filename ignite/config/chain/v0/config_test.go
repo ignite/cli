@@ -3,9 +3,8 @@ package v0_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	v0 "github.com/ignite/cli/v29/ignite/config/chain/v0"
+	"github.com/stretchr/testify/require"
 )
 
 func TestClone(t *testing.T) {

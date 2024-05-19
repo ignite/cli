@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 
 	"github.com/iancoleman/strcase"
-
 	"github.com/ignite/cli/v29/ignite/templates/field"
 )
 
