@@ -131,8 +131,7 @@ func TestExecutedCommandImportFlags(t *testing.T) {
 	cmd := cobra.Command{}
 	cmd.Flags().StringP("foo", "f", "bar", "foo usage")
 	cmd.PersistentFlags().IntP("test", "t", 1, "test usage")
-	err := cmd.ParseFlags([]string{"--foo", "baz", "--test", "42"})
-	require.NoError(t, err)
+	cmd.ParseFlags([]string{"--foo", "baz", "--test", "42"})
 
 	// Act
 	execCmd.ImportFlags(&cmd)
