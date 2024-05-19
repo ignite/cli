@@ -35,10 +35,12 @@ func newDefaultFlagValueError(typeName, value string) error {
 
 func (f *Flag) exportToFlagSet(fs *pflag.FlagSet) error {
 	var err error
-
 	switch f.Type {
 	case Flag_TYPE_FLAG_BOOL:
 		var v bool
+		if f.DefaultValue == "" {
+			f.DefaultValue = "false" // Ensure DefaultValue is set to a valid boolean string
+		}
 		v, err = strconv.ParseBool(f.DefaultValue)
 		if err != nil {
 			return newDefaultFlagValueError(cobraFlagTypeBool, f.DefaultValue)
@@ -73,7 +75,7 @@ func (f *Flag) exportToFlagSet(fs *pflag.FlagSet) error {
 		var v uint64
 		v, err = strconv.ParseUint(f.DefaultValue, 10, 64)
 		if err != nil {
-			return newDefaultFlagValueError(cobraFlagTypeInt64, f.DefaultValue)
+			return newDefaultFlagValueError(cobraFlagTypeUint64, f.DefaultValue)
 		}
 		fs.Uint64P(f.Name, f.Shorthand, v, f.Usage)
 		err = fs.Set(f.Name, f.Value)
@@ -85,7 +87,6 @@ func (f *Flag) exportToFlagSet(fs *pflag.FlagSet) error {
 		fs.StringP(f.Name, f.Shorthand, f.DefaultValue, f.Usage)
 		err = fs.Set(f.Name, f.Value)
 	}
-
 	if err != nil {
 		return err
 	}
