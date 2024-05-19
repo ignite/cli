@@ -149,6 +149,7 @@ func TestExecutedCommandNewFlags(t *testing.T) {
 				Shorthand:    "b",
 				Usage:        "bool usage",
 				DefaultValue: "false",
+				Value:        "true",
 				Type:         v1.Flag_TYPE_FLAG_BOOL,
 			},
 			{
@@ -247,6 +248,7 @@ func TestExecutedCommandNewPersistentFlags(t *testing.T) {
 				Shorthand:    "b",
 				Usage:        "bool usage",
 				DefaultValue: "false",
+				Value:        "true",
 				Type:         v1.Flag_TYPE_FLAG_BOOL,
 				Persistent:   true,
 			},

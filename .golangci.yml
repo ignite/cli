@@ -18,12 +18,10 @@ linters:
     - godot
     - gofumpt
     - revive
-    # - gosec
     - gosimple
     - govet
     - grouper
     - ineffassign
-    # - interfacer
     - misspell
     - nakedret
     - nolintlint
@@ -39,8 +37,6 @@ linters:
     - unparam
     - misspell
     - forbidigo
-    # - wrapcheck
-    # - wsl
 
 linters-settings:
   forbidigo:
