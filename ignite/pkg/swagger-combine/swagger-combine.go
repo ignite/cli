@@ -114,7 +114,7 @@ func (c *Config) Combine(out string) error {
 	if err := os.MkdirAll(outDir, 0o766); err != nil {
 		return err
 	}
-	if err = os.WriteFile(out, specJSON, 0o644); err != nil {
+	if err = os.WriteFile(out, specJSON, 0o600); err != nil {
 		return errors.Wrapf(err, "failed to write combined spec to file %s", out)
 	}
 	return nil

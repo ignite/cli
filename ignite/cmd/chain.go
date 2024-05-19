@@ -187,7 +187,7 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, app
 		return err
 	}
 
-	return os.WriteFile(toolsFilename, buf.Bytes(), 0o644)
+	return os.WriteFile(toolsFilename, buf.Bytes(), 0o600)
 }
 
 func bufMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPath, protoDir string) error {
@@ -288,7 +288,7 @@ func configMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, ap
 			return err
 		}
 
-		if err := os.WriteFile(cfgPath, buf.Bytes(), 0o755); err != nil {
+		if err := os.WriteFile(cfgPath, buf.Bytes(), 0o600); err != nil {
 			return errors.Errorf("config file migration failed: %w", err)
 		}
 	}

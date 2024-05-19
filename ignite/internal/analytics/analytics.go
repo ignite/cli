@@ -123,7 +123,7 @@ func checkDNT() (anonIdentity, error) {
 		return i, err
 	}
 
-	return i, os.WriteFile(identityPath, data, 0o700)
+	return i, os.WriteFile(identityPath, data, 0o600)
 }
 
 func getIsCI() bool {

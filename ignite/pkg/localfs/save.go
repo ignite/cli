@@ -71,6 +71,6 @@ func Save(f fs.FS, path string) error {
 			return err
 		}
 
-		return os.WriteFile(out, content, 0o644)
+		return os.WriteFile(out, content, 0o600)
 	})
 }

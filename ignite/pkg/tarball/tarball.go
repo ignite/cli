@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"io"
 	"path/filepath"
+	"strings"
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
@@ -16,6 +17,10 @@ var (
 	ErrNotGzipType = errors.New("file is not a gzip type")
 	// ErrInvalidFileName the file name is invalid.
 	ErrInvalidFileName = errors.New("invalid file name")
+	// ErrInvalidFilePath the file path is invalid.
+	ErrInvalidFilePath = errors.New("invalid file path")
+	// ErrFileTooLarge the file is too large to extract.
+	ErrFileTooLarge = errors.New("file too large to extract")
 )
 
 // ExtractFile founds and reads a specific file into a gzip file and folders recursively.
@@ -42,17 +47,33 @@ func ExtractFile(reader io.Reader, out io.Writer, fileName string) (string, erro
 			return header.Name, err
 		}
 
+		// Validate the file path
+		if !isValidPath(header.Name) {
+			return "", ErrInvalidFilePath
+		}
+
 		switch header.Typeflag {
 		case tar.TypeDir:
 			continue
 		case tar.TypeReg:
 			name := filepath.Base(header.Name)
 			if fileName == name {
-				_, err := io.Copy(out, tarReader)
+				// Limit the size of the file to extract
+				if header.Size > 100<<20 { // 100 MB limit
+					return "", ErrFileTooLarge
+				}
+				limitedReader := io.LimitReader(tarReader, 1000<<20) // 1000 MB limit
+				_, err := io.Copy(out, limitedReader)
 				return header.Name, err
 			}
 		default:
 			continue
 		}
 	}
+}
+
+// isValidPath checks for directory traversal attacks.
+func isValidPath(filePath string) bool {
+	cleanPath := filepath.Clean(filePath)
+	return !strings.Contains(cleanPath, "..")
 }

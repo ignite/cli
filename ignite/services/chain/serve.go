@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/otiai10/copy"
 	"golang.org/x/sync/errgroup"
@@ -566,8 +567,9 @@ func (c *Chain) runFaucetServer(ctx context.Context, faucet cosmosfaucet.Faucet)
 	}
 
 	return xhttp.Serve(ctx, &http.Server{
-		Addr:    chainconfig.FaucetHost(cfg),
-		Handler: faucet,
+		Addr:              chainconfig.FaucetHost(cfg),
+		Handler:           faucet,
+		ReadHeaderTimeout: 5 * time.Second, // Set a reasonable timeout
 	})
 }
 

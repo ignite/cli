@@ -65,7 +65,7 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 
 		if !errors.Is(err, cache.ErrorNotFound) {
 			specPath := filepath.Join(dir, specFilename)
-			if err := os.WriteFile(specPath, existingSpec, 0o644); err != nil {
+			if err := os.WriteFile(specPath, existingSpec, 0o600); err != nil {
 				return err
 			}
 			return conf.AddSpec(strcase.ToCamel(m.Pkg.Name), specPath, true)
