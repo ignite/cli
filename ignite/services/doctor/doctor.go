@@ -231,7 +231,7 @@ func (d Doctor) ensureDependencyImports(toolsFilename string) (bool, error) {
 		return false, err
 	}
 
-	err = os.WriteFile(toolsFilename, buf.Bytes(), 0o644)
+	err = os.WriteFile(toolsFilename, buf.Bytes(), 0o600)
 	if err != nil {
 		return false, err
 	}
