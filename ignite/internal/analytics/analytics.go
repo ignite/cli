@@ -9,12 +9,13 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/manifoldco/promptui"
+	"github.com/spf13/cobra"
+
 	"github.com/ignite/cli/v29/ignite/pkg/gacli"
 	"github.com/ignite/cli/v29/ignite/pkg/gitpod"
 	"github.com/ignite/cli/v29/ignite/pkg/randstr"
 	"github.com/ignite/cli/v29/ignite/version"
-	"github.com/manifoldco/promptui"
-	"github.com/spf13/cobra"
 )
 
 const (

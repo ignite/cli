@@ -5,8 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 func TestModifyFunction(t *testing.T) {

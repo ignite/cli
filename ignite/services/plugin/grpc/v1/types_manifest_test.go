@@ -3,9 +3,10 @@ package v1_test
 import (
 	"testing"
 
-	v1 "github.com/ignite/cli/v29/ignite/services/plugin/grpc/v1"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
+
+	v1 "github.com/ignite/cli/v29/ignite/services/plugin/grpc/v1"
 )
 
 func TestManifestImportCobraCommand(t *testing.T) {

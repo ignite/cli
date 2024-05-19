@@ -5,8 +5,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/ignite/cli/v29/ignite/pkg/goenv"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/v29/ignite/pkg/goenv"
 )
 
 func TestGoModCache(t *testing.T) {

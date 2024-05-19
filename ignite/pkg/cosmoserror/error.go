@@ -1,9 +1,10 @@
 package cosmoserror
 
 import (
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 var (

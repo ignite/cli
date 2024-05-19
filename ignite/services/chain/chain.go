@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
+	"github.com/spf13/cobra"
+
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	chainconfigv1 "github.com/ignite/cli/v29/ignite/config/chain/v1"
 	"github.com/ignite/cli/v29/ignite/pkg/chaincmd"
@@ -20,7 +22,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/xexec"
 	"github.com/ignite/cli/v29/ignite/pkg/xurl"
 	igniteversion "github.com/ignite/cli/v29/ignite/version"
-	"github.com/spf13/cobra"
 )
 
 const (

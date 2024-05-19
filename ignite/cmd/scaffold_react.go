@@ -1,10 +1,11 @@
 package ignitecmd
 
 import (
+	"github.com/spf13/cobra"
+
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosgen"
-	"github.com/spf13/cobra"
 )
 
 // NewScaffoldReact scaffolds a React app for a chain.

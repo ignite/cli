@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/emicklei/proto"
+
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/v29/ignite/templates/field"

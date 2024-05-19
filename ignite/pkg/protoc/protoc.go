@@ -11,12 +11,13 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/ignite/ignite-files/protoc"
+
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/localfs"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis"
-	"github.com/ignite/ignite-files/protoc"
 )
 
 // Option configures Generate configs.

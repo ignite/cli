@@ -6,12 +6,13 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/v29/ignite/pkg/randstr"
 	"github.com/ignite/cli/v29/ignite/pkg/xurl"
 	envtest "github.com/ignite/cli/v29/integration"
-	"github.com/stretchr/testify/require"
 )
 
 func TestNodeQueryTx(t *testing.T) {

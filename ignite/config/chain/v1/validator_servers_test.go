@@ -3,9 +3,10 @@ package v1_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	v1 "github.com/ignite/cli/v29/ignite/config/chain/v1"
 	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
-	"github.com/stretchr/testify/require"
 )
 
 func TestValidatorGetServers(t *testing.T) {

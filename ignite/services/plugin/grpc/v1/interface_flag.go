@@ -4,8 +4,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/spf13/pflag"
+
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 const (

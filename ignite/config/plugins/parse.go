@@ -5,8 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"gopkg.in/yaml.v3"
+
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 // ParseDir expects to find a plugin config file in dir. If dir is not a folder,

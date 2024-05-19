@@ -3,8 +3,9 @@ package cosmosver_test
 import (
 	"testing"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"
 )
 
 func TestDetect(t *testing.T) {

@@ -5,9 +5,10 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis"
-	"github.com/stretchr/testify/require"
 )
 
 func newModule(relChainPath, goImportPath string) module.Module {

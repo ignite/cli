@@ -6,9 +6,10 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cosmostxcollector/adapter/postgres"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/v29/ignite/pkg/cosmostxcollector/adapter/postgres"
 )
 
 func TestSchemasWalk(t *testing.T) {

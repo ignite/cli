@@ -4,11 +4,15 @@ import (
 	"encoding/base64"
 	"testing"
 
-	sdkmath "cosmossdk.io/math"
-	"github.com/cometbft/cometbft/crypto/ed25519"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosutil"
 	"github.com/stretchr/testify/require"
+
+	sdkmath "cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/cometbft/cometbft/crypto/ed25519"
+
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosutil"
 )
 
 func TestParseGentx(t *testing.T) {

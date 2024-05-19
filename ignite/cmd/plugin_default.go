@@ -1,10 +1,11 @@
 package ignitecmd
 
 import (
+	"github.com/spf13/cobra"
+
 	pluginsconfig "github.com/ignite/cli/v29/ignite/config/plugins"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/services/plugin"
-	"github.com/spf13/cobra"
 )
 
 type defaultPlugin struct {

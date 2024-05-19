@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/stretchr/testify/require"
+
 	cmdmodel "github.com/ignite/cli/v29/ignite/cmd/model"
 	"github.com/ignite/cli/v29/ignite/cmd/model/testdata"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
@@ -12,7 +14,6 @@ import (
 	cliuimodel "github.com/ignite/cli/v29/ignite/pkg/cliui/model"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/events"
-	"github.com/stretchr/testify/require"
 )
 
 func TestChainDebugErrorView(t *testing.T) {

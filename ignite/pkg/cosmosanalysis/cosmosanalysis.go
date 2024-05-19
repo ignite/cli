@@ -10,10 +10,11 @@ import (
 	"os"
 	"path/filepath"
 
+	"golang.org/x/mod/modfile"
+
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodule"
-	"golang.org/x/mod/modfile"
 )
 
 const (

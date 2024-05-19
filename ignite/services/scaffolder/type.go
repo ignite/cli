@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny/v2"
+
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"

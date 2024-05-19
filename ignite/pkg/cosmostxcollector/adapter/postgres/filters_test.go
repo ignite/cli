@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cosmostxcollector/adapter/postgres"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/v29/ignite/pkg/cosmostxcollector/adapter/postgres"
 )
 
 func TestFilter(t *testing.T) {

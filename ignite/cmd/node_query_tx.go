@@ -4,8 +4,9 @@ import (
 	"encoding/hex"
 	"encoding/json"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/spf13/cobra"
+
+	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 )
 
 func NewNodeQueryTx() *cobra.Command {

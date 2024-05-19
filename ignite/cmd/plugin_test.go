@@ -8,14 +8,15 @@ import (
 	"strings"
 	"testing"
 
-	pluginsconfig "github.com/ignite/cli/v29/ignite/config/plugins"
-	"github.com/ignite/cli/v29/ignite/services/plugin"
-	"github.com/ignite/cli/v29/ignite/services/plugin/mocks"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+
+	pluginsconfig "github.com/ignite/cli/v29/ignite/config/plugins"
+	"github.com/ignite/cli/v29/ignite/services/plugin"
+	"github.com/ignite/cli/v29/ignite/services/plugin/mocks"
 )
 
 func buildRootCmd(ctx context.Context) *cobra.Command {

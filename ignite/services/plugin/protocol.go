@@ -5,8 +5,9 @@ import (
 	"sync"
 
 	hplugin "github.com/hashicorp/go-plugin"
-	v1 "github.com/ignite/cli/v29/ignite/services/plugin/grpc/v1"
 	"google.golang.org/grpc"
+
+	v1 "github.com/ignite/cli/v29/ignite/services/plugin/grpc/v1"
 )
 
 var handshakeConfig = hplugin.HandshakeConfig{

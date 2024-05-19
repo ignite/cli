@@ -8,7 +8,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/config/chain/base"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
@@ -18,7 +21,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/xurl"
 	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
 	envtest "github.com/ignite/cli/v29/integration"
-	"github.com/stretchr/testify/require"
 )
 
 func waitForNextBlock(env envtest.Env, client cosmosclient.Client) {

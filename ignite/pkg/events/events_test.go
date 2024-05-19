@@ -3,8 +3,9 @@ package events_test
 import (
 	"testing"
 
-	"github.com/ignite/cli/v29/ignite/pkg/events"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/v29/ignite/pkg/events"
 )
 
 func TestNew(t *testing.T) {

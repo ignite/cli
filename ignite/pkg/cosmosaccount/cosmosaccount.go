@@ -7,6 +7,8 @@ import (
 	"os"
 
 	dkeyring "github.com/99designs/keyring"
+	"github.com/cosmos/go-bip39"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
@@ -15,7 +17,7 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/go-bip39"
+
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 

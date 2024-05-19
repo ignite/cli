@@ -12,13 +12,14 @@ import (
 	"github.com/blang/semver/v4"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/stretchr/testify/require"
+
 	ignitecmd "github.com/ignite/cli/v29/ignite/cmd"
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodule"
 	"github.com/ignite/cli/v29/ignite/pkg/xgit"
 	envtest "github.com/ignite/cli/v29/integration"
-	"github.com/stretchr/testify/require"
 )
 
 const (

@@ -13,13 +13,14 @@ import (
 	"time"
 
 	"github.com/cenkalti/backoff"
+	"github.com/stretchr/testify/require"
+
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosfaucet"
 	"github.com/ignite/cli/v29/ignite/pkg/env"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
 	"github.com/ignite/cli/v29/ignite/pkg/httpstatuschecker"
 	"github.com/ignite/cli/v29/ignite/pkg/xurl"
-	"github.com/stretchr/testify/require"
 )
 
 const (

@@ -3,8 +3,9 @@ package datatype_test
 import (
 	"testing"
 
-	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
 )
 
 func TestIsSupportedType(t *testing.T) {

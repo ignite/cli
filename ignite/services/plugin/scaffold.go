@@ -10,11 +10,12 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 )
 
 //go:embed template/*

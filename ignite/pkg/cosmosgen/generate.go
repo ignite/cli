@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"slices"
 
+	"gopkg.in/yaml.v3"
+
 	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
@@ -23,7 +25,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/gomodule"
 	"github.com/ignite/cli/v29/ignite/pkg/xfilepath"
 	"github.com/ignite/cli/v29/ignite/pkg/xos"
-	"gopkg.in/yaml.v3"
 )
 
 const (

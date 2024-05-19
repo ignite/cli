@@ -3,9 +3,10 @@ package xyaml_test
 import (
 	"testing"
 
-	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
+
+	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
 )
 
 func TestUnmarshalWithCustomMapType(t *testing.T) {

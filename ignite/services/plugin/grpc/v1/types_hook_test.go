@@ -3,8 +3,9 @@ package v1_test
 import (
 	"testing"
 
-	v1 "github.com/ignite/cli/v29/ignite/services/plugin/grpc/v1"
 	"github.com/stretchr/testify/require"
+
+	v1 "github.com/ignite/cli/v29/ignite/services/plugin/grpc/v1"
 )
 
 func TestHookCommandPath(t *testing.T) {

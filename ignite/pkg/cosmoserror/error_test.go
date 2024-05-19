@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cosmoserror"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/ignite/cli/v29/ignite/pkg/cosmoserror"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 func TestUnwrap(t *testing.T) {

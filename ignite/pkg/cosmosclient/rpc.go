@@ -7,6 +7,7 @@ import (
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cometbft/cometbft/types"
+
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 

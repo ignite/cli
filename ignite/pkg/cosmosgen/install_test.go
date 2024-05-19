@@ -6,8 +6,9 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosgen"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosgen"
 )
 
 func TestMissingTools(t *testing.T) {

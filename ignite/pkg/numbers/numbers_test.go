@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 func TestParseList(t *testing.T) {

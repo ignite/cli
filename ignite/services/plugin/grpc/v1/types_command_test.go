@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	v1 "github.com/ignite/cli/v29/ignite/services/plugin/grpc/v1"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	v1 "github.com/ignite/cli/v29/ignite/services/plugin/grpc/v1"
 )
 
 func TestCommandToCobraCommand(t *testing.T) {

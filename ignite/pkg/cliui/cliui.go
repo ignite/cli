@@ -6,12 +6,13 @@ import (
 	"os"
 	"sync"
 
+	"github.com/manifoldco/promptui"
+
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/clispinner"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/entrywriter"
 	uilog "github.com/ignite/cli/v29/ignite/pkg/cliui/log"
 	"github.com/ignite/cli/v29/ignite/pkg/events"
-	"github.com/manifoldco/promptui"
 )
 
 type sessionOptions struct {

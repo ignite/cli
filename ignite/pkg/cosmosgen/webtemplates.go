@@ -1,8 +1,9 @@
 package cosmosgen
 
 import (
-	"github.com/ignite/cli/v29/ignite/pkg/localfs"
 	webtemplates "github.com/ignite/web"
+
+	"github.com/ignite/cli/v29/ignite/pkg/localfs"
 )
 
 // React scaffolds a React app for a chain.

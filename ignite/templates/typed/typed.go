@@ -4,6 +4,7 @@ import (
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush/v4"
+
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"

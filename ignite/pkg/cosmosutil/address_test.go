@@ -3,8 +3,9 @@ package cosmosutil_test
 import (
 	"testing"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosutil"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosutil"
 )
 
 func TestChangePrefix(t *testing.T) {

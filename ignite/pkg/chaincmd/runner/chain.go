@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/cenkalti/backoff"
+
 	"github.com/ignite/cli/v29/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"

@@ -6,8 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ignite/cli/v29/ignite/pkg/xos"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/v29/ignite/pkg/xos"
 )
 
 func TestFindFiles(t *testing.T) {

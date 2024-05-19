@@ -10,6 +10,9 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/otiai10/copy"
+	"golang.org/x/sync/errgroup"
+
 	"github.com/ignite/cli/v29/ignite/config"
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
@@ -28,8 +31,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/xfilepath"
 	"github.com/ignite/cli/v29/ignite/pkg/xhttp"
 	"github.com/ignite/cli/v29/ignite/pkg/xurl"
-	"github.com/otiai10/copy"
-	"golang.org/x/sync/errgroup"
 )
 
 const (

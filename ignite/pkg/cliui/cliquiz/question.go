@@ -9,8 +9,9 @@ import (
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/AlecAivazis/survey/v2/terminal"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/spf13/pflag"
+
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 // ErrConfirmationFailed is returned when second answer is not the same with first one.

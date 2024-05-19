@@ -1,11 +1,13 @@
 package ignitecmd
 
 import (
+	"github.com/spf13/cobra"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/ignite/cli/v29/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/services/chain"
-	"github.com/spf13/cobra"
 )
 
 // NewChainFaucet creates a new faucet command to send coins to accounts.

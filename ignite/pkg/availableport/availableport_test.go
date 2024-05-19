@@ -4,9 +4,10 @@ import (
 	"math/rand"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/ignite/cli/v29/ignite/pkg/availableport"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/stretchr/testify/require"
 )
 
 func TestFind(t *testing.T) {

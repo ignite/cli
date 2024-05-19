@@ -3,9 +3,10 @@ package ignitecmd
 import (
 	"testing"
 
-	pluginsconfig "github.com/ignite/cli/v29/ignite/config/plugins"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
+
+	pluginsconfig "github.com/ignite/cli/v29/ignite/config/plugins"
 )
 
 func TestEnsureDefaultPlugins(t *testing.T) {

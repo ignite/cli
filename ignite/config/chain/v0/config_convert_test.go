@@ -3,10 +3,11 @@ package v0_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	v0testdata "github.com/ignite/cli/v29/ignite/config/chain/v0/testdata"
 	v1 "github.com/ignite/cli/v29/ignite/config/chain/v1"
 	"github.com/ignite/cli/v29/ignite/config/chain/version"
-	"github.com/stretchr/testify/require"
 )
 
 func TestV0ToV1(t *testing.T) {
