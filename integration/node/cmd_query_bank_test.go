@@ -7,10 +7,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/config/chain/base"
@@ -30,6 +31,7 @@ const (
 )
 
 func assertBankBalanceOutput(t *testing.T, output string, balances string) {
+	t.Helper()
 	var table [][]string
 	coins, err := sdktypes.ParseCoinsNormalized(balances)
 	require.NoError(t, err, "wrong balances %s", balances)

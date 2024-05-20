@@ -96,6 +96,7 @@ func TestCliWithCaching(t *testing.T) {
 }
 
 func deleteCachedFiles(t *testing.T, vueGenerated, openapiGenerated, typesDir string) {
+	t.Helper()
 	require.NoError(t, os.RemoveAll(vueGenerated))
 	require.NoError(t, os.Remove(openapiGenerated))
 

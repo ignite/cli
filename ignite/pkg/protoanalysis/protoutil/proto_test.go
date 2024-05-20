@@ -25,7 +25,7 @@ func containsElement(f proto.Visitee, v proto.Visitee) bool {
 }
 
 // parseStringProto takes a string, parses it into a proto.File, and returns a ProtoFile.
-// Nodes can be created easily (newnode) by wrapping them correctly. (e.g field in a message)
+// Nodes can be created easily (newnode) by wrapping them correctly. (e.g field in a message).
 func parseStringProto(s string) (*proto.Proto, error) {
 	p, err := proto.NewParser(strings.NewReader(s)).Parse()
 	if err != nil {
@@ -89,9 +89,9 @@ service Msg {}
 )
 
 // Test that the changes from adding a list with starport scaffold list <Type>
-// are applied correctly to tx.proto
+// are applied correctly to tx.proto.
 func TestAddEmptyList_tx(t *testing.T) {
-	typename, modname := "Kirby", "chainname"
+	typename, modname := kirby, "chainname"
 	f, err := parseStringProto(txProto)
 	require.NoError(t, err)
 
@@ -160,7 +160,7 @@ func TestAddEmptyList_tx(t *testing.T) {
 }
 
 // Test that the changes from adding a list with starport scaffold list <Type>
-// are applied correctly to genesis.proto
+// are applied correctly to genesis.proto.
 func TestAddEmptyList_genesis(t *testing.T) {
 	typename, modname := "Kirby", "mod"
 	f, err := parseStringProto(genesisProto)

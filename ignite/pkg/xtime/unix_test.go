@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ignite/cli/v29/ignite/pkg/xtime"
-
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/v29/ignite/pkg/xtime"
 )
 
 func TestSeconds(t *testing.T) {

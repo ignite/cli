@@ -72,7 +72,9 @@ func run() error {
 	}
 	defer cleanUp()
 	cmd.Flags().String(outFlag, ".", ".md file path to place Ignite CLI docs inside")
-	cmd.Flags().MarkHidden(outFlag)
+	if err := cmd.Flags().MarkHidden(outFlag); err != nil {
+		return err
+	}
 
 	// Run ExecuteC so cobra adds the completion command.
 	cmd, err = cmd.ExecuteC()

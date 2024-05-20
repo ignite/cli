@@ -10,17 +10,20 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
+
 	"cosmossdk.io/math"
-	"github.com/cometbft/cometbft/p2p"
-	ctypes "github.com/cometbft/cometbft/rpc/core/types"
-	tmtypes "github.com/cometbft/cometbft/types"
+
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
+
+	"github.com/cometbft/cometbft/p2p"
+	ctypes "github.com/cometbft/cometbft/rpc/core/types"
+	tmtypes "github.com/cometbft/cometbft/types"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosclient"
@@ -45,6 +48,7 @@ type suite struct {
 }
 
 func newClient(t *testing.T, setup func(suite), opts ...cosmosclient.Option) cosmosclient.Client {
+	t.Helper()
 	s := suite{
 		rpcClient:        mocks.NewRPCClient(t),
 		accountRetriever: mocks.NewAccountRetriever(t),

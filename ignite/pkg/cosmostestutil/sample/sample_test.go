@@ -3,8 +3,9 @@ package cosmostestutilsample
 import (
 	"testing"
 
-	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/stretchr/testify/require"
+
+	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 )
 
 func TestAccAddress(t *testing.T) {

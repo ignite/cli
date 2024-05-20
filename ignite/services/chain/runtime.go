@@ -5,9 +5,10 @@ import (
 	"os"
 	"path/filepath"
 
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/nqd/flat"
 	"github.com/pelletier/go-toml"
+
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/pkg/chaincmd"

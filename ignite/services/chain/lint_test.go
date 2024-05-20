@@ -2,5 +2,5 @@ package chain_test
 
 import "testing"
 
-func TestChainLint(t *testing.T) {
+func TestChainLint(_ *testing.T) {
 }
