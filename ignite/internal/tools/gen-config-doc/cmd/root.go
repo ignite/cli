@@ -21,7 +21,7 @@ const (
 	flagOutput   = "output"
 	flagFilename = "filename"
 
-	defaultFilename = "sample-config.yml"
+	defaultFilename = "03-config.md"
 	defaultDocPath  = "docs/docs/08-references"
 )
 
