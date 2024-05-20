@@ -1,6 +1,7 @@
 package ignitecmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -14,7 +15,7 @@ func NewCompletionCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 {
 				if err := cmd.Help(); err != nil {
-					cmd.PrintErrln("Error displaying help:", err)
+					fmt.Fprintln(os.Stderr, "Error displaying help:", err)
 					os.Exit(1)
 				}
 				os.Exit(0)
@@ -30,14 +31,10 @@ func NewCompletionCmd() *cobra.Command {
 			case "powershell":
 				err = cmd.Root().GenPowerShellCompletion(os.Stdout)
 			default:
-				if err := cmd.Help(); err != nil {
-					cmd.PrintErrln("Error displaying help:", err)
-					os.Exit(1)
-				}
-				os.Exit(0)
+				err = cmd.Help()
 			}
 			if err != nil {
-				cmd.PrintErrln("Error generating completion script:", err)
+				fmt.Fprintln(os.Stderr, "Error generating completion script:", err)
 				os.Exit(1)
 			}
 		},

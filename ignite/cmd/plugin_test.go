@@ -81,7 +81,7 @@ func TestLinkPluginCmds(t *testing.T) {
 			Use: "flaggy",
 			Flags: []*plugin.Flag{
 				{Name: "flag1", Type: plugin.FlagTypeString},
-				{Name: "flag2", Type: plugin.FlagTypeInt, DefaultValue: "0"},
+				{Name: "flag2", Type: plugin.FlagTypeInt, DefaultValue: "0", Value: "0"},
 			},
 		}
 	)
