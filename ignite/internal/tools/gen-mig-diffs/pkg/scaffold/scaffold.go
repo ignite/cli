@@ -2,6 +2,7 @@ package scaffold
 
 import (
 	"context"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -9,6 +10,7 @@ import (
 	"github.com/Masterminds/semver/v3"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/randstr"
 
@@ -26,22 +28,28 @@ type (
 		cache       *cache.Cache
 		cachePath   string
 		commandList Commands
+		stdout      io.Writer
+		stderr      io.Writer
+		stdin       io.Reader
 	}
 
-	// options represents configuration for the generator.
-	options struct {
+	// option represents configuration for the generator.
+	option struct {
 		cachePath string
 		output    string
 		commands  Commands
+		stdout    io.Writer
+		stderr    io.Writer
+		stdin     io.Reader
 	}
-	// Options configures the generator.
-	Options func(*options)
+	// Option configures the generator.
+	Option func(*option)
 )
 
-// newOptions returns a options with default options.
-func newOptions() options {
+// newOptions returns a option with default option.
+func newOptions() option {
 	tmpDir := filepath.Join(os.TempDir(), randstr.Runes(4))
-	return options{
+	return option{
 		cachePath: filepath.Join(tmpDir, "migration-cache"),
 		output:    filepath.Join(tmpDir, "migration"),
 		commands:  defaultCommands,
@@ -49,28 +57,39 @@ func newOptions() options {
 }
 
 // WithOutput set the ignite scaffold Output.
-func WithOutput(output string) Options {
-	return func(o *options) {
+func WithOutput(output string) Option {
+	return func(o *option) {
 		o.output = output
 	}
 }
 
 // WithCachePath set the ignite scaffold cache path.
-func WithCachePath(cachePath string) Options {
-	return func(o *options) {
+func WithCachePath(cachePath string) Option {
+	return func(o *option) {
 		o.cachePath = cachePath
 	}
 }
 
-// WithCommandList set the migration docs Output.
-func WithCommandList(commands Commands) Options {
-	return func(o *options) {
-		o.commands = commands
+func WithStdout(w io.Writer) Option {
+	return func(o *option) {
+		o.stdout = w
+	}
+}
+
+func WithStderr(w io.Writer) Option {
+	return func(o *option) {
+		o.stderr = w
+	}
+}
+
+func WithStdin(r io.Reader) Option {
+	return func(o *option) {
+		o.stdin = r
 	}
 }
 
 // New returns a new Scaffold.
-func New(binary string, ver *semver.Version, options ...Options) (*Scaffold, error) {
+func New(binary string, ver *semver.Version, options ...Option) (*Scaffold, error) {
 	opts := newOptions()
 	for _, apply := range options {
 		apply(&opts)
@@ -91,6 +110,9 @@ func New(binary string, ver *semver.Version, options ...Options) (*Scaffold, err
 	}
 
 	return &Scaffold{
+		stdout:      opts.stdout,
+		stderr:      opts.stderr,
+		stdin:       opts.stdin,
 		binary:      binary,
 		version:     ver,
 		cache:       c,
@@ -157,7 +179,13 @@ func (s *Scaffold) executeScaffold(ctx context.Context, cmd, path string) error 
 	args = append(args, "--path", path)
 	args = applyPreExecuteExceptions(s.version, args)
 
-	if err := exec.Exec(ctx, args); err != nil {
+	if err := exec.Exec(
+		ctx,
+		args,
+		exec.StepOption(step.Stdout(s.stdout)),
+		exec.StepOption(step.Stderr(s.stderr)),
+		exec.StepOption(step.Stdin(s.stdin)),
+	); err != nil {
 		return errors.Wrapf(err, "failed to execute ignite scaffold command: %s", cmd)
 	}
 	return nil

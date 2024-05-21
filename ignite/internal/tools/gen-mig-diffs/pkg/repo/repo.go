@@ -335,7 +335,7 @@ func validateVersionRange(fromVer, toVer *semver.Version, versions semver.Collec
 	}
 
 	// Picking default values for fromVer and toVer such that:
-	// If both fromVer and toVer are not provided, then generate migration document for second last and last semver tags
+	// If both fromVer and toVer are not provided, then generate migration document for second last and last semver major tags
 	// If only fromVer is not provided, then use the tag before toVer as fromVer
 	// If only toVer is not provided, then use the last tag as toVer
 	if toVer != nil {
@@ -352,13 +352,17 @@ func validateVersionRange(fromVer, toVer *semver.Version, versions semver.Collec
 			return nil, nil, errors.Errorf("tag %s not found", fromVer)
 		}
 	} else {
-		sort.Search(versions.Len(), func(i int) bool {
-			if versions[i].LessThan(toVer) {
-				fromVer = versions[i]
-				return false
+		// Find the last major release version.
+		sort.Sort(sort.Reverse(versions))
+		for _, ver := range versions {
+			if ver.Major() < toVer.Major() {
+				fromVer = ver
+				break
 			}
-			return true
-		})
+		}
+		if fromVer == nil {
+			return nil, nil, errors.Errorf("can't find an older major release from %s", toVer.Original())
+		}
 	}
 
 	// Unable to generate migration document if fromVer is greater or equal to toVer
