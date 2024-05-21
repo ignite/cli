@@ -6,7 +6,7 @@ replace github.com/ignite/cli/v29 => ../../../../
 
 require (
 	github.com/gobuffalo/genny/v2 v2.1.0
-	github.com/gobuffalo/plush/v4 v4.1.19
+	github.com/gobuffalo/plush/v4 v4.1.20
 	github.com/ignite/cli/v29 v29.0.0-00010101000000-000000000000
 	github.com/spf13/cobra v1.8.0
 )
@@ -61,7 +61,6 @@ require (
 	github.com/sourcegraph/annotate v0.0.0-20160123013949-f4cad6c6324d // indirect
 	github.com/sourcegraph/syntaxhighlight v0.0.0-20170531221838-bd320f5d308e // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	golang.org/x/exp v0.0.0-20240404231335-c0f41cb1a7a0 // indirect
 	golang.org/x/net v0.24.0 // indirect
 	golang.org/x/sys v0.19.0 // indirect
 	golang.org/x/term v0.19.0 // indirect

@@ -3,15 +3,16 @@ package cosmosbuf
 import (
 	"context"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/gobwas/glob"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/v29/ignite/pkg/dircache"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis"
 	"github.com/ignite/cli/v29/ignite/pkg/xexec"
 	"github.com/ignite/cli/v29/ignite/pkg/xos"
 )
@@ -22,46 +23,38 @@ type (
 
 	// Buf represents the buf application structure.
 	Buf struct {
-		path        string
-		sdkProtoDir string
-		cache       *protoanalysis.Cache
+		path  string
+		cache dircache.Cache
 	}
 
-	// genOptions represents the buf generate options.
+	// genOptions used to configure code generation.
 	genOptions struct {
+		excluded       []glob.Glob
+		fileByFile     bool
 		flags          map[string]string
-		excludeFiles   []string
 		includeImports []string
 	}
 
-	// GenOptions represents the buf generate options function.
-	GenOptions func(o *genOptions)
+	// GenOption configures code generation.
+	GenOption func(*genOptions)
 )
 
 func newGenOptions() *genOptions {
 	return &genOptions{
 		flags:          make(map[string]string),
-		excludeFiles:   make([]string, 0),
 		includeImports: make([]string, 0),
 	}
 }
 
 // WithGenerateFlag provides flag options for the buf generate command.
-func WithGenerateFlag(flag, value string) GenOptions {
+func WithGenerateFlag(flag, value string) GenOption {
 	return func(o *genOptions) {
 		o.flags[flag] = value
 	}
 }
 
-// ExcludeFiles exclude proto files.
-func ExcludeFiles(excludeFiles ...string) GenOptions {
-	return func(o *genOptions) {
-		o.excludeFiles = append(o.excludeFiles, excludeFiles...)
-	}
-}
-
 // IncludeImports include proto import.
-func IncludeImports(includeImports ...string) GenOptions {
+func IncludeImports(includeImports ...string) GenOption {
 	return func(o *genOptions) {
 		o.includeImports = append(o.includeImports, includeImports...)
 	}
@@ -73,6 +66,7 @@ const (
 	flagOutput      = "output"
 	flagErrorFormat = "error-format"
 	flagLogFormat   = "log-format"
+	flagPath        = "path"
 	flagOnly        = "only"
 	fmtJSON         = "json"
 
@@ -80,6 +74,8 @@ const (
 	CMDGenerate Command = "generate"
 	CMDExport   Command = "export"
 	CMDMod      Command = "mod"
+
+	specCacheNamespace = "generate.buf"
 )
 
 var (
@@ -96,15 +92,38 @@ var (
 	ErrProtoFilesNotFound = errors.New("no proto files found")
 )
 
+// ExcludeFiles exclude file names from the generate command using glob.
+func ExcludeFiles(patterns ...string) GenOption {
+	return func(o *genOptions) {
+		for _, pattern := range patterns {
+			o.excluded = append(o.excluded, glob.MustCompile(pattern))
+		}
+	}
+}
+
+// FileByFile runs the generate command for each proto file.
+func FileByFile() GenOption {
+	return func(o *genOptions) {
+		o.fileByFile = true
+	}
+}
+
 // New creates a new Buf based on the installed binary.
-func New() (Buf, error) {
+func New(cacheStorage cache.Storage, goModPath string) (Buf, error) {
 	path, err := xexec.ResolveAbsPath(binaryName)
 	if err != nil {
 		return Buf{}, err
 	}
+
+	bufCacheDir := filepath.Join("buf", goModPath)
+	c, err := dircache.New(cacheStorage, bufCacheDir, specCacheNamespace)
+	if err != nil {
+		return Buf{}, err
+	}
+
 	return Buf{
 		path:  path,
-		cache: protoanalysis.NewCache(),
+		cache: c,
 	}, nil
 }
 
@@ -123,7 +142,7 @@ func (b Buf) Update(ctx context.Context, modDir string, dependencies ...string) 
 		}
 	}
 
-	cmd, err := b.generateCommand(CMDMod, flags, "update", modDir)
+	cmd, err := b.command(CMDMod, flags, "update", modDir)
 	if err != nil {
 		return err
 	}
@@ -133,7 +152,7 @@ func (b Buf) Update(ctx context.Context, modDir string, dependencies ...string) 
 
 // Export runs the buf Export command for the files in the proto directory.
 func (b Buf) Export(ctx context.Context, protoDir, output string) error {
-	specs, err := xos.FindFiles(protoDir, xos.ProtoFile)
+	specs, err := xos.FindFilesExtension(protoDir, xos.ProtoFile)
 	if err != nil {
 		return err
 	}
@@ -144,7 +163,7 @@ func (b Buf) Export(ctx context.Context, protoDir, output string) error {
 		flagOutput: output,
 	}
 
-	cmd, err := b.generateCommand(CMDExport, flags, protoDir)
+	cmd, err := b.command(CMDExport, flags, protoDir)
 	if err != nil {
 		return err
 	}
@@ -155,46 +174,70 @@ func (b Buf) Export(ctx context.Context, protoDir, output string) error {
 // Generate runs the buf Generate command for each file into the proto directory.
 func (b Buf) Generate(
 	ctx context.Context,
-	protoDir,
+	protoPath,
 	output,
 	template string,
-	options ...GenOptions,
+	options ...GenOption,
 ) (err error) {
-	opts := newGenOptions()
+	opts := genOptions{}
 	for _, apply := range options {
-		apply(opts)
-	}
-	opts.flags[flagTemplate] = template
-	opts.flags[flagOutput] = output
-	opts.flags[flagErrorFormat] = fmtJSON
-	opts.flags[flagLogFormat] = fmtJSON
-
-	excluded := make(map[string]struct{})
-	for _, file := range opts.excludeFiles {
-		excluded[file] = struct{}{}
+		apply(&opts)
 	}
 
-	pkgs, err := protoanalysis.Parse(ctx, b.cache, protoDir)
-	if err != nil {
+	// find all proto files into the path.
+	foundFiles, err := xos.FindFilesExtension(protoPath, xos.ProtoFile)
+	if err != nil || len(foundFiles) == 0 {
 		return err
 	}
 
-	g, ctx := errgroup.WithContext(ctx)
-	for _, pkg := range pkgs {
-		for _, file := range pkg.Files {
-			if _, ok := excluded[filepath.Base(file.Path)]; ok {
-				continue
-			}
+	// check if already exist a cache for the template.
+	key, err := b.cache.CopyTo(protoPath, output, template)
+	if err != nil && !errors.Is(err, dircache.ErrCacheNotFound) {
+		return err
+	} else if err == nil {
+		return nil
+	}
 
-			specs, err := xos.FindFiles(protoDir, xos.ProtoFile)
-			if err != nil {
-				return err
+	// remove excluded and cached files.
+	protoFiles := make([]string, 0)
+	for _, file := range foundFiles {
+		okExclude := false
+		for _, g := range opts.excluded {
+			if g.Match(file) {
+				okExclude = true
+				break
 			}
-			if len(specs) == 0 {
-				continue
-			}
+		}
+		if !okExclude {
+			protoFiles = append(protoFiles, file)
+		}
+	}
+	if len(protoFiles) == 0 {
+		return nil
+	}
 
-			cmd, err := b.generateCommand(CMDGenerate, opts.flags, file.Path)
+	flags := map[string]string{
+		flagTemplate:    template,
+		flagOutput:      output,
+		flagErrorFormat: fmtJSON,
+		flagLogFormat:   fmtJSON,
+	}
+
+	if !opts.fileByFile {
+		cmd, err := b.command(CMDGenerate, flags, protoPath)
+		if err != nil {
+			return err
+		}
+		for _, file := range protoFiles {
+			cmd = append(cmd, fmt.Sprintf("--%s=%s", flagPath, file))
+		}
+		if err := b.runCommand(ctx, cmd...); err != nil {
+			return err
+		}
+	} else {
+		g, ctx := errgroup.WithContext(ctx)
+		for _, file := range protoFiles {
+			cmd, err := b.command(CMDGenerate, flags, file)
 			if err != nil {
 				return err
 			}
@@ -204,16 +247,12 @@ func (b Buf) Generate(
 				return b.runCommand(ctx, cmd...)
 			})
 		}
+		if err := g.Wait(); err != nil {
+			return err
+		}
 	}
-	return g.Wait()
-}
 
-// Cleanup deletes temporary files and directories.
-func (b Buf) Cleanup() error {
-	if b.sdkProtoDir != "" {
-		return os.RemoveAll(b.sdkProtoDir)
-	}
-	return nil
+	return b.cache.Save(output, key)
 }
 
 // runCommand run the buf CLI command.
@@ -224,8 +263,8 @@ func (b Buf) runCommand(ctx context.Context, cmd ...string) error {
 	return exec.Exec(ctx, cmd, execOpts...)
 }
 
-// generateCommand generate the buf CLI command.
-func (b Buf) generateCommand(
+// command generate the buf CLI command.
+func (b Buf) command(
 	c Command,
 	flags map[string]string,
 	args ...string,
