@@ -5,10 +5,16 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+<<<<<<< HEAD
 	"sort"
+=======
+	"strings"
+>>>>>>> 0b412628 (feat: improve buf rate limit (#4133))
 
+	"github.com/blang/semver/v4"
 	"github.com/iancoleman/strcase"
 
+<<<<<<< HEAD
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/v28/ignite/pkg/dirchange"
@@ -16,6 +22,15 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/nodetime"
 	swaggercombine "github.com/ignite/cli/v28/ignite/pkg/nodetime/programs/swagger-combine"
 	"github.com/ignite/cli/v28/ignite/pkg/xos"
+=======
+	"github.com/ignite/cli/v29/ignite/pkg/cache"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
+	"github.com/ignite/cli/v29/ignite/pkg/dirchange"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	swaggercombine "github.com/ignite/cli/v29/ignite/pkg/swagger-combine"
+	"github.com/ignite/cli/v29/ignite/pkg/xos"
+>>>>>>> 0b412628 (feat: improve buf rate limit (#4133))
 )
 
 const (
@@ -34,12 +49,16 @@ func (g *generator) openAPITemplateForSTA() string {
 func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 	var (
 		specDirs []string
+<<<<<<< HEAD
 		conf     = swaggercombine.Config{
 			Swagger: "2.0",
 			Info: swaggercombine.Info{
 				Title: "HTTP API Console",
 			},
 		}
+=======
+		conf     = swaggercombine.New("HTTP API Console", g.goModPath)
+>>>>>>> 0b412628 (feat: improve buf rate limit (#4133))
 	)
 	command, cleanup, err := nodetime.Command(nodetime.CommandSwaggerCombine)
 	if err != nil {
@@ -58,14 +77,16 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 
 	// gen generates a spec for a module where it's source code resides at src.
 	// and adds needed swaggercombine configure for it.
-	gen := func(src string, m module.Module) (err error) {
+	gen := func(appPath, protoDir, name string) error {
+		name = strcase.ToCamel(name)
+		protoPath := filepath.Join(appPath, protoDir)
+
 		dir, err := os.MkdirTemp("", "gen-openapi-module-spec")
 		if err != nil {
 			return err
 		}
 
-		checksumPaths := append([]string{m.Pkg.Path}, g.opts.includeDirs...)
-		checksum, err := dirchange.ChecksumFromPaths(src, checksumPaths...)
+		checksum, err := dirchange.ChecksumFromPaths(appPath, protoDir)
 		if err != nil {
 			return err
 		}
@@ -80,16 +101,31 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 			if err := os.WriteFile(specPath, existingSpec, 0o644); err != nil {
 				return err
 			}
-			return conf.AddSpec(strcase.ToCamel(m.Pkg.Name), specPath, true)
+			return conf.AddSpec(name, specPath, true)
 		}
 
 		hasAnySpecChanged = true
-		err = g.buf.Generate(ctx, m.Pkg.Path, dir, g.openAPITemplate(), "module.proto")
-		if err != nil {
-			return err
+		if err = g.buf.Generate(
+			ctx,
+			protoPath,
+			dir,
+			g.openAPITemplate(),
+			cosmosbuf.ExcludeFiles(
+				"*/module.proto",
+				"*/testutil/*",
+				"*/testdata/*",
+				"*/cosmos/orm/*",
+				"*/cosmos/reflection/*",
+				"*/cosmos/app/v1alpha1/*",
+				"*/cosmos/tx/config/v1/config.proto",
+				"*/cosmos/msg/textual/v1/textual.proto",
+			),
+			cosmosbuf.FileByFile(),
+		); err != nil {
+			return errors.Wrapf(err, "failed to generate openapi spec %s, probally you need to exclude some proto files", protoPath)
 		}
 
-		specs, err := xos.FindFiles(dir, xos.JSONFile)
+		specs, err := xos.FindFilesExtension(dir, xos.JSONFile)
 		if err != nil {
 			return err
 		}
@@ -102,7 +138,7 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 			if err := specCache.Put(cacheKey, f); err != nil {
 				return err
 			}
-			if err := conf.AddSpec(strcase.ToCamel(m.Pkg.Name), spec, true); err != nil {
+			if err := conf.AddSpec(name, spec, true); err != nil {
 				return err
 			}
 		}
@@ -115,22 +151,27 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 	// after add their path and config to swaggercombine.Config so we can combine them
 	// into a single spec.
 
-	add := func(src string, modules []module.Module) error {
-		for _, m := range modules {
-			if err := gen(src, m); err != nil {
-				return err
-			}
-		}
-		return nil
-	}
-
 	// protoc openapi generator acts weird on concurrent run, so do not use goroutines here.
-	if err := add(g.appPath, g.appModules); err != nil {
+	if err := gen(g.appPath, g.protoDir, g.goModPath); err != nil {
 		return err
 	}
 
-	for src, modules := range g.thirdModules {
-		if err := add(src, modules); err != nil {
+	doneMods := make(map[string]struct{})
+	for _, modules := range g.thirdModules {
+		if len(modules) == 0 {
+			continue
+		}
+		var (
+			m    = modules[0]
+			path = extractRootModulePath(m.Pkg.Path)
+		)
+
+		if _, ok := doneMods[path]; ok {
+			continue
+		}
+		doneMods[path] = struct{}{}
+
+		if err := gen(path, "", m.Name); err != nil {
 			return err
 		}
 	}
@@ -168,12 +209,17 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 func (g *generator) generateModuleOpenAPISpec(ctx context.Context, m module.Module, out string) error {
 	var (
 		specDirs []string
+<<<<<<< HEAD
 		conf     = swaggercombine.Config{
 			Swagger: "2.0",
 			Info: swaggercombine.Info{
 				Title: "HTTP API Console " + m.Pkg.Name,
 			},
 		}
+=======
+		title    = "HTTP API Console " + m.Pkg.Name
+		conf     = swaggercombine.New(title, g.goModPath)
+>>>>>>> 0b412628 (feat: improve buf rate limit (#4133))
 	)
 	command, cleanup, err := nodetime.Command(nodetime.CommandSwaggerCombine)
 	if err != nil {
@@ -222,11 +268,27 @@ func (g *generator) generateModuleOpenAPISpec(ctx context.Context, m module.Modu
 	// after add their path and config to swaggercombine.Config so we can combine them
 	// into a single spec.
 
+<<<<<<< HEAD
 	add := func(modules []module.Module) error {
 		for _, m := range modules {
 			if err := gen(m); err != nil {
 				return err
 			}
+=======
+	err = g.buf.Generate(ctx, m.Pkg.Path, dir, g.openAPITemplateForSTA(), cosmosbuf.ExcludeFiles("*/module.proto"))
+	if err != nil {
+		return err
+	}
+
+	specs, err := xos.FindFilesExtension(dir, xos.JSONFile)
+	if err != nil {
+		return err
+	}
+
+	for _, spec := range specs {
+		if err := conf.AddSpec(strcase.ToCamel(m.Pkg.Name), spec, false); err != nil {
+			return err
+>>>>>>> 0b412628 (feat: improve buf rate limit (#4133))
 		}
 		return nil
 	}
@@ -245,4 +307,22 @@ func (g *generator) generateModuleOpenAPISpec(ctx context.Context, m module.Modu
 	}
 	// combine specs into one and save to out.
 	return swaggercombine.Combine(ctx, conf, command, out)
+}
+
+func extractRootModulePath(fullPath string) string {
+	var (
+		segments   = strings.Split(fullPath, "/")
+		modulePath = "/"
+	)
+
+	for _, segment := range segments {
+		modulePath = filepath.Join(modulePath, segment)
+		segmentName := strings.Split(segment, "@")
+		if len(segmentName) > 1 {
+			if _, err := semver.ParseTolerant(segmentName[1]); err == nil {
+				return modulePath
+			}
+		}
+	}
+	return fullPath
 }
