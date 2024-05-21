@@ -213,12 +213,7 @@ func (g *generator) setup(ctx context.Context) (err error) {
 }
 
 func (g *generator) getProtoIncludeFolders(modPath string) []string {
-	// Add default protoDir and default includeDirs
-	includePaths := []string{filepath.Join(modPath, g.protoDir)}
-	for _, dir := range g.opts.includeDirs {
-		includePaths = append(includePaths, filepath.Join(modPath, dir))
-	}
-	return includePaths
+	return []string{filepath.Join(modPath, g.protoDir)}
 }
 
 func (g *generator) findBufPath(modpath string) (string, error) {
