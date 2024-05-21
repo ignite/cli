@@ -17,58 +17,17 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/xos"
 )
 
-type (
-	// Command represents a high level command under buf.
-	Command string
-
-	// Buf represents the buf application structure.
-	Buf struct {
-		path  string
-		cache dircache.Cache
-	}
-
-	// genOptions used to configure code generation.
-	genOptions struct {
-		excluded       []glob.Glob
-		fileByFile     bool
-		flags          map[string]string
-		includeImports []string
-	}
-
-	// GenOption configures code generation.
-	GenOption func(*genOptions)
-)
-
-func newGenOptions() *genOptions {
-	return &genOptions{
-		flags:          make(map[string]string),
-		includeImports: make([]string, 0),
-	}
-}
-
-// WithGenerateFlag provides flag options for the buf generate command.
-func WithGenerateFlag(flag, value string) GenOption {
-	return func(o *genOptions) {
-		o.flags[flag] = value
-	}
-}
-
-// IncludeImports include proto import.
-func IncludeImports(includeImports ...string) GenOption {
-	return func(o *genOptions) {
-		o.includeImports = append(o.includeImports, includeImports...)
-	}
-}
-
 const (
-	binaryName      = "buf"
-	flagTemplate    = "template"
-	flagOutput      = "output"
-	flagErrorFormat = "error-format"
-	flagLogFormat   = "log-format"
-	flagPath        = "path"
-	flagOnly        = "only"
-	fmtJSON         = "json"
+	binaryName                = "buf"
+	flagTemplate              = "template"
+	flagOutput                = "output"
+	flagErrorFormat           = "error-format"
+	flagLogFormat             = "log-format"
+	flagIncludeImports        = "include-imports"
+	flagIncludeWellKnownTypes = "include-wkt"
+	flagPath                  = "path"
+	flagOnly                  = "only"
+	fmtJSON                   = "json"
 
 	// CMDGenerate generate command.
 	CMDGenerate Command = "generate"
@@ -91,6 +50,42 @@ var (
 	// ErrProtoFilesNotFound indicates that no ".proto" files were found.
 	ErrProtoFilesNotFound = errors.New("no proto files found")
 )
+
+type (
+	// Command represents a high level command under buf.
+	Command string
+
+	// Buf represents the buf application structure.
+	Buf struct {
+		path  string
+		cache dircache.Cache
+	}
+
+	// genOptions used to configure code generation.
+	genOptions struct {
+		excluded   []glob.Glob
+		fileByFile bool
+		flags      map[string]string
+	}
+
+	// GenOption configures code generation.
+	GenOption func(*genOptions)
+)
+
+func newGenOptions() genOptions {
+	return genOptions{
+		flags:      make(map[string]string),
+		excluded:   make([]glob.Glob, 0),
+		fileByFile: false,
+	}
+}
+
+// WithFlag provides flag options for the buf generate command.
+func WithFlag(flag, value string) GenOption {
+	return func(o *genOptions) {
+		o.flags[flag] = value
+	}
+}
 
 // ExcludeFiles exclude file names from the generate command using glob.
 func ExcludeFiles(patterns ...string) GenOption {
@@ -179,7 +174,7 @@ func (b Buf) Generate(
 	template string,
 	options ...GenOption,
 ) (err error) {
-	opts := genOptions{}
+	opts := newGenOptions()
 	for _, apply := range options {
 		apply(&opts)
 	}
@@ -217,10 +212,15 @@ func (b Buf) Generate(
 	}
 
 	flags := map[string]string{
-		flagTemplate:    template,
-		flagOutput:      output,
-		flagErrorFormat: fmtJSON,
-		flagLogFormat:   fmtJSON,
+		flagTemplate:              template,
+		flagOutput:                output,
+		flagErrorFormat:           fmtJSON,
+		flagLogFormat:             fmtJSON,
+		flagIncludeImports:        "true",
+		flagIncludeWellKnownTypes: "true",
+	}
+	for k, v := range opts.flags {
+		flags[k] = v
 	}
 
 	if !opts.fileByFile {

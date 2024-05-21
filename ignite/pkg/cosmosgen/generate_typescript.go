@@ -79,7 +79,7 @@ func (g *generator) generateTS(ctx context.Context) error {
 func (g *tsGenerator) generateModuleTemplates(ctx context.Context) error {
 	gg := &errgroup.Group{}
 	dirCache := cache.New[[]byte](g.g.cacheStorage, dirchangeCacheNamespace)
-	add := func(sourcePath string, modules []module.Module, includes []string) {
+	add := func(sourcePath string, modules []module.Module) {
 		for _, m := range modules {
 			m := m
 
@@ -101,7 +101,7 @@ func (g *tsGenerator) generateModuleTemplates(ctx context.Context) error {
 					}
 				}
 
-				if err := g.generateModuleTemplate(ctx, sourcePath, m, includes); err != nil {
+				if err := g.generateModuleTemplate(ctx, sourcePath, m); err != nil {
 					return err
 				}
 
@@ -110,7 +110,7 @@ func (g *tsGenerator) generateModuleTemplates(ctx context.Context) error {
 		}
 	}
 
-	add(g.g.appPath, g.g.appModules, g.g.appIncludes.Paths)
+	add(g.g.appPath, g.g.appModules)
 
 	// Always generate third party modules; This is required because not generating them might
 	// lead to issues with the module registration in the root template. The root template must
@@ -118,9 +118,7 @@ func (g *tsGenerator) generateModuleTemplates(ctx context.Context) error {
 	// is available and not generated it would lead to the registration of a new not generated
 	// 3rd party module.
 	for sourcePath, modules := range g.g.thirdModules {
-		// TODO: Skip modules without proto files?
-		thirdIncludes := g.g.thirdModuleIncludes[sourcePath]
-		add(sourcePath, modules, append(g.g.appIncludes.Paths, thirdIncludes.Paths...))
+		add(sourcePath, modules)
 	}
 
 	return gg.Wait()
@@ -130,7 +128,6 @@ func (g *tsGenerator) generateModuleTemplate(
 	ctx context.Context,
 	appPath string,
 	m module.Module,
-	includePaths []string,
 ) error {
 	var (
 		out      = g.g.opts.jsOut(m)
@@ -157,7 +154,6 @@ func (g *tsGenerator) generateModuleTemplate(
 		typesOut,
 		g.g.tsTemplate(),
 		cosmosbuf.ExcludeFiles("module.proto"),
-		cosmosbuf.IncludeImports(includePaths...),
 	); err != nil {
 		return err
 	}
