@@ -198,8 +198,8 @@ func TestAppendFile(t *testing.T) {
 	e := NewEnum("Hey")
 	// Add an enum field to it:
 	ef := NewEnumField("HEY", 1)
-	Append(e, eF)
-	require.True(t, containsElement(e, eF))
+	Append(e, ef)
+	require.True(t, containsElement(e, ef))
 
 	Append(f, e)
 	require.True(t, containsElement(f, e))
