@@ -410,7 +410,7 @@ func (g generator) addBufDependency(ctx context.Context, depName string) error {
 	)
 
 	// Update Buf lock so it contains the new dependency
-	return g.buf.Update(ctx, filepath.Dir(path), depName)
+	return g.buf.Update(ctx, filepath.Dir(path))
 }
 
 func (g generator) vendorProtoPackage(pkgName, protoPath string) (err error) {

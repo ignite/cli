@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
-	"strings"
 
 	"github.com/gobwas/glob"
 	"golang.org/x/sync/errgroup"
@@ -26,13 +25,12 @@ const (
 	flagIncludeImports        = "include-imports"
 	flagIncludeWellKnownTypes = "include-wkt"
 	flagPath                  = "path"
-	flagOnly                  = "only"
 	fmtJSON                   = "json"
 
 	// CMDGenerate generate command.
 	CMDGenerate Command = "generate"
 	CMDExport   Command = "export"
-	CMDMod      Command = "mod"
+	CMDDep      Command = "dep"
 
 	specCacheNamespace = "generate.buf"
 )
@@ -41,7 +39,7 @@ var (
 	commands = map[Command]struct{}{
 		CMDGenerate: {},
 		CMDExport:   {},
-		CMDMod:      {},
+		CMDDep:      {},
 	}
 
 	// ErrInvalidCommand indicates an invalid command name.
@@ -127,17 +125,9 @@ func (c Command) String() string {
 	return string(c)
 }
 
-// Update updates module dependencies.
-// By default updates all dependencies unless one or more dependencies are specified.
-func (b Buf) Update(ctx context.Context, modDir string, dependencies ...string) error {
-	var flags map[string]string
-	if dependencies != nil {
-		flags = map[string]string{
-			flagOnly: strings.Join(dependencies, ","),
-		}
-	}
-
-	cmd, err := b.command(CMDMod, flags, "update", modDir)
+// Update updates module dependencies. By default updates all dependencies.
+func (b Buf) Update(ctx context.Context, modDir string) error {
+	cmd, err := b.command(CMDDep, nil, "update", modDir)
 	if err != nil {
 		return err
 	}
