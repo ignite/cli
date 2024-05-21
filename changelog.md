@@ -23,7 +23,6 @@
 
 - [#4156](https://github.com/ignite/cli/pull/4156) Lint tests and update linter settings
 
-- [#4162](https://github.com/ignite/cli/pull/4162) Enable errcheck linter and fix a bug in the way we test flags
 - [#4157](https://github.com/ignite/cli/pull/4157) Upgrade golang to 1.22
 - [#4094](https://github.com/ignite/cli/pull/4094) Scaffolding a multi-index map using `ignite s map foo bar baz --index foobar,foobaz` is no longer supported. Use one index instead of use `collections.IndexedMap`.
 - [#4058](https://github.com/ignite/cli/pull/4058) Simplify scaffolded modules by including `ValidateBasic()` logic in message handler.
