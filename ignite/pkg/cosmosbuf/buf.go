@@ -148,27 +148,34 @@ func (c Command) String() string {
 // Update updates module dependencies.
 // By default updates all dependencies unless one or more dependencies are specified.
 func (b Buf) Update(ctx context.Context, modDir string) error {
+	files, err := xos.FindFilesExtension(modDir, xos.ProtoFile)
+	if err != nil {
+		return err
+	}
+	if len(files) == 0 {
+		return errors.Errorf("%w: %s", ErrProtoFilesNotFound, modDir)
+	}
+
 	cmd, err := b.command(CMDDep, nil, "update", modDir)
 	if err != nil {
 		return err
 	}
-
 	return b.runCommand(ctx, cmd...)
 }
 
 // Export runs the buf Export command for the files in the proto directory.
 func (b Buf) Export(ctx context.Context, protoDir, output string) error {
-	specs, err := xos.FindFilesExtension(protoDir, xos.ProtoFile)
+	files, err := xos.FindFilesExtension(protoDir, xos.ProtoFile)
 	if err != nil {
 		return err
 	}
-	if len(specs) == 0 {
+	if len(files) == 0 {
 		return errors.Errorf("%w: %s", ErrProtoFilesNotFound, protoDir)
 	}
+
 	flags := map[string]string{
 		flagOutput: output,
 	}
-
 	cmd, err := b.command(CMDExport, flags, protoDir)
 	if err != nil {
 		return err

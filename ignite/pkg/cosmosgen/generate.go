@@ -335,7 +335,13 @@ func (g generator) updateBufModule(ctx context.Context) error {
 			}
 		}
 	}
-	return g.buf.Update(ctx, filepath.Dir(g.appIncludes.BufPath))
+	if err := g.buf.Update(
+		ctx,
+		filepath.Dir(g.appIncludes.BufPath),
+	); err != nil && !errors.Is(err, cosmosbuf.ErrProtoFilesNotFound) {
+		return err
+	}
+	return nil
 }
 
 func (g generator) resolveBufDependency(pkgName, bufPath string) error {
