@@ -1,1 +1,11 @@
+---
+sidebar_position: 4
+description: Configuration file example.
+title: Configuration file example
+---
+
+## Configuration file example
+
+```yaml title="config.yml"
 <%= Config %>
+```
