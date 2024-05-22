@@ -335,8 +335,7 @@ func (g generator) updateBufModule(ctx context.Context) error {
 			}
 		}
 	}
-	path := g.appIncludes.BufPath
-	return g.buf.Update(ctx, filepath.Dir(path))
+	return g.buf.Update(ctx, filepath.Dir(g.appIncludes.BufPath))
 }
 
 func (g generator) resolveBufDependency(pkgName, bufPath string) error {
