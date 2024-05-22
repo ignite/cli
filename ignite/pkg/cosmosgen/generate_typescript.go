@@ -154,6 +154,7 @@ func (g *tsGenerator) generateModuleTemplate(
 		typesOut,
 		g.g.tsTemplate(),
 		cosmosbuf.ExcludeFiles("module.proto"),
+		cosmosbuf.IncludeWKT(),
 	); err != nil {
 		return err
 	}

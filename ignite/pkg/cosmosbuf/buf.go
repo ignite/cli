@@ -61,9 +61,11 @@ type (
 
 	// genOptions used to configure code generation.
 	genOptions struct {
-		excluded   []glob.Glob
-		fileByFile bool
-		flags      map[string]string
+		excluded       []glob.Glob
+		flags          map[string]string
+		fileByFile     bool
+		includeImports bool
+		includeWKT     bool
 	}
 
 	// GenOption configures code generation.
@@ -72,9 +74,11 @@ type (
 
 func newGenOptions() genOptions {
 	return genOptions{
-		flags:      make(map[string]string),
-		excluded:   make([]glob.Glob, 0),
-		fileByFile: false,
+		flags:          make(map[string]string),
+		excluded:       make([]glob.Glob, 0),
+		fileByFile:     false,
+		includeWKT:     false,
+		includeImports: false,
 	}
 }
 
@@ -91,6 +95,22 @@ func ExcludeFiles(patterns ...string) GenOption {
 		for _, pattern := range patterns {
 			o.excluded = append(o.excluded, glob.MustCompile(pattern))
 		}
+	}
+}
+
+// IncludeImports also generate all imports except for Well-Known Types.
+func IncludeImports() GenOption {
+	return func(o *genOptions) {
+		o.includeImports = true
+	}
+}
+
+// IncludeWKT also generate Well-Known Types.
+// Cannot be set without IncludeImports.
+func IncludeWKT() GenOption {
+	return func(o *genOptions) {
+		o.includeImports = true
+		o.includeWKT = true
 	}
 }
 
@@ -125,7 +145,8 @@ func (c Command) String() string {
 	return string(c)
 }
 
-// Update updates module dependencies. By default updates all dependencies.
+// Update updates module dependencies.
+// By default updates all dependencies unless one or more dependencies are specified.
 func (b Buf) Update(ctx context.Context, modDir string) error {
 	cmd, err := b.command(CMDDep, nil, "update", modDir)
 	if err != nil {
@@ -202,15 +223,19 @@ func (b Buf) Generate(
 	}
 
 	flags := map[string]string{
-		flagTemplate:              template,
-		flagOutput:                output,
-		flagErrorFormat:           fmtJSON,
-		flagLogFormat:             fmtJSON,
-		flagIncludeImports:        "true",
-		flagIncludeWellKnownTypes: "true",
+		flagTemplate:    template,
+		flagOutput:      output,
+		flagErrorFormat: fmtJSON,
+		flagLogFormat:   fmtJSON,
 	}
 	for k, v := range opts.flags {
 		flags[k] = v
+	}
+	if opts.includeImports {
+		flags[flagIncludeImports] = "true"
+	}
+	if opts.includeWKT {
+		flags[flagIncludeWellKnownTypes] = "true"
 	}
 
 	if !opts.fileByFile {
