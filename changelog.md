@@ -6,8 +6,6 @@
 
 - [#4149](https://github.com/ignite/cli/pull/4149) Bump cometbft to `v0.38.7`
 
-### Fixes
-
 ## [`v28.4.0`](https://github.com/ignite/cli/releases/tag/v28.4.0)
 
 ### Features
