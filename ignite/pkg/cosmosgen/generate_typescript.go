@@ -104,7 +104,7 @@ func (g *tsGenerator) generateModuleTemplates(ctx context.Context) error {
 		for _, m := range modules {
 			gg.Go(func() error {
 				cacheKey := m.Pkg.Path
-				paths := append([]string{m.Pkg.Path, g.g.opts.jsOut(m)}, g.g.opts.includeDirs...)
+				paths := []string{m.Pkg.Path, g.g.opts.jsOut(m)}
 
 				// Always generate module templates by default unless cache is enabled, in which
 				// case the module template is generated when one or more files were changed in
