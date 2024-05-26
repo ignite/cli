@@ -31,10 +31,6 @@ type Build struct {
 type Proto struct {
 	// Path is the relative path of where app's proto files are located at.
 	Path string `yaml:"path" doc:"Relative path where the application's proto files are located."`
-
-	// ThirdPartyPath is the relative path of where the third party proto files are
-	// located that used by the app.
-	ThirdPartyPaths []string `yaml:"third_party_paths" doc:"Relative paths to third-party proto files used by the application."`
 }
 
 // Client configures code generation for clients.
@@ -174,8 +170,7 @@ func DefaultConfig() Config {
 	return Config{
 		Build: Build{
 			Proto: Proto{
-				Path:            defaults.ProtoDir,
-				ThirdPartyPaths: []string{"third_party/proto", "proto_vendor"},
+				Path: defaults.ProtoDir,
 			},
 		},
 		Faucet: Faucet{
