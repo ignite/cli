@@ -124,7 +124,6 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, protoD
 	options := []cosmosgen.Option{
 		cosmosgen.UpdateBufModule(),
 		cosmosgen.WithGoGeneration(),
-		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
 	}
 
 	// Generate Typescript client code if it's enabled
