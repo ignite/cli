@@ -11,8 +11,13 @@ func NewVersion() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "version",
 		Short: "Print the current build information",
-		Run: func(cmd *cobra.Command, _ []string) {
-			cmd.Println(version.Long(cmd.Context()))
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			v, err := version.Long(cmd.Context())
+			if err != nil {
+				return err
+			}
+			cmd.Println(v)
+			return nil
 		},
 	}
 	return c

@@ -1,8 +1,8 @@
 module example-plugin
 
-go 1.21.1
+go 1.22
 
-toolchain go1.21.4
+toolchain go1.22.3
 
 require (
 	github.com/hashicorp/go-plugin v1.6.0
