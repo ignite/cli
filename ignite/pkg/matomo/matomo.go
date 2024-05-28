@@ -21,12 +21,15 @@ type (
 		endpoint   string
 		idSite     uint   // Matomo ID Site.
 		tokenAuth  string // Matomo Token Auth.
+		source     string
 		httpClient http.Client
 	}
+
 	// Params analytics metrics body.
 	Params struct {
 		IDSite       uint   `url:"idsite"`
 		Rec          uint   `url:"rec"`
+		ActionName   string `url:"action_name"`
 		APIVersion   uint   `url:"apiv,omitempty"`
 		TokenAuth    string `url:"token_auth,omitempty"`
 		CustomAction uint   `url:"ca,omitempty"`
@@ -38,64 +41,63 @@ type (
 		UTMContent   string `url:"utm_content,omitempty"`
 		UserID       string `url:"uid,omitempty"`
 		UserAgent    string `url:"ua,omitempty"`
-		ActionName   string `url:"action_name"`
 		Hour         int    `url:"h,omitempty"`
 		Minute       int    `url:"m,omitempty"`
 		Second       int    `url:"s,omitempty"`
 
 		// Dimension1 development mode boolean.
 		// 1 = devMode ON | 0 = devMode OFF.
-		Dimension1 uint `url:"dimension1"`
+		Dimension1 uint `url:"dimension1,omitempty"`
 
 		// Dimension2 internal boolean.
 		// 1 = internal ON not supported at present | 0 = internal OFF.
-		Dimension2 uint `url:"dimension2"`
+		Dimension2 uint `url:"dimension2,omitempty"`
 
 		// Dimension3 is gitpod (0 or 1).
 		// 1 = isGitpod ON | 0 = isGitpod OFF.
-		Dimension3 uint `url:"dimension3"`
+		Dimension3 uint `url:"dimension3,omitempty"`
 
 		// Dimension4 ignite version
-		Dimension4 string `url:"dimension4"`
+		Dimension4 string `url:"dimension4,omitempty"`
 
 		// Dimension6 ignite config version
-		Dimension6 string `url:"dimension6"`
+		Dimension6 string `url:"dimension6,omitempty"`
 
 		// Dimension7 full cli command
-		Dimension7 string `url:"dimension7"`
+		Dimension7 string `url:"dimension7,omitempty"`
 
 		// Dimension11 scaffold customization type
-		Dimension11 string `url:"dimension11"`
+		Dimension11 string `url:"dimension11,omitempty"`
 
 		// Dimension13 command level 1.
-		Dimension13 string `url:"dimension13"`
+		Dimension13 string `url:"dimension13,omitempty"`
 
 		// Dimension14 command level 2.
-		Dimension14 string `url:"dimension14"`
+		Dimension14 string `url:"dimension14,omitempty"`
 
 		// Dimension15 command level 3.
-		Dimension15 string `url:"dimension15"`
+		Dimension15 string `url:"dimension15,omitempty"`
 
 		// Dimension16 command level 4.
-		Dimension16 string `url:"dimension16"`
+		Dimension16 string `url:"dimension16,omitempty"`
 
 		// Dimension17 cosmos-sdk version.
-		Dimension17 string `url:"dimension17"`
+		Dimension17 string `url:"dimension17,omitempty"`
 
 		// Dimension18 operational system.
-		Dimension18 string `url:"dimension18"`
+		Dimension18 string `url:"dimension18,omitempty"`
 
 		// Dimension19 system architecture.
-		Dimension19 string `url:"dimension19"`
+		Dimension19 string `url:"dimension19,omitempty"`
 
 		// Dimension20 golang version.
-		Dimension20 string `url:"dimension20"`
+		Dimension20 string `url:"dimension20,omitempty"`
 
 		// Dimension21 command level 5.
-		Dimension21 string `url:"dimension21"`
+		Dimension21 string `url:"dimension21,omitempty"`
 
 		// Dimension22 command level 6.
-		Dimension22 string `url:"dimension22"`
+		Dimension22 string `url:"dimension22,omitempty"`
 	}
 	// Metric represents a custom data.
 	Metric struct {
@@ -136,10 +138,18 @@ func WithTokenAuth(tokenAuth string) Option {
 	}
 }
 
+// WithSource adds a matomo URL source.
+func WithSource(source string) Option {
+	return func(c *Client) {
+		c.source = source
+	}
+}
+
 // New creates a new Matomo client.
 func New(endpoint string, opts ...Option) Client {
 	c := Client{
 		endpoint: endpoint,
+		source:   endpoint,
 		httpClient: http.Client{
 			Timeout: 1500 * time.Millisecond,
 		},
@@ -185,22 +195,6 @@ func (c Client) Send(params Params) error {
 	return nil
 }
 
-func splitCMD(cmd string) []string {
-	slipCmd := strings.Split(cmd, " ")
-	result := make([]string, 6)
-	for i := 0; i < len(slipCmd); i++ {
-		if i > 5 {
-			break
-		}
-		result[i] = slipCmd[i]
-	}
-	return result
-}
-
-func (c Client) metricURL(cmd string) string {
-	return fmt.Sprintf("%s/%s", c.endpoint, strings.ReplaceAll(cmd, " ", "_"))
-}
-
 // SendMetric build the metrics and send to analytics.
 func (c Client) SendMetric(sessionID string, metric Metric) error {
 	var (
@@ -212,16 +206,7 @@ func (c Client) SendMetric(sessionID string, metric Metric) error {
 		utmMedium = "binary"
 	}
 
-	slipCmd := strings.Split(metric.Cmd, " ")
-	result := make([]string, 5)
-	for i := 0; i < len(result); i++ {
-		if i <= len(result) {
-			break
-		}
-		result[i] = slipCmd[i]
-	}
-
-	cmd := splitCMD(metric.Cmd)
+	cmd := splitCommand(metric.Cmd)
 
 	return c.Send(Params{
 		IDSite:       c.idSite,
@@ -231,7 +216,7 @@ func (c Client) SendMetric(sessionID string, metric Metric) error {
 		CustomAction: 1,
 		Rand:         r.Uint64(),
 		URL:          c.metricURL(metric.Cmd),
-		UTMSource:    c.endpoint,
+		UTMSource:    c.source,
 		UTMMedium:    utmMedium,
 		UTMCampaign:  metric.SourceHash,
 		UTMContent:   metric.CLIVersion,
@@ -267,4 +252,24 @@ func formatBool(b bool) uint {
 		return 1
 	}
 	return 0
+}
+
+// splitCommand splice the command into a slice with length 6.
+func splitCommand(cmd string) []string {
+	var (
+		splitCmd  = strings.Split(cmd, " ")
+		cmdLevels = make([]string, 6)
+	)
+	for i := 0; i < len(cmdLevels); i++ {
+		if i >= len(splitCmd) {
+			break
+		}
+		cmdLevels[i] = splitCmd[i]
+	}
+	return cmdLevels
+}
+
+// metricURL build the metric URL.
+func (c Client) metricURL(cmd string) string {
+	return fmt.Sprintf("%s/%s", c.source, strings.ReplaceAll(cmd, " ", "_"))
 }

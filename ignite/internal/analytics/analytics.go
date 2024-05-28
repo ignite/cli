@@ -1,6 +1,7 @@
 package analytics
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -54,7 +55,7 @@ func SendMetric(wg *sync.WaitGroup, cmd *cobra.Command) {
 		return
 	}
 
-	versionInfo, err := version.GetInfo(cmd.Context())
+	versionInfo, err := version.GetInfo(context.Background())
 	if err != nil {
 		return
 	}
