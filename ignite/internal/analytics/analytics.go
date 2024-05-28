@@ -40,7 +40,8 @@ type anonIdentity struct {
 func init() {
 	matomoClient = matomo.New(
 		telemetryEndpoint,
-		matomo.WithIDSite(4), // TODO remove me
+		matomo.WithIDSite(4),
+		matomo.WithSource("https://cli.ignite.com"),
 	)
 }
 

@@ -27,35 +27,34 @@ type (
 
 	// Params analytics metrics body.
 	Params struct {
-		IDSite       uint   `url:"idsite"`
-		Rec          uint   `url:"rec"`
-		ActionName   string `url:"action_name"`
-		APIVersion   uint   `url:"apiv,omitempty"`
-		TokenAuth    string `url:"token_auth,omitempty"`
-		CustomAction uint   `url:"ca,omitempty"`
-		Rand         uint64 `url:"rand,omitempty"`
-		URL          string `url:"url,omitempty"`
-		UTMSource    string `url:"utm_source,omitempty"`
-		UTMMedium    string `url:"utm_medium,omitempty"`
-		UTMCampaign  string `url:"utm_campaign,omitempty"`
-		UTMContent   string `url:"utm_content,omitempty"`
-		UserID       string `url:"uid,omitempty"`
-		UserAgent    string `url:"ua,omitempty"`
-		Hour         int    `url:"h,omitempty"`
-		Minute       int    `url:"m,omitempty"`
-		Second       int    `url:"s,omitempty"`
+		IDSite      uint   `url:"idsite"`
+		Rec         uint   `url:"rec"`
+		ActionName  string `url:"action_name"`
+		APIVersion  uint   `url:"apiv"`
+		TokenAuth   string `url:"token_auth,omitempty"`
+		Rand        uint64 `url:"rand,omitempty"`
+		URL         string `url:"url,omitempty"`
+		UTMSource   string `url:"utm_source,omitempty"`
+		UTMMedium   string `url:"utm_medium,omitempty"`
+		UTMCampaign string `url:"utm_campaign,omitempty"`
+		UTMContent  string `url:"utm_content,omitempty"`
+		UserID      string `url:"uid,omitempty"`
+		UserAgent   string `url:"ua,omitempty"`
+		Hour        int    `url:"h,omitempty"`
+		Minute      int    `url:"m,omitempty"`
+		Second      int    `url:"s,omitempty"`
 
 		// Dimension1 development mode boolean.
 		// 1 = devMode ON | 0 = devMode OFF.
-		Dimension1 uint `url:"dimension1,omitempty"`
+		Dimension1 uint `url:"dimension1"`
 
 		// Dimension2 internal boolean.
 		// 1 = internal ON not supported at present | 0 = internal OFF.
-		Dimension2 uint `url:"dimension2,omitempty"`
+		Dimension2 uint `url:"dimension2"`
 
 		// Dimension3 is gitpod (0 or 1).
 		// 1 = isGitpod ON | 0 = isGitpod OFF.
-		Dimension3 uint `url:"dimension3,omitempty"`
+		Dimension3 uint `url:"dimension3"`
 
 		// Dimension4 ignite version
 		Dimension4 string `url:"dimension4,omitempty"`
@@ -198,51 +197,54 @@ func (c Client) Send(params Params) error {
 // SendMetric build the metrics and send to analytics.
 func (c Client) SendMetric(sessionID string, metric Metric) error {
 	var (
-		now       = time.Now()
-		r         = rand.New(rand.NewSource(now.Unix()))
-		utmMedium = "dev"
+		now            = time.Now()
+		r              = rand.New(rand.NewSource(now.Unix()))
+		utmMedium      = "dev"
+		isCI      uint = 0
 	)
 	if !metric.BuildFromSource {
 		utmMedium = "binary"
+	}
+	if metric.IsCI {
+		isCI = 1
 	}
 
 	cmd := splitCommand(metric.Cmd)
 
 	return c.Send(Params{
-		IDSite:       c.idSite,
-		Rec:          1,
-		APIVersion:   1,
-		TokenAuth:    c.tokenAuth,
-		CustomAction: 1,
-		Rand:         r.Uint64(),
-		URL:          c.metricURL(metric.Cmd),
-		UTMSource:    c.source,
-		UTMMedium:    utmMedium,
-		UTMCampaign:  metric.SourceHash,
-		UTMContent:   metric.CLIVersion,
-		UserID:       sessionID,
-		UserAgent:    "Go-http-client",
-		ActionName:   metric.Cmd,
-		Hour:         now.Hour(),
-		Minute:       now.Minute(),
-		Second:       now.Second(),
-		Dimension1:   0,
-		Dimension2:   0,
-		Dimension3:   formatBool(metric.IsGitPod),
-		Dimension4:   metric.Version,
-		Dimension6:   metric.ConfigVersion,
-		Dimension7:   metric.Cmd,
-		Dimension11:  metric.ScaffoldType,
-		Dimension13:  cmd[0],
-		Dimension14:  cmd[1],
-		Dimension15:  cmd[2],
-		Dimension16:  cmd[3],
-		Dimension17:  metric.SDKVersion,
-		Dimension18:  metric.OS,
-		Dimension19:  metric.Arch,
-		Dimension20:  metric.GoVersion,
-		Dimension21:  cmd[4],
-		Dimension22:  cmd[5],
+		IDSite:      c.idSite,
+		Rec:         1,
+		APIVersion:  1,
+		TokenAuth:   c.tokenAuth,
+		Rand:        r.Uint64(),
+		URL:         c.metricURL(metric.Cmd),
+		UTMSource:   c.source,
+		UTMMedium:   utmMedium,
+		UTMCampaign: metric.SourceHash,
+		UTMContent:  metric.CLIVersion,
+		UserID:      sessionID,
+		UserAgent:   "Go-http-client",
+		ActionName:  metric.Cmd,
+		Hour:        now.Hour(),
+		Minute:      now.Minute(),
+		Second:      now.Second(),
+		Dimension1:  1, // TODO set to zero
+		Dimension2:  isCI,
+		Dimension3:  formatBool(metric.IsGitPod),
+		Dimension4:  metric.Version,
+		Dimension6:  metric.ConfigVersion,
+		Dimension7:  metric.Cmd,
+		Dimension11: metric.ScaffoldType,
+		Dimension13: cmd[0],
+		Dimension14: cmd[1],
+		Dimension15: cmd[2],
+		Dimension16: cmd[3],
+		Dimension17: metric.SDKVersion,
+		Dimension18: metric.OS,
+		Dimension19: metric.Arch,
+		Dimension20: metric.GoVersion,
+		Dimension21: cmd[4],
+		Dimension22: cmd[5],
 	})
 }
 
