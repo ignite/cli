@@ -3,7 +3,6 @@ package matomo
 
 import (
 	"fmt"
-	"io"
 	"math/rand"
 	"net/http"
 	"net/url"
@@ -180,12 +179,6 @@ func (c Client) Send(params Params) error {
 		return errors.Wrapf(err, "error creating HTTP request: %s", requestURL.String())
 	}
 	defer resp.Body.Close()
-
-	got, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-	fmt.Println(string(got))
 
 	if resp.StatusCode != http.StatusOK {
 		return errors.Errorf("error to add matomo analytics metric. Status code: %d", resp.StatusCode)
