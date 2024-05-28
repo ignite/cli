@@ -320,14 +320,14 @@ func WithFieldOptions(options ...*proto.Option) FieldSpecOptions {
 
 // NewField creates a new field statement node:
 //
-//	// int32 Foo = 1;
-//	field := NewField("Foo", "int32", 1)
+//	// int64 Foo = 1;
+//	field := NewField("Foo", "int64", 1)
 //
 // Fields aren't marked as repeated, required or optional. Use Repeated, Optional
 // and Required to mark the field as such.
 //
-//	// repeated int32 Foo = 1;
-//	field := NewField("Foo", "int32", 1, Repeated())
+//	// repeated int64 Foo = 1;
+//	field := NewField("Foo", "int64", 1, Repeated())
 func NewField(name, typename string, sequence int, opts ...FieldSpecOptions) *proto.NormalField {
 	f := FieldSpec{name: name, typename: typename, sequence: sequence}
 	for _, opt := range opts {
@@ -401,10 +401,10 @@ func Extend() MessageSpecOptions {
 //
 //	 // message Foo {
 //	 //  option (foo) = 1;
-//	 //  int32 Bar = 1;
+//	 //  int64 Bar = 1;
 //	 // }
 //		opt := NewOption("foo", "1")
-//	 field := NewField("int32", "Bar", 1)
+//	 field := NewField("int64", "Bar", 1)
 //	 message := NewMessage("Foo", WithMessageOptions(opt), WithFields(field))
 //
 // By default, options are added first, then fields and then enums.
