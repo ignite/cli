@@ -197,16 +197,12 @@ func (c Client) Send(params Params) error {
 // SendMetric build the metrics and send to analytics.
 func (c Client) SendMetric(sessionID string, metric Metric) error {
 	var (
-		now            = time.Now()
-		r              = rand.New(rand.NewSource(now.Unix()))
-		utmMedium      = "dev"
-		isCI      uint = 0
+		now       = time.Now()
+		r         = rand.New(rand.NewSource(now.Unix()))
+		utmMedium = "dev"
 	)
 	if !metric.BuildFromSource {
 		utmMedium = "binary"
-	}
-	if metric.IsCI {
-		isCI = 1
 	}
 
 	cmd := splitCommand(metric.Cmd)
@@ -228,8 +224,8 @@ func (c Client) SendMetric(sessionID string, metric Metric) error {
 		Hour:        now.Hour(),
 		Minute:      now.Minute(),
 		Second:      now.Second(),
-		Dimension1:  1, // TODO set to zero
-		Dimension2:  isCI,
+		Dimension1:  0,
+		Dimension2:  formatBool(metric.IsCI),
 		Dimension3:  formatBool(metric.IsGitPod),
 		Dimension4:  metric.Version,
 		Dimension6:  metric.ConfigVersion,
