@@ -1,5 +1,6 @@
 scripts/**/nodetime-*
 **/testdata/**/go.sum
+**/testdata/go.sum
 dist/
 node_modules
 .DS_Store

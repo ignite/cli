@@ -21,7 +21,11 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/blang/semver/v4 v4.0.0
 	github.com/briandowns/spinner v1.23.0
+<<<<<<< HEAD
 	github.com/bufbuild/buf v1.15.1
+=======
+	github.com/bufbuild/buf v1.32.1
+>>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 	github.com/buger/jsonparser v1.1.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/charmbracelet/bubbles v0.7.6
@@ -51,8 +55,6 @@ require (
 	github.com/hashicorp/go-hclog v1.5.0
 	github.com/hashicorp/go-plugin v1.6.0
 	github.com/iancoleman/strcase v0.3.0
-	github.com/ignite/ignite-files/nodetime v0.0.4
-	github.com/ignite/ignite-files/protoc v0.0.1
 	github.com/ignite/web v0.6.1
 	github.com/imdario/mergo v0.3.13
 	github.com/jpillora/chisel v1.9.1
@@ -66,7 +68,7 @@ require (
 	github.com/pelletier/go-toml v1.9.5
 	github.com/radovskyb/watcher v1.0.7
 	github.com/rogpeppe/go-internal v1.12.0
-	github.com/rs/cors v1.10.1
+	github.com/rs/cors v1.11.0
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.9.0
@@ -76,6 +78,7 @@ require (
 	golang.org/x/exp v0.0.0-20240404231335-c0f41cb1a7a0
 	golang.org/x/mod v0.17.0
 	golang.org/x/sync v0.7.0
+<<<<<<< HEAD
 	golang.org/x/term v0.19.0
 	golang.org/x/text v0.14.0
 	golang.org/x/tools v0.20.0
@@ -84,13 +87,32 @@ require (
 	google.golang.org/protobuf v1.33.0
 	gopkg.in/yaml.v2 v2.4.0
 	mvdan.cc/gofumpt v0.5.0
+=======
+	golang.org/x/term v0.20.0
+	golang.org/x/text v0.15.0
+	golang.org/x/tools v0.21.0
+	golang.org/x/vuln v1.0.4
+	google.golang.org/grpc v1.64.0
+	google.golang.org/protobuf v1.34.1
+	gopkg.in/yaml.v3 v3.0.1
+	mvdan.cc/gofumpt v0.6.0
+>>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 	sigs.k8s.io/yaml v1.4.0
 )
 
 require (
 	4d63.com/gocheckcompilerdirectives v1.2.1 // indirect
 	4d63.com/gochecknoglobals v0.2.1 // indirect
+<<<<<<< HEAD
 	cosmossdk.io/api v0.7.5 // indirect
+=======
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.34.1-20240508200655-46a4cf4ba109.1 // indirect
+	buf.build/gen/go/bufbuild/registry/connectrpc/go v1.16.1-20240514010100-299bd9c9a0c4.1 // indirect
+	buf.build/gen/go/bufbuild/registry/protocolbuffers/go v1.34.1-20240514010100-299bd9c9a0c4.1 // indirect
+	connectrpc.com/connect v1.16.1 // indirect
+	connectrpc.com/otelconnect v0.7.0 // indirect
+	cosmossdk.io/api v0.7.4 // indirect
+>>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 	cosmossdk.io/collections v0.4.0 // indirect
 	cosmossdk.io/core v0.11.0 // indirect
 	cosmossdk.io/depinject v1.0.0-alpha.4 // indirect
@@ -138,6 +160,7 @@ require (
 	github.com/breml/errchkjson v0.3.6 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.2 // indirect
+<<<<<<< HEAD
 	github.com/bufbuild/connect-go v1.5.2 // indirect
 	github.com/bufbuild/protocompile v0.6.0 // indirect
 	github.com/butuzov/ireturn v0.2.2 // indirect
@@ -146,6 +169,18 @@ require (
 	github.com/catenacyber/perfsprint v0.2.0 // indirect
 	github.com/ccojocar/zxcvbn-go v1.0.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
+=======
+	github.com/bufbuild/protocompile v0.13.1-0.20240510201809-752249dfc37f // indirect
+	github.com/bufbuild/protoplugin v0.0.0-20240323223605-e2735f6c31ee // indirect
+	github.com/bufbuild/protovalidate-go v0.6.2 // indirect
+	github.com/bufbuild/protoyaml-go v0.1.9 // indirect
+	github.com/butuzov/ireturn v0.3.0 // indirect
+	github.com/butuzov/mirror v1.1.0 // indirect
+	github.com/calmh/randomart v1.1.0 // indirect
+	github.com/catenacyber/perfsprint v0.7.1 // indirect
+	github.com/ccojocar/zxcvbn-go v1.0.2 // indirect
+	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
+>>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/charithe/durationcheck v0.0.10 // indirect
@@ -187,11 +222,19 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/dgryski/go-farm v0.0.0-20200201041132-a6ae2369ad13 // indirect
 	github.com/dlclark/regexp2 v1.2.0 // indirect
+<<<<<<< HEAD
 	github.com/docker/cli v23.0.3+incompatible // indirect
 	github.com/docker/distribution v2.8.2+incompatible // indirect
 	github.com/docker/docker v24.0.7+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.7.0 // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
+=======
+	github.com/docker/cli v26.1.2+incompatible // indirect
+	github.com/docker/distribution v2.8.3+incompatible // indirect
+	github.com/docker/docker v26.1.2+incompatible // indirect
+	github.com/docker/docker-credential-helpers v0.8.1 // indirect
+	github.com/docker/go-connections v0.5.0 // indirect
+>>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/dvsekhvalnov/jose2go v1.6.0 // indirect
@@ -236,7 +279,7 @@ require (
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
 	github.com/gofrs/flock v0.8.1 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
-	github.com/gofrs/uuid/v5 v5.0.0 // indirect
+	github.com/gofrs/uuid/v5 v5.2.0 // indirect
 	github.com/gogo/googleapis v1.4.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.1.0 // indirect
@@ -255,9 +298,16 @@ require (
 	github.com/golangci/unconvert v0.0.0-20180507085042-28b1c447d1f4 // indirect
 	github.com/google/btree v1.1.2 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
+<<<<<<< HEAD
 	github.com/google/go-containerregistry v0.14.0 // indirect
 	github.com/google/go-dap v0.9.1 // indirect
 	github.com/google/pprof v0.0.0-20240117000934-35fc243c5815 // indirect
+=======
+	github.com/google/go-containerregistry v0.19.1 // indirect
+	github.com/google/go-dap v0.11.0 // indirect
+	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/google/pprof v0.0.0-20240509144519-723abb6459b7 // indirect
+>>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gordonklaus/ineffassign v0.0.0-20230610083614-0e73809eb601 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
@@ -299,10 +349,16 @@ require (
 	github.com/julz/importas v0.1.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
+<<<<<<< HEAD
 	github.com/kisielk/errcheck v1.6.3 // indirect
 	github.com/kisielk/gotool v1.0.0 // indirect
 	github.com/kkHAIKE/contextcheck v1.1.4 // indirect
 	github.com/klauspost/compress v1.17.7 // indirect
+=======
+	github.com/kisielk/errcheck v1.7.0 // indirect
+	github.com/kkHAIKE/contextcheck v1.1.5 // indirect
+	github.com/klauspost/compress v1.17.8 // indirect
+>>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 	github.com/klauspost/pgzip v1.2.6 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
@@ -433,6 +489,7 @@ require (
 	github.com/zondax/hid v0.9.2 // indirect
 	github.com/zondax/ledger-go v0.14.3 // indirect
 	gitlab.com/bosi/decorder v0.4.1 // indirect
+<<<<<<< HEAD
 	go-simpler.org/sloglint v0.1.2 // indirect
 	go.opentelemetry.io/otel v1.22.0 // indirect
 	go.opentelemetry.io/otel/metric v1.22.0 // indirect
@@ -446,13 +503,36 @@ require (
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/arch v0.0.0-20190927153633-4e8777c89be4 // indirect
 	golang.org/x/crypto v0.22.0 // indirect
+=======
+	go-simpler.org/musttag v0.9.0 // indirect
+	go-simpler.org/sloglint v0.5.0 // indirect
+	go.mongodb.org/mongo-driver v1.14.0 // indirect
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.49.0 // indirect
+	go.opentelemetry.io/otel v1.24.0 // indirect
+	go.opentelemetry.io/otel/metric v1.24.0 // indirect
+	go.opentelemetry.io/otel/sdk v1.24.0 // indirect
+	go.opentelemetry.io/otel/trace v1.24.0 // indirect
+	go.starlark.net v0.0.0-20231101134539-556fd59b42f6 // indirect
+	go.uber.org/atomic v1.11.0 // indirect
+	go.uber.org/automaxprocs v1.5.3 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
+	go.uber.org/zap v1.27.0 // indirect
+	golang.org/x/arch v0.6.0 // indirect
+	golang.org/x/crypto v0.23.0 // indirect
+	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842 // indirect
+>>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 	golang.org/x/exp/typeparams v0.0.0-20240314144324-c7f7c6466f7f // indirect
-	golang.org/x/net v0.24.0 // indirect
-	golang.org/x/sys v0.19.0 // indirect
+	golang.org/x/net v0.25.0 // indirect
+	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/genproto v0.0.0-20240227224415-6ceb2ff114de // indirect
+<<<<<<< HEAD
 	google.golang.org/genproto/googleapis/api v0.0.0-20240227224415-6ceb2ff114de // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240401170217-c3f982113cda // indirect
+=======
+	google.golang.org/genproto/googleapis/api v0.0.0-20240515191416-fc5f0ca64291 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240515191416-fc5f0ca64291 // indirect
+>>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

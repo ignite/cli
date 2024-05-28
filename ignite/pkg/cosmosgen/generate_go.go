@@ -31,8 +31,18 @@ func (g *generator) generateGoGo(ctx context.Context) error {
 	protoPath := filepath.Join(g.appPath, g.protoDir)
 
 	// code generate for each module.
+<<<<<<< HEAD
 	err = g.buf.Generate(ctx, protoPath, tmp, g.gogoTemplate(), "module.proto")
 	if err != nil {
+=======
+	if err := g.buf.Generate(
+		ctx,
+		g.protoPath(),
+		tmp,
+		template,
+		cosmosbuf.ExcludeFiles(excluded...),
+	); err != nil {
+>>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 		return err
 	}
 

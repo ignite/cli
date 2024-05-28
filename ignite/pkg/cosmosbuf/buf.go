@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"golang.org/x/sync/errgroup"
 
@@ -15,6 +14,39 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis"
 	"github.com/ignite/cli/v28/ignite/pkg/xexec"
 	"github.com/ignite/cli/v28/ignite/pkg/xos"
+)
+
+const (
+	binaryName                = "buf"
+	flagTemplate              = "template"
+	flagOutput                = "output"
+	flagErrorFormat           = "error-format"
+	flagLogFormat             = "log-format"
+	flagIncludeImports        = "include-imports"
+	flagIncludeWellKnownTypes = "include-wkt"
+	flagPath                  = "path"
+	fmtJSON                   = "json"
+
+	// CMDGenerate generate command.
+	CMDGenerate Command = "generate"
+	CMDExport   Command = "export"
+	CMDDep      Command = "dep"
+
+	specCacheNamespace = "generate.buf"
+)
+
+var (
+	commands = map[Command]struct{}{
+		CMDGenerate: {},
+		CMDExport:   {},
+		CMDDep:      {},
+	}
+
+	// ErrInvalidCommand indicates an invalid command name.
+	ErrInvalidCommand = errors.New("invalid command name")
+
+	// ErrProtoFilesNotFound indicates that no ".proto" files were found.
+	ErrProtoFilesNotFound = errors.New("no proto files found")
 )
 
 type (
@@ -27,6 +59,7 @@ type (
 		sdkProtoDir string
 		cache       *protoanalysis.Cache
 	}
+<<<<<<< HEAD
 )
 
 const (
@@ -49,15 +82,74 @@ var (
 		CMDGenerate: {},
 		CMDExport:   {},
 		CMDMod:      {},
+=======
+
+	// genOptions used to configure code generation.
+	genOptions struct {
+		excluded       []glob.Glob
+		flags          map[string]string
+		fileByFile     bool
+		includeImports bool
+		includeWKT     bool
 	}
 
-	// ErrInvalidCommand indicates an invalid command name.
-	ErrInvalidCommand = errors.New("invalid command name")
-
-	// ErrProtoFilesNotFound indicates that no ".proto" files were found.
-	ErrProtoFilesNotFound = errors.New("no proto files found")
+	// GenOption configures code generation.
+	GenOption func(*genOptions)
 )
 
+func newGenOptions() genOptions {
+	return genOptions{
+		flags:          make(map[string]string),
+		excluded:       make([]glob.Glob, 0),
+		fileByFile:     false,
+		includeWKT:     false,
+		includeImports: false,
+>>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
+	}
+}
+
+// WithFlag provides flag options for the buf generate command.
+func WithFlag(flag, value string) GenOption {
+	return func(o *genOptions) {
+		o.flags[flag] = value
+	}
+}
+
+<<<<<<< HEAD
+=======
+// ExcludeFiles exclude file names from the generate command using glob.
+func ExcludeFiles(patterns ...string) GenOption {
+	return func(o *genOptions) {
+		for _, pattern := range patterns {
+			o.excluded = append(o.excluded, glob.MustCompile(pattern))
+		}
+	}
+}
+
+// IncludeImports also generate all imports except for Well-Known Types.
+func IncludeImports() GenOption {
+	return func(o *genOptions) {
+		o.includeImports = true
+	}
+}
+
+// IncludeWKT also generate Well-Known Types.
+// Cannot be set without IncludeImports.
+func IncludeWKT() GenOption {
+	return func(o *genOptions) {
+		o.includeImports = true
+		o.includeWKT = true
+	}
+}
+
+// FileByFile runs the generate command for each proto file.
+func FileByFile() GenOption {
+	return func(o *genOptions) {
+		o.fileByFile = true
+	}
+}
+
+>>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 // New creates a new Buf based on the installed binary.
 func New() (Buf, error) {
 	path, err := xexec.ResolveAbsPath(binaryName)
@@ -77,6 +169,7 @@ func (c Command) String() string {
 
 // Update updates module dependencies.
 // By default updates all dependencies unless one or more dependencies are specified.
+<<<<<<< HEAD
 func (b Buf) Update(ctx context.Context, modDir string, dependencies ...string) error {
 	var flags map[string]string
 	if dependencies != nil {
@@ -86,15 +179,27 @@ func (b Buf) Update(ctx context.Context, modDir string, dependencies ...string) 
 	}
 
 	cmd, err := b.generateCommand(CMDMod, flags, "update", modDir)
+=======
+func (b Buf) Update(ctx context.Context, modDir string) error {
+	files, err := xos.FindFilesExtension(modDir, xos.ProtoFile)
+>>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 	if err != nil {
 		return err
 	}
+	if len(files) == 0 {
+		return errors.Errorf("%w: %s", ErrProtoFilesNotFound, modDir)
+	}
 
+	cmd, err := b.command(CMDDep, nil, "update", modDir)
+	if err != nil {
+		return err
+	}
 	return b.runCommand(ctx, cmd...)
 }
 
 // Export runs the buf Export command for the files in the proto directory.
 func (b Buf) Export(ctx context.Context, protoDir, output string) error {
+<<<<<<< HEAD
 	// Check if the proto directory is the Cosmos SDK one
 	// TODO(@julienrbrt): this whole custom handling can be deleted
 	// after https://github.com/cosmos/cosmos-sdk/pull/18993 in v29.
@@ -122,17 +227,25 @@ func (b Buf) Export(ctx context.Context, protoDir, output string) error {
 		protoDir = filepath.Join(b.sdkProtoDir, paths[1])
 	}
 	specs, err := xos.FindFiles(protoDir, xos.ProtoFile)
+=======
+	files, err := xos.FindFilesExtension(protoDir, xos.ProtoFile)
+>>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 	if err != nil {
 		return err
 	}
-	if len(specs) == 0 {
+	if len(files) == 0 {
 		return errors.Errorf("%w: %s", ErrProtoFilesNotFound, protoDir)
 	}
+
 	flags := map[string]string{
 		flagOutput: output,
 	}
+<<<<<<< HEAD
 
 	cmd, err := b.generateCommand(CMDExport, flags, protoDir)
+=======
+	cmd, err := b.command(CMDExport, flags, protoDir)
+>>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 	if err != nil {
 		return err
 	}
@@ -148,6 +261,7 @@ func (b Buf) Generate(
 	template string,
 	excludeFilename ...string,
 ) (err error) {
+<<<<<<< HEAD
 	var (
 		excluded = make(map[string]struct{})
 		flags    = map[string]string{
@@ -159,6 +273,11 @@ func (b Buf) Generate(
 	)
 	for _, file := range excludeFilename {
 		excluded[file] = struct{}{}
+=======
+	opts := newGenOptions()
+	for _, apply := range options {
+		apply(&opts)
+>>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 	}
 
 	// TODO(@julienrbrt): this whole custom handling can be deleted
@@ -180,6 +299,15 @@ func (b Buf) Generate(
 	pkgs, err := protoanalysis.Parse(ctx, b.cache, protoDir)
 	if err != nil {
 		return err
+	}
+	for k, v := range opts.flags {
+		flags[k] = v
+	}
+	if opts.includeImports {
+		flags[flagIncludeImports] = "true"
+	}
+	if opts.includeWKT {
+		flags[flagIncludeWellKnownTypes] = "true"
 	}
 
 	g, ctx := errgroup.WithContext(ctx)

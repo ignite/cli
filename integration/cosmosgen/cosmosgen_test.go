@@ -13,8 +13,6 @@ import (
 )
 
 func TestCosmosGenScaffold(t *testing.T) {
-	t.Skip()
-
 	var (
 		env = envtest.New(t)
 		app = env.Scaffold("github.com/test/blog")
@@ -107,7 +105,7 @@ func TestCosmosGenScaffold(t *testing.T) {
 	require.NoError(t, os.RemoveAll(vueDirGenerated))
 	require.NoError(t, os.RemoveAll(tsDirGenerated))
 
-	env.Must(env.Exec("generate vue and typescript",
+	env.Must(env.Exec("generate typescript",
 		step.NewSteps(step.New(
 			step.Exec(
 				envtest.IgniteApp,
@@ -141,9 +139,9 @@ func TestCosmosGenScaffold(t *testing.T) {
 		"cosmos.upgrade.v1beta1",
 		"cosmos.vesting.v1beta1",
 		// custom modules
-		"test.blog.blog",
-		"test.blog.withmsg",
-		"test.blog.withoutmsg",
+		"blog.blog.v1",
+		"blog.withmsg.v1",
+		"blog.withoutmsg.v1",
 	}
 
 	for _, mod := range expectedModules {

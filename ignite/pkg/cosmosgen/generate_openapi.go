@@ -9,6 +9,7 @@ import (
 
 	"github.com/iancoleman/strcase"
 
+<<<<<<< HEAD
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/v28/ignite/pkg/dirchange"
@@ -16,6 +17,14 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/nodetime"
 	swaggercombine "github.com/ignite/cli/v28/ignite/pkg/nodetime/programs/swagger-combine"
 	"github.com/ignite/cli/v28/ignite/pkg/xos"
+=======
+	"github.com/ignite/cli/v29/ignite/pkg/cache"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
+	"github.com/ignite/cli/v29/ignite/pkg/dirchange"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	swaggercombine "github.com/ignite/cli/v29/ignite/pkg/swagger-combine"
+	"github.com/ignite/cli/v29/ignite/pkg/xos"
+>>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 )
 
 const (
@@ -25,10 +34,6 @@ const (
 
 func (g *generator) openAPITemplate() string {
 	return filepath.Join(g.appPath, g.protoDir, "buf.gen.swagger.yaml")
-}
-
-func (g *generator) openAPITemplateForSTA() string {
-	return filepath.Join(g.appPath, g.protoDir, "buf.gen.sta.yaml")
 }
 
 func (g *generator) generateOpenAPISpec(ctx context.Context) error {
@@ -165,6 +170,7 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 	return dirchange.SaveDirChecksum(specCache, out, g.appPath, out)
 }
 
+<<<<<<< HEAD
 func (g *generator) generateModuleOpenAPISpec(ctx context.Context, m module.Module, out string) error {
 	var (
 		specDirs []string
@@ -226,6 +232,20 @@ func (g *generator) generateModuleOpenAPISpec(ctx context.Context, m module.Modu
 		for _, m := range modules {
 			if err := gen(m); err != nil {
 				return err
+=======
+func extractRootModulePath(fullPath string) string {
+	var (
+		segments   = strings.Split(fullPath, "/")
+		modulePath = "/"
+	)
+
+	for _, segment := range segments {
+		modulePath = filepath.Join(modulePath, segment)
+		segmentName := strings.Split(segment, "@")
+		if len(segmentName) > 1 {
+			if _, err := semver.ParseTolerant(segmentName[1]); err == nil {
+				return modulePath
+>>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 			}
 		}
 		return nil
