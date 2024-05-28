@@ -15,7 +15,6 @@ build: # Contains build configuration options.
   ldflags: (string list) # List of custom linker flags for building the binary.
   proto: # Contains proto build configuration options.
     path: (string) # Relative path where the application&#39;s proto files are located.
-    third_party_paths: (string list) # Relative paths to third-party proto files used by the application.
 accounts: (list) # Lists the options for setting up Cosmos Accounts.
   name: (string) # Local name associated with the Account&#39;s key pair.
   coins: (string list) # List of token balances for the account.
