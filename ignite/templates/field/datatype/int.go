@@ -36,7 +36,7 @@ var (
   					binary.BigEndian.PutUint64(%[1]vBytes, uint64(%[1]v))`, name)
 		},
 		ToString: func(name string) string {
-			return fmt.Sprintf("strconv.Itoa(int(%s))", name)
+			return fmt.Sprintf("strconv.FormatInt(%s, 10)", name)
 		},
 		ToProtoField: func(_, name string, index int) *proto.NormalField {
 			return protoutil.NewField(name, "int64", index)
