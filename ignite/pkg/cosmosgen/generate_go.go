@@ -42,7 +42,13 @@ func (g *generator) generate(ctx context.Context, template, fromPath string, exc
 	defer os.RemoveAll(tmp)
 
 	// code generate for each module.
-	if err := g.buf.Generate(ctx, g.protoPath(), tmp, template, cosmosbuf.ExcludeFiles(excluded...)); err != nil {
+	if err := g.buf.Generate(
+		ctx,
+		g.protoPath(),
+		tmp,
+		template,
+		cosmosbuf.ExcludeFiles(excluded...),
+	); err != nil {
 		return err
 	}
 

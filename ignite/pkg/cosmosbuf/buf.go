@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
-	"strings"
 
 	"github.com/gobwas/glob"
 	"golang.org/x/sync/errgroup"
@@ -15,6 +14,39 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/xexec"
 	"github.com/ignite/cli/v29/ignite/pkg/xos"
+)
+
+const (
+	binaryName                = "buf"
+	flagTemplate              = "template"
+	flagOutput                = "output"
+	flagErrorFormat           = "error-format"
+	flagLogFormat             = "log-format"
+	flagIncludeImports        = "include-imports"
+	flagIncludeWellKnownTypes = "include-wkt"
+	flagPath                  = "path"
+	fmtJSON                   = "json"
+
+	// CMDGenerate generate command.
+	CMDGenerate Command = "generate"
+	CMDExport   Command = "export"
+	CMDDep      Command = "dep"
+
+	specCacheNamespace = "generate.buf"
+)
+
+var (
+	commands = map[Command]struct{}{
+		CMDGenerate: {},
+		CMDExport:   {},
+		CMDDep:      {},
+	}
+
+	// ErrInvalidCommand indicates an invalid command name.
+	ErrInvalidCommand = errors.New("invalid command name")
+
+	// ErrProtoFilesNotFound indicates that no ".proto" files were found.
+	ErrProtoFilesNotFound = errors.New("no proto files found")
 )
 
 type (
@@ -29,45 +61,33 @@ type (
 
 	// genOptions used to configure code generation.
 	genOptions struct {
-		excluded   []glob.Glob
-		fileByFile bool
+		excluded       []glob.Glob
+		flags          map[string]string
+		fileByFile     bool
+		includeImports bool
+		includeWKT     bool
 	}
 
 	// GenOption configures code generation.
 	GenOption func(*genOptions)
 )
 
-const (
-	binaryName      = "buf"
-	flagTemplate    = "template"
-	flagOutput      = "output"
-	flagErrorFormat = "error-format"
-	flagLogFormat   = "log-format"
-	flagPath        = "path"
-	flagOnly        = "only"
-	fmtJSON         = "json"
-
-	// CMDGenerate generate command.
-	CMDGenerate Command = "generate"
-	CMDExport   Command = "export"
-	CMDMod      Command = "mod"
-
-	specCacheNamespace = "generate.buf"
-)
-
-var (
-	commands = map[Command]struct{}{
-		CMDGenerate: {},
-		CMDExport:   {},
-		CMDMod:      {},
+func newGenOptions() genOptions {
+	return genOptions{
+		flags:          make(map[string]string),
+		excluded:       make([]glob.Glob, 0),
+		fileByFile:     false,
+		includeWKT:     false,
+		includeImports: false,
 	}
+}
 
-	// ErrInvalidCommand indicates an invalid command name.
-	ErrInvalidCommand = errors.New("invalid command name")
-
-	// ErrProtoFilesNotFound indicates that no ".proto" files were found.
-	ErrProtoFilesNotFound = errors.New("no proto files found")
-)
+// WithFlag provides flag options for the buf generate command.
+func WithFlag(flag, value string) GenOption {
+	return func(o *genOptions) {
+		o.flags[flag] = value
+	}
+}
 
 // ExcludeFiles exclude file names from the generate command using glob.
 func ExcludeFiles(patterns ...string) GenOption {
@@ -75,6 +95,22 @@ func ExcludeFiles(patterns ...string) GenOption {
 		for _, pattern := range patterns {
 			o.excluded = append(o.excluded, glob.MustCompile(pattern))
 		}
+	}
+}
+
+// IncludeImports also generate all imports except for Well-Known Types.
+func IncludeImports() GenOption {
+	return func(o *genOptions) {
+		o.includeImports = true
+	}
+}
+
+// IncludeWKT also generate Well-Known Types.
+// Cannot be set without IncludeImports.
+func IncludeWKT() GenOption {
+	return func(o *genOptions) {
+		o.includeImports = true
+		o.includeWKT = true
 	}
 }
 
@@ -111,35 +147,35 @@ func (c Command) String() string {
 
 // Update updates module dependencies.
 // By default updates all dependencies unless one or more dependencies are specified.
-func (b Buf) Update(ctx context.Context, modDir string, dependencies ...string) error {
-	var flags map[string]string
-	if dependencies != nil {
-		flags = map[string]string{
-			flagOnly: strings.Join(dependencies, ","),
-		}
-	}
-
-	cmd, err := b.command(CMDMod, flags, "update", modDir)
+func (b Buf) Update(ctx context.Context, modDir string) error {
+	files, err := xos.FindFilesExtension(modDir, xos.ProtoFile)
 	if err != nil {
 		return err
 	}
+	if len(files) == 0 {
+		return errors.Errorf("%w: %s", ErrProtoFilesNotFound, modDir)
+	}
 
+	cmd, err := b.command(CMDDep, nil, "update", modDir)
+	if err != nil {
+		return err
+	}
 	return b.runCommand(ctx, cmd...)
 }
 
 // Export runs the buf Export command for the files in the proto directory.
 func (b Buf) Export(ctx context.Context, protoDir, output string) error {
-	specs, err := xos.FindFilesExtension(protoDir, xos.ProtoFile)
+	files, err := xos.FindFilesExtension(protoDir, xos.ProtoFile)
 	if err != nil {
 		return err
 	}
-	if len(specs) == 0 {
+	if len(files) == 0 {
 		return errors.Errorf("%w: %s", ErrProtoFilesNotFound, protoDir)
 	}
+
 	flags := map[string]string{
 		flagOutput: output,
 	}
-
 	cmd, err := b.command(CMDExport, flags, protoDir)
 	if err != nil {
 		return err
@@ -156,7 +192,7 @@ func (b Buf) Generate(
 	template string,
 	options ...GenOption,
 ) (err error) {
-	opts := genOptions{}
+	opts := newGenOptions()
 	for _, apply := range options {
 		apply(&opts)
 	}
@@ -198,6 +234,15 @@ func (b Buf) Generate(
 		flagOutput:      output,
 		flagErrorFormat: fmtJSON,
 		flagLogFormat:   fmtJSON,
+	}
+	for k, v := range opts.flags {
+		flags[k] = v
+	}
+	if opts.includeImports {
+		flags[flagIncludeImports] = "true"
+	}
+	if opts.includeWKT {
+		flags[flagIncludeWellKnownTypes] = "true"
 	}
 
 	if !opts.fileByFile {

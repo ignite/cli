@@ -11,7 +11,6 @@ import (
 	"github.com/iancoleman/strcase"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
 	"github.com/ignite/cli/v29/ignite/pkg/dirchange"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
@@ -26,10 +25,6 @@ const (
 
 func (g *generator) openAPITemplate() string {
 	return filepath.Join(g.appPath, g.protoDir, "buf.gen.swagger.yaml")
-}
-
-func (g *generator) openAPITemplateForSTA() string {
-	return filepath.Join(g.appPath, g.protoDir, "buf.gen.sta.yaml")
 }
 
 func (g *generator) generateOpenAPISpec(ctx context.Context) error {
@@ -168,49 +163,6 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 	}
 
 	return dirchange.SaveDirChecksum(specCache, out, g.appPath, out)
-}
-
-// generateModuleOpenAPISpec generates a spec for a module where it's source code resides at src.
-// and adds needed swaggercombine configure for it.
-func (g *generator) generateModuleOpenAPISpec(ctx context.Context, m module.Module, out string) error {
-	var (
-		specDirs []string
-		title    = "HTTP API Console " + m.Pkg.Name
-		conf     = swaggercombine.New(title, g.goModPath)
-	)
-	defer func() {
-		for _, dir := range specDirs {
-			os.RemoveAll(dir)
-		}
-	}()
-
-	// generate specs for each module and persist them in the file system
-	// after add their path and config to swaggercombine.Config so we can combine them
-	// into a single spec.
-	dir, err := os.MkdirTemp("", "gen-openapi-module-spec")
-	if err != nil {
-		return err
-	}
-
-	err = g.buf.Generate(ctx, m.Pkg.Path, dir, g.openAPITemplateForSTA(), cosmosbuf.ExcludeFiles("*/module.proto"))
-	if err != nil {
-		return err
-	}
-
-	specs, err := xos.FindFilesExtension(dir, xos.JSONFile)
-	if err != nil {
-		return err
-	}
-
-	for _, spec := range specs {
-		if err := conf.AddSpec(strcase.ToCamel(m.Pkg.Name), spec, false); err != nil {
-			return err
-		}
-	}
-	specDirs = append(specDirs, dir)
-
-	// combine specs into one and save to out.
-	return conf.Combine(out)
 }
 
 func extractRootModulePath(fullPath string) string {
