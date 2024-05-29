@@ -207,7 +207,7 @@ func (c Client) SendMetric(sessionID string, metric Metric) error {
 		TokenAuth:   c.tokenAuth,
 		Rand:        r.Uint64(),
 		URL:         c.metricURL(metric.Cmd),
-		UTMSource:   "source",
+		UTMSource:   "github",
 		UTMMedium:   utmMedium,
 		UTMCampaign: fmt.Sprintf("commit-%s", metric.SourceHash),
 		UTMContent:  metric.CLIVersion,
