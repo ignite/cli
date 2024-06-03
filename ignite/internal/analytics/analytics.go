@@ -65,10 +65,10 @@ func SendMetric(wg *sync.WaitGroup, cmd *cobra.Command) {
 		path         = cmd.CommandPath()
 		scaffoldType = ""
 	)
-	if strings.Contains(path, "ignite scaffold type") {
+	if strings.Contains(path, "ignite scaffold") {
 		splitCMD := strings.Split(path, " ")
-		if len(splitCMD) > 3 {
-			scaffoldType = splitCMD[3]
+		if len(splitCMD) > 2 {
+			scaffoldType = splitCMD[2]
 		}
 	}
 
