@@ -39,6 +39,7 @@
 - [#4149](https://github.com/ignite/cli/pull/4149) Bump cometbft to `v0.38.7`
 - [#4167](https://github.com/ignite/cli/pull/4167) Scaffold `int64` instead of `int32` when a field type is `int`
 - [#4168](https://github.com/ignite/cli/pull/4168) Bump IBC to `v8.3.1`
+- [#4178](https://github.com/ignite/cli/pull/4178) Bump cosmos-sdk to `v0.50.7`
 
 ### Fixes
 
