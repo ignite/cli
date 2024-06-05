@@ -89,16 +89,7 @@ require (
 require (
 	4d63.com/gocheckcompilerdirectives v1.2.1 // indirect
 	4d63.com/gochecknoglobals v0.2.1 // indirect
-<<<<<<< HEAD
-	cosmossdk.io/api v0.7.4 // indirect
-=======
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.34.1-20240508200655-46a4cf4ba109.1 // indirect
-	buf.build/gen/go/bufbuild/registry/connectrpc/go v1.16.1-20240514010100-299bd9c9a0c4.1 // indirect
-	buf.build/gen/go/bufbuild/registry/protocolbuffers/go v1.34.1-20240514010100-299bd9c9a0c4.1 // indirect
-	connectrpc.com/connect v1.16.1 // indirect
-	connectrpc.com/otelconnect v0.7.0 // indirect
 	cosmossdk.io/api v0.7.5 // indirect
->>>>>>> e8ab2121 (chore: bump cosmos-sdk to v0.50.7 (#4178))
 	cosmossdk.io/collections v0.4.0 // indirect
 	cosmossdk.io/core v0.11.0 // indirect
 	cosmossdk.io/depinject v1.0.0-alpha.4 // indirect
