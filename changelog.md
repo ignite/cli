@@ -14,6 +14,8 @@
   app.ICAControllerKeeper = ...
   ```
 
+- [#4178](https://github.com/ignite/cli/pull/4178) Bump cosmos-sdk to `v0.50.7`
+
 ## [`v28.4.0`](https://github.com/ignite/cli/releases/tag/v28.4.0)
 
 ### Features
