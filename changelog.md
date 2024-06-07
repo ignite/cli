@@ -21,6 +21,7 @@
 - [#4113](https://github.com/ignite/cli/pull/4113) Generate chain config documentation automatically
 - [#4131](https://github.com/ignite/cli/pull/4131) Support `bytes` as data type in the `scaffold` commands
 - [#4095](https://github.com/ignite/cli/pull/4095) Migrate to matomo analytics
+- [#4183](https://github.com/ignite/cli/pull/4183) Set `chain-id` in the client.toml
 
 ### Changes
 
