@@ -147,11 +147,6 @@ func flagSetHome() *flag.FlagSet {
 	return fs
 }
 
-func getHome(cmd *cobra.Command) (home string) {
-	home, _ = cmd.Flags().GetString(flagHome)
-	return
-}
-
 func flagSetConfig() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.StringP(flagConfig, "c", "", "path to Ignite config file (default: ./config.yml)")
