@@ -47,6 +47,7 @@ require (
 	github.com/goccy/go-yaml v1.11.3
 	github.com/golangci/golangci-lint v1.57.2
 	github.com/google/go-github/v48 v48.2.0
+	github.com/google/go-querystring v1.1.0
 	github.com/gorilla/mux v1.8.1
 	github.com/hashicorp/go-hclog v1.6.3
 	github.com/hashicorp/go-plugin v1.6.0
@@ -270,7 +271,6 @@ require (
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/go-containerregistry v0.19.1 // indirect
 	github.com/google/go-dap v0.11.0 // indirect
-	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/pprof v0.0.0-20240509144519-723abb6459b7 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gordonklaus/ineffassign v0.1.0 // indirect

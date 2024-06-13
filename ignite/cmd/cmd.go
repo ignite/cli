@@ -84,7 +84,6 @@ To get started, create a blockchain:
 		NewScaffold(),
 		NewChain(),
 		NewGenerate(),
-		NewNode(),
 		NewAccount(),
 		NewDocs(),
 		NewVersion(),
@@ -238,6 +237,10 @@ func deprecated() []*cobra.Command {
 		{
 			Use:        "faucet",
 			Deprecated: "use `ignite chain faucet` instead.",
+		},
+		{
+			Use:        "node",
+			Deprecated: "use ignite connect app instead (ignite app install -g github.com/ignite/apps/connect).",
 		},
 	}
 }
