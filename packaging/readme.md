@@ -19,6 +19,8 @@ SNAPCRAFT_BUILD_ENVIRONMENT=multipass snapcraft
 snap install ignite_0.0.0_amd64.snap --dangerous --classic
 ```
 
+For building, from snapcraft 8, use `SNAPCRAFT_REMOTE_BUILD_STRATEGY=force-fallback snapcraft remote-build`.
+
 A [github action](../.github/workflows/release-binary.yml) is used to build and publish the Snap at each release.
 
 ## HomeBrew
