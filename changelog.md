@@ -41,7 +41,7 @@
 - [#4167](https://github.com/ignite/cli/pull/4167) Scaffold `int64` instead of `int32` when a field type is `int`
 - [#4168](https://github.com/ignite/cli/pull/4168) Bump IBC to `v8.3.1`
 - [#4178](https://github.com/ignite/cli/pull/4178) Bump cosmos-sdk to `v0.50.7`
-- []() Deprecate `ignite node` for `ignite connect` app
+- [#4189](https://github.com/ignite/cli/pull/4189) Deprecate `ignite node` for `ignite connect` app
 
 ### Fixes
 
