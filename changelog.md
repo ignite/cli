@@ -21,6 +21,10 @@
 
 - [#4178](https://github.com/ignite/cli/pull/4178) Bump cosmos-sdk to `v0.50.7`
 
+### Fixes
+
+- [#4184](https://github.com/ignite/cli/pull/4184) Set custom `InitChainer` because of manually registered modules
+
 ## [`v28.4.0`](https://github.com/ignite/cli/releases/tag/v28.4.0)
 
 ### Features
