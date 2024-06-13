@@ -228,6 +228,8 @@ func (c *Chain) IsInitialized() (bool, error) {
 
 	if _, err := os.Stat(gentxDir); os.IsNotExist(err) {
 		return false, nil
+	} else if err != nil {
+		return false, err
 	}
 
 	return true, nil
