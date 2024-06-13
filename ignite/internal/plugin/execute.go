@@ -3,7 +3,6 @@ package plugininternal
 import (
 	"bytes"
 	"context"
-	"time"
 
 	"google.golang.org/grpc/status"
 
@@ -37,10 +36,7 @@ func Execute(ctx context.Context, path string, args []string, options ...plugin.
 		// We don't want Execute to return rpc errors.
 		return "", errors.New(status.Convert(err).Message())
 	}
-	// NOTE(tb): This pause gives enough time for go-plugin to sync the
-	// output from stdout/stderr of the plugin. Without that pause, this
-	// output can be discarded and absent from buf.
-	time.Sleep(100 * time.Millisecond)
+
 	plugins[0].KillClient()
 	return buf.String(), err
 }
