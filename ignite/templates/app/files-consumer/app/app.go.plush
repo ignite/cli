@@ -334,10 +334,13 @@ func New(
 	app.SetAnteHandler(anteHandler)
 
 	// A custom InitChainer sets if extra pre-init-genesis logic is required.
-	// As we are registering modules manually (i.e. that does not support app wiring),
-	// the module version map must be set manually as follow.
+	// This is necessary for manually registered modules that do not support app wiring.
+        // Manually set the module version map as shown below.
+	// The upgrade module will automatically handle de-duplication of the module version map.
 	app.SetInitChainer(func(ctx sdk.Context, req *abci.RequestInitChain) (*abci.ResponseInitChain, error) {
-		app.UpgradeKeeper.SetModuleVersionMap(ctx, app.ModuleManager.GetVersionMap())
+		if err := app.UpgradeKeeper.SetModuleVersionMap(ctx, app.ModuleManager.GetVersionMap()); err != nil {
+			return nil, err
+		}
 		return app.App.InitChainer(ctx, req)
 	})
 
