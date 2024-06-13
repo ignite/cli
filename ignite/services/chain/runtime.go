@@ -54,17 +54,17 @@ func (c Chain) Start(ctx context.Context, runner chaincmdrunner.Runner, cfg *cha
 }
 
 // Configure sets the runtime configurations files for a chain (app.toml, client.toml, config.toml).
-func (c Chain) Configure(homePath string, cfg *chainconfig.Config) error {
-	if err := c.appTOML(homePath, cfg); err != nil {
+func (c Chain) Configure(homePath, chainID string, cfg *chainconfig.Config) error {
+	if err := appTOML(homePath, cfg); err != nil {
 		return err
 	}
-	if err := c.clientTOML(homePath, cfg); err != nil {
+	if err := clientTOML(homePath, chainID, cfg); err != nil {
 		return err
 	}
-	return c.configTOML(homePath, cfg)
+	return configTOML(homePath, cfg)
 }
 
-func (c Chain) appTOML(homePath string, cfg *chainconfig.Config) error {
+func appTOML(homePath string, cfg *chainconfig.Config) error {
 	validator, err := chainconfig.FirstValidator(cfg)
 	if err != nil {
 		return err
@@ -117,7 +117,7 @@ func (c Chain) appTOML(homePath string, cfg *chainconfig.Config) error {
 	return err
 }
 
-func (c Chain) configTOML(homePath string, cfg *chainconfig.Config) error {
+func configTOML(homePath string, cfg *chainconfig.Config) error {
 	validator, err := chainconfig.FirstValidator(cfg)
 	if err != nil {
 		return err
@@ -170,14 +170,14 @@ func (c Chain) configTOML(homePath string, cfg *chainconfig.Config) error {
 	return err
 }
 
-func (c Chain) clientTOML(homePath string, cfg *chainconfig.Config) error {
+func clientTOML(homePath, chainID string, cfg *chainconfig.Config) error {
 	validator, err := chainconfig.FirstValidator(cfg)
 	if err != nil {
 		return err
 	}
 
 	path := filepath.Join(homePath, "config/client.toml")
-	tmConfig, err := toml.LoadFile(path)
+	clientConfig, err := toml.LoadFile(path)
 	if os.IsNotExist(err) {
 		return nil
 	}
@@ -187,11 +187,12 @@ func (c Chain) clientTOML(homePath string, cfg *chainconfig.Config) error {
 	}
 
 	// Set default config values
-	tmConfig.Set("keyring-backend", "test")
-	tmConfig.Set("broadcast-mode", "sync")
+	clientConfig.Set("chain-id", chainID)
+	clientConfig.Set("keyring-backend", "test")
+	clientConfig.Set("broadcast-mode", "sync")
 
 	// Update config values with the validator's client config
-	if err := updateTomlTreeValues(tmConfig, validator.Client); err != nil {
+	if err := updateTomlTreeValues(clientConfig, validator.Client); err != nil {
 		return err
 	}
 
@@ -201,7 +202,7 @@ func (c Chain) clientTOML(homePath string, cfg *chainconfig.Config) error {
 	}
 	defer file.Close()
 
-	_, err = tmConfig.WriteTo(file)
+	_, err = clientConfig.WriteTo(file)
 	return err
 }
 

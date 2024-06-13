@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- [#4183](https://github.com/ignite/cli/pull/4183) Set `chain-id` in the client.toml
+
 ### Changes
 
 - [#4095](https://github.com/ignite/cli/pull/4095) Migrate to matomo analytics
