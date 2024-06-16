@@ -13,8 +13,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"
 )
 
-//TODO: add fee abstraction into the default template
-
 var (
 	//go:embed files/* files/**/*
 	files embed.FS
