@@ -9,7 +9,7 @@ linters:
     - depguard
     - dogsled
     - dupword
-    # - errcheck
+    - errcheck
     - errchkjson
     - errorlint
     - exhaustive
@@ -19,12 +19,10 @@ linters:
     - godot
     - gofumpt
     - revive
-    # - gosec
     - gosimple
     - govet
     - grouper
     - ineffassign
-    # - interfacer
     - misspell
     - nakedret
     - nolintlint
@@ -40,8 +38,6 @@ linters:
     - unparam
     - misspell
     - forbidigo
-    # - wrapcheck
-    # - wsl
 
 linters-settings:
   gci:
@@ -70,7 +66,5 @@ linters-settings:
 issues:
   exclude-dirs:
     - ignite/ui
-  #   # timeout for analysis, e.g. 30s, 5m, default is 1m
-  #   timeout: 5m
   max-issues-per-linter: 0
   max-same-issues: 0
