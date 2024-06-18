@@ -25,9 +25,6 @@
 
 ### Changes
 
-
-- [#4162](https://github.com/ignite/cli/pull/4162) Enable errcheck linter and fix a bug in the way we test flags
-- [#4159](https://github.com/ignite/cli/pull/4159) Enable gci linter
 - [#4157](https://github.com/ignite/cli/pull/4157) Upgrade golang to 1.22
 - [#4094](https://github.com/ignite/cli/pull/4094) Scaffolding a multi-index map using `ignite s map foo bar baz --index foobar,foobaz` is no longer supported. Use one index instead of use `collections.IndexedMap`.
 - [#4058](https://github.com/ignite/cli/pull/4058) Simplify scaffolded modules by including `ValidateBasic()` logic in message handler.
@@ -43,6 +40,9 @@
 - [#4167](https://github.com/ignite/cli/pull/4167) Scaffold `int64` instead of `int32` when a field type is `int`
 - [#4168](https://github.com/ignite/cli/pull/4168) Bump IBC to `v8.3.1`
 - [#4178](https://github.com/ignite/cli/pull/4178) Bump cosmos-sdk to `v0.50.7`
+- [#4159](https://github.com/ignite/cli/pull/4159) Enable gci linter
+- [#4160](https://github.com/ignite/cli/pull/4160) Enable copyloopvar linter
+- [#4162](https://github.com/ignite/cli/pull/4162) Enable errcheck linter
 
 ### Fixes
 
