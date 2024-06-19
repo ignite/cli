@@ -43,7 +43,7 @@
 - [#4159](https://github.com/ignite/cli/pull/4159) Enable gci linter
 - [#4160](https://github.com/ignite/cli/pull/4160) Enable copyloopvar linter
 - [#4162](https://github.com/ignite/cli/pull/4162) Enable errcheck linter
-- [#](https://github.com/ignite/cli/pull/) Bump client/v2 to `v2.0.0-beta.2`
+- [#4194](https://github.com/ignite/cli/pull/4194) Bump client/v2 to `v2.0.0-beta.2`
 
 ### Fixes
 
