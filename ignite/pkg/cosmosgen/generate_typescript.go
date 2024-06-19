@@ -81,8 +81,6 @@ func (g *tsGenerator) generateModuleTemplates(ctx context.Context) error {
 	dirCache := cache.New[[]byte](g.g.cacheStorage, dirchangeCacheNamespace)
 	add := func(sourcePath string, modules []module.Module) {
 		for _, m := range modules {
-			m := m
-
 			gg.Go(func() error {
 				cacheKey := m.Pkg.Path
 				paths := []string{m.Pkg.Path, g.g.opts.jsOut(m)}

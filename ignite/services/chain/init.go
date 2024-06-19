@@ -228,9 +228,7 @@ func (c *Chain) IsInitialized() (bool, error) {
 
 	if _, err := os.Stat(gentxDir); os.IsNotExist(err) {
 		return false, nil
-	}
-	if err != nil {
-		// Return error on other error
+	} else if err != nil {
 		return false, err
 	}
 

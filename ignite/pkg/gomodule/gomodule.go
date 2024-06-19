@@ -188,11 +188,10 @@ func FindModule(ctx context.Context, rootDir, path string) (Module, error) {
 
 	for dec.More() {
 		var m Module
-		if dec.Decode(&m); err != nil {
+		if err := dec.Decode(&m); err != nil {
 			if errors.Is(err, io.EOF) {
 				break
 			}
-
 			return Module{}, err
 		}
 
