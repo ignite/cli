@@ -52,6 +52,7 @@
 - [#4091](https://github.com/ignite/cli/pull/4091) Fix race conditions in the plugin logic
 - [#4128](https://github.com/ignite/cli/pull/4128) Check for duplicate proto fields in config
 - [#4184](https://github.com/ignite/cli/pull/4184) Set custom `InitChainer` because of manually registered modules
+- [#4199](https://github.com/ignite/cli/pull/4199) Set and seal SDK global config in `app/config.go`
 
 ## [`v28.4.0`](https://github.com/ignite/cli/releases/tag/v28.4.0)
 
