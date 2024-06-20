@@ -20,10 +20,8 @@
   ```
 
 - [#4178](https://github.com/ignite/cli/pull/4178) Bump cosmos-sdk to `v0.50.7`
-- [#4159](https://github.com/ignite/cli/pull/4159) Enable gci linter
-- [#4160](https://github.com/ignite/cli/pull/4160) Enable copyloopvar linter
-- [#4162](https://github.com/ignite/cli/pull/4162) Enable errcheck linter
 - [#4194](https://github.com/ignite/cli/pull/4194) Bump client/v2 to `v2.0.0-beta.2`
+  If you are uprading manually, check out the recommended changes in `root.go` from the above PR.
 
 ### Fixes
 
