@@ -1,10 +1,11 @@
 package cosmosclient
 
 import (
+	gogogrpc "github.com/cosmos/gogoproto/grpc"
+
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
-	gogogrpc "github.com/cosmos/gogoproto/grpc"
 )
 
 // gasometer implements the Gasometer interface.

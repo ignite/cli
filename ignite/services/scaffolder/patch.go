@@ -16,11 +16,10 @@ import (
 func supportMsgServer(
 	gens []*genny.Generator,
 	replacer placeholder.Replacer,
-	appPath string,
 	opts *modulecreate.MsgServerOptions,
 ) ([]*genny.Generator, error) {
 	// Check if convention used
-	msgServerDefined, err := isMsgServerDefined(appPath, opts.AppName, opts.ProtoDir, opts.ModuleName)
+	msgServerDefined, err := isMsgServerDefined(opts)
 	if err != nil {
 		return nil, err
 	}
@@ -37,8 +36,8 @@ func supportMsgServer(
 
 // isMsgServerDefined checks if the module uses the MsgServer convention for transactions
 // this is checked by verifying the existence of the tx.proto file.
-func isMsgServerDefined(appPath, appName, protoPath, moduleName string) (bool, error) {
-	txProto, err := filepath.Abs(filepath.Join(appPath, protoPath, appName, moduleName, "tx.proto"))
+func isMsgServerDefined(opts *modulecreate.MsgServerOptions) (bool, error) {
+	txProto, err := filepath.Abs(opts.ProtoFile("tx.proto"))
 	if err != nil {
 		return false, err
 	}

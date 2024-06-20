@@ -29,6 +29,7 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	ctx := plush.NewContext()
 	ctx.Set("ModuleName", opts.ModuleName)
 	ctx.Set("AppName", opts.AppName)
+	ctx.Set("ProtoVer", opts.ProtoVer)
 	ctx.Set("QueryName", opts.QueryName)
 	ctx.Set("Description", opts.Description)
 	ctx.Set("ModulePath", opts.ModulePath)
@@ -41,6 +42,7 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	g.Transformer(genny.Replace("{{protoDir}}", opts.ProtoDir))
 	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
+	g.Transformer(genny.Replace("{{protoVer}}", opts.ProtoVer))
 	g.Transformer(genny.Replace("{{queryName}}", opts.QueryName.Snake))
 	return nil
 }
@@ -68,7 +70,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *Options) (*genny.Generato
 //   - Existence of a service with name "Query" since that is where the RPCs will be added.
 func protoQueryModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, "query.proto")
+		path := opts.ProtoFile("query.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -137,8 +139,8 @@ func protoQueryModify(opts *Options) genny.RunFn {
 			protoImports = append(protoImports, protoutil.NewImport(imp))
 		}
 		for _, f := range append(opts.ResFields.Custom(), opts.ReqFields.Custom()...) {
-			protopath := fmt.Sprintf("%[1]v/%[2]v/%[3]v.proto", opts.AppName, opts.ModuleName, f)
-			protoImports = append(protoImports, protoutil.NewImport(protopath))
+			protoPath := fmt.Sprintf("%[1]v/%[2]v/%[3]v/%[4]v.proto", opts.AppName, opts.ModuleName, opts.ProtoVer, f)
+			protoImports = append(protoImports, protoutil.NewImport(protoPath))
 		}
 		if err = protoutil.AddImports(protoFile, true, protoImports...); err != nil {
 			return errors.Errorf("failed to add imports to %s: %w", path, err)

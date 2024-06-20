@@ -1,7 +1,7 @@
 package keeper_test
 
 import (
-    "strconv"
+	"strconv"
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -18,6 +18,16 @@ import (
 // Prevent strconv unused error
 var _ = strconv.IntSize
 
+func createN<%= TypeName.UpperCamel %>(keeper keeper.Keeper, ctx context.Context, n int) []types.<%= TypeName.UpperCamel %> {
+	items := make([]types.<%= TypeName.UpperCamel %>, n)
+	for i := range items {
+		items[i].<%= Index.Name.UpperCamel %> = <%= Index.ValueLoop() %>
+		
+		_ = keeper.<%= TypeName.UpperCamel %>.Set(ctx, items[i].<%= Index.Name.UpperCamel %>, items[i])
+	}
+	return items
+}
+
 func Test<%= TypeName.UpperCamel %>QuerySingle(t *testing.T) {
 	k, ctx, _ := keepertest.<%= title(ModuleName) %>Keeper(t)
 	qs := keeper.NewQueryServerImpl(k)
@@ -31,24 +41,21 @@ func Test<%= TypeName.UpperCamel %>QuerySingle(t *testing.T) {
 		{
 			desc:     "First",
 			request:  &types.QueryGet<%= TypeName.UpperCamel %>Request{
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: msgs[0].<%= index.Name.UpperCamel %>,
-                <% } %>
+			    <%= Index.Name.UpperCamel %>: msgs[0].<%= Index.Name.UpperCamel %>,
 			},
 			response: &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: msgs[0]},
 		},
 		{
 			desc:     "Second",
 			request:  &types.QueryGet<%= TypeName.UpperCamel %>Request{
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: msgs[1].<%= index.Name.UpperCamel %>,
-                <% } %>
+			    <%= Index.Name.UpperCamel %>: msgs[1].<%= Index.Name.UpperCamel %>,
 			},
 			response: &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: msgs[1]},
 		},
 		{
 			desc:    "KeyNotFound",
 			request: &types.QueryGet<%= TypeName.UpperCamel %>Request{
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>:<%= index.ValueInvalidIndex() %>,
-                <% } %>
+				<%= Index.Name.UpperCamel %>: <%= Index.ValueInvalidIndex() %>,
 			},
 			err:     status.Error(codes.NotFound, "not found"),
 		},

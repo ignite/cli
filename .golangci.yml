@@ -1,33 +1,29 @@
 run:
   tests: false
-  skip-dirs:
-    - ignite/ui
-#   # timeout for analysis, e.g. 30s, 5m, default is 1m
-#   timeout: 5m
 
 linters:
   disable-all: true
   enable:
     - bodyclose
+    - copyloopvar
     - decorder
     - depguard
     - dogsled
     - dupword
-    # - errcheck
+    - errcheck
     - errchkjson
     - errorlint
     - exhaustive
+    - gci
     - goconst
     - gocritic
     - godot
     - gofumpt
     - revive
-    # - gosec
     - gosimple
     - govet
     - grouper
     - ineffassign
-    # - interfacer
     - misspell
     - nakedret
     - nolintlint
@@ -43,10 +39,18 @@ linters:
     - unparam
     - misspell
     - forbidigo
-    # - wrapcheck
-    # - wsl
 
 linters-settings:
+  gci:
+    custom-order: true
+    sections:
+      - standard # Standard section: captures all standard packages.
+      - default # Default section: contains all imports that could not be matched to another section type.
+      - prefix(cosmossdk.io)
+      - prefix(github.com/cosmos/cosmos-sdk)
+      - prefix(github.com/cosmos/ibc-go
+      - prefix(github.com/cometbft/cometbft)
+      - prefix(github.com/ignite/cli)
   forbidigo:
     forbid:
       - p: ^fmt\.Errorf$
@@ -61,5 +65,7 @@ linters-settings:
             desc: Should be replaced by '"github.com/ignite/cli/ignite/pkg/errors"'
 
 issues:
+  exclude-dirs:
+    - ignite/ui
   max-issues-per-linter: 0
   max-same-issues: 0

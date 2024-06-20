@@ -107,7 +107,6 @@ func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 				step.Exec.Command,
 				strings.Join(step.Exec.Args, " "))
 		}
-		step := step
 		if err := ctx.Err(); err != nil {
 			return err
 		}

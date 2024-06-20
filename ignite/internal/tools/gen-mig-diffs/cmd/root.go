@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/Masterminds/semver/v3"
@@ -14,6 +15,7 @@ import (
 	"github.com/ignite/cli/ignite/internal/tools/gen-mig-diffs/pkg/diff"
 	"github.com/ignite/cli/ignite/internal/tools/gen-mig-diffs/pkg/repo"
 	"github.com/ignite/cli/ignite/internal/tools/gen-mig-diffs/pkg/scaffold"
+	"github.com/ignite/cli/ignite/internal/tools/gen-mig-diffs/pkg/url"
 	"github.com/ignite/cli/ignite/internal/tools/gen-mig-diffs/templates/doc"
 )
 
@@ -34,7 +36,7 @@ const (
 func NewRootCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "gen-mig-diffs",
-		Short: "GenerateBinaries migration diffs",
+		Short: "generate migration diffs from two different version",
 		Long:  "This tool is used to generate migration diff files for each of ignites scaffold commands",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			session := cliui.New()
@@ -45,7 +47,7 @@ func NewRootCmd() *cobra.Command {
 				to, _             = cmd.Flags().GetString(flagTo)
 				repoSource, _     = cmd.Flags().GetString(flagSource)
 				output, _         = cmd.Flags().GetString(flagOutput)
-				repoURL, _        = cmd.Flags().GetString(flagRepoURL)
+				repoURLStr, _     = cmd.Flags().GetString(flagRepoURL)
 				repoOutput, _     = cmd.Flags().GetString(flagRepoOutput)
 				scaffoldOutput, _ = cmd.Flags().GetString(flagScaffoldOutput)
 				scaffoldCache, _  = cmd.Flags().GetString(flagScaffoldCache)
@@ -64,7 +66,11 @@ func NewRootCmd() *cobra.Command {
 			if repoSource != "" {
 				repoOptions = append(repoOptions, repo.WithSource(repoSource))
 			}
-			if repoURL != "" {
+			if repoURLStr != "" {
+				repoURL, err := url.New(repoURLStr)
+				if err != nil {
+					return err
+				}
 				repoOptions = append(repoOptions, repo.WithRepoURL(repoURL))
 			}
 			if repoOutput != "" {
@@ -88,7 +94,11 @@ func NewRootCmd() *cobra.Command {
 			}
 
 			// Scaffold the default commands for each version.
-			scaffoldOptions := make([]scaffold.Options, 0)
+			scaffoldOptions := []scaffold.Option{
+				scaffold.WithStderr(os.Stderr),
+				scaffold.WithStdout(os.Stdout),
+				scaffold.WithStdin(os.Stdin),
+			}
 			if scaffoldOutput != "" {
 				scaffoldOptions = append(scaffoldOptions, scaffold.WithOutput(scaffoldOutput))
 			}
@@ -170,11 +180,12 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
+	defaultRepoURL := repo.DefaultRepoURL.String()
 	cmd.Flags().StringP(flagFrom, "f", "", "Version of Ignite or path to Ignite source code to generate the diff from")
 	cmd.Flags().StringP(flagTo, "t", "", "Version of Ignite or path to Ignite source code to generate the diff to")
 	cmd.Flags().StringP(flagOutput, "o", defaultDocPath, "Output directory to save the migration document")
 	cmd.Flags().StringP(flagSource, "s", "", "Path to Ignite source code repository. Set the source automatically set the cleanup to false")
-	cmd.Flags().String(flagRepoURL, repo.DefaultRepoURL, "Git URL for the Ignite repository")
+	cmd.Flags().String(flagRepoURL, defaultRepoURL, "Git URL for the Ignite repository")
 	cmd.Flags().String(flagRepoOutput, "", "Output path to clone the Ignite repository")
 	cmd.Flags().String(flagScaffoldOutput, "", "Output path to clone the Ignite repository")
 	cmd.Flags().String(flagScaffoldCache, "", "Path to cache directory")

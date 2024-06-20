@@ -27,12 +27,12 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(
 
 		i := r.Int()
 		msg := &types.MsgCreate<%= TypeName.UpperCamel %>{
-			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),<%= for (i, index) in Indexes { %>
-			<%= index.Name.UpperCamel %>: <%= index.ValueLoop() %>,<% } %>
+			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),
+			<%= Index.Name.UpperCamel %>: <%= Index.ValueLoop() %>,
 		}
 
-		_, found := k.Get<%= TypeName.UpperCamel %>(ctx <%= for (index) in Indexes { %>, msg.<%= index.Name.UpperCamel %><% } %>)
-		if found {
+		found, err := k.<%= TypeName.UpperCamel %>.Has(ctx, msg.<%= Index.Name.UpperCamel %>)
+		if err == nil && found {
 			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.UpperCamel %> already exist"), nil, nil
 		}
 
@@ -64,9 +64,18 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 			simAccount = simtypes.Account{}
 			<%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{}
 			msg = &types.MsgUpdate<%= TypeName.UpperCamel %>{}
-			all<%= TypeName.UpperCamel %> = k.GetAll<%= TypeName.UpperCamel %>(ctx)
 			found = false
 		)
+		
+		var all<%= TypeName.UpperCamel %> []types.<%= TypeName.UpperCamel %>
+		err := k.<%= TypeName.UpperCamel %>.Walk(ctx, nil, func(key <%= Index.DataType() %>, value types.<%= TypeName.UpperCamel %>) (stop bool, err error) {
+			all<%= TypeName.UpperCamel %> = append(all<%= TypeName.UpperCamel %>, value)
+			return false, nil
+		})
+		if err != nil {
+			panic(err)
+		}
+
 		for _, obj := range all<%= TypeName.UpperCamel %> {
 			simAccount, found = FindAccount(accs, obj.<%= MsgSigner.UpperCamel %>)
 			if found {
@@ -78,8 +87,7 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found"), nil, nil
 		}
 		msg.<%= MsgSigner.UpperCamel %> = simAccount.Address.String()
-		<%= for (i, index) in Indexes { %>
-		msg.<%= index.Name.UpperCamel %> = <%= TypeName.LowerCamel %>.<%= index.Name.UpperCamel %><% } %>
+		msg.<%= Index.Name.UpperCamel %> = <%= TypeName.LowerCamel %>.<%= Index.Name.UpperCamel %>
 
 		txCtx := simulation.OperationInput{
 			R:               r,
@@ -109,9 +117,18 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 			simAccount = simtypes.Account{}
 			<%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{}
 			msg = &types.MsgUpdate<%= TypeName.UpperCamel %>{}
-			all<%= TypeName.UpperCamel %> = k.GetAll<%= TypeName.UpperCamel %>(ctx)
 			found = false
 		)
+
+		var all<%= TypeName.UpperCamel %> []types.<%= TypeName.UpperCamel %>
+		err := k.<%= TypeName.UpperCamel %>.Walk(ctx, nil, func(key <%= Index.DataType() %>, value types.<%= TypeName.UpperCamel %>) (stop bool, err error) {
+			all<%= TypeName.UpperCamel %> = append(all<%= TypeName.UpperCamel %>, value)
+			return false, nil
+		})
+		if err != nil {
+			panic(err)
+		}
+
 		for _, obj := range all<%= TypeName.UpperCamel %> {
 			simAccount, found = FindAccount(accs, obj.<%= MsgSigner.UpperCamel %>)
 			if found {
@@ -123,8 +140,7 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found"), nil, nil
 		}
 		msg.<%= MsgSigner.UpperCamel %> = simAccount.Address.String()
-		<%= for (i, index) in Indexes { %>
-		msg.<%= index.Name.UpperCamel %> = <%= TypeName.LowerCamel %>.<%= index.Name.UpperCamel %><% } %>
+		msg.<%= Index.Name.UpperCamel %> = <%= TypeName.LowerCamel %>.<%= Index.Name.UpperCamel %>
 
 		txCtx := simulation.OperationInput{
 			R:               r,

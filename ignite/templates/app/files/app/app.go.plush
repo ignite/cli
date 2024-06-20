@@ -13,7 +13,6 @@ import (
 	feegrantkeeper "cosmossdk.io/x/feegrant/keeper"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
 	_ "cosmossdk.io/api/cosmos/tx/config/v1"          // import for side-effects
-	_ "github.com/cosmos/cosmos-sdk/x/auth"           // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/bank"           // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/consensus"      // import for side-effects
@@ -36,6 +35,7 @@ import (
 	_ "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts" // import for side-effects
 	_ "github.com/cosmos/ibc-go/v8/modules/apps/29-fee"                 // import for side-effects
 	dbm "github.com/cosmos/cosmos-db"
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -44,6 +44,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -337,16 +338,16 @@ func New(
 	app.sm = module.NewSimulationManagerFromAppModules(app.ModuleManager.Modules, overrideModules)
 	app.sm.RegisterStoreDecoders()
 
-	// A custom InitChainer can be set if extra pre-init-genesis logic is required.
-	// By default, when using app wiring enabled module, this is not required.
-	// For instance, the upgrade module will set automatically the module version map in its init genesis thanks to app wiring.
-	// However, when registering a module manually (i.e. that does not support app wiring), the module version map
-	// must be set manually as follow. The upgrade module will de-duplicate the module version map.
-	//
-	// app.SetInitChainer(func(ctx sdk.Context, req *abci.RequestInitChain) (*abci.ResponseInitChain, error) {
-	// 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.ModuleManager.GetVersionMap())
-	// 	return app.App.InitChainer(ctx, req)
-	// })
+	// A custom InitChainer sets if extra pre-init-genesis logic is required.
+	// This is necessary for manually registered modules that do not support app wiring.
+        // Manually set the module version map as shown below.
+	// The upgrade module will automatically handle de-duplication of the module version map.
+	app.SetInitChainer(func(ctx sdk.Context, req *abci.RequestInitChain) (*abci.ResponseInitChain, error) {
+		if err := app.UpgradeKeeper.SetModuleVersionMap(ctx, app.ModuleManager.GetVersionMap()); err != nil {
+			return nil, err
+		}
+		return app.App.InitChainer(ctx, req)
+	})
 
 	if err := app.Load(loadLatest); err != nil {
 		return nil, err

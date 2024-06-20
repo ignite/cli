@@ -17,7 +17,6 @@ import (
 
 // generateOptions used to configure code generation.
 type generateOptions struct {
-	includeDirs     []string
 	useCache        bool
 	updateBufModule bool
 	ev              events.Bus
@@ -80,14 +79,6 @@ func WithOpenAPIGeneration(out string) Option {
 	}
 }
 
-// IncludeDirs configures the third party proto dirs that used by app's proto.
-// relative to the projectPath.
-func IncludeDirs(dirs []string) Option {
-	return func(o *generateOptions) {
-		o.includeDirs = dirs
-	}
-}
-
 // UpdateBufModule enables Buf config proto dependencies update.
 // This option updates app's Buf config when proto packages or
 // Buf modules are found within the Go dependencies.
@@ -110,7 +101,7 @@ type generator struct {
 	cacheStorage        cache.Storage
 	appPath             string
 	protoDir            string
-	gomodPath           string
+	goModPath           string
 	opts                *generateOptions
 	sdkImport           string
 	sdkDir              string
@@ -131,19 +122,17 @@ func (g *generator) cleanup() {
 
 // Generate generates code from protoDir of an SDK app residing at appPath with given options.
 // protoDir must be relative to the projectPath.
-func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir, gomodPath string, options ...Option) error {
-	b, err := cosmosbuf.New()
+func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir, goModPath string, options ...Option) error {
+	b, err := cosmosbuf.New(cacheStorage, goModPath)
 	if err != nil {
 		return err
 	}
-
-	defer b.Cleanup()
 
 	g := &generator{
 		buf:                 b,
 		appPath:             appPath,
 		protoDir:            protoDir,
-		gomodPath:           gomodPath,
+		goModPath:           goModPath,
 		opts:                &generateOptions{},
 		thirdModules:        make(map[string][]module.Module),
 		thirdModuleIncludes: make(map[string]protoIncludes),

@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
-	"strings"
 	"time"
 
 	"github.com/Masterminds/semver/v3"
@@ -18,12 +17,19 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
+
+	"github.com/ignite/cli/ignite/internal/tools/gen-mig-diffs/pkg/url"
 )
 
 const (
-	DefaultRepoURL    = "https://github.com/ignite/cli.git"
 	defaultBinaryPath = "dist/ignite"
 )
+
+var DefaultRepoURL = url.URL{
+	Protocol: "ssh",
+	Host:     "github.com",
+	Path:     "ignite/cli",
+}
 
 type (
 	// Generator is used to generate migration diffs.
@@ -40,7 +46,7 @@ type (
 	options struct {
 		source  string
 		output  string
-		repoURL string
+		repoURL url.URL
 		binPath string
 	}
 	// Options configures the generator.
@@ -76,7 +82,7 @@ func WithSource(source string) Options {
 }
 
 // WithRepoURL set the repo URL Options.
-func WithRepoURL(repoURL string) Options {
+func WithRepoURL(repoURL url.URL) Options {
 	return func(o *options) {
 		o.repoURL = repoURL
 	}
@@ -100,9 +106,6 @@ func WithBinPath(binPath string) Options {
 func (o options) validate() error {
 	if o.source != "" && (o.repoURL != DefaultRepoURL) {
 		return errors.New("cannot set source and repo URL at the same time")
-	}
-	if o.source != "" {
-		return errors.New("cannot set source and cleanup the repo")
 	}
 	return nil
 }
@@ -138,7 +141,7 @@ func New(from, to *semver.Version, session *cliui.Session, options ...Options) (
 		session.StartSpinner("Cloning ignite repository...")
 
 		source = opts.output
-		repo, err = git.PlainClone(source, false, &git.CloneOptions{URL: opts.repoURL, Depth: 1})
+		repo, err = git.PlainClone(source, false, &git.CloneOptions{URL: opts.repoURL.String(), Depth: 1})
 		if errors.Is(err, git.ErrRepositoryAlreadyExists) {
 			repo, err = verifyRepoSource(source, opts.repoURL)
 		}
@@ -332,7 +335,7 @@ func validateVersionRange(fromVer, toVer *semver.Version, versions semver.Collec
 	}
 
 	// Picking default values for fromVer and toVer such that:
-	// If both fromVer and toVer are not provided, then generate migration document for second last and last semver tags
+	// If both fromVer and toVer are not provided, then generate migration document for second last and last semver major tags
 	// If only fromVer is not provided, then use the tag before toVer as fromVer
 	// If only toVer is not provided, then use the last tag as toVer
 	if toVer != nil {
@@ -349,13 +352,17 @@ func validateVersionRange(fromVer, toVer *semver.Version, versions semver.Collec
 			return nil, nil, errors.Errorf("tag %s not found", fromVer)
 		}
 	} else {
-		sort.Search(versions.Len(), func(i int) bool {
-			if versions[i].LessThan(toVer) {
-				fromVer = versions[i]
-				return false
+		// Find the last major release version.
+		sort.Sort(sort.Reverse(versions))
+		for _, ver := range versions {
+			if ver.Major() < toVer.Major() {
+				fromVer = ver
+				break
 			}
-			return true
-		})
+		}
+		if fromVer == nil {
+			return nil, nil, errors.Errorf("can't find an older major release from %s", toVer.Original())
+		}
 	}
 
 	// Unable to generate migration document if fromVer is greater or equal to toVer
@@ -408,7 +415,7 @@ func copyFile(srcPath, dstPath string) error {
 
 // verifyRepoSource checks if the repose source path is the same from the provider URL
 // and returns the *git.Repository object.
-func verifyRepoSource(source, url string) (*git.Repository, error) {
+func verifyRepoSource(source string, repoURL url.URL) (*git.Repository, error) {
 	repo, err := git.PlainOpen(source)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to open ignite repository")
@@ -417,10 +424,16 @@ func verifyRepoSource(source, url string) (*git.Repository, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to open ignite repository")
 	}
-	for _, remoteURL := range remote.Config().URLs {
-		if strings.TrimSuffix(url, ".git") == strings.TrimSuffix(remoteURL, ".git") {
-			return repo, nil
+
+	for _, u := range remote.Config().URLs {
+		remoteURL, err := url.New(u)
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to parse repo url %s", u)
+		}
+
+		if err := repoURL.Compare(remoteURL); err != nil {
+			return nil, errors.Wrapf(err, "repository folder %s does not match the repo URL %s", repoURL, remoteURL)
 		}
 	}
-	return nil, errors.Wrap(err, "repository folder does not match the repo URL")
+	return repo, nil
 }

@@ -14,8 +14,3 @@ type Options struct {
 	IsChainMinimal  bool
 	IsConsumerChain bool
 }
-
-// Validate that options are usable.
-func (opts *Options) Validate() error {
-	return nil
-}

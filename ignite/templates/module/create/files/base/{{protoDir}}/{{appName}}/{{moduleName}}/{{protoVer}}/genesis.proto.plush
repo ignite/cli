@@ -1,0 +1,17 @@
+syntax = "proto3";
+package <%= protoPkgName %>;
+
+import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+import "<%= appName %>/<%= moduleName %>/<%= protoVer %>/params.proto";
+
+option go_package = "<%= modulePath %>/x/<%= moduleName %>/types";
+
+// GenesisState defines the <%= moduleName %> module's genesis state.
+message GenesisState {
+  // params defines all the parameters of the module.
+  Params params = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
+}

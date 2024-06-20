@@ -17,6 +17,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	uilog "github.com/ignite/cli/v29/ignite/pkg/cliui/log"
+	"github.com/ignite/cli/v29/ignite/pkg/dircache"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gitpod"
 	"github.com/ignite/cli/v29/ignite/pkg/goenv"
@@ -83,7 +84,6 @@ To get started, create a blockchain:
 		NewScaffold(),
 		NewChain(),
 		NewGenerate(),
-		NewNode(),
 		NewAccount(),
 		NewDocs(),
 		NewVersion(),
@@ -145,11 +145,6 @@ func flagSetHome() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.String(flagHome, "", "directory where the blockchain node is initialized")
 	return fs
-}
-
-func getHome(cmd *cobra.Command) (home string) {
-	home, _ = cmd.Flags().GetString(flagHome)
-	return
 }
 
 func flagSetConfig() *flag.FlagSet {
@@ -238,6 +233,10 @@ func deprecated() []*cobra.Command {
 			Use:        "faucet",
 			Deprecated: "use `ignite chain faucet` instead.",
 		},
+		{
+			Use:        "node",
+			Deprecated: "use ignite connect app instead (ignite app install -g github.com/ignite/apps/connect).",
+		},
 	}
 }
 
@@ -273,6 +272,9 @@ func newCache(cmd *cobra.Command) (cache.Storage, error) {
 
 	if flagGetClearCache(cmd) {
 		if err := storage.Clear(); err != nil {
+			return cache.Storage{}, err
+		}
+		if err := dircache.ClearCache(); err != nil {
 			return cache.Storage{}, err
 		}
 	}
