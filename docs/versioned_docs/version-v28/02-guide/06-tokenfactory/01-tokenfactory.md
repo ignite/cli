@@ -123,11 +123,9 @@ In `proto/tokenfactory/tokenfactory/tx.proto`, remove the `DeleteDenom` RPC meth
 
 **Client Updates**
 
-Navigate to the client in `x/tokenfactory/client` and make these changes:
-
-- Remove `TestDeleteDenom()` from `tx_denom_test.go`.
-- Eliminate `CmdDeleteDenom()` from `tx_denom.go`.
-- In `tx.go`, delete the line referencing the delete command.
+- Eliminate `DeleteDenom()` from `x/tokenfactory/module/autocli.go`.
+- Remove `SimulateMsgDeleteDenom()` from `x/tokenfactory/simulation/denom.go`.
+- In `api/tokenfactory/tokenfactory/tx_grpc.pb.go`, delete the line referencing the delete command.
 
 **Keeper Modifications**
 
@@ -224,18 +222,18 @@ Implement basic input validation in `x/tokenfactory/types/messages_denom.go`:
 func (msg *MsgCreateDenom) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Owner)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid owner address (%s)", err)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid owner address (%s)", err)
 	}
 
 	tickerLength := len(msg.Ticker)
 	if tickerLength < 3 {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "Ticker length must be at least 3 chars long")
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "Ticker length must be at least 3 chars long")
 	}
 	if tickerLength > 10 {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "Ticker length must be 10 chars long maximum")
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "Ticker length must be 10 chars long maximum")
 	}
 	if msg.MaxSupply == 0 {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "Max Supply must be greater than 0")
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "Max Supply must be greater than 0")
 	}
 
 	return nil
@@ -248,10 +246,10 @@ func (msg *MsgCreateDenom) ValidateBasic() error {
 func (msg *MsgUpdateDenom) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Owner)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid owner address (%s)", err)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid owner address (%s)", err)
 	}
 	if msg.MaxSupply == 0 {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "Max Supply must be greater than 0")
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "Max Supply must be greater than 0")
 	}
 	return nil
 }
@@ -276,19 +274,19 @@ func (k msgServer) UpdateDenom(goCtx context.Context, msg *types.MsgUpdateDenom)
 		msg.Denom,
 	)
 	if !isFound {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "Denom to update not found")
+		return nil, errorsmod.Wrap(sdkerrors.ErrKeyNotFound, "Denom to update not found")
 	}
 
 	// Checks if the the msg owner is the same as the current owner
 	if msg.Owner != valFound.Owner {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
+		return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
 	}
 
 	if !valFound.CanChangeMaxSupply && valFound.MaxSupply != msg.MaxSupply {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "cannot change maxsupply")
+		return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "cannot change maxsupply")
 	}
 	if !valFound.CanChangeMaxSupply && msg.CanChangeMaxSupply {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Cannot revert change maxsupply flag")
+		return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "Cannot revert change maxsupply flag")
 	}
 	var denom = types.Denom{
 		Owner:              msg.Owner,
@@ -319,19 +317,19 @@ package types
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"context"
 )
 
 type AccountKeeper interface {
-	GetAccount(ctx sdk.Context, addr sdk.AccAddress) authtypes.AccountI
+	GetAccount(context.Context, sdk.AccAddress) sdk.AccountI // only used for simulation
 	GetModuleAddress(name string) sdk.AccAddress
-	GetModuleAccount(ctx sdk.Context, moduleName string) authtypes.ModuleAccountI
+	GetModuleAccount(ctx context.Context, moduleName string) sdk.AccountI
 }
 
 type BankKeeper interface {
-	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
-	MintCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
-	SpendableCoins(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
+	SendCoins(ctx context.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
+	MintCoins(ctx context.Context, moduleName string, amt sdk.Coins) error
+	SpendableCoins(ctx context.Context, addr sdk.AccAddress) sdk.Coins
 }
 ```
 
@@ -401,9 +399,13 @@ package keeper
 import (
 	"context"
 
+	"tokenfactory/x/tokenfactory/types"
+
+	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"tokenfactory/x/tokenfactory/types"
 )
 
 func (k msgServer) MintAndSendTokens(goCtx context.Context, msg *types.MsgMintAndSendTokens) (*types.MsgMintAndSendTokensResponse, error) {
@@ -415,16 +417,16 @@ func (k msgServer) MintAndSendTokens(goCtx context.Context, msg *types.MsgMintAn
 		msg.Denom,
 	)
 	if !isFound {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "denom does not exist")
+		return nil, errorsmod.Wrap(sdkerrors.ErrKeyNotFound, "denom does not exist")
 	}
 
 	// Checks if the the msg owner is the same as the current owner
 	if msg.Owner != valFound.Owner {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
+		return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
 	}
 
 	if valFound.Supply+msg.Amount > valFound.MaxSupply {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Cannot mint more than Max Supply")
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "Cannot mint more than Max Supply")
 	}
 	moduleAcct := k.accountKeeper.GetModuleAddress(types.ModuleName)
 
@@ -435,7 +437,7 @@ func (k msgServer) MintAndSendTokens(goCtx context.Context, msg *types.MsgMintAn
 
 	var mintCoins sdk.Coins
 
-	mintCoins = mintCoins.Add(sdk.NewCoin(msg.Denom, sdk.NewInt(int64(msg.Amount))))
+	mintCoins = mintCoins.Add(sdk.NewCoin(msg.Denom, math.NewInt(int64(msg.Amount))))
 	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, mintCoins); err != nil {
 		return nil, err
 	}
@@ -471,9 +473,12 @@ package keeper
 import (
 	"context"
 
+	"tokenfactory/x/tokenfactory/types"
+
+	errorsmod "cosmossdk.io/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"tokenfactory/x/tokenfactory/types"
 )
 
 func (k msgServer) UpdateOwner(goCtx context.Context, msg *types.MsgUpdateOwner) (*types.MsgUpdateOwnerResponse, error) {
@@ -485,12 +490,12 @@ func (k msgServer) UpdateOwner(goCtx context.Context, msg *types.MsgUpdateOwner)
 		msg.Denom,
 	)
 	if !isFound {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "denom does not exist")
+		return nil, errorsmod.Wrap(sdkerrors.ErrKeyNotFound, "denom does not exist")
 	}
 
 	// Checks if the the msg owner is the same as the current owner
 	if msg.Owner != valFound.Owner {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
+		return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
 	}
 
 	var denom = types.Denom{
