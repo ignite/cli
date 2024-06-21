@@ -118,8 +118,6 @@ func (g *composablesGenerator) generateComposableTemplates(p generatePayload) er
 	gg := &errgroup.Group{}
 
 	for _, m := range p.Modules {
-		m := m
-
 		gg.Go(func() error {
 			return g.generateComposableTemplate(m, p)
 		})

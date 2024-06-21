@@ -14,6 +14,7 @@ import (
 	envtest "github.com/ignite/cli/v29/integration"
 )
 
+// TestBankModule tests the bank module by creating accounts, transferring tokens between them, and querying the account balances.
 func TestBankModule(t *testing.T) {
 	t.Skip()
 
