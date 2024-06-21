@@ -44,6 +44,7 @@ require (
 	github.com/goccy/go-yaml v1.11.2
 	github.com/golangci/golangci-lint v1.55.2
 	github.com/google/go-github/v48 v48.2.0
+	github.com/google/go-querystring v1.1.0
 	github.com/gookit/color v1.5.4
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/rpc v1.2.1
@@ -256,7 +257,6 @@ require (
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/go-containerregistry v0.14.0 // indirect
 	github.com/google/go-dap v0.9.1 // indirect
-	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/pprof v0.0.0-20240117000934-35fc243c5815 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gordonklaus/ineffassign v0.0.0-20230610083614-0e73809eb601 // indirect
