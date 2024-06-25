@@ -45,7 +45,7 @@
 - [#4162](https://github.com/ignite/cli/pull/4162) Enable errcheck linter
 - [#4194](https://github.com/ignite/cli/pull/4194) Bump client/v2 to `v2.0.0-beta.2`
 - [#4189](https://github.com/ignite/cli/pull/4189) Deprecate `ignite node` for `ignite connect` app
-- []() Improve default home wiring
+- [#4210](https://github.com/ignite/cli/pull/4210) Improve default home wiring
 
 ### Fixes
 
