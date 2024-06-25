@@ -26,6 +26,7 @@
 ### Fixes
 
 - [#4184](https://github.com/ignite/cli/pull/4184) Set custom `InitChainer` because of manually registered modules
+- [#4198](https://github.com/ignite/cli/pull/4198) Set correct prefix overwriting in `buf.gen.pulsar.yaml`
 
 ## [`v28.4.0`](https://github.com/ignite/cli/releases/tag/v28.4.0)
 
