@@ -12,18 +12,11 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
-<<<<<<< HEAD
+	"github.com/ignite/cli/v28/ignite/config"
 	"github.com/ignite/cli/v28/ignite/pkg/gitpod"
 	"github.com/ignite/cli/v28/ignite/pkg/matomo"
 	"github.com/ignite/cli/v28/ignite/pkg/randstr"
 	"github.com/ignite/cli/v28/ignite/version"
-=======
-	"github.com/ignite/cli/v29/ignite/config"
-	"github.com/ignite/cli/v29/ignite/pkg/gacli"
-	"github.com/ignite/cli/v29/ignite/pkg/gitpod"
-	"github.com/ignite/cli/v29/ignite/pkg/randstr"
-	"github.com/ignite/cli/v29/ignite/version"
->>>>>>> 0b412628 (feat: improve buf rate limit (#4133))
 )
 
 const (

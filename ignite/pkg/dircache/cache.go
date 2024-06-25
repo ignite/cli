@@ -8,10 +8,10 @@ import (
 
 	"github.com/otiai10/copy"
 
-	"github.com/ignite/cli/v29/ignite/config"
-	"github.com/ignite/cli/v29/ignite/pkg/cache"
-	"github.com/ignite/cli/v29/ignite/pkg/dirchange"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/config"
+	"github.com/ignite/cli/v28/ignite/pkg/cache"
+	"github.com/ignite/cli/v28/ignite/pkg/dirchange"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 var ErrCacheNotFound = errors.New("cache not found")

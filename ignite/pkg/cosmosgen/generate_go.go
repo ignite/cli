@@ -7,12 +7,8 @@ import (
 
 	"github.com/otiai10/copy"
 
-<<<<<<< HEAD
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosbuf"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
-=======
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
->>>>>>> 0b412628 (feat: improve buf rate limit (#4133))
 )
 
 func (g *generator) gogoTemplate() string {

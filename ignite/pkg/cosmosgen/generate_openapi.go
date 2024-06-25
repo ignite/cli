@@ -5,32 +5,20 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-<<<<<<< HEAD
 	"sort"
-=======
 	"strings"
->>>>>>> 0b412628 (feat: improve buf rate limit (#4133))
 
 	"github.com/blang/semver/v4"
 	"github.com/iancoleman/strcase"
 
-<<<<<<< HEAD
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosbuf"
 	"github.com/ignite/cli/v28/ignite/pkg/dirchange"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/nodetime"
 	swaggercombine "github.com/ignite/cli/v28/ignite/pkg/nodetime/programs/swagger-combine"
 	"github.com/ignite/cli/v28/ignite/pkg/xos"
-=======
-	"github.com/ignite/cli/v29/ignite/pkg/cache"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
-	"github.com/ignite/cli/v29/ignite/pkg/dirchange"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	swaggercombine "github.com/ignite/cli/v29/ignite/pkg/swagger-combine"
-	"github.com/ignite/cli/v29/ignite/pkg/xos"
->>>>>>> 0b412628 (feat: improve buf rate limit (#4133))
 )
 
 const (
@@ -49,16 +37,12 @@ func (g *generator) openAPITemplateForSTA() string {
 func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 	var (
 		specDirs []string
-<<<<<<< HEAD
 		conf     = swaggercombine.Config{
 			Swagger: "2.0",
 			Info: swaggercombine.Info{
 				Title: "HTTP API Console",
 			},
 		}
-=======
-		conf     = swaggercombine.New("HTTP API Console", g.goModPath)
->>>>>>> 0b412628 (feat: improve buf rate limit (#4133))
 	)
 	command, cleanup, err := nodetime.Command(nodetime.CommandSwaggerCombine)
 	if err != nil {
@@ -209,17 +193,12 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 func (g *generator) generateModuleOpenAPISpec(ctx context.Context, m module.Module, out string) error {
 	var (
 		specDirs []string
-<<<<<<< HEAD
 		conf     = swaggercombine.Config{
 			Swagger: "2.0",
 			Info: swaggercombine.Info{
 				Title: "HTTP API Console " + m.Pkg.Name,
 			},
 		}
-=======
-		title    = "HTTP API Console " + m.Pkg.Name
-		conf     = swaggercombine.New(title, g.goModPath)
->>>>>>> 0b412628 (feat: improve buf rate limit (#4133))
 	)
 	command, cleanup, err := nodetime.Command(nodetime.CommandSwaggerCombine)
 	if err != nil {
@@ -268,13 +247,6 @@ func (g *generator) generateModuleOpenAPISpec(ctx context.Context, m module.Modu
 	// after add their path and config to swaggercombine.Config so we can combine them
 	// into a single spec.
 
-<<<<<<< HEAD
-	add := func(modules []module.Module) error {
-		for _, m := range modules {
-			if err := gen(m); err != nil {
-				return err
-			}
-=======
 	err = g.buf.Generate(ctx, m.Pkg.Path, dir, g.openAPITemplateForSTA(), cosmosbuf.ExcludeFiles("*/module.proto"))
 	if err != nil {
 		return err
@@ -288,7 +260,6 @@ func (g *generator) generateModuleOpenAPISpec(ctx context.Context, m module.Modu
 	for _, spec := range specs {
 		if err := conf.AddSpec(strcase.ToCamel(m.Pkg.Name), spec, false); err != nil {
 			return err
->>>>>>> 0b412628 (feat: improve buf rate limit (#4133))
 		}
 		return nil
 	}
