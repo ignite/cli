@@ -150,7 +150,7 @@ func (app *App) registerIBCModules(appOpts servertypes.AppOptions) error {
 		app.TransferKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		app.IBCKeeper.PortKeeper,
-		app.ScopedFeeabsKeeper,
+		scopedFeeabsKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
