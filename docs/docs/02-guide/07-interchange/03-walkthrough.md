@@ -58,20 +58,28 @@ in the past, reset the relayer configuration directory:
 rm -rf ~/.ignite/relayer
 ```
 
-Now you can use the `ignite relayer configure` command. This command allows you
+First, add the Hermes relayer app.
+
+```bash
+ignite app install -g github.com/ignite/apps/hermes
+```
+
+Now you can use the `ignite relayer hermes configure` command. This command allows you
 to specify the source and target chains, along with their respective RPC
 endpoints, faucet URLs, port numbers, versions, gas prices, and gas limits.
 
-```
-ignite relayer configure -a --source-rpc "http://0.0.0.0:26657" --source-faucet "http://0.0.0.0:4500" --source-port "dex" --source-version "dex-1" --source-gasprice "0.0000025stake" --source-prefix "cosmos" --source-gaslimit 300000 --target-rpc "http://0.0.0.0:26659" --target-faucet "http://0.0.0.0:4501" --target-port "dex" --target-version "dex-1" --target-gasprice "0.0000025stake" --target-prefix "cosmos" --target-gaslimit 300000
+```bash
+ignite relayer hermes configure \
+"earth-1" "http://localhost:26657" "http://localhost:9090" --chain-a-faucet "http://0.0.0.0:4500" \
+"mars-1" "http://localhost:26659" "http://localhost:9092" --chain-b-faucet "http://0.0.0.0:4501"
 ```
 
 To create a connection between the two chains, you can use the ignite relayer
 connect command. This command will establish a connection between the source and
 target chains, allowing you to transfer data and assets between them.
 
-```
-ignite relayer connect
+```bash
+ignite relayer hermes start "earth-1" "mars-1"
 ```
 
 Now that we have two separate blockchain networks up and running, and a relayer

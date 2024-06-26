@@ -433,26 +433,26 @@ build:
   proto:
     path: proto
 accounts:
-- name: alice
-  coins:
-  - 1000token
-  - 100000000stake
-- name: bob
-  coins:
-  - 500token
-  - 100000000stake
+  - name: alice
+    coins:
+      - 1000token
+      - 100000000stake
+  - name: bob
+    coins:
+      - 500token
+      - 100000000stake
 faucet:
   name: bob
   coins:
-  - 5token
-  - 100000stake
+    - 5token
+    - 100000stake
   host: 0.0.0.0:4500
 genesis:
   chain_id: earth
 validators:
-- name: alice
-  bonded: 100000000stake
-  home: $HOME/.earth
+  - name: alice
+    bonded: 100000000stake
+    home: $HOME/.earth
 ```
 
 ```yaml title="mars.yml"
@@ -461,39 +461,39 @@ build:
   proto:
     path: proto
 accounts:
-- name: alice
-  coins:
-  - 1000token
-  - 1000000000stake
-- name: bob
-  coins:
-  - 500token
-  - 100000000stake
+  - name: alice
+    coins:
+      - 1000token
+      - 1000000000stake
+  - name: bob
+    coins:
+      - 500token
+      - 100000000stake
 faucet:
   name: bob
   coins:
-  - 5token
-  - 100000stake
+    - 5token
+    - 100000stake
   host: :4501
 genesis:
   chain_id: mars
 validators:
-- name: alice
-  bonded: 100000000stake
-  app:
-    api:
-      address: :1318
-    grpc:
-      address: :9092
-    grpc-web:
-      address: :9093
-  config:
-    p2p:
-      laddr: :26658
-    rpc:
-      laddr: :26659
-      pprof_laddr: :6061
-  home: $HOME/.mars
+  - name: alice
+    bonded: 100000000stake
+    app:
+      api:
+        address: :1318
+      grpc:
+        address: :9092
+      grpc-web:
+        address: :9093
+    config:
+      p2p:
+        laddr: :26658
+      rpc:
+        laddr: :26659
+        pprof_laddr: :6061
+    home: $HOME/.mars
 ```
 
 Open a terminal window and run the following command to start the `earth`
@@ -526,70 +526,27 @@ found` and no action is taken.
 
 ### Configure and start the relayer
 
-First, configure the relayer. Use the Ignite CLI `configure` command with the
-`--advanced` option:
+First, add the Hermes relayer app.
 
 ```bash
-ignite relayer configure -a \
-  --source-rpc "http://0.0.0.0:26657" \
-  --source-faucet "http://0.0.0.0:4500" \
-  --source-port "blog" \
-  --source-version "blog-1" \
-  --source-gasprice "0.0000025stake" \
-  --source-prefix "cosmos" \
-  --source-gaslimit 300000 \
-  --target-rpc "http://0.0.0.0:26659" \
-  --target-faucet "http://0.0.0.0:4501" \
-  --target-port "blog" \
-  --target-version "blog-1" \
-  --target-gasprice "0.0000025stake" \
-  --target-prefix "cosmos" \
-  --target-gaslimit 300000
+ignite app install -g github.com/ignite/apps/hermes
 ```
 
-When prompted, press Enter to accept the default values for `Source Account` and
-`Target Account`.
-
-The output looks like:
-
-```
----------------------------------------------
-Setting up chains
----------------------------------------------
-
-🔐  Account on "source" is "cosmos1xcxgzq75yrxzd0tu2kwmwajv7j550dkj7m00za"
-
- |· received coins from a faucet
- |· (balance: 100000stake,5token)
-
-🔐  Account on "target" is "cosmos1nxg8e4mfp5v7sea6ez23a65rvy0j59kayqr8cx"
-
- |· received coins from a faucet
- |· (balance: 100000stake,5token)
-
-⛓  Configured chains: earth-mars
-```
-
-In a new terminal window, start the relayer process:
+and after configure the relayer.
 
 ```bash
-ignite relayer connect
+ignite relayer hermes configure \
+"earth-1" "http://localhost:26657" "http://localhost:9090" --chain-a-faucet "http://0.0.0.0:4500" \
+"mars-1" "http://localhost:26659" "http://localhost:9092" --chain-b-faucet "http://0.0.0.0:4501"
 ```
 
-Results:
+When prompted, press Enter to accept the default values for `Chain A Account` and
+`Chain B Account`.
 
-```
-------
-Paths
-------
+Now start the relayer:
 
-earth-mars:
-    earth > (port: blog) (channel: channel-0)
-    mars  > (port: blog) (channel: channel-0)
-
-------
-Listening and relaying packets between chains...
-------
+```bash
+ignite relayer hermes start "earth-1" "mars-1"
 ```
 
 ### Send packets
