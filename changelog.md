@@ -14,11 +14,14 @@
 - [#4071](https://github.com/ignite/cli/pull/4071) Support custom proto path
 - [#3718](https://github.com/ignite/cli/pull/3718) Add `gen-mig-diffs` tool app to compare scaffold output of two versions of ignite
 - [#4077](https://github.com/ignite/cli/pull/4077) Merge the swagger files manually instead use nodetime `swagger-combine`
+- [#4090](https://github.com/ignite/cli/pull/4090) Remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta`
 - [#4100](https://github.com/ignite/cli/pull/4100) Set the `proto-dir` flag only for the `scaffold chain` command and use the proto path from the config
 - [#4111](https://github.com/ignite/cli/pull/4111) Remove vuex generation
 - [#4133](https://github.com/ignite/cli/pull/4133) Improve buf rate limit
 - [#4113](https://github.com/ignite/cli/pull/4113) Generate chain config documentation automatically
 - [#4131](https://github.com/ignite/cli/pull/4131) Support `bytes` as data type in the `scaffold` commands
+- [#4095](https://github.com/ignite/cli/pull/4095) Migrate to matomo analytics
+- [#4183](https://github.com/ignite/cli/pull/4183) Set `chain-id` in the client.toml
 
 ### Changes
 
@@ -39,12 +42,22 @@
 - [#4149](https://github.com/ignite/cli/pull/4149) Bump cometbft to `v0.38.7`
 - [#4167](https://github.com/ignite/cli/pull/4167) Scaffold `int64` instead of `int32` when a field type is `int`
 - [#4168](https://github.com/ignite/cli/pull/4168) Bump IBC to `v8.3.1`
+- [#4178](https://github.com/ignite/cli/pull/4178) Bump cosmos-sdk to `v0.50.7`
+- [#4159](https://github.com/ignite/cli/pull/4159) Enable gci linter
+- [#4160](https://github.com/ignite/cli/pull/4160) Enable copyloopvar linter
+- [#4162](https://github.com/ignite/cli/pull/4162) Enable errcheck linter
+- [#4194](https://github.com/ignite/cli/pull/4194) Bump client/v2 to `v2.0.0-beta.2`
+- [#4189](https://github.com/ignite/cli/pull/4189) Deprecate `ignite node` for `ignite connect` app
+- [#4210](https://github.com/ignite/cli/pull/4210) Improve default home wiring
 
 ### Fixes
 
 - [#4000](https://github.com/ignite/cli/pull/4000) Run all dry runners before the wet run in the `xgenny` pkg
 - [#4091](https://github.com/ignite/cli/pull/4091) Fix race conditions in the plugin logic
 - [#4128](https://github.com/ignite/cli/pull/4128) Check for duplicate proto fields in config
+- [#4184](https://github.com/ignite/cli/pull/4184) Set custom `InitChainer` because of manually registered modules
+- [#4198](https://github.com/ignite/cli/pull/4198) Set correct prefix overwriting in `buf.gen.pulsar.yaml`
+- [#4199](https://github.com/ignite/cli/pull/4199) Set and seal SDK global config in `app/config.go`
 
 ## [`v28.4.0`](https://github.com/ignite/cli/releases/tag/v28.4.0)
 

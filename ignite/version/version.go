@@ -8,6 +8,7 @@ import (
 	"path"
 	"runtime"
 	"runtime/debug"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 
@@ -34,6 +35,21 @@ Please, follow the migration guide to upgrade your chain to the latest version a
 
 // Version is the semantic version of Ignite CLI.
 var Version = versionDev
+
+type Info struct {
+	CLIVersion      string
+	GoVersion       string
+	SDKVersion      string
+	BuildDate       string
+	SourceHash      string
+	ConfigVersion   string
+	OS              string
+	Arch            string
+	Uname           string
+	CWD             string
+	IsGitpod        bool
+	BuildFromSource bool
+}
 
 // CheckNext checks whether there is a new version of Ignite CLI.
 func CheckNext(ctx context.Context) (isAvailable bool, version string, err error) {
@@ -77,6 +93,11 @@ func getLatestReleaseTag(ctx context.Context) (string, error) {
 	return *latest.TagName, nil
 }
 
+// fromSource check if the binary was build from source using the CLI version.
+func fromSource() bool {
+	return Version == versionDev
+}
+
 // resolveDevVersion creates a string for version printing if the version being used is "development".
 // the version will be of the form "LATEST-dev" where LATEST is the latest tagged release.
 func resolveDevVersion(ctx context.Context) string {
@@ -108,24 +129,65 @@ func resolveDevVersion(ctx context.Context) string {
 }
 
 // Long generates a detailed version info.
-func Long(ctx context.Context) string {
+func Long(ctx context.Context) (string, error) {
 	var (
-		w          = &tabwriter.Writer{}
-		b          = &bytes.Buffer{}
+		w = &tabwriter.Writer{}
+		b = &bytes.Buffer{}
+	)
+
+	info, err := GetInfo(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	write := func(k, v string) {
+		fmt.Fprintf(w, "%s:\t%s\n", k, v)
+	}
+	w.Init(b, 0, 8, 0, '\t', 0)
+
+	write("Ignite CLI version", info.CLIVersion)
+	write("Ignite CLI build date", info.BuildDate)
+	write("Ignite CLI source hash", info.SourceHash)
+	write("Ignite CLI config version", info.ConfigVersion)
+	write("Cosmos SDK version", info.SDKVersion)
+
+	write("Your OS", info.OS)
+	write("Your arch", info.Arch)
+	write("Your go version", info.GoVersion)
+	write("Your uname -a", info.Uname)
+
+	if info.CWD != "" {
+		write("Your cwd", info.CWD)
+	}
+
+	write("Is on Gitpod", strconv.FormatBool(info.IsGitpod))
+
+	if err := w.Flush(); err != nil {
+		return "", err
+	}
+
+	return b.String(), nil
+}
+
+// GetInfo gets the CLI info.
+func GetInfo(ctx context.Context) (Info, error) {
+	var (
+		info     Info
+		modified bool
+
 		date       = "undefined"
 		head       = "undefined"
-		modified   bool
 		sdkVersion = "undefined"
 	)
-	if info, ok := debug.ReadBuildInfo(); ok {
-		for _, dep := range info.Deps {
+	if buildInfo, ok := debug.ReadBuildInfo(); ok {
+		for _, dep := range buildInfo.Deps {
 			if cosmosver.CosmosSDKModulePathPattern.MatchString(dep.Path) {
 				sdkVersion = dep.Version
 				break
 			}
 		}
 
-		for _, kv := range info.Settings {
+		for _, kv := range buildInfo.Settings {
 			switch kv.Key {
 			case "vcs.revision":
 				head = kv.Value
@@ -141,59 +203,41 @@ func Long(ctx context.Context) string {
 		}
 	}
 
-	write := func(k string, v interface{}) {
-		fmt.Fprintf(w, "%s:\t%v\n", k, v)
+	goVersionBuf := &bytes.Buffer{}
+	if err := exec.Exec(ctx, []string{"go", "version"}, exec.StepOption(step.Stdout(goVersionBuf))); err != nil {
+		return info, err
 	}
 
-	w.Init(b, 0, 8, 0, '\t', 0)
-
-	write("Ignite CLI version", resolveDevVersion(ctx))
-	write("Ignite CLI build date", date)
-	write("Ignite CLI source hash", head)
-	write("Ignite CLI config version", chainconfig.LatestVersion)
-	write("Cosmos SDK version", sdkVersion)
-
-	write("Your OS", runtime.GOOS)
-	write("Your arch", runtime.GOARCH)
-
-	cmdOut := &bytes.Buffer{}
-
-	nodeJSCmd := "node"
-	if xexec.IsCommandAvailable(nodeJSCmd) {
-		cmdOut.Reset()
-
-		err := exec.Exec(ctx, []string{nodeJSCmd, "-v"}, exec.StepOption(step.Stdout(cmdOut)))
-		if err == nil {
-			write("Your Node.js version", strings.TrimSpace(cmdOut.String()))
-		}
-	}
-
-	cmdOut.Reset()
-	err := exec.Exec(ctx, []string{"go", "version"}, exec.StepOption(step.Stdout(cmdOut)))
-	if err != nil {
-		panic(err)
-	}
-	write("Your go version", strings.TrimSpace(cmdOut.String()))
-
-	unameCmd := "uname"
+	var (
+		unameCmd = "uname"
+		uname    = ""
+	)
 	if xexec.IsCommandAvailable(unameCmd) {
-		cmdOut.Reset()
-
-		err := exec.Exec(ctx, []string{unameCmd, "-a"}, exec.StepOption(step.Stdout(cmdOut)))
-		if err == nil {
-			write("Your uname -a", strings.TrimSpace(cmdOut.String()))
+		unameBuf := &bytes.Buffer{}
+		unameBuf.Reset()
+		if err := exec.Exec(ctx, []string{unameCmd, "-a"}, exec.StepOption(step.Stdout(unameBuf))); err != nil {
+			return info, err
 		}
+		uname = strings.TrimSpace(unameBuf.String())
 	}
+
+	info.Uname = uname
+	info.CLIVersion = resolveDevVersion(ctx)
+	info.BuildDate = date
+	info.SourceHash = head
+	info.ConfigVersion = fmt.Sprintf("v%d", chainconfig.LatestVersion)
+	info.SDKVersion = sdkVersion
+	info.OS = runtime.GOOS
+	info.Arch = runtime.GOARCH
+	info.GoVersion = strings.TrimSpace(goVersionBuf.String())
+	info.IsGitpod = gitpod.IsOnGitpod()
+	info.BuildFromSource = fromSource()
 
 	if cwd, err := os.Getwd(); err == nil {
-		write("Your cwd", cwd)
+		info.CWD = cwd
 	}
 
-	write("Is on Gitpod", gitpod.IsOnGitpod())
-
-	w.Flush()
-
-	return b.String()
+	return info, nil
 }
 
 // AssertSupportedCosmosSDKVersion asserts that a Cosmos SDK version is supported by Ignite CLI.
