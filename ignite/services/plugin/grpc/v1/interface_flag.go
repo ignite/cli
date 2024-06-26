@@ -34,7 +34,7 @@ func newDefaultFlagValueError(typeName, value string) error {
 }
 
 func (f *Flag) exportToFlagSet(fs *pflag.FlagSet) error {
-	switch f.Type {
+	switch f.Type { //nolint:exhaustive
 	case Flag_TYPE_FLAG_BOOL,
 		Flag_TYPE_FLAG_INT,
 		Flag_TYPE_FLAG_INT64,
