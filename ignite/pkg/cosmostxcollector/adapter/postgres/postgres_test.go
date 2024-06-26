@@ -11,11 +11,10 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/lib/pq"
-	"github.com/stretchr/testify/require"
-
 	abci "github.com/cometbft/cometbft/abci/types"
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
+	"github.com/lib/pq"
+	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmostxcollector/query"
