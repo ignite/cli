@@ -3,6 +3,7 @@ package app
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -13,7 +14,7 @@ func TestBufFiles(t *testing.T) {
 	protoDir, err := os.ReadDir("files/{{protoDir}}")
 	require.NoError(t, err)
 	for _, e := range protoDir {
-		want = append(want, filepath.Join("{{protoDir}}", e.Name()))
+		want = append(want, filepath.Join("{{protoDir}}", strings.TrimSuffix(e.Name(), ".plush")))
 	}
 
 	got, err := BufFiles()
