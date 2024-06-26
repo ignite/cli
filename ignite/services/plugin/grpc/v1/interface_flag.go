@@ -35,6 +35,20 @@ func newDefaultFlagValueError(typeName, value string) error {
 
 func (f *Flag) exportToFlagSet(fs *pflag.FlagSet) error {
 	switch f.Type {
+	case Flag_TYPE_FLAG_BOOL,
+		Flag_TYPE_FLAG_INT,
+		Flag_TYPE_FLAG_INT64,
+		Flag_TYPE_FLAG_UINT,
+		Flag_TYPE_FLAG_UINT64:
+		if f.DefaultValue == "" {
+			f.DefaultValue = "0"
+		}
+		if f.Value == "" {
+			f.Value = "0"
+		}
+	}
+
+	switch f.Type {
 	case Flag_TYPE_FLAG_BOOL:
 		v, err := strconv.ParseBool(f.DefaultValue)
 		if err != nil {
