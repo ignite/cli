@@ -2,9 +2,8 @@ package app
 
 import (
 	"io"
-	"os"
-	"path/filepath"
 
+	clienthelpers "cosmossdk.io/client/v2/helpers"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
@@ -81,12 +80,11 @@ type App struct {
 }
 
 func init() {
-	userHomeDir, err := os.UserHomeDir()
+	var err error
+	DefaultNodeHome, err = clienthelpers.GetNodeHomeDirectory("."+Name)
 	if err != nil {
 		panic(err)
 	}
-
-	DefaultNodeHome = filepath.Join(userHomeDir, "."+Name)
 }
 
 // AppConfig returns the default app config.
