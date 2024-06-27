@@ -70,8 +70,10 @@ endpoints, faucet URLs, port numbers, versions, gas prices, and gas limits.
 
 ```bash
 ignite relayer hermes configure \
-"earth-1" "http://localhost:26657" "http://localhost:9090" --chain-a-faucet "http://0.0.0.0:4500" \
-"mars-1" "http://localhost:26659" "http://localhost:9092" --chain-b-faucet "http://0.0.0.0:4501"
+"earth" "http://localhost:26657" "http://localhost:9090" \
+"mars" "http://localhost:26659" "http://localhost:9092" \
+--chain-a-faucet "http://0.0.0.0:4500" \
+--chain-b-faucet "http://0.0.0.0:4501"
 ```
 
 To create a connection between the two chains, you can use the ignite relayer
@@ -79,7 +81,7 @@ connect command. This command will establish a connection between the source and
 target chains, allowing you to transfer data and assets between them.
 
 ```bash
-ignite relayer hermes start "earth-1" "mars-1"
+ignite relayer hermes start "earth" "mars"
 ```
 
 Now that we have two separate blockchain networks up and running, and a relayer

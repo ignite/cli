@@ -433,26 +433,26 @@ build:
   proto:
     path: proto
 accounts:
-  - name: alice
-    coins:
-      - 1000token
-      - 100000000stake
-  - name: bob
-    coins:
-      - 500token
-      - 100000000stake
+- name: alice
+  coins:
+  - 1000token
+  - 100000000stake
+- name: bob
+  coins:
+  - 500token
+  - 100000000stake
 faucet:
   name: bob
   coins:
-    - 5token
-    - 100000stake
+  - 5token
+  - 100000stake
   host: 0.0.0.0:4500
 genesis:
   chain_id: earth
 validators:
-  - name: alice
-    bonded: 100000000stake
-    home: $HOME/.earth
+- name: alice
+  bonded: 100000000stake
+  home: $HOME/.earth
 ```
 
 ```yaml title="mars.yml"
@@ -461,39 +461,39 @@ build:
   proto:
     path: proto
 accounts:
-  - name: alice
-    coins:
-      - 1000token
-      - 1000000000stake
-  - name: bob
-    coins:
-      - 500token
-      - 100000000stake
+- name: alice
+  coins:
+  - 1000token
+  - 1000000000stake
+- name: bob
+  coins:
+  - 500token
+  - 100000000stake
 faucet:
   name: bob
   coins:
-    - 5token
-    - 100000stake
+  - 5token
+  - 100000stake
   host: :4501
 genesis:
   chain_id: mars
 validators:
-  - name: alice
-    bonded: 100000000stake
-    app:
-      api:
-        address: :1318
-      grpc:
-        address: :9092
-      grpc-web:
-        address: :9093
-    config:
-      p2p:
-        laddr: :26658
-      rpc:
-        laddr: :26659
-        pprof_laddr: :6061
-    home: $HOME/.mars
+- name: alice
+  bonded: 100000000stake
+  app:
+    api:
+      address: :1318
+    grpc:
+      address: :9092
+    grpc-web:
+      address: :9093
+  config:
+    p2p:
+      laddr: :26658
+    rpc:
+      laddr: :26659
+      pprof_laddr: :6061
+  home: $HOME/.mars
 ```
 
 Open a terminal window and run the following command to start the `earth`
@@ -536,17 +536,37 @@ and after configure the relayer.
 
 ```bash
 ignite relayer hermes configure \
-"earth-1" "http://localhost:26657" "http://localhost:9090" --chain-a-faucet "http://0.0.0.0:4500" \
-"mars-1" "http://localhost:26659" "http://localhost:9092" --chain-b-faucet "http://0.0.0.0:4501"
+"earth" "http://localhost:26657" "http://localhost:9090" \
+"mars" "http://localhost:26659" "http://localhost:9092" \
+--chain-a-faucet "http://0.0.0.0:4500" \
+--chain-b-faucet "http://0.0.0.0:4501"
 ```
 
 When prompted, press Enter to accept the default values for `Chain A Account` and
 `Chain B Account`.
 
+The output looks like:
+
+```
+Hermes config created at ~/.ignite/relayer/hermes/earth_mars
+? Chain earth doesn't have a default Hermes key. Type your mnemonic to continue or type enter to generate a new one: (optional) 
+New mnemonic generated: <CHAIN_A_NEW_MNEMONIC>
+Chain earth key created
+Chain earth relayer wallet: cosmos1qzls22j2ym2q442pducl4dhjrtyt9w9jd9fewu
+? Chain mars doesn't have a default Hermes key. Type your mnemonic to continue or type enter to generate a new one: (optional) 
+New mnemonic generated: <CHAIN_B_NEW_MNEMONIC>
+Chain mars key created
+Chain mars relayer wallet: cosmos1x6y0raeqjuctcxglxrc8rstqlmmd43ucwqx2es
+Client '07-tendermint-0' created (earth -> mars)
+Client 07-tendermint-0' created (mars -> earth)
+Connection 'earth (connection-0) <-> mars (connection-0)' created
+Channel 'earth (channel-0) <-> mars (channel-0)' created
+```
+
 Now start the relayer:
 
 ```bash
-ignite relayer hermes start "earth-1" "mars-1"
+ignite relayer hermes start "earth" "mars"
 ```
 
 ### Send packets
