@@ -136,6 +136,7 @@ type App struct {
 	ScopedIBCTransferKeeper   capabilitykeeper.ScopedKeeper
 	ScopedICAControllerKeeper capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
+	ScopedKeepers             map[string]capabilitykeeper.ScopedKeeper
 
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
@@ -191,7 +192,7 @@ func New(
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) (*App, error) {
 	var (
-		app        = &App{}
+		app        = &App{ScopedKeepers: make(map[string]capabilitykeeper.ScopedKeeper)}
 		appBuilder *runtime.AppBuilder
 
 		// merge the AppConfig and other configuration in one config
@@ -350,7 +351,12 @@ func (app *App) GetIBCKeeper() *ibckeeper.Keeper {
 
 // GetCapabilityScopedKeeper returns the capability scoped keeper.
 func (app *App) GetCapabilityScopedKeeper(moduleName string) capabilitykeeper.ScopedKeeper {
-	return app.CapabilityKeeper.ScopeToModule(moduleName)
+	sk, ok := app.ScopedKeepers[moduleName]
+	if !ok {
+		sk = app.CapabilityKeeper.ScopeToModule(moduleName)
+		app.ScopedKeepers[moduleName] = sk
+	}
+	return sk
 }
 
 // SimulationManager implements the SimulationApp interface.
