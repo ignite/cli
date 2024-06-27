@@ -11,7 +11,7 @@ replace (
 
 require (
 	cosmossdk.io/api v0.7.5
-	cosmossdk.io/client/v2 v2.0.0-beta.2
+	cosmossdk.io/client/v2 v2.0.0-beta.2.0.20240625200423-e4c342eb99f5
 	cosmossdk.io/collections v0.4.0
 	cosmossdk.io/core v0.11.0
 	cosmossdk.io/depinject v1.0.0-alpha.4
@@ -23,7 +23,7 @@ require (
 	cosmossdk.io/x/evidence v0.1.0
 	cosmossdk.io/x/feegrant v0.1.0
 	cosmossdk.io/x/nft v0.1.0
-	cosmossdk.io/x/upgrade v0.1.3
+	cosmossdk.io/x/upgrade v0.1.4-0.20240625200423-e4c342eb99f5
 	<%= if (IsConsumerChain) { %>
 	github.com/cosmos/interchain-security/v5 v5.0.0
 	<% } %>

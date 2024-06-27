@@ -26,8 +26,6 @@ import (
 
 // NewRootCmd creates a new root command for <%= BinaryNamePrefix %>d. It is called once in the main function.
 func NewRootCmd() *cobra.Command {
-    initSDKConfig()
-
 	var (
 		autoCliOpts        autocli.AppOptions
 		moduleBasicManager module.BasicManager
