@@ -86,6 +86,7 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 				"*/cosmos/app/v1alpha1/*",
 				"*/cosmos/tx/config/v1/config.proto",
 				"*/cosmos/msg/textual/v1/textual.proto",
+				"*/osmosis-labs/fee-abstraction/*",
 			),
 			cosmosbuf.FileByFile(),
 		); err != nil {
