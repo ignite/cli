@@ -574,7 +574,7 @@ ignite relayer hermes start "earth" "mars"
 You can now send packets and verify the received posts:
 
 ```bash
-planetd tx blog send-ibc-post blog channel-0 "Hello" "Hello Mars, I'm Alice from Earth" --from alice --chain-id earth --home ~/.earth
+planetd tx blog send-ibc-post transfer channel-0 "Hello" "Hello Mars, I'm Alice from Earth" --from alice --chain-id earth --home ~/.earth
 ```
 
 To verify that the post has been received on Mars:
@@ -588,7 +588,7 @@ The packet has been received:
 ```yaml
 Post:
   - content: Hello Mars, I'm Alice from Earth
-    creator: blog-channel-0-cosmos1aew8dk9cs3uzzgeldatgzvm5ca2k4m98xhy20x
+    creator: transfer-channel-0-cosmos1aew8dk9cs3uzzgeldatgzvm5ca2k4m98xhy20x
     id: "0"
     title: Hello
 pagination:
@@ -606,7 +606,7 @@ Output:
 
 ```yaml
 SentPost:
-  - chain: blog-channel-0
+  - chain: transfer-channel-0
     creator: cosmos1aew8dk9cs3uzzgeldatgzvm5ca2k4m98xhy20x
     id: "0"
     postID: "0"
@@ -620,7 +620,7 @@ To test timeout, set the timeout time of a packet to 1 nanosecond, verify that
 the packet is timed out, and check the timed-out posts:
 
 ```bash
-planetd tx blog send-ibc-post blog channel-0 "Sorry" "Sorry Mars, you will never see this post" --from alice --chain-id earth --home ~/.earth --packet-timeout-timestamp 1
+planetd tx blog send-ibc-post transfer channel-0 "Sorry" "Sorry Mars, you will never see this post" --from alice --chain-id earth --home ~/.earth --packet-timeout-timestamp 1
 ```
 
 Check the timed-out posts:
@@ -633,7 +633,7 @@ Results:
 
 ```yaml
 TimedoutPost:
-  - chain: blog-channel-0
+  - chain: transfer-channel-0
     creator: cosmos1fhpcsxn0g8uask73xpcgwxlfxtuunn3ey5ptjv
     id: "0"
     title: Sorry
@@ -645,7 +645,7 @@ pagination:
 You can also send a post from Mars:
 
 ```bash
-planetd tx blog send-ibc-post blog channel-0 "Hello" "Hello Earth, I'm Alice from Mars" --from alice --chain-id mars --home ~/.mars --node tcp://localhost:26659
+planetd tx blog send-ibc-post transfer channel-0 "Hello" "Hello Earth, I'm Alice from Mars" --from alice --chain-id mars --home ~/.mars --node tcp://localhost:26659
 ```
 
 List post on Earth:
@@ -659,7 +659,7 @@ Results:
 ```yaml
 Post:
   - content: Hello Earth, I'm Alice from Mars
-    creator: blog-channel-0-cosmos1xtpx43l826348s59au24p22pxg6q248638q2tf
+    creator: transfer-channel-0-cosmos1xtpx43l826348s59au24p22pxg6q248638q2tf
     id: "0"
     title: Hello
 pagination:
