@@ -22,13 +22,15 @@
 - [#4178](https://github.com/ignite/cli/pull/4178) Bump cosmos-sdk to `v0.50.7`
 - [#4194](https://github.com/ignite/cli/pull/4194) Bump client/v2 to `v2.0.0-beta.2`
   If you are uprading manually, check out the recommended changes in `root.go` from the above PR.
+- [#4210](https://github.com/ignite/cli/pull/4210) Improve default home wiring
 
 ### Fixes
 
 - [#4184](https://github.com/ignite/cli/pull/4184) Set custom `InitChainer` because of manually registered modules
 - [#4198](https://github.com/ignite/cli/pull/4198) Set correct prefix overwriting in `buf.gen.pulsar.yaml`
 - [#4199](https://github.com/ignite/cli/pull/4199) Set and seal SDK global config in `app/config.go`
-- [#4212](https://github.com/ignite/cli/pull/4212) set default values for extension flag to dont crash ignite
+- [#4212](https://github.com/ignite/cli/pull/4212) Set default values for extension flag to dont crash ignite
+- [#4216](https://github.com/ignite/cli/pull/4216) Avoid create duplicated scopedKeppers
 
 ## [`v28.4.0`](https://github.com/ignite/cli/releases/tag/v28.4.0)
 
