@@ -7,6 +7,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const (
+	world    = "World"
+	elements = "Elements"
+	kirby    = "Kirby"
+)
+
 // Make a simple replacement of package -> import.
 func TestSimpleReplacement(t *testing.T) {
 	f, err := parseStringProto(`package "package"`)
@@ -38,7 +44,7 @@ func TestSimpleInsertAfter(t *testing.T) {
 	Apply(f, nil, func(c *Cursor) bool {
 		n := c.Node()
 		if n, ok := n.(*proto.Message); ok {
-			if n.Name == "World" {
+			if n.Name == world {
 				msg = NewMessage("WeComeInPeace")
 				c.InsertAfter(msg)
 			}
@@ -50,7 +56,7 @@ func TestSimpleInsertAfter(t *testing.T) {
 	Apply(f, nil, func(c *Cursor) bool {
 		n := c.Node()
 		if n, ok := n.(*proto.Message); ok {
-			if n.Name == "World" {
+			if n.Name == world {
 				next, ok := c.Next()
 				require.True(t, ok)
 				require.True(t, next.(*proto.Message).Name == "WeComeInPeace")
@@ -61,9 +67,11 @@ func TestSimpleInsertAfter(t *testing.T) {
 }
 
 // Can really only panic with comments since
-// other elements in nodes aren't Visitees
+// other elements in nodes aren't Visitees.
+//
+//nolint:dupword
 func TestInsertAfterPanic(t *testing.T) {
-	f, err := parseStringProto(`syntax = "proto3"
+	f, err := parseStringProto(`syntax = "proto3" 
 	
 	// my import
 	import "this";
@@ -95,7 +103,7 @@ func TestSimpleInsertBefore(t *testing.T) {
 	Apply(f, nil, func(c *Cursor) bool {
 		n := c.Node()
 		if n, ok := n.(*proto.Message); ok {
-			if n.Name == "World" {
+			if n.Name == world {
 				// add hello between say and world
 				msg = NewMessage("Hello")
 				c.InsertBefore(msg)
@@ -120,7 +128,9 @@ func TestSimpleInsertBefore(t *testing.T) {
 }
 
 // Can really only panic with comments since
-// other elements in nodes aren't Visitees
+// other elements in nodes aren't Visitees.
+//
+//nolint:dupword
 func TestInsertBeforePanic(t *testing.T) {
 	f, err := parseStringProto(`syntax = "proto3"
 	
@@ -158,15 +168,15 @@ func TestAppendFile(t *testing.T) {
 	Append(f, o)
 	require.True(t, containsElement(f, o))
 
-	oneof_f := NewOneofField("this", "string", 2)
+	oneofF := NewOneofField("this", "string", 2)
 	// Can directly append an option if required:
 	opt := NewOption("this", "that")
-	Append(oneof_f, opt)
-	require.True(t, containsElement(oneof_f, opt))
+	Append(oneofF, opt)
+	require.True(t, containsElement(oneofF, opt))
 
 	oneof := NewOneof("myoneof")
-	Append(oneof, oneof_f)
-	require.True(t, containsElement(oneof, oneof_f))
+	Append(oneof, oneofF)
+	require.True(t, containsElement(oneof, oneofF))
 
 	normalfield := NewField("that", "string", 3)
 
@@ -187,9 +197,9 @@ func TestAppendFile(t *testing.T) {
 	// An empty enum
 	e := NewEnum("Hey")
 	// Add an enum field to it:
-	e_f := NewEnumField("HEY", 1)
-	Append(e, e_f)
-	require.True(t, containsElement(e, e_f))
+	ef := NewEnumField("HEY", 1)
+	Append(e, ef)
+	require.True(t, containsElement(e, ef))
 
 	Append(f, e)
 	require.True(t, containsElement(f, e))
@@ -247,9 +257,9 @@ func TestCursorOps(t *testing.T) {
 				require.True(t, ok)
 				require.True(t, parent.Filename == "")
 				// currently useless.
-				require.True(t, c.Name() == "Elements")
+				require.True(t, c.Name() == elements)
 			}
-			if n.Name == "World" {
+			if n.Name == world {
 				require.True(t, c.IsLast())
 				n, ok := c.Next()
 				require.False(t, ok)
@@ -259,7 +269,7 @@ func TestCursorOps(t *testing.T) {
 				require.True(t, ok)
 				require.True(t, parent.Filename == "")
 				// currently useless.
-				require.True(t, c.Name() == "Elements")
+				require.True(t, c.Name() == elements)
 			}
 
 			if n.Name == "Hey" {
@@ -273,7 +283,7 @@ func TestCursorOps(t *testing.T) {
 				require.True(t, ok)
 				require.True(t, parent.Name == "World")
 				// currently useless.
-				require.True(t, c.Name() == "Elements")
+				require.True(t, c.Name() == elements)
 			}
 		}
 
@@ -288,7 +298,7 @@ func TestCursorOps(t *testing.T) {
 			require.True(t, ok)
 			require.True(t, parent.Name == "World")
 			// currently useless.
-			require.True(t, c.Name() == "Elements")
+			require.True(t, c.Name() == elements)
 		}
 
 		// Don't make sense for elements not contained in a slice (currently

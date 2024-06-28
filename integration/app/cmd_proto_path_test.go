@@ -59,8 +59,8 @@ var (
 	}
 )
 
-// TestGenerapAppCheckBufPulsarPath tests scaffolding a new chain and checks if the buf.gen.pulsar.yaml file is correct
-func TestGenerapAppCheckBufPulsarPath(t *testing.T) {
+// TestGenerateAppCheckBufPulsarPath tests scaffolding a new chain and checks if the buf.gen.pulsar.yaml file is correct.
+func TestGenerateAppCheckBufPulsarPath(t *testing.T) {
 	var (
 		env = envtest.New(t)
 		app = env.Scaffold("github.com/test/blog")
