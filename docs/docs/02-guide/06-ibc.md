@@ -228,7 +228,22 @@ import (
 )
 
 func (k msgServer) SendIbcPost(goCtx context.Context, msg *types.MsgSendIbcPost) (*types.MsgSendIbcPostResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
+	// validate incoming message
+	if _, err := k.addressCodec.StringToBytes(msg.Creator); err != nil {
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", err))
+	}
+
+	if msg.Port == "" {
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet port")
+	}
+
+	if msg.ChannelID == "" {
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet channel")
+	}
+
+	if msg.TimeoutTimestamp == 0 {
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet timeout")
+	}
 
 	// TODO: logic before transmitting the packet
 
@@ -241,6 +256,7 @@ func (k msgServer) SendIbcPost(goCtx context.Context, msg *types.MsgSendIbcPost)
 	packet.Creator = msg.Creator
 
 	// Transmit the packet
+	ctx := sdk.UnwrapSDKContext(goCtx)
 	_, err := k.TransmitIbcPostPacket(
 		ctx,
 		packet,
@@ -298,19 +314,6 @@ Append the type instance as `PostId` on receiving the packet:
 - The `title` is the Title of the blog post
 - The `content` is the Content of the blog post
 
-In the `x/blog/keeper/ibc_post.go` file, make sure to import `"strconv"` below
-`"errors"`:
-
-```go title="x/blog/keeper/ibc_post.go"
-import (
-	//...
-
-	"strconv"
-
-// ...
-)
-```
-
 Then modify the `OnRecvIbcPostPacket` keeper function with the following code:
 
 ```go
@@ -319,23 +322,11 @@ package keeper
 // ...
 
 func (k Keeper) OnRecvIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData) (packetAck types.IbcPostPacketAck, err error) {
-	// validate packet data upon receiving
-	if err := data.ValidateBasic(); err != nil {
+	packetAck.PostId, err = k.PostSeq.Next(ctx)
+	if err != nil {
 		return packetAck, err
 	}
-
-	id := k.AppendPost(
-		ctx,
-		types.Post{
-			Creator: packet.SourcePort + "-" + packet.SourceChannel + "-" + data.Creator,
-			Title:   data.Title,
-			Content: data.Content,
-		},
-	)
-
-	packetAck.PostId = strconv.FormatUint(id, 10)
-
-	return packetAck, nil
+	return packetAck, k.Post.Set(ctx, packetAck.PostId, types.Post{Title: data.Title, Content: data.Content})
 }
 ```
 
@@ -365,23 +356,23 @@ func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channelty
 	case *channeltypes.Acknowledgement_Result:
 		// Decode the packet acknowledgment
 		var packetAck types.IbcPostPacketAck
-
 		if err := types.ModuleCdc.UnmarshalJSON(dispatchedAck.Result, &packetAck); err != nil {
 			// The counter-party module doesn't implement the correct acknowledgment format
 			return errors.New("cannot unmarshal acknowledgment")
 		}
 
-		k.AppendSentPost(
-			ctx,
+		seq, err := k.SentPostSeq.Next(ctx)
+		if err != nil {
+			return err
+		}
+
+		return k.SentPost.Set(ctx, seq,
 			types.SentPost{
-				Creator: data.Creator,
-				PostId:  packetAck.PostId,
-				Title:   data.Title,
-				Chain:   packet.DestinationPort + "-" + packet.DestinationChannel,
+				PostId: packetAck.PostId,
+				Title:  data.Title,
+				Chain:  packet.DestinationPort + "-" + packet.DestinationChannel,
 			},
 		)
-
-		return nil
 	default:
 		return errors.New("the counter-party module does not implement the correct acknowledgment format")
 	}
@@ -395,18 +386,18 @@ posts. This logic follows the same format as `sentPost`.
 
 ```go title="x/blog/keeper/ibc_post.go"
 func (k Keeper) OnTimeoutIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData) error {
-	k.AppendTimedoutPost(
-		ctx,
-		types.TimedoutPost{
-			Creator: data.Creator,
-			Title:   data.Title,
-			Chain:   packet.DestinationPort + "-" + packet.DestinationChannel,
+	seq, err := k.TimeoutPostSeq.Next(ctx)
+	if err != nil {
+		return err
+	}
+
+	return k.TimeoutPost.Set(ctx, seq,
+		types.TimeoutPost{
+			Title: data.Title,
+			Chain: packet.DestinationPort + "-" + packet.DestinationChannel,
 		},
 	)
-
-	return nil
 }
-
 ```
 
 This last step completes the basic `blog` module setup. The blockchain is now
