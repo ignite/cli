@@ -69,11 +69,14 @@ to specify the source and target chains, along with their respective RPC
 endpoints, faucet URLs, port numbers, versions, gas prices, and gas limits.
 
 ```bash
-ignite relayer hermes configure \
+ignite relayer hermes configure \                        
 "earth" "http://localhost:26657" "http://localhost:9090" \
 "mars" "http://localhost:26659" "http://localhost:9092" \
 --chain-a-faucet "http://0.0.0.0:4500" \
---chain-b-faucet "http://0.0.0.0:4501"
+--chain-b-faucet "http://0.0.0.0:4501" \
+--chain-a-port-id "dex" \
+--chain-b-port-id "dex" \
+--channel-version "dex-1"
 ```
 
 To create a connection between the two chains, you can use the ignite relayer
@@ -95,7 +98,7 @@ assets between the two chains.
 To create an order book for a pair of tokens, you can use the following command:
 
 ```
-interchanged tx dex send-create-pair transfer channel-0 marscoin venuscoin --from alice --chain-id mars --home ~/.mars
+interchanged tx dex send-create-pair dex channel-0 marscoin venuscoin --from alice --chain-id mars --home ~/.mars
 ```
 
 This command will create an order book for the pair of tokens `marscoin` and
@@ -119,7 +122,7 @@ sellOrderBook:
   book:
     idCount: 0
     orders: []
-  index: transfer-channel-0-marscoin-venuscoin
+  index: dex-channel-0-marscoin-venuscoin
   priceDenom: venuscoin
 ```
 
@@ -136,7 +139,7 @@ buyOrderBook:
   book:
     idCount: 0
     orders: []
-  index: transfer-channel-0-marscoin-venuscoin
+  index: dex-channel-0-marscoin-venuscoin
   priceDenom: venuscoin
 ```
 
@@ -161,7 +164,7 @@ transaction with a message that locks a specified amount of tokens and creates a
 sell order on the Mars blockchain.
 
 ```
-interchanged tx dex send-sell-order transfer channel-0 marscoin 10 venuscoin 15  --from alice --chain-id mars --home ~/.mars
+interchanged tx dex send-sell-order dex channel-0 marscoin 10 venuscoin 15  --from alice --chain-id mars --home ~/.mars
 ```
 
 In the example provided, the `send-sell-order` command is used to create a sell
@@ -194,7 +197,7 @@ sellOrderBook:
       creator: cosmos14ntyzr6d2dx4ppds9tvenx53fn0xl5jcakrtm4
       id: 0
       price: 15
-  index: transfer-channel-0-marscoin-venuscoin
+  index: dex-channel-0-marscoin-venuscoin
   priceDenom: venuscoin
 ```
 
@@ -206,7 +209,7 @@ which is used to lock a specified amount of tokens and create a buy order on the
 Venus blockchain
 
 ```
-interchanged tx dex send-buy-order transfer channel-0 marscoin 10 venuscoin 5 --from alice --chain-id venus --home ~/.venus --node tcp://localhost:26659
+interchanged tx dex send-buy-order dex channel-0 marscoin 10 venuscoin 5 --from alice --chain-id venus --home ~/.venus --node tcp://localhost:26659
 ```
 
 In the example provided, the `send-buy-order` command is used to create a buy
@@ -241,7 +244,7 @@ buyOrderBook:
       creator: cosmos1mrrttwtdcp47pl4hq6sar3mwqpmtc7pcl9e6ss
       id: 0
       price: 5
-  index: transfer-channel-0-marscoin-venuscoin
+  index: dex-channel-0-marscoin-venuscoin
   priceDenom: venuscoin
 ```
 
@@ -258,7 +261,7 @@ To perform an exchange, you can send a sell order to the Mars chain using the
 following command:
 
 ```
-interchanged tx dex send-sell-order transfer channel-0 marscoin 5 venuscoin 3 --from alice --home ~/.mars
+interchanged tx dex send-sell-order dex channel-0 marscoin 5 venuscoin 3 --from alice --home ~/.mars
 ```
 
 This sell order, offering to sell 5 `marscoin` for 3 `venuscoin`, will be filled
@@ -279,7 +282,7 @@ buyOrderBook:
       creator: cosmos1mrrttwtdcp47pl4hq6sar3mwqpmtc7pcl9e6ss
       id: 0
       price: 5
-  index: transfer-channel-0-marscoin-venuscoin
+  index: dex-channel-0-marscoin-venuscoin
   priceDenom: venuscoin
 ```
 
@@ -334,7 +337,7 @@ exchange to buy 5 `marscoin` for 15 `venuscoin`. This is done by running the
 following command:
 
 ```
-interchanged tx dex send-buy-order transfer channel-0 marscoin 5 venuscoin 15 --from alice --home ~/.venus --node tcp://localhost:26659
+interchanged tx dex send-buy-order dex channel-0 marscoin 5 venuscoin 15 --from alice --home ~/.venus --node tcp://localhost:26659
 ```
 
 This buy order will be immediately filled on the Mars chain, and the creator of
@@ -371,7 +374,7 @@ sellOrderBook:
       creator: cosmos14ntyzr6d2dx4ppds9tvenx53fn0xl5jcakrtm4
       id: 0
       price: 15
-  index: transfer-channel-0-marscoin-venuscoin
+  index: dex-channel-0-marscoin-venuscoin
   priceDenom: venuscoin
 ```
 
@@ -401,7 +404,7 @@ to the decentralized exchange to sell 10 `marscoin` for 3 `venuscoin`. This is
 done by running the following command:
 
 ```
-interchanged tx dex send-sell-order transfer channel-0 marscoin 10 venuscoin 3 --from alice --home ~/.mars
+interchanged tx dex send-sell-order dex channel-0 marscoin 10 venuscoin 3 --from alice --home ~/.mars
 ```
 
 In this scenario, the sell amount is 10 `marscoin`, but there is an existing buy
@@ -437,7 +440,7 @@ buyOrderBook:
   book:
     idCount: 1
     orders: [] # buy order with amount 5marscoin has been closed
-  index: transfer-channel-0-marscoin-venuscoin
+  index: dex-channel-0-marscoin-venuscoin
   priceDenom: venuscoin
 ```
 
@@ -476,7 +479,7 @@ sellOrderBook:
       creator: cosmos14ntyzr6d2dx4ppds9tvenx53fn0xl5jcakrtm4
       id: 1
       price: 3
-  index: transfer-channel-0-marscoin-venuscoin
+  index: dex-channel-0-marscoin-venuscoin
   priceDenom: venuscoin
 ```
 
@@ -487,7 +490,7 @@ to the decentralized exchange to buy 10 `marscoin` for 5 `venuscoin`. This is
 done by running the following command:
 
 ```
-interchanged tx dex send-buy-order transfer channel-0 marscoin 10 venuscoin 5 --from alice --home ~/.venus --node tcp://localhost:26659
+interchanged tx dex send-buy-order dex channel-0 marscoin 10 venuscoin 5 --from alice --home ~/.venus --node tcp://localhost:26659
 ```
 
 In this scenario, the buy order is only partially filled for 5 `marscoin`. There
@@ -525,7 +528,7 @@ sellOrderBook:
       id: 0
       price: 15
     # a sell order for 5 marscoin has been closed
-  index: transfer-channel-0-marscoin-venuscoin
+  index: dex-channel-0-marscoin-venuscoin
   priceDenom: venuscoin
 ```
 
@@ -567,7 +570,7 @@ buyOrderBook:
       creator: cosmos1mrrttwtdcp47pl4hq6sar3mwqpmtc7pcl9e6ss
       id: 1
       price: 5
-  index: transfer-channel-0-marscoin-venuscoin
+  index: dex-channel-0-marscoin-venuscoin
   priceDenom: venuscoin
 ```
 
@@ -586,7 +589,7 @@ connection, the `amount-denom` and `price-denom` of the order, and the
 To cancel a sell order on the Mars chain, you would run the following command:
 
 ```
-interchanged tx dex cancel-sell-order transfer channel-0 marscoin venuscoin 0 --from alice --home ~/.mars
+interchanged tx dex cancel-sell-order dex channel-0 marscoin venuscoin 0 --from alice --home ~/.mars
 ```
 
 This will cancel the sell order and remove it from the order book. The balance
@@ -629,14 +632,14 @@ sellOrderBook:
   book:
     idCount: 2
     orders: []
-  index: transfer-channel-0-marscoin-venuscoin
+  index: dex-channel-0-marscoin-venuscoin
   priceDenom: venuscoin
 ```
 
 To cancel a buy order on the `Venus` chain, you can run the following command:
 
 ```
-interchanged tx dex cancel-buy-order transfer channel-0 marscoin venuscoin 1 --from alice --home ~/.venus --node tcp://localhost:26659
+interchanged tx dex cancel-buy-order dex channel-0 marscoin venuscoin 1 --from alice --home ~/.venus --node tcp://localhost:26659
 ```
 
 This will cancel the buy order and remove it from the order book. The balance of
@@ -682,7 +685,7 @@ buyOrderBook:
   book:
     idCount: 2
     orders: []
-  index: transfer-channel-0-marscoin-venuscoin
+  index: dex-channel-0-marscoin-venuscoin
   priceDenom: venuscoin
 ```
 

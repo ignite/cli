@@ -535,11 +535,14 @@ ignite app install -g github.com/ignite/apps/hermes
 and after configure the relayer.
 
 ```bash
-ignite relayer hermes configure \
+ignite relayer hermes configure \                        
 "earth" "http://localhost:26657" "http://localhost:9090" \
 "mars" "http://localhost:26659" "http://localhost:9092" \
 --chain-a-faucet "http://0.0.0.0:4500" \
---chain-b-faucet "http://0.0.0.0:4501"
+--chain-b-faucet "http://0.0.0.0:4501" \
+--chain-a-port-id "blog" \
+--chain-b-port-id "blog" \
+--channel-version "blog-1"
 ```
 
 When prompted, press Enter to accept the default values for `Chain A Account` and
@@ -548,15 +551,17 @@ When prompted, press Enter to accept the default values for `Chain A Account` an
 The output looks like:
 
 ```
-Hermes config created at ~/.ignite/relayer/hermes/earth_mars
+Hermes config created at /Users/danilopantani/.ignite/relayer/hermes/earth_mars
 ? Chain earth doesn't have a default Hermes key. Type your mnemonic to continue or type enter to generate a new one: (optional) 
-New mnemonic generated: <CHAIN_A_NEW_MNEMONIC>
+New mnemonic generated: danger plate flavor twist chimney myself sketch assist copy expand core tattoo ignore ensure quote mean forum carbon enroll gadget immense grab early maze
 Chain earth key created
-Chain earth relayer wallet: cosmos1qzls22j2ym2q442pducl4dhjrtyt9w9jd9fewu
+Chain earth relayer wallet: cosmos1jk6wmyl880j6t9vw6umy9v8ex0yhrfwgx0vv2d
+New balance from faucet: 100000stake,5token
 ? Chain mars doesn't have a default Hermes key. Type your mnemonic to continue or type enter to generate a new one: (optional) 
-New mnemonic generated: <CHAIN_B_NEW_MNEMONIC>
+New mnemonic generated: invest box icon session lens demise purse link boss dwarf give minimum jazz eye vocal seven sunset coach express want ask version anger ranch
 Chain mars key created
-Chain mars relayer wallet: cosmos1x6y0raeqjuctcxglxrc8rstqlmmd43ucwqx2es
+Chain mars relayer wallet: cosmos1x9kt37c0sutanaqwy9gxpvq5990yt0qnpqntmp
+New balance from faucet: 100000stake,5token
 Client '07-tendermint-0' created (earth -> mars)
 Client 07-tendermint-0' created (mars -> earth)
 Connection 'earth (connection-0) <-> mars (connection-0)' created
@@ -574,7 +579,7 @@ ignite relayer hermes start "earth" "mars"
 You can now send packets and verify the received posts:
 
 ```bash
-planetd tx blog send-ibc-post transfer channel-0 "Hello" "Hello Mars, I'm Alice from Earth" --from alice --chain-id earth --home ~/.earth
+planetd tx blog send-ibc-post blog channel-0 "Hello" "Hello Mars, I'm Alice from Earth" --from alice --chain-id earth --home ~/.earth
 ```
 
 To verify that the post has been received on Mars:
@@ -588,7 +593,7 @@ The packet has been received:
 ```yaml
 Post:
   - content: Hello Mars, I'm Alice from Earth
-    creator: transfer-channel-0-cosmos1aew8dk9cs3uzzgeldatgzvm5ca2k4m98xhy20x
+    creator: blog-channel-0-cosmos1aew8dk9cs3uzzgeldatgzvm5ca2k4m98xhy20x
     id: "0"
     title: Hello
 pagination:
@@ -606,7 +611,7 @@ Output:
 
 ```yaml
 SentPost:
-  - chain: transfer-channel-0
+  - chain: blog-channel-0
     creator: cosmos1aew8dk9cs3uzzgeldatgzvm5ca2k4m98xhy20x
     id: "0"
     postID: "0"
@@ -620,7 +625,7 @@ To test timeout, set the timeout time of a packet to 1 nanosecond, verify that
 the packet is timed out, and check the timed-out posts:
 
 ```bash
-planetd tx blog send-ibc-post transfer channel-0 "Sorry" "Sorry Mars, you will never see this post" --from alice --chain-id earth --home ~/.earth --packet-timeout-timestamp 1
+planetd tx blog send-ibc-post blog channel-0 "Sorry" "Sorry Mars, you will never see this post" --from alice --chain-id earth --home ~/.earth --packet-timeout-timestamp 1
 ```
 
 Check the timed-out posts:
@@ -633,7 +638,7 @@ Results:
 
 ```yaml
 TimedoutPost:
-  - chain: transfer-channel-0
+  - chain: blog-channel-0
     creator: cosmos1fhpcsxn0g8uask73xpcgwxlfxtuunn3ey5ptjv
     id: "0"
     title: Sorry
@@ -645,7 +650,7 @@ pagination:
 You can also send a post from Mars:
 
 ```bash
-planetd tx blog send-ibc-post transfer channel-0 "Hello" "Hello Earth, I'm Alice from Mars" --from alice --chain-id mars --home ~/.mars --node tcp://localhost:26659
+planetd tx blog send-ibc-post blog channel-0 "Hello" "Hello Earth, I'm Alice from Mars" --from alice --chain-id mars --home ~/.mars --node tcp://localhost:26659
 ```
 
 List post on Earth:
@@ -659,7 +664,7 @@ Results:
 ```yaml
 Post:
   - content: Hello Earth, I'm Alice from Mars
-    creator: transfer-channel-0-cosmos1xtpx43l826348s59au24p22pxg6q248638q2tf
+    creator: blog-channel-0-cosmos1xtpx43l826348s59au24p22pxg6q248638q2tf
     id: "0"
     title: Hello
 pagination:
