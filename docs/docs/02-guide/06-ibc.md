@@ -110,21 +110,21 @@ transactions:
 
 - Creating blog posts
 
-  ```bash
-  ignite scaffold list post title content creator --no-message --module blog
-  ```
+```bash
+ignite scaffold list post title content creator --no-message --module blog
+```
 
 - Processing acknowledgments for sent posts
 
-  ```bash
-  ignite scaffold list sentPost postID title chain creator --no-message --module blog
-  ```
+```bash
+ignite scaffold list sentPost postID:uint title chain creator --no-message --module blog
+```
 
 - Managing post timeouts
 
-  ```bash
-  ignite scaffold list timedoutPost title chain creator --no-message --module blog
-  ```
+```bash
+ignite scaffold list timeoutPost title chain creator --no-message --module blog
+```
 
 The scaffolded code includes proto files for defining data structures, messages,
 messages handlers, keepers for modifying the state, and CLI commands.
@@ -137,7 +137,7 @@ ignite scaffold list [typeName] [field1] [field2] ... [flags]
 
 The first argument of the `ignite scaffold list [typeName]` command specifies
 the name of the type being created. For the blog app, you created `post`,
-`sentPost`, and `timedoutPost` types.
+`sentPost`, and `timeoutPost` types.
 
 The next arguments define the fields that are associated with the type. For the
 blog app, you created `title`, `content`, `postID`, and `chain` fields.
@@ -168,7 +168,7 @@ to another blockchain.
 To scaffold a sendable and interpretable IBC packet:
 
 ```bash
-ignite scaffold packet ibcPost title content --ack postID --module blog
+ignite scaffold packet ibcPost title content --ack postID:uint --module blog
 ```
 
 Notice the fields in the `ibcPost` packet match the fields in the `post` type
@@ -316,7 +316,7 @@ Append the type instance as `PostId` on receiving the packet:
 
 Then modify the `OnRecvIbcPostPacket` keeper function with the following code:
 
-```go
+```go title="x/blog/keeper/ibc_post.go"
 package keeper
 
 // ...
@@ -345,9 +345,6 @@ from the packet.
 ```go title="x/blog/keeper/ibc_post.go"
 package keeper
 
-// ...
-
-// x/blog/keeper/ibc_post.go
 func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData, ack channeltypes.Acknowledgement) error {
 	switch dispatchedAck := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
@@ -381,7 +378,7 @@ func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channelty
 
 ### Store information about the timed-out packet
 
-Store posts that have not been received by target chains in `timedoutPost`
+Store posts that have not been received by target chains in `timeoutPost`
 posts. This logic follows the same format as `sentPost`.
 
 ```go title="x/blog/keeper/ibc_post.go"
@@ -622,13 +619,13 @@ planetd tx blog send-ibc-post blog channel-0 "Sorry" "Sorry Mars, you will never
 Check the timed-out posts:
 
 ```bash
-planetd q blog list-timedout-post
+planetd q blog list-timeout-post
 ```
 
 Results:
 
 ```yaml
-TimedoutPost:
+TimeoutPost:
   - chain: blog-channel-0
     creator: cosmos1fhpcsxn0g8uask73xpcgwxlfxtuunn3ey5ptjv
     id: "0"
