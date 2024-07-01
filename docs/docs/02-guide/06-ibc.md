@@ -222,11 +222,6 @@ the `msg.Creator` value to the IBC `packet`.
 ```go title="x/blog/keeper/msg_server_ibc_post.go"
 package keeper
 
-import (
-	// ...
-	"planet/x/blog/types"
-)
-
 func (k msgServer) SendIbcPost(goCtx context.Context, msg *types.MsgSendIbcPost) (*types.MsgSendIbcPostResponse, error) {
 	// validate incoming message
 	if _, err := k.addressCodec.StringToBytes(msg.Creator); err != nil {
@@ -318,8 +313,6 @@ Then modify the `OnRecvIbcPostPacket` keeper function with the following code:
 
 ```go title="x/blog/keeper/ibc_post.go"
 package keeper
-
-// ...
 
 func (k Keeper) OnRecvIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData) (packetAck types.IbcPostPacketAck, err error) {
 	packetAck.PostId, err = k.PostSeq.Next(ctx)
