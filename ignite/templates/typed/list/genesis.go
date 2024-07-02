@@ -27,7 +27,7 @@ func genesisModify(replacer placeholder.Replacer, opts *typed.Options, g *genny.
 //   - Existence of a message with name "GenesisState". Adds the field there.
 func genesisProtoModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := opts.ProtoPath("genesis.proto")
+		path := opts.ProtoFile("genesis.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

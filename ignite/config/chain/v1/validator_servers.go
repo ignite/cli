@@ -3,18 +3,23 @@ package v1
 import (
 	"github.com/mitchellh/mapstructure"
 
+<<<<<<< HEAD
 	baseconfig "github.com/ignite/cli/v28/ignite/config/chain/base"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
+=======
+	baseconfig "github.com/ignite/cli/v29/ignite/config/chain/defaults"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+>>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 )
 
 func DefaultServers() Servers {
 	s := Servers{}
-	s.GRPC.Address = baseconfig.DefaultGRPCAddress
-	s.GRPCWeb.Address = baseconfig.DefaultGRPCWebAddress
-	s.API.Address = baseconfig.DefaultAPIAddress
-	s.P2P.Address = baseconfig.DefaultP2PAddress
-	s.RPC.Address = baseconfig.DefaultRPCAddress
-	s.RPC.PProfAddress = baseconfig.DefaultPProfAddress
+	s.GRPC.Address = baseconfig.GRPCAddress
+	s.GRPCWeb.Address = baseconfig.GRPCWebAddress
+	s.API.Address = baseconfig.APIAddress
+	s.P2P.Address = baseconfig.P2PAddress
+	s.RPC.Address = baseconfig.RPCAddress
+	s.RPC.PProfAddress = baseconfig.PProfAddress
 
 	return s
 }

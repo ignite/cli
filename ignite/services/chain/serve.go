@@ -13,6 +13,7 @@ import (
 	"github.com/otiai10/copy"
 	"golang.org/x/sync/errgroup"
 
+<<<<<<< HEAD
 	"github.com/ignite/cli/v28/ignite/config"
 	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
@@ -30,6 +31,26 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/xfilepath"
 	"github.com/ignite/cli/v28/ignite/pkg/xhttp"
 	"github.com/ignite/cli/v28/ignite/pkg/xurl"
+=======
+	"github.com/ignite/cli/v29/ignite/config"
+	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
+	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
+	"github.com/ignite/cli/v29/ignite/pkg/cache"
+	chaincmdrunner "github.com/ignite/cli/v29/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/view/accountview"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/view/errorview"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosfaucet"
+	"github.com/ignite/cli/v29/ignite/pkg/dirchange"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/events"
+	"github.com/ignite/cli/v29/ignite/pkg/localfs"
+	"github.com/ignite/cli/v29/ignite/pkg/xexec"
+	"github.com/ignite/cli/v29/ignite/pkg/xfilepath"
+	"github.com/ignite/cli/v29/ignite/pkg/xhttp"
+	"github.com/ignite/cli/v29/ignite/pkg/xurl"
+>>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 )
 
 const (
@@ -294,9 +315,14 @@ func (c *Chain) refreshServe() {
 }
 
 func (c *Chain) watchAppBackend(ctx context.Context) error {
-	watchPaths := appBackendSourceWatchPaths
+	watchPaths := appBackendSourceWatchPaths(defaults.ProtoDir)
+
 	if c.ConfigPath() != "" {
-		watchPaths = append(watchPaths, c.ConfigPath())
+		conf, err := c.Config()
+		if err != nil {
+			return err
+		}
+		watchPaths = append(appBackendSourceWatchPaths(conf.Build.Proto.Path), c.ConfigPath())
 	}
 
 	return localfs.Watch(
@@ -323,6 +349,8 @@ func (c *Chain) serve(
 	if err != nil {
 		return &CannotBuildAppError{err}
 	}
+
+	sourceWatchPaths := appBackendSourceWatchPaths(conf.Build.Proto.Path)
 
 	commands, err := c.Commands(ctx)
 	if err != nil {
@@ -358,7 +386,7 @@ func (c *Chain) serve(
 
 	// check if source has been modified since last serve
 	// if the state must not be reset but the source has changed, we rebuild the chain and import the exported state
-	sourceModified, err := dirchange.HasDirChecksumChanged(dirCache, sourceChecksumKey, c.app.Path, appBackendSourceWatchPaths...)
+	sourceModified, err := dirchange.HasDirChecksumChanged(dirCache, sourceChecksumKey, c.app.Path, sourceWatchPaths...)
 	if err != nil {
 		return err
 	}
@@ -437,7 +465,7 @@ func (c *Chain) serve(
 		}
 	}
 
-	if err := dirchange.SaveDirChecksum(dirCache, sourceChecksumKey, c.app.Path, appBackendSourceWatchPaths...); err != nil {
+	if err := dirchange.SaveDirChecksum(dirCache, sourceChecksumKey, c.app.Path, sourceWatchPaths...); err != nil {
 		return err
 	}
 

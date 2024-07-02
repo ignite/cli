@@ -1,6 +1,7 @@
 package ignitecmd
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"os"
@@ -12,6 +13,7 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
+<<<<<<< HEAD
 	"github.com/ignite/cli/v28/ignite/config"
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
@@ -20,6 +22,18 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/gitpod"
 	"github.com/ignite/cli/v28/ignite/pkg/goenv"
 	"github.com/ignite/cli/v28/ignite/version"
+=======
+	"github.com/ignite/cli/v29/ignite/config"
+	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
+	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
+	"github.com/ignite/cli/v29/ignite/pkg/cache"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui"
+	uilog "github.com/ignite/cli/v29/ignite/pkg/cliui/log"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/gitpod"
+	"github.com/ignite/cli/v29/ignite/pkg/goenv"
+	"github.com/ignite/cli/v29/ignite/version"
+>>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 )
 
 const (
@@ -131,6 +145,17 @@ func getHome(cmd *cobra.Command) (home string) {
 	return
 }
 
+func flagSetProtoDir() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.String(flagProtoDir, defaults.ProtoDir, "chain proto directory")
+	return fs
+}
+
+func flagGetProtoDir(cmd *cobra.Command) (config string) {
+	config, _ = cmd.Flags().GetString(flagProtoDir)
+	return
+}
+
 func flagSetConfig() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.StringP(flagConfig, "c", "", "path to Ignite config file (default: ./config.yml)")
@@ -140,6 +165,33 @@ func flagSetConfig() *flag.FlagSet {
 func getConfig(cmd *cobra.Command) (config string) {
 	config, _ = cmd.Flags().GetString(flagConfig)
 	return
+}
+
+func getRawConfig(cmd *cobra.Command) ([]byte, string, error) {
+	configPath := getConfig(cmd)
+
+	path := flagGetPath(cmd)
+	path, err := filepath.Abs(path)
+	if err != nil {
+		return nil, "", err
+	}
+
+	if configPath == "" {
+		if configPath, err = chainconfig.LocateDefault(path); err != nil {
+			return nil, "", err
+		}
+	}
+
+	rawConfig, err := os.ReadFile(configPath)
+	return rawConfig, configPath, err
+}
+
+func getProtoDirFromConfig(cmd *cobra.Command) (string, error) {
+	rawCfg, _, err := getRawConfig(cmd)
+	if err != nil {
+		return "", err
+	}
+	return chainconfig.ReadProtoPath(bytes.NewReader(rawCfg))
 }
 
 func flagSetYes() *flag.FlagSet {

@@ -88,6 +88,7 @@ func (s Scaffolder) AddMessage(
 		return sm, err
 	}
 
+<<<<<<< HEAD
 	if err := checkComponentValidity(s.path, moduleName, name, false); err != nil {
 		return sm, err
 	}
@@ -95,6 +96,22 @@ func (s Scaffolder) AddMessage(
 	// Check and parse provided fields
 	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, fields); err != nil {
 		return sm, err
+=======
+	if err := checkComponentValidity(s.appPath, moduleName, name, false); err != nil {
+		return err
+	}
+
+	// Check and parse provided fields
+	if err := checkCustomTypes(
+		ctx,
+		s.appPath,
+		s.modpath.Package,
+		s.protoDir,
+		moduleName,
+		fields,
+	); err != nil {
+		return err
+>>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	}
 	parsedMsgFields, err := field.ParseFields(fields, checkForbiddenMessageField, scaffoldingOpts.signer)
 	if err != nil {
@@ -102,8 +119,20 @@ func (s Scaffolder) AddMessage(
 	}
 
 	// Check and parse provided response fields
+<<<<<<< HEAD
 	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, resFields); err != nil {
 		return sm, err
+=======
+	if err := checkCustomTypes(
+		ctx,
+		s.appPath,
+		s.modpath.Package,
+		s.protoDir,
+		moduleName,
+		resFields,
+	); err != nil {
+		return err
+>>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	}
 	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord, scaffoldingOpts.signer)
 	if err != nil {
@@ -119,7 +148,8 @@ func (s Scaffolder) AddMessage(
 		g    *genny.Generator
 		opts = &message.Options{
 			AppName:      s.modpath.Package,
-			AppPath:      s.path,
+			AppPath:      s.appPath,
+			ProtoDir:     s.protoDir,
 			ModulePath:   s.modpath.RawPath,
 			ModuleName:   moduleName,
 			MsgName:      name,
@@ -135,13 +165,19 @@ func (s Scaffolder) AddMessage(
 	var gens []*genny.Generator
 	gens, err = supportMsgServer(
 		gens,
+<<<<<<< HEAD
 		tracer,
 		s.path,
+=======
+		s.Tracer(),
+		s.appPath,
+>>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 		&modulecreate.MsgServerOptions{
 			ModuleName: opts.ModuleName,
 			ModulePath: opts.ModulePath,
 			AppName:    opts.AppName,
 			AppPath:    opts.AppPath,
+			ProtoDir:   opts.ProtoDir,
 		},
 	)
 	if err != nil {

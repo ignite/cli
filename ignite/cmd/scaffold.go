@@ -25,6 +25,7 @@ const (
 	flagNoSimulation = "no-simulation"
 	flagResponse     = "response"
 	flagDescription  = "desc"
+	flagProtoDir     = "proto-dir"
 
 	msgCommitPrefix = "Your saved project changes have not been committed.\nTo enable reverting to your current state, commit your saved changes."
 	msgCommitPrompt = "Do you want to proceed without committing your saved changes"
@@ -132,6 +133,9 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 		NewScaffoldReact(),
 	)
 
+	// Add flags required for the configMigrationPreRunHandler
+	c.PersistentFlags().AddFlagSet(flagSetProtoDir())
+
 	return c
 }
 
@@ -140,10 +144,12 @@ func migrationPreRunHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	session := cliui.New()
+	var (
+		path     = flagGetPath(cmd)
+		protoDir = flagGetProtoDir(cmd)
+		session  = cliui.New()
+	)
 	defer session.End()
-
-	path := flagGetPath(cmd)
 	path, err := filepath.Abs(path)
 	if err != nil {
 		return err
@@ -167,7 +173,7 @@ func migrationPreRunHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return bufMigrationPreRunHandler(cmd, session, appPath)
+	return bufMigrationPreRunHandler(cmd, session, appPath, protoDir)
 }
 
 func scaffoldType(
@@ -183,6 +189,7 @@ func scaffoldType(
 		withoutSimulation = flagGetNoSimulation(cmd)
 		signer            = flagGetSigner(cmd)
 		appPath           = flagGetPath(cmd)
+		protoDir          = flagGetProtoDir(cmd)
 	)
 
 	var options []scaffolder.AddTypeOption
@@ -207,7 +214,11 @@ func scaffoldType(
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
 
+<<<<<<< HEAD
 	sc, err := scaffolder.New(appPath)
+=======
+	sc, err := scaffolder.New(cmd.Context(), appPath, protoDir)
+>>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	if err != nil {
 		return err
 	}

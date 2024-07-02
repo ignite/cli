@@ -29,14 +29,6 @@ const (
 	flagHome = "home"
 )
 
-var appBackendSourceWatchPaths = []string{
-	"app",
-	"cmd",
-	"x",
-	"proto",
-	"third_party",
-}
-
 type (
 	// Chain provides programmatic access and tools for a Cosmos SDK blockchain.
 	Chain struct {
@@ -531,4 +523,14 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 	}
 
 	return chaincmdrunner.New(ctx, cc, ccrOptions...)
+}
+
+func appBackendSourceWatchPaths(protoDir string) []string {
+	return []string{
+		"app",
+		"cmd",
+		"x",
+		"third_party",
+		protoDir,
+	}
 }

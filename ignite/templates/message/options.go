@@ -9,6 +9,7 @@ import (
 type Options struct {
 	AppName      string
 	AppPath      string
+	ProtoDir     string
 	ModuleName   string
 	ModulePath   string
 	MsgName      multiformatname.Name

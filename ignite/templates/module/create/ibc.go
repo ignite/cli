@@ -46,6 +46,7 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(xgenny.Transformer(ctx))
+	g.Transformer(genny.Replace("{{protoDir}}", opts.ProtoDir))
 	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	return g, nil
@@ -126,7 +127,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 //   - Existence of a message named 'GenesisState' in genesis.proto.
 func genesisProtoModify(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "genesis.proto")
+		path := filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, "genesis.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

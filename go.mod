@@ -83,7 +83,12 @@ require (
 	google.golang.org/grpc v1.63.2
 	google.golang.org/protobuf v1.33.0
 	gopkg.in/yaml.v2 v2.4.0
+<<<<<<< HEAD
 	mvdan.cc/gofumpt v0.5.0
+=======
+	gopkg.in/yaml.v3 v3.0.1
+	mvdan.cc/gofumpt v0.6.0
+>>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	sigs.k8s.io/yaml v1.4.0
 )
 
@@ -455,7 +460,6 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240401170217-c3f982113cda // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gotest.tools/v3 v3.5.1 // indirect
 	honnef.co/go/tools v0.4.6 // indirect
 	mvdan.cc/interfacer v0.0.0-20180901003855-c20040233aed // indirect

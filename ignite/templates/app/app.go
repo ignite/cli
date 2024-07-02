@@ -70,6 +70,7 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 	ctx := plush.NewContext()
 	ctx.Set("ModulePath", opts.ModulePath)
 	ctx.Set("AppName", opts.AppName)
+	ctx.Set("ProtoDir", opts.ProtoDir)
 	ctx.Set("GitHubPath", opts.GitHubPath)
 	ctx.Set("BinaryNamePrefix", opts.BinaryNamePrefix)
 	ctx.Set("AddressPrefix", opts.AddressPrefix)
@@ -79,6 +80,7 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(xgenny.Transformer(ctx))
+	g.Transformer(genny.Replace("{{protoDir}}", opts.ProtoDir))
 	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	g.Transformer(genny.Replace("{{binaryNamePrefix}}", opts.BinaryNamePrefix))
 

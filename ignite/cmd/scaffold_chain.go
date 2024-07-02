@@ -100,6 +100,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		name               = args[0]
 		addressPrefix      = getAddressPrefix(cmd)
 		appPath            = flagGetPath(cmd)
+		protoDir           = flagGetProtoDir(cmd)
 		noDefaultModule, _ = cmd.Flags().GetBool(flagNoDefaultModule)
 		skipGit, _         = cmd.Flags().GetBool(flagSkipGit)
 		minimal, _         = cmd.Flags().GetBool(flagMinimal)
@@ -124,6 +125,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		appPath,
 		name,
 		addressPrefix,
+		protoDir,
 		noDefaultModule,
 		skipGit,
 		skipProto,
@@ -140,5 +142,23 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+<<<<<<< HEAD
+=======
+	if _, err := runner.ApplyModifications(); err != nil {
+		return err
+	}
+
+	if err := scaffolder.PostScaffold(cmd.Context(), cacheStorage, appDir, protoDir, goModule, skipProto); err != nil {
+		return err
+	}
+
+	if !skipGit {
+		// Initialize git repository and perform the first commit
+		if err := xgit.InitAndCommit(path); err != nil {
+			return err
+		}
+	}
+
+>>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	return session.Printf(tplScaffoldChainSuccess, path)
 }

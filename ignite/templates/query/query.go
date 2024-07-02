@@ -38,6 +38,7 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(xgenny.Transformer(ctx))
+	g.Transformer(genny.Replace("{{protoDir}}", opts.ProtoDir))
 	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{queryName}}", opts.QueryName.Snake))
@@ -67,7 +68,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *Options) (*genny.Generato
 //   - Existence of a service with name "Query" since that is where the RPCs will be added.
 func protoQueryModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "proto", opts.AppName, opts.ModuleName, "query.proto")
+		path := filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, "query.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

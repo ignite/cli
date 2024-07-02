@@ -53,7 +53,6 @@ func DeepFindImplementation(modulePath string, interfaceList []string) (found []
 			found = append(found, currFound...)
 			return nil
 		})
-
 	if err != nil {
 		return nil, err
 	}
@@ -267,7 +266,6 @@ func FindAppFilePath(chainRoot string) (path string, err error) {
 
 		return nil
 	})
-
 	if err != nil {
 		return "", err
 	}

@@ -88,6 +88,7 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		signer            = flagGetSigner(cmd)
 		appPath           = flagGetPath(cmd)
 		withoutSimulation = flagGetNoSimulation(cmd)
+		protoDir          = flagGetProtoDir(cmd)
 	)
 
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
@@ -115,7 +116,11 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		options = append(options, scaffolder.WithoutSimulation())
 	}
 
+<<<<<<< HEAD
 	sc, err := scaffolder.New(appPath)
+=======
+	sc, err := scaffolder.New(cmd.Context(), appPath, protoDir)
+>>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	if err != nil {
 		return err
 	}

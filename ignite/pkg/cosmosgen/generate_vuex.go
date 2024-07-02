@@ -69,7 +69,6 @@ func (g *generator) updateVueDependencies() error {
 			tsClientName: fmt.Sprintf("file:%s", tsClientVueRelPath),
 		},
 	})
-
 	if err != nil {
 		return errors.Errorf("failed to link ts-client dependency to the Vue app: %w", err)
 	}
@@ -136,7 +135,6 @@ func (g *generator) updateVuexDependencies() error {
 			tsClientName: fmt.Sprintf("file:%s", tsClientVuexRelPath),
 		},
 	})
-
 	if err != nil {
 		return errors.Errorf("failed to link ts-client dependency to the Vuex stores: %w", err)
 	}

@@ -189,7 +189,7 @@ func (b Buf) Generate(
 				continue
 			}
 
-			specs, err := xos.FindFiles(protoDir, "proto")
+			specs, err := xos.FindFiles(protoDir, xos.ProtoFile)
 			if err != nil {
 				return err
 			}
