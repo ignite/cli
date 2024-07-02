@@ -31,6 +31,7 @@
 - [#4199](https://github.com/ignite/cli/pull/4199) Set and seal SDK global config in `app/config.go`
 - [#4212](https://github.com/ignite/cli/pull/4212) Set default values for extension flag to dont crash ignite
 - [#4216](https://github.com/ignite/cli/pull/4216) Avoid create duplicated scopedKeppers
+- [#4000](https://github.com/ignite/cli/pull/4000) Run all dry runners before the wet run in the `xgenny` pkg
 
 ## [`v28.4.0`](https://github.com/ignite/cli/releases/tag/v28.4.0)
 
@@ -78,8 +79,6 @@
 - [#3995](https://github.com/ignite/cli/pull/3995) Fix interface check for ibc modules
 - [#3953](https://github.com/ignite/cli/pull/3953) Fix apps `Stdout` is redirected to `Stderr`
 - [#3863](https://github.com/ignite/cli/pull/3963) Fix breaking issue for app client API when reading app chain info
-- [#3969](https://github.com/ignite/cli/pull/3969) Get first config validator using a getter to avoid index errors
-- [#4000](https://github.com/ignite/cli/pull/4000) Run all dry runners before the wet run in the `xgenny` pkg
 
 ## [`v28.2.0`](https://github.com/ignite/cli/releases/tag/v28.2.0)
 
