@@ -10,6 +10,7 @@
 
 - [#4095](https://github.com/ignite/cli/pull/4095) Migrate to matomo analytics
 - [#4149](https://github.com/ignite/cli/pull/4149) Bump cometbft to `v0.38.7`
+- [#4002](https://github.com/ignite/cli/pull/4002) Bump buf build
 - [#4168](https://github.com/ignite/cli/pull/4168) Bump IBC to `v8.3.1`
   If you are upgrading manually from `v8.2.0` to `v8.3.1`, add the following to your `ibc.go` file:
 
@@ -71,7 +72,6 @@
 - [#4010](https://github.com/ignite/cli/pull/4010) Use `AppName` instead `ModuleName` for scaffold a new App
 - [#3972](https://github.com/ignite/cli/pull/3972) Skip Ignite app loading for some base commands that don't allow apps
 - [#3983](https://github.com/ignite/cli/pull/3983) Bump `cosmos-sdk` to `v0.50.4` and `ibc-go` to `v8.1.0`
-- [#4002](https://github.com/ignite/cli/pull/4002) Bump buf build
 
 ### Fixes
 
