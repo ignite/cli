@@ -3,16 +3,9 @@ package chain
 import (
 	"path/filepath"
 
-<<<<<<< HEAD
-	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v28/ignite/pkg/xos"
 	"github.com/ignite/cli/v28/ignite/templates/app"
-=======
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
-	"github.com/ignite/cli/v29/ignite/pkg/xos"
-	"github.com/ignite/cli/v29/ignite/templates/app"
->>>>>>> 2ad41ee3 (feat(pkg): improve xgenny dry run (#4001))
 )
 
 var bufFiles = []string{

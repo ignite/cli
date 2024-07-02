@@ -3,17 +3,9 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-<<<<<<< HEAD:ignite/cmd/scaffold_package.go
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
-	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
-	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v28/ignite/services/scaffolder"
-=======
-	"github.com/ignite/cli/v29/ignite/pkg/cliui"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/services/scaffolder"
->>>>>>> 2ad41ee3 (feat(pkg): improve xgenny dry run (#4001)):ignite/cmd/scaffold_packet.go
 )
 
 const (

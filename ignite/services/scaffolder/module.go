@@ -8,26 +8,13 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
-<<<<<<< HEAD
-	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	appanalysis "github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/app"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/validation"
-	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v28/ignite/templates/field"
 	"github.com/ignite/cli/v28/ignite/templates/module"
 	modulecreate "github.com/ignite/cli/v28/ignite/templates/module/create"
-=======
-	appanalysis "github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/app"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/v29/ignite/pkg/validation"
-	"github.com/ignite/cli/v29/ignite/templates/field"
-	"github.com/ignite/cli/v29/ignite/templates/module"
-	modulecreate "github.com/ignite/cli/v29/ignite/templates/module/create"
->>>>>>> 2ad41ee3 (feat(pkg): improve xgenny dry run (#4001))
 )
 
 const (
@@ -193,15 +180,6 @@ func (s Scaffolder) CreateModule(
 		return err
 	}
 
-<<<<<<< HEAD
-=======
-	// Parse configs with the associated type
-	configs, err := field.ParseFields(creationOpts.moduleConfigs, checkForbiddenTypeIndex)
-	if err != nil {
-		return err
-	}
-
->>>>>>> 2ad41ee3 (feat(pkg): improve xgenny dry run (#4001))
 	// Check dependencies
 	if err := checkDependencies(creationOpts.dependencies, s.path); err != nil {
 		return err
