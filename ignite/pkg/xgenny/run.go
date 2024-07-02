@@ -38,48 +38,50 @@ func RunWithValidation(
 	gens ...*genny.Generator,
 ) (sm SourceModification, err error) {
 	// run executes the provided runner with the provided generator
-	run := func(runner *genny.Runner, gen *genny.Generator) error {
-		err := runner.With(gen)
-		if err != nil {
-			return err
+	run := func(runner *genny.Runner, gens []*genny.Generator) error {
+		for _, gen := range gens {
+			if err := runner.With(gen); err != nil {
+				return err
+			}
+			if err := runner.Run(); err != nil {
+				return err
+			}
 		}
-		return runner.Run()
+		return nil
 	}
-	for _, gen := range gens {
-		// check with a dry runner the generators
-		dryRunner := DryRunner(context.Background())
-		if err := run(dryRunner, gen); err != nil {
-			if errors.Is(err, os.ErrNotExist) {
-				return sm, &dryRunError{err}
-			}
-			return sm, err
+	// check with a dry runner the generators
+	dryRunner := DryRunner(context.Background())
+	if err := run(dryRunner, gens); err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return sm, &dryRunError{err}
 		}
-		if err := tracer.Err(); err != nil {
-			return sm, err
-		}
+		return sm, err
+	}
+	if err := tracer.Err(); err != nil {
+		return sm, err
+	}
 
-		// fetch the source modification
-		sm = NewSourceModification()
-		for _, file := range dryRunner.Results().Files {
-			fileName := file.Name()
-			_, err := os.Stat(fileName)
+	// fetch the source modification
+	sm = NewSourceModification()
+	for _, file := range dryRunner.Results().Files {
+		fileName := file.Name()
+		_, err := os.Stat(fileName)
 
-			//nolint:gocritic
-			if os.IsNotExist(err) {
-				// if the file doesn't exist in the source, it means it has been created by the runner
-				sm.AppendCreatedFiles(fileName)
-			} else if err != nil {
-				return sm, err
-			} else {
-				// the file has been modified by the runner
-				sm.AppendModifiedFiles(fileName)
-			}
-		}
-
-		// execute the modification with a wet runner
-		if err := run(genny.WetRunner(context.Background()), gen); err != nil {
+		//nolint:gocritic
+		if os.IsNotExist(err) {
+			// if the file doesn't exist in the source, it means it has been created by the runner
+			sm.AppendCreatedFiles(fileName)
+		} else if err != nil {
 			return sm, err
+		} else {
+			// the file has been modified by the runner
+			sm.AppendModifiedFiles(fileName)
 		}
+	}
+
+	// execute the modification with a wet runner
+	if err := run(genny.WetRunner(context.Background()), gens); err != nil {
+		return sm, err
 	}
 	return sm, nil
 }
