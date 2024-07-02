@@ -5,6 +5,7 @@
 ### Features
 
 - [#4183](https://github.com/ignite/cli/pull/4183) Set `chain-id` in the client.toml
+- [#3967](https://github.com/ignite/cli/issues/3967) Add HD wallet parameters `address index` and `account number` to the chain account config
 
 ### Changes
 
@@ -39,10 +40,6 @@
 - [#4108](https://github.com/ignite/cli/pull/4108) Add `xast` package (cherry-picked from [#3770](https://github.com/ignite/cli/pull/3770))
 - [#4110](https://github.com/ignite/cli/pull/4110) Scaffold a consumer chain with `interchain-security` v5.0.0.
 - [#4117](https://github.com/ignite/cli/pull/4117), [#4125](https://github.com/ignite/cli/pull/4125) Support relative path when installing local plugins
-- [#3977](https://github.com/ignite/cli/pull/3977) Add `chain lint` command to lint the chain's codebase using `golangci-lint`
-- [#3770](https://github.com/ignite/cli/pull/3770) Add `scaffold configs` and `scaffold params` commands
-- [#3985](https://github.com/ignite/cli/pull/3985) Make some `cmd` pkg functions public
-- [#3967](https://github.com/ignite/cli/issues/3967) Add HD wallet parameters `address index` and `account number` to the chain account config
 
 ### Changes
 
