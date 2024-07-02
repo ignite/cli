@@ -3,13 +3,13 @@ package xgenny
 import (
 	"bytes"
 	"embed"
+	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/genny/v2"
-	"github.com/gobuffalo/plush/v4"
-
 	"github.com/gobuffalo/packd"
+	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
@@ -67,6 +67,25 @@ func (w Walker) walkDir(wl packd.WalkFunc, path string) error {
 	}
 
 	return nil
+}
+
+// Box will mount each file in the Box and wrap it, already existing files are ignored.
+func Box(g *genny.Generator, box packd.Walker) error {
+	return box.Walk(func(path string, bf packd.File) error {
+		f := genny.NewFile(path, bf)
+		f, err := g.Transform(f)
+		if err != nil {
+			return err
+		}
+		filePath := strings.TrimSuffix(f.Name(), ".plush")
+		_, err = os.Stat(filePath)
+		if os.IsNotExist(err) {
+			// Path doesn't exist. move on.
+			g.File(f)
+			return nil
+		}
+		return err
+	})
 }
 
 // Transformer will plush-ify any file that has a ".plush" extension.
