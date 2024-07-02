@@ -2,7 +2,7 @@
 # if no tools.go it should populate a new one
 exec $IGNITE doctor
 # assert generated tools.go
-cmp tools.go.golden tools/tools.go
+cmp tools/tools.go tools.go.golden
 # assert go.sum has been generated (go mod tidy has run)
 exists go.sum
 # assert tools have been installed

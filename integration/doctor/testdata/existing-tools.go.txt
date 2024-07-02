@@ -3,7 +3,7 @@
 exec $IGNITE doctor
 stdout 'tools/tools.go exists'
 # assert tools.go has not changed
-cmp tools.go.golden tools/tools.go
+cmp tools/tools.go tools.go.golden
 
 -- config.yml --
 version: 1
