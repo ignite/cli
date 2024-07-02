@@ -8,22 +8,12 @@ import (
 
 	"github.com/iancoleman/strcase"
 
-<<<<<<< HEAD
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/v28/ignite/pkg/dirchange"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
-	"github.com/ignite/cli/v28/ignite/pkg/nodetime"
-	swaggercombine "github.com/ignite/cli/v28/ignite/pkg/nodetime/programs/swagger-combine"
+	swaggercombine "github.com/ignite/cli/v28/ignite/pkg/swagger-combine"
 	"github.com/ignite/cli/v28/ignite/pkg/xos"
-=======
-	"github.com/ignite/cli/v29/ignite/pkg/cache"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite/cli/v29/ignite/pkg/dirchange"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	swaggercombine "github.com/ignite/cli/v29/ignite/pkg/swagger-combine"
-	"github.com/ignite/cli/v29/ignite/pkg/xos"
->>>>>>> 6de2f338 (feat: merge the swagger files manually instead use nodetime `swagger-combine` (#4077))
 )
 
 const (

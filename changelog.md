@@ -23,6 +23,7 @@
 - [#4194](https://github.com/ignite/cli/pull/4194) Bump client/v2 to `v2.0.0-beta.2`
   If you are uprading manually, check out the recommended changes in `root.go` from the above PR.
 - [#4210](https://github.com/ignite/cli/pull/4210) Improve default home wiring
+- [#4077](https://github.com/ignite/cli/pull/4077) Merge the swagger files manually instead use nodetime `swagger-combine`
 
 ### Fixes
 
@@ -39,13 +40,6 @@
 - [#4108](https://github.com/ignite/cli/pull/4108) Add `xast` package (cherry-picked from [#3770](https://github.com/ignite/cli/pull/3770))
 - [#4110](https://github.com/ignite/cli/pull/4110) Scaffold a consumer chain with `interchain-security` v5.0.0.
 - [#4117](https://github.com/ignite/cli/pull/4117), [#4125](https://github.com/ignite/cli/pull/4125) Support relative path when installing local plugins
-- [#3707](https://github.com/ignite/cli/pull/3707) Add collections support.
-- [#3977](https://github.com/ignite/cli/pull/3977) Add `chain lint` command to lint the chain's codebase using `golangci-lint`
-- [#3770](https://github.com/ignite/cli/pull/3770) Add `scaffold configs` and `scaffold params` commands
-- [#4001](https://github.com/ignite/cli/pull/4001) Improve `xgenny` dry run
-- [#3967](https://github.com/ignite/cli/issues/3967) Add HD wallet parameters `address index` and `account number` to the chain account config
-- [#4004](https://github.com/ignite/cli/pull/4004) Remove all import placeholders using the `xast` pkg
-- [#4077](https://github.com/ignite/cli/pull/4077) Merge the swagger files manually instead use nodetime `swagger-combine`
 
 ### Changes
 
