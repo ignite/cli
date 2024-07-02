@@ -125,7 +125,6 @@ import (
 	"github.com/tendermint/spn/x/reward"
 	rewardkeeper "github.com/tendermint/spn/x/reward/keeper"
 	rewardtypes "github.com/tendermint/spn/x/reward/types"
-	// this line is used by starport scaffolding # stargate/app/moduleImport
 )
 
 const (

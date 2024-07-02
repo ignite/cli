@@ -2,7 +2,7 @@
 # if no tools.go it should populate a new one
 exec $IGNITE doctor
 # assert generated tools.go
-cmp tools/tools.go tools.go.golden
+cmp tools.go.golden tools/tools.go
 # assert go.sum has been generated (go mod tidy has run)
 exists go.sum
 # assert tools have been installed
@@ -15,6 +15,10 @@ exists $GOPATH/bin/protoc-gen-grpc-gateway
 version: 1
 -- go.mod --
 module github.com/ignite/cli
+
+require (
+	github.com/bufbuild/buf v1.30.1
+)
 
 go 1.20
 -- tools.go.golden --

@@ -74,7 +74,6 @@ import (
 	marsmodulev1 "github.com/ignite/mars/api/mars/mars/module"
 	_ "github.com/ignite/mars/x/mars" // import for side-effects
 	marsmoduletypes "github.com/ignite/mars/x/mars/types"
-	// this line is used by starport scaffolding # stargate/app/moduleImport
 )
 
 var (

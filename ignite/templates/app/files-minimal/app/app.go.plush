@@ -36,8 +36,6 @@ import (
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	// this line is used by starport scaffolding # stargate/app/moduleImport
-
 	"<%= ModulePath %>/docs"
 )
 
@@ -143,7 +141,7 @@ func New(
 		&app.StakingKeeper,
 		&app.DistrKeeper,
 		&app.ConsensusParamsKeeper,
-		// this line is used by starport scaffolding # stargate/app/keeperDefinition
+
 	); err != nil {
 		panic(err)
 	}

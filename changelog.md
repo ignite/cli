@@ -5,6 +5,7 @@
 ### Features
 
 - [#4183](https://github.com/ignite/cli/pull/4183) Set `chain-id` in the client.toml
+- [#4004](https://github.com/ignite/cli/pull/4004) Remove all import placeholders using the `xast` pkg
 
 ### Changes
 

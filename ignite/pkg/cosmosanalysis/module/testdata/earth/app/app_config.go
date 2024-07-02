@@ -77,7 +77,6 @@ import (
 	marsmodulev1 "github.com/tendermint/mars/api/mars/mars/module"
 	_ "github.com/tendermint/mars/x/mars" // import for side-effects
 	marsmoduletypes "github.com/tendermint/mars/x/mars/types"
-	// this line is used by starport scaffolding # stargate/app/moduleImport
 )
 
 var (
