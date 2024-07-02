@@ -8,29 +8,6 @@ deps:
   - remote: buf.build
     owner: cosmos
     repository: cosmos-proto
-<<<<<<< HEAD:ignite/templates/app/files/proto/buf.lock
-    commit: 1935555c206d4afb9e94615dfd0fad31
-  - remote: buf.build
-    owner: cosmos
-    repository: cosmos-sdk
-    commit: 954f7b05f38440fc8250134b15adec47
-  - remote: buf.build
-    owner: cosmos
-    repository: gogo-proto
-    commit: 34d970b699f84aa382f3c29773a60836
-  - remote: buf.build
-    owner: cosmos
-    repository: ics23
-    commit: 3c44d8daa8b44059ac744cd17d4a49d7
-  - remote: buf.build
-    owner: googleapis
-    repository: googleapis
-    commit: 75b4300737fb4efca0831636be94e517
-  - remote: buf.build
-    owner: protocolbuffers
-    repository: wellknowntypes
-    commit: 44e83bc050a4497fa7b36b34d95ca156
-=======
     commit: 04467658e59e44bbb22fe568206e1f70
     digest: shake256:73a640bd60e0c523b0f8237ff34eab67c45a38b64bbbde1d80224819d272dbf316ac183526bd245f994af6608b025f5130483d0133c5edd385531326b5990466
   - remote: buf.build
@@ -58,4 +35,3 @@ deps:
     repository: wellknowntypes
     commit: 3186086b2a8e44d9acdeeef2423c5de7
     digest: shake256:3b9dc2f56d9ed2e4001f95b701985fd803f7e2559b19b6a18d5f4e792cfdde320e765638de69fff037edc202b0006532d7ff19eab9465526b5ec628e4a5e5a1a
->>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090)):ignite/templates/app/files/{{protoDir}}/buf.lock

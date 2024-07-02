@@ -9,21 +9,11 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
-<<<<<<< HEAD
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosbuf"
 	"github.com/ignite/cli/v28/ignite/pkg/dirchange"
 	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/v28/ignite/pkg/nodetime/programs/sta"
-	tsproto "github.com/ignite/cli/v28/ignite/pkg/nodetime/programs/ts-proto"
-	"github.com/ignite/cli/v28/ignite/pkg/protoc"
-=======
-	"github.com/ignite/cli/v29/ignite/pkg/cache"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
-	"github.com/ignite/cli/v29/ignite/pkg/dirchange"
-	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
->>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 )
 
 var dirchangeCacheNamespace = "generate.typescript.dirchange"
@@ -91,11 +81,9 @@ func (g *tsGenerator) generateModuleTemplates(ctx context.Context) error {
 	dirCache := cache.New[[]byte](g.g.cacheStorage, dirchangeCacheNamespace)
 	add := func(sourcePath string, modules []module.Module) {
 		for _, m := range modules {
-			m := m
-
 			gg.Go(func() error {
 				cacheKey := m.Pkg.Path
-				paths := append([]string{m.Pkg.Path, g.g.opts.jsOut(m)}, g.g.opts.includeDirs...)
+				paths := []string{m.Pkg.Path, g.g.opts.jsOut(m)}
 
 				// Always generate module templates by default unless cache is enabled, in which
 				// case the module template is generated when one or more files were changed in

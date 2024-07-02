@@ -3,15 +3,15 @@ package cosmosbuf
 import (
 	"context"
 	"fmt"
-	"os"
 	"path/filepath"
 
+	"github.com/gobwas/glob"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/dircache"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
-	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis"
 	"github.com/ignite/cli/v28/ignite/pkg/xexec"
 	"github.com/ignite/cli/v28/ignite/pkg/xos"
 )
@@ -55,34 +55,9 @@ type (
 
 	// Buf represents the buf application structure.
 	Buf struct {
-		path        string
-		sdkProtoDir string
-		cache       *protoanalysis.Cache
+		path  string
+		cache dircache.Cache
 	}
-<<<<<<< HEAD
-)
-
-const (
-	binaryName      = "buf"
-	flagTemplate    = "template"
-	flagOutput      = "output"
-	flagErrorFormat = "error-format"
-	flagLogFormat   = "log-format"
-	flagOnly        = "only"
-	fmtJSON         = "json"
-
-	// CMDGenerate generate command.
-	CMDGenerate Command = "generate"
-	CMDExport   Command = "export"
-	CMDMod      Command = "mod"
-)
-
-var (
-	commands = map[Command]struct{}{
-		CMDGenerate: {},
-		CMDExport:   {},
-		CMDMod:      {},
-=======
 
 	// genOptions used to configure code generation.
 	genOptions struct {
@@ -104,7 +79,6 @@ func newGenOptions() genOptions {
 		fileByFile:     false,
 		includeWKT:     false,
 		includeImports: false,
->>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 	}
 }
 
@@ -115,8 +89,6 @@ func WithFlag(flag, value string) GenOption {
 	}
 }
 
-<<<<<<< HEAD
-=======
 // ExcludeFiles exclude file names from the generate command using glob.
 func ExcludeFiles(patterns ...string) GenOption {
 	return func(o *genOptions) {
@@ -149,16 +121,22 @@ func FileByFile() GenOption {
 	}
 }
 
->>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 // New creates a new Buf based on the installed binary.
-func New() (Buf, error) {
+func New(cacheStorage cache.Storage, goModPath string) (Buf, error) {
 	path, err := xexec.ResolveAbsPath(binaryName)
 	if err != nil {
 		return Buf{}, err
 	}
+
+	bufCacheDir := filepath.Join("buf", goModPath)
+	c, err := dircache.New(cacheStorage, bufCacheDir, specCacheNamespace)
+	if err != nil {
+		return Buf{}, err
+	}
+
 	return Buf{
 		path:  path,
-		cache: protoanalysis.NewCache(),
+		cache: c,
 	}, nil
 }
 
@@ -169,20 +147,8 @@ func (c Command) String() string {
 
 // Update updates module dependencies.
 // By default updates all dependencies unless one or more dependencies are specified.
-<<<<<<< HEAD
-func (b Buf) Update(ctx context.Context, modDir string, dependencies ...string) error {
-	var flags map[string]string
-	if dependencies != nil {
-		flags = map[string]string{
-			flagOnly: strings.Join(dependencies, ","),
-		}
-	}
-
-	cmd, err := b.generateCommand(CMDMod, flags, "update", modDir)
-=======
 func (b Buf) Update(ctx context.Context, modDir string) error {
 	files, err := xos.FindFilesExtension(modDir, xos.ProtoFile)
->>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 	if err != nil {
 		return err
 	}
@@ -199,37 +165,7 @@ func (b Buf) Update(ctx context.Context, modDir string) error {
 
 // Export runs the buf Export command for the files in the proto directory.
 func (b Buf) Export(ctx context.Context, protoDir, output string) error {
-<<<<<<< HEAD
-	// Check if the proto directory is the Cosmos SDK one
-	// TODO(@julienrbrt): this whole custom handling can be deleted
-	// after https://github.com/cosmos/cosmos-sdk/pull/18993 in v29.
-	if strings.Contains(protoDir, cosmosver.CosmosSDKRepoName) {
-		if b.sdkProtoDir == "" {
-			// Copy Cosmos SDK proto path without the Buf workspace.
-			// This is done because the workspace contains a reference to
-			// a "orm/internal" proto folder that is not present by default
-			// in the SDK repository.
-			d, err := copySDKProtoDir(protoDir)
-			if err != nil {
-				return err
-			}
-
-			b.sdkProtoDir = d
-		}
-
-		// Split absolute path into an absolute prefix and a relative suffix
-		paths := strings.Split(protoDir, "/proto")
-		if len(paths) < 2 {
-			return errors.Errorf("invalid Cosmos SDK mod path: %s", protoDir)
-		}
-
-		// Use the SDK copy to resolve SDK proto files
-		protoDir = filepath.Join(b.sdkProtoDir, paths[1])
-	}
-	specs, err := xos.FindFiles(protoDir, xos.ProtoFile)
-=======
 	files, err := xos.FindFilesExtension(protoDir, xos.ProtoFile)
->>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 	if err != nil {
 		return err
 	}
@@ -240,12 +176,7 @@ func (b Buf) Export(ctx context.Context, protoDir, output string) error {
 	flags := map[string]string{
 		flagOutput: output,
 	}
-<<<<<<< HEAD
-
-	cmd, err := b.generateCommand(CMDExport, flags, protoDir)
-=======
 	cmd, err := b.command(CMDExport, flags, protoDir)
->>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 	if err != nil {
 		return err
 	}
@@ -256,49 +187,53 @@ func (b Buf) Export(ctx context.Context, protoDir, output string) error {
 // Generate runs the buf Generate command for each file into the proto directory.
 func (b Buf) Generate(
 	ctx context.Context,
-	protoDir,
+	protoPath,
 	output,
 	template string,
-	excludeFilename ...string,
+	options ...GenOption,
 ) (err error) {
-<<<<<<< HEAD
-	var (
-		excluded = make(map[string]struct{})
-		flags    = map[string]string{
-			flagTemplate:    template,
-			flagOutput:      output,
-			flagErrorFormat: fmtJSON,
-			flagLogFormat:   fmtJSON,
-		}
-	)
-	for _, file := range excludeFilename {
-		excluded[file] = struct{}{}
-=======
 	opts := newGenOptions()
 	for _, apply := range options {
 		apply(&opts)
->>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 	}
 
-	// TODO(@julienrbrt): this whole custom handling can be deleted
-	// after https://github.com/cosmos/cosmos-sdk/pull/18993 in v29.
-	if strings.Contains(protoDir, cosmosver.CosmosSDKRepoName) {
-		if b.sdkProtoDir == "" {
-			b.sdkProtoDir, err = copySDKProtoDir(protoDir)
-			if err != nil {
-				return err
+	// find all proto files into the path.
+	foundFiles, err := xos.FindFilesExtension(protoPath, xos.ProtoFile)
+	if err != nil || len(foundFiles) == 0 {
+		return err
+	}
+
+	// check if already exist a cache for the template.
+	key, err := b.cache.CopyTo(protoPath, output, template)
+	if err != nil && !errors.Is(err, dircache.ErrCacheNotFound) {
+		return err
+	} else if err == nil {
+		return nil
+	}
+
+	// remove excluded and cached files.
+	protoFiles := make([]string, 0)
+	for _, file := range foundFiles {
+		okExclude := false
+		for _, g := range opts.excluded {
+			if g.Match(file) {
+				okExclude = true
+				break
 			}
 		}
-		dirs := strings.Split(protoDir, "/proto/")
-		if len(dirs) < 2 {
-			return errors.Errorf("invalid Cosmos SDK mod path: %s", dirs)
+		if !okExclude {
+			protoFiles = append(protoFiles, file)
 		}
-		protoDir = filepath.Join(b.sdkProtoDir, dirs[1])
+	}
+	if len(protoFiles) == 0 {
+		return nil
 	}
 
-	pkgs, err := protoanalysis.Parse(ctx, b.cache, protoDir)
-	if err != nil {
-		return err
+	flags := map[string]string{
+		flagTemplate:    template,
+		flagOutput:      output,
+		flagErrorFormat: fmtJSON,
+		flagLogFormat:   fmtJSON,
 	}
 	for k, v := range opts.flags {
 		flags[k] = v
@@ -310,22 +245,21 @@ func (b Buf) Generate(
 		flags[flagIncludeWellKnownTypes] = "true"
 	}
 
-	g, ctx := errgroup.WithContext(ctx)
-	for _, pkg := range pkgs {
-		for _, file := range pkg.Files {
-			if _, ok := excluded[filepath.Base(file.Path)]; ok {
-				continue
-			}
-
-			specs, err := xos.FindFiles(protoDir, "proto")
-			if err != nil {
-				return err
-			}
-			if len(specs) == 0 {
-				continue
-			}
-
-			cmd, err := b.generateCommand(CMDGenerate, flags, file.Path)
+	if !opts.fileByFile {
+		cmd, err := b.command(CMDGenerate, flags, protoPath)
+		if err != nil {
+			return err
+		}
+		for _, file := range protoFiles {
+			cmd = append(cmd, fmt.Sprintf("--%s=%s", flagPath, file))
+		}
+		if err := b.runCommand(ctx, cmd...); err != nil {
+			return err
+		}
+	} else {
+		g, ctx := errgroup.WithContext(ctx)
+		for _, file := range protoFiles {
+			cmd, err := b.command(CMDGenerate, flags, file)
 			if err != nil {
 				return err
 			}
@@ -335,16 +269,12 @@ func (b Buf) Generate(
 				return b.runCommand(ctx, cmd...)
 			})
 		}
+		if err := g.Wait(); err != nil {
+			return err
+		}
 	}
-	return g.Wait()
-}
 
-// Cleanup deletes temporary files and directories.
-func (b Buf) Cleanup() error {
-	if b.sdkProtoDir != "" {
-		return os.RemoveAll(b.sdkProtoDir)
-	}
-	return nil
+	return b.cache.Save(output, key)
 }
 
 // runCommand run the buf CLI command.
@@ -355,8 +285,8 @@ func (b Buf) runCommand(ctx context.Context, cmd ...string) error {
 	return exec.Exec(ctx, cmd, execOpts...)
 }
 
-// generateCommand generate the buf CLI command.
-func (b Buf) generateCommand(
+// command generate the buf CLI command.
+func (b Buf) command(
 	c Command,
 	flags map[string]string,
 	args ...string,
@@ -377,26 +307,4 @@ func (b Buf) generateCommand(
 		)
 	}
 	return command, nil
-}
-
-// findSDKProtoPath finds the Cosmos SDK proto folder path.
-func findSDKProtoPath(protoDir string) string {
-	paths := strings.Split(protoDir, "@")
-	if len(paths) < 2 {
-		return protoDir
-	}
-	version := strings.Split(paths[1], "/")[0]
-	return fmt.Sprintf("%s@%s/proto", paths[0], version)
-}
-
-// copySDKProtoDir copies the Cosmos SDK proto folder to a temporary directory.
-// The temporary directory must be removed by the caller.
-func copySDKProtoDir(protoDir string) (string, error) {
-	tmpDir, err := os.MkdirTemp("", "proto-sdk")
-	if err != nil {
-		return "", err
-	}
-
-	srcPath := findSDKProtoPath(protoDir)
-	return tmpDir, xos.CopyFolder(srcPath, tmpDir)
 }

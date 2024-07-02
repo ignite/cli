@@ -16,13 +16,10 @@ version: 1
 -- go.mod --
 module github.com/ignite/cli
 
-<<<<<<< HEAD
-=======
 require (
-	github.com/bufbuild/buf v1.32.1
+	github.com/bufbuild/buf v1.34.0
 )
 
->>>>>>> 8e0937d9 (feat: remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta` (#4090))
 go 1.20
 -- tools.go.golden --
 //go:build tools
