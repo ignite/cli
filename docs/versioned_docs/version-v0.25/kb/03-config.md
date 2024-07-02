@@ -57,7 +57,6 @@ build:
 | Key               | Required | Type            | Description                                                                                |
 | ----------------- | -------- | --------------- | ------------------------------------------------------------------------------------------ |
 | path              | N        | String          | Path to protocol buffer files. Default: `"proto"`.                                         |
-| third_party_paths | N        | List of Strings | Path to third-party protocol buffer files. Default: `["third_party/proto", "proto_vendor"]`. |
 
 ## client
 
