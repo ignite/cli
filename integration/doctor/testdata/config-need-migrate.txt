@@ -1,7 +1,7 @@
 # Test fix config
 # old config should be migrated
 exec $IGNITE doctor
-cmp config.yml config.yml.golden
+cmp config.yml.golden config.yml
 
 -- config.yml --
 accounts:
