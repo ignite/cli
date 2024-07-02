@@ -5,6 +5,7 @@
 ### Features
 
 - [#4183](https://github.com/ignite/cli/pull/4183) Set `chain-id` in the client.toml
+- [#3967](https://github.com/ignite/cli/issues/3967) Add HD wallet parameters `address index` and `account number` to the chain account config
 
 ### Changes
 

@@ -29,11 +29,13 @@ var (
 
 // Account holds the options related to setting up Cosmos wallets.
 type Account struct {
-	Name     string   `yaml:"name"`
-	Coins    []string `yaml:"coins,omitempty"`
-	Mnemonic string   `yaml:"mnemonic,omitempty"`
-	Address  string   `yaml:"address,omitempty"`
-	CoinType string   `yaml:"cointype,omitempty"`
+	Name          string   `yaml:"name"`
+	Coins         []string `yaml:"coins,omitempty"`
+	Mnemonic      string   `yaml:"mnemonic,omitempty"`
+	Address       string   `yaml:"address,omitempty"`
+	CoinType      string   `yaml:"cointype,omitempty"`
+	AccountNumber string   `yaml:"account_number,omitempty"`
+	AddressIndex  string   `yaml:"address_index,omitempty"`
 }
 
 // Build holds build configs.
