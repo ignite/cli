@@ -8,6 +8,7 @@
 
 ### Changes
 
+- [#3993](https://github.com/ignite/cli/pull/3993) Oracle scaffolding was deprecated and has been removed
 - [#4095](https://github.com/ignite/cli/pull/4095) Migrate to matomo analytics
 - [#4149](https://github.com/ignite/cli/pull/4149) Bump cometbft to `v0.38.7`
 - [#4168](https://github.com/ignite/cli/pull/4168) Bump IBC to `v8.3.1`
