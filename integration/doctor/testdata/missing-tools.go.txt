@@ -16,6 +16,10 @@ version: 1
 -- go.mod --
 module github.com/ignite/cli
 
+require (
+	github.com/bufbuild/buf v1.34.0
+)
+
 go 1.20
 -- tools.go.golden --
 //go:build tools
