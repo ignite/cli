@@ -3,17 +3,11 @@ package chain
 import (
 	"path/filepath"
 
-<<<<<<< HEAD
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosbuf"
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v28/ignite/pkg/xos"
 	"github.com/ignite/cli/v28/ignite/templates/app"
-=======
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
-	"github.com/ignite/cli/v29/ignite/pkg/xos"
-	"github.com/ignite/cli/v29/ignite/templates/app"
->>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 )
 
 // CheckBufProtoDir check if the proto path exist into the directory list in the buf.work.yaml file.
@@ -69,14 +63,9 @@ func CheckBufFiles(appPath, protoDir string) (bool, error) {
 	return true, nil
 }
 
-<<<<<<< HEAD
-func BoxBufFiles(appPath string) (xgenny.SourceModification, error) {
-	g, err := app.NewBufGenerator(appPath)
-=======
 // BoxBufFiles box all buf files.
 func BoxBufFiles(runner *xgenny.Runner, appPath, protoDir string) (xgenny.SourceModification, error) {
 	g, err := app.NewBufGenerator(appPath, protoDir)
->>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	if err != nil {
 		return xgenny.SourceModification{}, err
 	}

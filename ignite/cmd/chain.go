@@ -195,25 +195,9 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, app
 	return os.WriteFile(toolsFilename, buf.Bytes(), 0o644)
 }
 
-<<<<<<< HEAD
-func bufMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPath string) error {
-	hasFiles := chain.CheckBufFiles(appPath)
-	if hasFiles {
-		return nil
-	}
-
-	if !getYes(cmd) {
-		if err := session.AskConfirm(msgMigrationBuf); err != nil {
-			return ErrProtocUnsupported
-		}
-	}
-
-	sm, err := chain.BoxBufFiles(appPath)
-=======
 func bufMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPath, protoDir string) error {
 	// check if the buf files exist.
 	hasFiles, err := chain.CheckBufFiles(appPath, protoDir)
->>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	if err != nil {
 		return err
 	}

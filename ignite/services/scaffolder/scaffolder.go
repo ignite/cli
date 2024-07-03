@@ -4,6 +4,9 @@ package scaffolder
 
 import (
 	"context"
+	"github.com/gobuffalo/genny/v2"
+	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"path/filepath"
 
 	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
@@ -32,11 +35,7 @@ type Scaffolder struct {
 }
 
 // New creates a new scaffold app.
-<<<<<<< HEAD
-func New(appPath string) (Scaffolder, error) {
-=======
 func New(context context.Context, appPath, protoDir string) (Scaffolder, error) {
->>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	path, err := filepath.Abs(appPath)
 	if err != nil {
 		return Scaffolder{}, err
@@ -62,25 +61,16 @@ func New(context context.Context, appPath, protoDir string) (Scaffolder, error) 
 	}
 
 	s := Scaffolder{
-<<<<<<< HEAD
-		Version: ver,
-		path:    path,
-		modpath: modpath,
-=======
 		Version:  ver,
 		appPath:  path,
 		protoDir: protoDir,
 		modpath:  modpath,
 		runner:   xgenny.NewRunner(context, path),
->>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	}
 
 	return s, nil
 }
 
-<<<<<<< HEAD
-func finish(ctx context.Context, cacheStorage cache.Storage, path, gomodPath string, skipProto bool) error {
-=======
 func (s Scaffolder) ApplyModifications() (xgenny.SourceModification, error) {
 	return s.runner.ApplyModifications()
 }
@@ -98,7 +88,6 @@ func (s Scaffolder) PostScaffold(ctx context.Context, cacheStorage cache.Storage
 }
 
 func PostScaffold(ctx context.Context, cacheStorage cache.Storage, path, protoDir, gomodPath string, skipProto bool) error {
->>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	if !skipProto {
 		if err := protoc(ctx, cacheStorage, path, protoDir, gomodPath); err != nil {
 			return err

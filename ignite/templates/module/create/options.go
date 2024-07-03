@@ -9,8 +9,6 @@ import (
 )
 
 type (
-<<<<<<< HEAD
-=======
 	// ConfigsOptions represents the options to scaffold a Cosmos SDK module configs.
 	ConfigsOptions struct {
 		ModuleName string
@@ -29,7 +27,6 @@ type (
 		Params     field.Fields
 	}
 
->>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	// CreateOptions represents the options to scaffold a Cosmos SDK module.
 	CreateOptions struct {
 		ModuleName string

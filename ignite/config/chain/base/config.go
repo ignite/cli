@@ -3,14 +3,9 @@ package base
 import (
 	"github.com/imdario/mergo"
 
-<<<<<<< HEAD
+	"github.com/ignite/cli/v28/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v28/ignite/config/chain/version"
 	xyaml "github.com/ignite/cli/v28/ignite/pkg/yaml"
-=======
-	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
-	"github.com/ignite/cli/v29/ignite/config/chain/version"
-	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
->>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 )
 
 // Account holds the options related to setting up Cosmos wallets.

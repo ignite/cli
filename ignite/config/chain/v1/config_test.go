@@ -7,16 +7,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-<<<<<<< HEAD
 	"github.com/ignite/cli/v28/ignite/config/chain/base"
+	"github.com/ignite/cli/v28/ignite/config/chain/defaults"
 	v1 "github.com/ignite/cli/v28/ignite/config/chain/v1"
 	"github.com/ignite/cli/v28/ignite/pkg/xnet"
-=======
-	"github.com/ignite/cli/v29/ignite/config/chain/base"
-	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
-	v1 "github.com/ignite/cli/v29/ignite/config/chain/v1"
-	"github.com/ignite/cli/v29/ignite/pkg/xnet"
->>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 )
 
 func TestConfigDecode(t *testing.T) {

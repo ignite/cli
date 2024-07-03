@@ -79,11 +79,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 		options = append(options, scaffolder.PacketWithSigner(signer))
 	}
 
-<<<<<<< HEAD:ignite/cmd/scaffold_package.go
-	sc, err := scaffolder.New(appPath)
-=======
 	sc, err := scaffolder.New(cmd.Context(), appPath, protoDir)
->>>>>>> 6364ecbf (feat: support custom proto path (#4071)):ignite/cmd/scaffold_packet.go
 	if err != nil {
 		return err
 	}

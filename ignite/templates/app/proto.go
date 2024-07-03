@@ -8,13 +8,9 @@ import (
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
 
-<<<<<<< HEAD
+	"github.com/ignite/cli/v28/ignite/pkg/xembed"
 	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
-=======
-	"github.com/ignite/cli/v29/ignite/pkg/xembed"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
-	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"
->>>>>>> 6364ecbf (feat: support custom proto path (#4071))
+	"github.com/ignite/cli/v28/ignite/templates/field/plushhelpers"
 )
 
 //go:embed files/{{protoDir}}/* files/buf.work.yaml.plush

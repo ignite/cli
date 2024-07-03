@@ -88,17 +88,8 @@ func (s Scaffolder) AddMessage(
 		return sm, err
 	}
 
-<<<<<<< HEAD
-	if err := checkComponentValidity(s.path, moduleName, name, false); err != nil {
-		return sm, err
-	}
-
-	// Check and parse provided fields
-	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, fields); err != nil {
-		return sm, err
-=======
 	if err := checkComponentValidity(s.appPath, moduleName, name, false); err != nil {
-		return err
+		return sm, err
 	}
 
 	// Check and parse provided fields
@@ -110,8 +101,7 @@ func (s Scaffolder) AddMessage(
 		moduleName,
 		fields,
 	); err != nil {
-		return err
->>>>>>> 6364ecbf (feat: support custom proto path (#4071))
+		return sm, err
 	}
 	parsedMsgFields, err := field.ParseFields(fields, checkForbiddenMessageField, scaffoldingOpts.signer)
 	if err != nil {
@@ -119,10 +109,6 @@ func (s Scaffolder) AddMessage(
 	}
 
 	// Check and parse provided response fields
-<<<<<<< HEAD
-	if err := checkCustomTypes(ctx, s.path, s.modpath.Package, moduleName, resFields); err != nil {
-		return sm, err
-=======
 	if err := checkCustomTypes(
 		ctx,
 		s.appPath,
@@ -131,8 +117,7 @@ func (s Scaffolder) AddMessage(
 		moduleName,
 		resFields,
 	); err != nil {
-		return err
->>>>>>> 6364ecbf (feat: support custom proto path (#4071))
+		return sm, err
 	}
 	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord, scaffoldingOpts.signer)
 	if err != nil {
@@ -165,13 +150,8 @@ func (s Scaffolder) AddMessage(
 	var gens []*genny.Generator
 	gens, err = supportMsgServer(
 		gens,
-<<<<<<< HEAD
-		tracer,
-		s.path,
-=======
 		s.Tracer(),
 		s.appPath,
->>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 		&modulecreate.MsgServerOptions{
 			ModuleName: opts.ModuleName,
 			ModulePath: opts.ModulePath,
@@ -190,11 +170,7 @@ func (s Scaffolder) AddMessage(
 		return sm, err
 	}
 	gens = append(gens, g)
-	sm, err = xgenny.RunWithValidation(tracer, gens...)
-	if err != nil {
-		return sm, err
-	}
-	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath, false)
+	return xgenny.RunWithValidation(tracer, gens...)
 }
 
 // checkForbiddenMessageField returns true if the name is forbidden as a message name.

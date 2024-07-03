@@ -11,7 +11,7 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-<<<<<<< HEAD
+	"github.com/ignite/cli/v28/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
@@ -25,22 +25,6 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/gomodule"
 	"github.com/ignite/cli/v28/ignite/pkg/xfilepath"
 	"github.com/ignite/cli/v28/ignite/pkg/xos"
-=======
-	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
-	"github.com/ignite/cli/v29/ignite/pkg/cache"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner"
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/events"
-	"github.com/ignite/cli/v29/ignite/pkg/gomodule"
-	"github.com/ignite/cli/v29/ignite/pkg/xfilepath"
-	"github.com/ignite/cli/v29/ignite/pkg/xos"
->>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 )
 
 const (

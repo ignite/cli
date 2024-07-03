@@ -142,8 +142,6 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-<<<<<<< HEAD
-=======
 	if _, err := runner.ApplyModifications(); err != nil {
 		return err
 	}
@@ -159,6 +157,5 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		}
 	}
 
->>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	return session.Printf(tplScaffoldChainSuccess, path)
 }

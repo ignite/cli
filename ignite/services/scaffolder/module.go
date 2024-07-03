@@ -165,13 +165,8 @@ func (s Scaffolder) CreateModule(
 	moduleName = mfName.LowerCase
 
 	// Check if the module name is valid
-<<<<<<< HEAD
-	if err := checkModuleName(s.path, moduleName); err != nil {
-		return sm, err
-=======
 	if err := checkModuleName(s.appPath, moduleName); err != nil {
 		return err
->>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	}
 
 	// Check if the module already exist
@@ -196,13 +191,8 @@ func (s Scaffolder) CreateModule(
 	}
 
 	// Check dependencies
-<<<<<<< HEAD
-	if err := checkDependencies(creationOpts.dependencies, s.path); err != nil {
-		return sm, err
-=======
 	if err := checkDependencies(creationOpts.dependencies, s.appPath); err != nil {
 		return err
->>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	}
 
 	opts := &modulecreate.CreateOptions{

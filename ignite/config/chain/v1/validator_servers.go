@@ -3,13 +3,8 @@ package v1
 import (
 	"github.com/mitchellh/mapstructure"
 
-<<<<<<< HEAD
-	baseconfig "github.com/ignite/cli/v28/ignite/config/chain/base"
+	baseconfig "github.com/ignite/cli/v28/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
-=======
-	baseconfig "github.com/ignite/cli/v29/ignite/config/chain/defaults"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
->>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 )
 
 func DefaultServers() Servers {

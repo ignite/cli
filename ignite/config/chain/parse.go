@@ -8,14 +8,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"gopkg.in/yaml.v2"
 
-<<<<<<< HEAD
+	"github.com/ignite/cli/v28/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v28/ignite/config/chain/version"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
-=======
-	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
-	"github.com/ignite/cli/v29/ignite/config/chain/version"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
->>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 )
 
 // Parse reads a config file.

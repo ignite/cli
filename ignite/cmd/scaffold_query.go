@@ -81,11 +81,7 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-<<<<<<< HEAD
-	sc, err := scaffolder.New(appPath)
-=======
 	sc, err := scaffolder.New(cmd.Context(), appPath, protoDir)
->>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	if err != nil {
 		return err
 	}

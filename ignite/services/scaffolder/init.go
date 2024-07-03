@@ -6,13 +6,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gobuffalo/genny/v2"
-
-	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
-	"github.com/ignite/cli/v28/ignite/pkg/xgit"
+	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v28/ignite/templates/app"
 	"github.com/ignite/cli/v28/ignite/templates/field"
 	modulecreate "github.com/ignite/cli/v28/ignite/templates/module/create"
@@ -22,23 +18,14 @@ import (
 // Init initializes a new app with name and given options.
 func Init(
 	ctx context.Context,
-<<<<<<< HEAD
-	cacheStorage cache.Storage,
-	tracer *placeholder.Tracer,
-	root, name, addressPrefix string,
-	noDefaultModule, skipGit, skipProto, minimal, isConsumerChain bool,
-	params []string,
-) (path string, err error) {
-=======
 	runner *xgenny.Runner,
 	root, name, addressPrefix, protoDir string,
 	noDefaultModule, minimal, isConsumerChain bool,
 	params, moduleConfigs []string,
 ) (string, string, error) {
->>>>>>> 6364ecbf (feat: support custom proto path (#4071))
 	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	// Create a new folder named as the blockchain when a custom path is not specified
@@ -48,15 +35,17 @@ func Init(
 	}
 
 	if root, err = filepath.Abs(root); err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	path = filepath.Join(root, appFolder)
-
+	var (
+		path     = filepath.Join(root, appFolder)
+		gomodule = pathInfo.RawPath
+	)
 	// create the project
-	if err := generate(
+	_, err = generate(
 		ctx,
-		tracer,
+		runner,
 		pathInfo,
 		addressPrefix,
 		protoDir,
@@ -65,39 +54,32 @@ func Init(
 		minimal,
 		isConsumerChain,
 		params,
-	); err != nil {
-		return "", err
-	}
-
-	if err = finish(ctx, cacheStorage, path, pathInfo.RawPath, skipProto); err != nil {
-		return "", err
-	}
-
-	if !skipGit {
-		// Initialize git repository and perform the first commit
-		if err := xgit.InitAndCommit(path); err != nil {
-			return "", err
-		}
-	}
-
-	return path, nil
+		moduleConfigs,
+	)
+	return path, gomodule, err
 }
 
 //nolint:interfacer
 func generate(
 	ctx context.Context,
-	tracer *placeholder.Tracer,
+	runner *xgenny.Runner,
 	pathInfo gomodulepath.Path,
 	addressPrefix,
 	protoDir,
 	absRoot string,
 	noDefaultModule, minimal, isConsumerChain bool,
-	params []string,
-) error {
+	params, moduleConfigs []string,
+) (xgenny.SourceModification, error) {
 	// Parse params with the associated type
 	paramsFields, err := field.ParseFields(params, checkForbiddenTypeIndex)
 	if err != nil {
-		return err
+		return xgenny.SourceModification{}, err
+	}
+
+	// Parse configs with the associated type
+	configsFields, err := field.ParseFields(moduleConfigs, checkForbiddenTypeIndex)
+	if err != nil {
+		return xgenny.SourceModification{}, err
 	}
 
 	githubPath := gomodulepath.ExtractAppPath(pathInfo.RawPath)
@@ -119,29 +101,24 @@ func generate(
 		IsConsumerChain:  isConsumerChain,
 	})
 	if err != nil {
-		return err
+		return xgenny.SourceModification{}, err
 	}
 	// Create the 'testutil' package with the test helpers
 	if err := testutil.Register(g, absRoot); err != nil {
-		return err
-	}
-
-	run := func(runner *genny.Runner, gen *genny.Generator) error {
-		if err := runner.With(gen); err != nil {
-			return err
-		}
-		runner.Root = absRoot
-		return runner.Run()
-	}
-	if err := run(genny.WetRunner(ctx), g); err != nil {
-		return err
-	}
-
-	if err := cosmosgen.InstallDepTools(ctx, absRoot); err != nil {
-		return err
+		return xgenny.SourceModification{}, err
 	}
 
 	// generate module template
+	runner.Root = absRoot
+	smc, err := runner.RunAndApply(g)
+	if err != nil {
+		return smc, err
+	}
+
+	if err := cosmosgen.InstallDepTools(ctx, absRoot); err != nil {
+		return smc, err
+	}
+
 	if !noDefaultModule {
 		opts := &modulecreate.CreateOptions{
 			ModuleName: pathInfo.Package, // App name
@@ -149,26 +126,28 @@ func generate(
 			AppName:    pathInfo.Package,
 			AppPath:    absRoot,
 			ProtoDir:   protoDir,
+			ProtoVer:   "v1", // TODO(@julienrbrt): possibly in the future add flag to specify custom proto version.
 			Params:     paramsFields,
+			Configs:    configsFields,
 			IsIBC:      false,
 		}
 		// Check if the module name is valid
 		if err := checkModuleName(opts.AppPath, opts.ModuleName); err != nil {
-			return err
+			return smc, err
 		}
+
 		g, err = modulecreate.NewGenerator(opts)
 		if err != nil {
-			return err
-		}
-		if err := run(genny.WetRunner(ctx), g); err != nil {
-			return err
-		}
-		g = modulecreate.NewAppModify(tracer, opts)
-		if err := run(genny.WetRunner(ctx), g); err != nil {
-			return err
+			return smc, err
 		}
 
+		// generate module template
+		smm, err := runner.RunAndApply(g, modulecreate.NewAppModify(runner.Tracer(), opts))
+		if err != nil {
+			return smc, err
+		}
+		smc.Merge(smm)
 	}
 
-	return nil
+	return smc, err
 }
