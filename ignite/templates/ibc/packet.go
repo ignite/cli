@@ -120,7 +120,7 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 		if err != nil {
 			return channeltypes.NewErrorAcknowledgement(errorsmod.Wrap(sdkerrors.ErrJSONMarshal, err.Error()))
 		}
-		ack = channeltypes.NewResultAcknowledgement(sdk.MustSortJSON(packetAckBytes))
+		ack = channeltypes.NewResultAcknowledgement(packetAckBytes)
 	}
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
