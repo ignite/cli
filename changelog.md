@@ -11,6 +11,7 @@
 
 - [#4095](https://github.com/ignite/cli/pull/4095) Migrate to matomo analytics
 - [#4149](https://github.com/ignite/cli/pull/4149) Bump cometbft to `v0.38.7`
+- [#4002](https://github.com/ignite/cli/pull/4002) Bump buf build
 - [#4168](https://github.com/ignite/cli/pull/4168) Bump IBC to `v8.3.1`
   If you are upgrading manually from `v8.2.0` to `v8.3.1`, add the following to your `ibc.go` file:
 
