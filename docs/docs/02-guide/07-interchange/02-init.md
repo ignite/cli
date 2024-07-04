@@ -129,6 +129,9 @@ version: 1
 build:
   proto:
     path: proto
+    third_party_paths:
+    - third_party/proto
+    - proto_vendor
 accounts:
 - name: alice
   coins:
@@ -161,6 +164,9 @@ version: 1
 build:
   proto:
     path: proto
+    third_party_paths:
+    - third_party/proto
+    - proto_vendor
 accounts:
 - name: alice
   coins:

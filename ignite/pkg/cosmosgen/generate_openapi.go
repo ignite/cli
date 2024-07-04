@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/blang/semver/v4"
-
 	"github.com/iancoleman/strcase"
 
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
