@@ -9,6 +9,7 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
+<<<<<<< HEAD
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
@@ -27,6 +28,15 @@ type (
 		sdkProtoDir string
 		cache       *protoanalysis.Cache
 	}
+=======
+	"github.com/ignite/cli/v29/ignite/pkg/cache"
+	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/v29/ignite/pkg/dircache"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/goenv"
+	"github.com/ignite/cli/v29/ignite/pkg/xexec"
+	"github.com/ignite/cli/v29/ignite/pkg/xos"
+>>>>>>> cfea8dd5 (use buf build from the gobin path (#4242))
 )
 
 const (
@@ -59,8 +69,13 @@ var (
 )
 
 // New creates a new Buf based on the installed binary.
+<<<<<<< HEAD
 func New() (Buf, error) {
 	path, err := xexec.ResolveAbsPath(binaryName)
+=======
+func New(cacheStorage cache.Storage, goModPath string) (Buf, error) {
+	path, err := xexec.ResolveAbsPath(filepath.Join(goenv.Bin(), binaryName))
+>>>>>>> cfea8dd5 (use buf build from the gobin path (#4242))
 	if err != nil {
 		return Buf{}, err
 	}
