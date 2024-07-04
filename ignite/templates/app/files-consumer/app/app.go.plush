@@ -2,10 +2,9 @@ package app
 
 import (
 	"io"
-	"os"
-	"path/filepath"
 	"fmt"
 
+	clienthelpers "cosmossdk.io/client/v2/helpers"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
@@ -127,6 +126,7 @@ type App struct {
 	ScopedIBCTransferKeeper   capabilitykeeper.ScopedKeeper
 	ScopedICAControllerKeeper capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
+	ScopedKeepers             map[string]capabilitykeeper.ScopedKeeper
 
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
@@ -135,19 +135,18 @@ type App struct {
 }
 
 func init() {
-	userHomeDir, err := os.UserHomeDir()
+	var err error
+	DefaultNodeHome, err = clienthelpers.GetNodeHomeDirectory("."+Name)
 	if err != nil {
 		panic(err)
 	}
-
-	DefaultNodeHome = filepath.Join(userHomeDir, "."+Name)
 }
 
 // AppConfig returns the default app config.
 func AppConfig() depinject.Config {
 	return depinject.Configs(
 		appConfig,
-		// Loads the app config from a YAML file.
+		// Alternatively, load the app config from a YAML file.
 		// appconfig.LoadYAML(AppConfigYAML),
 		depinject.Supply(
 			// supply custom module basics
@@ -169,64 +168,29 @@ func New(
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) (*App, error) {
 	var (
-		app        = &App{}
+		app        = &App{ScopedKeepers: make(map[string]capabilitykeeper.ScopedKeeper)}
 		appBuilder *runtime.AppBuilder
 
 		// merge the AppConfig and other configuration in one config
 		appConfig = depinject.Configs(
 			AppConfig(),
 			depinject.Supply(
-				// Supply the application options
-				appOpts,
-        // Supply with IBC keeper getter for the IBC modules with App Wiring.
-        // The IBC Keeper cannot be passed because it has not been initiated yet.
-        // Passing the getter, the app IBC Keeper will always be accessible.
-        // This needs to be removed after IBC supports App Wiring.
-        app.GetIBCKeeper,
-        app.GetCapabilityScopedKeeper,
+				appOpts, // supply app options
+				logger, // supply logger
+        		// Supply with IBC keeper getter for the IBC modules with App Wiring.
+        		// The IBC Keeper cannot be passed because it has not been initiated yet.
+        		// Passing the getter, the app IBC Keeper will always be accessible.
+        		// This needs to be removed after IBC supports App Wiring.
+        		app.GetIBCKeeper,
+        		app.GetCapabilityScopedKeeper,
 				// Supply the consumer keeper for the consumer module
 				&app.ConsumerKeeper,
-				// Supply the logger
-				logger,
 
-				// ADVANCED CONFIGURATION
-				//
-				// AUTH
-				//
-				// For providing a custom function required in auth to generate custom account types
-				// add it below. By default the auth module uses simulation.RandomGenesisAccounts.
-				//
-				// authtypes.RandomGenesisAccountsFn(simulation.RandomGenesisAccounts),
-
-				// For providing a custom a base account type add it below.
-				// By default the auth module uses authtypes.ProtoBaseAccount().
-				//
-				// func() sdk.AccountI { return authtypes.ProtoBaseAccount() },
-				//
-				// For providing a different address codec, add it below.
-				// By default the auth module uses a Bech32 address codec,
-				// with the prefix defined in the auth module configuration.
-				//
-				// func() address.Codec { return <- custom address codec type -> }
-
-				//
-				// STAKING
-				//
-				// For provinding a different validator and consensus address codec, add it below.
-				// By default the staking module uses the bech32 prefix provided in the auth config,
-				// and appends "valoper" and "valcons" for validator and consensus addresses respectively.
-				// When providing a custom address codec in auth, custom address codecs must be provided here as well.
-				//
-				// func() runtime.ValidatorAddressCodec { return <- custom validator address codec type -> }
-				// func() runtime.ConsensusAddressCodec { return <- custom consensus address codec type -> }
-
-				//
-				// MINT
-				//
-
-				// For providing a custom inflation function for x/mint add here your
-				// custom function that implements the minttypes.InflationCalculationFn
-				// interface.
+				// here alternative options can be supplied to the DI container.
+				// those options can be used f.e to override the default behavior of some modules.
+				// for instance supplying a custom address codec for not using bech32 addresses.
+				// read the depinject documentation and depinject module wiring for more information
+				// on available options and how to use them.
 			),
 		)
 	)
@@ -255,41 +219,14 @@ func New(
 		panic(err)
 	}
 
-	// Below we could construct and set an application specific mempool and
-	// ABCI 1.0 PrepareProposal and ProcessProposal handlers. These defaults are
-	// already set in the SDK's BaseApp, this shows an example of how to override
-	// them.
-	//
-	// Example:
-	//
-	// app.App = appBuilder.Build(...)
-	// nonceMempool := mempool.NewSenderNonceMempool()
-	// abciPropHandler := NewDefaultProposalHandler(nonceMempool, app.App.BaseApp)
-	//
-	// app.App.BaseApp.SetMempool(nonceMempool)
-	// app.App.BaseApp.SetPrepareProposal(abciPropHandler.PrepareProposalHandler())
-	// app.App.BaseApp.SetProcessProposal(abciPropHandler.ProcessProposalHandler())
-	//
-	// Alternatively, you can construct BaseApp options, append those to
-	// baseAppOptions and pass them to the appBuilder.
-	//
-	// Example:
-	//
-	// prepareOpt = func(app *baseapp.BaseApp) {
-	// 	abciPropHandler := baseapp.NewDefaultProposalHandler(nonceMempool, app)
-	// 	app.SetPrepareProposal(abciPropHandler.PrepareProposalHandler())
-	// }
-	// baseAppOptions = append(baseAppOptions, prepareOpt)
-	//
-	// create and set vote extension handler
-	// voteExtOp := func(bApp *baseapp.BaseApp) {
-	// 	voteExtHandler := NewVoteExtensionHandler()
-	// 	voteExtHandler.SetHandlers(bApp)
-	// }
+	// add to default baseapp options
+	// enable optimistic execution
+	baseAppOptions = append(baseAppOptions, baseapp.SetOptimisticExecution())
 
+	// build app
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 
-	// Register legacy modules
+	// register legacy modules
 	if err := app.registerIBCModules(appOpts); err != nil {
 		return nil, err
 	}
@@ -304,8 +241,6 @@ func New(
 	app.ModuleManager.RegisterInvariants(app.CrisisKeeper)
 
 	// create the simulation manager and define the order of the modules for deterministic simulations
-	//
-	// NOTE: this is not required apps that don't use the simulator for fuzz testing transactions
 	overrideModules := map[string]module.AppModuleSimulation{
 		authtypes.ModuleName: auth.NewAppModule(app.appCodec, app.AccountKeeper, authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
 	}
@@ -313,7 +248,7 @@ func New(
 
 	app.sm.RegisterStoreDecoders()
 
-	// TODO theres probably a better way to SetAnteHandler with app wiring
+	// overwrite default antehandlers
 	anteHandler, err := NewAnteHandler(
 		HandlerOptions{
 			HandlerOptions: ante.HandlerOptions{
@@ -336,7 +271,7 @@ func New(
 
 	// A custom InitChainer sets if extra pre-init-genesis logic is required.
 	// This is necessary for manually registered modules that do not support app wiring.
-        // Manually set the module version map as shown below.
+	// Manually set the module version map as shown below.
 	// The upgrade module will automatically handle de-duplication of the module version map.
 	app.SetInitChainer(func(ctx sdk.Context, req *abci.RequestInitChain) (*abci.ResponseInitChain, error) {
 		if err := app.UpgradeKeeper.SetModuleVersionMap(ctx, app.ModuleManager.GetVersionMap()); err != nil {
@@ -412,7 +347,12 @@ func (app *App) GetIBCKeeper() *ibckeeper.Keeper {
 
 // GetCapabilityScopedKeeper returns the capability scoped keeper.
 func (app *App) GetCapabilityScopedKeeper(moduleName string) capabilitykeeper.ScopedKeeper {
-	return app.CapabilityKeeper.ScopeToModule(moduleName)
+	sk, ok := app.ScopedKeepers[moduleName]
+	if !ok {
+		sk = app.CapabilityKeeper.ScopeToModule(moduleName)
+		app.ScopedKeepers[moduleName] = sk
+	}
+	return sk
 }
 
 // SimulationManager implements the SimulationApp interface.
