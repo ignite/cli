@@ -12,6 +12,7 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/goenv"
 	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis"
 	"github.com/ignite/cli/v28/ignite/pkg/xexec"
 	"github.com/ignite/cli/v28/ignite/pkg/xos"
@@ -60,7 +61,7 @@ var (
 
 // New creates a new Buf based on the installed binary.
 func New() (Buf, error) {
-	path, err := xexec.ResolveAbsPath(binaryName)
+	path, err := xexec.ResolveAbsPath(filepath.Join(goenv.Bin(), binaryName))
 	if err != nil {
 		return Buf{}, err
 	}

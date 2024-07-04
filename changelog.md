@@ -31,6 +31,7 @@
 - [#4199](https://github.com/ignite/cli/pull/4199) Set and seal SDK global config in `app/config.go`
 - [#4212](https://github.com/ignite/cli/pull/4212) Set default values for extension flag to dont crash ignite
 - [#4216](https://github.com/ignite/cli/pull/4216) Avoid create duplicated scopedKeppers
+- [#4242](https://github.com/ignite/cli/pull/4242)  Use buf build binary from the gobin path
 
 ## [`v28.4.0`](https://github.com/ignite/cli/releases/tag/v28.4.0)
 
