@@ -21,7 +21,7 @@ func Init(
 	runner *xgenny.Runner,
 	root, name, addressPrefix string,
 	noDefaultModule, minimal, isConsumerChain bool,
-	params, moduleConfigs []string,
+	params []string,
 ) (string, string, error) {
 	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
@@ -53,7 +53,6 @@ func Init(
 		minimal,
 		isConsumerChain,
 		params,
-		moduleConfigs,
 	)
 	return path, gomodule, err
 }
@@ -66,7 +65,7 @@ func generate(
 	addressPrefix,
 	absRoot string,
 	noDefaultModule, minimal, isConsumerChain bool,
-	params, moduleConfigs []string,
+	params []string,
 ) (xgenny.SourceModification, error) {
 	// Parse params with the associated type
 	paramsFields, err := field.ParseFields(params, checkForbiddenTypeIndex)

@@ -24,7 +24,6 @@ const (
 	flagDep                 = "dep"
 	flagIBC                 = "ibc"
 	flagParams              = "params"
-	flagModuleConfigs       = "module-configs"
 	flagIBCOrdering         = "ordering"
 	flagRequireRegistration = "require-registration"
 )
@@ -107,7 +106,6 @@ params.
 	c.Flags().String(flagIBCOrdering, "none", "channel ordering of the IBC module [none|ordered|unordered]")
 	c.Flags().Bool(flagRequireRegistration, false, "fail if module can't be registered")
 	c.Flags().StringSlice(flagParams, []string{}, "add module parameters")
-	c.Flags().StringSlice(flagModuleConfigs, []string{}, "add module configs")
 
 	return c
 }
