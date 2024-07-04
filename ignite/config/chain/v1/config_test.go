@@ -29,7 +29,8 @@ func TestConfigDecode(t *testing.T) {
 			Build: base.Build{
 				Binary: "evmosd",
 				Proto: base.Proto{
-					Path: "proto",
+					Path:            "proto",
+					ThirdPartyPaths: []string{"third_party/proto", "proto_vendor"},
 				},
 			},
 			Accounts: []base.Account{

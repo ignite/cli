@@ -20,3 +20,11 @@ Third-party proto files, including those of Cosmos SDK and Tendermint, are bundl
 ```protobuf
 import "cosmos/base/query/v1beta1/pagination.proto";
 ```
+
+You can also manually add third-party proto files. By default, Ignite CLI imports proto files from these directories: `third_party/proto` and `proto_vendor`. You can define third-party paths of the import directory in `config.yml`:
+
+```yaml
+build:
+  proto:
+    third_party_paths: ["my_third_party_proto"]
+```
