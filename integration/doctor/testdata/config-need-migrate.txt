@@ -35,12 +35,9 @@ version: 1
 build:
   proto:
     path: proto
-<<<<<<< HEAD
     third_party_paths:
     - third_party/proto
     - proto_vendor
-=======
->>>>>>> 0b412628 (feat: improve buf rate limit (#4133))
 accounts:
 - name: alice
   coins:

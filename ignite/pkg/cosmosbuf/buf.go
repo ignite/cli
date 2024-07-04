@@ -9,21 +9,12 @@ import (
 	"github.com/gobwas/glob"
 	"golang.org/x/sync/errgroup"
 
-<<<<<<< HEAD
+	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v28/ignite/pkg/dircache"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
-	"github.com/ignite/cli/v28/ignite/pkg/protoanalysis"
 	"github.com/ignite/cli/v28/ignite/pkg/xexec"
 	"github.com/ignite/cli/v28/ignite/pkg/xos"
-=======
-	"github.com/ignite/cli/v29/ignite/pkg/cache"
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/v29/ignite/pkg/dircache"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/xexec"
-	"github.com/ignite/cli/v29/ignite/pkg/xos"
->>>>>>> 0b412628 (feat: improve buf rate limit (#4133))
 )
 
 type (
@@ -171,8 +162,8 @@ func (b Buf) Generate(
 	}
 
 	// find all proto files into the path.
-	foundFiles, err := xos.FindFilesExtension(protoPath, xos.ProtoFile)
-	if err != nil || len(foundFiles) == 0 {
+	protoFiles, err := xos.FindFilesExtension(protoPath, xos.ProtoFile)
+	if err != nil || len(protoFiles) == 0 {
 		return err
 	}
 
@@ -181,33 +172,6 @@ func (b Buf) Generate(
 	if err != nil && !errors.Is(err, dircache.ErrCacheNotFound) {
 		return err
 	} else if err == nil {
-		return nil
-	}
-
-<<<<<<< HEAD
-			specs, err := xos.FindFiles(protoDir, "proto")
-			if err != nil {
-				return err
-			}
-			if len(specs) == 0 {
-				continue
-=======
-	// remove excluded and cached files.
-	protoFiles := make([]string, 0)
-	for _, file := range foundFiles {
-		okExclude := false
-		for _, g := range opts.excluded {
-			if g.Match(file) {
-				okExclude = true
-				break
->>>>>>> 0b412628 (feat: improve buf rate limit (#4133))
-			}
-		}
-		if !okExclude {
-			protoFiles = append(protoFiles, file)
-		}
-	}
-	if len(protoFiles) == 0 {
 		return nil
 	}
 
