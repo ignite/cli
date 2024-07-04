@@ -8,8 +8,9 @@ import (
 	"strings"
 	"testing"
 
-	envtest "github.com/ignite/cli/v28/integration"
 	"github.com/stretchr/testify/require"
+
+	envtest "github.com/ignite/cli/v28/integration"
 )
 
 // TestGenerateAppCheckBufPulsarPath tests scaffolding a new chain and checks if the buf.gen.pulsar.yaml file is correct
