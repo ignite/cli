@@ -6,9 +6,7 @@ import (
 	"github.com/ignite/cli/v28/ignite/services/scaffolder"
 )
 
-const (
-	FlagIndexes = "index"
-)
+const FlagIndexName = "index"
 
 // NewScaffoldMap returns a new command to scaffold a map.
 func NewScaffoldMap() *cobra.Command {
@@ -67,16 +65,12 @@ For detailed type information use ignite scaffold type --help
 
 	c.Flags().AddFlagSet(flagSetYes())
 	c.Flags().AddFlagSet(flagSetScaffoldType())
-	c.Flags().StringSlice(FlagIndexes, []string{"index"}, "fields that index the value")
+	c.Flags().String(FlagIndexName, "index", "field that index the value")
 
 	return c
 }
 
 func scaffoldMapHandler(cmd *cobra.Command, args []string) error {
-	indexes, err := cmd.Flags().GetStringSlice(FlagIndexes)
-	if err != nil {
-		return err
-	}
-
-	return scaffoldType(cmd, args, scaffolder.MapType(indexes...))
+	index, _ := cmd.Flags().GetString(FlagIndexName)
+	return scaffoldType(cmd, args, scaffolder.MapType(index))
 }

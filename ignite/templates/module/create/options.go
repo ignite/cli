@@ -16,26 +16,10 @@ type ConfigsOptions struct {
 	AppPath    string
 	ProtoDir   string
 	ProtoVer   string
-	Configs    field.Fields
 }
 
 // ProtoFile returns the path to the proto folder.
 func (opts *ConfigsOptions) ProtoFile(fname string) string {
-	return filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, opts.ProtoVer, fname)
-}
-
-// ParamsOptions represents the options to scaffold a Cosmos SDK module parameters.
-type ParamsOptions struct {
-	ModuleName string
-	AppName    string
-	AppPath    string
-	ProtoDir   string
-	ProtoVer   string
-	Params     field.Fields
-}
-
-// ProtoFile returns the path to the proto folder.
-func (opts *ParamsOptions) ProtoFile(fname string) string {
 	return filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, opts.ProtoVer, fname)
 }
 
@@ -63,7 +47,6 @@ type CreateOptions struct {
 	ProtoDir   string
 	ProtoVer   string
 	Params     field.Fields
-	Configs    field.Fields
 
 	// True if the module should implement the IBC module interface
 	IsIBC bool

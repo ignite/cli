@@ -74,12 +74,6 @@ func generate(
 		return xgenny.SourceModification{}, err
 	}
 
-	// Parse configs with the associated type
-	configsFields, err := field.ParseFields(moduleConfigs, checkForbiddenTypeIndex)
-	if err != nil {
-		return xgenny.SourceModification{}, err
-	}
-
 	githubPath := gomodulepath.ExtractAppPath(pathInfo.RawPath)
 	if !strings.Contains(githubPath, "/") {
 		// A username must be added when the app module appPath has a single element
@@ -123,7 +117,6 @@ func generate(
 			AppName:    pathInfo.Package,
 			AppPath:    absRoot,
 			Params:     paramsFields,
-			Configs:    configsFields,
 			IsIBC:      false,
 		}
 		// Check if the module name is valid

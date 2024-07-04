@@ -98,9 +98,6 @@ type moduleCreationOptions struct {
 	// params list of parameters.
 	params []string
 
-	// moduleConfigs list of module configs.
-	moduleConfigs []string
-
 	// ibcChannelOrdering ibc channel ordering.
 	ibcChannelOrdering string
 
@@ -122,13 +119,6 @@ func WithIBC() ModuleCreationOption {
 func WithParams(params []string) ModuleCreationOption {
 	return func(m *moduleCreationOptions) {
 		m.params = params
-	}
-}
-
-// WithModuleConfigs scaffolds a module with module configs.
-func WithModuleConfigs(moduleConfigs []string) ModuleCreationOption {
-	return func(m *moduleCreationOptions) {
-		m.moduleConfigs = moduleConfigs
 	}
 }
 
@@ -190,12 +180,6 @@ func (s Scaffolder) CreateModule(
 		return err
 	}
 
-	// Parse configs with the associated type
-	configs, err := field.ParseFields(creationOpts.moduleConfigs, checkForbiddenTypeIndex)
-	if err != nil {
-		return err
-	}
-
 	// Check dependencies
 	if err := checkDependencies(creationOpts.dependencies, s.path); err != nil {
 		return err
@@ -205,7 +189,6 @@ func (s Scaffolder) CreateModule(
 		ModuleName:   moduleName,
 		ModulePath:   s.modpath.RawPath,
 		Params:       params,
-		Configs:      configs,
 		AppName:      s.modpath.Package,
 		AppPath:      s.path,
 		IsIBC:        creationOpts.ibc,
