@@ -181,7 +181,6 @@ func (s Scaffolder) AddType(
 	gens, err = supportMsgServer(
 		gens,
 		s.runner.Tracer(),
-		s.path,
 		&modulecreate.MsgServerOptions{
 			ModuleName: opts.ModuleName,
 			ModulePath: opts.ModulePath,

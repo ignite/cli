@@ -68,12 +68,17 @@ func scaffoldParamsHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	modificationsStr, err := sc.ApplyModifications()
+	sm, err := sc.ApplyModifications()
 	if err != nil {
 		return err
 	}
 
 	if err := sc.PostScaffold(cmd.Context(), cacheStorage, false); err != nil {
+		return err
+	}
+
+	modificationsStr, err := sm.String()
+	if err != nil {
 		return err
 	}
 

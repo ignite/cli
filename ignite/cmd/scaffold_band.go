@@ -6,7 +6,6 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
-	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v28/ignite/services/scaffolder"
 )
 
@@ -68,19 +67,23 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 		options = append(options, scaffolder.OracleWithSigner(signer)) //nolint: staticcheck
 	}
 
-	sc, err := scaffolder.New(appPath)
+	sc, err := scaffolder.New(cmd.Context(), appPath)
 	if err != nil {
 		return err
 	}
 
 	//nolint: staticcheck
-	sm, err := sc.AddOracle(cmd.Context(), cacheStorage, placeholder.New(), module, oracle, options...)
+	err = sc.AddOracle(cmd.Context(), cacheStorage, placeholder.New(), module, oracle, options...)
 	if err != nil {
 		return err
 	}
 
-	modificationsStr, err := xgenny.SourceModificationToString(sm)
+	modificationsStr, err := sc.ApplyModifications()
 	if err != nil {
+		return err
+	}
+
+	if err := sc.PostScaffold(cmd.Context(), cacheStorage, false); err != nil {
 		return err
 	}
 

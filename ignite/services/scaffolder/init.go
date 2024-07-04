@@ -20,7 +20,7 @@ func Init(
 	ctx context.Context,
 	runner *xgenny.Runner,
 	root, name, addressPrefix string,
-	noDefaultModule, skipGit, skipProto, minimal, isConsumerChain bool,
+	noDefaultModule, minimal, isConsumerChain bool,
 	params, moduleConfigs []string,
 ) (string, string, error) {
 	pathInfo, err := gomodulepath.Parse(name)
@@ -74,9 +74,15 @@ func generate(
 		return xgenny.SourceModification{}, err
 	}
 
+	// Parse configs with the associated type
+	configsFields, err := field.ParseFields(moduleConfigs, checkForbiddenTypeIndex)
+	if err != nil {
+		return xgenny.SourceModification{}, err
+	}
+
 	githubPath := gomodulepath.ExtractAppPath(pathInfo.RawPath)
 	if !strings.Contains(githubPath, "/") {
-		// A username must be added when the app module path has a single element
+		// A username must be added when the app module appPath has a single element
 		githubPath = fmt.Sprintf("username/%s", githubPath)
 	}
 
@@ -117,6 +123,7 @@ func generate(
 			AppName:    pathInfo.Package,
 			AppPath:    absRoot,
 			Params:     paramsFields,
+			Configs:    configsFields,
 			IsIBC:      false,
 		}
 		// Check if the module name is valid

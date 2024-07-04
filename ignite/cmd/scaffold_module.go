@@ -24,6 +24,7 @@ const (
 	flagDep                 = "dep"
 	flagIBC                 = "ibc"
 	flagParams              = "params"
+	flagModuleConfigs       = "module-configs"
 	flagIBCOrdering         = "ordering"
 	flagRequireRegistration = "require-registration"
 )
@@ -106,6 +107,7 @@ params.
 	c.Flags().String(flagIBCOrdering, "none", "channel ordering of the IBC module [none|ordered|unordered]")
 	c.Flags().Bool(flagRequireRegistration, false, "fail if module can't be registered")
 	c.Flags().StringSlice(flagParams, []string{}, "add module parameters")
+	c.Flags().StringSlice(flagModuleConfigs, []string{}, "add module configs")
 
 	return c
 }
@@ -119,21 +121,12 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
 
-	ibcModule, err := cmd.Flags().GetBool(flagIBC)
-	if err != nil {
-		return err
-	}
+	ibcModule, _ := cmd.Flags().GetBool(flagIBC)
+	ibcOrdering, _ := cmd.Flags().GetString(flagIBCOrdering)
+	requireRegistration, _ := cmd.Flags().GetBool(flagRequireRegistration)
+	params, _ := cmd.Flags().GetStringSlice(flagParams)
 
-	ibcOrdering, err := cmd.Flags().GetString(flagIBCOrdering)
-	if err != nil {
-		return err
-	}
-	requireRegistration, err := cmd.Flags().GetBool(flagRequireRegistration)
-	if err != nil {
-		return err
-	}
-
-	params, err := cmd.Flags().GetStringSlice(flagParams)
+	moduleConfigs, err := cmd.Flags().GetStringSlice(flagModuleConfigs)
 	if err != nil {
 		return err
 	}
@@ -145,6 +138,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 
 	options := []scaffolder.ModuleCreationOption{
 		scaffolder.WithParams(params),
+		scaffolder.WithModuleConfigs(moduleConfigs),
 	}
 
 	// Check if the module must be an IBC module
@@ -153,10 +147,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// Get module dependencies
-	dependencies, err := cmd.Flags().GetStringSlice(flagDep)
-	if err != nil {
-		return err
-	}
+	dependencies, _ := cmd.Flags().GetStringSlice(flagDep)
 	if len(dependencies) > 0 {
 		var deps []modulecreate.Dependency
 
@@ -194,12 +185,18 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 			return err
 		}
 	}
-	modificationsStr, err := sc.ApplyModifications()
+
+	sm, err := sc.ApplyModifications()
 	if err != nil {
 		return err
 	}
 
 	if err := sc.PostScaffold(cmd.Context(), cacheStorage, false); err != nil {
+		return err
+	}
+
+	modificationsStr, err := sm.String()
+	if err != nil {
 		return err
 	}
 

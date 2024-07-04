@@ -2,47 +2,91 @@ package modulecreate
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/iancoleman/strcase"
 
 	"github.com/ignite/cli/v28/ignite/templates/field"
 )
 
-type (
-	// CreateOptions represents the options to scaffold a Cosmos SDK module.
-	CreateOptions struct {
-		ModuleName string
-		ModulePath string
-		AppName    string
-		AppPath    string
-		Params     field.Fields
+// ConfigsOptions represents the options to scaffold a Cosmos SDK module configs.
+type ConfigsOptions struct {
+	ModuleName string
+	AppName    string
+	AppPath    string
+	ProtoDir   string
+	ProtoVer   string
+	Configs    field.Fields
+}
 
-		// True if the module should implement the IBC module interface
-		IsIBC bool
+// ProtoFile returns the path to the proto folder.
+func (opts *ConfigsOptions) ProtoFile(fname string) string {
+	return filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, opts.ProtoVer, fname)
+}
 
-		// Channel ordering of the IBC module: ordered, unordered or none
-		IBCOrdering string
+// ParamsOptions represents the options to scaffold a Cosmos SDK module parameters.
+type ParamsOptions struct {
+	ModuleName string
+	AppName    string
+	AppPath    string
+	ProtoDir   string
+	ProtoVer   string
+	Params     field.Fields
+}
 
-		// Dependencies of the module
-		Dependencies Dependencies
-	}
+// ProtoFile returns the path to the proto folder.
+func (opts *ParamsOptions) ProtoFile(fname string) string {
+	return filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, opts.ProtoVer, fname)
+}
 
-	// Dependency represents a module dependency of a module.
-	Dependency struct {
-		Name string
-	}
+// MsgServerOptions defines options to add MsgServer.
+type MsgServerOptions struct {
+	ModuleName string
+	ModulePath string
+	AppName    string
+	AppPath    string
+	ProtoDir   string
+	ProtoVer   string
+}
 
-	// Dependencies represents a list of module dependency.
-	Dependencies []Dependency
+// ProtoFile returns the path to the proto folder.
+func (opts *MsgServerOptions) ProtoFile(fname string) string {
+	return filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, opts.ProtoVer, fname)
+}
 
-	// MsgServerOptions defines options to add MsgServer.
-	MsgServerOptions struct {
-		ModuleName string
-		ModulePath string
-		AppName    string
-		AppPath    string
-	}
-)
+// CreateOptions represents the options to scaffold a Cosmos SDK module.
+type CreateOptions struct {
+	ModuleName string
+	ModulePath string
+	AppName    string
+	AppPath    string
+	ProtoDir   string
+	ProtoVer   string
+	Params     field.Fields
+	Configs    field.Fields
+
+	// True if the module should implement the IBC module interface
+	IsIBC bool
+
+	// Channel ordering of the IBC module: ordered, unordered or none
+	IBCOrdering string
+
+	// Dependencies of the module
+	Dependencies Dependencies
+}
+
+// ProtoFile returns the path to the proto folder.
+func (opts *CreateOptions) ProtoFile(fname string) string {
+	return filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, opts.ProtoVer, fname)
+}
+
+// Dependency represents a module dependency of a module.
+type Dependency struct {
+	Name string
+}
+
+// Dependencies represents a list of module dependency.
+type Dependencies []Dependency
 
 // NewDependency returns a new dependency.
 func NewDependency(name string) Dependency {
@@ -67,9 +111,4 @@ func (d Dependencies) Len() int {
 // KeeperName returns the keeper's name for the dependency module.
 func (d Dependency) KeeperName() string {
 	return fmt.Sprint(d.Name, "Keeper")
-}
-
-// Validate that options are usable.
-func (opts *CreateOptions) Validate() error {
-	return nil
 }

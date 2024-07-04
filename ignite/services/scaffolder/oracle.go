@@ -12,7 +12,6 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/gocmd"
 	"github.com/ignite/cli/v28/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
-	"github.com/ignite/cli/v28/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v28/ignite/templates/ibc"
 )
 
@@ -56,9 +55,9 @@ func (s *Scaffolder) AddOracle(
 	moduleName,
 	queryName string,
 	options ...OracleOption,
-) (sm xgenny.SourceModification, err error) {
+) error {
 	if err := s.installBandPacket(); err != nil {
-		return sm, err
+		return err
 	}
 
 	o := newOracleOptions()
@@ -68,31 +67,31 @@ func (s *Scaffolder) AddOracle(
 
 	mfName, err := multiformatname.NewName(moduleName, multiformatname.NoNumber)
 	if err != nil {
-		return sm, err
+		return err
 	}
 	moduleName = mfName.LowerCase
 
 	name, err := multiformatname.NewName(queryName)
 	if err != nil {
-		return sm, err
+		return err
 	}
 
 	if err := checkComponentValidity(s.path, moduleName, name, false); err != nil {
-		return sm, err
+		return err
 	}
 
 	mfSigner, err := multiformatname.NewName(o.signer, checkForbiddenOracleFieldName)
 	if err != nil {
-		return sm, err
+		return err
 	}
 
 	// Module must implement IBC
 	ok, err := isIBCModule(s.path, moduleName)
 	if err != nil {
-		return sm, err
+		return err
 	}
 	if !ok {
-		return sm, errors.Errorf("the module %s doesn't implement IBC module interface", moduleName)
+		return errors.Errorf("the module %s doesn't implement IBC module interface", moduleName)
 	}
 
 	// Generate the packet
@@ -109,13 +108,9 @@ func (s *Scaffolder) AddOracle(
 	)
 	g, err = ibc.NewOracle(tracer, opts)
 	if err != nil {
-		return sm, err
+		return err
 	}
-	sm, err = xgenny.RunWithValidation(tracer, g)
-	if err != nil {
-		return sm, err
-	}
-	return sm, finish(ctx, cacheStorage, opts.AppPath, s.modpath.RawPath, false)
+	return s.runner.Run(g)
 }
 
 // Deprecated: This function is no longer maintained.

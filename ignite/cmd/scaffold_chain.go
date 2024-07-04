@@ -83,6 +83,7 @@ about Cosmos SDK on https://docs.cosmos.network
 	c.Flags().StringP(flagPath, "p", "", "create a project in a specific path")
 	c.Flags().Bool(flagNoDefaultModule, false, "create a project without a default module")
 	c.Flags().StringSlice(flagParams, []string{}, "add default module parameters")
+	c.Flags().StringSlice(flagModuleConfigs, []string{}, "add module configs")
 	c.Flags().Bool(flagSkipGit, false, "skip Git repository initialization")
 	c.Flags().Bool(flagSkipProto, false, "skip proto generation")
 	c.Flags().Bool(flagMinimal, false, "create a minimal blockchain (with the minimum required Cosmos SDK modules)")
@@ -98,19 +99,25 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 	defer session.End()
 
 	var (
-		name               = args[0]
-		addressPrefix      = getAddressPrefix(cmd)
-		appPath            = flagGetPath(cmd)
+		name          = args[0]
+		addressPrefix = getAddressPrefix(cmd)
+		appPath       = flagGetPath(cmd)
+
 		noDefaultModule, _ = cmd.Flags().GetBool(flagNoDefaultModule)
 		skipGit, _         = cmd.Flags().GetBool(flagSkipGit)
 		minimal, _         = cmd.Flags().GetBool(flagMinimal)
 		isConsumer, _      = cmd.Flags().GetBool(flagIsConsumer)
 		params, _          = cmd.Flags().GetStringSlice(flagParams)
+		moduleConfigs, _   = cmd.Flags().GetStringSlice(flagModuleConfigs)
 		skipProto, _       = cmd.Flags().GetBool(flagSkipProto)
 	)
 
-	if noDefaultModule && len(params) > 0 {
-		return errors.New("params flag is only supported if the default module is enabled")
+	if noDefaultModule {
+		if len(params) > 0 {
+			return errors.New("params flag is only supported if the default module is enabled")
+		} else if len(moduleConfigs) > 0 {
+			return errors.New("module configs flag is only supported if the default module is enabled")
+		}
 	}
 
 	cacheStorage, err := newCache(cmd)
@@ -129,6 +136,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		minimal,
 		isConsumer,
 		params,
+		moduleConfigs,
 	)
 	if err != nil {
 		return err
