@@ -12,6 +12,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/v29/ignite/pkg/dircache"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/goenv"
 	"github.com/ignite/cli/v29/ignite/pkg/xexec"
 	"github.com/ignite/cli/v29/ignite/pkg/xos"
 )
@@ -123,7 +124,7 @@ func FileByFile() GenOption {
 
 // New creates a new Buf based on the installed binary.
 func New(cacheStorage cache.Storage, goModPath string) (Buf, error) {
-	path, err := xexec.ResolveAbsPath(binaryName)
+	path, err := xexec.ResolveAbsPath(filepath.Join(goenv.Bin(), binaryName))
 	if err != nil {
 		return Buf{}, err
 	}
