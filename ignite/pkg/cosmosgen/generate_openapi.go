@@ -85,7 +85,7 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 			if err := os.WriteFile(specPath, existingSpec, 0o644); err != nil {
 				return err
 			}
-			return conf.AddSpec(name, specPath, true)
+			return conf.AddSpec(name, specPath)
 		}
 
 		hasAnySpecChanged = true
@@ -122,7 +122,7 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 			if err := specCache.Put(cacheKey, f); err != nil {
 				return err
 			}
-			if err := conf.AddSpec(name, spec, true); err != nil {
+			if err := conf.AddSpec(name, spec); err != nil {
 				return err
 			}
 		}
@@ -234,7 +234,7 @@ func (g *generator) generateModuleOpenAPISpec(ctx context.Context, m module.Modu
 			if err != nil {
 				return err
 			}
-			if err := conf.AddSpec(strcase.ToCamel(m.Pkg.Name), spec, false); err != nil {
+			if err := conf.AddSpec(strcase.ToCamel(m.Pkg.Name), spec); err != nil {
 				return err
 			}
 		}
