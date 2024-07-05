@@ -3,9 +3,6 @@ build:
   binary: evmosd
   proto:
     path: proto
-    third_party_paths:
-    - third_party/proto
-    - proto_vendor
 accounts:
 - name: alice
   coins:

@@ -17,7 +17,6 @@ import (
 
 // generateOptions used to configure code generation.
 type generateOptions struct {
-	includeDirs     []string
 	useCache        bool
 	updateBufModule bool
 	ev              events.Bus
