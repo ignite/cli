@@ -61,6 +61,7 @@ breakpoint is triggered.
 Within the debugger shell use the `quit` (alias `q`) or `exit` commands to stop
 the blockchain app and exit the debugger.
 
+
 ## Debug Server
 
 A debug server can optionally be started in cases where the default terminal
