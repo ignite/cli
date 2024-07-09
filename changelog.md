@@ -80,6 +80,7 @@
 - [#4086](https://github.com/ignite/cli/pull/4086) Retry to get the IBC balance if it fails the first time
 - [#4096](https://github.com/ignite/cli/pull/4096) Add new reserved names module and remove duplicated genesis order
 - [#4112](https://github.com/ignite/cli/pull/4112) Remove duplicate SetCmdClientContextHandler
+- [#4219](https://github.com/ignite/cli/pull/4219) Remove deprecated `sdk.MustSortJSON`
 
 ## [`v28.3.0`](https://github.com/ignite/cli/releases/tag/v28.3.0)
 

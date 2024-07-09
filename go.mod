@@ -29,7 +29,7 @@ require (
 	github.com/charmbracelet/glow v1.4.1
 	github.com/charmbracelet/lipgloss v0.6.0
 	github.com/cockroachdb/errors v1.11.1
-	github.com/cometbft/cometbft v0.38.7
+	github.com/cometbft/cometbft v0.38.8
 	github.com/cosmos/cosmos-sdk v0.50.7
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.12
