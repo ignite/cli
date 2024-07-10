@@ -16,6 +16,7 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
 	uilog "github.com/ignite/cli/v28/ignite/pkg/cliui/log"
+	"github.com/ignite/cli/v28/ignite/pkg/dircache"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/gitpod"
 	"github.com/ignite/cli/v28/ignite/pkg/goenv"
@@ -226,6 +227,9 @@ func newCache(cmd *cobra.Command) (cache.Storage, error) {
 
 	if flagGetClearCache(cmd) {
 		if err := storage.Clear(); err != nil {
+			return cache.Storage{}, err
+		}
+		if err := dircache.ClearCache(); err != nil {
 			return cache.Storage{}, err
 		}
 	}
