@@ -53,8 +53,7 @@ func TestScaffoldedTests(t *testing.T) {
 	err := gocmd.Test(ctx, path, []string{
 		"-timeout",
 		"10m",
-		"-run",
-		"^TestBar$",
+		"./...",
 	})
 
 	// Assert
