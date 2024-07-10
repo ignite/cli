@@ -212,12 +212,7 @@ func (g *generator) setup(ctx context.Context) (err error) {
 }
 
 func (g *generator) getProtoIncludeFolders(modPath string) []string {
-	// Add default protoDir and default includeDirs
-	includePaths := []string{filepath.Join(modPath, g.protoDir)}
-	for _, dir := range g.opts.includeDirs {
-		includePaths = append(includePaths, filepath.Join(modPath, dir))
-	}
-	return includePaths
+	return []string{filepath.Join(modPath, g.protoDir)}
 }
 
 func (g *generator) findBufPath(modpath string) (string, error) {
@@ -419,7 +414,10 @@ func (g generator) addBufDependency(depName string) error {
 		events.Icon(icons.OK),
 	)
 
-	// Update Buf lock so it contains the new dependency
+	// TODO: Update Buf lock so it contains the new dependency, the new
+	// buf dep update command cannot be called by dependency name anymore.
+	// return g.buf.Update(ctx, filepath.Dir(path), depName)
+
 	return nil
 }
 

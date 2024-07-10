@@ -21,6 +21,7 @@
 - [#4133](https://github.com/ignite/cli/pull/4133) Improve buf rate limit
 - [#4113](https://github.com/ignite/cli/pull/4113) Generate chain config documentation automatically
 - [#4131](https://github.com/ignite/cli/pull/4131) Support `bytes` as data type in the `scaffold` commands
+- [#4133](https://github.com/ignite/cli/pull/4133) Improve buf rate limit
 
 ### Changes
 
