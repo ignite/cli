@@ -212,12 +212,7 @@ func (g *generator) setup(ctx context.Context) (err error) {
 }
 
 func (g *generator) getProtoIncludeFolders(modPath string) []string {
-	// Add default protoDir and default includeDirs
-	includePaths := []string{filepath.Join(modPath, g.protoDir)}
-	for _, dir := range g.opts.includeDirs {
-		includePaths = append(includePaths, filepath.Join(modPath, dir))
-	}
-	return includePaths
+	return []string{filepath.Join(modPath, g.protoDir)}
 }
 
 func (g *generator) findBufPath(modpath string) (string, error) {
@@ -330,7 +325,7 @@ func (g generator) updateBufModule(ctx context.Context) error {
 		// When a Buf config with name is available add it to app's dependencies
 		// or otherwise export the proto files to a vendor directory.
 		if includes.BufPath != "" {
-			if err := g.resolveBufDependency(ctx, pkgName, includes.BufPath); err != nil {
+			if err := g.resolveBufDependency(pkgName, includes.BufPath); err != nil {
 				return err
 			}
 		} else {
@@ -339,10 +334,16 @@ func (g generator) updateBufModule(ctx context.Context) error {
 			}
 		}
 	}
+	if err := g.buf.Update(
+		ctx,
+		filepath.Dir(g.appIncludes.BufPath),
+	); err != nil && !errors.Is(err, cosmosbuf.ErrProtoFilesNotFound) {
+		return err
+	}
 	return nil
 }
 
-func (g generator) resolveBufDependency(ctx context.Context, pkgName, bufPath string) error {
+func (g generator) resolveBufDependency(pkgName, bufPath string) error {
 	// Open the dependency Buf config to find the BSR package name
 	f, err := os.Open(bufPath)
 	if err != nil {
@@ -361,13 +362,13 @@ func (g generator) resolveBufDependency(ctx context.Context, pkgName, bufPath st
 	// When dependency package has a Buf config name try to add it to app's
 	// dependencies. Name is optional and defines the BSR package name.
 	if cfg.Name != "" {
-		return g.addBufDependency(ctx, cfg.Name)
+		return g.addBufDependency(cfg.Name)
 	}
 	// By default just vendor the proto package
 	return g.vendorProtoPackage(pkgName, filepath.Dir(bufPath))
 }
 
-func (g generator) addBufDependency(ctx context.Context, depName string) error {
+func (g generator) addBufDependency(depName string) error {
 	// Read app's Buf config
 	path := g.appIncludes.BufPath
 	bz, err := os.ReadFile(path)
@@ -413,8 +414,11 @@ func (g generator) addBufDependency(ctx context.Context, depName string) error {
 		events.Icon(icons.OK),
 	)
 
-	// Update Buf lock so it contains the new dependency
-	return g.buf.Update(ctx, filepath.Dir(path), depName)
+	// TODO: Update Buf lock so it contains the new dependency, the new
+	// buf dep update command cannot be called by dependency name anymore.
+	// return g.buf.Update(ctx, filepath.Dir(path), depName)
+
+	return nil
 }
 
 func (g generator) vendorProtoPackage(pkgName, protoPath string) (err error) {

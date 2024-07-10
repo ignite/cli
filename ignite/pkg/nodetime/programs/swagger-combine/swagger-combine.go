@@ -2,7 +2,10 @@ package swaggercombine
 
 import (
 	"context"
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 	"regexp"
@@ -39,7 +42,7 @@ type OperationIDs struct {
 var opReg = regexp.MustCompile(`(?m)operationId.+?(\w+)`)
 
 // AddSpec adds a new OpenAPI spec to Config by path in the fs and unique id of spec.
-func (c *Config) AddSpec(id, path string, makeUnique bool) error {
+func (c *Config) AddSpec(id, path string) error {
 	// make operationId fields unique.
 	f, err := os.Open(path)
 	if err != nil {
@@ -52,16 +55,13 @@ func (c *Config) AddSpec(id, path string, makeUnique bool) error {
 		return err
 	}
 
+	hash := hex.EncodeToString(md5.New().Sum([]byte(path)))
 	ops := opReg.FindAllStringSubmatch(string(content), -1)
 	rename := make(map[string]string, len(ops))
 
 	for _, op := range ops {
 		o := op[1]
-		if makeUnique {
-			rename[o] = id + o
-		} else {
-			rename[o] = o
-		}
+		rename[o] = fmt.Sprintf("%s_%s_%s", id, o, hash)
 	}
 
 	// add api with replaced operation ids.

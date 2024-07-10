@@ -40,8 +40,7 @@ var (
 			Version: 1,
 			Build: base.Build{
 				Proto: base.Proto{
-					Path:            "proto",
-					ThirdPartyPaths: []string{"third_party/proto", "proto_vendor"},
+					Path: "proto",
 				},
 			},
 			Accounts: []base.Account{
@@ -91,8 +90,7 @@ var (
 			Version: 1,
 			Build: base.Build{
 				Proto: base.Proto{
-					Path:            "proto",
-					ThirdPartyPaths: []string{"third_party/proto", "proto_vendor"},
+					Path: "proto",
 				},
 			},
 			Accounts: []base.Account{

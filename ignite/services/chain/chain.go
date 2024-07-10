@@ -34,7 +34,6 @@ var appBackendSourceWatchPaths = []string{
 	"cmd",
 	"x",
 	"proto",
-	"third_party",
 }
 
 type (
