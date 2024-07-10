@@ -45,6 +45,7 @@ func buildRootCmd(ctx context.Context) *cobra.Command {
 }
 
 func assertFlags(t *testing.T, expectedFlags []*plugin.Flag, execCmd *plugin.ExecutedCommand) {
+	t.Helper()
 	var (
 		have     []string
 		expected []string
@@ -116,6 +117,7 @@ func TestLinkExtensionCmds(t *testing.T) {
 		{
 			name: "ok: link foo at root",
 			setup: func(t *testing.T, ctx context.Context, p *mocks.PluginInterface) {
+				t.Helper()
 				cmd := &plugin.Command{
 					Use: "foo",
 				}
@@ -135,6 +137,7 @@ ignite
 		{
 			name: "ok: link foo at subcommand",
 			setup: func(t *testing.T, ctx context.Context, p *mocks.PluginInterface) {
+				t.Helper()
 				cmd := &plugin.Command{
 					Use:               "foo",
 					PlaceCommandUnder: "ignite scaffold",
@@ -155,6 +158,7 @@ ignite
 		{
 			name: "ok: link foo at subcommand with incomplete PlaceCommandUnder",
 			setup: func(t *testing.T, ctx context.Context, p *mocks.PluginInterface) {
+				t.Helper()
 				cmd := &plugin.Command{
 					Use:               "foo",
 					PlaceCommandUnder: "scaffold",
@@ -175,6 +179,7 @@ ignite
 		{
 			name: "fail: link to runnable command",
 			setup: func(t *testing.T, ctx context.Context, p *mocks.PluginInterface) {
+				t.Helper()
 				p.EXPECT().
 					Manifest(ctx).
 					Return(&plugin.Manifest{
@@ -193,6 +198,7 @@ ignite
 		{
 			name: "fail: link to unknown command",
 			setup: func(t *testing.T, ctx context.Context, p *mocks.PluginInterface) {
+				t.Helper()
 				p.EXPECT().
 					Manifest(ctx).
 					Return(&plugin.Manifest{
@@ -211,6 +217,7 @@ ignite
 		{
 			name: "fail: plugin name exists in legacy commands",
 			setup: func(t *testing.T, ctx context.Context, p *mocks.PluginInterface) {
+				t.Helper()
 				p.EXPECT().
 					Manifest(ctx).
 					Return(&plugin.Manifest{
@@ -228,6 +235,7 @@ ignite
 		{
 			name: "fail: plugin name with args exists in legacy commands",
 			setup: func(t *testing.T, ctx context.Context, p *mocks.PluginInterface) {
+				t.Helper()
 				p.EXPECT().
 					Manifest(ctx).
 					Return(&plugin.Manifest{
@@ -245,6 +253,7 @@ ignite
 		{
 			name: "fail: plugin name exists in legacy sub commands",
 			setup: func(t *testing.T, ctx context.Context, p *mocks.PluginInterface) {
+				t.Helper()
 				p.EXPECT().
 					Manifest(ctx).
 					Return(&plugin.Manifest{
@@ -263,6 +272,7 @@ ignite
 		{
 			name: "ok: link multiple at root",
 			setup: func(t *testing.T, ctx context.Context, p *mocks.PluginInterface) {
+				t.Helper()
 				fooCmd := &plugin.Command{
 					Use: "foo",
 				}
@@ -293,6 +303,7 @@ ignite
 		{
 			name: "ok: link with subcommands",
 			setup: func(t *testing.T, ctx context.Context, p *mocks.PluginInterface) {
+				t.Helper()
 				cmd := &plugin.Command{
 					Use: "foo",
 					Commands: []*plugin.Command{
@@ -324,6 +335,7 @@ ignite
 		{
 			name: "ok: link with multiple subcommands",
 			setup: func(t *testing.T, ctx context.Context, p *mocks.PluginInterface) {
+				t.Helper()
 				cmd := &plugin.Command{
 					Use: "foo",
 					Commands: []*plugin.Command{
@@ -413,6 +425,7 @@ func TestLinkExtensionHooks(t *testing.T) {
 		// helper to assert pluginInterface.ExecuteHook*() calls in expected order
 		// (pre, then post, then cleanup)
 		expectExecuteHook = func(t *testing.T, p *mocks.PluginInterface, expectedFlags []*plugin.Flag, hooks ...*plugin.Hook) {
+			t.Helper()
 			matcher := func(hook *plugin.Hook) any {
 				return mock.MatchedBy(func(execHook *plugin.ExecutedHook) bool {
 					return hook.Name == execHook.Hook.Name &&
@@ -463,6 +476,7 @@ func TestLinkExtensionHooks(t *testing.T) {
 		{
 			name: "fail: command not runnable",
 			setup: func(t *testing.T, ctx context.Context, p *mocks.PluginInterface) {
+				t.Helper()
 				p.EXPECT().
 					Manifest(ctx).
 					Return(&plugin.Manifest{
@@ -481,6 +495,7 @@ func TestLinkExtensionHooks(t *testing.T) {
 		{
 			name: "fail: command doesn't exists",
 			setup: func(t *testing.T, ctx context.Context, p *mocks.PluginInterface) {
+				t.Helper()
 				p.EXPECT().
 					Manifest(ctx).
 					Return(&plugin.Manifest{
@@ -499,6 +514,7 @@ func TestLinkExtensionHooks(t *testing.T) {
 		{
 			name: "ok: single hook",
 			setup: func(t *testing.T, ctx context.Context, p *mocks.PluginInterface) {
+				t.Helper()
 				hook := &plugin.Hook{
 					Name:        "test-hook",
 					PlaceHookOn: "scaffold chain",
@@ -512,6 +528,7 @@ func TestLinkExtensionHooks(t *testing.T) {
 		{
 			name: "ok: multiple hooks on same command",
 			setup: func(t *testing.T, ctx context.Context, p *mocks.PluginInterface) {
+				t.Helper()
 				hook1 := &plugin.Hook{
 					Name:        "test-hook-1",
 					PlaceHookOn: "scaffold chain",
@@ -529,6 +546,7 @@ func TestLinkExtensionHooks(t *testing.T) {
 		{
 			name: "ok: multiple hooks on different commands",
 			setup: func(t *testing.T, ctx context.Context, p *mocks.PluginInterface) {
+				t.Helper()
 				hookChain1 := &plugin.Hook{
 					Name:        "test-hook-1",
 					PlaceHookOn: "scaffold chain",
@@ -551,6 +569,7 @@ func TestLinkExtensionHooks(t *testing.T) {
 		{
 			name: "ok: duplicate hook names on same command",
 			setup: func(t *testing.T, ctx context.Context, p *mocks.PluginInterface) {
+				t.Helper()
 				hooks := []*plugin.Hook{
 					{
 						Name:        "test-hook",
@@ -570,6 +589,7 @@ func TestLinkExtensionHooks(t *testing.T) {
 		{
 			name: "ok: duplicate hook names on different commands",
 			setup: func(t *testing.T, ctx context.Context, p *mocks.PluginInterface) {
+				t.Helper()
 				hookChain := &plugin.Hook{
 					Name:        "test-hook",
 					PlaceHookOn: "ignite scaffold chain",
@@ -619,6 +639,7 @@ func TestLinkExtensionHooks(t *testing.T) {
 
 // execCmd executes all the runnable commands contained in c.
 func execCmd(t *testing.T, c *cobra.Command, args []string) {
+	t.Helper()
 	if c.Runnable() {
 		os.Args = strings.Fields(c.CommandPath())
 		os.Args = append(os.Args, args...)
