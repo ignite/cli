@@ -32,6 +32,7 @@
 - [#4199](https://github.com/ignite/cli/pull/4199) Set and seal SDK global config in `app/config.go`
 - [#4212](https://github.com/ignite/cli/pull/4212) Set default values for extension flag to dont crash ignite
 - [#4216](https://github.com/ignite/cli/pull/4216) Avoid create duplicated scopedKeppers
+- [#4242](https://github.com/ignite/cli/pull/4242)  Use buf build binary from the gobin path
 
 ## [`v28.4.0`](https://github.com/ignite/cli/releases/tag/v28.4.0)
 
@@ -54,6 +55,7 @@
 - [#4086](https://github.com/ignite/cli/pull/4086) Retry to get the IBC balance if it fails the first time
 - [#4096](https://github.com/ignite/cli/pull/4096) Add new reserved names module and remove duplicated genesis order
 - [#4112](https://github.com/ignite/cli/pull/4112) Remove duplicate SetCmdClientContextHandler
+- [#4219](https://github.com/ignite/cli/pull/4219) Remove deprecated `sdk.MustSortJSON`
 
 ## [`v28.3.0`](https://github.com/ignite/cli/releases/tag/v28.3.0)
 
