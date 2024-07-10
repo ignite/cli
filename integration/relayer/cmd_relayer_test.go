@@ -435,7 +435,7 @@ func TestBlogIBC(t *testing.T) {
 				"install",
 				"-g",
 				// filepath.Join(goenv.GoPath(), "src/github.com/ignite/apps/hermes"), // Local path for test proposals
-				"github.com/ignite/apps/hermes@hermes/v0.2.3",
+				"github.com/ignite/apps/hermes@hermes/v0.2.2",
 			),
 		)),
 	))
