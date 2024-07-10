@@ -12,6 +12,7 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
+	"github.com/ignite/cli/v28/ignite/config"
 	"github.com/ignite/cli/v28/ignite/pkg/gitpod"
 	"github.com/ignite/cli/v28/ignite/pkg/matomo"
 	"github.com/ignite/cli/v28/ignite/pkg/randstr"
@@ -23,7 +24,6 @@ const (
 	envDoNotTrack      = "DO_NOT_TRACK"
 	envCI              = "CI"
 	envGitHubActions   = "GITHUB_ACTIONS"
-	igniteDir          = ".ignite"
 	igniteAnonIdentity = "anon_identity.json"
 )
 
@@ -106,14 +106,15 @@ func checkDNT() (anonIdentity, error) {
 		return anonIdentity{DoNotTrack: true}, nil
 	}
 
-	home, err := os.UserHomeDir()
+	globalPath, err := config.DirPath()
 	if err != nil {
 		return anonIdentity{}, err
 	}
-	if err := os.Mkdir(filepath.Join(home, igniteDir), 0o700); err != nil && !os.IsExist(err) {
+	if err := os.Mkdir(globalPath, 0o700); err != nil && !os.IsExist(err) {
 		return anonIdentity{}, err
 	}
-	identityPath := filepath.Join(home, igniteDir, igniteAnonIdentity)
+
+	identityPath := filepath.Join(globalPath, igniteAnonIdentity)
 	data, err := os.ReadFile(identityPath)
 	if err != nil && !os.IsNotExist(err) {
 		return anonIdentity{}, err

@@ -183,17 +183,6 @@ build:
     path: "myproto"
 ```
 
-Ignite comes with required third-party proto out of the box. Ignite also looks
-into `third_party/proto` and `proto_vendor` directories for extra proto files.
-If your project keeps third-party proto files in a different directory, you
-should tell Ignite about this:
-
-```yml
-build:
-  proto:
-    third_party_paths: ["my_third_party/proto"]
-```
-
 ## Faucet
 
 The faucet service sends tokens to addresses.

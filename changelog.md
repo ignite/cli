@@ -5,6 +5,7 @@
 ### Features
 
 - [#4183](https://github.com/ignite/cli/pull/4183) Set `chain-id` in the client.toml
+- [#4133](https://github.com/ignite/cli/pull/4133) Improve buf rate limit
 
 ### Changes
 

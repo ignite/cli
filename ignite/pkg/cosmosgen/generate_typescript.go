@@ -106,7 +106,7 @@ func (g *tsGenerator) generateModuleTemplates(ctx context.Context) error {
 
 			gg.Go(func() error {
 				cacheKey := m.Pkg.Path
-				paths := append([]string{m.Pkg.Path, g.g.opts.jsOut(m)}, g.g.opts.includeDirs...)
+				paths := []string{m.Pkg.Path, g.g.opts.jsOut(m)}
 
 				// Always generate module templates by default unless cache is enabled, in which
 				// case the module template is generated when one or more files were changed in
@@ -182,7 +182,7 @@ func (g *tsGenerator) generateModuleTemplate(
 
 	specPath := filepath.Join(out, "api.swagger.yml")
 
-	if err = g.g.generateModuleOpenAPISpec(ctx, m, specPath); err != nil {
+	if err = g.g.generateOpenAPISpec(ctx); err != nil {
 		return err
 	}
 	// generate the REST client from the OpenAPI spec
