@@ -28,7 +28,7 @@ func TestCosmosGenScaffoldComposables(t *testing.T) {
 	env.Must(env.Exec("add custom module with message",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"module",
 				"--yes",
@@ -41,7 +41,7 @@ func TestCosmosGenScaffoldComposables(t *testing.T) {
 	env.Must(env.Exec("create a message",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"message",
 				"--yes",
@@ -58,7 +58,7 @@ func TestCosmosGenScaffoldComposables(t *testing.T) {
 	env.Must(env.Exec("add custom module without message",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"module",
 				"--yes",
@@ -71,7 +71,7 @@ func TestCosmosGenScaffoldComposables(t *testing.T) {
 	env.Must(env.Exec("create a type",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"type",
 				"--yes",
@@ -87,7 +87,7 @@ func TestCosmosGenScaffoldComposables(t *testing.T) {
 	env.Must(env.Exec("create a query",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"query",
 				"--yes",
@@ -106,7 +106,7 @@ func TestCosmosGenScaffoldComposables(t *testing.T) {
 	env.Must(env.Exec("generate composables",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"g",
 				"composables",
 				"--yes",

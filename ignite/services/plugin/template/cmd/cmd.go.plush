@@ -2,12 +2,12 @@ package cmd
 
 import "github.com/ignite/cli/v29/ignite/services/plugin"
 
-// GetCommands returns the list of <%= Name %> app commands.
+// GetCommands returns the list of <%= Name %> extension commands.
 func GetCommands() []*plugin.Command {
 	return []*plugin.Command{
 		{
 			Use:     "<%= Name %> [command]",
-			Short:   "<%= Name %> is an awesome Ignite application!",
+			Short:   "<%= Name %> is an awesome Ignite extension!",
 			Commands: []*plugin.Command{
 				{
 					Use:     "hello",

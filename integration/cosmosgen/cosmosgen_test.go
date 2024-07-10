@@ -26,7 +26,7 @@ func TestCosmosGenScaffold(t *testing.T) {
 	env.Must(env.Exec("add custom module with message",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"module",
 				"--yes",
@@ -39,7 +39,7 @@ func TestCosmosGenScaffold(t *testing.T) {
 	env.Must(env.Exec("create a message",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"message",
 				"--yes",
@@ -56,7 +56,7 @@ func TestCosmosGenScaffold(t *testing.T) {
 	env.Must(env.Exec("add custom module without message",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"module",
 				"--yes",
@@ -69,7 +69,7 @@ func TestCosmosGenScaffold(t *testing.T) {
 	env.Must(env.Exec("create a type",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"type",
 				"--yes",
@@ -85,7 +85,7 @@ func TestCosmosGenScaffold(t *testing.T) {
 	env.Must(env.Exec("create a query",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"query",
 				"--yes",
@@ -104,7 +104,7 @@ func TestCosmosGenScaffold(t *testing.T) {
 	env.Must(env.Exec("generate typescript",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"g",
 				"ts-client",
 				"--yes",

@@ -1,4 +1,4 @@
-module <%= AppName %>
+module <%= ExtensionName %>
 
 go 1.21
 

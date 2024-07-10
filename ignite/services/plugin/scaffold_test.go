@@ -40,7 +40,7 @@ func TestScaffoldedConfig(t *testing.T) {
 
 	// Assert
 	require.EqualValues(t, 1, cfg.Version)
-	require.Len(t, cfg.Apps, 1)
+	require.Len(t, cfg.Extensions, 1)
 }
 
 func TestScaffoldedTests(t *testing.T) {
@@ -69,10 +69,10 @@ func scaffoldApp(t *testing.T, ctx context.Context, path string) string {
 	return path
 }
 
-func readConfig(t *testing.T, path string) (cfg plugin.AppsConfig) {
+func readConfig(t *testing.T, path string) (cfg plugin.ExtensionsConfig) {
 	t.Helper()
 
-	bz, err := os.ReadFile(filepath.Join(path, "app.ignite.yml"))
+	bz, err := os.ReadFile(filepath.Join(path, "ext.ignite.yml"))
 	require.NoError(t, err)
 	require.NoError(t, yaml.Unmarshal(bz, &cfg))
 	return

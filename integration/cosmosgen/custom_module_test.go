@@ -51,14 +51,14 @@ func TestCustomModule(t *testing.T) {
 
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "disco", "--require-registration", "--yes"),
+			step.Exec(envtest.IgniteExtension, "s", "module", "disco", "--require-registration", "--yes"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create a list type",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "entry", "name", "--module", "disco", "--yes"),
+			step.Exec(envtest.IgniteExtension, "s", "list", "entry", "name", "--module", "disco", "--yes"),
 			step.Workdir(path),
 		)),
 	))

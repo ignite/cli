@@ -30,7 +30,7 @@ func TestCliWithCaching(t *testing.T) {
 	env.Must(env.Exec("create a message",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"message",
 				"mymessage",
@@ -45,7 +45,7 @@ func TestCliWithCaching(t *testing.T) {
 	env.Must(env.Exec("create a query",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"query",
 				"myQuery",
@@ -59,7 +59,7 @@ func TestCliWithCaching(t *testing.T) {
 	env.Must(env.Exec("build",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"c",
 				"build",
 			),
@@ -74,7 +74,7 @@ func TestCliWithCaching(t *testing.T) {
 	env.Must(env.Exec("build",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"c",
 				"build",
 			),

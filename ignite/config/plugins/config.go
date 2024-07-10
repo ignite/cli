@@ -14,9 +14,9 @@ import (
 type Config struct {
 	path string
 
-	// Apps holds the list of installed Ignite Apps.
-	// Ignite Apps are implemented as plugins.
-	Apps []Plugin `yaml:"apps"`
+	// Extensions holds the list of installed Ignite Extensions.
+	// Ignite Extensions are implemented as plugins.
+	Extensions []Plugin `yaml:"extensions"`
 }
 
 // Plugin keeps plugin name and location.
@@ -43,7 +43,7 @@ type Plugin struct {
 	With map[string]string `yaml:"with,omitempty"`
 
 	// Global holds whether the plugin is installed globally
-	// (default: $HOME/.ignite/apps/igniteapps.yml) or locally for a chain.
+	// (default: $HOME/.ignite/ext/extensions.yml) or locally for a chain.
 	Global bool `yaml:"-"`
 }
 
@@ -140,7 +140,7 @@ func (c *Config) Save() error {
 // Returns also true if there's a local plugin with the module name equal to
 // that path.
 func (c Config) HasPlugin(path string) bool {
-	return slices.ContainsFunc(c.Apps, func(cp Plugin) bool {
+	return slices.ContainsFunc(c.Extensions, func(cp Plugin) bool {
 		if cp.HasPath(path) {
 			return true
 		}

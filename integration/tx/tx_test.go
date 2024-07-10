@@ -39,7 +39,7 @@ func TestSignTxWithDashedAppName(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Workdir(app.SourcePath()),
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"scaffold",
 				"list",
 				"item",

@@ -8,7 +8,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/services/plugin"
 )
 
-type defaultPlugin struct {
+type defaultExtension struct {
 	use     string
 	short   string
 	aliases []string
@@ -16,56 +16,58 @@ type defaultPlugin struct {
 }
 
 const (
-	PluginNetworkVersion = "v0.2.2"
-	PluginNetworkPath    = "github.com/ignite/cli-plugin-network@" + PluginNetworkVersion
-	PluginRelayerVersion = "hermes/v0.2.2"
-	PluginRelayerPath    = "github.com/ignite/apps/hermes@" + PluginRelayerVersion
+	ExtensionNetworkVersion = "v0.2.2"
+	ExtensionNetworkPath    = "github.com/ignite/cli-plugin-network@" + ExtensionNetworkVersion
+	ExtensionRelayerVersion = "hermes/v0.2.2"
+	ExtensionRelayerPath    = "github.com/ignite/apps/hermes@" + ExtensionRelayerVersion
 )
 
-// defaultPlugins holds the plugin that are considered trustable and for which
-// a command will added if the plugin is not already installed.
-// When the user executes that command, the plugin is automatically installed.
-var defaultPlugins = []defaultPlugin{
+// defaultExtension holds the extensions that are considered trustable and for which
+// a command will added if the extensions is not already installed.
+// When the user executes that command, the extensions is automatically installed.
+var defaultExtensions = []defaultExtension{
 	{
 		use:     "network",
 		short:   "Launch a blockchain in production",
 		aliases: []string{"n"},
-		path:    PluginNetworkPath,
+		path:    ExtensionNetworkPath,
 	},
 	{
 		use:     "relayer",
 		short:   "Connect blockchains with an IBC relayer",
 		aliases: []string{"r"},
-		path:    PluginRelayerPath,
+		path:    ExtensionRelayerPath,
 	},
+
+	// TODO(@julienrbrt) eventually add Ignite Connect
 }
 
-// ensureDefaultPlugins ensures that all defaultPlugins are whether registered
+// ensureDefaultExtensions ensures that all defaultExtensions are whether registered
 // in cfg OR have an install command added to rootCmd.
-func ensureDefaultPlugins(rootCmd *cobra.Command, cfg *pluginsconfig.Config) {
-	for _, dp := range defaultPlugins {
+func ensureDefaultExtensions(rootCmd *cobra.Command, cfg *pluginsconfig.Config) {
+	for _, dp := range defaultExtensions {
 		// Check if plugin is declared in global config
 		if cfg.HasPlugin(dp.path) {
 			// plugin found nothing to do
 			continue
 		}
 		// plugin not found in config, add a proxy install command
-		rootCmd.AddCommand(newPluginInstallCmd(dp))
+		rootCmd.AddCommand(newPExtensionInstallCmd(dp))
 	}
 }
 
-// newPluginInstallCmd mimics the plugin command but acts as proxy to first:
+// newPExtensionInstallCmd mimics the plugin command but acts as proxy to first:
 // - register the config in the global config
 // - load the plugin
 // - execute the command thanks to the loaded plugin.
-func newPluginInstallCmd(dp defaultPlugin) *cobra.Command {
+func newPExtensionInstallCmd(dp defaultExtension) *cobra.Command {
 	return &cobra.Command{
 		Use:                dp.use,
 		Short:              dp.short,
 		Aliases:            dp.aliases,
 		DisableFlagParsing: true, // Avoid -h to skip command run
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			cfg, err := parseGlobalPlugins()
+			cfg, err := parseGlobalExtensions()
 			if err != nil {
 				return err
 			}
@@ -74,7 +76,7 @@ func newPluginInstallCmd(dp defaultPlugin) *cobra.Command {
 			pluginCfg := pluginsconfig.Plugin{
 				Path: dp.path,
 			}
-			cfg.Apps = append(cfg.Apps, pluginCfg)
+			cfg.Extensions = append(cfg.Extensions, pluginCfg)
 			if err := cfg.Save(); err != nil {
 				return err
 			}
@@ -98,7 +100,7 @@ func newPluginInstallCmd(dp defaultPlugin) *cobra.Command {
 			// Remove this command before call to linkPlugins because a plugin is
 			// usually not allowed to override an existing command.
 			rootCmd.RemoveCommand(cmd)
-			if err := linkPlugins(cmd.Context(), rootCmd, plugins); err != nil {
+			if err := linkExtensions(cmd.Context(), rootCmd, plugins); err != nil {
 				return err
 			}
 			// Execute the command

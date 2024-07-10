@@ -30,7 +30,7 @@ var (
 ```go
 env.Must(env.Exec("create a list with bool",
     step.NewSteps(step.New(
-        step.Exec(envtest.IgniteApp, "s", "list", "--yes", "document", "signed:bool"),
+        step.Exec(envtest.IgniteExtension, "s", "list", "--yes", "document", "signed:bool"),
         step.Workdir(path),
     )),
 ))
@@ -42,7 +42,7 @@ env.EnsureSteady()
 ```go
 env.Must(env.Exec("should prevent creating a list with duplicated fields",
     step.NewSteps(step.New(
-        step.Exec(envtest.IgniteApp, "s", "list", "--yes", "company", "name", "name"),
+        step.Exec(envtest.IgniteExtension, "s", "list", "--yes", "company", "name", "name"),
         step.Workdir(path),
     )),
     envtest.ExecShouldError(),

@@ -18,28 +18,28 @@ func TestCreateMap(t *testing.T) {
 
 	env.Must(env.Exec("create a map",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "user", "user-id", "email"),
+			step.Exec(envtest.IgniteExtension, "s", "map", "--yes", "user", "user-id", "email"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create a map with custom path",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "appPath", "email", "--path", filepath.Join(app.SourcePath(), "app")),
+			step.Exec(envtest.IgniteExtension, "s", "map", "--yes", "appPath", "email", "--path", filepath.Join(app.SourcePath(), "app")),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create a map with no message",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "nomessage", "email", "--no-message"),
+			step.Exec(envtest.IgniteExtension, "s", "map", "--yes", "nomessage", "email", "--no-message"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "example", "--require-registration"),
+			step.Exec(envtest.IgniteExtension, "s", "module", "--yes", "example", "--require-registration"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
@@ -47,7 +47,7 @@ func TestCreateMap(t *testing.T) {
 	env.Must(env.Exec("create a list",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"list",
 				"--yes",
@@ -63,7 +63,7 @@ func TestCreateMap(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating a map with a typename that already exist",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "user", "email", "--module", "example"),
+			step.Exec(envtest.IgniteExtension, "s", "map", "--yes", "user", "email", "--module", "example"),
 			step.Workdir(app.SourcePath()),
 		)),
 		envtest.ExecShouldError(),
@@ -71,21 +71,21 @@ func TestCreateMap(t *testing.T) {
 
 	env.Must(env.Exec("create a map in a custom module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "mapUser", "email", "--module", "example"),
+			step.Exec(envtest.IgniteExtension, "s", "map", "--yes", "mapUser", "email", "--module", "example"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create a map with a custom field type",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "mapDetail", "user:MapUser", "--module", "example"),
+			step.Exec(envtest.IgniteExtension, "s", "map", "--yes", "mapDetail", "user:MapUser", "--module", "example"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create a map with Coin and []Coin",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
+			step.Exec(envtest.IgniteExtension,
 				"s",
 				"map",
 				"--yes",
@@ -112,7 +112,7 @@ func TestCreateMap(t *testing.T) {
 	env.Must(env.Exec("create a map with index",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"map",
 				"--yes",
@@ -131,7 +131,7 @@ func TestCreateMap(t *testing.T) {
 	env.Must(env.Exec("create a map with invalid index (multi-index)",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"map",
 				"--yes",
@@ -150,7 +150,7 @@ func TestCreateMap(t *testing.T) {
 	env.Must(env.Exec("create a map with invalid index (invalid type)",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"map",
 				"--yes",
@@ -168,15 +168,15 @@ func TestCreateMap(t *testing.T) {
 
 	env.Must(env.Exec("create a message and a map with no-message flag to check conflicts",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "message", "--yes", "create-scavenge", "description"),
-			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "scavenge", "description", "--no-message"),
+			step.Exec(envtest.IgniteExtension, "s", "message", "--yes", "create-scavenge", "description"),
+			step.Exec(envtest.IgniteExtension, "s", "map", "--yes", "scavenge", "description", "--no-message"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("should prevent creating a map with an index present in fields",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "map", "--yes", "map_with_invalid_index", "email", "--index", "email"),
+			step.Exec(envtest.IgniteExtension, "s", "map", "--yes", "map_with_invalid_index", "email", "--index", "email"),
 			step.Workdir(app.SourcePath()),
 		)),
 		envtest.ExecShouldError(),

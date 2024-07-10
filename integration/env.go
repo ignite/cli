@@ -28,10 +28,13 @@ const (
 )
 
 var (
-	// IgniteApp hold the location of the ignite binary used in the integration
+	// IgniteExtension hold the location of the ignite binary used in the integration
 	// tests. The binary is compiled the first time the env.New() function is
 	// invoked.
-	IgniteApp = path.Join(os.TempDir(), "ignite-tests", "ignite")
+	IgniteExtension = path.Join(os.TempDir(), "ignite-tests", "ignite")
+
+	// Alias for IgniteExtension for backward compatibility.
+	IgniteApp = IgniteExtension
 
 	isCI, _           = strconv.ParseBool(os.Getenv("CI"))
 	compileBinaryOnce sync.Once

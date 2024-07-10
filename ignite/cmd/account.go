@@ -25,7 +25,7 @@ func NewAccount() *cobra.Command {
 		Short: "Create, delete, and show Ignite accounts",
 		Long: `Commands for managing Ignite accounts. An Ignite account is a private/public
 keypair stored in a keyring. Currently Ignite accounts are used when interacting
-with Ignite Apps (namely ignite relayer, ignite network and ignite connect).
+with Ignite Extensions (namely ignite relayer, ignite network and ignite connect).
 
 Note: Ignite account commands are not for managing your chain's keys and accounts. Use
 you chain's binary to manage accounts from "config.yml". For example, if your

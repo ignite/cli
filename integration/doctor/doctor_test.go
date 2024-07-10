@@ -20,7 +20,7 @@ func TestDoctor(t *testing.T) {
 		Setup: func(env *testscript.Env) error {
 			env.Vars = append(env.Vars,
 				// Pass ignite binary path
-				"IGNITE="+envtest.IgniteApp,
+				"IGNITE="+envtest.IgniteExtension,
 				// Pass ignite config dir
 				// (testscript resets envs so even if envtest.New has properly set
 				// IGNT_CONFIG_DIR, we need to set it again)

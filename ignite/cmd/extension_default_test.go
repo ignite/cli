@@ -9,7 +9,7 @@ import (
 	pluginsconfig "github.com/ignite/cli/v29/ignite/config/plugins"
 )
 
-func TestEnsureDefaultPlugins(t *testing.T) {
+func TestEnsureDefaultExtensions(t *testing.T) {
 	tests := []struct {
 		name                 string
 		cfg                  *pluginsconfig.Config
@@ -23,7 +23,7 @@ func TestEnsureDefaultPlugins(t *testing.T) {
 		{
 			name: "should not add because already present in config",
 			cfg: &pluginsconfig.Config{
-				Apps: []pluginsconfig.Plugin{{
+				Extensions: []pluginsconfig.Plugin{{
 					Path: "github.com/ignite/cli-plugin-network@v42",
 				}},
 			},
@@ -34,7 +34,7 @@ func TestEnsureDefaultPlugins(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			cmd := &cobra.Command{Use: "ignite"}
 
-			ensureDefaultPlugins(cmd, tt.cfg)
+			ensureDefaultExtensions(cmd, tt.cfg)
 
 			expectedCmd := findCommandByPath(cmd, "ignite network")
 			if tt.expectAddedInCommand {

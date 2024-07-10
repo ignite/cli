@@ -18,7 +18,7 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 	env.Must(env.Exec("create a query",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"query",
 				"--yes",
@@ -36,7 +36,7 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 	env.Must(env.Exec("create a query with custom path",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"query",
 				"--yes",
@@ -56,7 +56,7 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 	env.Must(env.Exec("create a paginated query",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"query",
 				"--yes",
@@ -74,7 +74,7 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 
 	env.Must(env.Exec("create a custom field type",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
+			step.Exec(envtest.IgniteExtension,
 				"s",
 				"type",
 				"--yes",
@@ -98,14 +98,14 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 
 	env.Must(env.Exec("create a query with the custom field type as a response",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "query", "--yes", "foobaz", "-r", "bar:CustomType"),
+			step.Exec(envtest.IgniteExtension, "s", "query", "--yes", "foobaz", "-r", "bar:CustomType"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("should prevent using custom type in request params",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "query", "--yes", "bur", "bar:CustomType"),
+			step.Exec(envtest.IgniteExtension, "s", "query", "--yes", "bur", "bar:CustomType"),
 			step.Workdir(app.SourcePath()),
 		)),
 		envtest.ExecShouldError(),
@@ -113,14 +113,14 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 
 	env.Must(env.Exec("create an empty query",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "query", "--yes", "foobar"),
+			step.Exec(envtest.IgniteExtension, "s", "query", "--yes", "foobar"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("should prevent creating an existing query",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "query", "--yes", "foo", "bar"),
+			step.Exec(envtest.IgniteExtension, "s", "query", "--yes", "foo", "bar"),
 			step.Workdir(app.SourcePath()),
 		)),
 		envtest.ExecShouldError(),
@@ -128,7 +128,7 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "foo", "--require-registration"),
+			step.Exec(envtest.IgniteExtension, "s", "module", "--yes", "foo", "--require-registration"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
@@ -136,7 +136,7 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 	env.Must(env.Exec("create a query in a module",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"query",
 				"--yes",

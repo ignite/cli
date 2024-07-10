@@ -17,7 +17,7 @@ func TestCreateModuleParameters(t *testing.T) {
 
 	env.Must(env.Exec("create a new module with parameter",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
+			step.Exec(envtest.IgniteExtension,
 				"s",
 				"module",
 				"--yes",
@@ -31,7 +31,7 @@ func TestCreateModuleParameters(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating parameter field that already exist",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
+			step.Exec(envtest.IgniteExtension,
 				"s",
 				"params",
 				"--yes",
@@ -47,7 +47,7 @@ func TestCreateModuleParameters(t *testing.T) {
 
 	env.Must(env.Exec("create a new module parameters in the foo module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
+			step.Exec(envtest.IgniteExtension,
 				"s",
 				"params",
 				"--yes",
@@ -63,7 +63,7 @@ func TestCreateModuleParameters(t *testing.T) {
 
 	env.Must(env.Exec("create a new module parameters in the mars module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
+			step.Exec(envtest.IgniteExtension,
 				"s",
 				"params",
 				"--yes",

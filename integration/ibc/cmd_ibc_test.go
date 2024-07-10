@@ -17,14 +17,14 @@ func TestCreateModuleWithIBC(t *testing.T) {
 
 	env.Must(env.Exec("create an IBC module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "foo", "--ibc", "--require-registration"),
+			step.Exec(envtest.IgniteExtension, "s", "module", "--yes", "foo", "--ibc", "--require-registration"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create an IBC module with custom path",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
+			step.Exec(envtest.IgniteExtension,
 				"s",
 				"module",
 				"--yes",
@@ -40,7 +40,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 
 	env.Must(env.Exec("create a type in an IBC module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "user", "email", "--module", "foo"),
+			step.Exec(envtest.IgniteExtension, "s", "list", "--yes", "user", "email", "--module", "foo"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
@@ -48,7 +48,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 	env.Must(env.Exec("create an IBC module with an ordered channel",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"module",
 				"--yes",
@@ -65,7 +65,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 	env.Must(env.Exec("create an IBC module with an unordered channel",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"module",
 				"--yes",
@@ -81,7 +81,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 
 	env.Must(env.Exec("create a non IBC module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "non_ibc", "--require-registration"),
+			step.Exec(envtest.IgniteExtension, "s", "module", "--yes", "non_ibc", "--require-registration"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
@@ -89,7 +89,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 	env.Must(env.Exec("create an IBC module with dependencies",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"module",
 				"--yes",
@@ -114,7 +114,7 @@ func TestCreateIBCPacket(t *testing.T) {
 
 	env.Must(env.Exec("create an IBC module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "foo", "--ibc", "--require-registration"),
+			step.Exec(envtest.IgniteExtension, "s", "module", "--yes", "foo", "--ibc", "--require-registration"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
@@ -122,7 +122,7 @@ func TestCreateIBCPacket(t *testing.T) {
 	env.Must(env.Exec("create a packet",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"packet",
 				"--yes",
@@ -140,7 +140,7 @@ func TestCreateIBCPacket(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating a packet with no module specified",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "packet", "--yes", "bar", "text"),
+			step.Exec(envtest.IgniteExtension, "s", "packet", "--yes", "bar", "text"),
 			step.Workdir(app.SourcePath()),
 		)),
 		envtest.ExecShouldError(),
@@ -148,7 +148,7 @@ func TestCreateIBCPacket(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating a packet in a non existent module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "packet", "--yes", "bar", "text", "--module", "nomodule"),
+			step.Exec(envtest.IgniteExtension, "s", "packet", "--yes", "bar", "text", "--module", "nomodule"),
 			step.Workdir(app.SourcePath()),
 		)),
 		envtest.ExecShouldError(),
@@ -156,7 +156,7 @@ func TestCreateIBCPacket(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating an existing packet",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "packet", "--yes", "bar", "post", "--module", "foo"),
+			step.Exec(envtest.IgniteExtension, "s", "packet", "--yes", "bar", "post", "--module", "foo"),
 			step.Workdir(app.SourcePath()),
 		)),
 		envtest.ExecShouldError(),
@@ -164,7 +164,7 @@ func TestCreateIBCPacket(t *testing.T) {
 
 	env.Must(env.Exec("create a packet with custom type fields",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
+			step.Exec(envtest.IgniteExtension,
 				"s",
 				"packet",
 				"--yes",
@@ -190,42 +190,42 @@ func TestCreateIBCPacket(t *testing.T) {
 
 	env.Must(env.Exec("create a custom field type",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "type", "--yes", "custom-type", "customField:uint", "--module", "foo"),
+			step.Exec(envtest.IgniteExtension, "s", "type", "--yes", "custom-type", "customField:uint", "--module", "foo"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create a packet with a custom field type",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "packet", "--yes", "foo-baz", "customField:CustomType", "--module", "foo"),
+			step.Exec(envtest.IgniteExtension, "s", "packet", "--yes", "foo-baz", "customField:CustomType", "--module", "foo"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create a packet with no send message",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "packet", "--yes", "nomessage", "foo", "--no-message", "--module", "foo"),
+			step.Exec(envtest.IgniteExtension, "s", "packet", "--yes", "nomessage", "foo", "--no-message", "--module", "foo"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create a packet with no field",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "packet", "--yes", "empty", "--module", "foo"),
+			step.Exec(envtest.IgniteExtension, "s", "packet", "--yes", "empty", "--module", "foo"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("create a non-IBC module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "bar", "--require-registration"),
+			step.Exec(envtest.IgniteExtension, "s", "module", "--yes", "bar", "--require-registration"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("should prevent creating a packet in a non IBC module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "packet", "--yes", "foo", "text", "--module", "bar"),
+			step.Exec(envtest.IgniteExtension, "s", "packet", "--yes", "foo", "text", "--module", "bar"),
 			step.Workdir(app.SourcePath()),
 		)),
 		envtest.ExecShouldError(),

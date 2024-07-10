@@ -33,7 +33,7 @@ import (
 // PluginsPath holds the plugin cache directory.
 var PluginsPath = xfilepath.Mkdir(xfilepath.Join(
 	config.DirPath,
-	xfilepath.Path("apps"),
+	xfilepath.Path("extensions"),
 ))
 
 // Plugin represents a ignite plugin.
@@ -91,7 +91,7 @@ func RedirectStdout(w io.Writer) Option {
 // There's 2 kinds of plugins, local or remote.
 // Local plugins have their path starting with a `/`, while remote plugins don't.
 // Local plugins are useful for development purpose.
-// Remote plugins require to be fetched first, in $HOME/.ignite/apps folder,
+// Remote plugins require to be fetched first, in $HOME/.ignite/extensions folder,
 // then they are loaded from there.
 //
 // If an error occurs during a plugin load, it's not returned but rather stored in
@@ -133,7 +133,7 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 		pluginPath = cp.Path
 	)
 	if pluginPath == "" {
-		p.Error = errors.Errorf(`missing app property "path"`)
+		p.Error = errors.Errorf(`missing extension property "path"`)
 		return p
 	}
 
@@ -157,11 +157,11 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 
 		st, err := os.Stat(pluginPath)
 		if err != nil {
-			p.Error = errors.Wrapf(err, "local app path %q not found", pluginPath)
+			p.Error = errors.Wrapf(err, "local extension path %q not found", pluginPath)
 			return p
 		}
 		if !st.IsDir() {
-			p.Error = errors.Errorf("local app path %q is not a directory", pluginPath)
+			p.Error = errors.Errorf("local extension path %q is not a directory", pluginPath)
 			return p
 		}
 		p.srcPath = pluginPath
@@ -177,7 +177,7 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 	}
 	parts := strings.Split(pluginPath, "/")
 	if len(parts) < 3 {
-		p.Error = errors.Errorf("app path %q is not a valid repository URL", pluginPath)
+		p.Error = errors.Errorf("extension path %q is not a valid repository URL", pluginPath)
 		return p
 	}
 	p.repoPath = path.Join(parts[:3]...)
@@ -192,7 +192,7 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 	}
 
 	// Plugin can have a subpath within its repository.
-	// For example, "github.com/ignite/apps/app1" where "app1" is the subpath.
+	// For example, "github.com/ignite/extensions/extension1" where "extension1" is the subpath.
 	repoSubPath := path.Join(parts[3:]...)
 
 	p.srcPath = path.Join(p.cloneDir, repoSubPath)
@@ -273,7 +273,7 @@ func (p *Plugin) load(ctx context.Context) {
 		logLevel = hclog.Trace
 	}
 	logger := hclog.New(&hclog.LoggerOptions{
-		Name:   fmt.Sprintf("app %s", p.Path),
+		Name:   fmt.Sprintf("extension %s", p.Path),
 		Output: os.Stderr,
 		Level:  logLevel,
 	})
@@ -356,8 +356,8 @@ func (p *Plugin) fetch() {
 	if p.Error != nil {
 		return
 	}
-	p.ev.Send(fmt.Sprintf("Fetching app %q", p.cloneURL), events.ProgressStart())
-	defer p.ev.Send(fmt.Sprintf("%s App fetched %q", icons.OK, p.cloneURL), events.ProgressFinish())
+	p.ev.Send(fmt.Sprintf("Fetching extension %q", p.cloneURL), events.ProgressStart())
+	defer p.ev.Send(fmt.Sprintf("%s Extension fetched %q", icons.OK, p.cloneURL), events.ProgressFinish())
 
 	urlref := strings.Join([]string{p.cloneURL, p.reference}, "@")
 	err := xgit.Clone(context.Background(), urlref, p.cloneDir)
@@ -371,8 +371,8 @@ func (p *Plugin) build(ctx context.Context) {
 	if p.Error != nil {
 		return
 	}
-	p.ev.Send(fmt.Sprintf("Building app %q", p.Path), events.ProgressStart())
-	defer p.ev.Send(fmt.Sprintf("%s App built %q", icons.OK, p.Path), events.ProgressFinish())
+	p.ev.Send(fmt.Sprintf("Building extension %q", p.Path), events.ProgressStart())
+	defer p.ev.Send(fmt.Sprintf("%s Extension built %q", icons.OK, p.Path), events.ProgressFinish())
 
 	if err := gocmd.ModTidy(ctx, p.srcPath); err != nil {
 		p.Error = errors.Wrapf(err, "go mod tidy")
@@ -426,7 +426,7 @@ func (p *Plugin) outdatedBinary() bool {
 		return nil
 	})
 	if err != nil {
-		fmt.Printf("error while walking app source path %q\n", p.srcPath)
+		fmt.Printf("error while walking extension source path %q\n", p.srcPath)
 		return false
 	}
 	return mostRecent.After(binaryTime)

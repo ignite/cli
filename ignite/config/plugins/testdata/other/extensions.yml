@@ -1,4 +1,4 @@
-apps:
+extensions:
   - name: plugin1
     path: /path/to/plugin1
   - name: plugin2

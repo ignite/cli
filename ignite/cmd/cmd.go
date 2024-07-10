@@ -46,12 +46,12 @@ const (
 	statusQuerying   = "Querying..."
 )
 
-// List of CLI level one commands that should not load Ignite app instances.
-var skipAppsLoadCommands = []string{"version", "help", "docs", "completion", cobra.ShellCompRequestCmd, cobra.ShellCompNoDescRequestCmd}
+// List of CLI level one commands that should not load Ignite extension instances.
+var skipExtensionLoadCommands = []string{"version", "help", "docs", "completion", cobra.ShellCompRequestCmd, cobra.ShellCompNoDescRequestCmd}
 
 // New creates a new root command for `Ignite CLI` with its sub commands.
 // Returns the cobra.Command, a cleanup function and an error. The cleanup
-// function must be invoked by the caller to clean eventual Ignite App instances.
+// function must be invoked by the caller to clean eventual Ignite Extension instances.
 func New(ctx context.Context) (*cobra.Command, func(), error) {
 	cobra.EnableCommandSorting = false
 
@@ -87,15 +87,15 @@ To get started, create a blockchain:
 		NewAccount(),
 		NewDocs(),
 		NewVersion(),
-		NewApp(),
+		NewExtension(),
 		NewDoctor(),
 		NewCompletionCmd(),
 	)
 	c.AddCommand(deprecated()...)
 	c.SetContext(ctx)
 
-	// Don't load Ignite apps for level one commands that doesn't allow them
-	if len(os.Args) >= 2 && slices.Contains(skipAppsLoadCommands, os.Args[1]) {
+	// Don't load Ignite extensions for level one commands that doesn't allow them
+	if len(os.Args) >= 2 && slices.Contains(skipExtensionLoadCommands, os.Args[1]) {
 		return c, func() {}, nil
 	}
 
@@ -235,7 +235,7 @@ func deprecated() []*cobra.Command {
 		},
 		{
 			Use:        "node",
-			Deprecated: "use ignite connect app instead (ignite app install -g github.com/ignite/apps/connect).",
+			Deprecated: "use ignite connect app instead (ignite extension install -g github.com/ignite/extensions/connect).",
 		},
 	}
 }

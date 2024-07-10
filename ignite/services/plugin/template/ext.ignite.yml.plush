@@ -1,0 +1,6 @@
+version: 1
+extensions:
+  <%= Name %>:
+    description: <%= Name %> is an awesome Ignite extension!
+    path: ./
+    

@@ -21,10 +21,10 @@ import (
 //go:embed template/*
 var fsPluginSource embed.FS
 
-// Scaffold generates a plugin structure under dir/path.Base(appName).
-func Scaffold(ctx context.Context, dir, appName string, sharedHost bool) (string, error) {
+// Scaffold generates a plugin structure under dir/path.Base(extName).
+func Scaffold(ctx context.Context, dir, extName string, sharedHost bool) (string, error) {
 	var (
-		name     = filepath.Base(appName)
+		name     = filepath.Base(extName)
 		title    = toTitle(name)
 		finalDir = path.Join(dir, name)
 		g        = genny.New()
@@ -45,7 +45,7 @@ func Scaffold(ctx context.Context, dir, appName string, sharedHost bool) (string
 	}
 
 	pctx := plush.NewContextWithContext(ctx)
-	pctx.Set("AppName", appName)
+	pctx.Set("ExtensionName", extName)
 	pctx.Set("Name", name)
 	pctx.Set("Title", title)
 	pctx.Set("SharedHost", sharedHost)

@@ -23,7 +23,7 @@ func TestPluginExecute(t *testing.T) {
 		{
 			name:          "fail: plugin doesnt exist",
 			pluginPath:    "/not/exists",
-			expectedError: "local app path \"/not/exists\" not found: stat /not/exists: no such file or directory",
+			expectedError: "local extension path \"/not/exists\" not found: stat /not/exists: no such file or directory",
 		},
 		{
 			name:           "ok: plugin execute ok",

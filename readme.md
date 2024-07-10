@@ -136,36 +136,36 @@ otherwise, a row refers to a minor version and all associated patch versions.
 To upgrade your blockchain to the newer version of Cosmos SDK, see the
 [Migration guide](https://docs.ignite.com/migration).
 
-## Ignite Apps
+## Ignite Extensions
 
-Ignite Apps aims to extend the functionality of Ignite CLI, offering both official and community-contributed integrations. These integrations are designed to streamline development processes and offer valuable insights for blockchain app developers.
+Ignite Extensions aims to extend the functionality of Ignite CLI, offering both official and community-contributed integrations. These integrations are designed to streamline development processes and offer valuable insights for blockchain app developers.
 
-### How to Install an Ignite App
+### How to Install an Ignite Extensions
 
 ```bash
-ignite app install -g github.com/ignite/apps/[app-name]
+ignite extension install -g github.com/ignite/extensions/[extension-name]
 ```
 
-The `ignite app list` command allows to list the plugins and their status, and to
+The `ignite extension list` command allows to list the plugins and their status, and to
 update a plugin if you need to get the latest version.
 
-### How to Create an App
+### How to Create an Extension
 
-Scaffold your Ignite app with one simple command:
+Scaffold your Ignite extension with one simple command:
 
 ```bash
-ignite scaffold app path/to/your/app
+ignite scaffold extension path/to/your/extensions
 ```
 
 Afterwards, install using:
 
 ```bash
-ignite app install -g path/to/your/app
+ignite extension install -g path/to/your/extension
 ```
 
-For more information, refer to [Creating Ignite Apps](https://docs.ignite.com/apps/developing-apps).
+For more information, refer to [Creating Ignite Extensions](https://docs.ignite.com/apps/developing-apps).
 
-Also check out the section of our [example Apps](https://github.com/ignite/apps/tree/main/examples).
+Also check out the section of our [example Extensions](https://github.com/ignite/extensions/tree/main/examples).
 
 ## Contributing to Ignite CLI
 

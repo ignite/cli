@@ -39,7 +39,7 @@ func TestNetworkRequestParam(t *testing.T) {
 	// 	env.Exec("publish planet chain to spn",
 	// 		step.NewSteps(step.New(
 	// 			step.Exec(
-	// 				envtest.IgniteApp,
+	// 				envtest.IgniteExtension,
 	// 				"network", "chain", "publish",
 	// 				"https://github.com/ignite/example",
 	// 				"--local",
@@ -52,7 +52,7 @@ func TestNetworkRequestParam(t *testing.T) {
 	// 		),
 	// 			step.New(
 	// 				step.Exec(
-	// 					envtest.IgniteApp,
+	// 					envtest.IgniteExtension,
 	// 					"network", "request", "change-param",
 	// 					"1", "mint", "mint_denom", "\"bar\"",
 	// 					"--local",
@@ -61,7 +61,7 @@ func TestNetworkRequestParam(t *testing.T) {
 	// 			),
 	// 			step.New(
 	// 				step.Exec(
-	// 					envtest.IgniteApp,
+	// 					envtest.IgniteExtension,
 	// 					"network", "chain", "show", "genesis",
 	// 					"1",
 	// 					"--local",

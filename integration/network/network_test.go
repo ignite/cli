@@ -26,7 +26,7 @@ const (
 	spnModule            = "github.com/tendermint/spn"
 	spnRepoURL           = "https://" + spnModule
 	spnConfigFile        = "config_2.yml"
-	pluginNetworkRepoURL = "https://" + ignitecmd.PluginNetworkPath
+	pluginNetworkRepoURL = "https://" + ignitecmd.ExtensionNetworkPath
 )
 
 // setupSPN executes the following tasks:
@@ -46,15 +46,15 @@ func setupSPN(env envtest.Env) string {
 	// Clone the cli-plugin-network with the expected version
 	err := xgit.Clone(context.Background(), pluginNetworkRepoURL, pluginPath)
 	require.NoError(err)
-	t.Logf("Checkout cli-plugin-revision to ref %q", ignitecmd.PluginNetworkPath)
+	t.Logf("Checkout cli-plugin-revision to ref %q", ignitecmd.ExtensionNetworkPath)
 	// Add plugin to config
 	env.Must(env.Exec("add plugin network",
 		step.NewSteps(step.New(
 			// NOTE(tb): to test cli-plugin-network locally (can happen during dev)
 			// comment the first line below and uncomment the second, with the
 			// correct path to the plugin.
-			step.Exec(envtest.IgniteApp, "plugin", "add", "-g", pluginPath),
-			// step.Exec(envtest.IgniteApp, "plugin", "add", "-g", "/home/tom/src/ignite/cli-plugin-network"),
+			step.Exec(envtest.IgniteExtension, "plugin", "add", "-g", pluginPath),
+			// step.Exec(envtest.IgniteExtension, "plugin", "add", "-g", "/home/tom/src/ignite/cli-plugin-network"),
 		)),
 	))
 
@@ -154,7 +154,7 @@ func TestNetworkPublish(t *testing.T) {
 	// 	env.Exec("publish planet chain to spn",
 	// 		step.NewSteps(step.New(
 	// 			step.Exec(
-	// 				envtest.IgniteApp,
+	// 				envtest.IgniteExtension,
 	// 				"network", "chain", "publish",
 	// 				"https://github.com/ignite/example",
 	// 				"--local",
@@ -210,7 +210,7 @@ func TestNetworkPublishGenesisConfig(t *testing.T) {
 	// 	env.Exec("publish test chain to spn",
 	// 		step.NewSteps(step.New(
 	// 			step.Exec(
-	// 				envtest.IgniteApp,
+	// 				envtest.IgniteExtension,
 	// 				"network", "chain", "publish",
 	// 				"https://github.com/aljo242/test",
 	// 				"--local",

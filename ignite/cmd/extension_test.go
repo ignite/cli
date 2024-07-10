@@ -71,7 +71,7 @@ func assertFlags(t *testing.T, expectedFlags []*plugin.Flag, execCmd *plugin.Exe
 	assert.Equal(t, expected, have)
 }
 
-func TestLinkPluginCmds(t *testing.T) {
+func TestLinkExtensionCmds(t *testing.T) {
 	var (
 		args         = []string{"arg1", "arg2"}
 		pluginParams = map[string]string{"key": "val"}
@@ -188,7 +188,7 @@ ignite
 						nil,
 					)
 			},
-			expectedError: `can't attach app command "foo" to runnable command "ignite scaffold chain"`,
+			expectedError: `can't attach extension command "foo" to runnable command "ignite scaffold chain"`,
 		},
 		{
 			name: "fail: link to unknown command",
@@ -206,7 +206,7 @@ ignite
 						nil,
 					)
 			},
-			expectedError: `unable to find command path "ignite unknown" for app "foo"`,
+			expectedError: `unable to find command path "ignite unknown" for extension "foo"`,
 		},
 		{
 			name: "fail: plugin name exists in legacy commands",
@@ -223,7 +223,7 @@ ignite
 						nil,
 					)
 			},
-			expectedError: `app command "scaffold" already exists in Ignite's commands`,
+			expectedError: `extension command "scaffold" already exists in Ignite's commands`,
 		},
 		{
 			name: "fail: plugin name with args exists in legacy commands",
@@ -240,7 +240,7 @@ ignite
 						nil,
 					)
 			},
-			expectedError: `app command "scaffold" already exists in Ignite's commands`,
+			expectedError: `extension command "scaffold" already exists in Ignite's commands`,
 		},
 		{
 			name: "fail: plugin name exists in legacy sub commands",
@@ -258,7 +258,7 @@ ignite
 						nil,
 					)
 			},
-			expectedError: `app command "chain" already exists in Ignite's commands`,
+			expectedError: `extension command "chain" already exists in Ignite's commands`,
 		},
 		{
 			name: "ok: link multiple at root",
@@ -370,7 +370,7 @@ ignite
 			rootCmd := buildRootCmd(ctx)
 			tt.setup(t, ctx, pi)
 
-			_ = linkPlugins(ctx, rootCmd, []*plugin.Plugin{p})
+			_ = linkExtensions(ctx, rootCmd, []*plugin.Plugin{p})
 
 			if tt.expectedError != "" {
 				require.Error(p.Error)
@@ -404,7 +404,7 @@ func dumpCmd(c *cobra.Command, w io.Writer, ntabs int) {
 	}
 }
 
-func TestLinkPluginHooks(t *testing.T) {
+func TestLinkExtensionHooks(t *testing.T) {
 	var (
 		args         = []string{"arg1", "arg2"}
 		pluginParams = map[string]string{"key": "val"}
@@ -476,7 +476,7 @@ func TestLinkPluginHooks(t *testing.T) {
 						nil,
 					)
 			},
-			expectedError: `can't attach app hook "test-hook" to non executable command "ignite scaffold"`,
+			expectedError: `can't attach extension hook "test-hook" to non executable command "ignite scaffold"`,
 		},
 		{
 			name: "fail: command doesn't exists",
@@ -494,7 +494,7 @@ func TestLinkPluginHooks(t *testing.T) {
 						nil,
 					)
 			},
-			expectedError: `unable to find command path "ignite chain" for app hook "test-hook"`,
+			expectedError: `unable to find command path "ignite chain" for extension hook "test-hook"`,
 		},
 		{
 			name: "ok: single hook",
@@ -605,7 +605,7 @@ func TestLinkPluginHooks(t *testing.T) {
 			rootCmd := buildRootCmd(ctx)
 			tt.setup(t, ctx, pi)
 
-			_ = linkPlugins(ctx, rootCmd, []*plugin.Plugin{p})
+			_ = linkExtensions(ctx, rootCmd, []*plugin.Plugin{p})
 
 			if tt.expectedError != "" {
 				require.EqualError(p.Error, tt.expectedError)

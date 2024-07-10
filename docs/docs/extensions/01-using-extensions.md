@@ -15,7 +15,7 @@ To use an extension within your project execute the following command inside the
 project directory:
 
 ```sh
-ignite extension install github.com/project/cli-app
+ignite ext install github.com/project/cli-extension
 ```
 
 The extension will be available only when running `ignite` inside the project
@@ -24,19 +24,19 @@ directory.
 To use an extension globally on the other hand, execute the following command:
 
 ```sh
-ignite extension install -g github.com/project/cli-app
+ignite ext install -g github.com/project/cli-extension
 ```
 
 The command will compile the extension and make it immediately available to the
 `ignite` command lists.
 
-## Listing installed apps
+## Listing installed Extensions
 
 When in an ignite scaffolded blockchain you can use the command `ignite extension
 list` to list all Ignite Extensions and there statuses.
 
-## Updating apps
+## Updating Extensions
 
-When an extension a remote repository releases updates, running `ignite extension
-update <path/to/app>` will update an specific extension declared in your
+When an extension in a remote repository releases updates, running `ignite extension
+update <path/to/extension>` will update an specific extension declared in your
 project's `config.yml`.

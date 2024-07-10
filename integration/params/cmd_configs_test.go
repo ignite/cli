@@ -17,7 +17,7 @@ func TestCreateModuleConfigs(t *testing.T) {
 
 	env.Must(env.Exec("create a new module with configs",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
+			step.Exec(envtest.IgniteExtension,
 				"s",
 				"module",
 				"--yes",
@@ -31,7 +31,7 @@ func TestCreateModuleConfigs(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating configs field that already exist",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
+			step.Exec(envtest.IgniteExtension,
 				"s",
 				"configs",
 				"--yes",
@@ -47,7 +47,7 @@ func TestCreateModuleConfigs(t *testing.T) {
 
 	env.Must(env.Exec("create a new module configs in the foo module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
+			step.Exec(envtest.IgniteExtension,
 				"s",
 				"configs",
 				"--yes",
@@ -63,7 +63,7 @@ func TestCreateModuleConfigs(t *testing.T) {
 
 	env.Must(env.Exec("create a new module configs in the mars module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
+			step.Exec(envtest.IgniteExtension,
 				"s",
 				"configs",
 				"--yes",

@@ -74,7 +74,7 @@ func TestGenerateAnAppWithNoDefaultModuleAndCreateAModule(t *testing.T) {
 
 	env.Must(env.Exec("should scaffold a new module into a chain that never had modules before",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "first_module"),
+			step.Exec(envtest.IgniteExtension, "s", "module", "--yes", "first_module"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
@@ -88,14 +88,14 @@ func TestGenerateAppWithEmptyModule(t *testing.T) {
 
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "example", "--require-registration"),
+			step.Exec(envtest.IgniteExtension, "s", "module", "--yes", "example", "--require-registration"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	env.Must(env.Exec("should prevent creating an existing module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "example", "--require-registration"),
+			step.Exec(envtest.IgniteExtension, "s", "module", "--yes", "example", "--require-registration"),
 			step.Workdir(app.SourcePath()),
 		)),
 		envtest.ExecShouldError(),
@@ -103,7 +103,7 @@ func TestGenerateAppWithEmptyModule(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating a module with an invalid name",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "example1", "--require-registration"),
+			step.Exec(envtest.IgniteExtension, "s", "module", "--yes", "example1", "--require-registration"),
 			step.Workdir(app.SourcePath()),
 		)),
 		envtest.ExecShouldError(),
@@ -111,7 +111,7 @@ func TestGenerateAppWithEmptyModule(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating a module with a reserved name",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "tx", "--require-registration"),
+			step.Exec(envtest.IgniteExtension, "s", "module", "--yes", "tx", "--require-registration"),
 			step.Workdir(app.SourcePath()),
 		)),
 		envtest.ExecShouldError(),
@@ -119,7 +119,7 @@ func TestGenerateAppWithEmptyModule(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating a module with a forbidden prefix",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "ibcfoo", "--require-registration"),
+			step.Exec(envtest.IgniteExtension, "s", "module", "--yes", "ibcfoo", "--require-registration"),
 			step.Workdir(app.SourcePath()),
 		)),
 		envtest.ExecShouldError(),
@@ -127,7 +127,7 @@ func TestGenerateAppWithEmptyModule(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating a module prefixed with an existing module",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "examplefoo", "--require-registration"),
+			step.Exec(envtest.IgniteExtension, "s", "module", "--yes", "examplefoo", "--require-registration"),
 			step.Workdir(app.SourcePath()),
 		)),
 		envtest.ExecShouldError(),
@@ -136,7 +136,7 @@ func TestGenerateAppWithEmptyModule(t *testing.T) {
 	env.Must(env.Exec("create a module with dependencies",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"module",
 				"--yes",
@@ -152,7 +152,7 @@ func TestGenerateAppWithEmptyModule(t *testing.T) {
 	env.Must(env.Exec("should prevent creating a module with invalid dependencies",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"module",
 				"--yes",
@@ -169,7 +169,7 @@ func TestGenerateAppWithEmptyModule(t *testing.T) {
 	env.Must(env.Exec("should prevent creating a module with a non registered dependency",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteExtension,
 				"s",
 				"module",
 				"--yes",

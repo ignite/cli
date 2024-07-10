@@ -23,14 +23,14 @@ func TestAccount(t *testing.T) {
 
 	env.Must(env.Exec("create account",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "account", "create", accountName, "--keyring-dir", tmpDir),
+			step.Exec(envtest.IgniteExtension, "account", "create", accountName, "--keyring-dir", tmpDir),
 		)),
 	))
 
 	listOutputBuffer := &bytes.Buffer{}
 	env.Must(env.Exec("list accounts",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "account", "list", "--keyring-dir", tmpDir),
+			step.Exec(envtest.IgniteExtension, "account", "list", "--keyring-dir", tmpDir),
 		)),
 		envtest.ExecStdout(listOutputBuffer),
 	))
@@ -38,14 +38,14 @@ func TestAccount(t *testing.T) {
 
 	env.Must(env.Exec("delete account",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "account", "delete", accountName, "--keyring-dir", tmpDir),
+			step.Exec(envtest.IgniteExtension, "account", "delete", accountName, "--keyring-dir", tmpDir),
 		)),
 	))
 
 	listOutputAfterDeleteBuffer := &bytes.Buffer{}
 	env.Must(env.Exec("list accounts after delete",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "account", "list", "--keyring-dir", tmpDir),
+			step.Exec(envtest.IgniteExtension, "account", "list", "--keyring-dir", tmpDir),
 		)),
 		envtest.ExecStdout(listOutputAfterDeleteBuffer),
 	))
@@ -54,7 +54,7 @@ func TestAccount(t *testing.T) {
 	env.Must(env.Exec("import account with mnemonic",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp, "account", "import", "testaccount42",
+				envtest.IgniteExtension, "account", "import", "testaccount42",
 				"--keyring-dir", tmpDir,
 				"--secret", testAccountMnemonic,
 			),
@@ -64,7 +64,7 @@ func TestAccount(t *testing.T) {
 	env.Must(env.Exec("import account with private key",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp, "account", "import", "testaccount43",
+				envtest.IgniteExtension, "account", "import", "testaccount43",
 				"--non-interactive",
 				"--keyring-dir", tmpDir,
 				"--secret", "testdata/key",
@@ -76,7 +76,7 @@ func TestAccount(t *testing.T) {
 	listOutputAfterImportBuffer := &bytes.Buffer{}
 	env.Must(env.Exec("list accounts after import",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "account", "list", "--keyring-dir", tmpDir),
+			step.Exec(envtest.IgniteExtension, "account", "list", "--keyring-dir", tmpDir),
 		)),
 		envtest.ExecStdout(listOutputAfterImportBuffer),
 	))
@@ -89,7 +89,7 @@ testaccount43 	cosmos18p4xchk2aqp39nsjwr69ql44upzsfnh8r9lzql 	PubKeySecp256k1{02
 	showOutputBuffer := &bytes.Buffer{}
 	env.Must(env.Exec("show account",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "account", "show", "testaccount42", "--keyring-dir", tmpDir),
+			step.Exec(envtest.IgniteExtension, "account", "show", "testaccount42", "--keyring-dir", tmpDir),
 		)),
 		envtest.ExecStdout(showOutputBuffer),
 	))
@@ -101,7 +101,7 @@ testaccount42 	cosmos1ytnkpns7mfd6jjkvq9ztdvjdrt2xvmft2qxzqd 	PubKeySecp256k1{02
 	showOutputWithDifferentPrefixBuffer := &bytes.Buffer{}
 	env.Must(env.Exec("show account with address prefix",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "account", "show", "testaccount42", "--keyring-dir", tmpDir, "--address-prefix", "test"),
+			step.Exec(envtest.IgniteExtension, "account", "show", "testaccount42", "--keyring-dir", tmpDir, "--address-prefix", "test"),
 		)),
 		envtest.ExecStdout(showOutputWithDifferentPrefixBuffer),
 	))

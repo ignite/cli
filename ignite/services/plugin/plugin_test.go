@@ -34,7 +34,7 @@ func TestNewPlugin(t *testing.T) {
 		{
 			name: "fail: empty path",
 			expectedPlugin: Plugin{
-				Error:  errors.Errorf(`missing app property "path"`),
+				Error:  errors.Errorf(`missing extension property "path"`),
 				stdout: os.Stdout,
 				stderr: os.Stderr,
 			},
@@ -43,7 +43,7 @@ func TestNewPlugin(t *testing.T) {
 			name:      "fail: local plugin doesnt exists",
 			pluginCfg: pluginsconfig.Plugin{Path: "/xxx/yyy/app"},
 			expectedPlugin: Plugin{
-				Error:  errors.Errorf(`local app path "/xxx/yyy/app" not found`),
+				Error:  errors.Errorf(`local extension path "/xxx/yyy/app" not found`),
 				stdout: os.Stdout,
 				stderr: os.Stderr,
 			},
@@ -52,7 +52,7 @@ func TestNewPlugin(t *testing.T) {
 			name:      "fail: local plugin is not a directory",
 			pluginCfg: pluginsconfig.Plugin{Path: path.Join(wd, "testdata/fakebin")},
 			expectedPlugin: Plugin{
-				Error:  errors.Errorf(fmt.Sprintf("local app path %q is not a directory", path.Join(wd, "testdata/fakebin"))),
+				Error:  errors.Errorf(fmt.Sprintf("local extension path %q is not a directory", path.Join(wd, "testdata/fakebin"))),
 				stdout: os.Stdout,
 				stderr: os.Stderr,
 			},
@@ -81,7 +81,7 @@ func TestNewPlugin(t *testing.T) {
 			name:      "fail: remote plugin with only domain",
 			pluginCfg: pluginsconfig.Plugin{Path: "github.com"},
 			expectedPlugin: Plugin{
-				Error:  errors.Errorf(`app path "github.com" is not a valid repository URL`),
+				Error:  errors.Errorf(`extension path "github.com" is not a valid repository URL`),
 				stdout: os.Stdout,
 				stderr: os.Stderr,
 			},
@@ -90,7 +90,7 @@ func TestNewPlugin(t *testing.T) {
 			name:      "fail: remote plugin with incomplete URL",
 			pluginCfg: pluginsconfig.Plugin{Path: "github.com/ignite"},
 			expectedPlugin: Plugin{
-				Error:  errors.Errorf(`app path "github.com/ignite" is not a valid repository URL`),
+				Error:  errors.Errorf(`extension path "github.com/ignite" is not a valid repository URL`),
 				stdout: os.Stdout,
 				stderr: os.Stderr,
 			},
@@ -459,10 +459,10 @@ func TestPluginLoadSharedHost(t *testing.T) {
 				for i := len(plugins) - 1; i >= 0; i-- {
 					plugins[i].KillClient()
 					if tt.sharesHost && i > 0 {
-						assert.False(plugins[i].client.Exited(), "non host app can't kill host app")
-						assert.True(checkConfCache(plugins[i].Path), "non host app doesn't remove config cache when killed")
+						assert.False(plugins[i].client.Exited(), "non host extension can't kill host app")
+						assert.True(checkConfCache(plugins[i].Path), "non host extension doesn't remove config cache when killed")
 					} else {
-						assert.True(plugins[i].client.Exited(), "app should be killed")
+						assert.True(plugins[i].client.Exited(), "extension should be killed")
 					}
 					assert.False(plugins[i].isHost, "killed plugins are no longer host")
 				}
@@ -475,21 +475,21 @@ func TestPluginLoadSharedHost(t *testing.T) {
 					assert.True(checkConfCache(plugins[i].Path), "sharedHost must have a cache entry")
 					if i == 0 {
 						// first plugin is the host
-						assert.True(plugins[i].isHost, "first app is the host")
+						assert.True(plugins[i].isHost, "first extension is the host")
 						// Assert reattach config has been saved
 						hostConf = plugins[i].client.ReattachConfig()
 						ref, err := readConfigCache(plugins[i].Path)
 						if assert.NoError(err) {
-							assert.Equal(hostConf, &ref, "wrong cache entry for app host")
+							assert.Equal(hostConf, &ref, "wrong cache entry for extension host")
 						}
 					} else {
 						// plugins after first aren't host
-						assert.False(plugins[i].isHost, "app %d can't be host", i)
+						assert.False(plugins[i].isHost, "extension %d can't be host", i)
 						assert.Equal(hostConf, plugins[i].client.ReattachConfig(), "ReattachConfig different from host app")
 					}
 				} else {
-					assert.False(plugins[i].isHost, "app %d can't be host if sharedHost is disabled", i)
-					assert.False(checkConfCache(plugins[i].Path), "app %d can't have a cache entry if sharedHost is disabled", i)
+					assert.False(plugins[i].isHost, "extension %d can't be host if sharedHost is disabled", i)
+					assert.False(checkConfCache(plugins[i].Path), "extension %d can't have a cache entry if sharedHost is disabled", i)
 				}
 			}
 		})
@@ -515,7 +515,7 @@ func TestPluginClean(t *testing.T) {
 		{
 			name: "ok",
 			plugin: &Plugin{
-				cloneURL: "https://github.com/ignite/app",
+				cloneURL: "https://github.com/ignite/extension",
 			},
 			expectRemove: true,
 		},

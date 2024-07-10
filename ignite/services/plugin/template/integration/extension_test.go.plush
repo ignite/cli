@@ -18,16 +18,16 @@ func Test<%= Title %>(t *testing.T) {
 	var (
 		require = require.New(t)
 		env     = envtest.New(t)
-		app     = env.Scaffold("<%= AppName %>-app")
+		app     = env.Scaffold("<%= ExtensionName %>-app")
 	)
 
 	dir, err := os.Getwd()
 	require.NoError(err)
 	pluginPath := filepath.Join(filepath.Dir(filepath.Dir(dir)), "<%= Name %>")
 
-	env.Must(env.Exec("install <%= Name %> app locally",
+	env.Must(env.Exec("install <%= Name %> extension locally",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "app", "install", pluginPath),
+			step.Exec(envtest.IgniteApp, "extension", "install", pluginPath), // TODO(@julierbrt): rename immeditely in a follow-up once merged
 			step.Workdir(app.SourcePath()),
 		)),
 	))
@@ -44,7 +44,7 @@ func Test<%= Title %>(t *testing.T) {
 	env.Must(env.Exec("run <%= Name %>",
 		step.NewSteps(step.New(
 			step.Exec(
-				envtest.IgniteApp,
+				envtest.IgniteApp, // TODO(@julierbrt): rename immeditely in a follow-up once merged
 				"<%= Name %>",
 				"hello",
 			),
@@ -60,7 +60,7 @@ func assertLocalPlugins(t *testing.T, app envtest.App, expectedPlugins []plugins
 	t.Helper()
 	cfg, err := pluginsconfig.ParseDir(app.SourcePath())
 	require.NoError(t, err)
-	require.ElementsMatch(t, expectedPlugins, cfg.Apps, "unexpected local apps")
+	require.ElementsMatch(t, expectedPlugins, cfg.Apps, "unexpected local extensions")
 }
 
 func assertGlobalPlugins(t *testing.T, expectedPlugins []pluginsconfig.Plugin) {
@@ -69,5 +69,5 @@ func assertGlobalPlugins(t *testing.T, expectedPlugins []pluginsconfig.Plugin) {
 	require.NoError(t, err)
 	cfg, err := pluginsconfig.ParseDir(cfgPath)
 	require.NoError(t, err)
-	require.ElementsMatch(t, expectedPlugins, cfg.Apps, "unexpected global apps")
+	require.ElementsMatch(t, expectedPlugins, cfg.Apps, "unexpected global extensions")
 }

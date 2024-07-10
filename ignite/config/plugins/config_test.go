@@ -270,30 +270,30 @@ func TestConfigSave(t *testing.T) {
 				require.NoError(t, err)
 				return cfg
 			},
-			expectedContent: "apps: []\n",
+			expectedContent: "extensions: []\n",
 		},
 		{
 			name: "ok: config path is an existing file",
 			buildConfig: func(t *testing.T) *pluginsconfig.Config {
-				// copy testdata/igniteapps.yml to tmp because it will be modified
+				// copy testdata/extensions.yml to tmp because it will be modified
 				dir := t.TempDir()
-				bz, err := os.ReadFile("testdata/igniteapps.yml")
+				bz, err := os.ReadFile("testdata/extensions.yml")
 				require.NoError(t, err)
-				err = os.WriteFile(path.Join(dir, "igniteapps.yml"), bz, 0o666)
+				err = os.WriteFile(path.Join(dir, "extensions.yml"), bz, 0o666)
 				require.NoError(t, err)
 				// load from tmp
 				cfg, _ := pluginsconfig.ParseDir(dir)
 				// add a new plugin
-				cfg.Apps = append(cfg.Apps, pluginsconfig.Plugin{
+				cfg.Extensions = append(cfg.Extensions, pluginsconfig.Plugin{
 					Path: "/path/to/plugin3",
 					With: map[string]string{"key": "val"},
 				})
 				// update a plugin
-				cfg.Apps[1].Path = "/path/to/plugin22"
-				cfg.Apps[1].With["key"] = "val"
+				cfg.Extensions[1].Path = "/path/to/plugin22"
+				cfg.Extensions[1].With["key"] = "val"
 				return cfg
 			},
-			expectedContent: `apps:
+			expectedContent: `extensions:
     - path: /path/to/plugin1
     - path: /path/to/plugin22
       with:
@@ -340,7 +340,7 @@ func TestConfigHasPlugin(t *testing.T) {
 		{
 			name: "not found in config",
 			cfg: pluginsconfig.Config{
-				Apps: []pluginsconfig.Plugin{
+				Extensions: []pluginsconfig.Plugin{
 					{Path: "github.com/ignite/example2"},
 				},
 			},
@@ -349,7 +349,7 @@ func TestConfigHasPlugin(t *testing.T) {
 		{
 			name: "found in config",
 			cfg: pluginsconfig.Config{
-				Apps: []pluginsconfig.Plugin{
+				Extensions: []pluginsconfig.Plugin{
 					{Path: "github.com/ignite/example2"},
 					{Path: "github.com/ignite/example@master"},
 				},
@@ -359,7 +359,7 @@ func TestConfigHasPlugin(t *testing.T) {
 		{
 			name: "found in config but from a local plugin",
 			cfg: pluginsconfig.Config{
-				Apps: []pluginsconfig.Plugin{
+				Extensions: []pluginsconfig.Plugin{
 					{Path: "github.com/ignite/example2"},
 					{Path: path.Join(wd, "testdata", "localplugin", "example")},
 				},

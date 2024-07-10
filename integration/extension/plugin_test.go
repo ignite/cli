@@ -23,13 +23,13 @@ func TestAddRemovePlugin(t *testing.T) {
 		assertPlugins = func(expectedLocalPlugins, expectedGlobalPlugins []pluginsconfig.Plugin) {
 			localCfg, err := pluginsconfig.ParseDir(app.SourcePath())
 			require.NoError(err)
-			assert.ElementsMatch(expectedLocalPlugins, localCfg.Apps, "unexpected local plugins")
+			assert.ElementsMatch(expectedLocalPlugins, localCfg.Extensions, "unexpected local plugins")
 
 			globalCfgPath, err := plugin.PluginsPath()
 			require.NoError(err)
 			globalCfg, err := pluginsconfig.ParseDir(globalCfgPath)
 			require.NoError(err)
-			assert.ElementsMatch(expectedGlobalPlugins, globalCfg.Apps, "unexpected global plugins")
+			assert.ElementsMatch(expectedGlobalPlugins, globalCfg.Extensions, "unexpected global plugins")
 		}
 	)
 
@@ -42,7 +42,7 @@ func TestAddRemovePlugin(t *testing.T) {
 
 	env.Must(env.Exec("add plugin locally",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "app", "install", pluginRepo, "k1=v1", "k2=v2"),
+			step.Exec(envtest.IgniteExtension, "extension", "install", pluginRepo, "k1=v1", "k2=v2"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
@@ -63,7 +63,7 @@ func TestAddRemovePlugin(t *testing.T) {
 
 	env.Must(env.Exec("uninstall plugin locally",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "app", "uninstall", pluginRepo),
+			step.Exec(envtest.IgniteExtension, "extension", "uninstall", pluginRepo),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
@@ -73,7 +73,7 @@ func TestAddRemovePlugin(t *testing.T) {
 
 	env.Must(env.Exec("install plugin globally",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "app", "install", pluginRepo, "-g"),
+			step.Exec(envtest.IgniteExtension, "extension", "install", pluginRepo, "-g"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
@@ -90,7 +90,7 @@ func TestAddRemovePlugin(t *testing.T) {
 
 	env.Must(env.Exec("uninstall plugin globally",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "app", "uninstall", pluginRepo, "-g"),
+			step.Exec(envtest.IgniteExtension, "extension", "uninstall", pluginRepo, "-g"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))
@@ -106,7 +106,7 @@ func TestPluginScaffold(t *testing.T) {
 
 	env.Must(env.Exec("install a plugin",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "app", "scaffold", "test"),
+			step.Exec(envtest.IgniteExtension, "extension", "scaffold", "test"),
 			step.Workdir(env.TmpDir()),
 		)),
 	))

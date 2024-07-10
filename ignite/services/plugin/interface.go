@@ -29,7 +29,7 @@ type (
 	Manifest        = v1.Manifest
 )
 
-// Interface defines the interface that all Ignite App must implement.
+// Interface defines the interface that all Ignite Extension must implement.
 //
 //go:generate mockery --srcpkg . --name Interface --structname PluginInterface --filename interface.go --with-expecter
 type Interface interface {

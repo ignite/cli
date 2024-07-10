@@ -95,7 +95,7 @@ func TestChangeProtoPath(t *testing.T) {
 
 	env.Must(env.Exec("create a list with a custom proto path from config",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "listUser", "email"),
+			step.Exec(envtest.IgniteExtension, "s", "list", "--yes", "listUser", "email"),
 			step.Workdir(app.SourcePath()),
 		)),
 	))

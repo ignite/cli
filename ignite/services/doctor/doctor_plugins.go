@@ -17,7 +17,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/events"
 )
 
-// MigratePluginsConfig migrates plugins config to Ignite App config if required.
+// MigratePluginsConfig migrates plugins config to Ignite Extension config if required.
 func (d Doctor) MigratePluginsConfig() error {
 	errf := func(err error) error {
 		return errors.Errorf("doctor migrate plugins config: %w", err)
@@ -52,29 +52,40 @@ func (d Doctor) migrateGlobalPluginConfig() error {
 		return err
 	}
 
-	// Global apps directory is always available because it is
+	// Global extensions directory is always available because it is
 	// created if it doesn't exists when any command is executed.
-	appsPath := filepath.Join(globalPath, "apps", "igniteapps.yml")
-	if _, err := os.Stat(appsPath); err == nil {
+	extensionsPath := filepath.Join(globalPath, "extensions", "extensions.yml")
+	if _, err := os.Stat(extensionsPath); err == nil {
 		d.ev.Send(
-			fmt.Sprintf("%s %s", appsPath, colors.Success("exists")),
+			fmt.Sprintf("%s %s", extensionsPath, colors.Success("exists")),
 			events.Icon(icons.OK),
 			events.Indent(1),
 		)
 
-		// Ignite apps config file exists in global directory
+		// Ignite extensions config file exists in global directory
 		return nil
 	}
 
-	legacyPath, err := findPluginsConfigPath(filepath.Join(globalPath, "plugins"))
+	// old plugins config file
+	legacyPath, err := findConfigPath(filepath.Join(globalPath, "plugins"), "plugins")
 	if err != nil {
 		return err
-	} else if legacyPath == "" {
-		// Nothing to migrate when the legacy plugins config path doesn't exist
-		return nil
 	}
 
-	if err := d.migratePluginsConfigFiles(legacyPath, appsPath); err != nil {
+	// old plugin file not found, check for app config file
+	if legacyPath == "" {
+		legacyPath, err = findConfigPath(filepath.Join(globalPath, "apps"), "igniteapps")
+		if err != nil {
+			return err
+		}
+
+		// no legacy config file found
+		if legacyPath == "" {
+			return nil
+		}
+	}
+
+	if err := d.migratePluginsConfigFiles(legacyPath, extensionsPath); err != nil {
 		return err
 	}
 
@@ -105,55 +116,65 @@ func (d Doctor) migrateLocalPluginsConfig() error {
 		return err
 	}
 
-	appsPath := filepath.Join(localPath, "igniteapps.yml")
-	if _, err := os.Stat(appsPath); err == nil {
+	extensionsPath := filepath.Join(localPath, "extensions.yml")
+	if _, err := os.Stat(extensionsPath); err == nil {
 		d.ev.Send(
-			fmt.Sprintf("%s %s", appsPath, colors.Success("exists")),
+			fmt.Sprintf("%s %s", extensionsPath, colors.Success("exists")),
 			events.Icon(icons.OK),
 			events.Indent(1),
 		)
 
-		// Ignite apps config file exists in current directory
+		// Ignite extensions config file exists in current directory
 		return nil
 	}
 
-	legacyPath, err := findPluginsConfigPath(localPath)
+	legacyPath, err := findConfigPath(localPath, "plugins")
 	if err != nil {
 		return err
-	} else if legacyPath == "" {
-		// Nothing to migrate when plugins config file is not found in current directory
-		return nil
 	}
 
-	return d.migratePluginsConfigFiles(legacyPath, appsPath)
+	// old plugin file not found, check for app config file
+	if legacyPath == "" {
+		legacyPath, err = findConfigPath(localPath, "igniteapps")
+		if err != nil {
+			return err
+		}
+
+		// no legacy config file found
+		if legacyPath == "" {
+			return nil
+		}
+	}
+
+	return d.migratePluginsConfigFiles(legacyPath, extensionsPath)
 }
 
-func (d Doctor) migratePluginsConfigFiles(pluginsPath, appsPath string) error {
-	pluginsFile, err := os.Open(pluginsPath)
+func (d Doctor) migratePluginsConfigFiles(legacyPath, extensionsPath string) error {
+	legacyFile, err := os.Open(legacyPath)
 	if err != nil {
 		return err
 	}
 
-	defer pluginsFile.Close()
+	defer legacyFile.Close()
 
-	appsFile, err := os.OpenFile(appsPath, os.O_WRONLY|os.O_CREATE, 0o644)
+	extensionFile, err := os.OpenFile(extensionsPath, os.O_WRONLY|os.O_CREATE, 0o644)
 	if err != nil {
 		return err
 	}
 
-	defer appsFile.Close()
+	defer extensionFile.Close()
 
-	if err = migratePluginsConfig(pluginsFile, appsFile); err != nil {
+	if err = migratePluginsConfig(legacyFile, extensionFile); err != nil {
 		return err
 	}
 
 	d.ev.Send(
-		fmt.Sprintf("migrated config file %s to %s", colors.Faint(pluginsPath), colors.Faint(appsPath)),
+		fmt.Sprintf("migrated config file %s to %s", colors.Faint(legacyPath), colors.Faint(extensionsPath)),
 		events.Icon(icons.OK),
 		events.Indent(1),
 	)
 	d.ev.SendInfo(
-		fmt.Sprintf("file %s can safely be removed", pluginsPath),
+		fmt.Sprintf("file (and folder) %s can safely be removed", legacyPath),
 		events.Icon(icons.Info),
 		events.Indent(1),
 	)
@@ -181,9 +202,14 @@ func updatePluginsConfig(r io.Reader) ([]byte, error) {
 		return nil, err
 	}
 
-	if apps, ok := cfg["plugins"]; ok {
-		cfg["apps"] = apps
+	if extensions, ok := cfg["plugins"]; ok {
+		cfg["extensions"] = extensions
 		delete(cfg, "plugins")
+	}
+
+	if extensions, ok := cfg["apps"]; ok {
+		cfg["extensions"] = extensions
+		delete(cfg, "apps")
 	}
 
 	var buf bytes.Buffer
@@ -193,9 +219,9 @@ func updatePluginsConfig(r io.Reader) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func findPluginsConfigPath(dir string) (string, error) {
+func findConfigPath(dir, fileNameWithoutExtension string) (string, error) {
 	for _, ext := range []string{"yml", "yaml"} {
-		path := filepath.Join(dir, fmt.Sprintf("plugins.%s", ext))
+		path := filepath.Join(dir, fmt.Sprintf("%s.%s", fileNameWithoutExtension, ext))
 		_, err := os.Stat(path)
 		if err == nil {
 			// File found
