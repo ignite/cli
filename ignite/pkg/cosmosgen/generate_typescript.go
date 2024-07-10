@@ -182,7 +182,7 @@ func (g *tsGenerator) generateModuleTemplate(
 
 	specPath := filepath.Join(out, "api.swagger.yml")
 
-	if err = g.g.generateModuleOpenAPISpec(ctx, m, specPath); err != nil {
+	if err = g.g.generateOpenAPISpec(ctx); err != nil {
 		return err
 	}
 	// generate the REST client from the OpenAPI spec
