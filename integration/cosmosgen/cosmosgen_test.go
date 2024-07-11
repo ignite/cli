@@ -98,11 +98,7 @@ func TestCosmosGenScaffold(t *testing.T) {
 		)),
 	))
 
-	var (
-		vueDirGenerated = filepath.Join(app.SourcePath(), "vue/src/store/generated")
-		tsDirGenerated  = filepath.Join(app.SourcePath(), "ts-client")
-	)
-	require.NoError(t, os.RemoveAll(vueDirGenerated))
+	tsDirGenerated := filepath.Join(app.SourcePath(), "ts-client")
 	require.NoError(t, os.RemoveAll(tsDirGenerated))
 
 	env.Must(env.Exec("generate typescript",
@@ -110,7 +106,7 @@ func TestCosmosGenScaffold(t *testing.T) {
 			step.Exec(
 				envtest.IgniteApp,
 				"g",
-				"vuex",
+				"ts-client",
 				"--yes",
 				"--clear-cache",
 			),
@@ -145,11 +141,9 @@ func TestCosmosGenScaffold(t *testing.T) {
 	}
 
 	for _, mod := range expectedModules {
-		for _, dir := range []string{vueDirGenerated, tsDirGenerated} {
-			_, err := os.Stat(filepath.Join(dir, mod))
-			if assert.False(t, os.IsNotExist(err), "missing module %q in %s", mod, dir) {
-				assert.NoError(t, err)
-			}
+		_, err := os.Stat(filepath.Join(tsDirGenerated, mod))
+		if assert.False(t, os.IsNotExist(err), "missing module %q in %s", mod, tsDirGenerated) {
+			assert.NoError(t, err)
 		}
 	}
 }
