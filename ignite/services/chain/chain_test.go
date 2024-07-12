@@ -29,6 +29,8 @@ func TestSourceVersion(t *testing.T) {
 }
 
 func tempSource(t *testing.T, tarPath string) (path string) {
+	t.Helper()
+
 	f, err := os.Open(tarPath)
 	require.NoError(t, err)
 
