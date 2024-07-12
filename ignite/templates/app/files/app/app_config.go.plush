@@ -51,7 +51,6 @@ import (
 	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
-	feeabstypes "github.com/osmosis-labs/fee-abstraction/v8/x/feeabs/types"
 	"google.golang.org/protobuf/types/known/durationpb"
 )
 
@@ -88,7 +87,6 @@ var (
 		group.ModuleName,
 		consensustypes.ModuleName,
 		circuittypes.ModuleName,
-		feeabstypes.ModuleName,
 		// chain modules
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	}
@@ -113,7 +111,6 @@ var (
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
 		ibcfeetypes.ModuleName,
-		feeabstypes.ModuleName,
 		// chain modules
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	}
@@ -132,7 +129,6 @@ var (
 		capabilitytypes.ModuleName,
 		icatypes.ModuleName,
 		ibcfeetypes.ModuleName,
-		feeabstypes.ModuleName,
 		// chain modules
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	}
@@ -154,7 +150,6 @@ var (
 		{Account: ibctransfertypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
 		{Account: ibcfeetypes.ModuleName},
 		{Account: icatypes.ModuleName},
-		{Account: feeabstypes.ModuleName},
 		// this line is used by starport scaffolding # stargate/app/maccPerms
 	}
 
