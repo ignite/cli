@@ -20,7 +20,7 @@ func Init(
 	ctx context.Context,
 	runner *xgenny.Runner,
 	root, name, addressPrefix, protoDir string,
-	noDefaultModule, minimal, isConsumerChain bool,
+	noDefaultModule, feeabsModule, minimal, isConsumerChain bool,
 	params, moduleConfigs []string,
 ) (string, string, error) {
 	pathInfo, err := gomodulepath.Parse(name)
@@ -51,6 +51,7 @@ func Init(
 		protoDir,
 		path,
 		noDefaultModule,
+		feeabsModule,
 		minimal,
 		isConsumerChain,
 		params,
@@ -67,7 +68,7 @@ func generate(
 	addressPrefix,
 	protoDir,
 	absRoot string,
-	noDefaultModule, minimal, isConsumerChain bool,
+	noDefaultModule, feeabsModule, minimal, isConsumerChain bool,
 	params, moduleConfigs []string,
 ) (xgenny.SourceModification, error) {
 	// Parse params with the associated type
@@ -90,15 +91,16 @@ func generate(
 
 	g, err := app.NewGenerator(&app.Options{
 		// generate application template
-		ModulePath:       pathInfo.RawPath,
-		AppName:          pathInfo.Package,
-		AppPath:          absRoot,
-		ProtoDir:         protoDir,
-		GitHubPath:       githubPath,
-		BinaryNamePrefix: pathInfo.Root,
-		AddressPrefix:    addressPrefix,
-		IsChainMinimal:   minimal,
-		IsConsumerChain:  isConsumerChain,
+		ModulePath:          pathInfo.RawPath,
+		AppName:             pathInfo.Package,
+		AppPath:             absRoot,
+		ProtoDir:            protoDir,
+		GitHubPath:          githubPath,
+		BinaryNamePrefix:    pathInfo.Root,
+		AddressPrefix:       addressPrefix,
+		IsChainMinimal:      minimal,
+		IsConsumerChain:     isConsumerChain,
+		IncludeFeeabsModule: feeabsModule,
 	})
 	if err != nil {
 		return xgenny.SourceModification{}, err
