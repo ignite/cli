@@ -2,6 +2,8 @@ module execute_ok
 
 go 1.21.1
 
+toolchain go1.21.5
+
 require (
 	github.com/hashicorp/go-plugin v1.6.0
 	github.com/ignite/cli/v28 v28.0.0

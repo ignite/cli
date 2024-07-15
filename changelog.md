@@ -6,6 +6,7 @@
 
 - [#4183](https://github.com/ignite/cli/pull/4183) Set `chain-id` in the client.toml
 - [#4090](https://github.com/ignite/cli/pull/4090) Remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta`
+- [#4076](https://github.com/ignite/cli/pull/4076) Remove the ignite `relayer` and `tools` commands with all ts-relayer logic
 - [#4133](https://github.com/ignite/cli/pull/4133) Improve buf rate limit
 
 ### Changes
