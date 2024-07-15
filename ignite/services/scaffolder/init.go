@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+<<<<<<< HEAD
 	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
@@ -17,6 +18,16 @@ import (
 	"github.com/ignite/cli/v28/ignite/templates/field"
 	modulecreate "github.com/ignite/cli/v28/ignite/templates/module/create"
 	"github.com/ignite/cli/v28/ignite/templates/testutil"
+=======
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v29/ignite/templates/app"
+	"github.com/ignite/cli/v29/ignite/templates/field"
+	modulecreate "github.com/ignite/cli/v29/ignite/templates/module/create"
+	"github.com/ignite/cli/v29/ignite/templates/testutil"
+>>>>>>> de8fc6dd (fix(services): prevent app name with number (#4249))
 )
 
 // Init initializes a new app with name and given options.
@@ -31,6 +42,13 @@ func Init(
 	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
 		return "", err
+	}
+
+	// Check if the module name is valid (no numbers)
+	for _, r := range pathInfo.Package {
+		if r >= '0' && r <= '9' {
+			return "", "", errors.Errorf("invalid app name %s: cannot contain numbers", pathInfo.Package)
+		}
 	}
 
 	// Create a new folder named as the blockchain when a custom path is not specified

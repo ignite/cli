@@ -27,6 +27,7 @@
   If you are uprading manually, check out the recommended changes in `root.go` from the above PR.
 - [#4210](https://github.com/ignite/cli/pull/4210) Improve default home wiring
 - [#4077](https://github.com/ignite/cli/pull/4077) Merge the swagger files manually instead use nodetime `swagger-combine`
+- [#4249](https://github.com/ignite/cli/pull/4249) Prevent creating a chain with number in the name
 - [#4253](https://github.com/ignite/cli/pull/4253) Bump cosmos-sdk to `v0.50.8`
 
 ### Fixes
