@@ -16,7 +16,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	"github.com/ignite/cli/v28/ignite/config/chain"
 	"github.com/ignite/cli/v28/ignite/config/chain/base"
@@ -24,8 +24,9 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/availableport"
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/goanalysis"
-	yamlmap "github.com/ignite/cli/v28/ignite/pkg/yaml"
+	xyaml "github.com/ignite/cli/v28/ignite/pkg/yaml"
 	envtest "github.com/ignite/cli/v28/integration"
 )
 
@@ -38,11 +39,6 @@ var (
 	marsConfig = v1.Config{
 		Config: base.Config{
 			Version: 1,
-			Build: base.Build{
-				Proto: base.Proto{
-					Path: "proto",
-				},
-			},
 			Accounts: []base.Account{
 				{
 					Name:     "alice",
@@ -50,7 +46,7 @@ var (
 					Mnemonic: "slide moment original seven milk crawl help text kick fluid boring awkward doll wonder sure fragile plate grid hard next casual expire okay body",
 				},
 				{
-					Name:     "bob",
+					Name:     bobName,
 					Coins:    []string{"100000000000token", "10000000000000000000stake"},
 					Mnemonic: "trap possible liquid elite embody host segment fantasy swim cable digital eager tiny broom burden diary earn hen grow engine pigeon fringe claim program",
 				},
@@ -65,21 +61,21 @@ var (
 				Coins: []string{"500token", "100000000stake"},
 				Host:  ":4501",
 			},
-			Genesis: yamlmap.Map{"chain_id": "mars-1"},
+			Genesis: xyaml.Map{"chain_id": "mars-1"},
 		},
 		Validators: []v1.Validator{
 			{
 				Name:   "alice",
 				Bonded: "100000000stake",
-				Client: yamlmap.Map{"keyring-backend": keyring.BackendTest},
-				App: yamlmap.Map{
-					"api":      yamlmap.Map{"address": ":1318"},
-					"grpc":     yamlmap.Map{"address": ":9092"},
-					"grpc-web": yamlmap.Map{"address": ":9093"},
+				Client: xyaml.Map{"keyring-backend": keyring.BackendTest},
+				App: xyaml.Map{
+					"api":      xyaml.Map{"address": ":1318"},
+					"grpc":     xyaml.Map{"address": ":9092"},
+					"grpc-web": xyaml.Map{"address": ":9093"},
 				},
-				Config: yamlmap.Map{
-					"p2p": yamlmap.Map{"laddr": ":26658"},
-					"rpc": yamlmap.Map{"laddr": ":26658", "pprof_laddr": ":6061"},
+				Config: xyaml.Map{
+					"p2p": xyaml.Map{"laddr": ":26658"},
+					"rpc": xyaml.Map{"laddr": ":26658", "pprof_laddr": ":6061"},
 				},
 				Home: "$HOME/.mars",
 			},
@@ -88,11 +84,6 @@ var (
 	earthConfig = v1.Config{
 		Config: base.Config{
 			Version: 1,
-			Build: base.Build{
-				Proto: base.Proto{
-					Path: "proto",
-				},
-			},
 			Accounts: []base.Account{
 				{
 					Name:     "alice",
@@ -100,7 +91,7 @@ var (
 					Mnemonic: "slide moment original seven milk crawl help text kick fluid boring awkward doll wonder sure fragile plate grid hard next casual expire okay body",
 				},
 				{
-					Name:     "bob",
+					Name:     bobName,
 					Coins:    []string{"100000000000token", "10000000000000000000stake"},
 					Mnemonic: "trap possible liquid elite embody host segment fantasy swim cable digital eager tiny broom burden diary earn hen grow engine pigeon fringe claim program",
 				},
@@ -115,21 +106,21 @@ var (
 				Coins: []string{"500token", "100000000stake"},
 				Host:  ":4500",
 			},
-			Genesis: yamlmap.Map{"chain_id": "earth-1"},
+			Genesis: xyaml.Map{"chain_id": "earth-1"},
 		},
 		Validators: []v1.Validator{
 			{
 				Name:   "alice",
 				Bonded: "100000000stake",
-				Client: yamlmap.Map{"keyring-backend": keyring.BackendTest},
-				App: yamlmap.Map{
-					"api":      yamlmap.Map{"address": ":1317"},
-					"grpc":     yamlmap.Map{"address": ":9090"},
-					"grpc-web": yamlmap.Map{"address": ":9091"},
+				Client: xyaml.Map{"keyring-backend": keyring.BackendTest},
+				App: xyaml.Map{
+					"api":      xyaml.Map{"address": ":1317"},
+					"grpc":     xyaml.Map{"address": ":9090"},
+					"grpc-web": xyaml.Map{"address": ":9091"},
 				},
-				Config: yamlmap.Map{
-					"p2p": yamlmap.Map{"laddr": ":26656"},
-					"rpc": yamlmap.Map{"laddr": ":26656", "pprof_laddr": ":6060"},
+				Config: xyaml.Map{
+					"p2p": xyaml.Map{"laddr": ":26656"},
+					"rpc": xyaml.Map{"laddr": ":26656", "pprof_laddr": ":6060"},
 				},
 				Home: "$HOME/.earth",
 			},
@@ -258,11 +249,11 @@ func runChain(
 	cfg.Validators[0].Home = homePath
 
 	cfg.Faucet.Host = genAddr(ports[0])
-	cfg.Validators[0].App["api"] = yamlmap.Map{"address": genAddr(ports[1])}
-	cfg.Validators[0].App["grpc"] = yamlmap.Map{"address": genAddr(ports[2])}
-	cfg.Validators[0].App["grpc-web"] = yamlmap.Map{"address": genAddr(ports[3])}
-	cfg.Validators[0].Config["p2p"] = yamlmap.Map{"laddr": genAddr(ports[4])}
-	cfg.Validators[0].Config["rpc"] = yamlmap.Map{
+	cfg.Validators[0].App["api"] = xyaml.Map{"address": genAddr(ports[1])}
+	cfg.Validators[0].App["grpc"] = xyaml.Map{"address": genAddr(ports[2])}
+	cfg.Validators[0].App["grpc-web"] = xyaml.Map{"address": genAddr(ports[3])}
+	cfg.Validators[0].Config["p2p"] = xyaml.Map{"laddr": genAddr(ports[4])}
+	cfg.Validators[0].Config["rpc"] = xyaml.Map{
 		"laddr":       genAddr(ports[5]),
 		"pprof_laddr": genAddr(ports[6]),
 	}
@@ -444,7 +435,7 @@ func TestBlogIBC(t *testing.T) {
 				"install",
 				"-g",
 				// filepath.Join(goenv.GoPath(), "src/github.com/ignite/apps/hermes"), // Local path for test proposals
-				"github.com/ignite/apps/hermes@hermes/v0.2.1",
+				"github.com/ignite/apps/hermes@hermes/v0.2.2",
 			),
 		)),
 	))
@@ -501,14 +492,14 @@ func TestBlogIBC(t *testing.T) {
 					return execErr
 				}
 				if err := json.Unmarshal(queryOutput.Bytes(), &queryResponse); err != nil {
-					return fmt.Errorf("unmarshling tx response: %w", err)
+					return errors.Errorf("unmarshling tx response: %w", err)
 				}
 				if len(queryResponse.Channels) == 0 ||
 					len(queryResponse.Channels[0].ConnectionHops) == 0 {
-					return fmt.Errorf("channel not found")
+					return errors.Errorf("channel not found")
 				}
 				if queryResponse.Channels[0].State != "STATE_OPEN" {
-					return fmt.Errorf("channel is not open")
+					return errors.Errorf("channel is not open")
 				}
 				return nil
 			}),
@@ -552,7 +543,7 @@ func TestBlogIBC(t *testing.T) {
 					return execErr
 				}
 				if err := json.Unmarshal(txOutput.Bytes(), &txResponse); err != nil {
-					return fmt.Errorf("unmarshling tx response: %w", err)
+					return errors.Errorf("unmarshling tx response: %w", err)
 				}
 				return cmdrunner.New().Run(ctx, step.New(
 					step.Exec(
@@ -617,13 +608,13 @@ func TestBlogIBC(t *testing.T) {
 				output := balanceOutput.Bytes()
 				defer balanceOutput.Reset()
 				if err := json.Unmarshal(output, &balanceResponse); err != nil {
-					return fmt.Errorf("unmarshalling query response error: %w, response: %s", err, string(output))
+					return errors.Errorf("unmarshalling query response error: %w, response: %s", err, string(output))
 				}
 				if balanceResponse.Balances.Empty() {
-					return fmt.Errorf("empty balances")
+					return errors.Errorf("empty balances")
 				}
 				if !strings.HasPrefix(balanceResponse.Balances[0].Denom, "ibc/") {
-					return fmt.Errorf("invalid ibc balance: %v", balanceResponse.Balances[0])
+					return errors.Errorf("invalid ibc balance: %v", balanceResponse.Balances[0])
 				}
 
 				return nil
@@ -635,5 +626,5 @@ func TestBlogIBC(t *testing.T) {
 	// TODO test ibc using the blog post methods:
 	// step.Exec(app.Binary(), "tx", "blog", "send-ibc-post", "transfer", "channel-0", "Hello", "Hello_Mars-Alice_from_Earth", "--chain-id", earthChainID, "--from", "alice", "--node", earthGRPC, "--output", "json", "--log_format", "json", "--yes")
 	// TODO test ibc using the hermes ft-transfer:
-	// step.Exec(envtest.IgniteApp, "relayer", "hermes", "exec", "--", "--config", earthConfig, "tx", "ft-transfer", "--timeout-seconds", "1000", "--dst-chain", earthChainID, "--src-chain", marsChainID, "--src-port", "transfer", "--src-channel", "channel-0", "--amount", "100000", "--denom", "stake", "--output", "json", "--log_format", "json", "--yes")
+	// step.Exec(envtest.IgniteApp, "hermes", "exec", "--", "--config", earthConfig, "tx", "ft-transfer", "--timeout-seconds", "1000", "--dst-chain", earthChainID, "--src-chain", marsChainID, "--src-port", "transfer", "--src-channel", "channel-0", "--amount", "100000", "--denom", "stake", "--output", "json", "--log_format", "json", "--yes")
 }
