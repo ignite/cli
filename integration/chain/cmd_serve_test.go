@@ -46,7 +46,7 @@ func TestServeWithWasm(t *testing.T) {
 func TestServeWithCustomHome(t *testing.T) {
 	var (
 		env     = envtest.New(t)
-		app     = env.Scaffold("github.com/test/sgblog2")
+		app     = env.Scaffold("github.com/test/sgbloga")
 		servers = app.RandomizeServerPorts()
 	)
 
@@ -66,7 +66,7 @@ func TestServeWithCustomHome(t *testing.T) {
 func TestServeWithConfigHome(t *testing.T) {
 	var (
 		env     = envtest.New(t)
-		app     = env.Scaffold("github.com/test/sgblog3")
+		app     = env.Scaffold("github.com/test/sgblogb")
 		servers = app.RandomizeServerPorts()
 	)
 
@@ -88,7 +88,7 @@ func TestServeWithCustomConfigFile(t *testing.T) {
 
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/sgblog4")
+		app = env.Scaffold("github.com/test/sgblogc")
 	)
 	// Move config
 	newConfig := "new_config.yml"
@@ -116,7 +116,7 @@ func TestServeWithCustomConfigFile(t *testing.T) {
 func TestServeWithName(t *testing.T) {
 	var (
 		env     = envtest.New(t)
-		app     = env.Scaffold("sgblog5")
+		app     = env.Scaffold("sgblogd")
 		servers = app.RandomizeServerPorts()
 	)
 
