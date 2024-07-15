@@ -18,21 +18,31 @@ type defaultPlugin struct {
 const (
 	PluginNetworkVersion = "v0.2.2"
 	PluginNetworkPath    = "github.com/ignite/cli-plugin-network@" + PluginNetworkVersion
+	PluginRelayerVersion = "hermes/v0.2.4"
+	PluginRelayerPath    = "github.com/ignite/apps/hermes@" + PluginRelayerVersion
 )
 
 // defaultPlugins holds the plugin that are considered trustable and for which
 // a command will added if the plugin is not already installed.
 // When the user executes that command, the plugin is automatically installed.
 var defaultPlugins = []defaultPlugin{
-	{
-		use:     "network",
-		short:   "Launch a blockchain in production",
-		aliases: []string{"n"},
-		path:    PluginNetworkPath,
-	},
+	// TODO uncomment after fix SPN. Don't forget to un-skip TestEnsureDefaultPlugins.
+	// {
+	//	use:     "network",
+	//	short:   "Launch a blockchain in production",
+	//	aliases: []string{"n"},
+	//	path:    PluginNetworkPath,
+	// },
+	// TODO uncomment after launch the `hermes/v0.2.4`. Don't forget to un-skip TestEnsureDefaultPlugins.
+	// {
+	// 	use:     "relayer",
+	// 	short:   "Connect blockchains with an IBC relayer",
+	// 	aliases: []string{"r"},
+	// 	path:    PluginRelayerPath,
+	// },
 }
 
-// ensureDefaultPlugins ensures that all defaultPlugins are wether registered
+// ensureDefaultPlugins ensures that all defaultPlugins are whether registered
 // in cfg OR have an install command added to rootCmd.
 func ensureDefaultPlugins(rootCmd *cobra.Command, cfg *pluginsconfig.Config) {
 	for _, dp := range defaultPlugins {
