@@ -25,7 +25,6 @@
 
 ### Changes
 
-
 - [#4157](https://github.com/ignite/cli/pull/4157) Upgrade golang to 1.22
 - [#4094](https://github.com/ignite/cli/pull/4094) Scaffolding a multi-index map using `ignite s map foo bar baz --index foobar,foobaz` is no longer supported. Use one index instead of use `collections.IndexedMap`.
 - [#4058](https://github.com/ignite/cli/pull/4058) Simplify scaffolded modules by including `ValidateBasic()` logic in message handler.
@@ -48,6 +47,8 @@
 - [#4189](https://github.com/ignite/cli/pull/4189) Deprecate `ignite node` for `ignite connect` app
 - [#4210](https://github.com/ignite/cli/pull/4210) Improve default home wiring
 - [#4238](https://github.com/ignite/cli/pull/4238) Rename Ignite Apps to Ignite Extensions
+- [#4249](https://github.com/ignite/cli/pull/4249) Prevent creating a chain with number in the name
+- [#4253](https://github.com/ignite/cli/pull/4253) Bump cosmos-sdk to `v0.50.8`
 
 ### Fixes
 
