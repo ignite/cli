@@ -135,9 +135,9 @@ func TestCosmosGenScaffold(t *testing.T) {
 		"cosmos.upgrade.v1beta1",
 		"cosmos.vesting.v1beta1",
 		// custom modules
-		"blog.blog.v1",
-		"blog.withmsg.v1",
-		"blog.withoutmsg.v1",
+		"blog.blog",
+		"blog.withmsg",
+		"blog.withoutmsg",
 	}
 
 	for _, mod := range expectedModules {
