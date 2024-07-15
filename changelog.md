@@ -11,6 +11,17 @@
 ### Changes
 
 - [#4095](https://github.com/ignite/cli/pull/4095) Migrate to matomo analytics
+- [#4157](https://github.com/ignite/cli/pull/4157) Upgrade golang to 1.22
+- [#4094](https://github.com/ignite/cli/pull/4094) Scaffolding a multi-index map using `ignite s map foo bar baz --index foobar,foobaz` is no longer supported. Use one index instead of use `collections.IndexedMap`.
+- [#4058](https://github.com/ignite/cli/pull/4058) Simplify scaffolded modules by including `ValidateBasic()` logic in message handler.
+- [#4058](https://github.com/ignite/cli/pull/4058) Use `address.Codec` instead of `AccAddressFromBech32`.
+- [#3993](https://github.com/ignite/cli/pull/3993) Oracle scaffolding was deprecated and has been removed
+- [#3962](https://github.com/ignite/cli/pull/3962) Rename all RPC endpoints and autocli commands generated for `map`/`list`/`single` types
+- [#3976](https://github.com/ignite/cli/pull/3976) Remove error checks for Cobra command value get calls
+- [#4002](https://github.com/ignite/cli/pull/4002) Bump buf build
+- [#4008](https://github.com/ignite/cli/pull/4008) Rename `pkg/yaml` to `pkg/xyaml`
+- [#4075](https://github.com/ignite/cli/pull/4075) Use `gopkg.in/yaml.v3` instead `gopkg.in/yaml.v2`
+- [#4118](https://github.com/ignite/cli/pull/4118) Version scaffolded protos as `v1` to follow SDK structure.
 - [#4149](https://github.com/ignite/cli/pull/4149) Bump cometbft to `v0.38.7`
 - [#4168](https://github.com/ignite/cli/pull/4168) Bump IBC to `v8.3.1`
   If you are upgrading manually from `v8.2.0` to `v8.3.1`, add the following to your `ibc.go` file:
@@ -26,6 +37,7 @@
   If you are uprading manually, check out the recommended changes in `root.go` from the above PR.
 - [#4210](https://github.com/ignite/cli/pull/4210) Improve default home wiring
 - [#4077](https://github.com/ignite/cli/pull/4077) Merge the swagger files manually instead use nodetime `swagger-combine`
+- [#4253](https://github.com/ignite/cli/pull/4253) Bump cosmos-sdk to `v0.50.8`
 
 ### Fixes
 
