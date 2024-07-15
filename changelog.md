@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [`v28.5.0`](https://github.com/ignite/cli/releases/tag/v28.5.0)
+
 ### Features
 
 - [#4183](https://github.com/ignite/cli/pull/4183) Set `chain-id` in the client.toml
