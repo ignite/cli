@@ -1,4 +1,4 @@
-package plugininternal
+package plugininternal_test
 
 import (
 	"context"
@@ -9,11 +9,17 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	ignitecmd "github.com/ignite/cli/v29/ignite/cmd"
+	plugininternal "github.com/ignite/cli/v29/ignite/internal/plugin"
 	"github.com/ignite/cli/v29/ignite/services/plugin"
 	"github.com/ignite/cli/v29/ignite/services/plugin/mocks"
 )
 
 func TestPluginExecute(t *testing.T) {
+	cmd, cleanup, err := ignitecmd.New(context.Background())
+	require.NoError(t, err)
+	t.Cleanup(cleanup)
+
 	tests := []struct {
 		name           string
 		pluginPath     string
@@ -35,6 +41,11 @@ func TestPluginExecute(t *testing.T) {
 			pluginPath:    "testdata/execute_fail",
 			expectedError: "fail",
 		},
+		{
+			name:          "ok: plugin run command execute",
+			pluginPath:    "testdata/run_command",
+			expectedError: "....",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -52,11 +63,12 @@ func TestPluginExecute(t *testing.T) {
 			chainer.EXPECT().Home().Return("home", nil).Maybe()
 			chainer.EXPECT().RPCPublicAddress().Return("rpcPublicAddress", nil).Maybe()
 
-			out, err := Execute(
+			out, err := plugininternal.Execute(
 				context.Background(),
 				pluginPath,
 				[]string{"arg1", "arg2"},
 				plugin.WithChain(chainer),
+				plugin.WithCmd(cmd),
 			)
 
 			if tt.expectedError != "" {

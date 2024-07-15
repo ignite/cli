@@ -1,4 +1,4 @@
-package plugininternal
+package plugininternal_test
 
 import (
 	"context"
@@ -8,11 +8,17 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	ignitecmd "github.com/ignite/cli/v29/ignite/cmd"
+	plugininternal "github.com/ignite/cli/v29/ignite/internal/plugin"
 	"github.com/ignite/cli/v29/ignite/services/plugin"
 	"github.com/ignite/cli/v29/ignite/services/plugin/mocks"
 )
 
 func TestConsumerPlugin(t *testing.T) {
+	cmd, cleanup, err := ignitecmd.New(context.Background())
+	require.NoError(t, err)
+	t.Cleanup(cleanup)
+
 	tests := []struct {
 		name           string
 		args           []string
@@ -97,7 +103,13 @@ func TestConsumerPlugin(t *testing.T) {
 				chainer.EXPECT().ConfigPath().Return("configpath").Maybe()
 				chainer.EXPECT().Home().Return(path, nil).Maybe()
 				chainer.EXPECT().RPCPublicAddress().Return("rpcPublicAddress", nil).Maybe()
-				_, err = Execute(context.Background(), PluginConsumerPath, []string{"writeGenesis"}, plugin.WithChain(chainer))
+				_, err = plugininternal.Execute(
+					context.Background(),
+					plugininternal.PluginConsumerPath,
+					[]string{"writeGenesis"},
+					plugin.WithChain(chainer),
+					plugin.WithCmd(cmd),
+				)
 				require.NoError(t, err)
 			},
 			expectedOutput: "true",
@@ -118,11 +130,12 @@ func TestConsumerPlugin(t *testing.T) {
 				tt.setup(t, homePath)
 			}
 
-			out, err := Execute(
+			out, err := plugininternal.Execute(
 				context.Background(),
-				PluginConsumerPath,
+				plugininternal.PluginConsumerPath,
 				tt.args,
 				plugin.WithChain(chainer),
+				plugin.WithCmd(cmd),
 			)
 
 			if tt.expectedError != "" {

@@ -75,6 +75,8 @@ message ExecuteHookCleanUpResponse {}
 service ClientAPIService {
   // GetChainInfo returns basic chain info for the configured app
   rpc GetChainInfo(GetChainInfoRequest) returns (GetChainInfoResponse);
+  // RunCommand runs a ignite cobra command
+  rpc RunCommand(RunCommandRequest) returns (RunCommandResponse);
 }
 
 message GetChainInfoRequest {}
@@ -82,3 +84,9 @@ message GetChainInfoRequest {}
 message GetChainInfoResponse {
   ChainInfo chain_info = 1;
 }
+
+message RunCommandRequest {
+  repeated string command = 1;
+}
+
+message RunCommandResponse {}

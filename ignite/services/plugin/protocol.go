@@ -229,6 +229,13 @@ func (c clientAPIClient) GetChainInfo(ctx context.Context) (*ChainInfo, error) {
 	return r.ChainInfo, nil
 }
 
+func (c clientAPIClient) RunCommand(ctx context.Context, command ...string) error {
+	_, err := c.grpc.RunCommand(ctx, &v1.RunCommandRequest{
+		Command: command,
+	})
+	return err
+}
+
 type clientAPIServer struct {
 	v1.UnimplementedClientAPIServiceServer
 
@@ -242,4 +249,12 @@ func (s clientAPIServer) GetChainInfo(ctx context.Context, _ *v1.GetChainInfoReq
 	}
 
 	return &v1.GetChainInfoResponse{ChainInfo: chainInfo}, nil
+}
+
+func (s clientAPIServer) RunCommand(ctx context.Context, req *v1.RunCommandRequest) (*v1.RunCommandResponse, error) {
+	if err := s.impl.RunCommand(ctx, req.Command...); err != nil {
+		return nil, err
+	}
+
+	return &v1.RunCommandResponse{}, nil
 }

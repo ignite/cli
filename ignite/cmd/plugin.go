@@ -700,7 +700,7 @@ func newAppClientAPI(cmd *cobra.Command) (plugin.ClientAPI, error) {
 		return nil, err
 	}
 
-	var options []plugin.APIOption
+	options := []plugin.APIOption{plugin.WithCmd(cmd)}
 	if c != nil {
 		options = append(options, plugin.WithChain(c))
 	}

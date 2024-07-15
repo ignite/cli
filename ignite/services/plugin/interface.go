@@ -71,4 +71,6 @@ type Interface interface {
 type ClientAPI interface {
 	// GetChainInfo returns basic info for the configured blockchain app.
 	GetChainInfo(context.Context) (*ChainInfo, error)
+	// RunCommand runs a ignite cobra command.
+	RunCommand(ctx context.Context, command ...string) error
 }
