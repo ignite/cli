@@ -46,7 +46,7 @@
 - [#4194](https://github.com/ignite/cli/pull/4194) Bump client/v2 to `v2.0.0-beta.2`
 - [#4189](https://github.com/ignite/cli/pull/4189) Deprecate `ignite node` for `ignite connect` app
 - [#4210](https://github.com/ignite/cli/pull/4210) Improve default home wiring
-- [#](https://github.com/ignite/cli/pull/) Bump cosmos-sdk to `v0.50.8`
+- [#4253](https://github.com/ignite/cli/pull/4253) Bump cosmos-sdk to `v0.50.8`
 
 ### Fixes
 
