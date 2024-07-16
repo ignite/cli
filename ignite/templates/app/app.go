@@ -83,6 +83,7 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 	ctx.Set("IsConsumerChain", opts.IsConsumerChain)
 	ctx.Set("DepTools", cosmosgen.DepTools())
 	ctx.Set("IsChainMinimal", opts.IsChainMinimal)
+	ctx.Set("IncludeFeeabsModule", opts.IncludeFeeabsModule)
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(xgenny.Transformer(ctx))
