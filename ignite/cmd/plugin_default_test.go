@@ -10,8 +10,6 @@ import (
 )
 
 func TestEnsureDefaultPlugins(t *testing.T) {
-	t.Skip("skip till we have default plugins again")
-
 	tests := []struct {
 		name                 string
 		cfg                  *pluginsconfig.Config
