@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/app"
@@ -26,6 +27,13 @@ func Init(
 	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
 		return "", "", err
+	}
+
+	// Check if the module name is valid (no numbers)
+	for _, r := range pathInfo.Package {
+		if r >= '0' && r <= '9' {
+			return "", "", errors.Errorf("invalid app name %s: cannot contain numbers", pathInfo.Package)
+		}
 	}
 
 	// Create a new folder named as the blockchain when a custom path is not specified
