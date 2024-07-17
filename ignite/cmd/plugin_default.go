@@ -26,20 +26,18 @@ const (
 // a command will added if the plugin is not already installed.
 // When the user executes that command, the plugin is automatically installed.
 var defaultPlugins = []defaultPlugin{
-	// TODO uncomment after fix SPN. Don't forget to un-skip TestEnsureDefaultPlugins.
-	// {
-	//	use:     "network",
-	//	short:   "Launch a blockchain in production",
-	//	aliases: []string{"n"},
-	//	path:    PluginNetworkPath,
-	// },
-	// TODO uncomment after launch the `hermes/v0.2.4`. Don't forget to un-skip TestEnsureDefaultPlugins.
-	// {
-	// 	use:     "relayer",
-	// 	short:   "Connect blockchains with an IBC relayer",
-	// 	aliases: []string{"r"},
-	// 	path:    PluginRelayerPath,
-	// },
+	{
+		use:     "network",
+		short:   "Launch a blockchain in production",
+		aliases: []string{"n"},
+		path:    PluginNetworkPath,
+	},
+	{
+		use:     "relayer",
+		short:   "Connect blockchains with an IBC relayer",
+		aliases: []string{"r"},
+		path:    PluginRelayerPath,
+	},
 }
 
 // ensureDefaultPlugins ensures that all defaultPlugins are whether registered
