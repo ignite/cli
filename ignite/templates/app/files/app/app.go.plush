@@ -148,6 +148,7 @@ type App struct {
 
 func init() {
 	var err error
+	clienthelpers.EnvPrefix = Name
 	DefaultNodeHome, err = clienthelpers.GetNodeHomeDirectory("."+Name)
 	if err != nil {
 		panic(err)
