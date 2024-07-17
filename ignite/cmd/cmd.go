@@ -2,7 +2,6 @@ package ignitecmd
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
@@ -64,7 +63,7 @@ To get started, create a blockchain:
 			// Check for new versions only when shell completion scripts are not being
 			// generated to avoid invalid output to stdout when a new version is available
 			if cmd.Use != "completion" || !strings.HasPrefix(cmd.Use, cobra.ShellCompRequestCmd) {
-				checkNewVersion(cmd.Context())
+				checkNewVersion(cmd)
 			}
 
 			return goenv.ConfigurePath()
@@ -189,12 +188,12 @@ func deprecated() []*cobra.Command {
 	}
 }
 
-func checkNewVersion(ctx context.Context) {
+func checkNewVersion(cmd *cobra.Command) {
 	if gitpod.IsOnGitpod() {
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, checkVersionTimeout)
+	ctx, cancel := context.WithTimeout(cmd.Context(), checkVersionTimeout)
 	defer cancel()
 
 	isAvailable, next, err := version.CheckNext(ctx)
@@ -202,7 +201,7 @@ func checkNewVersion(ctx context.Context) {
 		return
 	}
 
-	fmt.Printf("⬆️ Ignite CLI %s is available! To upgrade: https://docs.ignite.com/welcome/install#upgrade", next)
+	cmd.Printf("⬆️ Ignite CLI %s is available! To upgrade: https://docs.ignite.com/welcome/install#upgrade (or use snap or homebrew)\n\n", next)
 }
 
 func newCache(cmd *cobra.Command) (cache.Storage, error) {
