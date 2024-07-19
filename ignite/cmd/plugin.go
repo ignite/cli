@@ -194,6 +194,20 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 		return execHook
 	}
 
+	for _, f := range hook.Flags {
+		var fs *flag.FlagSet
+		if f.Persistent {
+			fs = cmd.PersistentFlags()
+		} else {
+			fs = cmd.Flags()
+		}
+
+		if err := f.ExportToFlagSet(fs); err != nil {
+			p.Error = errors.Errorf("can't attach hook flags %q to command %q", hook.Flags, hook.PlaceHookOn)
+			return
+		}
+	}
+
 	preRun := cmd.PreRunE
 	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
 		if preRun != nil {
@@ -218,11 +232,10 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 	}
 
 	runCmd := cmd.RunE
-
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		if runCmd != nil {
 			err := runCmd(cmd, args)
-			// if the command has failed the `PostRun` will not execute. here we execute the cleanup step before returnning.
+			// if the command has failed the `PostRun` will not execute. here we execute the cleanup step before returning.
 			if err != nil {
 				api, err := newAppClientAPI(cmd)
 				if err != nil {
