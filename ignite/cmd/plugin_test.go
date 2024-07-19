@@ -44,7 +44,12 @@ func buildRootCmd(ctx context.Context) *cobra.Command {
 	return rootCmd
 }
 
+<<<<<<< HEAD
 func assertFlags(t *testing.T, expectedFlags []*plugin.Flag, execCmd *plugin.ExecutedCommand) {
+=======
+func assertFlags(t *testing.T, expectedFlags plugin.Flags, execCmd *plugin.ExecutedCommand) {
+	t.Helper()
+>>>>>>> 8ff971fc (feat: add custom flag parser for extensions (#4269))
 	var (
 		have     []string
 		expected []string
@@ -78,7 +83,7 @@ func TestLinkPluginCmds(t *testing.T) {
 		// define a plugin with command flags
 		pluginWithFlags = &plugin.Command{
 			Use: "flaggy",
-			Flags: []*plugin.Flag{
+			Flags: plugin.Flags{
 				{Name: "flag1", Type: plugin.FlagTypeString},
 				{Name: "flag2", Type: plugin.FlagTypeInt, DefaultValue: "0"},
 			},
@@ -412,7 +417,12 @@ func TestLinkPluginHooks(t *testing.T) {
 
 		// helper to assert pluginInterface.ExecuteHook*() calls in expected order
 		// (pre, then post, then cleanup)
+<<<<<<< HEAD
 		expectExecuteHook = func(t *testing.T, p *mocks.PluginInterface, expectedFlags []*plugin.Flag, hooks ...*plugin.Hook) {
+=======
+		expectExecuteHook = func(t *testing.T, p *mocks.PluginInterface, expectedFlags plugin.Flags, hooks ...*plugin.Hook) {
+			t.Helper()
+>>>>>>> 8ff971fc (feat: add custom flag parser for extensions (#4269))
 			matcher := func(hook *plugin.Hook) any {
 				return mock.MatchedBy(func(execHook *plugin.ExecutedHook) bool {
 					return hook.Name == execHook.Hook.Name &&
@@ -506,7 +516,7 @@ func TestLinkPluginHooks(t *testing.T) {
 				p.EXPECT().
 					Manifest(ctx).
 					Return(&plugin.Manifest{Hooks: []*plugin.Hook{hook}}, nil)
-				expectExecuteHook(t, p, []*plugin.Flag{{Name: "path"}}, hook)
+				expectExecuteHook(t, p, plugin.Flags{{Name: "path"}}, hook)
 			},
 		},
 		{
@@ -523,7 +533,7 @@ func TestLinkPluginHooks(t *testing.T) {
 				p.EXPECT().
 					Manifest(ctx).
 					Return(&plugin.Manifest{Hooks: []*plugin.Hook{hook1, hook2}}, nil)
-				expectExecuteHook(t, p, []*plugin.Flag{{Name: "path"}}, hook1, hook2)
+				expectExecuteHook(t, p, plugin.Flags{{Name: "path"}}, hook1, hook2)
 			},
 		},
 		{
@@ -544,7 +554,7 @@ func TestLinkPluginHooks(t *testing.T) {
 				p.EXPECT().
 					Manifest(ctx).
 					Return(&plugin.Manifest{Hooks: []*plugin.Hook{hookChain1, hookChain2, hookModule}}, nil)
-				expectExecuteHook(t, p, []*plugin.Flag{{Name: "path"}}, hookChain1, hookChain2)
+				expectExecuteHook(t, p, plugin.Flags{{Name: "path"}}, hookChain1, hookChain2)
 				expectExecuteHook(t, p, nil, hookModule)
 			},
 		},
@@ -564,7 +574,7 @@ func TestLinkPluginHooks(t *testing.T) {
 				p.EXPECT().
 					Manifest(ctx).
 					Return(&plugin.Manifest{Hooks: hooks}, nil)
-				expectExecuteHook(t, p, []*plugin.Flag{{Name: "path"}}, hooks...)
+				expectExecuteHook(t, p, plugin.Flags{{Name: "path"}}, hooks...)
 			},
 		},
 		{
@@ -581,7 +591,7 @@ func TestLinkPluginHooks(t *testing.T) {
 				p.EXPECT().
 					Manifest(ctx).
 					Return(&plugin.Manifest{Hooks: []*plugin.Hook{hookChain, hookModule}}, nil)
-				expectExecuteHook(t, p, []*plugin.Flag{{Name: "path"}}, hookChain)
+				expectExecuteHook(t, p, plugin.Flags{{Name: "path"}}, hookChain)
 				expectExecuteHook(t, p, nil, hookModule)
 			},
 		},
