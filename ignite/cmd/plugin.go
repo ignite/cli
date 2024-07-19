@@ -20,7 +20,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/xgit"
 	"github.com/ignite/cli/v29/ignite/services/chain"
 	"github.com/ignite/cli/v29/ignite/services/plugin"
-	v1 "github.com/ignite/cli/v29/ignite/services/plugin/grpc/v1"
 )
 
 const (
@@ -181,7 +180,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 	}
 
 	newExecutedHook := func(hook *plugin.Hook, cmd *cobra.Command, args []string) *plugin.ExecutedHook {
-		hook.Flags = append(hook.Flags, v1.ExtractCobraFlags(cmd)...)
+		hook.ImportFlags(cmd)
 		execHook := &plugin.ExecutedHook{
 			Hook: hook,
 			ExecutedCommand: &plugin.ExecutedCommand{
@@ -190,6 +189,7 @@ func linkPluginHook(rootCmd *cobra.Command, p *plugin.Plugin, hook *plugin.Hook)
 				Args:   args,
 				OsArgs: os.Args,
 				With:   p.With,
+				Flags:  hook.Flags,
 			},
 		}
 		execHook.ExecutedCommand.ImportFlags(cmd)

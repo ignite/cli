@@ -42,7 +42,7 @@ func (c *Command) ToCobraCommand() (*cobra.Command, error) {
 
 // ImportFlags imports flags from a Cobra command.
 func (c *ExecutedCommand) ImportFlags(cmd *cobra.Command) {
-	c.Flags = ExtractCobraFlags(cmd)
+	c.Flags = extractCobraFlags(cmd)
 }
 
 // NewFlags creates a new flags set initialized with the executed command's flags.

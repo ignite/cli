@@ -119,7 +119,7 @@ type flagger interface {
 	PersistentFlags() *pflag.FlagSet
 }
 
-func ExtractCobraFlags(cmd flagger) []*Flag {
+func extractCobraFlags(cmd flagger) []*Flag {
 	var flags []*Flag
 
 	if cmd.Flags() != nil {

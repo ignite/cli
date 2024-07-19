@@ -16,7 +16,7 @@ func convertCobraCommand(c *cobra.Command, placeCommandUnder string) *Command {
 		Long:              c.Long,
 		Hidden:            c.Hidden,
 		PlaceCommandUnder: placeCommandUnder,
-		Flags:             ExtractCobraFlags(c),
+		Flags:             extractCobraFlags(c),
 	}
 
 	for _, c := range c.Commands() {
