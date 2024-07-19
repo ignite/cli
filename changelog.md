@@ -10,18 +10,12 @@
 - [#4001](https://github.com/ignite/cli/pull/4001) Improve `xgenny` dry run
 - [#3967](https://github.com/ignite/cli/issues/3967) Add HD wallet parameters `address index` and `account number` to the chain account config
 - [#4004](https://github.com/ignite/cli/pull/4004) Remove all import placeholders using the `xast` pkg
-- [#4076](https://github.com/ignite/cli/pull/4076) Remove the ignite `relayer` and `tools` commands with all ts-relayer logic
 - [#4071](https://github.com/ignite/cli/pull/4071) Support custom proto path
 - [#3718](https://github.com/ignite/cli/pull/3718) Add `gen-mig-diffs` tool app to compare scaffold output of two versions of ignite
-- [#4077](https://github.com/ignite/cli/pull/4077) Merge the swagger files manually instead use nodetime `swagger-combine`
-- [#4090](https://github.com/ignite/cli/pull/4090) Remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta`
 - [#4100](https://github.com/ignite/cli/pull/4100) Set the `proto-dir` flag only for the `scaffold chain` command and use the proto path from the config
 - [#4111](https://github.com/ignite/cli/pull/4111) Remove vuex generation
-- [#4133](https://github.com/ignite/cli/pull/4133) Improve buf rate limit
 - [#4113](https://github.com/ignite/cli/pull/4113) Generate chain config documentation automatically
 - [#4131](https://github.com/ignite/cli/pull/4131) Support `bytes` as data type in the `scaffold` commands
-- [#4095](https://github.com/ignite/cli/pull/4095) Migrate to matomo analytics
-- [#4183](https://github.com/ignite/cli/pull/4183) Set `chain-id` in the client.toml
 
 ### Changes
 
@@ -36,28 +30,57 @@
 - [#4008](https://github.com/ignite/cli/pull/4008) Rename `pkg/yaml` to `pkg/xyaml`
 - [#4075](https://github.com/ignite/cli/pull/4075) Use `gopkg.in/yaml.v3` instead `gopkg.in/yaml.v2`
 - [#4118](https://github.com/ignite/cli/pull/4118) Version scaffolded protos as `v1` to follow SDK structure.
-- [#4149](https://github.com/ignite/cli/pull/4149) Bump cometbft to `v0.38.7`
 - [#4167](https://github.com/ignite/cli/pull/4167) Scaffold `int64` instead of `int32` when a field type is `int`
-- [#4168](https://github.com/ignite/cli/pull/4168) Bump IBC to `v8.3.1`
-- [#4178](https://github.com/ignite/cli/pull/4178) Bump cosmos-sdk to `v0.50.7`
 - [#4159](https://github.com/ignite/cli/pull/4159) Enable gci linter
 - [#4160](https://github.com/ignite/cli/pull/4160) Enable copyloopvar linter
 - [#4162](https://github.com/ignite/cli/pull/4162) Enable errcheck linter
-- [#4194](https://github.com/ignite/cli/pull/4194) Bump client/v2 to `v2.0.0-beta.2`
 - [#4189](https://github.com/ignite/cli/pull/4189) Deprecate `ignite node` for `ignite connect` app
-- [#4210](https://github.com/ignite/cli/pull/4210) Improve default home wiring
-- [#4253](https://github.com/ignite/cli/pull/4253) Bump cosmos-sdk to `v0.50.8`
 
 ### Fixes
 
 - [#4000](https://github.com/ignite/cli/pull/4000) Run all dry runners before the wet run in the `xgenny` pkg
 - [#4091](https://github.com/ignite/cli/pull/4091) Fix race conditions in the plugin logic
 - [#4128](https://github.com/ignite/cli/pull/4128) Check for duplicate proto fields in config
+
+## [`v28.5.0`](https://github.com/ignite/cli/releases/tag/v28.5.0)
+
+### Features
+
+- [#4183](https://github.com/ignite/cli/pull/4183) Set `chain-id` in the client.toml
+- [#4090](https://github.com/ignite/cli/pull/4090) Remove `protoc` pkg and also nodetime helpers `ts-proto` and `sta`
+- [#4076](https://github.com/ignite/cli/pull/4076) Remove the ignite `relayer` and `tools` commands with all ts-relayer logic
+- [#4133](https://github.com/ignite/cli/pull/4133) Improve buf rate limit
+
+### Changes
+
+- [#4095](https://github.com/ignite/cli/pull/4095) Migrate to matomo analytics
+- [#4149](https://github.com/ignite/cli/pull/4149) Bump cometbft to `v0.38.7`
+- [#4168](https://github.com/ignite/cli/pull/4168) Bump IBC to `v8.3.1`
+  If you are upgrading manually from `v8.2.0` to `v8.3.1`, add the following to your `ibc.go` file:
+
+  ```diff
+  app.ICAHostKeeper = ...
+  + app.ICAHostKeeper.WithQueryRouter(app.GRPCQueryRouter())`
+  app.ICAControllerKeeper = ...
+  ```
+
+- [#4178](https://github.com/ignite/cli/pull/4178) Bump cosmos-sdk to `v0.50.7`
+- [#4194](https://github.com/ignite/cli/pull/4194) Bump client/v2 to `v2.0.0-beta.2`
+  If you are uprading manually, check out the recommended changes in `root.go` from the above PR.
+- [#4210](https://github.com/ignite/cli/pull/4210) Improve default home wiring
+- [#4077](https://github.com/ignite/cli/pull/4077) Merge the swagger files manually instead use nodetime `swagger-combine`
+- [#4249](https://github.com/ignite/cli/pull/4249) Prevent creating a chain with number in the name
+- [#4253](https://github.com/ignite/cli/pull/4253) Bump cosmos-sdk to `v0.50.8`
+
+### Fixes
+
 - [#4184](https://github.com/ignite/cli/pull/4184) Set custom `InitChainer` because of manually registered modules
 - [#4198](https://github.com/ignite/cli/pull/4198) Set correct prefix overwriting in `buf.gen.pulsar.yaml`
 - [#4199](https://github.com/ignite/cli/pull/4199) Set and seal SDK global config in `app/config.go`
 - [#4212](https://github.com/ignite/cli/pull/4212) Set default values for extension flag to dont crash ignite
 - [#4216](https://github.com/ignite/cli/pull/4216) Avoid create duplicated scopedKeppers
+- [#4242](https://github.com/ignite/cli/pull/4242) Use buf build binary from the gobin path
+- [#4250](https://github.com/ignite/cli/pull/4250) Set gas adjustment before calculating
 
 ## [`v28.4.0`](https://github.com/ignite/cli/releases/tag/v28.4.0)
 
