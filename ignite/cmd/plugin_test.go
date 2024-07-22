@@ -44,12 +44,8 @@ func buildRootCmd(ctx context.Context) *cobra.Command {
 	return rootCmd
 }
 
-<<<<<<< HEAD
-func assertFlags(t *testing.T, expectedFlags []*plugin.Flag, execCmd *plugin.ExecutedCommand) {
-=======
 func assertFlags(t *testing.T, expectedFlags plugin.Flags, execCmd *plugin.ExecutedCommand) {
 	t.Helper()
->>>>>>> 8ff971fc (feat: add custom flag parser for extensions (#4269))
 	var (
 		have     []string
 		expected []string
@@ -417,12 +413,8 @@ func TestLinkPluginHooks(t *testing.T) {
 
 		// helper to assert pluginInterface.ExecuteHook*() calls in expected order
 		// (pre, then post, then cleanup)
-<<<<<<< HEAD
-		expectExecuteHook = func(t *testing.T, p *mocks.PluginInterface, expectedFlags []*plugin.Flag, hooks ...*plugin.Hook) {
-=======
 		expectExecuteHook = func(t *testing.T, p *mocks.PluginInterface, expectedFlags plugin.Flags, hooks ...*plugin.Hook) {
 			t.Helper()
->>>>>>> 8ff971fc (feat: add custom flag parser for extensions (#4269))
 			matcher := func(hook *plugin.Hook) any {
 				return mock.MatchedBy(func(execHook *plugin.ExecutedHook) bool {
 					return hook.Name == execHook.Hook.Name &&
