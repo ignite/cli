@@ -16,10 +16,10 @@ type defaultExtension struct {
 }
 
 const (
-	ExtensionNetworkVersion = "v0.2.2"
-	ExtensionNetworkPath    = "github.com/ignite/cli-plugin-network@" + ExtensionNetworkVersion
-	ExtensionRelayerVersion = "hermes/v0.2.2"
-	ExtensionRelayerPath    = "github.com/ignite/apps/hermes@" + ExtensionRelayerVersion
+	PluginNetworkVersion = "v0.2.2"
+	PluginNetworkPath    = "github.com/ignite/cli-plugin-network@" + PluginNetworkVersion
+	PluginRelayerVersion = "hermes/v0.2.4"
+	PluginRelayerPath    = "github.com/ignite/apps/hermes@" + PluginRelayerVersion
 )
 
 // defaultExtension holds the extensions that are considered trustable and for which
