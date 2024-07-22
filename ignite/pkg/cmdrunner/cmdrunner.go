@@ -233,7 +233,7 @@ func (r *Runner) newCommand(step *step.Step) Executor {
 	}
 
 	// Initialize command
-	command := exec.Command(step.Exec.Command, step.Exec.Args...)
+	command := exec.Command(step.Exec.Command, step.Exec.Args...) //nolint:gosec
 	command.Stdout = stdout
 	command.Stderr = stderr
 	command.Dir = dir

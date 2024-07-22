@@ -300,7 +300,7 @@ func (p *Plugin) load(ctx context.Context) {
 		p.client = hplugin.NewClient(cfg)
 	} else {
 		// Launch a new plugin process
-		cfg.Cmd = exec.Command(p.binaryPath())
+		cfg.Cmd = exec.Command(p.binaryPath()) //nolint:gosec
 		p.client = hplugin.NewClient(cfg)
 	}
 
