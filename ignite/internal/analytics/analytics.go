@@ -1,10 +1,10 @@
 package analytics
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -12,22 +12,22 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/v29/ignite/pkg/gacli"
+	"github.com/ignite/cli/v29/ignite/config"
 	"github.com/ignite/cli/v29/ignite/pkg/gitpod"
+	"github.com/ignite/cli/v29/ignite/pkg/matomo"
 	"github.com/ignite/cli/v29/ignite/pkg/randstr"
 	"github.com/ignite/cli/v29/ignite/version"
 )
 
 const (
-	telemetryEndpoint  = "https://telemetry-cli.ignite.com"
+	telemetryEndpoint  = "https://matomo-cli.ignite.com"
 	envDoNotTrack      = "DO_NOT_TRACK"
 	envCI              = "CI"
 	envGitHubActions   = "GITHUB_ACTIONS"
-	igniteDir          = ".ignite"
 	igniteAnonIdentity = "anon_identity.json"
 )
 
-var gaclient gacli.Client
+var matomoClient matomo.Client
 
 // anonIdentity represents an analytics identity file.
 type anonIdentity struct {
@@ -38,7 +38,11 @@ type anonIdentity struct {
 }
 
 func init() {
-	gaclient = gacli.New(telemetryEndpoint)
+	matomoClient = matomo.New(
+		telemetryEndpoint,
+		matomo.WithIDSite(4),
+		matomo.WithSource("https://cli.ignite.com"),
+	)
 }
 
 // SendMetric send command metrics to analytics.
@@ -52,23 +56,46 @@ func SendMetric(wg *sync.WaitGroup, cmd *cobra.Command) {
 		return
 	}
 
-	path := cmd.CommandPath()
-	met := gacli.Metric{
-		Name:      cmd.Name(),
-		Cmd:       path,
-		Tag:       strings.ReplaceAll(path, " ", "+"),
-		OS:        runtime.GOOS,
-		Arch:      runtime.GOARCH,
-		SessionID: dntInfo.Name,
-		Version:   version.Version,
-		IsGitPod:  gitpod.IsOnGitpod(),
-		IsCI:      getIsCI(),
+	versionInfo, err := version.GetInfo(context.Background())
+	if err != nil {
+		return
+	}
+
+	var (
+		path         = cmd.CommandPath()
+		scaffoldType = ""
+	)
+	if strings.Contains(path, "ignite scaffold") {
+		splitCMD := strings.Split(path, " ")
+		if len(splitCMD) > 2 {
+			scaffoldType = splitCMD[2]
+		}
+	}
+
+	met := matomo.Metric{
+		Name:            cmd.Name(),
+		Cmd:             path,
+		ScaffoldType:    scaffoldType,
+		OS:              versionInfo.OS,
+		Arch:            versionInfo.Arch,
+		Version:         versionInfo.CLIVersion,
+		CLIVersion:      versionInfo.CLIVersion,
+		GoVersion:       versionInfo.GoVersion,
+		SDKVersion:      versionInfo.SDKVersion,
+		BuildDate:       versionInfo.BuildDate,
+		SourceHash:      versionInfo.SourceHash,
+		ConfigVersion:   versionInfo.ConfigVersion,
+		Uname:           versionInfo.Uname,
+		CWD:             versionInfo.CWD,
+		BuildFromSource: versionInfo.BuildFromSource,
+		IsGitPod:        gitpod.IsOnGitpod(),
+		IsCI:            getIsCI(),
 	}
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		_ = gaclient.SendMetric(met)
+		_ = matomoClient.SendMetric(dntInfo.Name, met)
 	}()
 }
 
@@ -79,14 +106,15 @@ func checkDNT() (anonIdentity, error) {
 		return anonIdentity{DoNotTrack: true}, nil
 	}
 
-	home, err := os.UserHomeDir()
+	globalPath, err := config.DirPath()
 	if err != nil {
 		return anonIdentity{}, err
 	}
-	if err := os.Mkdir(filepath.Join(home, igniteDir), 0o700); err != nil && !os.IsExist(err) {
+	if err := os.Mkdir(globalPath, 0o700); err != nil && !os.IsExist(err) {
 		return anonIdentity{}, err
 	}
-	identityPath := filepath.Join(home, igniteDir, igniteAnonIdentity)
+
+	identityPath := filepath.Join(globalPath, igniteAnonIdentity)
 	data, err := os.ReadFile(identityPath)
 	if err != nil && !os.IsNotExist(err) {
 		return anonIdentity{}, err
@@ -97,7 +125,7 @@ func checkDNT() (anonIdentity, error) {
 		return i, nil
 	}
 
-	i.Name = randstr.Runes(10)
+	i.Name = randstr.Runes(16)
 	i.DoNotTrack = false
 
 	prompt := promptui.Select{

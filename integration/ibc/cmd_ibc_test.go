@@ -109,7 +109,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 func TestCreateIBCPacket(t *testing.T) {
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/blogibc2")
+		app = env.Scaffold("github.com/test/blogibcb")
 	)
 
 	env.Must(env.Exec("create an IBC module",

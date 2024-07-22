@@ -2,7 +2,6 @@ package ignitecmd
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
@@ -17,6 +16,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	uilog "github.com/ignite/cli/v29/ignite/pkg/cliui/log"
+	"github.com/ignite/cli/v29/ignite/pkg/dircache"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gitpod"
 	"github.com/ignite/cli/v29/ignite/pkg/goenv"
@@ -72,7 +72,7 @@ To get started, create a blockchain:
 			// Check for new versions only when shell completion scripts are not being
 			// generated to avoid invalid output to stdout when a new version is available
 			if cmd.Use != "completion" || !strings.HasPrefix(cmd.Use, cobra.ShellCompRequestCmd) {
-				checkNewVersion(cmd.Context())
+				checkNewVersion(cmd)
 			}
 
 			return goenv.ConfigurePath()
@@ -83,7 +83,6 @@ To get started, create a blockchain:
 		NewScaffold(),
 		NewChain(),
 		NewGenerate(),
-		NewNode(),
 		NewAccount(),
 		NewDocs(),
 		NewVersion(),
@@ -145,11 +144,6 @@ func flagSetHome() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.String(flagHome, "", "directory where the blockchain node is initialized")
 	return fs
-}
-
-func getHome(cmd *cobra.Command) (home string) {
-	home, _ = cmd.Flags().GetString(flagHome)
-	return
 }
 
 func flagSetConfig() *flag.FlagSet {
@@ -238,15 +232,19 @@ func deprecated() []*cobra.Command {
 			Use:        "faucet",
 			Deprecated: "use `ignite chain faucet` instead.",
 		},
+		{
+			Use:        "node",
+			Deprecated: "use ignite connect app instead (ignite app install -g github.com/ignite/apps/connect).",
+		},
 	}
 }
 
-func checkNewVersion(ctx context.Context) {
+func checkNewVersion(cmd *cobra.Command) {
 	if gitpod.IsOnGitpod() {
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, checkVersionTimeout)
+	ctx, cancel := context.WithTimeout(cmd.Context(), checkVersionTimeout)
 	defer cancel()
 
 	isAvailable, next, err := version.CheckNext(ctx)
@@ -254,7 +252,7 @@ func checkNewVersion(ctx context.Context) {
 		return
 	}
 
-	fmt.Printf("⬆️ Ignite CLI %s is available! To upgrade: https://docs.ignite.com/welcome/install#upgrade", next)
+	cmd.Printf("⬆️ Ignite CLI %s is available! To upgrade: https://docs.ignite.com/welcome/install#upgrade (or use snap or homebrew)\n\n", next)
 }
 
 func newCache(cmd *cobra.Command) (cache.Storage, error) {
@@ -273,6 +271,9 @@ func newCache(cmd *cobra.Command) (cache.Storage, error) {
 
 	if flagGetClearCache(cmd) {
 		if err := storage.Clear(); err != nil {
+			return cache.Storage{}, err
+		}
+		if err := dircache.ClearCache(); err != nil {
 			return cache.Storage{}, err
 		}
 	}

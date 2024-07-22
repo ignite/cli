@@ -100,6 +100,7 @@ func setupSPN(env envtest.Env) string {
 }
 
 func migrateSPNConfig(t *testing.T, spnPath string) {
+	t.Helper()
 	configPath := filepath.Join(spnPath, spnConfigFile)
 	rawCfg, err := os.ReadFile(configPath)
 	require.NoError(t, err)

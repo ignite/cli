@@ -131,7 +131,8 @@ func TestExecutedCommandImportFlags(t *testing.T) {
 	cmd := cobra.Command{}
 	cmd.Flags().StringP("foo", "f", "bar", "foo usage")
 	cmd.PersistentFlags().IntP("test", "t", 1, "test usage")
-	cmd.ParseFlags([]string{"--foo", "baz", "--test", "42"})
+	err := cmd.ParseFlags([]string{"--foo", "baz", "--test", "42"})
+	require.NoError(t, err)
 
 	// Act
 	execCmd.ImportFlags(&cmd)
@@ -149,6 +150,7 @@ func TestExecutedCommandNewFlags(t *testing.T) {
 				Shorthand:    "b",
 				Usage:        "bool usage",
 				DefaultValue: "false",
+				Value:        "true",
 				Type:         v1.Flag_TYPE_FLAG_BOOL,
 			},
 			{
@@ -156,6 +158,7 @@ func TestExecutedCommandNewFlags(t *testing.T) {
 				Shorthand:    "i",
 				Usage:        "int usage",
 				DefaultValue: "0",
+				Value:        "42",
 				Type:         v1.Flag_TYPE_FLAG_INT,
 			},
 			{
@@ -163,6 +166,7 @@ func TestExecutedCommandNewFlags(t *testing.T) {
 				Shorthand:    "u",
 				Usage:        "uint usage",
 				DefaultValue: "0",
+				Value:        "42",
 				Type:         v1.Flag_TYPE_FLAG_UINT,
 			},
 			{
@@ -170,6 +174,7 @@ func TestExecutedCommandNewFlags(t *testing.T) {
 				Shorthand:    "j",
 				Usage:        "int64 usage",
 				DefaultValue: "0",
+				Value:        "42",
 				Type:         v1.Flag_TYPE_FLAG_INT64,
 			},
 			{
@@ -177,6 +182,7 @@ func TestExecutedCommandNewFlags(t *testing.T) {
 				Shorthand:    "k",
 				Usage:        "uint64 usage",
 				DefaultValue: "0",
+				Value:        "42",
 				Type:         v1.Flag_TYPE_FLAG_UINT64,
 			},
 			{
@@ -184,6 +190,7 @@ func TestExecutedCommandNewFlags(t *testing.T) {
 				Shorthand:    "s",
 				Usage:        "string usage",
 				DefaultValue: "",
+				Value:        "hello",
 				Type:         v1.Flag_TYPE_FLAG_STRING_UNSPECIFIED,
 			},
 			{
@@ -191,6 +198,7 @@ func TestExecutedCommandNewFlags(t *testing.T) {
 				Shorthand:    "l",
 				Usage:        "string slice usage",
 				DefaultValue: "[]",
+				Value:        "[]",
 				Type:         v1.Flag_TYPE_FLAG_STRING_SLICE,
 			},
 			{
@@ -247,6 +255,7 @@ func TestExecutedCommandNewPersistentFlags(t *testing.T) {
 				Shorthand:    "b",
 				Usage:        "bool usage",
 				DefaultValue: "false",
+				Value:        "true",
 				Type:         v1.Flag_TYPE_FLAG_BOOL,
 				Persistent:   true,
 			},
@@ -255,6 +264,7 @@ func TestExecutedCommandNewPersistentFlags(t *testing.T) {
 				Shorthand:    "i",
 				Usage:        "int usage",
 				DefaultValue: "0",
+				Value:        "42",
 				Type:         v1.Flag_TYPE_FLAG_INT,
 				Persistent:   true,
 			},
@@ -263,6 +273,7 @@ func TestExecutedCommandNewPersistentFlags(t *testing.T) {
 				Shorthand:    "u",
 				Usage:        "uint usage",
 				DefaultValue: "0",
+				Value:        "42",
 				Type:         v1.Flag_TYPE_FLAG_UINT,
 				Persistent:   true,
 			},
@@ -271,6 +282,7 @@ func TestExecutedCommandNewPersistentFlags(t *testing.T) {
 				Shorthand:    "j",
 				Usage:        "int64 usage",
 				DefaultValue: "0",
+				Value:        "42",
 				Type:         v1.Flag_TYPE_FLAG_INT64,
 				Persistent:   true,
 			},
@@ -279,6 +291,7 @@ func TestExecutedCommandNewPersistentFlags(t *testing.T) {
 				Shorthand:    "k",
 				Usage:        "uint64 usage",
 				DefaultValue: "0",
+				Value:        "42",
 				Type:         v1.Flag_TYPE_FLAG_UINT64,
 				Persistent:   true,
 			},
@@ -287,6 +300,7 @@ func TestExecutedCommandNewPersistentFlags(t *testing.T) {
 				Shorthand:    "s",
 				Usage:        "string usage",
 				DefaultValue: "",
+				Value:        "hello",
 				Type:         v1.Flag_TYPE_FLAG_STRING_UNSPECIFIED,
 				Persistent:   true,
 			},
@@ -295,6 +309,7 @@ func TestExecutedCommandNewPersistentFlags(t *testing.T) {
 				Shorthand:    "l",
 				Usage:        "string slice usage",
 				DefaultValue: "[]",
+				Value:        "[]",
 				Type:         v1.Flag_TYPE_FLAG_STRING_SLICE,
 				Persistent:   true,
 			},

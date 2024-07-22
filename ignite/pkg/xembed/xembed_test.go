@@ -57,7 +57,7 @@ func TestFileList(t *testing.T) {
 			},
 		},
 		{
-			name: "sub sub testdata folder",
+			name: "sub sub testdata folder", //nolint:dupword
 			args: args{
 				efs:  fsProtoTest,
 				path: "testdata/subtestdata/subtestdata",

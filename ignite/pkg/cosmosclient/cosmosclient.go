@@ -14,9 +14,10 @@ import (
 	"time"
 
 	"github.com/cenkalti/backoff"
-	rpcclient "github.com/cometbft/cometbft/rpc/client"
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
-	ctypes "github.com/cometbft/cometbft/rpc/core/types"
+	gogogrpc "github.com/cosmos/gogoproto/grpc"
+	"github.com/cosmos/gogoproto/proto"
+	prototypes "github.com/cosmos/gogoproto/types"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -30,9 +31,10 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
-	gogogrpc "github.com/cosmos/gogoproto/grpc"
-	"github.com/cosmos/gogoproto/proto"
-	prototypes "github.com/cosmos/gogoproto/types"
+
+	rpcclient "github.com/cometbft/cometbft/rpc/client"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosfaucet"
@@ -571,6 +573,10 @@ func (c Client) CreateTx(goCtx context.Context, account cosmosaccount.Account, m
 		return TxService{}, err
 	}
 
+	if c.gasAdjustment != 0 && c.gasAdjustment != defaultGasAdjustment {
+		txf = txf.WithGasAdjustment(c.gasAdjustment)
+	}
+
 	var gas uint64
 	if c.gas != "" && c.gas != GasAuto {
 		gas, err = strconv.ParseUint(c.gas, 10, 64)
@@ -591,10 +597,6 @@ func (c Client) CreateTx(goCtx context.Context, account cosmosaccount.Account, m
 
 	if c.gasPrices != "" {
 		txf = txf.WithGasPrices(c.gasPrices)
-	}
-
-	if c.gasAdjustment != 0 && c.gasAdjustment != defaultGasAdjustment {
-		txf = txf.WithGasAdjustment(c.gasAdjustment)
 	}
 
 	txUnsigned, err := txf.BuildUnsignedTx(msgs...)

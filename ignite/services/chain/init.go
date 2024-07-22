@@ -101,7 +101,7 @@ func (c *Chain) InitChain(ctx context.Context, initConfiguration, initGenesis bo
 
 	// ovewrite app config files with the values defined in Ignite's config file
 	if initConfiguration {
-		if err := c.Configure(home, conf); err != nil {
+		if err := c.Configure(home, chainID, conf); err != nil {
 			return err
 		}
 	}
@@ -228,6 +228,8 @@ func (c *Chain) IsInitialized() (bool, error) {
 
 	if _, err := os.Stat(gentxDir); os.IsNotExist(err) {
 		return false, nil
+	} else if err != nil {
+		return false, err
 	}
 
 	return true, nil

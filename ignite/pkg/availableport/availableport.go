@@ -1,20 +1,27 @@
 package availableport
 
 import (
-	"crypto/rand"
 	"fmt"
-	"math/big"
+	"math/rand"
 	"net"
+	"time"
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 type availablePortOptions struct {
-	minPort uint
-	maxPort uint
+	randomizer *rand.Rand
+	minPort    uint
+	maxPort    uint
 }
 
 type Options func(o *availablePortOptions)
+
+func WithRandomizer(r *rand.Rand) Options {
+	return func(o *availablePortOptions) {
+		o.randomizer = r
+	}
+}
 
 func WithMaxPort(maxPort uint) Options {
 	return func(o *availablePortOptions) {
@@ -34,8 +41,9 @@ func WithMinPort(minPort uint) Options {
 func Find(n uint, options ...Options) (ports []uint, err error) {
 	// Defining them before so we can set a value depending on the AvailablePortOptions
 	opts := availablePortOptions{
-		minPort: 44000,
-		maxPort: 55000,
+		minPort:    44000,
+		maxPort:    55000,
+		randomizer: rand.New(rand.NewSource(time.Now().UnixNano())),
 	}
 
 	for _, apply := range options {
@@ -56,11 +64,8 @@ func Find(n uint, options ...Options) (ports []uint, err error) {
 	for len(registered) < int(n) {
 		// Greater or equal to min and lower than max
 		totalPorts := opts.maxPort - opts.minPort + 1
-		randomPort, err := rand.Int(rand.Reader, big.NewInt(int64(totalPorts)))
-		if err != nil {
-			return nil, errors.Errorf("failed to generate random port: %v", err)
-		}
-		port := uint(randomPort.Int64()) + opts.minPort
+		randomPort := opts.randomizer.Intn(int(totalPorts))
+		port := uint(randomPort) + opts.minPort
 
 		conn, err := net.Dial("tcp", fmt.Sprintf(":%d", port))
 		// if there is an error, this might mean that no one is listening from this port
