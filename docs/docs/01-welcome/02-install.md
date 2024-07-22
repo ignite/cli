@@ -25,7 +25,10 @@ Ignite CLI is supported for the following operating systems:
 Ignite CLI is written in the Go programming language. To use Ignite CLI on a local system:
 
 - Install [Go](https://golang.org/doc/install) (**version 1.21.1** or higher)
-- Ensure the Go environment variables are [set properly](https://golang.org/doc/gopath_code#GOPATH) on your system
+- Ensure the Go environment variables are [set properly](https://golang.org/doc/gopath_code#GOPATH) on your system.
+
+#### Troubleshooting Go Environment Setup: 
+  If you encounter any issues while setting up your Go environment variables, please refer to our detailed guide: [Configure Go Environment Variables.](03-set-go-env-var.md)
 
 ## Verify your Ignite CLI version
 
