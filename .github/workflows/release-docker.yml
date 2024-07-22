@@ -27,12 +27,7 @@ jobs:
     name: Push Docker image to Docker Hub
     if: needs.check-latest-run.outputs.last_sha != github.sha
     runs-on: ubuntu-latest
-<<<<<<< HEAD
-    needs: [consecutiveness, check-latest-run]
-=======
     needs: [check-latest-run]
->>>>>>> 281fff02 (ci: remove consecutiveness step (#4273))
-
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3

@@ -25,14 +25,9 @@ jobs:
   release-nightly:
     if: needs.check-latest-run.outputs.last_sha != github.sha
     runs-on: ubuntu-latest
-<<<<<<< HEAD
-    needs: [consecutiveness, check-latest-run]
-=======
     needs: [check-latest-run]
->>>>>>> 281fff02 (ci: remove consecutiveness step (#4273))
     env:
       working-directory: go/src/github.com/ignite/cli
-
     steps:
       - uses: actions/checkout@v3
 
@@ -62,11 +57,7 @@ jobs:
   releases-binaries:
     if: needs.check-latest-run.outputs.last_sha != github.sha
     name: Release Go Binary
-<<<<<<< HEAD
-    needs: [consecutiveness, check-latest-run]
-=======
     needs: [check-latest-run]
->>>>>>> 281fff02 (ci: remove consecutiveness step (#4273))
     runs-on: ubuntu-latest
     strategy:
       matrix:
