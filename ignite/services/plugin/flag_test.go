@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -511,7 +512,7 @@ func TestFlags_getValue(t *testing.T) {
 		err      error
 	}{
 		{
-			name:     "Valid string conversion",
+			name:     "valid string conversion",
 			f:        testFlags,
 			key:      flagString1,
 			flagType: FlagTypeString,
@@ -519,7 +520,15 @@ func TestFlags_getValue(t *testing.T) {
 			want:     "text_1",
 		},
 		{
-			name:     "Invalid flag type",
+			name:     "valid int conversion",
+			f:        testFlags,
+			key:      flagInt1,
+			flagType: FlagTypeInt,
+			convFunc: func(v string) (interface{}, error) { return strconv.Atoi(v) },
+			want:     -100,
+		},
+		{
+			name:     "invalid flag type",
 			f:        testFlags,
 			key:      flagString1,
 			flagType: FlagTypeInt,
@@ -527,7 +536,7 @@ func TestFlags_getValue(t *testing.T) {
 			err:      errors.Wrapf(ErrInvalidFlagType, "invalid flag type %v for key %s", FlagTypeString, flagString1),
 		},
 		{
-			name:     "Flag not found",
+			name:     "flag not found",
 			f:        testFlags,
 			key:      "non_existing_flag",
 			flagType: FlagTypeString,
@@ -556,19 +565,24 @@ func Test_flagValue(t *testing.T) {
 		want string
 	}{
 		{
-			name: "Flag with value",
+			name: "with value",
 			flag: &Flag{Name: flagString1, Value: "actual_value", DefaultValue: "default_value"},
 			want: "actual_value",
 		},
 		{
-			name: "Flag with default value",
+			name: "with default value",
 			flag: &Flag{Name: flagString1, DefaultValue: "default_value"},
 			want: "default_value",
 		},
 		{
-			name: "Flag without value and default value",
+			name: "without value and default value",
 			flag: &Flag{Name: flagString1},
 			want: "",
+		},
+		{
+			name: "number without value and default value",
+			flag: &Flag{Name: flagUint642, Type: FlagTypeUint64},
+			want: "0",
 		},
 	}
 	for _, tt := range tests {
