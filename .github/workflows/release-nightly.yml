@@ -58,7 +58,7 @@ jobs:
   releases-binaries:
     if: needs.check-latest-run.outputs.last_sha != github.sha
     name: Release Go Binary
-    needs: [consecutiveness, check-latest-run]
+    needs: [check-latest-run]
     runs-on: ubuntu-latest
     strategy:
       matrix:
