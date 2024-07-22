@@ -5,17 +5,17 @@ on:
     branches:
       - main
 
-jobs:
-  consecutiveness:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: ignite/consecutive-workflow-action@main
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+concurrency:
+  group: ci-${{ github.ref }}-docs-deploy
+  cancel-in-progress: true
 
+jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
+<<<<<<< HEAD
     needs: [consecutiveness]
+=======
+>>>>>>> 281fff02 (ci: remove consecutiveness step (#4273))
 
     steps:
       - name: Checkout

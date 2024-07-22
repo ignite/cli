@@ -10,13 +10,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  consecutiveness:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: ignite/consecutive-workflow-action@main
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
   check-latest-run:
     runs-on: "ubuntu-latest"
     steps:
@@ -32,7 +25,11 @@ jobs:
   release-nightly:
     if: needs.check-latest-run.outputs.last_sha != github.sha
     runs-on: ubuntu-latest
+<<<<<<< HEAD
     needs: [consecutiveness, check-latest-run]
+=======
+    needs: [check-latest-run]
+>>>>>>> 281fff02 (ci: remove consecutiveness step (#4273))
     env:
       working-directory: go/src/github.com/ignite/cli
 
@@ -65,7 +62,11 @@ jobs:
   releases-binaries:
     if: needs.check-latest-run.outputs.last_sha != github.sha
     name: Release Go Binary
+<<<<<<< HEAD
     needs: [consecutiveness, check-latest-run]
+=======
+    needs: [check-latest-run]
+>>>>>>> 281fff02 (ci: remove consecutiveness step (#4273))
     runs-on: ubuntu-latest
     strategy:
       matrix:
