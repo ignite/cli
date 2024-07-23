@@ -1,6 +1,7 @@
 package chain
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"net/http"
@@ -62,6 +63,8 @@ var (
 		config.DirPath,
 		xfilepath.Path("local-chains"),
 	)
+
+	showedUserFeedbackForm bool
 )
 
 type serveOptions struct {
@@ -95,6 +98,42 @@ func ServeResetOnce() ServeOption {
 	return func(c *serveOptions) {
 		c.resetOnce = true
 	}
+}
+
+func promptUserToVisitFeedbackForm(showeduserFBForm *bool) {
+
+	const feedbackformUrl string = "https://airtable.com/appJSewpTgxNx4G1k/pagG8DQEMEa5ilq1a/form"
+
+	reader := bufio.NewReader((os.Stdin))
+	for {
+		userPrompt1 := fmt.Sprintf("We would love your feedback, please vist: %s", feedbackformUrl)
+		fmt.Println(userPrompt1)
+
+		fmt.Print("Do you want to stop seeing the feedback form? (Y/N): ")
+
+		input, err := reader.ReadString('\n')
+
+		if err != nil {
+			fmt.Println("An error occurred while reading input. Please try again:", err)
+			continue
+		}
+
+		input = strings.TrimSpace(input)
+
+		switch input {
+		case "Y":
+			*showeduserFBForm = false
+			fmt.Println("You will no longer be asked for feedback")
+			return // Exit the function after valid input
+		case "N":
+			fmt.Println("Well ask you for feedback another time")
+			return // Exit the function after valid input
+		default:
+			fmt.Println("Invalid input. Please enter only 'Y' or 'N'.")
+		}
+
+	}
+
 }
 
 // QuitOnFail exits the serve immediately if an error occurs.
@@ -219,11 +258,28 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 							fmt.Sprintf("Genesis state saved in %s", genesisPath),
 							events.Icon(icons.CD),
 						)
+
+						if !showedUserFeedbackForm {
+							promptUserToVisitFeedbackForm(&showedUserFeedbackForm)
+
+						}
 					}
 				case errors.As(err, &validationErr):
 					if serveOptions.quitOnFail {
 						return err
 					}
+					/*
+
+						TODO: There are two aproaches randomly provide the user the form link using random . range
+						set the range between 1 - 10 everyting the value is 5 show the form show the user 3 times and aftewards ]
+						update a variable to stop showing the user the prompt
+
+						TODO: create a function that shows the users to link and ask them if they no longer want to be prompted
+						ask them to enter y/N if n update a variable to no longer the user the prompt
+
+
+
+					*/
 
 					// Change error message to add a link to the configuration docs
 					err = errors.Errorf("%w\nsee: https://github.com/ignite/cli#configure", err)
