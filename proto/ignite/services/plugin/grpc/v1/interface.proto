@@ -144,4 +144,7 @@ message Hook {
 
   // Indicates the command where to register the hooks.
   string place_hook_on = 2;
+
+  // Flags holds the list of command flags.
+  repeated Flag flags = 3;
 }

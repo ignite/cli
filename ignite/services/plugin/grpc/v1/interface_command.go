@@ -32,7 +32,7 @@ func (c *Command) ToCobraCommand() (*cobra.Command, error) {
 			fs = cmd.Flags()
 		}
 
-		if err := f.exportToFlagSet(fs); err != nil {
+		if err := f.ExportToFlagSet(fs); err != nil {
 			return nil, err
 		}
 	}
@@ -54,7 +54,7 @@ func (c *ExecutedCommand) NewFlags() (*pflag.FlagSet, error) {
 			continue
 		}
 
-		if err := f.exportToFlagSet(fs); err != nil {
+		if err := f.ExportToFlagSet(fs); err != nil {
 			return nil, err
 		}
 	}
@@ -71,7 +71,7 @@ func (c *ExecutedCommand) NewPersistentFlags() (*pflag.FlagSet, error) {
 			continue
 		}
 
-		if err := f.exportToFlagSet(fs); err != nil {
+		if err := f.ExportToFlagSet(fs); err != nil {
 			return nil, err
 		}
 	}

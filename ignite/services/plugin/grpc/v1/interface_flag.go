@@ -33,7 +33,7 @@ func newDefaultFlagValueError(typeName, value string) error {
 	return errors.Errorf("invalid default value for plugin command %s flag: %s", typeName, value)
 }
 
-func (f *Flag) exportToFlagSet(fs *pflag.FlagSet) error {
+func (f *Flag) ExportToFlagSet(fs *pflag.FlagSet) error {
 	switch f.Type { //nolint:exhaustive
 	case Flag_TYPE_FLAG_BOOL,
 		Flag_TYPE_FLAG_INT,
