@@ -17,6 +17,7 @@
 - [#4113](https://github.com/ignite/cli/pull/4113) Generate chain config documentation automatically
 - [#4131](https://github.com/ignite/cli/pull/4131) Support `bytes` as data type in the `scaffold` commands
 - [#4269](https://github.com/ignite/cli/pull/4269) Add custom flag parser for extensions
+- [#4276](https://github.com/ignite/cli/pull/4276) Add `cosmosclient.CreateTxWithOptions` method to facilite more custom tx creation
 
 ### Changes
 
