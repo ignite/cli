@@ -235,6 +235,7 @@ func (c *Chain) preBuild(
 		gocmd.FlagMod, gocmd.FlagModValueReadOnly,
 		gocmd.FlagTags, gocmd.Tags(buildTags...),
 		gocmd.FlagLdflags, gocmd.Ldflags(ldFlags...),
+		"-buildvcs=false",
 	}
 
 	c.ev.Send("Installing dependencies...", events.ProgressUpdate())
