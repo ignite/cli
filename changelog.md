@@ -8,6 +8,7 @@
 
 - [#4262](https://github.com/ignite/cli/pull/4262) Bring back relayer command
 - [#4269](https://github.com/ignite/cli/pull/4269) Add custom flag parser for extensions
+- [#4270](https://github.com/ignite/cli/pull/4270) Add flags to the extension hooks commands
 
 ## [`v28.5.0`](https://github.com/ignite/cli/releases/tag/v28.5.0)
 
