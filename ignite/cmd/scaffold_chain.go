@@ -17,6 +17,7 @@ const (
 	flagNoDefaultModule = "no-module"
 	flagSkipGit         = "skip-git"
 	flagIsConsumer      = "consumer"
+	flagFeeabsModule    = "fee-abstraction"
 
 	tplScaffoldChainSuccess = `
 ⭐️ Successfully created a new blockchain '%[1]v'.
@@ -90,9 +91,10 @@ about Cosmos SDK on https://docs.cosmos.network
 	c.Flags().Bool(flagMinimal, false, "create a minimal blockchain (with the minimum required Cosmos SDK modules)")
 	c.Flags().Bool(flagIsConsumer, false, "scafffold an ICS consumer chain")
 	c.Flags().String(flagProtoDir, defaults.ProtoDir, "chain proto directory")
+	c.Flags().Bool(flagFeeabsModule, false, "create a project that includes the fee abstraction module")
 
-	// Cannot have both minimal and consumer flag
-	c.MarkFlagsMutuallyExclusive(flagIsConsumer, flagMinimal)
+	// Cannot have minimal, consumer, and fee-abstraction flags at the same time
+	c.MarkFlagsMutuallyExclusive(flagIsConsumer, flagMinimal, flagFeeabsModule)
 
 	return c
 }
@@ -114,6 +116,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		moduleConfigs, _   = cmd.Flags().GetStringSlice(flagModuleConfigs)
 		skipProto, _       = cmd.Flags().GetBool(flagSkipProto)
 		protoDir, _        = cmd.Flags().GetString(flagProtoDir)
+		feeabsModule, _    = cmd.Flags().GetBool(flagFeeabsModule)
 	)
 
 	if noDefaultModule {
@@ -138,6 +141,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		addressPrefix,
 		protoDir,
 		noDefaultModule,
+		feeabsModule,
 		minimal,
 		isConsumer,
 		params,

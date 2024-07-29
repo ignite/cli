@@ -22,6 +22,9 @@ var (
 
 	//go:embed files-consumer/* files-consumer/**/*
 	filesConsumer embed.FS
+
+	//go:embed files-feeabs/* files-feeabs/**/*
+	filesFeeabs embed.FS
 )
 
 const (
@@ -48,6 +51,9 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 	}
 	if opts.IsConsumerChain {
 		overridesFS["files-consumer"] = filesConsumer
+	}
+	if opts.IncludeFeeabsModule {
+		overridesFS["files-feeabs"] = filesFeeabs
 	}
 
 	g := genny.New()
@@ -77,6 +83,7 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 	ctx.Set("IsConsumerChain", opts.IsConsumerChain)
 	ctx.Set("DepTools", cosmosgen.DepTools())
 	ctx.Set("IsChainMinimal", opts.IsChainMinimal)
+	ctx.Set("IncludeFeeabsModule", opts.IncludeFeeabsModule)
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(xgenny.Transformer(ctx))

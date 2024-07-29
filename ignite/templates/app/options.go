@@ -10,7 +10,8 @@ type Options struct {
 	ModulePath       string
 	AddressPrefix    string
 	// IncludePrefixes is used to filter the files to include from the generator
-	IncludePrefixes []string
-	IsChainMinimal  bool
-	IsConsumerChain bool
+	IncludePrefixes     []string
+	IsChainMinimal      bool
+	IsConsumerChain     bool
+	IncludeFeeabsModule bool
 }
