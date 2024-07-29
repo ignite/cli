@@ -7,6 +7,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 )
 
+var _ Signer = signer{}
+
 // signer implements the Signer interface.
 type signer struct{}
 

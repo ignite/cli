@@ -134,6 +134,8 @@ type Client struct {
 }
 
 // Option configures your client.
+// Option, are global to the client and affect all transactions.
+// If you want to override a global option on a transaction, use the TxOptions struct.
 type Option func(*Client)
 
 // WithHome sets the data dir of your chain. This option is used to access your chain's
@@ -175,12 +177,14 @@ func WithNodeAddress(addr string) Option {
 	}
 }
 
+// WithAddressPrefix sets the address prefix on the client.
 func WithAddressPrefix(prefix string) Option {
 	return func(c *Client) {
 		c.addressPrefix = prefix
 	}
 }
 
+// WithUseFaucet sets the faucet address on the client.
 func WithUseFaucet(faucetAddress, denom string, minAmount uint64) Option {
 	return func(c *Client) {
 		c.useFaucet = true
@@ -216,7 +220,8 @@ func WithGasAdjustment(gasAdjustment float64) Option {
 	}
 }
 
-// WithFees sets the fees (e.g. 10uatom).
+// WithFees sets the fees (e.g. 10uatom) on the client.
+// It will be used for all transactions if not overridden on the transaction options.
 func WithFees(fees string) Option {
 	return func(c *Client) {
 		c.fees = fees
@@ -544,7 +549,9 @@ func (c Client) BroadcastTx(ctx context.Context, account cosmosaccount.Account, 
 	return txService.Broadcast(ctx)
 }
 
-func (c Client) CreateTx(goCtx context.Context, account cosmosaccount.Account, msgs ...sdktypes.Msg) (TxService, error) {
+// CreateTxWithOptions creates a transaction with the given options.
+// Options override global client options.
+func (c Client) CreateTxWithOptions(ctx context.Context, account cosmosaccount.Account, options TxOptions, msgs ...sdktypes.Msg) (TxService, error) {
 	defer c.lockBech32Prefix()()
 
 	if c.useFaucet && !c.generateOnly {
@@ -552,7 +559,7 @@ func (c Client) CreateTx(goCtx context.Context, account cosmosaccount.Account, m
 		if err != nil {
 			return TxService{}, errors.WithStack(err)
 		}
-		if err := c.makeSureAccountHasTokens(goCtx, addr); err != nil {
+		if err := c.makeSureAccountHasTokens(ctx, addr); err != nil {
 			return TxService{}, err
 		}
 	}
@@ -562,36 +569,49 @@ func (c Client) CreateTx(goCtx context.Context, account cosmosaccount.Account, m
 		return TxService{}, errors.WithStack(err)
 	}
 
-	ctx := c.context.
+	clientCtx := c.context.
 		WithFromName(account.Name).
 		WithFromAddress(sdkaddr)
 
-	txf, err := c.prepareFactory(ctx)
+	txf, err := c.prepareFactory(clientCtx)
 	if err != nil {
 		return TxService{}, err
 	}
 
-	if c.gasAdjustment != 0 && c.gasAdjustment != defaultGasAdjustment {
-		txf = txf.WithGasAdjustment(c.gasAdjustment)
+	if options.Memo != "" {
+		txf = txf.WithMemo(options.Memo)
 	}
 
-	var gas uint64
-	if c.gas != "" && c.gas != GasAuto {
-		gas, err = strconv.ParseUint(c.gas, 10, 64)
-		if err != nil {
-			return TxService{}, errors.WithStack(err)
-		}
-	} else {
-		_, gas, err = c.gasometer.CalculateGas(ctx, txf, msgs...)
-		if err != nil {
-			return TxService{}, errors.WithStack(err)
-		}
-		// the simulated gas can vary from the actual gas needed for a real transaction
-		// we add an amount to ensure sufficient gas is provided
-		gas += 20000
-	}
-	txf = txf.WithGas(gas)
 	txf = txf.WithFees(c.fees)
+	if options.Fees != "" {
+		txf = txf.WithFees(options.Fees)
+	}
+
+	if options.GasLimit != 0 {
+		txf = txf.WithGas(options.GasLimit)
+	} else {
+		if c.gasAdjustment != 0 && c.gasAdjustment != defaultGasAdjustment {
+			txf = txf.WithGasAdjustment(c.gasAdjustment)
+		}
+
+		var gas uint64
+		if c.gas != "" && c.gas != GasAuto {
+			gas, err = strconv.ParseUint(c.gas, 10, 64)
+			if err != nil {
+				return TxService{}, errors.WithStack(err)
+			}
+		} else {
+			_, gas, err = c.gasometer.CalculateGas(clientCtx, txf, msgs...)
+			if err != nil {
+				return TxService{}, errors.WithStack(err)
+			}
+			// the simulated gas can vary from the actual gas needed for a real transaction
+			// we add an amount to ensure sufficient gas is provided
+			gas += 20000
+		}
+
+		txf = txf.WithGas(gas)
+	}
 
 	if c.gasPrices != "" {
 		txf = txf.WithGasPrices(c.gasPrices)
@@ -602,14 +622,18 @@ func (c Client) CreateTx(goCtx context.Context, account cosmosaccount.Account, m
 		return TxService{}, errors.WithStack(err)
 	}
 
-	txUnsigned.SetFeeGranter(ctx.GetFeeGranterAddress())
+	txUnsigned.SetFeeGranter(clientCtx.GetFeeGranterAddress())
 
 	return TxService{
 		client:        c,
-		clientContext: ctx,
+		clientContext: clientCtx,
 		txBuilder:     txUnsigned,
 		txFactory:     txf,
 	}, nil
+}
+
+func (c Client) CreateTx(ctx context.Context, account cosmosaccount.Account, msgs ...sdktypes.Msg) (TxService, error) {
+	return c.CreateTxWithOptions(ctx, account, TxOptions{}, msgs...)
 }
 
 // GetBlockTXs returns the transactions in a block.
