@@ -101,8 +101,14 @@ To get started, create a blockchain:
 	}, nil
 }
 
+func flagSetVerbose() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.BoolP(flagVerbose, "v", false, "verbose output")
+	return fs
+}
+
 func getVerbosity(cmd *cobra.Command) uilog.Verbosity {
-	if verbose, _ := cmd.Flags().GetBool("verbose"); verbose {
+	if verbose, _ := cmd.Flags().GetBool(flagVerbose); verbose {
 		return uilog.VerbosityVerbose
 	}
 
