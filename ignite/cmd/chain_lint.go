@@ -17,6 +17,7 @@ func NewChainLint() *cobra.Command {
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			session := cliui.New(
 				cliui.StartSpinnerWithText("Linting..."),
+				cliui.WithVerbosity(getVerbosity(cmd)),
 			)
 			defer session.End()
 
@@ -33,6 +34,8 @@ func NewChainLint() *cobra.Command {
 			return c.Lint(cmd.Context())
 		},
 	}
+
+	c.Flags().AddFlagSet(flagSetVerbose())
 
 	return c
 }
