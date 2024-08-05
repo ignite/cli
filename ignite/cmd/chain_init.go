@@ -88,6 +88,7 @@ commands manually to ensure a production-level node initialization.
 	c.Flags().AddFlagSet(flagSetCheckDependencies())
 	c.Flags().AddFlagSet(flagSetSkipProto())
 	c.Flags().AddFlagSet(flagSetDebug())
+	c.Flags().AddFlagSet(flagSetVerbose())
 	c.Flags().StringSlice(flagBuildTags, []string{}, "parameters to build the chain binary")
 
 	return c

@@ -88,12 +88,12 @@ for your current environment.
 	c.Flags().AddFlagSet(flagSetCheckDependencies())
 	c.Flags().AddFlagSet(flagSetSkipProto())
 	c.Flags().AddFlagSet(flagSetDebug())
+	c.Flags().AddFlagSet(flagSetVerbose())
 	c.Flags().Bool(flagRelease, false, "build for a release")
 	c.Flags().StringSliceP(flagReleaseTargets, "t", []string{}, "release targets. Available only with --release flag")
 	c.Flags().StringSlice(flagBuildTags, []string{}, "parameters to build the chain binary")
 	c.Flags().String(flagReleasePrefix, "", "tarball prefix for each release target. Available only with --release flag")
 	c.Flags().StringP(flagOutput, "o", "", "binary output path")
-	c.Flags().BoolP("verbose", "v", false, "verbose output")
 
 	return c
 }
