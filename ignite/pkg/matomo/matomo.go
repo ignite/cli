@@ -2,8 +2,10 @@
 package matomo
 
 import (
+	"crypto/rand"
 	"fmt"
-	"math/rand"
+	"math"
+	"math/big"
 	"net/http"
 	"net/url"
 	"strings"
@@ -191,7 +193,7 @@ func (c Client) Send(params Params) error {
 func (c Client) SendMetric(sessionID string, metric Metric) error {
 	var (
 		now       = time.Now()
-		r         = rand.New(rand.NewSource(now.Unix()))
+		r, _      = rand.Int(rand.Reader, big.NewInt(math.MaxInt64))
 		utmMedium = "dev"
 	)
 	if !metric.BuildFromSource {

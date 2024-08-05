@@ -30,7 +30,7 @@ func Test_cacheKey(t *testing.T) {
 			args: args{
 				src: wd,
 			},
-			want: "78f544d2184b8076ac527ba4728822de1a7fc77bf2d6a77e44d0193cb63ed26e",
+			want: "4cf0539ac24f8ebc9ee17b81d0ea880e55d2ba98a4e355affe3c3f8a0cdb01ee",
 		},
 		{
 			name: "one key",
@@ -38,7 +38,7 @@ func Test_cacheKey(t *testing.T) {
 				src:  wd,
 				keys: []string{"test"},
 			},
-			want: "5701099a1fcc67cd8b694295fbdecf537edcc8733bcc3adae0bdd7e65e28c8e5",
+			want: "dc7b4e68b7b9d827b3833845202818a11a1105542a3551052c012d815a64e7ae",
 		},
 		{
 			name: "two keys",
@@ -46,7 +46,7 @@ func Test_cacheKey(t *testing.T) {
 				src:  wd,
 				keys: []string{"test1", "test2"},
 			},
-			want: "6299c9bd405a1c073fa711006f8aadf6420cf522ef446e36fc01586354726095",
+			want: "a017b975dd0a30efc7fbc515af9b3c37657c20a509fd5771111d4c0e43d373b0",
 		},
 		{
 			name: "duplicated keys",
@@ -54,7 +54,7 @@ func Test_cacheKey(t *testing.T) {
 				src:  wd,
 				keys: []string{"test", "test"},
 			},
-			want: "b9eb1b01931deccc44a354ab5aeb52337a465e5559069eb35b71ea0cbfe3c87f",
+			want: "26ce20a6c4563963fd646121948cd62137a143317c970a52a3ec8ed9979c868d",
 		},
 		{
 			name: "many keys",
@@ -62,7 +62,7 @@ func Test_cacheKey(t *testing.T) {
 				src:  wd,
 				keys: []string{"test1", "test2", "test3", "test4", "test5", "test6", "test6"},
 			},
-			want: "bbe74cfd33ba4d1244e8d0ea3e430081d06ed55be12c7772d345d3117a4dfc90",
+			want: "f9cd1468363ff902bdd5a93c9c7c43c83c9074796486306a7da046a082314121",
 		},
 		{
 			name: "invalid source",

@@ -87,7 +87,7 @@ func (d *Doctor) MigrateConfig(_ context.Context) error {
 			return errf(err)
 		}
 
-		if err := os.WriteFile(configPath, buf.Bytes(), 0o755); err != nil {
+		if err := os.WriteFile(configPath, buf.Bytes(), 0o600); err != nil {
 			return errf(errors.Errorf("config file migration failed: %w", err))
 		}
 
@@ -231,7 +231,7 @@ func (d Doctor) ensureDependencyImports(toolsFilename string) (bool, error) {
 		return false, err
 	}
 
-	err = os.WriteFile(toolsFilename, buf.Bytes(), 0o644)
+	err = os.WriteFile(toolsFilename, buf.Bytes(), 0o600)
 	if err != nil {
 		return false, err
 	}

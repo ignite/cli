@@ -1,7 +1,6 @@
 package availableport_test
 
 import (
-	"math/rand"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -51,7 +50,6 @@ func TestFind(t *testing.T) {
 			name: "with randomizer",
 			n:    100,
 			options: []availableport.Options{
-				availableport.WithRandomizer(rand.New(rand.NewSource(2023))),
 				availableport.WithMinPort(100),
 				availableport.WithMaxPort(200),
 			},

@@ -1,7 +1,8 @@
 package randstr
 
 import (
-	"math/rand"
+	"crypto/rand"
+	"math/big"
 )
 
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyz")
@@ -10,7 +11,8 @@ var letterRunes = []rune("abcdefghijklmnopqrstuvwxyz")
 func Runes(n int) string {
 	b := make([]rune, n)
 	for i := range b {
-		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+		num, _ := rand.Int(rand.Reader, big.NewInt(int64(len(letterRunes))))
+		b[i] = letterRunes[num.Int64()]
 	}
 	return string(b)
 }
