@@ -9,7 +9,6 @@ import (
 	"github.com/imdario/mergo"
 
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
-	plugininternal "github.com/ignite/cli/v29/ignite/internal/plugin"
 	chaincmdrunner "github.com/ignite/cli/v29/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/view/accountview"
 	"github.com/ignite/cli/v29/ignite/pkg/confile"
@@ -176,10 +175,8 @@ func (c *Chain) InitAccounts(ctx context.Context, cfg *chainconfig.Config) error
 		return nil
 	}
 	if cfg.IsConsumerChain() {
-		err := plugininternal.ConsumerWriteGenesis(ctx, c)
-		if err != nil {
-			return err
-		}
+		// we skip early if the chain is a consumer chain
+		return nil
 	} else {
 		// Sovereign chain writes validators in gentxs.
 		_, err := c.IssueGentx(ctx, createValidatorFromConfig(cfg))
@@ -216,12 +213,14 @@ func (c *Chain) IsInitialized() (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
 	cfg, err := c.Config()
 	if err != nil {
 		return false, err
 	}
 	if cfg.IsConsumerChain() {
-		return plugininternal.ConsumerIsInitialized(context.Background(), c)
+		// when consumer chain, we skip the IsInialized logic
+		return true, nil
 	}
 
 	gentxDir := filepath.Join(home, "config", "gentx")

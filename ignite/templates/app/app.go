@@ -46,9 +46,6 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 		excludePrefix = append(excludePrefix, ibcConfig)
 		overridesFS["files-minimal"] = filesMinimal
 	}
-	if opts.IsConsumerChain {
-		overridesFS["files-consumer"] = filesConsumer
-	}
 
 	g := genny.New()
 	if err := g.SelectiveFS(subfs, includePrefix, nil, excludePrefix, nil); err != nil {
@@ -74,7 +71,6 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 	ctx.Set("GitHubPath", opts.GitHubPath)
 	ctx.Set("BinaryNamePrefix", opts.BinaryNamePrefix)
 	ctx.Set("AddressPrefix", opts.AddressPrefix)
-	ctx.Set("IsConsumerChain", opts.IsConsumerChain)
 	ctx.Set("DepTools", cosmosgen.DepTools())
 	ctx.Set("IsChainMinimal", opts.IsChainMinimal)
 

@@ -127,6 +127,7 @@ const (
 	ValidationSovereign = "sovereign"
 	// ValidationConsumer is when the chain is validated by a provider chain.
 	// Such chain is called a consumer chain.
+	// This is a special case for ICS chains, used by the consumer ignite app (https://github.com/ignite/apps/issues/101).
 	ValidationConsumer = "consumer"
 )
 
