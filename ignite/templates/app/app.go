@@ -19,9 +19,6 @@ var (
 
 	//go:embed files-minimal/* files-minimal/**/*
 	filesMinimal embed.FS
-
-	//go:embed files-consumer/* files-consumer/**/*
-	filesConsumer embed.FS
 )
 
 const (
