@@ -16,13 +16,9 @@
 - [#4111](https://github.com/ignite/cli/pull/4111) Remove vuex generation
 - [#4113](https://github.com/ignite/cli/pull/4113) Generate chain config documentation automatically
 - [#4131](https://github.com/ignite/cli/pull/4131) Support `bytes` as data type in the `scaffold` commands
-- [#4270](https://github.com/ignite/cli/pull/4270) Add flags to the extension hooks commands
-- [#4269](https://github.com/ignite/cli/pull/4269) Add custom flag parser for extensions
-- [#4276](https://github.com/ignite/cli/pull/4276) Add `cosmosclient.CreateTxWithOptions` method to facilite more custom tx creation
 
 ### Changes
 
-- [#4157](https://github.com/ignite/cli/pull/4157) Upgrade golang to 1.22
 - [#4094](https://github.com/ignite/cli/pull/4094) Scaffolding a multi-index map using `ignite s map foo bar baz --index foobar,foobaz` is no longer supported. Use one index instead of use `collections.IndexedMap`.
 - [#4058](https://github.com/ignite/cli/pull/4058) Simplify scaffolded modules by including `ValidateBasic()` logic in message handler.
 - [#4058](https://github.com/ignite/cli/pull/4058) Use `address.Codec` instead of `AccAddressFromBech32`.
@@ -44,6 +40,18 @@
 - [#4000](https://github.com/ignite/cli/pull/4000) Run all dry runners before the wet run in the `xgenny` pkg
 - [#4091](https://github.com/ignite/cli/pull/4091) Fix race conditions in the plugin logic
 - [#4128](https://github.com/ignite/cli/pull/4128) Check for duplicate proto fields in config
+
+## [`v28.5.1`](https://github.com/ignite/cli/releases/tag/v28.5.1)
+
+### Features
+
+- [#4276](https://github.com/ignite/cli/pull/4276) Add `cosmosclient.CreateTxWithOptions` method to facilite more custom tx creation
+
+### Changes
+
+- [#4262](https://github.com/ignite/cli/pull/4262) Bring back relayer command
+- [#4269](https://github.com/ignite/cli/pull/4269) Add custom flag parser for extensions
+- [#4270](https://github.com/ignite/cli/pull/4270) Add flags to the extension hooks commands
 - [#4286](https://github.com/ignite/cli/pull/4286) Add missing verbose mode flags
 
 ## [`v28.5.0`](https://github.com/ignite/cli/releases/tag/v28.5.0)
