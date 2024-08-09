@@ -71,7 +71,6 @@ import (
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"google.golang.org/protobuf/types/known/durationpb"
 
-	marsmodulev1 "github.com/ignite/mars/api/mars/mars/module"
 	_ "github.com/ignite/mars/x/mars" // import for side-effects
 	marsmoduletypes "github.com/ignite/mars/x/mars/types"
 )
@@ -297,7 +296,7 @@ var (
 			},
 			{
 				Name:   marsmoduletypes.ModuleName,
-				Config: appconfig.WrapAny(&marsmodulev1.Module{}),
+				Config: appconfig.WrapAny(&marsmoduletypes.Module{}),
 			},
 			// this line is used by starport scaffolding # stargate/app/moduleConfig
 		},

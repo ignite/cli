@@ -7,7 +7,6 @@ cmp tools.go.golden tools/tools.go
 exists go.sum
 # assert tools have been installed
 exists $GOPATH/bin/protoc-gen-gocosmos
-exists $GOPATH/bin/protoc-gen-go-pulsar
 exists $GOPATH/bin/buf
 exists $GOPATH/bin/protoc-gen-grpc-gateway
 
