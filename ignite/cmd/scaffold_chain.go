@@ -16,7 +16,6 @@ const (
 	flagMinimal         = "minimal"
 	flagNoDefaultModule = "no-module"
 	flagSkipGit         = "skip-git"
-	flagIsConsumer      = "consumer"
 
 	tplScaffoldChainSuccess = `
 ⭐️ Successfully created a new blockchain '%[1]v'.
@@ -88,11 +87,10 @@ about Cosmos SDK on https://docs.cosmos.network
 	c.Flags().Bool(flagSkipGit, false, "skip Git repository initialization")
 	c.Flags().Bool(flagSkipProto, false, "skip proto generation")
 	c.Flags().Bool(flagMinimal, false, "create a minimal blockchain (with the minimum required Cosmos SDK modules)")
-	c.Flags().Bool(flagIsConsumer, false, "scafffold an ICS consumer chain")
 	c.Flags().String(flagProtoDir, defaults.ProtoDir, "chain proto directory")
 
-	// Cannot have both minimal and consumer flag
-	c.MarkFlagsMutuallyExclusive(flagIsConsumer, flagMinimal)
+	// consumer scaffolding have been migrated to an ignite app
+	c.Flags().MarkDeprecated("consumer", "use 'ignite consumer' app instead")
 
 	return c
 }
@@ -109,7 +107,6 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		noDefaultModule, _ = cmd.Flags().GetBool(flagNoDefaultModule)
 		skipGit, _         = cmd.Flags().GetBool(flagSkipGit)
 		minimal, _         = cmd.Flags().GetBool(flagMinimal)
-		isConsumer, _      = cmd.Flags().GetBool(flagIsConsumer)
 		params, _          = cmd.Flags().GetStringSlice(flagParams)
 		moduleConfigs, _   = cmd.Flags().GetStringSlice(flagModuleConfigs)
 		skipProto, _       = cmd.Flags().GetBool(flagSkipProto)
@@ -139,7 +136,6 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		protoDir,
 		noDefaultModule,
 		minimal,
-		isConsumer,
 		params,
 		moduleConfigs,
 	)

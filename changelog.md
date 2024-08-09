@@ -34,6 +34,7 @@
 - [#4160](https://github.com/ignite/cli/pull/4160) Enable copyloopvar linter
 - [#4162](https://github.com/ignite/cli/pull/4162) Enable errcheck linter
 - [#4189](https://github.com/ignite/cli/pull/4189) Deprecate `ignite node` for `ignite connect` app
+- [#4290](https://github.com/ignite/cli/pull/4290) Remove ignite consumer from ignite cli (this functionality will be in the `consumer` app)
 
 ### Fixes
 
