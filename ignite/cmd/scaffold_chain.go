@@ -90,7 +90,7 @@ about Cosmos SDK on https://docs.cosmos.network
 	c.Flags().String(flagProtoDir, defaults.ProtoDir, "chain proto directory")
 
 	// consumer scaffolding have been migrated to an ignite app
-	c.Flags().MarkDeprecated("consumer", "use 'ignite consumer' app instead")
+	_ = c.Flags().MarkDeprecated("consumer", "use 'ignite consumer' app instead")
 
 	return c
 }

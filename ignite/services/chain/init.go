@@ -174,16 +174,17 @@ func (c *Chain) InitAccounts(ctx context.Context, cfg *chainconfig.Config) error
 	if len(cfg.Validators) == 0 {
 		return nil
 	}
+
 	if cfg.IsConsumerChain() {
 		// we skip early if the chain is a consumer chain
 		return nil
-	} else {
-		// Sovereign chain writes validators in gentxs.
-		_, err := c.IssueGentx(ctx, createValidatorFromConfig(cfg))
-		if err != nil {
-			return err
-		}
 	}
+
+	// Sovereign chain writes validators in gentxs.
+	if _, err := c.IssueGentx(ctx, createValidatorFromConfig(cfg)); err != nil {
+		return err
+	}
+
 	return nil
 }
 
