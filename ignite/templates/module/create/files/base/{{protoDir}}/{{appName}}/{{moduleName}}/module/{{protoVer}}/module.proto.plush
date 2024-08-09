@@ -3,6 +3,8 @@ package <%= protoModulePkgName %>;
 
 import "cosmos/app/v1alpha1/module.proto";
 
+option go_package = "<%= modulePath %>/x/<%= moduleName %>/types";
+
 // Module is the config object for the module.
 message Module {
   option (cosmos.app.v1alpha1.module) = {

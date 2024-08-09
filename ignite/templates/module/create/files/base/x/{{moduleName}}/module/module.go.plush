@@ -6,9 +6,10 @@ import (
 	"fmt"
 
 	"cosmossdk.io/core/address"
-    "cosmossdk.io/core/appmodule"
+	"cosmossdk.io/core/appmodule"
     "cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
+	"cosmossdk.io/depinject/appconfig"
 	"cosmossdk.io/log"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -25,7 +26,6 @@ import (
 
 	// this line is used by starport scaffolding # 1
 
-	modulev1 "<%= modulePath %>/api/<%= appName %>/<%= moduleName %>/module/<%= protoVer %>"
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 	<%= if (isIBC) { %>"<%= modulePath %>/x/<%= moduleName %>/client/cli"<% } %>
@@ -181,9 +181,9 @@ func (am AppModule) IsAppModule() {}
 // ----------------------------------------------------------------------------
 
 func init() {
-	appmodule.Register(
-	    &modulev1.Module{},
-		appmodule.Provide(ProvideModule),
+	appconfig.Register(
+	    &types.Module{},
+		appconfig.Provide(ProvideModule),
 	)
 }
 
@@ -193,7 +193,7 @@ type ModuleInputs struct {
 	AddressCodec address.Codec
 	StoreService store.KVStoreService
 	Cdc          codec.Codec
-	Config       *modulev1.Module
+	Config       *types.Module
 	Logger       log.Logger
 
 	AccountKeeper types.AccountKeeper

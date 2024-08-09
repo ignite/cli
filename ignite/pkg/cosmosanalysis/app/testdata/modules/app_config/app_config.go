@@ -24,8 +24,8 @@ import (
 	txconfigv1 "cosmossdk.io/api/cosmos/tx/config/v1"
 	upgrademodulev1 "cosmossdk.io/api/cosmos/upgrade/module/v1"
 	vestingmodulev1 "cosmossdk.io/api/cosmos/vesting/module/v1"
-	"cosmossdk.io/core/appconfig"
 	"cosmossdk.io/depinject"
+	"cosmossdk.io/depinject/appconfig"
 	_ "cosmossdk.io/x/circuit" // import for side-effects
 	circuittypes "cosmossdk.io/x/circuit/types"
 	_ "cosmossdk.io/x/evidence" // import for side-effects
@@ -71,7 +71,6 @@ import (
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"google.golang.org/protobuf/types/known/durationpb"
 
-	marsmodulev1 "github.com/ignite/mars/api/mars/mars/module"
 	_ "github.com/ignite/mars/x/mars" // import for side-effects
 	marsmoduletypes "github.com/ignite/mars/x/mars/types"
 )
@@ -297,7 +296,7 @@ var (
 			},
 			{
 				Name:   marsmoduletypes.ModuleName,
-				Config: appconfig.WrapAny(&marsmodulev1.Module{}),
+				Config: appconfig.WrapAny(&marsmoduletypes.Module{}),
 			},
 			// this line is used by starport scaffolding # stargate/app/moduleConfig
 		},

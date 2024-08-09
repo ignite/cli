@@ -65,7 +65,7 @@ func WithHooksGeneration(out ModulePathFunc, hooksRootPath string) Option {
 	}
 }
 
-// WithGoGeneration adds protobuf (gogoproto and pulsar) code generation.
+// WithGoGeneration adds protobuf (gogoproto) code generation.
 func WithGoGeneration() Option {
 	return func(o *generateOptions) {
 		o.generateProtobuf = true
@@ -163,10 +163,6 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 	// generated code that requires sdk.Msg implementations to be defined
 	if g.opts.generateProtobuf {
 		if err := g.generateGoGo(ctx); err != nil {
-			return err
-		}
-
-		if err := g.generatePulsar(ctx); err != nil {
 			return err
 		}
 	}
