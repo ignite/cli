@@ -35,7 +35,6 @@ To get started, create a blockchain:
 * [ignite docs](#ignite-docs)	 - Show Ignite CLI docs
 * [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
 * [ignite network](#ignite-network)	 - Launch a blockchain in production
-* [ignite node](#ignite-node)	 - Make requests to a live blockchain node
 * [ignite relayer](#ignite-relayer)	 - Connect blockchains with an IBC relayer
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
 * [ignite version](#ignite-version)	 - Print the current build information
@@ -49,7 +48,7 @@ Create, delete, and show Ignite accounts
 
 Commands for managing Ignite accounts. An Ignite account is a private/public
 keypair stored in a keyring. Currently Ignite accounts are used when interacting
-with Ignite relayer commands and when using "ignite network" commands.
+with Ignite Apps (namely ignite relayer, ignite network and ignite connect).
 
 Note: Ignite account commands are not for managing your chain's keys and accounts. Use
 you chain's binary to manage accounts from "config.yml". For example, if your
@@ -774,6 +773,7 @@ ignite chain init [flags]
       --home string          directory where the blockchain node is initialized
   -p, --path string          path of the app (default ".")
       --skip-proto           skip file generation from proto
+  -v, --verbose              verbose output
 ```
 
 **Options inherited from parent commands**
@@ -2622,225 +2622,6 @@ ignite network version [flags]
 * [ignite network](#ignite-network)	 - Launch a blockchain in production
 
 
-## ignite node
-
-Make requests to a live blockchain node
-
-**Options**
-
-```
-  -h, --help          help for node
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
-```
-
-**SEE ALSO**
-
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-* [ignite node query](#ignite-node-query)	 - Querying subcommands
-* [ignite node tx](#ignite-node-tx)	 - Transactions subcommands
-
-
-## ignite node query
-
-Querying subcommands
-
-**Options**
-
-```
-  -h, --help   help for query
-```
-
-**Options inherited from parent commands**
-
-```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
-```
-
-**SEE ALSO**
-
-* [ignite node](#ignite-node)	 - Make requests to a live blockchain node
-* [ignite node query bank](#ignite-node-query-bank)	 - Querying commands for the bank module
-* [ignite node query tx](#ignite-node-query-tx)	 - Query for transaction by hash
-
-
-## ignite node query bank
-
-Querying commands for the bank module
-
-**Options**
-
-```
-  -h, --help   help for bank
-```
-
-**Options inherited from parent commands**
-
-```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
-```
-
-**SEE ALSO**
-
-* [ignite node query](#ignite-node-query)	 - Querying subcommands
-* [ignite node query bank balances](#ignite-node-query-bank-balances)	 - Query for account balances by account name or address
-
-
-## ignite node query bank balances
-
-Query for account balances by account name or address
-
-```
-ignite node query bank balances [from_account_or_address] [flags]
-```
-
-**Options**
-
-```
-      --address-prefix string    account address prefix (default "cosmos")
-      --count-total              count total number of records in all balances to query for
-  -h, --help                     help for balances
-      --home string              directory where the blockchain node is initialized
-      --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
-      --limit uint               pagination limit of all balances to query for (default 100)
-      --offset uint              pagination offset of all balances to query for
-      --page uint                pagination page of all balances to query for. This sets offset to a multiple of limit (default 1)
-      --page-key string          pagination page-key of all balances to query for
-      --reverse                  results are sorted in descending order
-```
-
-**Options inherited from parent commands**
-
-```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
-```
-
-**SEE ALSO**
-
-* [ignite node query bank](#ignite-node-query-bank)	 - Querying commands for the bank module
-
-
-## ignite node query tx
-
-Query for transaction by hash
-
-```
-ignite node query tx [hash] [flags]
-```
-
-**Options**
-
-```
-  -h, --help   help for tx
-```
-
-**Options inherited from parent commands**
-
-```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
-```
-
-**SEE ALSO**
-
-* [ignite node query](#ignite-node-query)	 - Querying subcommands
-
-
-## ignite node tx
-
-Transactions subcommands
-
-**Options**
-
-```
-      --address-prefix string    account address prefix (default "cosmos")
-      --fees string              fees to pay along with transaction; eg: 10uatom
-      --gas string               gas limit to set per-transaction; set to "auto" to calculate sufficient gas automatically (default "auto")
-      --gas-adjustment float     gas adjustment to set per-transaction
-      --gas-prices string        gas prices in decimal format to determine the transaction fee (e.g. 0.1uatom)
-      --generate-only            build an unsigned transaction and write it to STDOUT
-  -h, --help                     help for tx
-      --home string              directory where the blockchain node is initialized
-      --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
-```
-
-**Options inherited from parent commands**
-
-```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
-```
-
-**SEE ALSO**
-
-* [ignite node](#ignite-node)	 - Make requests to a live blockchain node
-* [ignite node tx bank](#ignite-node-tx-bank)	 - Bank transaction subcommands
-
-
-## ignite node tx bank
-
-Bank transaction subcommands
-
-**Options**
-
-```
-  -h, --help   help for bank
-```
-
-**Options inherited from parent commands**
-
-```
-      --address-prefix string    account address prefix (default "cosmos")
-      --fees string              fees to pay along with transaction; eg: 10uatom
-      --gas string               gas limit to set per-transaction; set to "auto" to calculate sufficient gas automatically (default "auto")
-      --gas-adjustment float     gas adjustment to set per-transaction
-      --gas-prices string        gas prices in decimal format to determine the transaction fee (e.g. 0.1uatom)
-      --generate-only            build an unsigned transaction and write it to STDOUT
-      --home string              directory where the blockchain node is initialized
-      --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
-      --node string              <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
-```
-
-**SEE ALSO**
-
-* [ignite node tx](#ignite-node-tx)	 - Transactions subcommands
-* [ignite node tx bank send](#ignite-node-tx-bank-send)	 - Send funds from one account to another.
-
-
-## ignite node tx bank send
-
-Send funds from one account to another.
-
-```
-ignite node tx bank send [from_account_or_address] [to_account_or_address] [amount] [flags]
-```
-
-**Options**
-
-```
-  -h, --help   help for send
-```
-
-**Options inherited from parent commands**
-
-```
-      --address-prefix string    account address prefix (default "cosmos")
-      --fees string              fees to pay along with transaction; eg: 10uatom
-      --gas string               gas limit to set per-transaction; set to "auto" to calculate sufficient gas automatically (default "auto")
-      --gas-adjustment float     gas adjustment to set per-transaction
-      --gas-prices string        gas prices in decimal format to determine the transaction fee (e.g. 0.1uatom)
-      --generate-only            build an unsigned transaction and write it to STDOUT
-      --home string              directory where the blockchain node is initialized
-      --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
-      --node string              <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
-```
-
-**SEE ALSO**
-
-* [ignite node tx bank](#ignite-node-tx-bank)	 - Bank transaction subcommands
-
-
 ## ignite relayer
 
 Connect blockchains with an IBC relayer
@@ -3002,7 +2783,6 @@ ignite scaffold chain [name] [flags]
 ```
       --address-prefix string    account address prefix (default "cosmos")
       --clear-cache              clear the build cache (advanced)
-      --consumer                 scafffold an ICS consumer chain
   -h, --help                     help for chain
       --minimal                  create a minimal blockchain (with the minimum required Cosmos SDK modules)
       --module-configs strings   add module configs
