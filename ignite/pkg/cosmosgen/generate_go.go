@@ -15,20 +15,12 @@ func (g *generator) gogoTemplate() string {
 	return filepath.Join(g.appPath, g.protoDir, "buf.gen.gogo.yaml")
 }
 
-func (g *generator) pulsarTemplate() string {
-	return filepath.Join(g.appPath, g.protoDir, "buf.gen.pulsar.yaml")
-}
-
 func (g *generator) protoPath() string {
 	return filepath.Join(g.appPath, g.protoDir)
 }
 
 func (g *generator) generateGoGo(ctx context.Context) error {
-	return g.generate(ctx, g.gogoTemplate(), g.goModPath, "*/module.proto")
-}
-
-func (g *generator) generatePulsar(ctx context.Context) error {
-	return g.generate(ctx, g.pulsarTemplate(), "")
+	return g.generate(ctx, g.gogoTemplate(), g.goModPath)
 }
 
 func (g *generator) generate(ctx context.Context, template, fromPath string, excluded ...string) error {

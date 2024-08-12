@@ -90,10 +90,6 @@ func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.R
 		content, err := xast.AppendImports(
 			fConfig.String(),
 			xast.WithLastNamedImport(
-				fmt.Sprintf("%[1]vmodulev1", opts.ModuleName),
-				fmt.Sprintf("%[1]v/api/%[2]v/%[3]v/module/%[4]v", opts.ModulePath, opts.AppName, opts.ModuleName, opts.ProtoVer),
-			),
-			xast.WithLastNamedImport(
 				"_",
 				fmt.Sprintf("%[1]v/x/%[2]v/module", opts.ModulePath, opts.ModuleName),
 			),
@@ -118,7 +114,7 @@ func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.R
 
 		template = `{
 				Name:   %[2]vmoduletypes.ModuleName,
-				Config: appconfig.WrapAny(&%[2]vmodulev1.Module{}),
+				Config: appconfig.WrapAny(&%[2]vmoduletypes.Module{}),
 			},
 %[1]v`
 		replacement = fmt.Sprintf(template, module.PlaceholderSgAppModuleConfig, opts.ModuleName)
