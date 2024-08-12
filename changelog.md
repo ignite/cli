@@ -16,6 +16,7 @@
 - [#4111](https://github.com/ignite/cli/pull/4111) Remove vuex generation
 - [#4113](https://github.com/ignite/cli/pull/4113) Generate chain config documentation automatically
 - [#4131](https://github.com/ignite/cli/pull/4131) Support `bytes` as data type in the `scaffold` commands
+- [#4297](https://github.com/ignite/cli/pull/4297) Add in-place testnet creation command for apps.
 
 ### Changes
 
