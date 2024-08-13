@@ -126,13 +126,13 @@ func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) gen
 		templateModuleInit := `// Set all the %[2]v
 for _, elem := range genState.%[3]vList {
 	if err := k.%[3]v.Set(ctx, elem.Id, elem); err != nil {
-		panic(err)
+		return err
 	}
 }
 
 // Set %[2]v count
 if err := k.%[3]vSeq.Set(ctx, genState.%[3]vCount); err != nil {
-	panic(err)
+	return err
 }
 %[1]v`
 		replacementModuleInit := fmt.Sprintf(
@@ -149,12 +149,12 @@ err = k.%[2]v.Walk(ctx, nil, func(key uint64, elem types.%[2]v) (bool, error) {
 		return false, nil
 })
 if err != nil {
-	panic(err)
+	return err
 }
 
 genesis.%[2]vCount, err = k.%[2]vSeq.Peek(ctx)
 if err != nil {
-	panic(err)
+	return err
 }
 
 %[1]v`
