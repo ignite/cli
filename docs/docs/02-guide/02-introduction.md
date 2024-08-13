@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# Getting started
+# Introduction
 
 In this tutorial, we will be using Ignite CLI to create a new blockchain. Ignite
 CLI is a command line interface that allows users to quickly and easily create
