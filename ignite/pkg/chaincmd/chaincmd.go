@@ -27,6 +27,7 @@ const (
 	commandUnsafeReset       = "unsafe-reset-all"
 	commandExport            = "export"
 	commandTendermint        = "tendermint"
+	commandTestNetInPlace    = "in-place-testnet"
 
 	optionHome                             = "--home"
 	optionNode                             = "--node"
@@ -55,6 +56,9 @@ const (
 	optionBroadcastMode                    = "--broadcast-mode"
 	optionAccount                          = "--account"
 	optionIndex                            = "--index"
+	optionValidatorPrivateKey              = "--validator-privkey"
+	optionAccountToFund                    = "--accounts-to-fund"
+	optionSkipConfirmation                 = "--skip-confirmation"
 
 	constTendermint = "tendermint"
 	constJSON       = "json"
@@ -183,6 +187,22 @@ func (c ChainCmd) InitCommand(moniker string) step.Option {
 		moniker,
 	}
 	command = c.attachChainID(command)
+	return c.daemonCommand(command)
+}
+
+// TestnetInPlaceCommand.
+func (c ChainCmd) TestnetInPlaceCommand(newChainID, newOperatorAddress string, options ...InPlaceOption) step.Option {
+	command := []string{
+		commandTestNetInPlace,
+		newChainID,
+		newOperatorAddress,
+	}
+
+	// Apply the options provided by the user
+	for _, apply := range options {
+		command = apply(command)
+	}
+
 	return c.daemonCommand(command)
 }
 
@@ -398,6 +418,32 @@ func GentxWithSecurityContact(securityContact string) GentxOption {
 			return append(command, optionValidatorSecurityContact, securityContact)
 		}
 		return command
+	}
+}
+
+type InPlaceOption func([]string) []string
+
+func InPlaceWithPrvKey(prvKey string) InPlaceOption {
+	return func(s []string) []string {
+		if len(prvKey) > 0 {
+			return append(s, optionValidatorPrivateKey, prvKey)
+		}
+		return s
+	}
+}
+
+func InPlaceWithAccountToFund(accounts string) InPlaceOption {
+	return func(s []string) []string {
+		if len(accounts) > 0 {
+			return append(s, optionAccountToFund, accounts)
+		}
+		return s
+	}
+}
+
+func InPlaceWithSkipConfirmation() InPlaceOption {
+	return func(s []string) []string {
+		return append(s, optionSkipConfirmation)
 	}
 }
 
