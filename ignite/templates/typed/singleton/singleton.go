@@ -390,7 +390,7 @@ if genState.%[3]v != nil {
 		templateModuleExport := `// Get all %[2]v
 %[2]v, err := k.%[3]v.Get(ctx)
 if err != nil {
-	return err
+	return nil, err
 }
 genesis.%[3]v = &%[2]v
 %[1]v`

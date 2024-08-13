@@ -420,7 +420,7 @@ for _, elem := range genState.%[3]vList {
 		genesis.%[2]vList = append(genesis.%[2]vList, val)
 		return false, nil
 	}); err != nil {
-		return err
+		return nil, err
 	}
 %[1]v`
 		replacementModuleExport := fmt.Sprintf(

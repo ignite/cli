@@ -149,12 +149,12 @@ err = k.%[2]v.Walk(ctx, nil, func(key uint64, elem types.%[2]v) (bool, error) {
 		return false, nil
 })
 if err != nil {
-	return err
+	return nil, err
 }
 
 genesis.%[2]vCount, err = k.%[2]vSeq.Peek(ctx)
 if err != nil {
-	return err
+	return nil, err
 }
 
 %[1]v`
