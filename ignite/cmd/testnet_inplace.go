@@ -9,10 +9,29 @@ import (
 func NewTestNetInPlace() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "in-place",
-		Short: "Run simulation testing for the blockchain",
-		Long:  "Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node and checks if invariants break",
-		Args:  cobra.NoArgs,
-		RunE:  testnetInPlaceHandler,
+		Short: "Create and start a testnet from current local state",
+		Long: `Testnet in-place command is used to create and start a testnet from current local state.
+		After utilizing this command the network will start. We can create testnet from mainnet state and mint more coins for accounts from config.yml file.
+
+		In the config.yml file, there should be at least the address account to fund, operator address, home of the local state node.
+
+		For example:
+
+			Configuration acounts to fund:
+				accounts: 
+					- name: alice
+					address: "cosmos1wa3u4knw74r598quvzydvca42qsmk6jrzmgy07"
+					- name: bob
+					address: "cosmos10uls38gddhhlywla0sjlvqg8pjvcffx4lu25c4"
+
+			Configuration validators:
+				validators:
+					- name: alice
+					operatoraddress: cosmosvaloper1wa3u4knw74r598quvzydvca42qsmk6jr80u3rd
+					home: "$HOME/.testchaind/validator1"
+		`,
+		Args: cobra.NoArgs,
+		RunE: testnetInPlaceHandler,
 	}
 	flagSetPath(c)
 	flagSetClearCache(c)
@@ -32,10 +51,10 @@ func testnetInPlaceHandler(cmd *cobra.Command, _ []string) error {
 	defer session.End()
 
 	// Otherwise run the serve command directly
-	return chainInplace(cmd, session)
+	return testnetInplace(cmd, session)
 }
 
-func chainInplace(cmd *cobra.Command, session *cliui.Session) error {
+func testnetInplace(cmd *cobra.Command, session *cliui.Session) error {
 	chainOption := []chain.Option{
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
