@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"encoding/base64"
 	"fmt"
 	"io"
 	"strings"
@@ -10,7 +9,6 @@ import (
 	"cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
 	"github.com/cometbft/cometbft/crypto"
-	tmd25519 "github.com/cometbft/cometbft/crypto/ed25519"
 	"github.com/cometbft/cometbft/libs/bytes"
 	tmos "github.com/cometbft/cometbft/libs/os"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
@@ -36,24 +34,21 @@ const (
 )
 
 var (
-	flagValidatorPrivKey = "validator-privkey"
-	flagAccountsToFund   = "accounts-to-fund"
+	flagAccountsToFund = "accounts-to-fund"
 )
 
 type valArgs struct {
-	newValAddr           bytes.HexBytes
-	newOperatorAddress   string
-	newValPubKey         crypto.PubKey
-	validatorConsPrivKey crypto.PrivKey
-	accountsToFund       []sdk.AccAddress
-	upgradeToTrigger     string
-	homeDir              string
+	newValAddr         bytes.HexBytes
+	newOperatorAddress string
+	newValPubKey       crypto.PubKey
+	accountsToFund     []sdk.AccAddress
+	upgradeToTrigger   string
+	homeDir            string
 }
 
 func NewTestnetCmd(addStartFlags servertypes.ModuleInitFlags) *cobra.Command {
 	cmd := server.InPlaceTestnetCreator(newTestnetApp)
 	addStartFlags(cmd)
-	cmd.Use = "testnet [newChainID] [newOperatorAddress]"
 	cmd.Short = "Updates chain's application and consensus state with provided validator info and starts the node"
 	cmd.Long = `The test command modifies both application and consensus stores within a local mainnet node and starts the node,
 with the aim of facilitating testing procedures. This command replaces existing validator data with updated information,
@@ -61,12 +56,11 @@ thereby removing the old validator set and introducing a new set suitable for lo
 it enables developers to configure their local environments to reflect mainnet conditions more accurately.
 
 Example:
-	appd testnet testing-1 cosmosvaloper1w7f3xx7e75p4l7qdym5msqem9rd4dyc4mq79dm --home $HOME/.appd/validator1 --validator-privkey=6dq+/KHNvyiw2TToCgOpUpQKIzrLs69Rb8Az39xvmxPHNoPxY1Cil8FY+4DhT9YwD6s0tFABMlLcpaylzKKBOg== --accounts-to-fund="cosmos1f7twgcq4ypzg7y24wuywy06xmdet8pc4473tnq,cosmos1qvuhm5m644660nd8377d6l7yz9e9hhm9evmx3x" [other_server_start_flags]
+	appd in-place-testnet testing-1 cosmosvaloper1w7f3xx7e75p4l7qdym5msqem9rd4dyc4mq79dm --home $HOME/.appd/validator1 --validator-privkey=6dq+/KHNvyiw2TToCgOpUpQKIzrLs69Rb8Az39xvmxPHNoPxY1Cil8FY+4DhT9YwD6s0tFABMlLcpaylzKKBOg== --accounts-to-fund="cosmos1f7twgcq4ypzg7y24wuywy06xmdet8pc4473tnq,cosmos1qvuhm5m644660nd8377d6l7yz9e9hhm9evmx3x" [other_server_start_flags]
 	`
 
-	cmd.Example = `appd testnet testing-1 cosmosvaloper1w7f3xx7e75p4l7qdym5msqem9rd4dyc4mq79dm --home $HOME/.appd/validator1 --validator-privkey=6dq+/KHNvyiw2TToCgOpUpQKIzrLs69Rb8Az39xvmxPHNoPxY1Cil8FY+4DhT9YwD6s0tFABMlLcpaylzKKBOg== --accounts-to-fund="cosmos1f7twgcq4ypzg7y24wuywy06xmdet8pc4473tnq,cosmos1qvuhm5m644660nd8377d6l7yz9e9hhm9evmx3x"`
+	cmd.Example = `appd in-place-testnet testing-1 cosmosvaloper1w7f3xx7e75p4l7qdym5msqem9rd4dyc4mq79dm --home $HOME/.appd/validator1 --validator-privkey=6dq+/KHNvyiw2TToCgOpUpQKIzrLs69Rb8Az39xvmxPHNoPxY1Cil8FY+4DhT9YwD6s0tFABMlLcpaylzKKBOg== --accounts-to-fund="cosmos1f7twgcq4ypzg7y24wuywy06xmdet8pc4473tnq,cosmos1qvuhm5m644660nd8377d6l7yz9e9hhm9evmx3x"`
 
-	cmd.Flags().String(flagValidatorPrivKey, "", "Validator tendermint/PrivKeyEd25519 consensus private key from the priv_validato_key.json file")
 	cmd.Flags().String(flagAccountsToFund, "", "Comma-separated list of account addresses that will be funded for testing purposes")
 	return cmd
 }
@@ -255,17 +249,6 @@ func getCommandArgs(appOpts servertypes.AppOptions) (valArgs, error) {
 		panic("upgradeToTrigger is not of type string")
 	}
 	args.upgradeToTrigger = upgradeToTrigger
-
-	// validate  and set validator privkey
-	validatorPrivKey := cast.ToString(appOpts.Get(flagValidatorPrivKey))
-	if validatorPrivKey == "" {
-		return args, fmt.Errorf("invalid validator private key")
-	}
-	decPrivKey, err := base64.StdEncoding.DecodeString(validatorPrivKey)
-	if err != nil {
-		return args, fmt.Errorf("cannot decode validator private key %w", err)
-	}
-	args.validatorConsPrivKey = tmd25519.PrivKey([]byte(decPrivKey))
 
 	// validate  and set accounts to fund
 	accountsString := cast.ToString(appOpts.Get(flagAccountsToFund))
