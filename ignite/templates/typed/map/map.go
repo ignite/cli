@@ -403,7 +403,7 @@ func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) gen
 		templateModuleInit := `// Set all the %[2]v
 for _, elem := range genState.%[3]vList {
 	if err := k.%[3]v.Set(ctx, elem.%[4]v, elem); err != nil {
-		panic(err)
+		return err
 	}
 }
 %[1]v`
@@ -420,7 +420,7 @@ for _, elem := range genState.%[3]vList {
 		genesis.%[2]vList = append(genesis.%[2]vList, val)
 		return false, nil
 	}); err != nil {
-		panic(err)
+		return nil, err
 	}
 %[1]v`
 		replacementModuleExport := fmt.Sprintf(
