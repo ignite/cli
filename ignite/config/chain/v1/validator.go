@@ -9,8 +9,6 @@ type Validator struct {
 	// Name is the name of the validator.
 	Name string `yaml:"name" doc:"Name of the validator."`
 
-	OperatorAddress string `yaml:"operatoraddress" doc:"OperatorAddress of the validator."`
-
 	// Bonded is how much the validator has staked.
 	Bonded string `yaml:"bonded" doc:"Amount staked by the validator."`
 
