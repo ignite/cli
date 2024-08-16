@@ -1,6 +1,6 @@
 module github.com/ignite/cli/ignite/internal/tools/gen-mig-diffs
 
-go 1.22.2
+go 1.23
 
 replace github.com/ignite/cli/v29 => ../../../../
 
