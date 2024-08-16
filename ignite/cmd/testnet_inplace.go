@@ -1,6 +1,8 @@
 package ignitecmd
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/services/chain"
 	"github.com/spf13/cobra"
@@ -80,10 +82,17 @@ func testnetInplace(cmd *cobra.Command, session *cliui.Session) error {
 	if err != nil {
 		return err
 	}
-
-	var acc string
-	for _, i := range cfg.Accounts {
-		acc = acc + "," + i.Address
+	var operatorAddress sdk.ValAddress
+	var accounts string
+	for _, acc := range cfg.Accounts {
+		if cfg.Validators[0].Name == acc.Name {
+			accAddr, err := sdk.AccAddressFromBech32(acc.Address)
+			if err != nil {
+				return err
+			}
+			operatorAddress = sdk.ValAddress(accAddr)
+		}
+		accounts = accounts + "," + acc.Address
 	}
 
 	chainID, err := c.ID()
@@ -93,8 +102,8 @@ func testnetInplace(cmd *cobra.Command, session *cliui.Session) error {
 
 	args := chain.InplaceArgs{
 		NewChainID:         chainID,
-		NewOperatorAddress: cfg.Validators[0].OperatorAddress,
-		AcountsToFund:      acc,
+		NewOperatorAddress: operatorAddress.String(),
+		AcountsToFund:      accounts,
 	}
 	return c.TestNetInPlace(cmd.Context(), args)
 }
