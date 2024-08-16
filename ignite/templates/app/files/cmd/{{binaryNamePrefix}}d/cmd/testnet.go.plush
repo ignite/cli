@@ -53,13 +53,9 @@ func NewTestnetCmd(addStartFlags servertypes.ModuleInitFlags) *cobra.Command {
 	cmd.Long = `The test command modifies both application and consensus stores within a local mainnet node and starts the node,
 with the aim of facilitating testing procedures. This command replaces existing validator data with updated information,
 thereby removing the old validator set and introducing a new set suitable for local testing purposes. By altering the state extracted from the mainnet node,
-it enables developers to configure their local environments to reflect mainnet conditions more accurately.
+it enables developers to configure their local environments to reflect mainnet conditions more accurately.`
 
-Example:
-	appd in-place-testnet testing-1 cosmosvaloper1w7f3xx7e75p4l7qdym5msqem9rd4dyc4mq79dm --home $HOME/.appd/validator1 --validator-privkey=6dq+/KHNvyiw2TToCgOpUpQKIzrLs69Rb8Az39xvmxPHNoPxY1Cil8FY+4DhT9YwD6s0tFABMlLcpaylzKKBOg== --accounts-to-fund="cosmos1f7twgcq4ypzg7y24wuywy06xmdet8pc4473tnq,cosmos1qvuhm5m644660nd8377d6l7yz9e9hhm9evmx3x" [other_server_start_flags]
-	`
-
-	cmd.Example = `appd in-place-testnet testing-1 cosmosvaloper1w7f3xx7e75p4l7qdym5msqem9rd4dyc4mq79dm --home $HOME/.appd/validator1 --validator-privkey=6dq+/KHNvyiw2TToCgOpUpQKIzrLs69Rb8Az39xvmxPHNoPxY1Cil8FY+4DhT9YwD6s0tFABMlLcpaylzKKBOg== --accounts-to-fund="cosmos1f7twgcq4ypzg7y24wuywy06xmdet8pc4473tnq,cosmos1qvuhm5m644660nd8377d6l7yz9e9hhm9evmx3x"`
+	cmd.Example = fmt.Sprintf(`%sd in-place-testnet testing-1 cosmosvaloper1w7f3xx7e75p4l7qdym5msqem9rd4dyc4mq79dm --home $HOME/.%sd/validator1 --validator-privkey=6dq+/KHNvyiw2TToCgOpUpQKIzrLs69Rb8Az39xvmxPHNoPxY1Cil8FY+4DhT9YwD6s0tFABMlLcpaylzKKBOg== --accounts-to-fund="cosmos1f7twgcq4ypzg7y24wuywy06xmdet8pc4473tnq,cosmos1qvuhm5m644660nd8377d6l7yz9e9hhm9evmx3x"`, "<%= ModulePath %>", "<%= ModulePath %>")
 
 	cmd.Flags().String(flagAccountsToFund, "", "Comma-separated list of account addresses that will be funded for testing purposes")
 	return cmd
@@ -84,11 +80,7 @@ func newTestnetApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts s
 	return initAppForTestnet(testApp, args)
 }
 
-// InitAppForTestnet is broken down into two sections:
-// Required Changes: Changes that, if not made, will cause the testnet to halt or panic
-// Optional Changes: Changes to customize the testnet to one's liking (lower vote times, fund accounts, etc)
 func initAppForTestnet(app *app.App, args valArgs) *app.App {
-	//
 	// Required Changes:
 	//
 	ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{})
@@ -196,10 +188,6 @@ func initAppForTestnet(app *app.App, args valArgs) *app.App {
 		Tombstoned:  false,
 	}
 	app.SlashingKeeper.SetValidatorSigningInfo(ctx, newConsAddr, newValidatorSigningInfo)
-
-	//
-	// Optional Changes:
-	//
 
 	// BANK
 	//
