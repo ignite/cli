@@ -1,6 +1,6 @@
 module github.com/ignite/cli/ignite/pkg/gomodule
 
-go 1.21.0
+go 1.23
 
 require (
 	github.com/gorilla/mux v1.8.0

@@ -1,8 +1,6 @@
 module my-new-chain
 
-go 1.21.1
-
-toolchain go1.21.5
+go 1.23
 
 require (
 	cosmossdk.io/api v0.7.2
