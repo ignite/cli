@@ -4,6 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/v29/ignite/services/chain"
 	"github.com/spf13/cobra"
 )
@@ -14,23 +15,6 @@ func NewTestNetInPlace() *cobra.Command {
 		Short: "Create and start a testnet from current local state",
 		Long: `Testnet in-place command is used to create and start a testnet from current local state.
 		After utilizing this command the network will start. We can create testnet from mainnet state and mint more coins for accounts from config.yml file.
-
-		In the config.yml file, there should be at least the address account to fund, operator address, home of the local state node.
-
-		For example:
-
-			Configuration acounts to fund:
-				accounts: 
-					- name: alice
-					address: "cosmos1wa3u4knw74r598quvzydvca42qsmk6jrzmgy07"
-					- name: bob
-					address: "cosmos10uls38gddhhlywla0sjlvqg8pjvcffx4lu25c4"
-
-			Configuration validators:
-				validators:
-					- name: alice
-					operatoraddress: cosmosvaloper1wa3u4knw74r598quvzydvca42qsmk6jr80u3rd
-					home: "$HOME/.testchaind/validator1"
 		`,
 		Args: cobra.NoArgs,
 		RunE: testnetInPlaceHandler,
@@ -82,17 +66,44 @@ func testnetInplace(cmd *cobra.Command, session *cliui.Session) error {
 	if err != nil {
 		return err
 	}
+	home, err := c.Home()
+	if err != nil {
+		return err
+	}
+	keyringbankend, err := c.KeyringBackend()
+	if err != nil {
+		return err
+	}
+	ca, err := cosmosaccount.New(
+		cosmosaccount.WithKeyringBackend(cosmosaccount.KeyringBackend(keyringbankend)),
+		cosmosaccount.WithHome(home),
+	)
+	if err != nil {
+		return err
+	}
+
 	var operatorAddress sdk.ValAddress
 	var accounts string
 	for _, acc := range cfg.Accounts {
+		var sdkAcc cosmosaccount.Account
+		if sdkAcc, err = ca.GetByName(acc.Name); err != nil {
+			sdkAcc, _, err = ca.Create(acc.Name)
+			if err != nil {
+				return err
+			}
+		}
+		sdkAddr, err := sdkAcc.Address(getAddressPrefix(cmd))
+		if err != nil {
+			return err
+		}
 		if cfg.Validators[0].Name == acc.Name {
-			accAddr, err := sdk.AccAddressFromBech32(acc.Address)
+			accAddr, err := sdk.AccAddressFromBech32(sdkAddr)
 			if err != nil {
 				return err
 			}
 			operatorAddress = sdk.ValAddress(accAddr)
 		}
-		accounts = accounts + "," + acc.Address
+		accounts = accounts + "," + sdkAddr
 	}
 
 	chainID, err := c.ID()
