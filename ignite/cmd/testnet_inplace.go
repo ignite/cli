@@ -29,7 +29,6 @@ func NewTestNetInPlace() *cobra.Command {
 			Configuration validators:
 				validators:
 					- name: alice
-					operatoraddress: cosmosvaloper1wa3u4knw74r598quvzydvca42qsmk6jr80u3rd
 					home: "$HOME/.testchaind/validator1"
 		`,
 		Args: cobra.NoArgs,
