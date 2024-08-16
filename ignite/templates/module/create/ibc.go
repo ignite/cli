@@ -64,6 +64,15 @@ func genesisModify(replacer placeholder.Replacer, opts *CreateOptions) genny.Run
 			return err
 		}
 
+		// Import
+		content, err := xast.AppendImports(
+			f.String(),
+			xast.WithLastImport("cosmossdk.io/errors"),
+		)
+		if err != nil {
+			return err
+		}
+
 		// Genesis init
 		templateInit := `%s
 k.SetPort(ctx, genState.PortId)
@@ -74,11 +83,11 @@ if k.ShouldBound(ctx, genState.PortId) {
 	// and claims the returned capability
 	err := k.BindPort(ctx, genState.PortId)
 	if err != nil {
-		panic("could not claim port capability: " + err.Error())
+		return errors.Wrap(err, "could not claim port capability")
 	}
 }`
 		replacementInit := fmt.Sprintf(templateInit, typed.PlaceholderGenesisModuleInit)
-		content := replacer.Replace(f.String(), typed.PlaceholderGenesisModuleInit, replacementInit)
+		content = replacer.Replace(content, typed.PlaceholderGenesisModuleInit, replacementInit)
 
 		// Genesis export
 		templateExport := `genesis.PortId = k.GetPort(ctx)
