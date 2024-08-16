@@ -4,6 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/v29/ignite/services/chain"
 	"github.com/spf13/cobra"
 )
@@ -81,17 +82,44 @@ func testnetInplace(cmd *cobra.Command, session *cliui.Session) error {
 	if err != nil {
 		return err
 	}
+	home, err := c.Home()
+	if err != nil {
+		return err
+	}
+	keyringbankend, err := c.KeyringBackend()
+	if err != nil {
+		return err
+	}
+	ca, err := cosmosaccount.New(
+		cosmosaccount.WithKeyringBackend(cosmosaccount.KeyringBackend(keyringbankend)),
+		cosmosaccount.WithHome(home),
+	)
+	if err != nil {
+		return err
+	}
+
 	var operatorAddress sdk.ValAddress
 	var accounts string
 	for _, acc := range cfg.Accounts {
+		var sdkAcc cosmosaccount.Account
+		if sdkAcc, err = ca.GetByName(acc.Name); err != nil {
+			sdkAcc, _, err = ca.Create(acc.Name)
+			if err != nil {
+				return err
+			}
+		}
+		sdkAddr, err := sdkAcc.Address(getAddressPrefix(cmd))
+		if err != nil {
+			return err
+		}
 		if cfg.Validators[0].Name == acc.Name {
-			accAddr, err := sdk.AccAddressFromBech32(acc.Address)
+			accAddr, err := sdk.AccAddressFromBech32(sdkAddr)
 			if err != nil {
 				return err
 			}
 			operatorAddress = sdk.ValAddress(accAddr)
 		}
-		accounts = accounts + "," + acc.Address
+		accounts = accounts + "," + sdkAddr
 	}
 
 	chainID, err := c.ID()
