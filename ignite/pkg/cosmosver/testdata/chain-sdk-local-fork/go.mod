@@ -1,6 +1,6 @@
 module my-new-chain
 
-go 1.21
+go 1.23
 
 replace github.com/cosmos/cosmos-sdk => ./my/local/fork/cosmos-sdk
 

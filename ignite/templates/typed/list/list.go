@@ -325,8 +325,8 @@ func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunF
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderCollectionType, replacementModuleType)
 
-		templateKeeperInstantiate := `%[2]vSeq: collections.NewSequence(sb, types.%[2]vCountKey, "%[3]v"),
-	%[2]v:    collections.NewMap(sb, types.%[2]vKey, "%[3]v_seq", collections.Uint64Key, codec.CollValue[types.%[2]v](cdc)),
+		templateKeeperInstantiate := `%[2]vSeq: collections.NewSequence(sb, types.%[2]vCountKey, "%[3]v_seq"),
+	%[2]v:    collections.NewMap(sb, types.%[2]vKey, "%[3]v", collections.Uint64Key, codec.CollValue[types.%[2]v](cdc)),
 	%[1]v`
 		replacementInstantiate := fmt.Sprintf(
 			templateKeeperInstantiate,
