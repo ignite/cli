@@ -1,10 +1,9 @@
 ---
 sidebar_position: 4
-description: Configuration file example.
 title: Configuration file example
 ---
 
-## Configuration file example
+### Structure of the config.yml file
 
 ```yaml title="config.yml"
 validation: (string) # Specifies the type of validation the blockchain uses (e.g., sovereign).

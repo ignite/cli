@@ -29,6 +29,11 @@ const sidebars = {
         },
         {
           type: "link",
+          label: "Ignite Tutorials",
+          href: "https://tutorials.ignite.com/",
+        },
+        {
+          type: "link",
           label: "Cosmos SDK Docs",
           href: "https://docs.cosmos.network/",
         },
