@@ -6,6 +6,7 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
+	"github.com/ignite/cli/v29/ignite/pkg/safeconverter"
 )
 
 const (
@@ -192,7 +193,7 @@ func SimappWithVerbose(verbose bool) SimappOption {
 // SimappWithPeriod provides period option for the simapp command.
 func SimappWithPeriod(period uint) SimappOption {
 	return func(command []string) []string {
-		return append(command, optionSimappPeriod, strconv.Itoa(int(period)))
+		return append(command, optionSimappPeriod, strconv.Itoa(safeconverter.ToInt[uint](period)))
 	}
 }
 

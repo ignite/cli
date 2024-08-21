@@ -28,7 +28,6 @@ linters:
     - misspell
     - nakedret
     - nolintlint
-    - exportloopref
     - staticcheck
     - reassign
     - stylecheck
