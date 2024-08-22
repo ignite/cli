@@ -32,9 +32,7 @@ func Inspect(n ast.Node, f func(n ast.Node) error) (err error) {
 
 // ParseDir invokes ast.ParseDir and returns the first package found that is
 // doesn't has the "_test" suffix.
-//
-//nolint:staticcheck
-func ParseDir(dir string) (*ast.Package, *token.FileSet, error) {
+func ParseDir(dir string) (*ast.Package, *token.FileSet, error) { //nolint:staticcheck
 	fileSet := token.NewFileSet()
 	pkgs, err := parser.ParseDir(fileSet, dir, nil, 0)
 	if err != nil {

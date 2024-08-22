@@ -53,7 +53,7 @@ func Write(out io.Writer, header []string, entries ...[]string) error {
 		if len(entry) != len(header) {
 			return errors.Wrapf(ErrInvalidFormat, "entry %d doesn't match header length", i)
 		}
-		if _, err := fmt.Fprintf(w, formatLine(entry, false)+"\n"); err != nil { //nolint
+		if _, err := fmt.Fprintf(w, formatLine(entry, false)+"\n"); err != nil { //nolint:govet
 			return err
 		}
 	}
