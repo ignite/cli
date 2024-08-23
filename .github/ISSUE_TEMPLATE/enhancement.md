@@ -2,7 +2,7 @@
 name: Ignite CLI Enhancement Request
 about: Suggest improvements or updates to existing features
 title: "UPDATE: "
-labels: enhancement
+labels: type:enh
 assignees: ""
 ---
 

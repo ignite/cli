@@ -2,7 +2,7 @@
 name: Ignite CLI Meta Task
 about: Create a larger, multi-step task or initiative
 title: "META: "
-labels: meta, epic
+labels: epic
 assignees: ""
 ---
 
