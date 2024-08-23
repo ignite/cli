@@ -1,104 +1,140 @@
-# Contributing guidelines
+# Contributing Guidelines
 
-- [Contributing guidelines](#contributing-guidelines)
+- [Contributing Guidelines](#contributing-guidelines)
   - [Providing Feedback](#providing-feedback)
-  - [Opening pull requests (PRs)](#opening-pull-requests-prs)
-    - [Choose a good PR title](#choose-a-good-pr-title)
-    - [Review your own code](#review-your-own-code)
-    - [Do not rebase commits in your branch](#do-not-rebase-commits-in-your-branch)
-  - [Contributing to documentation](#contributing-to-documentation)
-    - [Ask for help](#ask-for-help)
-  - [Prioritizing issues with milestones](#prioritizing-issues-with-milestones)
+  - [Opening Pull Requests (PRs)](#opening-pull-requests-prs)
+    - [Choosing a Good PR Title](#choosing-a-good-pr-title)
+    - [Reviewing Your Own Code](#reviewing-your-own-code)
+    - [Commit Guidelines and Title Conventions](#commit-guidelines-and-title-conventions)
+    - [Do Not Rebase After Opening a PR](#do-not-rebase-after-opening-a-pr)
+  - [Contributing to Documentation](#contributing-to-documentation)
+    - [Ask for Help](#ask-for-help)
+  - [Prioritizing Issues with Milestones](#prioritizing-issues-with-milestones)
+  - [Issue Title Conventions and Labeling](#issue-title-conventions-and-labeling)
 
-Before you create a new PR on Ignite CLI, make sure that you read and comply with this document.
+Before submitting a PR to the Ignite CLI repository, please review and follow these guidelines to ensure consistency and smooth collaboration across the project.
 
-Start a new [Discussion](https://github.com/ignite/cli/discussions/new) if you want to propose changes to this document.
+If you have suggestions or want to propose changes to these guidelines, start a new [Discussion topic](https://github.com/ignite/cli/discussions/new) to gather feedback.
 
-To prepare for success, see [Set Up Your Ignite CLI Development Environment](dev-env-setup.md).
+For setup instructions, see [Set Up Your Ignite CLI Development Environment](dev-env-setup.md).
 
 To contribute to docs and tutorials, see [Contributing to Ignite CLI Docs](https://docs.ignite.com/contributing).
 
-Thank you for your contribution!
+We appreciate your contribution!
 
 ## Providing Feedback
 
-* Before you open an issue, do a web search, and check
-  for [existing open and closed GitHub Issues](https://github.com/ignite/cli/issues) to see if your question has already
-  been asked and answered. If you find a relevant topic, you can comment on that issue.
+- Before opening an issue, search for [existing open and closed issues](https://github.com/ignite/cli/issues) to check if your question has already been addressed. If a relevant issue exists, consider commenting on it instead of opening a duplicate issue.
+- For feedback, questions, or suggestions, open a [Discussion topic](https://github.com/ignite/cli/discussions/new) to share your thoughts. Providing detailed information, such as use cases and links, will make the discussion more productive and actionable.
 
-* To provide feedback or ask a question, create a [GitHub issue](https://github.com/ignite/cli/issues/new/choose). Be
-  sure to provide the relevant information, case study, or informative links as suggested by the Pull Request template.
+- For quick questions or informal feedback, join the **#🛠️ build-chains** channel in the official [Ignite Discord](https://discord.gg/ignite).
 
-* We recommend using GitHub issues for issues and feedback. However, you can ask quick questions on the **#🛠️
-  build-chains** channel in the official [Ignite Discord](https://discord.gg/ignite).
+## Opening Pull Requests (PRs)
 
-## Opening pull requests (PRs)
+Please review relevant issues and discussions before opening a PR to ensure alignment with ongoing work.
 
-Review the issues and discussions before you open a PR.
+### Choosing a Good PR Title
 
-### Choose a good PR title
+- Keep PR titles concise (fewer than 60 characters).
+- Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) guidelines for structuring your titles. For example: `feat(services/chain)`, `fix(scaffolding)`, `docs(migration)`.
+- Your PR title should reflect the purpose of the changes and follow a consistent format.
 
-Avoid long names in your PR titles. Make sure your title has fewer than 60 characters.
+### Reviewing Your Own Code
 
-Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0) guidelines and keywords to find the best
-title.
+- Manually test your changes before submitting a PR or adding new commits.
+- Ensure all CI checks pass before requesting a review. Your PR should show **All checks have passed** with a green checkmark.
 
-Use parentheses to identify the package or feature that you worked on. For example:  `feat(services/chain)`
-, `fix(scaffolding)`, `docs(migration)`.
+### Commit Guidelines and Title Conventions
 
-### Review your own code
+- **Standardized Issue Prefixes:**  
+  Issue titles should begin with one of the following standardized prefixes, depending on the type of action being taken:
 
-Make sure that you manually tested the changes you're introducing before creating a PR or pushing another commit.
+  - **`FIX:`** for resolving bugs or problems within existing features.
+  - **`INIT:`** for creating new components, features, or initiatives.
+  - **`UPDATE:`** for making improvements or modifications to existing functionality.
+  - **`META:`** for larger, multi-step initiatives that consist of multiple tasks (e.g., epics).
 
-Monitor your PR to make sure that all CI checks pass and the PR shows **All checks have passed** (the checkmark is
-green).
+  **Examples:**
 
-### Do not rebase commits in your branch
+  - `FIX: Resolve crash during chain initialization`
+  - `INIT: Add staking module to example chain`
+  - `UPDATE: Improve performance of block synchronization`
+  - `META: Overhaul user permissions system`
 
-Avoid rebasing after you open your PRs to reviews. Instead, add more commits to your PR. It's OK to do force pushes if
-the PR is still in draft mode and was never opened to reviews before.
+- **Why Standardized Prefixes?**  
+  The use of standardized prefixes ensures that the focus is on what needs to be done, making the task clear and actionable. This approach avoids redundancy with Conventional Commits, which are used for PR titles and commit messages to capture the purpose of the change. By separating the action (described by the prefix) from the nature of the issue (captured by labels), we reduce duplication and improve clarity. For example, if the issue is labeled `type:bug`, there’s no need to state "bug" in the title—the `FIX:` prefix already implies that the task involves resolving a bug.
 
-A reviewer likes to see a linear commit history while reviewing. If you tend to force push from an older commit, a
-reviewer might lose track in your recent changes and will have to start reviewing from scratch.
+- **Labels for Characteristics:**  
+  Labels are used to classify the characteristics, elements, and descriptors of the issue or initiative. Labels help clarify the type of issue, the component involved, and its priority or status, without cluttering the title. Here are some examples:
 
-Don't worry about adding too many commits. The commits are squashed into a single commit while merging. Your PR title is
-used as the commit message.
+  - **Type:** Describes the nature of the issue.
 
-## Contributing to documentation
+    - `type:bug` – Something isn't working.
+    - `type:feat` – A new feature to be implemented.
+    - `type:refactor` – Refactoring code without adding features.
 
-When you open a PR for the Ignite CLI codebase, you must also update the relevant documentation. For changes to:
+  - **Component:** Specifies the part of the system the issue is related to.
 
-* [Developer Guide](https://docs.ignite.com/guide) tutorials, update content in the `/docs/docs/02-guide` folder.
-* [Ignite CLI reference](https://docs.ignite.com/references/cli), navigate to the `./ignite/cmd` package and update the
-  documentation of the related command from its `cobra.Command` struct. The CLI docs are automatically generated, so do
-  not make changes to `docs/docs/08-references/01-cli.md`.
+    - `component:scaffold` – Related to scaffolding configuration or logic.
+    - `component:frontend` – Related to frontend components.
+    - `component:network` – Related to networking features or configurations.
 
-### Ask for help
+  - **Status:** Indicates the current status of the issue or PR.
+    - `status:needs-triage` – Needs to be reviewed and prioritized.
+    - `status:blocked` – Cannot proceed until the blocking matter is resolved.
+    - `status:help wanted` – Additional input or attention is needed.
 
-If you started a PR but couldn't finish it for whatever reason, don't give up. Instead, just ask for help. Someone else
-can take over and assume the ownership.
+### Do Not Rebase After Opening a PR
 
-## Prioritizing issues with milestones
+- Avoid rebasing commits once a PR is open for review. Instead, add additional commits as needed.
+- Force pushes are acceptable only when the PR is in draft mode and hasn't been reviewed yet.
 
-Ignite CLI follows Git Flow for branch
-strategy <https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow>.
+PRs will be squashed into a single commit when merged, so don't worry about having too many commits during the review process. The final PR title will be used as the commit message.
 
-* Each Ignite CLI release has a milestone, see <https://github.com/ignite/cli/milestones>.
+## Contributing to Documentation
 
-* Issues in each milestone have a **priority/high**, **priority/medium**, or **priority/low** label.
+Changes to the Ignite CLI codebase often require updates to the corresponding documentation. Please ensure that you update relevant documentation when making code changes.
 
-    * Select issues to work on for the earliest milestone. For example, select to work on an issue labeled as \*\*
-      priority/low\*\* in milestone v0.1.0 before you work on an issue labeled as **priority/high** in milestone v0.2.0.
+- For changes to the [Developer Guide](https://docs.ignite.com/guide) and tutorials, update content in the `/docs/docs/02-guide` folder.
+- For changes to the [Ignite CLI Reference](https://docs.ignite.com/references/cli), update the `./ignite/cmd` package where the command is defined. Do not edit auto-generated docs under `docs/docs/08-references/01-cli.md`.
 
-* Milestone **Next** is applied to issues that suggest adding features, docs, and so on.
+### Ask for Help
 
-    * Issues with the **Next** milestone have a higher priority than other **Issues with no milestone** (no milestone is
-      assigned).
+If you start a PR but cannot complete it for any reason, don’t hesitate to ask for help. Another contributor can take over and finish the work.
 
-    * Issues in the **Next** milestone usually have a lower priority than milestones that are associated with a release
-      version, like **Milestone v0.1.0**.
+## Prioritizing Issues with Milestones
 
-* A single project board <https://github.com/ignite/cli/projects/4> shows the issues we are currently working on and
-  what issues we plan to work on.
+We use Git Flow as our branch strategy, with each MAJOR release linked to a milestone. Core maintainers manage the prioritization of issues on the project board to ensure that the most critical work is addressed first.
 
-We appreciate your contribution!
+- **Priority Labels (P0-P3):**  
+  Issues are classified based on their urgency and impact, which helps guide the team’s focus during each release cycle:
+
+  - **P0:** Urgent ("drop everything"); requires immediate attention and resolution. These issues take precedence over all other work.
+  - **P1:** High priority ("important matter"); important and should be addressed promptly, though not as immediately critical as P0 issues.
+  - **P2:** Medium priority ("sometime soon"); should be addressed but can be scheduled after P0 and P1 issues are resolved.
+  - **P3:** Low priority ("nice to have"); nice to have but can be deferred or addressed as time permits.
+
+- **Milestones and Workflow:**  
+  Each milestone represents a MAJOR release. Issues are assigned to milestones based on their priority and relevance to the release goals. The project board is used to track and manage the progress of these issues. This structured workflow ensures that urgent tasks (P0) are addressed immediately, while lower-priority tasks (P3) are handled as resources allow.
+
+- **Next Milestone:**  
+  The **Next** milestone is used for issues or features that are not tied to a specific release but are still relevant to the project’s roadmap. These issues will be addressed when higher-priority work has been completed, or as part of future planning.
+
+<!--Make project board public -->
+
+Check the [project board](https://github.com/ignite/cli/projects/7) to see what we're working on and what’s planned.
+
+## Issue Title Conventions and Labeling
+
+To maintain consistency across issues and PRs, follow these guidelines for issue titles:
+
+- **Standardized Prefixes:** Begin with one of the standardized prefixes:
+
+  - `FIX:` for resolving bugs.
+  - `INIT:` for new components or projects.
+  - `UPDATE:` for improving or modifying existing features.
+  - `META:` for meta tasks involving multiple sub-tasks or actions.
+
+- **Labels for Characteristics:** Use labels to classify the nature of the issue, such as its type, component, priority, or status. Labels help describe the various elements of the issue or task, making it easier to manage and prioritize.
+
+By combining standardized prefixes with well-organized labels, we maintain clarity, avoid redundancy, and ensure that issues and PRs are properly categorized and actionable.
