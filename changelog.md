@@ -43,6 +43,7 @@
 - [#4000](https://github.com/ignite/cli/pull/4000) Run all dry runners before the wet run in the `xgenny` pkg
 - [#4091](https://github.com/ignite/cli/pull/4091) Fix race conditions in the plugin logic
 - [#4128](https://github.com/ignite/cli/pull/4128) Check for duplicate proto fields in config
+- [#4309](https://github.com/ignite/cli/pull/4309) Fix chain id for chain simulations
 
 ## [`v28.5.1`](https://github.com/ignite/cli/releases/tag/v28.5.1)
 
