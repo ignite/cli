@@ -6,6 +6,10 @@ labels: type:bug
 assignees: ""
 ---
 
+<!--
+Please adapt sections as needed while keeping core descriptions clear and detailed. These sections are guidance, but accurate information will help ensure effective handling of the issue or request.
+-->
+
 ### Context:
 
 <!--
@@ -62,7 +66,9 @@ Consider:
 <!-- Provide details about your environment: OS, Ignite CLI version, etc. -->
 
 - **OS:**
-- **Ignite Version:**
+- **Ignite Version:** Provide the output of the `ignite version` command.
+- **Go Version:** Provide the output of the `go version` command.
+- **Other Relevant Tools:** (e.g., node, npm, or other dependencies, if applicable)
 
 ### Notes:
 
