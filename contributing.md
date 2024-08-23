@@ -1,17 +1,5 @@
 # Contributing Guidelines
 
-- [Contributing Guidelines](#contributing-guidelines)
-  - [Providing Feedback](#providing-feedback)
-  - [Opening Pull Requests (PRs)](#opening-pull-requests-prs)
-    - [Choosing a Good PR Title](#choosing-a-good-pr-title)
-    - [Reviewing Your Own Code](#reviewing-your-own-code)
-    - [Commit Guidelines and Title Conventions](#commit-guidelines-and-title-conventions)
-    - [Do Not Rebase After Opening a PR](#do-not-rebase-after-opening-a-pr)
-  - [Contributing to Documentation](#contributing-to-documentation)
-    - [Ask for Help](#ask-for-help)
-  - [Prioritizing Issues with Milestones](#prioritizing-issues-with-milestones)
-  - [Issue Title Conventions and Labeling](#issue-title-conventions-and-labeling)
-
 Before submitting a PR to the Ignite CLI repository, please review and follow these guidelines to ensure consistency and smooth collaboration across the project.
 
 If you have suggestions or want to propose changes to these guidelines, start a new [Discussion topic](https://github.com/ignite/cli/discussions/new) to gather feedback.
@@ -21,6 +9,18 @@ For setup instructions, see [Set Up Your Ignite CLI Development Environment](dev
 To contribute to docs and tutorials, see [Contributing to Ignite CLI Docs](https://docs.ignite.com/contributing).
 
 We appreciate your contribution!
+
+- [Contributing Guidelines](#contributing-guidelines)
+  - [Providing Feedback](#providing-feedback)
+  - [Opening Pull Requests (PRs)](#opening-pull-requests-prs)
+    - [Choosing a Good PR Title](#choosing-a-good-pr-title)
+    - [Reviewing Your Own Code](#reviewing-your-own-code)
+    - [Commit Guidelines \& Title Conventions](#commit-guidelines--title-conventions)
+    - [Do Not Rebase After Opening a PR](#do-not-rebase-after-opening-a-pr)
+  - [Contributing to Documentation](#contributing-to-documentation)
+    - [Ask for Help](#ask-for-help)
+  - [Prioritizing Issues with Milestones](#prioritizing-issues-with-milestones)
+  - [Issue Title Conventions and Labeling](#issue-title-conventions-and-labeling)
 
 ## Providing Feedback
 
@@ -44,7 +44,7 @@ Please review relevant issues and discussions before opening a PR to ensure alig
 - Manually test your changes before submitting a PR or adding new commits.
 - Ensure all CI checks pass before requesting a review. Your PR should show **All checks have passed** with a green checkmark.
 
-### Commit Guidelines and Title Conventions
+### Commit Guidelines & Title Conventions
 
 - **Standardized Issue Prefixes:**  
   Issue titles should begin with one of the following standardized prefixes, depending on the type of action being taken:
@@ -120,8 +120,6 @@ We use Git Flow as our branch strategy, with each MAJOR release linked to a mile
 - **Next Milestone:**  
   The **Next** milestone is used for issues or features that are not tied to a specific release but are still relevant to the project’s roadmap. These issues will be addressed when higher-priority work has been completed, or as part of future planning.
 
-<!--Make project board public -->
-
 Check the [project board](https://github.com/ignite/cli/projects/7) to see what we're working on and what’s planned.
 
 ## Issue Title Conventions and Labeling
@@ -135,6 +133,6 @@ To maintain consistency across issues and PRs, follow these guidelines for issue
   - `UPDATE:` for improving or modifying existing features.
   - `META:` for meta tasks involving multiple sub-tasks or actions.
 
-- **Labels for Characteristics:** Use labels to classify the nature of the issue, such as its type, component, priority, or status. Labels help describe the various elements of the issue or task, making it easier to manage and prioritize.
+- **Labels for Characteristics:** Use labels to classify the nature of the issue, such as its type, component, or status. Labels help describe the various elements of the issue or task, making it easier to manage and prioritize.
 
 By combining standardized prefixes with well-organized labels, we maintain clarity, avoid redundancy, and ensure that issues and PRs are properly categorized and actionable.
