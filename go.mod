@@ -43,7 +43,7 @@ require (
 	github.com/gobuffalo/plush/v4 v4.1.19
 	github.com/gobwas/glob v0.2.3
 	github.com/goccy/go-yaml v1.11.3
-	github.com/golangci/golangci-lint v1.60.2
+	github.com/golangci/golangci-lint v1.60.3
 	github.com/google/go-github/v48 v48.2.0
 	github.com/google/go-querystring v1.1.0
 	github.com/gorilla/mux v1.8.1
@@ -404,7 +404,7 @@ require (
 	github.com/sasha-s/go-deadlock v0.3.1 // indirect
 	github.com/sashamelentyev/interfacebloat v1.1.0 // indirect
 	github.com/sashamelentyev/usestdlibvars v1.27.0 // indirect
-	github.com/securego/gosec/v2 v2.20.1-0.20240820084340-81cda2f91fbe // indirect
+	github.com/securego/gosec/v2 v2.20.1-0.20240822074752-ab3f6c1c83a0 // indirect
 	github.com/segmentio/ksuid v1.0.3 // indirect
 	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 // indirect
 	github.com/shazow/go-diff v0.0.0-20160112020656-b6b7b6733b8c // indirect
