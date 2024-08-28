@@ -17,6 +17,7 @@
 - [#4113](https://github.com/ignite/cli/pull/4113) Generate chain config documentation automatically
 - [#4131](https://github.com/ignite/cli/pull/4131) Support `bytes` as data type in the `scaffold` commands
 - [#4300](https://github.com/ignite/cli/pull/4300) Only panics the module in the most top function level
+- [#4327](https://github.com/ignite/cli/pull/4327) Use the TxConfig from simState instead create a new one
 
 ### Changes
 
