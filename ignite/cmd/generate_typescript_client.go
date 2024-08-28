@@ -12,10 +12,7 @@ import (
 
 const (
 	flagUseCache = "use-cache"
-	msgBufAuth   = `Generate ts-client depends on a 'buf.build' remote plugin, and as of August 1, 2024, Buf will begin limiting remote plugin requests from unauthenticated users on buf.build. 
-If you send more than ten unauthenticated requests per hour using remote plugins, you’ll start to see rate limit errors.
-Please authenticate before running ts-client command using 'buf registry login' command and follow the instructions.
-For more info, check https://buf.build/docs/generate/auth-required.`
+	msgBufAuth   = "Generate ts-client depends on a 'buf.build' remote plugin, and as of August 1, 2024, Buf will begin limiting remote plugin requests from unauthenticated users on 'buf.build'. If you send more than ten unauthenticated requests per hour using remote plugins, you’ll start to see rate limit errors. Please authenticate before running ts-client command using 'buf registry login' command and follow the instructions. For more info, check https://buf.build/docs/generate/auth-required."
 )
 
 func NewGenerateTSClient() *cobra.Command {
