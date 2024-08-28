@@ -12,10 +12,10 @@ import (
 func NewTestNetInPlace() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "in-place",
-		Short: "Create and start a testnet from current local state",
-		Long: `Testnet in-place command is used to create and start a testnet from current local state.
-		After utilizing this command the network will start. We can create testnet from mainnet state and mint more coins for accounts from config.yml file.
-		`,
+		Short: "Create and start a testnet from current local net state",
+		Long: `Testnet in-place command is used to create and start a testnet from current local net state(including mainnet).
+After using this command in the repo containing the config.yml file, the network will start.
+We can create a testnet from the local network state and mint additional coins for the desired accounts from the config.yml file.`,
 		Args: cobra.NoArgs,
 		RunE: testnetInPlaceHandler,
 	}

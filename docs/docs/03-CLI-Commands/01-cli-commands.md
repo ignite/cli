@@ -39,6 +39,7 @@ To get started, create a blockchain:
 * [ignite relayer](#ignite-relayer)	 - Connect blockchains with an IBC relayer
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
 * [ignite version](#ignite-version)	 - Print the current build information
+* [ignite testnet](#ignite-testnet) - Start a testnet local
 
 
 ## ignite account
@@ -3658,3 +3659,72 @@ ignite version [flags]
 
 * [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 
+
+## ignite testnet
+
+Start a testnet local
+
+**Synopsis**
+
+The commands in this namespace allow you to start your local testnet for development purposes. Currently there is only one feature to create a testnet from any state network (including mainnet).
+
+
+The "in-place" command is used to create and start a testnet from current local net state(including mainnet).
+After using this command in the repo containing the config.yml file, the network will start.
+We can create a testnet from the local network state and mint additional coins for the desired accounts from the config.yml file.
+
+During development, in-place allows you to quickly reboot the chain from a multi-node network state to a node you have full control over.
+
+**SEE ALSO**
+
+* [ignite testnet in-place](#ignite-testnet-in-place)	 - Create and start a testnet from current local net state
+
+
+## ignite testnet in-place 
+
+Create and start a testnet from current local net state
+
+**Synopsis**
+
+The "in-place" command is used to create and start a testnet from current local net state(including mainnet). 
+
+We can create a testnet from the local network state and mint additional coins for the desired accounts from the config.yml file.
+
+During development, in-place allows you to quickly reboot the chain from a multi-node network state to a node you have full control over.
+
+By default, the data directory will be initialized in $HOME/.mychain, where "mychain" is the name of the project. To set a custom data directory use the --home flag or set the value in config.yml:
+
+	validators:
+	  - name: alice
+	    bonded: '100000000stake'
+	    home: "~/.customdir"
+
+Get mint coin just add account in config.yml file:
+
+      accounts: 
+      - name: charlie
+      coins:
+      - 20000token
+      - 200000000stake
+
+
+```
+ignite chain debug [flags]
+```
+
+**Options**
+
+```
+  -h, --help                    help for debug
+  -p, --path string             path of the app (default ".")
+```
+
+**Options inherited from parent commands**
+
+```
+  -c, --config string   path to Ignite config file (default: ./config.yml)
+```
+
+**SEE ALSO**
+
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, start testnet and launch your blockchain
