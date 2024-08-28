@@ -37,6 +37,7 @@
 - [#4189](https://github.com/ignite/cli/pull/4189) Deprecate `ignite node` for `ignite connect` app
 - [#4290](https://github.com/ignite/cli/pull/4290) Remove ignite ics logic from ignite cli (this functionality will be in the `consumer` app)
 - [#4295](https://github.com/ignite/cli/pull/4295) Stop scaffolding `pulsar` files
+- [#4319](https://github.com/ignite/cli/pull/4319) Remove fee abstraction module from open api code generation
 
 ### Fixes
 
