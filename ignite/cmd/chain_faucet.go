@@ -40,6 +40,11 @@ func chainFaucetHandler(cmd *cobra.Command, args []string) error {
 		chain.CollectEvents(session.EventBus()),
 	}
 
+	config, _ := cmd.Flags().GetString(flagConfig)
+	if config != "" {
+		chainOption = append(chainOption, chain.ConfigFile(config))
+	}
+
 	c, err := chain.NewWithHomeFlags(cmd, chainOption...)
 	if err != nil {
 		return err
