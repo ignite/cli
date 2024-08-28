@@ -1,9 +1,10 @@
 package singleton
 
 import (
+	"crypto/rand"
 	"embed"
 	"fmt"
-	"math/rand"
+	"math/big"
 	"path/filepath"
 	"strings"
 
@@ -297,7 +298,11 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		// Create a fields
 		sampleFields := ""
 		for _, field := range opts.Fields {
-			sampleFields += field.GenesisArgs(rand.Intn(100) + 1)
+			n, err := rand.Int(rand.Reader, big.NewInt(100))
+			if err != nil {
+				return err
+			}
+			sampleFields += field.GenesisArgs(int(n.Int64()) + 1)
 		}
 
 		templateState := `%[2]v: &types.%[2]v{
@@ -336,7 +341,11 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 		// Create a fields
 		sampleFields := ""
 		for _, field := range opts.Fields {
-			sampleFields += field.GenesisArgs(rand.Intn(100) + 1)
+			n, err := rand.Int(rand.Reader, big.NewInt(100))
+			if err != nil {
+				return err
+			}
+			sampleFields += field.GenesisArgs(int(n.Int64()) + 1)
 		}
 
 		templateValid := `%[2]v: &types.%[2]v{
@@ -366,7 +375,7 @@ func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) gen
 		templateModuleInit := `// Set if defined
 if genState.%[3]v != nil {
 	if err := k.%[3]v.Set(ctx, *genState.%[3]v); err != nil {
-		panic(err)
+		return err
 	}
 }
 %[1]v`
@@ -380,9 +389,10 @@ if genState.%[3]v != nil {
 
 		templateModuleExport := `// Get all %[2]v
 %[2]v, err := k.%[3]v.Get(ctx)
-if err == nil {
-	genesis.%[3]v = &%[2]v
+if err != nil {
+	return nil, err
 }
+genesis.%[3]v = &%[2]v
 %[1]v`
 		replacementModuleExport := fmt.Sprintf(
 			templateModuleExport,

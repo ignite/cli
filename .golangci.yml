@@ -20,6 +20,7 @@ linters:
     - godot
     - gofumpt
     - revive
+    - gosec
     - gosimple
     - govet
     - grouper
@@ -27,7 +28,6 @@ linters:
     - misspell
     - nakedret
     - nolintlint
-    - exportloopref
     - staticcheck
     - reassign
     - stylecheck

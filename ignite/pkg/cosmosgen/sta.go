@@ -54,5 +54,5 @@ return createCustomOperationId(method, route, moduleName);
 // generateRouteNameFile generates the `route-name.eta` file.
 func generateRouteNameFile(outPath string) error {
 	outTemplate := filepath.Join(outPath, "route-name.eta")
-	return os.WriteFile(outTemplate, []byte(routeNameTemplate), 0o644)
+	return os.WriteFile(outTemplate, []byte(routeNameTemplate), 0o600)
 }

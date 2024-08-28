@@ -19,9 +19,6 @@ var (
 
 	//go:embed files-minimal/* files-minimal/**/*
 	filesMinimal embed.FS
-
-	//go:embed files-consumer/* files-consumer/**/*
-	filesConsumer embed.FS
 )
 
 const (
@@ -45,9 +42,6 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 		// minimal chain does not have ibc
 		excludePrefix = append(excludePrefix, ibcConfig)
 		overridesFS["files-minimal"] = filesMinimal
-	}
-	if opts.IsConsumerChain {
-		overridesFS["files-consumer"] = filesConsumer
 	}
 
 	g := genny.New()
@@ -74,7 +68,6 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 	ctx.Set("GitHubPath", opts.GitHubPath)
 	ctx.Set("BinaryNamePrefix", opts.BinaryNamePrefix)
 	ctx.Set("AddressPrefix", opts.AddressPrefix)
-	ctx.Set("IsConsumerChain", opts.IsConsumerChain)
 	ctx.Set("DepTools", cosmosgen.DepTools())
 	ctx.Set("IsChainMinimal", opts.IsChainMinimal)
 

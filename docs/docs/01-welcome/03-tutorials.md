@@ -1,10 +1,9 @@
 ---
-sidebar_position: 0
-title: Introduction
-slug: /guide
+sidebar_position: 2
+description: Try out our tutorials
 ---
 
-# Introduction to Ignite's Developer Tutorials
+# Tutorials
 
 Welcome to the Ignite Developer Tutorials, your gateway to mastering blockchain development. These comprehensive tutorials are designed for learners at all levels, from beginners to seasoned developers, offering both foundational knowledge and hands-on experience.
 
