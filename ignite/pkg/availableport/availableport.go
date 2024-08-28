@@ -7,6 +7,7 @@ import (
 	"net"
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/safeconverter"
 )
 
 type availablePortOptions struct {
@@ -53,11 +54,12 @@ func Find(n uint, options ...Options) (ports []uint, err error) {
 
 	// Marker to point if a port is already added in the list
 	registered := make(map[uint]bool)
-	for len(registered) < int(n) {
+	i := safeconverter.ToInt[uint](n)
+	for len(registered) < i {
 		// Greater or equal to min and lower than max
 		totalPorts := opts.maxPort - opts.minPort + 1
 
-		randomPort, _ := rand.Int(rand.Reader, big.NewInt(int64(totalPorts)))
+		randomPort, _ := rand.Int(rand.Reader, big.NewInt(safeconverter.ToInt64[uint](totalPorts)))
 		port := uint(randomPort.Uint64()) + opts.minPort
 
 		conn, err := net.Dial("tcp", fmt.Sprintf(":%d", port))
