@@ -5,6 +5,7 @@
 ### Changes
 
 - [#4292](https://github.com/ignite/cli/pull/4292) Bump Cosmos SDK to `v0.50.9`
+- [#4309](https://github.com/ignite/cli/pull/4309) Fix chain id for chain simulations
 
 ## [`v28.5.1`](https://github.com/ignite/cli/releases/tag/v28.5.1)
 
