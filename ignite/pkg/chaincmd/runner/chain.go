@@ -46,7 +46,6 @@ func NewKV(key, value string) KV {
 var gentxRe = regexp.MustCompile(`(?m)"(.+?)"`)
 
 func (r Runner) InPlace(ctx context.Context, newChainID, newOperatorAddress string, options ...chaincmd.InPlaceOption) error {
-	fmt.Println("Press Ctrl + C to stop the running testnet process.")
 	runOptions := runOptions{
 		stdout: os.Stdout,
 		stderr: os.Stderr,
