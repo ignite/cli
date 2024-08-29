@@ -18,6 +18,7 @@ import (
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gitpod"
@@ -40,6 +41,7 @@ type Info struct {
 	CLIVersion      string
 	GoVersion       string
 	SDKVersion      string
+	BufVersion      string
 	BuildDate       string
 	SourceHash      string
 	ConfigVersion   string
@@ -150,6 +152,7 @@ func Long(ctx context.Context) (string, error) {
 	write("Ignite CLI source hash", info.SourceHash)
 	write("Ignite CLI config version", info.ConfigVersion)
 	write("Cosmos SDK version", info.SDKVersion)
+	write("Buf.Build version", info.BufVersion)
 
 	write("Your OS", info.OS)
 	write("Your arch", info.Arch)
@@ -221,9 +224,15 @@ func GetInfo(ctx context.Context) (Info, error) {
 		uname = strings.TrimSpace(unameBuf.String())
 	}
 
+	bufVersion, err := cosmosbuf.Version(ctx)
+	if err != nil {
+		return info, err
+	}
+
 	info.Uname = uname
 	info.CLIVersion = resolveDevVersion(ctx)
 	info.BuildDate = date
+	info.BufVersion = bufVersion
 	info.SourceHash = head
 	info.ConfigVersion = fmt.Sprintf("v%d", chainconfig.LatestVersion)
 	info.SDKVersion = sdkVersion
