@@ -78,6 +78,7 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 			dir,
 			g.openAPITemplate(),
 			cosmosbuf.ExcludeFiles(
+				"*/osmosis-labs/fee-abstraction/*",
 				"*/module.proto",
 				"*/testutil/*",
 				"*/testdata/*",

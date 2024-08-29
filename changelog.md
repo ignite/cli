@@ -5,6 +5,10 @@
 ### Changes
 
 - [#4292](https://github.com/ignite/cli/pull/4292) Bump Cosmos SDK to `v0.50.9`
+
+### Fixes
+
+- [#4319](https://github.com/ignite/cli/pull/4319) Remove fee abstraction module from open api code generation
 - [#4309](https://github.com/ignite/cli/pull/4309) Fix chain id for chain simulations
 
 ### Fixes
