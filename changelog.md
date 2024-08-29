@@ -17,6 +17,7 @@
 - [#4113](https://github.com/ignite/cli/pull/4113) Generate chain config documentation automatically
 - [#4131](https://github.com/ignite/cli/pull/4131) Support `bytes` as data type in the `scaffold` commands
 - [#4300](https://github.com/ignite/cli/pull/4300) Only panics the module in the most top function level
+- [#4326](https://github.com/ignite/cli/pull/4326) fAdd `buf.build` version to `ignite version` command
 
 ### Changes
 
@@ -37,6 +38,7 @@
 - [#4189](https://github.com/ignite/cli/pull/4189) Deprecate `ignite node` for `ignite connect` app
 - [#4290](https://github.com/ignite/cli/pull/4290) Remove ignite ics logic from ignite cli (this functionality will be in the `consumer` app)
 - [#4295](https://github.com/ignite/cli/pull/4295) Stop scaffolding `pulsar` files
+- [#4317](https://github.com/ignite/cli/pull/4317) Remove xchisel dependency
 
 ### Fixes
 
