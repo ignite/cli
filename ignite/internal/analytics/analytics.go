@@ -102,8 +102,10 @@ func SendMetric(wg *sync.WaitGroup, cmd *cobra.Command) {
 // checkDNT check if the user allow to track data or if the DO_NOT_TRACK
 // env var is set https://consoledonottrack.com/
 func checkDNT() (anonIdentity, error) {
-	if dnt, err := strconv.ParseBool(os.Getenv(envDoNotTrack)); err != nil || dnt {
-		return anonIdentity{DoNotTrack: true}, nil
+	if dnt := os.Getenv(envDoNotTrack); dnt != "" {
+		if dnt, err := strconv.ParseBool(dnt); err != nil || dnt {
+			return anonIdentity{DoNotTrack: true}, nil
+		}
 	}
 
 	globalPath, err := config.DirPath()
