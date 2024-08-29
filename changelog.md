@@ -39,6 +39,7 @@
 - [#4290](https://github.com/ignite/cli/pull/4290) Remove ignite ics logic from ignite cli (this functionality will be in the `consumer` app)
 - [#4295](https://github.com/ignite/cli/pull/4295) Stop scaffolding `pulsar` files
 - [#4322](https://github.com/ignite/cli/pull/4322) Create a message for authenticate buf for generate ts-client
+- [#4319](https://github.com/ignite/cli/pull/4319) Remove fee abstraction module from open api code generation
 - [#4317](https://github.com/ignite/cli/pull/4317) Remove xchisel dependency
 
 ### Fixes
