@@ -100,10 +100,8 @@ func chainDebug(cmd *cobra.Command, session *cliui.Session) error {
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	}
 
-	config, err := cmd.Flags().GetString(flagConfig)
-	if err != nil {
-		return err
-	}
+	// check if custom config is defined
+	config, _ := cmd.Flags().GetString(flagConfig)
 	if config != "" {
 		chainOptions = append(chainOptions, chain.ConfigFile(config))
 	}

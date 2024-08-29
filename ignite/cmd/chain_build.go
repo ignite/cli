@@ -123,6 +123,12 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 		chainOption = append(chainOption, chain.CheckDependencies())
 	}
 
+	// check if custom config is defined
+	config, _ := cmd.Flags().GetString(flagConfig)
+	if config != "" {
+		chainOption = append(chainOption, chain.ConfigFile(config))
+	}
+
 	c, err := chain.NewWithHomeFlags(cmd, chainOption...)
 	if err != nil {
 		return err
