@@ -27,7 +27,7 @@ const (
 	commandUnsafeReset       = "unsafe-reset-all"
 	commandExport            = "export"
 	commandTendermint        = "tendermint"
-	commandTestNetInPlace    = "in-place-testnet"
+	commandTestnetInPlace    = "in-place-testnet"
 
 	optionHome                             = "--home"
 	optionNode                             = "--node"
@@ -193,7 +193,7 @@ func (c ChainCmd) InitCommand(moniker string) step.Option {
 // TestnetInPlaceCommand.
 func (c ChainCmd) TestnetInPlaceCommand(newChainID, newOperatorAddress string, options ...InPlaceOption) step.Option {
 	command := []string{
-		commandTestNetInPlace,
+		commandTestnetInPlace,
 		newChainID,
 		newOperatorAddress,
 	}

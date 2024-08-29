@@ -13,7 +13,7 @@ type InplaceArgs struct {
 	AcountsToFund      string
 }
 
-func (c Chain) TestNetInPlace(ctx context.Context, args InplaceArgs) error {
+func (c Chain) TestnetInPlace(ctx context.Context, args InplaceArgs) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err

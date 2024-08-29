@@ -4,8 +4,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// NewTestNet returns a command that groups scaffolding related sub commands.
-func NewTestNet() *cobra.Command {
+// NewTestnet returns a command that groups scaffolding related sub commands.
+func NewTestnet() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "testnet [command]",
 		Short: "Start a testnet local",
@@ -17,7 +17,7 @@ func NewTestNet() *cobra.Command {
 	}
 
 	c.AddCommand(
-		NewTestNetInPlace(),
+		NewTestnetInPlace(),
 	)
 
 	return c

@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewTestNetInPlace() *cobra.Command {
+func NewTestnetInPlace() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "in-place",
 		Short: "Create and start a testnet from current local net state",
@@ -116,5 +116,5 @@ func testnetInplace(cmd *cobra.Command, session *cliui.Session) error {
 		NewOperatorAddress: operatorAddress.String(),
 		AcountsToFund:      accounts,
 	}
-	return c.TestNetInPlace(cmd.Context(), args)
+	return c.TestnetInPlace(cmd.Context(), args)
 }
