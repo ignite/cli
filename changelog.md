@@ -38,6 +38,7 @@
 - [#4189](https://github.com/ignite/cli/pull/4189) Deprecate `ignite node` for `ignite connect` app
 - [#4290](https://github.com/ignite/cli/pull/4290) Remove ignite ics logic from ignite cli (this functionality will be in the `consumer` app)
 - [#4295](https://github.com/ignite/cli/pull/4295) Stop scaffolding `pulsar` files
+- [#4317](https://github.com/ignite/cli/pull/4317) Remove xchisel dependency
 
 ### Fixes
 
@@ -45,6 +46,7 @@
 - [#4091](https://github.com/ignite/cli/pull/4091) Fix race conditions in the plugin logic
 - [#4128](https://github.com/ignite/cli/pull/4128) Check for duplicate proto fields in config
 - [#4309](https://github.com/ignite/cli/pull/4309) Fix chain id for chain simulations
+- [#4323](https://github.com/ignite/cli/pull/4323) Add missing `--config` handling in the `chain` commands
 
 ## [`v28.5.1`](https://github.com/ignite/cli/releases/tag/v28.5.1)
 
