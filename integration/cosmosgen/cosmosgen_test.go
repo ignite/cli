@@ -13,6 +13,8 @@ import (
 )
 
 func TestCosmosGenScaffold(t *testing.T) {
+	t.Skip("skip till we add a buf token into the CI")
+
 	var (
 		env = envtest.New(t)
 		app = env.Scaffold("github.com/test/blog")
