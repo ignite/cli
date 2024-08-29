@@ -3,6 +3,7 @@ package analytics
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -16,6 +17,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/gitpod"
 	"github.com/ignite/cli/v29/ignite/pkg/matomo"
 	"github.com/ignite/cli/v29/ignite/pkg/randstr"
+	"github.com/ignite/cli/v29/ignite/pkg/sentry"
 	"github.com/ignite/cli/v29/ignite/version"
 )
 
@@ -52,6 +54,7 @@ func SendMetric(wg *sync.WaitGroup, cmd *cobra.Command) {
 	}
 
 	dntInfo, err := checkDNT()
+	fmt.Println(dntInfo, err)
 	if err != nil || dntInfo.DoNotTrack {
 		return
 	}
@@ -99,11 +102,30 @@ func SendMetric(wg *sync.WaitGroup, cmd *cobra.Command) {
 	}()
 }
 
+// SendErrors send command errors to Sentry.
+func SendErrors(wg *sync.WaitGroup, ctx context.Context) {
+	dntInfo, err := checkDNT()
+	if err != nil || dntInfo.DoNotTrack {
+		return
+	}
+
+	closeSentry, err := sentry.InitSentry(ctx)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if err == nil {
+			defer closeSentry()
+		}
+	}()
+}
+
 // checkDNT check if the user allow to track data or if the DO_NOT_TRACK
 // env var is set https://consoledonottrack.com/
 func checkDNT() (anonIdentity, error) {
-	if dnt, err := strconv.ParseBool(os.Getenv(envDoNotTrack)); err != nil || dnt {
-		return anonIdentity{DoNotTrack: true}, nil
+	if dnt := os.Getenv(envDoNotTrack); dnt != "" {
+		if dnt, err := strconv.ParseBool(dnt); err != nil || dnt {
+			return anonIdentity{DoNotTrack: true}, nil
+		}
 	}
 
 	globalPath, err := config.DirPath()
