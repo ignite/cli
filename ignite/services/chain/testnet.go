@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-type InplaceArgs struct {
+type InPlaceArgs struct {
 	NewChainID         string
 	NewOperatorAddress string
 	PrvKeyValidator    string
