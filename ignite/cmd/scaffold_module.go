@@ -103,11 +103,13 @@ params.
 
 	c.Flags().AddFlagSet(flagSetYes())
 	c.Flags().StringSlice(flagDep, []string{}, "add a dependency on another module")
-	c.Flags().Bool(flagIBC, false, "add IBC functionality")
+	// c.Flags().Bool(flagIBC, false, "add IBC functionality")
 	c.Flags().String(flagIBCOrdering, "none", "channel ordering of the IBC module [none|ordered|unordered]")
 	c.Flags().Bool(flagRequireRegistration, false, "fail if module can't be registered")
 	c.Flags().StringSlice(flagParams, []string{}, "add module parameters")
 	c.Flags().StringSlice(flagModuleConfigs, []string{}, "add module configs")
+
+	c.Flags().MarkDeprecated(flagIBC, "IBC modules are temporarily not supported in Ignite v29 (waiting to IBC compatible version with Cosmos SDK v0.52)") // TODO: remove this line when IBC is supported
 
 	return c
 }

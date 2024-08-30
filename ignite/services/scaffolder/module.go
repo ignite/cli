@@ -62,6 +62,8 @@ var (
 		"nft":                {},
 		"group":              {},
 		"consensus":          {},
+		"epochs":             {},
+		"protocolpool":       {},
 	}
 
 	// defaultStoreKeys are the names of the default store keys defined in a Cosmos-SDK app.

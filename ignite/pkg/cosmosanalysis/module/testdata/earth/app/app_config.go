@@ -26,44 +26,44 @@ import (
 	vestingmodulev1 "cosmossdk.io/api/cosmos/vesting/module/v1"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/depinject/appconfig"
+	_ "cosmossdk.io/x/auth/tx/config" // import for side-effects
+	authtypes "cosmossdk.io/x/auth/types"
+	_ "cosmossdk.io/x/auth/vesting" // import for side-effects
+	vestingtypes "cosmossdk.io/x/auth/vesting/types"
+	"cosmossdk.io/x/authz"
+	_ "cosmossdk.io/x/authz/module" // import for side-effects
+	_ "cosmossdk.io/x/bank"         // import for side-effects
+	banktypes "cosmossdk.io/x/bank/types"
 	_ "cosmossdk.io/x/circuit" // import for side-effects
 	circuittypes "cosmossdk.io/x/circuit/types"
+	_ "cosmossdk.io/x/consensus" // import for side-effects
+	consensustypes "cosmossdk.io/x/consensus/types"
+	_ "cosmossdk.io/x/crisis" // import for side-effects
+	crisistypes "cosmossdk.io/x/crisis/types"
+	_ "cosmossdk.io/x/distribution" // import for side-effects
+	distrtypes "cosmossdk.io/x/distribution/types"
 	_ "cosmossdk.io/x/evidence" // import for side-effects
 	evidencetypes "cosmossdk.io/x/evidence/types"
 	"cosmossdk.io/x/feegrant"
 	_ "cosmossdk.io/x/feegrant/module" // import for side-effects
-	_ "cosmossdk.io/x/upgrade"         // import for side-effects
+	"cosmossdk.io/x/genutil"
+	genutiltypes "cosmossdk.io/x/genutil/types"
+	"cosmossdk.io/x/gov"
+	govtypes "cosmossdk.io/x/gov/types"
+	"cosmossdk.io/x/group"
+	_ "cosmossdk.io/x/group/module" // import for side-effects
+	_ "cosmossdk.io/x/mint"         // import for side-effects
+	minttypes "cosmossdk.io/x/mint/types"
+	_ "cosmossdk.io/x/params" // import for side-effects
+	paramstypes "cosmossdk.io/x/params/types"
+	_ "cosmossdk.io/x/slashing" // import for side-effects
+	slashingtypes "cosmossdk.io/x/slashing/types"
+	_ "cosmossdk.io/x/staking" // import for side-effects
+	stakingtypes "cosmossdk.io/x/staking/types"
+	_ "cosmossdk.io/x/upgrade" // import for side-effects
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	_ "github.com/cosmos/cosmos-sdk/x/auth/vesting" // import for side-effects
-	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	"github.com/cosmos/cosmos-sdk/x/authz"
-	_ "github.com/cosmos/cosmos-sdk/x/authz/module" // import for side-effects
-	_ "github.com/cosmos/cosmos-sdk/x/bank"         // import for side-effects
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	_ "github.com/cosmos/cosmos-sdk/x/consensus" // import for side-effects
-	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
-	_ "github.com/cosmos/cosmos-sdk/x/crisis" // import for side-effects
-	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
-	_ "github.com/cosmos/cosmos-sdk/x/distribution" // import for side-effects
-	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	"github.com/cosmos/cosmos-sdk/x/genutil"
-	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	"github.com/cosmos/cosmos-sdk/x/gov"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/cosmos/cosmos-sdk/x/group"
-	_ "github.com/cosmos/cosmos-sdk/x/group/module" // import for side-effects
-	_ "github.com/cosmos/cosmos-sdk/x/mint"         // import for side-effects
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	_ "github.com/cosmos/cosmos-sdk/x/params" // import for side-effects
-	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	_ "github.com/cosmos/cosmos-sdk/x/slashing" // import for side-effects
-	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	_ "github.com/cosmos/cosmos-sdk/x/staking" // import for side-effects
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	_ "github.com/cosmos/ibc-go/modules/capability" // import for side-effects
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 	_ "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts" // import for side-effects

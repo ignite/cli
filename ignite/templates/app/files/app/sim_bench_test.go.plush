@@ -1,18 +1,22 @@
 package app_test
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
-	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	"cosmossdk.io/log"
+	"github.com/cosmos/cosmos-sdk/testutils/sims"
+
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/require"
+
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/server"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 	simcli "github.com/cosmos/cosmos-sdk/x/simulation/client/cli"
-	"github.com/stretchr/testify/require"
 
 	"<%= ModulePath %>/app"
 )
@@ -39,25 +43,29 @@ func BenchmarkFullAppSimulation(b *testing.B) {
 		require.NoError(b, os.RemoveAll(dir))
 	}()
 
-	appOptions := make(simtestutil.AppOptionsMap, 0)
-	appOptions[flags.FlagHome] = app.DefaultNodeHome
-	appOptions[server.FlagInvCheckPeriod] = simcli.FlagPeriodValue
+	appOptions := viper.New()
+	appOptions.SetDefault(flags.FlagHome, app.DefaultNodeHome)
+	appOptions.SetDefault(server.FlagInvCheckPeriod, simcli.FlagPeriodValue)
 
-	bApp, err := app.New(logger, db, nil, true, appOptions, interBlockCacheOpt())
+	bApp := app.New(logger, db, nil, true, appOptions, interBlockCacheOpt(), baseapp.SetChainID(sims.SimAppChainID))
 	require.NoError(b, err)
-    require.Equal(b, app.Name, bApp.Name())
+	require.Equal(b, app.Name, bApp.Name())
+
 
 	// run randomized simulation
-	_, simParams, simErr := simulation.SimulateFromSeed(
+	simParams, simErr := simulation.SimulateFromSeedX(
 		b,
+		log.NewNopLogger(),
 		os.Stdout,
 		bApp.BaseApp,
-		simtestutil.AppStateFn(bApp.AppCodec(), bApp.SimulationManager(), bApp.DefaultGenesis()),
+		simtestutil.AppStateFn(bApp.AppCodec(), bApp.AuthKeeper.AddressCodec(), bApp.StakingKeeper.ValidatorAddressCodec(), bApp.SimulationManager(), bApp.DefaultGenesis()),
 		simtypes.RandomAccounts, // Replace with own random account function if using keys other than secp256k1
-		simtestutil.SimulationOperations(bApp, bApp.AppCodec(), config),
+		simtestutil.SimulationOperations(bApp, bApp.AppCodec(), config, bApp.TxConfig()),
 		app.BlockedAddresses(),
 		config,
 		bApp.AppCodec(),
+		bApp.TxConfig().SigningContext().AddressCodec(),
+		&simulation.DummyLogWriter{},
 	)
 
 	// export state and simParams before the simulation error is checked
@@ -73,80 +81,3 @@ func BenchmarkFullAppSimulation(b *testing.B) {
 		simtestutil.PrintStats(db)
 	}
 }
-
-<%= if (!IsChainMinimal) { %>
-func BenchmarkInvariants(b *testing.B) {
-	b.ReportAllocs()
-
-	config := simcli.NewConfigFromFlags()
-	config.ChainID = SimAppChainID
-
-	db, dir, logger, skip, err := simtestutil.SetupSimulation(config, "leveldb-app-invariant-bench", "Simulation", simcli.FlagVerboseValue, simcli.FlagEnabledValue)
-	if err != nil {
-		b.Fatalf("simulation setup failed: %s", err.Error())
-	}
-
-	if skip {
-		b.Skip("skipping benchmark application simulation")
-	}
-
-	config.AllInvariants = false
-
-	defer func() {
-		require.NoError(b, db.Close())
-		require.NoError(b, os.RemoveAll(dir))
-	}()
-
-	appOptions := make(simtestutil.AppOptionsMap, 0)
-	appOptions[flags.FlagHome] = app.DefaultNodeHome
-	appOptions[server.FlagInvCheckPeriod] = simcli.FlagPeriodValue
-
-	bApp, err := app.New(logger, db, nil, true, appOptions, interBlockCacheOpt())
-	require.NoError(b, err)
-    require.Equal(b, app.Name, bApp.Name())
-    
-	// run randomized simulation
-	_, simParams, simErr := simulation.SimulateFromSeed(
-		b,
-		os.Stdout,
-		bApp.BaseApp,
-		simtestutil.AppStateFn(bApp.AppCodec(), bApp.SimulationManager(), bApp.DefaultGenesis()),
-		simtypes.RandomAccounts, // Replace with own random account function if using keys other than secp256k1
-		simtestutil.SimulationOperations(bApp, bApp.AppCodec(), config),
-		app.BlockedAddresses(),
-		config,
-		bApp.AppCodec(),
-	)
-
-	// export state and simParams before the simulation error is checked
-	if err = simtestutil.CheckExportSimulation(bApp, config, simParams); err != nil {
-		b.Fatal(err)
-	}
-
-	if simErr != nil {
-		b.Fatal(simErr)
-	}
-
-	if config.Commit {
-		simtestutil.PrintStats(db)
-	}
-
-	ctx := bApp.NewContextLegacy(true, cmtproto.Header{Height: bApp.LastBlockHeight() + 1})
-
-	// 3. Benchmark each invariant separately
-	//
-	// NOTE: We use the crisis keeper as it has all the invariants registered with
-	// their respective metadata which makes it useful for testing/benchmarking.
-	for _, cr := range bApp.CrisisKeeper.Routes() {
-		cr := cr
-		b.Run(fmt.Sprintf("%s/%s", cr.ModuleName, cr.Route), func(b *testing.B) {
-			if res, stop := cr.Invar(ctx); stop {
-				b.Fatalf(
-					"broken invariant at block %d of %d\n%s",
-					ctx.BlockHeight()-1, config.NumBlocks, res,
-				)
-			}
-		})
-	}
-}
-<% } %>
