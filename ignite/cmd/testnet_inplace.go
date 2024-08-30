@@ -5,6 +5,7 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/services/chain"
 	"github.com/spf13/cobra"
 )
@@ -75,7 +76,7 @@ func testnetInplace(cmd *cobra.Command, session *cliui.Session) error {
 		return err
 	}
 	ca, err := cosmosaccount.New(
-		cosmosaccount.WithKeyringBackend(cosmosaccount.KeyringBackend(keyringbankend)),
+		cosmosaccount.WithKeyringBackend(cosmosaccount.KeyringBackend(keyringBackend)),
 		cosmosaccount.WithHome(home),
 	)
 	if err != nil {
@@ -89,7 +90,7 @@ func testnetInplace(cmd *cobra.Command, session *cliui.Session) error {
 	)
 	for _, acc := range cfg.Accounts {
 		sdkAcc, err := ca.GetByName(acc.Name)
-		if !errors.As(err, &accErr) {
+		if errors.As(err, &accErr) {
 			sdkAcc, _, err = ca.Create(acc.Name)
 		}
 		if err != nil {
@@ -118,10 +119,10 @@ func testnetInplace(cmd *cobra.Command, session *cliui.Session) error {
 		return err
 	}
 
-	args := chain.InplaceArgs{
+	args := chain.InPlaceArgs{
 		NewChainID:         chainID,
 		NewOperatorAddress: operatorAddress.String(),
-		AcountsToFund:      accounts,
+		AccountsToFund:     accounts,
 	}
 	return c.TestnetInPlace(cmd.Context(), args)
 }

@@ -10,10 +10,10 @@ type InPlaceArgs struct {
 	NewChainID         string
 	NewOperatorAddress string
 	PrvKeyValidator    string
-	AccountsToFund      string
+	AccountsToFund     string
 }
 
-func (c Chain) TestnetInPlace(ctx context.Context, args InplaceArgs) error {
+func (c Chain) TestnetInPlace(ctx context.Context, args InPlaceArgs) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err

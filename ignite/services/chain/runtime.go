@@ -37,12 +37,12 @@ func (c Chain) Gentx(ctx context.Context, runner chaincmdrunner.Runner, v Valida
 	)
 }
 
-func (c Chain) InPlace(ctx context.Context, runner chaincmdrunner.Runner, args InplaceArgs) error {
+func (c Chain) InPlace(ctx context.Context, runner chaincmdrunner.Runner, args InPlaceArgs) error {
 	err := runner.InPlace(ctx,
 		args.NewChainID,
 		args.NewOperatorAddress,
 		chaincmd.InPlaceWithPrvKey(args.PrvKeyValidator),
-		chaincmd.InPlaceWithAccountToFund(args.AcountsToFund),
+		chaincmd.InPlaceWithAccountToFund(args.AccountsToFund),
 		chaincmd.InPlaceWithSkipConfirmation(),
 	)
 	return err
