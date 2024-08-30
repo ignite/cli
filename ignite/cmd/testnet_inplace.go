@@ -70,7 +70,7 @@ func testnetInplace(cmd *cobra.Command, session *cliui.Session) error {
 	if err != nil {
 		return err
 	}
-	keyringbankend, err := c.KeyringBackend()
+	keyringBackend, err := c.KeyringBackend()
 	if err != nil {
 		return err
 	}
