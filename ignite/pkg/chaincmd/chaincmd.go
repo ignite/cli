@@ -190,22 +190,6 @@ func (c ChainCmd) InitCommand(moniker string) step.Option {
 	return c.daemonCommand(command)
 }
 
-// TestnetInPlaceCommand.
-func (c ChainCmd) TestnetInPlaceCommand(newChainID, newOperatorAddress string, options ...InPlaceOption) step.Option {
-	command := []string{
-		commandTestnetInPlace,
-		newChainID,
-		newOperatorAddress,
-	}
-
-	// Apply the options provided by the user
-	for _, apply := range options {
-		command = apply(command)
-	}
-
-	return c.daemonCommand(command)
-}
-
 // AddKeyCommand returns the command to add a new key in the chain keyring.
 func (c ChainCmd) AddKeyCommand(accountName, coinType, accountNumber, addressIndex string) step.Option {
 	command := []string{
