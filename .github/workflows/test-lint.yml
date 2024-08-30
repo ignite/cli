@@ -37,11 +37,7 @@ jobs:
       - uses: golangci/golangci-lint-action@v3
         if: env.GIT_DIFF
         with:
-<<<<<<< HEAD
-          version: v1.54.2
-=======
           version: v1.60.3
->>>>>>> 8a038fc9 (chore: bump golangci-lint to `v1.60.3` (#4324))
           install-mode: goinstall
           args: --timeout 10m
           github-token: ${{ secrets.github_token }}
