@@ -2,8 +2,9 @@ package chain
 
 import (
 	"context"
-	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"os"
+
+	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 )
 
 type InPlaceArgs struct {
