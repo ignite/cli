@@ -18,13 +18,6 @@ jobs:
     timeout-minutes: 6
     steps:
       - uses: actions/checkout@v4
-      - uses: technote-space/get-diff-action@v6.1.2
-        with:
-          PATTERNS: |
-            **/*.go
-            **/*.plush
-            go.mod
-            go.sum
 
       - uses: actions/setup-go@v5
         if: env.GIT_DIFF
