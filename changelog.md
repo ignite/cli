@@ -10,6 +10,7 @@
 
 - [#4319](https://github.com/ignite/cli/pull/4319) Remove fee abstraction module from open api code generation
 - [#4309](https://github.com/ignite/cli/pull/4309) Fix chain id for chain simulations
+- [#4322](https://github.com/ignite/cli/pull/4322) Create a message for authenticate buf for generate ts-client
 
 ### Fixes
 
