@@ -4,16 +4,16 @@ go 1.23
 
 // Cosmos SDK v0.52 integration
 replace (
-	cosmossdk.io/api => cosmossdk.io/api v0.7.3-0.20240806211350-feb0e077a953 // main
-	cosmossdk.io/core => cosmossdk.io/core v0.12.1-0.20240731205446-aee9803a0af6 // main
-	cosmossdk.io/store => cosmossdk.io/store v1.0.0-rc.0.0.20240731205446-aee9803a0af6 // main
-	cosmossdk.io/x/accounts => cosmossdk.io/x/accounts v0.0.0-20240806191935-adcf958f34e9 // release/v0.52.x
-	cosmossdk.io/x/auth => cosmossdk.io/x/auth v0.0.0-20240806191935-adcf958f34e9 // release/v0.52.x
-	cosmossdk.io/x/bank => cosmossdk.io/x/bank v0.0.0-20240806191935-adcf958f34e9 // release/v0.52.x
-	cosmossdk.io/x/consensus => cosmossdk.io/x/consensus v0.0.0-20240806191935-adcf958f34e9 // release/v0.52.x
-	cosmossdk.io/x/staking => cosmossdk.io/x/staking v0.0.0-20240806191935-adcf958f34e9 // release/v0.52.x
+	cosmossdk.io/api => cosmossdk.io/api v0.7.3-0.20240830194248-c94f4b91fcc4 // main
+	cosmossdk.io/core => cosmossdk.io/core v0.12.1-0.20240830194248-c94f4b91fcc4 // main
+	cosmossdk.io/store => cosmossdk.io/store v1.0.0-rc.0.0.20240830194248-c94f4b91fcc4 // main
+	cosmossdk.io/x/accounts => cosmossdk.io/x/accounts v0.0.0-20240830170625-e3c86d1537c9 // release/v0.52.x
+	cosmossdk.io/x/auth => cosmossdk.io/x/auth v0.0.0-20240830170625-e3c86d1537c9 // release/v0.52.x
+	cosmossdk.io/x/bank => cosmossdk.io/x/bank v0.0.0-20240830170625-e3c86d1537c9 // release/v0.52.x
+	cosmossdk.io/x/consensus => cosmossdk.io/x/consensus v0.0.0-20240830170625-e3c86d1537c9 // release/v0.52.x
+	cosmossdk.io/x/staking => cosmossdk.io/x/staking v0.0.0-20240830170625-e3c86d1537c9 // release/v0.52.x
 	github.com/cometbft/cometbft => github.com/cometbft/cometbft v1.0.0-rc1
-	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.52.0-alpha.1
+	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.52.0-alpha.1.0.20240830170625-e3c86d1537c9
 )
 
 replace (
@@ -93,7 +93,7 @@ require (
 	golang.org/x/text v0.17.0
 	golang.org/x/tools v0.24.0
 	golang.org/x/vuln v1.0.4
-	google.golang.org/grpc v1.65.0
+	google.golang.org/grpc v1.66.0
 	google.golang.org/protobuf v1.34.2
 	gopkg.in/yaml.v3 v3.0.1
 	mvdan.cc/gofumpt v0.7.0
@@ -115,7 +115,7 @@ require (
 	cosmossdk.io/core v1.0.0 // indirect
 	cosmossdk.io/depinject v1.0.0 // indirect
 	cosmossdk.io/errors v1.0.1 // indirect
-	cosmossdk.io/log v1.4.0 // indirect
+	cosmossdk.io/log v1.4.1 // indirect
 	cosmossdk.io/schema v0.1.1 // indirect
 	cosmossdk.io/store v1.1.1-0.20240815194237-858ec2fcb897 // indirect
 	cosmossdk.io/x/consensus v0.0.0-00010101000000-000000000000 // indirect
@@ -195,7 +195,7 @@ require (
 	github.com/cosmos/crypto v0.1.2 // indirect
 	github.com/cosmos/gogogateway v1.2.0 // indirect
 	github.com/cosmos/iavl v1.2.1-0.20240725141113-7adc688cf179 // indirect
-	github.com/cosmos/ics23/go v0.10.0 // indirect
+	github.com/cosmos/ics23/go v0.11.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.13.3 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.4 // indirect
 	github.com/curioswitch/go-reassign v0.2.0 // indirect
@@ -393,9 +393,9 @@ require (
 	github.com/pkg/profile v1.7.0 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/polyfloyd/go-errorlint v1.6.0 // indirect
-	github.com/prometheus/client_golang v1.20.0 // indirect
+	github.com/prometheus/client_golang v1.20.2 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
-	github.com/prometheus/common v0.55.0 // indirect
+	github.com/prometheus/common v0.57.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/quasilyte/go-ruleguard v0.4.2 // indirect
 	github.com/quasilyte/go-ruleguard/dsl v0.3.22 // indirect
@@ -487,7 +487,7 @@ require (
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/genproto v0.0.0-20240227224415-6ceb2ff114de // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240711142825-46eb208f015d // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240808171019-573a1156607a // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240827150818-7e3bb234dfed // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

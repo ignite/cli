@@ -2,6 +2,7 @@ package app
 
 import (
 	_ "embed"
+	"fmt"
 	"io"
 
 	dbm "github.com/cosmos/cosmos-db"
@@ -11,9 +12,9 @@ import (
 	"cosmossdk.io/core/legacy"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
-	storetypes "cosmossdk.io/store/types"
 	"cosmossdk.io/x/accounts"
 	"cosmossdk.io/x/auth"
+	"cosmossdk.io/x/auth/ante/unorderedtx"
 	authkeeper "cosmossdk.io/x/auth/keeper"
 	authsims "cosmossdk.io/x/auth/simulation"
 	authtypes "cosmossdk.io/x/auth/types"
@@ -176,31 +177,14 @@ func New(
 	// enable optimistic execution
 	baseAppOptions = append(baseAppOptions, baseapp.SetOptimisticExecution())
 
-
 	// build app
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
-
-	if indexerOpts := appOpts.Get("indexer"); indexerOpts != nil {
-		// if we have indexer options in app.toml, then enable the built-in indexer framework
-		moduleSet := map[string]any{}
-		for modName, mod := range appModules {
-			moduleSet[modName] = mod
-		}
-		if err := app.EnableIndexer(indexerOpts, app.kvStoreKeys(), moduleSet); err != nil {
-			panic(err)
-		}
-	} else {
-		// register legacy streaming services if we don't have the built-in indexer enabled
-		if err := app.RegisterStreamingServices(appOpts, app.kvStoreKeys()); err != nil {
-			panic(err)
-		}
-	}
 
 	/****  Module Options ****/
 
 	// create the simulation manager and define the order of the modules for deterministic simulations
 	overrideModules := map[string]module.AppModuleSimulation{
-		authtypes.ModuleName: auth.NewAppModule(app.appCodec, app.AuthKeeper, &app.AccountsKeeper, authsims.RandomGenesisAccounts),
+		authtypes.ModuleName: auth.NewAppModule(app.appCodec, app.AuthKeeper, &app.AccountsKeeper, authsims.RandomGenesisAccounts, nil),
 	}
 	app.sm = module.NewSimulationManagerFromAppModules(app.ModuleManager.Modules, overrideModules)
 
@@ -216,6 +200,15 @@ func New(
 		}
 		return app.App.InitChainer(ctx, req)
 	})
+
+	// register custom snapshot extensions (if any)
+	if manager := app.SnapshotManager(); manager != nil {
+		if err := manager.RegisterExtensions(
+			unorderedtx.NewSnapshotter(app.UnorderedTxManager),
+		); err != nil {
+			panic(fmt.Errorf("failed to register snapshot extension: %w", err))
+		}
+	}
 
 	if err := app.Load(loadLatest); err != nil {
 		panic(err)
@@ -245,42 +238,14 @@ func (app *App) AppCodec() codec.Codec {
 	return app.appCodec
 }
 
+// InterfaceRegistry returns App's InterfaceRegistry.
+func (app *App) InterfaceRegistry() codectypes.InterfaceRegistry {
+	return app.interfaceRegistry
+}
+
 // TxConfig returns App's TxConfig
 func (app *App) TxConfig() client.TxConfig {
 	return app.txConfig
-}
-
-// GetKey returns the KVStoreKey for the provided store key.
-//
-// NOTE: This is solely to be used for testing purposes.
-func (app *App) GetKey(storeKey string) *storetypes.KVStoreKey {
-	sk := app.UnsafeFindStoreKey(storeKey)
-	kvStoreKey, ok := sk.(*storetypes.KVStoreKey)
-	if !ok {
-		return nil
-	}
-	return kvStoreKey
-}
-
-// GetMemKey returns the MemoryStoreKey for the provided store key.
-func (app *App) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
-	key, ok := app.UnsafeFindStoreKey(storeKey).(*storetypes.MemoryStoreKey)
-	if !ok {
-		return nil
-	}
-
-	return key
-}
-
-func (app *App) kvStoreKeys() map[string]*storetypes.KVStoreKey {
-	keys := make(map[string]*storetypes.KVStoreKey)
-	for _, k := range app.GetStoreKeys() {
-		if kv, ok := k.(*storetypes.KVStoreKey); ok {
-			keys[kv.Name()] = kv
-		}
-	}
-
-	return keys
 }
 
 // SimulationManager implements the SimulationApp interface
