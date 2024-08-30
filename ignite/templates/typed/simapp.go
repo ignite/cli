@@ -37,7 +37,7 @@ func ModuleSimulationMsgModify(
 	)
 	operations = append(operations, simulation.NewWeightedOperation(
 		weightMsg%[2]v%[3]v,
-		%[4]vsimulation.SimulateMsg%[2]v%[3]v(am.accountKeeper, am.bankKeeper, am.keeper),
+		%[4]vsimulation.SimulateMsg%[2]v%[3]v(am.accountKeeper, am.bankKeeper, am.keeper, simState.TxConfig),
 	))
 
 	%[1]v`
@@ -49,7 +49,7 @@ func ModuleSimulationMsgModify(
 	opWeightMsg%[2]v%[3]v,
 	defaultWeightMsg%[2]v%[3]v,
 	func(r *rand.Rand, ctx sdk.Context, accs []simtypes.Account) sdk.Msg {
-		%[4]vsimulation.SimulateMsg%[2]v%[3]v(am.accountKeeper, am.bankKeeper, am.keeper)
+		%[4]vsimulation.SimulateMsg%[2]v%[3]v(am.accountKeeper, am.bankKeeper, am.keeper, simState.TxConfig)
 		return nil
 	},
 ),

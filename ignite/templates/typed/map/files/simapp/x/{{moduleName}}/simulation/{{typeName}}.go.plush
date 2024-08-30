@@ -20,6 +20,7 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	k keeper.Keeper,
+	txGen client.TxConfig,
 ) simtypes.Operation {
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
@@ -39,7 +40,7 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(
 		txCtx := simulation.OperationInput{
 			R:               r,
 			App:             app,
-			TxGen:           moduletestutil.MakeTestEncodingConfig().TxConfig,
+			TxGen:           txGen,
 			Cdc:             nil,
 			Msg:             msg,
 			Context:         ctx,
@@ -57,6 +58,7 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	k keeper.Keeper,
+	txGen client.TxConfig,
 ) simtypes.Operation {
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
@@ -92,7 +94,7 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 		txCtx := simulation.OperationInput{
 			R:               r,
 			App:             app,
-			TxGen:           moduletestutil.MakeTestEncodingConfig().TxConfig,
+			TxGen:           txGen,
 			Cdc:             nil,
 			Msg:             msg,
 			Context:         ctx,
@@ -110,6 +112,7 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	k keeper.Keeper,
+	txGen client.TxConfig,
 ) simtypes.Operation {
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
@@ -145,7 +148,7 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 		txCtx := simulation.OperationInput{
 			R:               r,
 			App:             app,
-			TxGen:           moduletestutil.MakeTestEncodingConfig().TxConfig,
+			TxGen:           txGen,
 			Cdc:             nil,
 			Msg:             msg,
 			Context:         ctx,
