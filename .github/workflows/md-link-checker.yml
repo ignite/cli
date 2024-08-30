@@ -1,7 +1,11 @@
 name: Check Markdown links
 on:
   pull_request:
+    paths:
+      - "**.*.md"
   push:
+    paths:
+      - "**.*.md"
     branches:
       - main
       - release/*
@@ -14,17 +18,8 @@ jobs:
   markdown-link-check:
     runs-on: ubuntu-latest
     steps:
-<<<<<<< HEAD
       - uses: actions/checkout@v3.4.0
-      - uses: technote-space/get-diff-action@v6.1.2
-        with:
-          PATTERNS: |
-            **/*.md
-=======
-      - uses: actions/checkout@v4
->>>>>>> 294ec4d5 (ci: always run ci (#4334))
       - uses: gaurav-nelson/github-action-markdown-link-check@1.0.13
-        if: env.GIT_DIFF
         with:
           folder-path: "."
           use-verbose-mode: "yes"

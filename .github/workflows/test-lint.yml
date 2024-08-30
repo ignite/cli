@@ -4,7 +4,7 @@ on:
   pull_request:
   push:
     paths-ignore:
-      - '**.md'
+      - "**.md"
     branches:
       - main
       - release/*
@@ -19,27 +19,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 6
     steps:
-<<<<<<< HEAD
       - uses: actions/checkout@v3.4.0
-      - uses: technote-space/get-diff-action@v6.1.2
-        with:
-          PATTERNS: |
-            **/*.go
-            **/*.plush
-            go.mod
-            go.sum
-=======
-      - uses: actions/checkout@v4
->>>>>>> 294ec4d5 (ci: always run ci (#4334))
-
       - uses: actions/setup-go@v4
-        if: env.GIT_DIFF
         with:
           go-version-file: go.mod
           cache: false
 
       - uses: golangci/golangci-lint-action@v3
-        if: env.GIT_DIFF
         with:
           version: v1.54.2
           install-mode: goinstall

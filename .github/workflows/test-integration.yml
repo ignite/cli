@@ -36,28 +36,12 @@ jobs:
         os: [ubuntu-latest, macos-latest]
         test-path: ${{fromJson(needs.pre-test.outputs.matrix)}}
     steps:
-<<<<<<< HEAD
       - uses: actions/checkout@v3.4.0
-      - uses: technote-space/get-diff-action@v6.1.2
-        with:
-          PATTERNS: |
-            **/*.go
-            **/*.plush
-            **/*.tpl
-            go.mod
-            go.sum
-            **/testdata/**
-=======
-      - uses: actions/checkout@v4
->>>>>>> 294ec4d5 (ci: always run ci (#4334))
-
       - uses: actions/setup-go@v4
-        if: env.GIT_DIFF
         with:
           go-version: "stable"
 
       - name: Run Integration Tests
-        if: env.GIT_DIFF
         env:
           GOTOOLCHAIN: local+path
           GOSUMDB: off

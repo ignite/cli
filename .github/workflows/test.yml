@@ -20,33 +20,17 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
     steps:
-<<<<<<< HEAD
       - uses: actions/checkout@v3.4.0
-      - uses: technote-space/get-diff-action@v6.1.2
-        with:
-          PATTERNS: |
-            **/*.go
-            **/*.plush
-            go.mod
-            go.sum
-            **/testdata/**
-=======
-      - uses: actions/checkout@v4
->>>>>>> 294ec4d5 (ci: always run ci (#4334))
-
       - uses: actions/setup-go@v4
-        if: env.GIT_DIFF
         with:
           go-version: "1.21"
           cache: true
           cache-dependency-path: go.sum
 
       - run: ./scripts/test-coverage
-        if: env.GIT_DIFF
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3.1.1
-        if: env.GIT_DIFF
         with:
           file: ./coverage.txt
           fail_ci_if_error: false
