@@ -18,6 +18,7 @@ import (
 	authtypes "cosmossdk.io/x/auth/types"
 	govtypes "cosmossdk.io/x/gov/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"google.golang.org/grpc"
 	<%= if (isIBC) { %>porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
@@ -127,9 +128,9 @@ func NewAppModule(
 }
 
 // RegisterServices registers a gRPC query service to respond to the module-specific gRPC queries
-func (am AppModule) RegisterServices(cfg module.Configurator) {
-    types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
-    types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServerImpl(am.keeper))
+func (am AppModule) RegisterServices(registrar grpc.ServiceRegistrar) {
+    types.RegisterMsgServer(registrar, keeper.NewMsgServerImpl(am.keeper))
+    types.RegisterQueryServer(registrar, keeper.NewQueryServerImpl(am.keeper))
 }
 
 // InitGenesis performs the module's genesis initialization. It returns no validator updates.

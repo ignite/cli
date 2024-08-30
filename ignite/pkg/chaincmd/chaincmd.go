@@ -20,12 +20,12 @@ const (
 	commandGentx             = "gentx"
 	commandCollectGentxs     = "collect-gentxs"
 	commandValidateGenesis   = "validate"
+	commandExportGenssis     = "export"
 	commandShowNodeID        = "show-node-id"
 	commandStatus            = "status"
 	commandTx                = "tx"
 	commandQuery             = "query"
 	commandUnsafeReset       = "unsafe-reset-all"
-	commandExport            = "export"
 	commandTendermint        = "tendermint"
 
 	optionHome                             = "--home"
@@ -488,7 +488,8 @@ func (c ChainCmd) UnsafeResetCommand() step.Option {
 // ExportCommand returns the command to export the state of the blockchain into a genesis file.
 func (c ChainCmd) ExportCommand() step.Option {
 	command := []string{
-		commandExport,
+		commandGenesis,
+		commandExportGenssis,
 	}
 	return c.daemonCommand(command)
 }
