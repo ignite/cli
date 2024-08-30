@@ -16,7 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: gaurav-nelson/github-action-markdown-link-check@1.0.13
-        if: env.GIT_DIFF
         with:
           folder-path: "."
           use-verbose-mode: "yes"
