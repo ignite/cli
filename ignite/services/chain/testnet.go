@@ -10,7 +10,7 @@ type InPlaceArgs struct {
 	NewChainID         string
 	NewOperatorAddress string
 	PrvKeyValidator    string
-	AcountsToFund      string
+	AccountsToFund      string
 }
 
 func (c Chain) TestnetInPlace(ctx context.Context, args InplaceArgs) error {
