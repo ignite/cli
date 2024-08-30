@@ -82,19 +82,26 @@ func testnetInplace(cmd *cobra.Command, session *cliui.Session) error {
 		return err
 	}
 
-	var operatorAddress sdk.ValAddress
-	var accounts string
+	var (
+		operatorAddress sdk.ValAddress
+		accounts        string
+		accErr          *cosmosaccount.AccountDoesNotExistError
+	)
 	for _, acc := range cfg.Accounts {
-		var sdkAcc cosmosaccount.Account
-		if sdkAcc, err = ca.GetByName(acc.Name); err != nil {
+		sdkAcc, err := ca.GetByName(acc.Name)
+		if !errors.As(err, &accErr) {
 			sdkAcc, _, err = ca.Create(acc.Name)
-			if err != nil {
-				return err
-			}
 		}
+		if err != nil {
+			return err
+		}
+
 		sdkAddr, err := sdkAcc.Address(getAddressPrefix(cmd))
 		if err != nil {
 			return err
+		}
+		if len(cfg.Validators) == 0 {
+			return errors.Errorf("no validators found for account %s", sdkAcc.Name)
 		}
 		if cfg.Validators[0].Name == acc.Name {
 			accAddr, err := sdk.AccAddressFromBech32(sdkAddr)
