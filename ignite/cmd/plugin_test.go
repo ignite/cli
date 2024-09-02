@@ -613,7 +613,6 @@ func TestLinkPluginHooks(t *testing.T) {
 			defer cancel()
 
 			require := require.New(t)
-			// assert := assert.New(t)
 			pi := mocks.NewPluginInterface(t)
 			p := &plugin.Plugin{
 				Plugin: pluginsconfig.Plugin{
