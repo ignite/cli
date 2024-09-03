@@ -1,0 +1,30 @@
+name: Test Coverage
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # every day at midnight
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: $ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main # change in release branches
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+
+      - run: ./scripts/test-coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.txt
+          fail_ci_if_error: false
+          verbose: true
