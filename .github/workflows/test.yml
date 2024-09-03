@@ -21,19 +21,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-go@v5
-        if: env.GIT_DIFF
         with:
           go-version: "stable"
-          cache: true
-          cache-dependency-path: go.sum
 
-      - run: ./scripts/test-coverage
-        if: env.GIT_DIFF
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        if: env.GIT_DIFF
-        with:
-          file: ./coverage.txt
-          fail_ci_if_error: false
-          verbose: true
+      - run: ./scripts/test
