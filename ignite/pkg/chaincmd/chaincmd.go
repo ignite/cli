@@ -54,14 +54,10 @@ const (
 	optionVestingAmount                    = "--vesting-amount"
 	optionVestingEndTime                   = "--vesting-end-time"
 	optionBroadcastMode                    = "--broadcast-mode"
-<<<<<<< HEAD
-=======
 	optionAccount                          = "--account"
-	optionIndex                            = "--index"
 	optionValidatorPrivateKey              = "--validator-privkey"
 	optionAccountToFund                    = "--accounts-to-fund"
 	optionSkipConfirmation                 = "--skip-confirmation"
->>>>>>> f7618d3e (feat: int in-place testnet creation (#4297))
 
 	constTendermint = "tendermint"
 	constJSON       = "json"
