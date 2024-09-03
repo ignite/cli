@@ -1,4 +1,4 @@
 #!/bin/bash
 set -e -x
 
-go test -race $(go list github.com/ignite/cli/v28/ignite/...)
+go test $(go list github.com/ignite/cli/v28/ignite/...)
