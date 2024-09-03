@@ -2,7 +2,10 @@ module github.com/ignite/cli/ignite/internal/tools/gen-mig-diffs
 
 go 1.23
 
-replace github.com/ignite/cli/v29 => ../../../../
+replace (
+	github.com/ignite/cli/v29 => ../../../../
+	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.52.0-alpha.1.0.20240830170625-e3c86d1537c9
+)
 
 require (
 	github.com/Masterminds/semver/v3 v3.2.1

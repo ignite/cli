@@ -9,3 +9,4 @@ node_modules
 docs/.vuepress/dist
 build/
 *coverage.*
+*.ign

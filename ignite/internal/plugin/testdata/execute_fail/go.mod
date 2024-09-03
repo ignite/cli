@@ -2,12 +2,15 @@ module execute_fail
 
 go 1.23
 
+replace (
+	github.com/ignite/cli/v29 => ../../../../..
+	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.52.0-alpha.1.0.20240830170625-e3c86d1537c9
+)
+
 require (
 	github.com/hashicorp/go-plugin v1.6.0
 	github.com/ignite/cli/v29 v29.0.0
 )
-
-replace github.com/ignite/cli/v29 => ../../../../..
 
 require (
 	dario.cat/mergo v1.0.0 // indirect

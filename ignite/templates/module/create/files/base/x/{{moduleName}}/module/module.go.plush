@@ -8,12 +8,12 @@ import (
 	"cosmossdk.io/core/address"
 	"cosmossdk.io/core/appmodule"
     "cosmossdk.io/core/store"
+	"cosmossdk.io/core/registry"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/depinject/appconfig"
 	"cosmossdk.io/log"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
-	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "cosmossdk.io/x/auth/types"
 	govtypes "cosmossdk.io/x/gov/types"
@@ -61,13 +61,9 @@ func (AppModuleBasic) Name() string {
 	return types.ModuleName
 }
 
-// RegisterLegacyAminoCodec registers the amino codec for the module, which is used
-// to marshal and unmarshal structs to/from []byte in order to persist them in the module's KVStore.
-func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {}
-
 // RegisterInterfaces registers a module's interface types and their concrete implementations as proto.Message.
-func (a AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
-	types.RegisterInterfaces(reg)
+func (a AppModuleBasic) RegisterInterfaces(registrar registry.InterfaceRegistrar) {
+	types.RegisterInterfaces(registrar)
 }
 
 // DefaultGenesis returns a default GenesisState for the module, marshalled to json.RawMessage.

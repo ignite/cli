@@ -2,7 +2,10 @@ module github.com/ignite/cli/ignite/internal/tools/gen-config-doc
 
 go 1.23
 
-replace github.com/ignite/cli/v29 => ../../../../
+replace (
+	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.52.0-alpha.1.0.20240830170625-e3c86d1537c9
+	github.com/ignite/cli/v29 => ../../../../
+)
 
 require (
 	github.com/gobuffalo/genny/v2 v2.1.0
