@@ -36,8 +36,9 @@ jobs:
         os: [ubuntu-latest, macos-latest]
         test-path: ${{fromJson(needs.pre-test.outputs.matrix)}}
     steps:
-      - uses: actions/checkout@v3.4.0
-      - uses: actions/setup-go@v4
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
         with:
           go-version: "stable"
 

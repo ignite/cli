@@ -20,18 +20,10 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v3.4.0
-      - uses: actions/setup-go@v4
-        with:
-          go-version: "1.21"
-          cache: true
-          cache-dependency-path: go.sum
+      - uses: actions/checkout@v4
 
-      - run: ./scripts/test-coverage
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3.1.1
+      - uses: actions/setup-go@v5
         with:
-          file: ./coverage.txt
-          fail_ci_if_error: false
-          verbose: true
+          go-version: "stable"
+
+      - run: ./scripts/test
