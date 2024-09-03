@@ -10,6 +10,16 @@
 
 - [#4292](https://github.com/ignite/cli/pull/4292) Bump Cosmos SDK to `v0.50.9`
 
+### Fixes
+
+- [#4319](https://github.com/ignite/cli/pull/4319) Remove fee abstraction module from open api code generation
+- [#4309](https://github.com/ignite/cli/pull/4309) Fix chain id for chain simulations
+- [#4322](https://github.com/ignite/cli/pull/4322) Create a message for authenticate buf for generate ts-client
+
+### Fixes
+
+- [#4323](https://github.com/ignite/cli/pull/4323) Add missing `--config` handling in the `chain` commands
+
 ## [`v28.5.1`](https://github.com/ignite/cli/releases/tag/v28.5.1)
 
 ### Features
