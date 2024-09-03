@@ -45,6 +45,18 @@ func NewKV(key, value string) KV {
 
 var gentxRe = regexp.MustCompile(`(?m)"(.+?)"`)
 
+func (r Runner) InPlace(ctx context.Context, newChainID, newOperatorAddress string, options ...chaincmd.InPlaceOption) error {
+	runOptions := runOptions{
+		stdout: os.Stdout,
+		stderr: os.Stderr,
+	}
+	return r.run(
+		ctx,
+		runOptions,
+		r.chainCmd.TestnetInPlaceCommand(newChainID, newOperatorAddress, options...),
+	)
+}
+
 // Gentx generates a genesis tx carrying a self delegation.
 func (r Runner) Gentx(
 	ctx context.Context,

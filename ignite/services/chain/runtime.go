@@ -36,6 +36,17 @@ func (c Chain) Gentx(ctx context.Context, runner chaincmdrunner.Runner, v Valida
 	)
 }
 
+func (c Chain) InPlace(ctx context.Context, runner chaincmdrunner.Runner, args InPlaceArgs) error {
+	err := runner.InPlace(ctx,
+		args.NewChainID,
+		args.NewOperatorAddress,
+		chaincmd.InPlaceWithPrvKey(args.PrvKeyValidator),
+		chaincmd.InPlaceWithAccountToFund(args.AccountsToFund),
+		chaincmd.InPlaceWithSkipConfirmation(),
+	)
+	return err
+}
+
 // Start wraps the "appd start" command to begin running a chain from the daemon.
 func (c Chain) Start(ctx context.Context, runner chaincmdrunner.Runner, cfg *chainconfig.Config) error {
 	validator, err := chainconfig.FirstValidator(cfg)
