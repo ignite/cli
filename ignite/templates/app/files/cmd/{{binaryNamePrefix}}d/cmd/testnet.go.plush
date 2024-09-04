@@ -80,6 +80,7 @@ func newTestnetApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts s
 	return initAppForTestnet(testApp, args)
 }
 
+<%= if (!IsConsumerChain) { %>
 func initAppForTestnet(app *app.App, args valArgs) *app.App {
 	// Required Changes:
 	//
@@ -175,8 +176,8 @@ func initAppForTestnet(app *app.App, args valArgs) *app.App {
 	app.DistrKeeper.SetValidatorHistoricalRewards(ctx, validator, 0, distrtypes.NewValidatorHistoricalRewards(sdk.DecCoins{}, 1))
 	app.DistrKeeper.SetValidatorCurrentRewards(ctx, validator, distrtypes.NewValidatorCurrentRewards(sdk.DecCoins{}, 1))
 	app.DistrKeeper.SetValidatorAccumulatedCommission(ctx, validator, distrtypes.InitialValidatorAccumulatedCommission())
-	app.DistrKeeper.SetValidatorOutstandingRewards(ctx, validator, distrtypes.ValidatorOutstandingRewards{Rewards: sdk.DecCoins{}})
-	
+	app.DistrKeeper.SetValidatorOutstandingRewards(ctx, validator, distrtypes.ValidatorOutstandingRewards{Rewards: sdk.DecCoins{}})	
+
 <%= if (!IsChainMinimal) { %>
 	// SLASHING
 	//
@@ -214,6 +215,15 @@ func initAppForTestnet(app *app.App, args valArgs) *app.App {
 
 	return app
 }
+<% } else { %>
+func initAppForTestnet(app *app.App, args valArgs) *app.App {
+	// wire export validator replacement
+	// wire add new validator
+	// wire send coints to new accounts 
+
+	return app
+}
+<% } %>
 
 // parse the input flags and returns valArgs
 func getCommandArgs(appOpts servertypes.AppOptions) (valArgs, error) {
