@@ -81,6 +81,7 @@ To get started, create a blockchain:
 		NewApp(),
 		NewDoctor(),
 		NewCompletionCmd(),
+		NewTestnet(),
 	)
 	c.AddCommand(deprecated()...)
 	c.SetContext(ctx)

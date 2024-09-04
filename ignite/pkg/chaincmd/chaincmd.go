@@ -27,6 +27,7 @@ const (
 	commandUnsafeReset       = "unsafe-reset-all"
 	commandExport            = "export"
 	commandTendermint        = "tendermint"
+	commandTestnetInPlace    = "in-place-testnet"
 
 	optionHome                             = "--home"
 	optionNode                             = "--node"
@@ -53,6 +54,10 @@ const (
 	optionVestingAmount                    = "--vesting-amount"
 	optionVestingEndTime                   = "--vesting-end-time"
 	optionBroadcastMode                    = "--broadcast-mode"
+	optionAccount                          = "--account"
+	optionValidatorPrivateKey              = "--validator-privkey"
+	optionAccountToFund                    = "--accounts-to-fund"
+	optionSkipConfirmation                 = "--skip-confirmation"
 
 	constTendermint = "tendermint"
 	constJSON       = "json"
