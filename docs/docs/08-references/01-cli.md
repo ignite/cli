@@ -37,6 +37,7 @@ To get started, create a blockchain:
 * [ignite network](#ignite-network)	 - Launch a blockchain in production
 * [ignite relayer](#ignite-relayer)	 - Connect blockchains with an IBC relayer
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+* [ignite testnet](#ignite-testnet)	 - Start a testnet local
 * [ignite version](#ignite-version)	 - Print the current build information
 
 
@@ -3418,6 +3419,60 @@ ignite scaffold vue [flags]
 **SEE ALSO**
 
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+
+
+## ignite testnet
+
+Start a testnet local
+
+**Synopsis**
+
+Start a testnet local
+
+
+
+**Options**
+
+```
+  -h, --help   help for testnet
+```
+
+**SEE ALSO**
+
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite testnet in-place](#ignite-testnet-in-place)	 - Create and start a testnet from current local net state
+
+
+## ignite testnet in-place
+
+Create and start a testnet from current local net state
+
+**Synopsis**
+
+Testnet in-place command is used to create and start a testnet from current local net state(including mainnet).
+After using this command in the repo containing the config.yml file, the network will start.
+We can create a testnet from the local network state and mint additional coins for the desired accounts from the config.yml file.
+
+```
+ignite testnet in-place [flags]
+```
+
+**Options**
+
+```
+      --check-dependencies   verify that cached dependencies have not been modified since they were downloaded
+      --clear-cache          clear the build cache (advanced)
+  -h, --help                 help for in-place
+      --home string          directory where the blockchain node is initialized
+  -p, --path string          path of the app (default ".")
+      --quit-on-fail         quit program if the app fails to start
+      --skip-proto           skip file generation from proto
+  -v, --verbose              verbose output
+```
+
+**SEE ALSO**
+
+* [ignite testnet](#ignite-testnet)	 - Start a testnet local
 
 
 ## ignite version
