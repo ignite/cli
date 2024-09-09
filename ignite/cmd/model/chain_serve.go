@@ -261,6 +261,9 @@ func (m ChainServe) renderQuitView() string {
 
 	fmt.Fprintf(&view, "%s %s\n", icons.Info, colors.Info("Stopped"))
 
+	// Survey Link
+	fmt.Fprintf(&view, "%s %s\n", icons.Survey, colors.Info("Survey: https://bit.ly/3WZS2uS"))
+
 	return view.String()
 }
 
