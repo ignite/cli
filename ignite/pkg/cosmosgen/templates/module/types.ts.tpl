@@ -1,4 +1,4 @@
-{{ range .Module.Types }}import { {{ .Name }} } from "./types/{{ resolveFile .FilePath }}"
+{{ range .Module.Types }}import { {{ .Name }} } from "{{ resolveFile .FilePath }}"
 {{ end }}
 
 export {     
