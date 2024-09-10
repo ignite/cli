@@ -2,33 +2,11 @@
 
 ## Unreleased
 
-### Features
-
-- [#4297](https://github.com/ignite/cli/pull/4297) Add in-place testnet creation command for apps.
+## [`v28.5.2`](https://github.com/ignite/cli/releases/tag/v28.5.2)
 
 ### Changes
 
 - [#4292](https://github.com/ignite/cli/pull/4292) Bump Cosmos SDK to `v0.50.9`
-- [#4094](https://github.com/ignite/cli/pull/4094) Scaffolding a multi-index map using `ignite s map foo bar baz --index foobar,foobaz` is no longer supported. Use one index instead of use `collections.IndexedMap`.
-- [#4058](https://github.com/ignite/cli/pull/4058) Simplify scaffolded modules by including `ValidateBasic()` logic in message handler.
-- [#4058](https://github.com/ignite/cli/pull/4058) Use `address.Codec` instead of `AccAddressFromBech32`.
-- [#3993](https://github.com/ignite/cli/pull/3993) Oracle scaffolding was deprecated and has been removed
-- [#3962](https://github.com/ignite/cli/pull/3962) Rename all RPC endpoints and autocli commands generated for `map`/`list`/`single` types
-- [#3976](https://github.com/ignite/cli/pull/3976) Remove error checks for Cobra command value get calls
-- [#4002](https://github.com/ignite/cli/pull/4002) Bump buf build
-- [#4008](https://github.com/ignite/cli/pull/4008) Rename `pkg/yaml` to `pkg/xyaml`
-- [#4075](https://github.com/ignite/cli/pull/4075) Use `gopkg.in/yaml.v3` instead `gopkg.in/yaml.v2`
-- [#4118](https://github.com/ignite/cli/pull/4118) Version scaffolded protos as `v1` to follow SDK structure.
-- [#4167](https://github.com/ignite/cli/pull/4167) Scaffold `int64` instead of `int32` when a field type is `int`
-- [#4159](https://github.com/ignite/cli/pull/4159) Enable gci linter
-- [#4160](https://github.com/ignite/cli/pull/4160) Enable copyloopvar linter
-- [#4162](https://github.com/ignite/cli/pull/4162) Enable errcheck linter
-- [#4189](https://github.com/ignite/cli/pull/4189) Deprecate `ignite node` for `ignite connect` app
-- [#4290](https://github.com/ignite/cli/pull/4290) Remove ignite ics logic from ignite cli (this functionality will be in the `consumer` app)
-- [#4295](https://github.com/ignite/cli/pull/4295) Stop scaffolding `pulsar` files
-- [#4322](https://github.com/ignite/cli/pull/4322) Create a message for authenticate buf for generate ts-client
-- [#4319](https://github.com/ignite/cli/pull/4319) Remove fee abstraction module from open api code generation
-- [#4317](https://github.com/ignite/cli/pull/4317) Remove xchisel dependency
 - [#4345](https://github.com/ignite/cli/pull/4345) Added survey link
 
 ### Fixes
@@ -36,9 +14,6 @@
 - [#4319](https://github.com/ignite/cli/pull/4319) Remove fee abstraction module from open api code generation
 - [#4309](https://github.com/ignite/cli/pull/4309) Fix chain id for chain simulations
 - [#4322](https://github.com/ignite/cli/pull/4322) Create a message for authenticate buf for generate ts-client
-
-### Fixes
-
 - [#4323](https://github.com/ignite/cli/pull/4323) Add missing `--config` handling in the `chain` commands
 
 ## [`v28.5.1`](https://github.com/ignite/cli/releases/tag/v28.5.1)

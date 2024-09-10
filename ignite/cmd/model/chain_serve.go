@@ -7,18 +7,11 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-<<<<<<< HEAD
+	"github.com/ignite/cli/v28/ignite/pkg/announcements"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
 	cliuimodel "github.com/ignite/cli/v28/ignite/pkg/cliui/model"
 	"github.com/ignite/cli/v28/ignite/pkg/events"
-=======
-	"github.com/ignite/cli/v29/ignite/pkg/announcements"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
-	cliuimodel "github.com/ignite/cli/v29/ignite/pkg/cliui/model"
-	"github.com/ignite/cli/v29/ignite/pkg/events"
->>>>>>> 56c3730e (feat: added survey link  (#4345))
 )
 
 const (
