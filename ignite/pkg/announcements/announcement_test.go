@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ignite/cli/v29/ignite/pkg/announcements"
+	"github.com/ignite/cli/v28/ignite/pkg/announcements"
 )
 
 func TestGetAnnouncements(t *testing.T) {
