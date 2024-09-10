@@ -43,6 +43,7 @@
 - [#4322](https://github.com/ignite/cli/pull/4322) Create a message for authenticate buf for generate ts-client
 - [#4319](https://github.com/ignite/cli/pull/4319) Remove fee abstraction module from open api code generation
 - [#4317](https://github.com/ignite/cli/pull/4317) Remove xchisel dependency
+- [#4345](https://github.com/ignite/cli/pull/4345) Added survey link
 
 ### Fixes
 
