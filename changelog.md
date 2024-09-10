@@ -4,6 +4,10 @@
 
 ## [`v28.5.2`](https://github.com/ignite/cli/releases/tag/v28.5.2)
 
+### Features
+
+- [#4297](https://github.com/ignite/cli/pull/4297) Add in-place testnet creation command for apps.
+
 ### Changes
 
 - [#4292](https://github.com/ignite/cli/pull/4292) Bump Cosmos SDK to `v0.50.9`
