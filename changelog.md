@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [`v28.5.2`](https://github.com/ignite/cli/releases/tag/v28.5.2)
+
 ### Features
 
 - [#4297](https://github.com/ignite/cli/pull/4297) Add in-place testnet creation command for apps.
@@ -9,15 +11,13 @@
 ### Changes
 
 - [#4292](https://github.com/ignite/cli/pull/4292) Bump Cosmos SDK to `v0.50.9`
+- [#4345](https://github.com/ignite/cli/pull/4345) Added survey link
 
 ### Fixes
 
 - [#4319](https://github.com/ignite/cli/pull/4319) Remove fee abstraction module from open api code generation
 - [#4309](https://github.com/ignite/cli/pull/4309) Fix chain id for chain simulations
 - [#4322](https://github.com/ignite/cli/pull/4322) Create a message for authenticate buf for generate ts-client
-
-### Fixes
-
 - [#4323](https://github.com/ignite/cli/pull/4323) Add missing `--config` handling in the `chain` commands
 
 ## [`v28.5.1`](https://github.com/ignite/cli/releases/tag/v28.5.1)
