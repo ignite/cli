@@ -5,11 +5,12 @@ import (
 )
 
 var (
-	Earth  = "🌍"
-	CD     = "💿"
-	User   = "👤"
-	Tada   = "🎉"
-	Survey = "💬"
+	Earth        = "🌍"
+	CD           = "💿"
+	User         = "👤"
+	Tada         = "🎉"
+	Survey       = "💬"
+	Announcement = "🗣️"
 
 	// OK is an OK mark.
 	OK = colors.SprintFunc(colors.Green)("✔")
