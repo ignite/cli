@@ -19,6 +19,7 @@
 - [#4309](https://github.com/ignite/cli/pull/4309) Fix chain id for chain simulations
 - [#4322](https://github.com/ignite/cli/pull/4322) Create a message for authenticate buf for generate ts-client
 - [#4323](https://github.com/ignite/cli/pull/4323) Add missing `--config` handling in the `chain` commands
+- [#4350](https://github.com/ignite/cli/pull/4350) Skip upgrade prefix for sim tests
 
 ## [`v28.5.1`](https://github.com/ignite/cli/releases/tag/v28.5.1)
 
