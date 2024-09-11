@@ -15,6 +15,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	authzkeeper "cosmossdk.io/x/authz/keeper"
 	"cosmossdk.io/x/feegrant"
+	upgradetypes "cosmossdk.io/x/upgrade/types"
 	slashingtypes "cosmossdk.io/x/slashing/types"
 	stakingtypes "cosmossdk.io/x/staking/types"
 	abci "github.com/cometbft/cometbft/api/cometbft/abci/v1"
@@ -94,6 +95,9 @@ func TestAppImportExport(t *testing.T) {
 		t.Log("comparing stores...")
 		// skip certain prefixes
 		skipPrefixes := map[string][][]byte{
+			upgradetypes.StoreKey: {
+				[]byte{upgradetypes.VersionMapByte},
+			},
 			stakingtypes.StoreKey: {
 				stakingtypes.UnbondingQueueKey, stakingtypes.RedelegationQueueKey, stakingtypes.ValidatorQueueKey,
 				stakingtypes.UnbondingIDKey, stakingtypes.UnbondingIndexKey, stakingtypes.UnbondingTypeKey,

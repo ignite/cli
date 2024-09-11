@@ -27,6 +27,7 @@ const (
 	commandQuery             = "query"
 	commandUnsafeReset       = "unsafe-reset-all"
 	commandTendermint        = "tendermint"
+	commandTestnetInPlace    = "in-place-testnet"
 
 	optionHome                             = "--home"
 	optionNode                             = "--node"
@@ -55,6 +56,9 @@ const (
 	optionBroadcastMode                    = "--broadcast-mode"
 	optionAccount                          = "--account"
 	optionIndex                            = "--index"
+	optionValidatorPrivateKey              = "--validator-privkey"
+	optionAccountToFund                    = "--accounts-to-fund"
+	optionSkipConfirmation                 = "--skip-confirmation"
 
 	constTendermint = "tendermint"
 	constJSON       = "json"
