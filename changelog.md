@@ -11,6 +11,7 @@
 ### Changes
 
 - [#4292](https://github.com/ignite/cli/pull/4292) Bump Cosmos SDK to `v0.50.9`
+- [#4341](https://github.com/ignite/cli/pull/4341) Bump `ibc-go` to `8.5.0`
 - [#4345](https://github.com/ignite/cli/pull/4345) Added survey link
 
 ### Fixes
