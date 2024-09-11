@@ -46,7 +46,7 @@ type valArgs struct {
 	homeDir            string
 }
 
-func NewTestnetCmd(addStartFlags servertypes.ModuleInitFlags) *cobra.Command {
+func NewInPlaceTestnetCmd(addStartFlags servertypes.ModuleInitFlags) *cobra.Command {
 	cmd := server.InPlaceTestnetCreator(newTestnetApp)
 	addStartFlags(cmd)
 	cmd.Short = "Updates chain's application and consensus state with provided validator info and starts the node"
