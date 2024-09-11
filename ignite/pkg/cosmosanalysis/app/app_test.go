@@ -80,12 +80,12 @@ func TestCheckKeeper(t *testing.T) {
 
 func TestFindRegisteredModules(t *testing.T) {
 	basicModules := []string{
-		"cosmossdk.io/x/auth",
+		"github.com/cosmos/cosmos-sdk/x/auth",
 		"cosmossdk.io/x/bank",
 		"cosmossdk.io/x/staking",
 		"cosmossdk.io/x/gov",
 		"github.com/username/test/x/foo",
-		"cosmossdk.io/x/auth/tx",
+		"github.com/cosmos/cosmos-sdk/x/auth/tx",
 		"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
 		"github.com/cosmos/cosmos-sdk/client/grpc/node",
 	}
@@ -113,10 +113,10 @@ func TestFindRegisteredModules(t *testing.T) {
 				"cosmossdk.io/x/evidence",
 				"cosmossdk.io/x/feegrant/module",
 				"cosmossdk.io/x/upgrade",
-				"cosmossdk.io/x/auth",
-				"cosmossdk.io/x/auth/tx",
-				"cosmossdk.io/x/auth/tx/config",
-				"cosmossdk.io/x/auth/vesting",
+				"github.com/cosmos/cosmos-sdk/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/x/auth/tx/config",
+				"github.com/cosmos/cosmos-sdk/x/auth/vesting",
 				"cosmossdk.io/x/authz/module",
 				"cosmossdk.io/x/bank",
 				"cosmossdk.io/x/consensus",
@@ -138,7 +138,7 @@ func TestFindRegisteredModules(t *testing.T) {
 			name: "gaia",
 			path: "testdata/modules/gaia",
 			expectedModules: []string{
-				"cosmossdk.io/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/auth",
 				"cosmossdk.io/x/bank",
 				"cosmossdk.io/x/capability",
 				"cosmossdk.io/x/staking",
@@ -166,8 +166,8 @@ func TestFindRegisteredModules(t *testing.T) {
 			name: "spn",
 			path: "testdata/modules/spn",
 			expectedModules: []string{
-				"cosmossdk.io/x/auth",
-				"cosmossdk.io/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
 				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
 				"github.com/cosmos/cosmos-sdk/client/grpc/node",
 				"cosmossdk.io/x/bank",
@@ -200,7 +200,7 @@ func TestFindRegisteredModules(t *testing.T) {
 			name: "juno",
 			path: "testdata/modules/juno",
 			expectedModules: []string{
-				"cosmossdk.io/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/auth",
 				"cosmossdk.io/x/bank",
 				"cosmossdk.io/x/capability",
 				"cosmossdk.io/x/staking",
@@ -218,7 +218,7 @@ func TestFindRegisteredModules(t *testing.T) {
 				"cosmossdk.io/x/authz",
 				"github.com/CosmWasm/wasmd/x/wasm",
 				"github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts",
-				"cosmossdk.io/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
 				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
 				"github.com/cosmos/cosmos-sdk/client/grpc/node",
 			},
@@ -236,12 +236,12 @@ func TestFindRegisteredModules(t *testing.T) {
 
 func TestDiscoverModules(t *testing.T) {
 	basicModules := []string{
-		"cosmossdk.io/x/auth",
+		"github.com/cosmos/cosmos-sdk/x/auth",
 		"cosmossdk.io/x/bank",
 		"cosmossdk.io/x/staking",
 		"cosmossdk.io/x/gov",
 		"github.com/username/test/x/foo",
-		"cosmossdk.io/x/auth/tx",
+		"github.com/cosmos/cosmos-sdk/x/auth/tx",
 		"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
 		"github.com/cosmos/cosmos-sdk/client/grpc/node",
 	}
@@ -270,7 +270,7 @@ func TestDiscoverModules(t *testing.T) {
 			name: "gaia",
 			path: "testdata/modules/gaia",
 			expectedModules: []string{
-				"cosmossdk.io/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/auth",
 				"cosmossdk.io/x/bank",
 				"cosmossdk.io/x/capability",
 				"cosmossdk.io/x/staking",
@@ -297,8 +297,8 @@ func TestDiscoverModules(t *testing.T) {
 			name: "spn",
 			path: "testdata/modules/spn",
 			expectedModules: []string{
-				"cosmossdk.io/x/auth",
-				"cosmossdk.io/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
 				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
 				"github.com/cosmos/cosmos-sdk/client/grpc/node",
 				"cosmossdk.io/x/bank",
@@ -331,7 +331,7 @@ func TestDiscoverModules(t *testing.T) {
 			name: "juno",
 			path: "testdata/modules/juno",
 			expectedModules: []string{
-				"cosmossdk.io/x/auth",
+				"github.com/cosmos/cosmos-sdk/x/auth",
 				"cosmossdk.io/x/bank",
 				"cosmossdk.io/x/capability",
 				"cosmossdk.io/x/staking",
@@ -349,7 +349,7 @@ func TestDiscoverModules(t *testing.T) {
 				"cosmossdk.io/x/authz",
 				"github.com/CosmWasm/wasmd/x/wasm",
 				"github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts",
-				"cosmossdk.io/x/auth/tx",
+				"github.com/cosmos/cosmos-sdk/x/auth/tx",
 				"github.com/cosmos/cosmos-sdk/client/grpc/tmservice",
 				"github.com/cosmos/cosmos-sdk/client/grpc/node",
 			},

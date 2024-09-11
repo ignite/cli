@@ -3,19 +3,19 @@ package app
 import (
 	"io"
 
+	corestore "cosmossdk.io/core/store"
 	clienthelpers "cosmossdk.io/client/v2/helpers"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 	_ "cosmossdk.io/api/cosmos/tx/config/v1"          // import for side-effects
-	_ "cosmossdk.io/x/auth"           // import for side-effects
-	_ "cosmossdk.io/x/auth/tx/config" // import for side-effects
+	_ "github.com/cosmos/cosmos-sdk/x/auth"           // import for side-effects
+	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 	_ "cosmossdk.io/x/bank"           // import for side-effects
 	_ "cosmossdk.io/x/consensus"      // import for side-effects
 	_ "cosmossdk.io/x/distribution"   // import for side-effects
 	_ "cosmossdk.io/x/mint"           // import for side-effects
 	_ "cosmossdk.io/x/staking"        // import for side-effects
-	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -26,7 +26,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	authkeeper "cosmossdk.io/x/auth/keeper"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "cosmossdk.io/x/bank/keeper"
 	consensuskeeper "cosmossdk.io/x/consensus/keeper"
 	distrkeeper "cosmossdk.io/x/distribution/keeper"
@@ -104,7 +104,7 @@ func AppConfig() depinject.Config {
 // New returns a reference to an initialized App.
 func New(
 	logger log.Logger,
-	db dbm.DB,
+	db corestore.KVStoreWithBatch,
 	traceStore io.Writer,
 	loadLatest bool,
 	appOpts servertypes.AppOptions,
