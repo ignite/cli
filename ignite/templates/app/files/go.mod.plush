@@ -3,7 +3,7 @@ module <%= ModulePath %>
 go 1.23.1
 
 replace (
-	cosmossdk.io/api => cosmossdk.io/api v0.7.3-0.20240911201245-4fe934e8af85
+	cosmossdk.io/api => cosmossdk.io/api v0.7.3-0.20240911221725-476dbff79d33 // https://github.com/cosmos/cosmos-sdk/pull/21666
 	cosmossdk.io/client/v2 => cosmossdk.io/client/v2 v2.0.0-20240911202929-e7724c664784
 	cosmossdk.io/core => cosmossdk.io/core v1.0.0-alpha.1
 	cosmossdk.io/core/testing => cosmossdk.io/core/testing v0.0.0-20240911201245-4fe934e8af85

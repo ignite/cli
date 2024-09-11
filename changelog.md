@@ -230,7 +230,7 @@
 - [#3476](https://github.com/ignite/cli/pull/3476) Use `buf.build` binary to code generate from proto files
 - [#3724](https://github.com/ignite/cli/pull/3724) Add or vendor proto packages from Go dependencies
 - [#3561](https://github.com/ignite/cli/pull/3561) Add GetChainInfo method to plugin system API
-- [#3626](https:0.//github.com/ignite/cli/pull/3626) Add logging levels to relayer
+- [#3626](https://github.com/ignite/cli/pull/3626) Add logging levels to relayer
 - [#3614](https://github.com/ignite/cli/pull/3614) feat: use DefaultBaseappOptions for app.New method
 - [#3715](https://github.com/ignite/cli/pull/3715) Add test suite for the cli tests
 
