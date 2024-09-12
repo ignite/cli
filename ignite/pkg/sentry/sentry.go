@@ -8,6 +8,7 @@ import (
 
 	"github.com/getsentry/sentry-go"
 
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/version"
 )
 
@@ -19,7 +20,7 @@ func InitSentry(ctx context.Context) (deferMe func(), err error) {
 
 	igniteInfo, err := version.GetInfo(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to init sentry: %w", err)
+		return nil, errors.Errorf("failed to init sentry: %w", err)
 	}
 
 	if err := sentry.Init(sentry.ClientOptions{
@@ -29,7 +30,7 @@ func InitSentry(ctx context.Context) (deferMe func(), err error) {
 		Release:     fmt.Sprintf("ignite@%s", igniteInfo.CLIVersion),
 		SampleRate:  1.0, // get all events
 	}); err != nil {
-		return nil, fmt.Errorf("failed to init sentry: %w", err)
+		return nil, errors.Errorf("failed to init sentry: %w", err)
 	}
 
 	return func() {
