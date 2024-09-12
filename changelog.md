@@ -16,7 +16,10 @@
 - [#4111](https://github.com/ignite/cli/pull/4111) Remove vuex generation
 - [#4113](https://github.com/ignite/cli/pull/4113) Generate chain config documentation automatically
 - [#4131](https://github.com/ignite/cli/pull/4131) Support `bytes` as data type in the `scaffold` commands
+- [#4297](https://github.com/ignite/cli/pull/4297) Add in-place testnet creation command for apps.
 - [#4300](https://github.com/ignite/cli/pull/4300) Only panics the module in the most top function level
+- [#4327](https://github.com/ignite/cli/pull/4327) Use the TxConfig from simState instead create a new one
+- [#4326](https://github.com/ignite/cli/pull/4326) fAdd `buf.build` version to `ignite version` command
 
 ### Changes
 
@@ -37,8 +40,12 @@
 - [#4189](https://github.com/ignite/cli/pull/4189) Deprecate `ignite node` for `ignite connect` app
 - [#4290](https://github.com/ignite/cli/pull/4290) Remove ignite ics logic from ignite cli (this functionality will be in the `consumer` app)
 - [#4295](https://github.com/ignite/cli/pull/4295) Stop scaffolding `pulsar` files
+- [#4322](https://github.com/ignite/cli/pull/4322) Create a message for authenticate buf for generate ts-client
+- [#4319](https://github.com/ignite/cli/pull/4319) Remove fee abstraction module from open api code generation
 - [#4317](https://github.com/ignite/cli/pull/4317) Remove xchisel dependency
 - [#4328](https://github.com/ignite/cli/pull/4328) Send ignite bug report to sentry. Opt out the same way as for usage analytics
+- [#4341](https://github.com/ignite/cli/pull/4341) Bump `ibc-go` to `8.5.0`
+- [#4345](https://github.com/ignite/cli/pull/4345) Added survey link
 
 ### Fixes
 
@@ -47,6 +54,7 @@
 - [#4128](https://github.com/ignite/cli/pull/4128) Check for duplicate proto fields in config
 - [#4309](https://github.com/ignite/cli/pull/4309) Fix chain id for chain simulations
 - [#4323](https://github.com/ignite/cli/pull/4323) Add missing `--config` handling in the `chain` commands
+- [#4350](https://github.com/ignite/cli/pull/4350) Skip upgrade prefix for sim tests
 
 ## [`v28.5.1`](https://github.com/ignite/cli/releases/tag/v28.5.1)
 
