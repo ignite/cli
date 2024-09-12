@@ -33,6 +33,7 @@ func InitSentry(ctx context.Context) (deferMe func(), err error) {
 	}
 
 	return func() {
+		sentry.Recover()
 		sentry.Flush(time.Second * 2)
 	}, nil
 }

@@ -3,7 +3,6 @@ package analytics
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -54,7 +53,6 @@ func SendMetric(wg *sync.WaitGroup, cmd *cobra.Command) {
 	}
 
 	dntInfo, err := checkDNT()
-	fmt.Println(dntInfo, err)
 	if err != nil || dntInfo.DoNotTrack {
 		return
 	}
@@ -102,8 +100,8 @@ func SendMetric(wg *sync.WaitGroup, cmd *cobra.Command) {
 	}()
 }
 
-// SendErrors send command errors to Sentry.
-func SendErrors(wg *sync.WaitGroup, ctx context.Context) {
+// EnableSentry enable errors reporting to Sentry.
+func EnableSentry(wg *sync.WaitGroup, ctx context.Context) {
 	dntInfo, err := checkDNT()
 	if err != nil || dntInfo.DoNotTrack {
 		return

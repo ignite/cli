@@ -42,7 +42,7 @@ func run() int {
 	}
 	var wg sync.WaitGroup
 	analytics.SendMetric(&wg, subCmd)
-	analytics.SendErrors(&wg, ctx)
+	analytics.EnableSentry(&wg, ctx)
 
 	err = cmd.ExecuteContext(ctx)
 	if err != nil {
