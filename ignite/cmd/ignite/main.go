@@ -19,12 +19,13 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/xstrings"
 )
 
+const exitCodeOK, exitCodeError = 0, 1
+
 func main() {
 	os.Exit(run())
 }
 
 func run() int {
-	const exitCodeOK, exitCodeError = 0, 1
 	ctx := clictx.From(context.Background())
 	cmd, cleanUp, err := ignitecmd.New(ctx)
 	if err != nil {
@@ -41,6 +42,7 @@ func run() int {
 	}
 	var wg sync.WaitGroup
 	analytics.SendMetric(&wg, subCmd)
+	analytics.EnableSentry(&wg, ctx)
 
 	err = cmd.ExecuteContext(ctx)
 	if err != nil {
@@ -77,7 +79,8 @@ func run() int {
 		return exitCodeError
 	}
 
-	wg.Wait() // waits for all metrics to be sent
+	// waits for analytics to finish
+	wg.Wait()
 
 	return exitCodeOK
 }

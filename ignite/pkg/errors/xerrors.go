@@ -14,23 +14,45 @@ package errors
 
 import (
 	"github.com/cockroachdb/errors"
+	"github.com/getsentry/sentry-go"
 )
 
 // New creates an error with a simple error message.
 // A stack trace is retained.
-func New(msg string) error { return errors.New(msg) }
+func New(msg string) error {
+	err := errors.New(msg)
+	sentry.CaptureException(err)
+	return err
+}
 
 // Errorf aliases Newf().
-func Errorf(format string, args ...interface{}) error { return errors.Errorf(format, args...) }
+func Errorf(format string, args ...interface{}) error {
+	err := errors.Errorf(format, args...)
+	sentry.CaptureException(err)
+	return err
+}
+
+// WithStack annotates err with a stack trace at the point WithStack was called.
+func WithStack(err error) error {
+	errWithStack := errors.WithStack(err)
+	sentry.CaptureException(errWithStack)
+	return errWithStack
+}
 
 // Wrap wraps an error with a message prefix. A stack trace is retained.
-func Wrap(err error, msg string) error { return errors.Wrap(err, msg) }
+func Wrap(err error, msg string) error {
+	errWrap := errors.Wrap(err, msg)
+	sentry.CaptureException(errWrap)
+	return errWrap
+}
 
 // Wrapf wraps an error with a formatted message prefix. A stack
 // trace is also retained. If the format is empty, no prefix is added,
 // but the extra arguments are still processed for reportable strings.
 func Wrapf(err error, format string, args ...interface{}) error {
-	return errors.Wrapf(err, format, args...)
+	errWrap := errors.Wrapf(err, format, args...)
+	sentry.CaptureException(errWrap)
+	return errWrap
 }
 
 // Unwrap accesses the direct cause of the error if any, otherwise
@@ -52,6 +74,3 @@ func Is(err, reference error) bool { return errors.Is(err, reference) }
 // As(interface{}) bool such that As(target) returns true. As will panic if target
 // is not a non-nil pointer to a type which implements error or is of interface type.
 func As(err error, target interface{}) bool { return errors.As(err, target) }
-
-// WithStack annotates err with a stack trace at the point WithStack was called.
-func WithStack(err error) error { return errors.WithStack(err) }
