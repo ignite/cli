@@ -9,7 +9,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
 )
 
-const (
+var (
 	SurveyLink      = "https://bit.ly/3WZS2uS"
 	AnnouncementAPI = "http://api.ignite.com/announcements"
 )
@@ -19,7 +19,7 @@ type announcement struct {
 }
 
 func GetAnnouncements() string {
-	resp, err := http.Get(AnnouncementAPI)
+	resp, err := http.Get(AnnouncementAPI) //nolint:gosec
 	if err != nil || resp.StatusCode != 200 {
 		return fallbackData()
 	}
