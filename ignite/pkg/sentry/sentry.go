@@ -42,7 +42,7 @@ func InitSentry(ctx context.Context) (deferMe func(), err error) {
 func getEnvironment(igniteVersion string) string {
 	if strings.Contains(igniteVersion, "dev") {
 		return "development"
-	} else {
-		return "production"
 	}
+
+	return "production"
 }
