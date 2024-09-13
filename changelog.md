@@ -5,6 +5,7 @@
 ### Changes
 
 - [#4357](https://github.com/ignite/cli/pull/4357) Bump chain dependencies (store, ics, log, etc)
+- [#4328](https://github.com/ignite/cli/pull/4328) Send ignite bug report to sentry. Opt out the same way as for usage analytics
 
 ## [`v28.5.2`](https://github.com/ignite/cli/releases/tag/v28.5.2)
 
