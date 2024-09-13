@@ -9,7 +9,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
 )
 
-var (
+const (
 	SurveyLink      = "https://bit.ly/3WZS2uS"
 	AnnouncementAPI = "http://api.ignite.com/announcements"
 )
