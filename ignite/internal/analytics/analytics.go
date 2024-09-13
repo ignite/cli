@@ -12,20 +12,12 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
-<<<<<<< HEAD
 	"github.com/ignite/cli/v28/ignite/config"
 	"github.com/ignite/cli/v28/ignite/pkg/gitpod"
 	"github.com/ignite/cli/v28/ignite/pkg/matomo"
 	"github.com/ignite/cli/v28/ignite/pkg/randstr"
+	"github.com/ignite/cli/v28/ignite/pkg/sentry"
 	"github.com/ignite/cli/v28/ignite/version"
-=======
-	"github.com/ignite/cli/v29/ignite/config"
-	"github.com/ignite/cli/v29/ignite/pkg/gitpod"
-	"github.com/ignite/cli/v29/ignite/pkg/matomo"
-	"github.com/ignite/cli/v29/ignite/pkg/randstr"
-	"github.com/ignite/cli/v29/ignite/pkg/sentry"
-	"github.com/ignite/cli/v29/ignite/version"
->>>>>>> 0adabfdc (feat: report bug to sentry (#4328))
 )
 
 const (

@@ -8,8 +8,8 @@ import (
 
 	"github.com/getsentry/sentry-go"
 
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/version"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/version"
 )
 
 const IgniteDNS = "https://bugs.ignite.com"
