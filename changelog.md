@@ -40,6 +40,7 @@
 - [#4290](https://github.com/ignite/cli/pull/4290) Remove ignite ics logic from ignite cli (this functionality will be in the `consumer` app)
 - [#4295](https://github.com/ignite/cli/pull/4295) Stop scaffolding `pulsar` files
 - [#4317](https://github.com/ignite/cli/pull/4317) Remove xchisel dependency
+- [#4328](https://github.com/ignite/cli/pull/4328) Send ignite bug report to sentry. Opt out the same way as for usage analytics
 
 ### Fixes
 

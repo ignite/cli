@@ -16,6 +16,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/gitpod"
 	"github.com/ignite/cli/v29/ignite/pkg/matomo"
 	"github.com/ignite/cli/v29/ignite/pkg/randstr"
+	"github.com/ignite/cli/v29/ignite/pkg/sentry"
 	"github.com/ignite/cli/v29/ignite/version"
 )
 
@@ -96,6 +97,23 @@ func SendMetric(wg *sync.WaitGroup, cmd *cobra.Command) {
 	go func() {
 		defer wg.Done()
 		_ = matomoClient.SendMetric(dntInfo.Name, met)
+	}()
+}
+
+// EnableSentry enable errors reporting to Sentry.
+func EnableSentry(wg *sync.WaitGroup, ctx context.Context) {
+	dntInfo, err := checkDNT()
+	if err != nil || dntInfo.DoNotTrack {
+		return
+	}
+
+	closeSentry, err := sentry.InitSentry(ctx)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if err == nil {
+			defer closeSentry()
+		}
 	}()
 }
 
