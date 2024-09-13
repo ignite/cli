@@ -2,11 +2,15 @@
 
 ## Unreleased
 
+### Changes
+
+- [#4357](https://github.com/ignite/cli/pull/4357) Bump chain dependencies (store, ics, log, etc)
+
 ## [`v28.5.2`](https://github.com/ignite/cli/releases/tag/v28.5.2)
 
 ### Features
 
-- [#4297](https://github.com/ignite/cli/pull/4297) Add in-place testnet creation command for apps.
+- [#4297](https://github.com/ignite/cli/pull/4297) Add in-place testnet creation command for apps
 
 ### Changes
 
