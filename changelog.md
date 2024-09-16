@@ -41,6 +41,7 @@
 - [#4295](https://github.com/ignite/cli/pull/4295) Stop scaffolding `pulsar` files
 - [#4317](https://github.com/ignite/cli/pull/4317) Remove xchisel dependency
 - [#4328](https://github.com/ignite/cli/pull/4328) Send ignite bug report to sentry. Opt out the same way as for usage analytics
+- [#4361](https://github.com/ignite/cli/pull/4361) Remove unused `KeyPrefix` method
 
 ### Fixes
 
