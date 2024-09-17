@@ -24,6 +24,10 @@
   </a>
     <img alt="Test Status" src="https://github.com/ignite/cli/workflows/Test/badge.svg" />
     <img alt="Lint Status" src="https://github.com/ignite/cli/workflows/Lint/badge.svg" />
+<<<<<<< HEAD
+=======
+    <a href="https://discord.gg/ignite-893126937067802685" target="_blank"><img alt="Discord" src="https://img.shields.io/discord/893126937067802685"></a>
+>>>>>>> 2909bd24 (docs: Update Discord invitation link (#4366))
 </div>
 
 ![Ignite CLI](./assets/ignite-cli.png)
