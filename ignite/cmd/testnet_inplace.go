@@ -1,14 +1,21 @@
 package ignitecmd
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/spf13/cobra"
 
+<<<<<<< HEAD
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/services/chain"
+=======
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/ignite/cli/v29/ignite/pkg/cliui"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/services/chain"
+>>>>>>> 3fb433d5 (chore: do not proxy sentry dsn (#4359))
 )
 
 func NewTestnetInPlace() *cobra.Command {
