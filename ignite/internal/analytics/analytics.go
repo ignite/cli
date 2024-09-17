@@ -101,7 +101,7 @@ func SendMetric(wg *sync.WaitGroup, cmd *cobra.Command) {
 }
 
 // EnableSentry enable errors reporting to Sentry.
-func EnableSentry(wg *sync.WaitGroup, ctx context.Context) {
+func EnableSentry(ctx context.Context, wg *sync.WaitGroup) {
 	dntInfo, err := checkDNT()
 	if err != nil || dntInfo.DoNotTrack {
 		return

@@ -1,9 +1,9 @@
 package ignitecmd
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/spf13/cobra"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosaccount"
