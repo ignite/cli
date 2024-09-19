@@ -18,6 +18,7 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 	prototypes "github.com/cosmos/gogoproto/types"
 
+	"cosmossdk.io/core/transaction"
 	banktypes "cosmossdk.io/x/bank/types"
 	staking "cosmossdk.io/x/staking/types"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
@@ -84,7 +85,7 @@ type FaucetClient interface {
 //
 //go:generate mockery --srcpkg . --name Gasometer --filename gasometer.go --with-expecter
 type Gasometer interface {
-	CalculateGas(clientCtx gogogrpc.ClientConn, txf tx.Factory, msgs ...sdktypes.Msg) (*txtypes.SimulateResponse, uint64, error)
+	CalculateGas(clientCtx gogogrpc.ClientConn, txf tx.Factory, msgs ...transaction.Msg) (*txtypes.SimulateResponse, uint64, error)
 }
 
 // Signer allows to mock the tx.Sign func.
@@ -544,7 +545,7 @@ func (c Client) lockBech32Prefix() (unlockFn func()) {
 	return mconf.Unlock
 }
 
-func (c Client) BroadcastTx(ctx context.Context, account cosmosaccount.Account, msgs ...sdktypes.Msg) (Response, error) {
+func (c Client) BroadcastTx(ctx context.Context, account cosmosaccount.Account, msgs ...transaction.Msg) (Response, error) {
 	txService, err := c.CreateTx(ctx, account, msgs...)
 	if err != nil {
 		return Response{}, err
@@ -555,7 +556,7 @@ func (c Client) BroadcastTx(ctx context.Context, account cosmosaccount.Account, 
 
 // CreateTxWithOptions creates a transaction with the given options.
 // Options override global client options.
-func (c Client) CreateTxWithOptions(ctx context.Context, account cosmosaccount.Account, options TxOptions, msgs ...sdktypes.Msg) (TxService, error) {
+func (c Client) CreateTxWithOptions(ctx context.Context, account cosmosaccount.Account, options TxOptions, msgs ...transaction.Msg) (TxService, error) {
 	defer c.lockBech32Prefix()()
 
 	if c.useFaucet && !c.generateOnly {
@@ -636,7 +637,7 @@ func (c Client) CreateTxWithOptions(ctx context.Context, account cosmosaccount.A
 	}, nil
 }
 
-func (c Client) CreateTx(ctx context.Context, account cosmosaccount.Account, msgs ...sdktypes.Msg) (TxService, error) {
+func (c Client) CreateTx(ctx context.Context, account cosmosaccount.Account, msgs ...transaction.Msg) (TxService, error) {
 	return c.CreateTxWithOptions(ctx, account, TxOptions{}, msgs...)
 }
 

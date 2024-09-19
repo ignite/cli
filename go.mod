@@ -25,6 +25,7 @@ replace (
 )
 
 require (
+	cosmossdk.io/core v1.0.0
 	cosmossdk.io/math v1.3.0
 	cosmossdk.io/x/bank v0.0.0-20240226161501-23359a0b6d91
 	cosmossdk.io/x/staking v0.0.0-00010101000000-000000000000
@@ -83,7 +84,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.9.0
 	github.com/tbruyelle/mdgofmt v0.1.3
-	github.com/vektra/mockery/v2 v2.40.1
+	github.com/vektra/mockery/v2 v2.46.0
 	go.etcd.io/bbolt v1.4.0-alpha.1
 	golang.org/x/mod v0.21.0
 	golang.org/x/sync v0.8.0
@@ -110,7 +111,6 @@ require (
 	connectrpc.com/otelconnect v0.7.0 // indirect
 	cosmossdk.io/api v0.8.0 // indirect
 	cosmossdk.io/collections v0.4.1-0.20240802064046-23fac2f1b8ab // indirect
-	cosmossdk.io/core v1.0.0 // indirect
 	cosmossdk.io/depinject v1.0.0 // indirect
 	cosmossdk.io/errors v1.0.1 // indirect
 	cosmossdk.io/log v1.4.1 // indirect

@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/core/transaction"
 	"cosmossdk.io/math"
 	banktypes "cosmossdk.io/x/bank/types"
 	"github.com/cometbft/cometbft/p2p"
@@ -414,7 +415,7 @@ func TestClientCreateTx(t *testing.T) {
 	tests := []struct {
 		name           string
 		opts           []cosmosclient.Option
-		msg            sdktypes.Msg
+		msg            transaction.Msg
 		expectedJSONTx string
 		expectedError  string
 		setup          func(s suite)
