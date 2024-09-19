@@ -19,15 +19,31 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=$(APPNAME) \
 
 BUILD_FLAGS := -ldflags '$(ldflags)'
 
-#################
-###   Build   ###
-#################
+##############
+###  Test  ###
+##############
 
-test:
-	@echo "--> Running tests"
-	go test -v ./...
+test-unit:
+	@echo Running unit tests...
+	@go test -mod=readonly -v -timeout 30m ./...
 
-.PHONY: test
+test-race:
+	@echo Running unit tests with race condition reporting...
+	@go test -mod=readonly -v -race -timeout 30m ./...
+
+test-cover:
+	@echo Running unit tests and creating coverage report...
+	@go test -mod=readonly -v -timeout 30m -coverprofile=$(COVER_FILE) -covermode=atomic ./...
+	@go tool cover -html=$(COVER_FILE) -o $(COVER_HTML_FILE)
+	@rm $(COVER_FILE)
+
+bench:
+	@echo Running unit tests with benchmarking...
+	@go test -mod=readonly -v -timeout 30m -bench=. ./...
+
+test: govet govulncheck test-unit
+
+.PHONY: test test-unit test-race test-cover bench
 
 #################
 ###  Install  ###
@@ -77,69 +93,17 @@ lint-fix:
 
 .PHONY: lint lint-fix
 
-###############################################################################
-###                               Development                               ###
-###############################################################################
+###################
+### Development ###
+###################
 
-## govet: Run go vet.
 govet:
 	@echo Running go vet...
 	@go vet ./...
 
-## govulncheck: Run govulncheck
 govulncheck:
 	@echo Running govulncheck...
-	@go run golang.org/x/vuln/cmd/govulncheck ./...
+	@go install golang.org/x/vuln/cmd/govulncheck@latest
+	@govulncheck ./...
 
-FIND_ARGS := -name '*.go' -type f -not -name '*.pb.go' -not -name '*.pb.gw.go' -not -path './api/*'
-
-## format: Run gofumpt and goimports.
-format:
-	@echo Formatting...
-	@go install mvdan.cc/gofumpt
-	@go install golang.org/x/tools/cmd/goimports
-	@find . $(FIND_ARGS) | xargs gofumpt -w .
-	@find . $(FIND_ARGS) | xargs goimports -w -local github.com/ignite/network
-
-.PHONY: format govet govulncheck
-
-
-###############################################################################
-###                                  Test                                   ###
-###############################################################################
-
-## test-unit: Run the unit tests.
-test-unit:
-	@echo Running unit tests...
-	@VERSION=$(VERSION) go test -mod=readonly -v -timeout 30m $(PACKAGES)
-
-## test-race: Run the unit tests checking for race conditions
-test-race:
-	@echo Running unit tests with race condition reporting...
-	@VERSION=$(VERSION) go test -mod=readonly -v -race -timeout 30m  $(PACKAGES)
-
-## test-cover: Run the unit tests and create a coverage html report
-test-cover:
-	@echo Running unit tests and creating coverage report...
-	@VERSION=$(VERSION) go test -mod=readonly -v -timeout 30m -coverprofile=$(COVER_FILE) -covermode=atomic $(PACKAGES)
-	@go tool cover -html=$(COVER_FILE) -o $(COVER_HTML_FILE)
-	@rm $(COVER_FILE)
-
-## bench: Run the unit tests with benchmarking enabled
-bench:
-	@echo Running unit tests with benchmarking...
-	@VERSION=$(VERSION) go test -mod=readonly -v -timeout 30m -bench=. $(PACKAGES)
-
-## test: Run unit and integration tests.
-test: govet govulncheck test-unit
-
-.PHONY: test test-unit test-race test-cover bench
-
-help: Makefile
-	@echo
-	@echo " Choose a command run in "$(APPNAME)", or just run 'make' for install"
-	@echo
-	@sed -n 's/^##//p' $< | column -t -s ':' |  sed -e 's/^/ /'
-	@echo
-
-.PHONY: help
+.PHONY: govet govulncheck
