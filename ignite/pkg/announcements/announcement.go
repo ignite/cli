@@ -19,7 +19,7 @@ type announcement struct {
 }
 
 func GetAnnouncements() string {
-	resp, err := http.Get(AnnouncementAPI)
+	resp, err := http.Get(AnnouncementAPI) //nolint:gosec
 	if err != nil || resp.StatusCode != 200 {
 		return fallbackData()
 	}

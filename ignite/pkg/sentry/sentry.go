@@ -12,7 +12,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/version"
 )
 
-const IgniteDNS = "https://bugs.ignite.com"
+const IgniteDNS = "https://1d862300ead01c5814d8ead3732fd41f@o1152630.ingest.us.sentry.io/4507891348930560"
 
 func InitSentry(ctx context.Context) (deferMe func(), err error) {
 	sentrySyncTransport := sentry.NewHTTPSyncTransport()
