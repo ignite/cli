@@ -6,7 +6,7 @@
 
 ### Changes
 
-- [#4292](https://github.com/ignite/cli/pull/4292) Bump Cosmos SDK to `v0.50.10`
+- [#4372](https://github.com/ignite/cli/pull/4372) Bump Cosmos SDK to `v0.50.10`
 - [#4357](https://github.com/ignite/cli/pull/4357) Bump chain dependencies (store, ics, log, etc)
 - [#4328](https://github.com/ignite/cli/pull/4328) Send ignite bug report to sentry. Opt out the same way as for usage analytics
 
