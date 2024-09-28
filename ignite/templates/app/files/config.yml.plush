@@ -20,3 +20,15 @@ faucet:
 validators:
 - name: alice
   bonded: 100000000stake
+multi-node:
+  validators:
+    - name: validator1
+      stake: 100000000stake
+    - name: validator2
+      stake: 200000000stake
+    - name: validator3
+      stake: 300000000stake
+  random_validators:
+    count: 3
+    min_stake: 50000000stake
+    max_stake: 150000000stake

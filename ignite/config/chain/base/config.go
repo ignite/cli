@@ -141,6 +141,26 @@ type Config struct {
 	Client     Client          `yaml:"client,omitempty" doc:"Configures client code generation."`
 	Genesis    xyaml.Map       `yaml:"genesis,omitempty" doc:"Custom genesis block modifications. Follow the nesting of the genesis file here to access all the parameters."`
 	Minimal    bool            `yaml:"minimal,omitempty" doc:"Indicates if the blockchain is minimal with the required Cosmos SDK modules."`
+	MultiNode  MultiNode       `yaml:"multi-node" doc:"Configuration for testnet multi node."`
+}
+
+// Validator defines the configuration for a single validator.
+type Validator struct {
+	Name  string `yaml:"name" doc:"Name of the validator."`
+	Stake string `yaml:"stake" doc:"Amount of stake associated with the validator."`
+}
+
+// RandomValidator defines the configuration for random validators.
+type RandomValidator struct {
+	Count    int    `yaml:"count" doc:"Number of random validators to be generated."`
+	MinStake string `yaml:"min_stake" doc:"Minimum stake for each random validator."`
+	MaxStake string `yaml:"max_stake" doc:"Maximum stake for each random validator."`
+}
+
+// MultiNode holds the configuration related to multiple validators and random validators.
+type MultiNode struct {
+	Validators       []Validator     `yaml:"validators" doc:"List of manually configured validators."`
+	RandomValidators RandomValidator `yaml:"random_validators" doc:"Configuration for randomly generated validators."`
 }
 
 // GetVersion returns the config version.

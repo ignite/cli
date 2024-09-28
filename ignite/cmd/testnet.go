@@ -18,6 +18,7 @@ func NewTestnet() *cobra.Command {
 
 	c.AddCommand(
 		NewTestnetInPlace(),
+		NewTestnetMultiNode(),
 	)
 
 	return c
