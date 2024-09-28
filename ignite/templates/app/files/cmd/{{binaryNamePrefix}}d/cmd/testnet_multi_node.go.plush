@@ -76,7 +76,7 @@ or a similar setup where each node has a manually configurable IP address.
 Note, strict routability for addresses is turned off in the config file.
 
 Example:
-	<%= ModulePath %> multi-node --v 4 --output-dir ./.testnets --validators-stake-amount 1000000,200000,300000,400000
+	<%= AppName %>d multi-node --v 4 --output-dir ./.testnets --validators-stake-amount 1000000,200000,300000,400000
 	`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)

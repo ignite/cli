@@ -32,3 +32,4 @@ multi-node:
     count: 3
     min_stake: 50000000stake
     max_stake: 150000000stake
+  output-dir: $HOME/.<%= AppName %>d

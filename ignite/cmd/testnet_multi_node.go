@@ -2,14 +2,15 @@ package ignitecmd
 
 import (
 	"fmt"
+	"math/rand"
 
+	"cosmossdk.io/math"
 	"github.com/spf13/cobra"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/ignite/cli/v29/ignite/config/chain/base"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosaccount"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/services/chain"
 )
 
@@ -29,6 +30,13 @@ func NewTestnetMultiNode() *cobra.Command {
 					stake: 200000000stake
 					- name: validator4
 					stake: 200000000stake
+	or
+			....
+			multi-node:
+				random_validators:
+				count: 4
+				min_stake: 50000000stake
+				max_stake: 150000000stake
 
 		`,
 		Args: cobra.NoArgs,
@@ -51,7 +59,6 @@ func testnetMultiNodeHandler(cmd *cobra.Command, _ []string) error {
 	)
 	defer session.End()
 
-	// Otherwise run the serve command directly
 	return testnetInplace1(cmd, session)
 }
 
@@ -81,65 +88,45 @@ func testnetInplace1(cmd *cobra.Command, session *cliui.Session) error {
 	if err != nil {
 		return err
 	}
-	home, err := c.Home()
+
+	validatorDetails, err := getValidatorAmountStake(cfg.MultiNode)
 	if err != nil {
 		return err
 	}
-	keyringBackend, err := c.KeyringBackend()
-	if err != nil {
-		return err
-	}
-	ca, err := cosmosaccount.New(
-		cosmosaccount.WithKeyringBackend(cosmosaccount.KeyringBackend(keyringBackend)),
-		cosmosaccount.WithHome(home),
-	)
-	if err != nil {
-		return err
-	}
+	fmt.Println(validatorDetails)
+	fmt.Println(cfg.MultiNode.OutputDir)
 
-	var (
-		operatorAddress sdk.ValAddress
-		accounts        string
-		accErr          *cosmosaccount.AccountDoesNotExistError
-	)
+	return nil
+}
 
-	fmt.Println(cfg.MultiNode.Validators)
+func getValidatorAmountStake(cfg base.MultiNode) ([]math.Int, error) {
+	var amounts []math.Int
 
-	for _, acc := range cfg.Accounts {
-		sdkAcc, err := ca.GetByName(acc.Name)
-		if errors.As(err, &accErr) {
-			sdkAcc, _, err = ca.Create(acc.Name)
-		}
+	if len(cfg.Validators) == 0 {
+		numVal := cfg.RandomValidators.Count
+		minStake, err := sdk.ParseCoinNormalized(cfg.RandomValidators.MinStake)
 		if err != nil {
-			return err
+			return amounts, err
 		}
-
-		sdkAddr, err := sdkAcc.Address(getAddressPrefix(cmd))
+		maxStake, err := sdk.ParseCoinNormalized(cfg.RandomValidators.MaxStake)
 		if err != nil {
-			return err
+			return amounts, err
 		}
-		if len(cfg.Validators) == 0 {
-			return errors.Errorf("no validators found for account %s", sdkAcc.Name)
+		minS := minStake.Amount.Uint64()
+		maxS := maxStake.Amount.Uint64()
+		for i := 0; i < numVal; i++ {
+			stakeAmount := minS + rand.Uint64()%(maxS-minS+1)
+			amounts = append(amounts, math.NewIntFromUint64(stakeAmount))
 		}
-		if cfg.Validators[0].Name == acc.Name {
-			accAddr, err := sdk.AccAddressFromBech32(sdkAddr)
+	} else {
+		for _, v := range cfg.Validators {
+			stakeAmount, err := sdk.ParseCoinNormalized(v.Stake)
 			if err != nil {
-				return err
+				return amounts, err
 			}
-			operatorAddress = sdk.ValAddress(accAddr)
+			amounts = append(amounts, stakeAmount.Amount)
 		}
-		accounts = accounts + "," + sdkAddr
 	}
 
-	chainID, err := c.ID()
-	if err != nil {
-		return err
-	}
-
-	args := chain.InPlaceArgs{
-		NewChainID:         chainID,
-		NewOperatorAddress: operatorAddress.String(),
-		AccountsToFund:     accounts,
-	}
-	return c.TestnetInPlace(cmd.Context(), args)
+	return amounts, nil
 }

@@ -145,13 +145,13 @@ type Config struct {
 }
 
 // Validator defines the configuration for a single validator.
-type Validator struct {
+type ValidatorDetails struct {
 	Name  string `yaml:"name" doc:"Name of the validator."`
 	Stake string `yaml:"stake" doc:"Amount of stake associated with the validator."`
 }
 
 // RandomValidator defines the configuration for random validators.
-type RandomValidator struct {
+type RandomValidatorDetails struct {
 	Count    int    `yaml:"count" doc:"Number of random validators to be generated."`
 	MinStake string `yaml:"min_stake" doc:"Minimum stake for each random validator."`
 	MaxStake string `yaml:"max_stake" doc:"Maximum stake for each random validator."`
@@ -159,8 +159,9 @@ type RandomValidator struct {
 
 // MultiNode holds the configuration related to multiple validators and random validators.
 type MultiNode struct {
-	Validators       []Validator     `yaml:"validators" doc:"List of manually configured validators."`
-	RandomValidators RandomValidator `yaml:"random_validators" doc:"Configuration for randomly generated validators."`
+	Validators       []ValidatorDetails     `yaml:"validators" doc:"List of manually configured validators."`
+	RandomValidators RandomValidatorDetails `yaml:"random_validators" doc:"Configuration for randomly generated validators."`
+	OutputDir        string                 `yaml:"output-dir" doc:"Directory to store initialization data for the testnet"`
 }
 
 // GetVersion returns the config version.
