@@ -1,8 +1,8 @@
 package ignitecmd
 
 import (
-	"fmt"
 	"math/rand"
+	"strconv"
 
 	"cosmossdk.io/math"
 	"github.com/spf13/cobra"
@@ -59,10 +59,10 @@ func testnetMultiNodeHandler(cmd *cobra.Command, _ []string) error {
 	)
 	defer session.End()
 
-	return testnetInplace1(cmd, session)
+	return testnetMultiNode(cmd, session)
 }
 
-func testnetInplace1(cmd *cobra.Command, session *cliui.Session) error {
+func testnetMultiNode(cmd *cobra.Command, session *cliui.Session) error {
 	chainOption := []chain.Option{
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
@@ -89,44 +89,62 @@ func testnetInplace1(cmd *cobra.Command, session *cliui.Session) error {
 		return err
 	}
 
-	validatorDetails, err := getValidatorAmountStake(cfg.MultiNode)
+	numVal, amountDetails, err := getValidatorAmountStake(cfg.MultiNode)
 	if err != nil {
 		return err
 	}
-	fmt.Println(validatorDetails)
-	fmt.Println(cfg.MultiNode.OutputDir)
+	args := chain.MultiNodeArgs{
+		ChainID:               cfg.MultiNode.ChainID,
+		ValidatorsStakeAmount: amountDetails,
+		OutputDir:             cfg.MultiNode.OutputDir,
+		NumValidator:          strconv.Itoa(numVal),
+	}
 
-	return nil
+	return c.TestnetMultiNode(cmd.Context(), args)
 }
 
-func getValidatorAmountStake(cfg base.MultiNode) ([]math.Int, error) {
-	var amounts []math.Int
+// getValidatorAmountStake returns the number of validators and the amountStakes arg from config.MultiNode
+func getValidatorAmountStake(cfg base.MultiNode) (int, string, error) {
+	var amounts string
+	count := 0
 
 	if len(cfg.Validators) == 0 {
 		numVal := cfg.RandomValidators.Count
 		minStake, err := sdk.ParseCoinNormalized(cfg.RandomValidators.MinStake)
 		if err != nil {
-			return amounts, err
+			return count, amounts, err
 		}
 		maxStake, err := sdk.ParseCoinNormalized(cfg.RandomValidators.MaxStake)
 		if err != nil {
-			return amounts, err
+			return count, amounts, err
 		}
 		minS := minStake.Amount.Uint64()
 		maxS := maxStake.Amount.Uint64()
 		for i := 0; i < numVal; i++ {
 			stakeAmount := minS + rand.Uint64()%(maxS-minS+1)
-			amounts = append(amounts, math.NewIntFromUint64(stakeAmount))
+			if amounts == "" {
+				amounts = math.NewIntFromUint64(stakeAmount).String()
+				count += 1
+			} else {
+				amounts = amounts + "," + math.NewIntFromUint64(stakeAmount).String()
+				count += 1
+			}
 		}
 	} else {
 		for _, v := range cfg.Validators {
 			stakeAmount, err := sdk.ParseCoinNormalized(v.Stake)
 			if err != nil {
-				return amounts, err
+				return count, amounts, err
 			}
-			amounts = append(amounts, stakeAmount.Amount)
+			if amounts == "" {
+				amounts = stakeAmount.Amount.String()
+				count += 1
+			} else {
+				amounts = amounts + "," + stakeAmount.Amount.String()
+				count += 1
+			}
 		}
 	}
 
-	return amounts, nil
+	return count, amounts, nil
 }

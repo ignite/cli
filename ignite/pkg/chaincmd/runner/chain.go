@@ -57,6 +57,18 @@ func (r Runner) InPlace(ctx context.Context, newChainID, newOperatorAddress stri
 	)
 }
 
+func (r Runner) MultiNode(ctx context.Context, options ...chaincmd.MultiNodeOption) error {
+	runOptions := runOptions{
+		stdout: os.Stdout,
+		stderr: os.Stderr,
+	}
+	return r.run(
+		ctx,
+		runOptions,
+		r.chainCmd.TestnetMultiNodeCommand(options...),
+	)
+}
+
 // Gentx generates a genesis tx carrying a self delegation.
 func (r Runner) Gentx(
 	ctx context.Context,

@@ -48,6 +48,16 @@ func (c Chain) InPlace(ctx context.Context, runner chaincmdrunner.Runner, args I
 	return err
 }
 
+func (c Chain) MultiNode(ctx context.Context, runner chaincmdrunner.Runner, args MultiNodeArgs) error {
+	err := runner.MultiNode(ctx,
+		chaincmd.MultiNodeWithChainID(args.ChainID),
+		chaincmd.MultiNodeWithDirOutput(args.OutputDir),
+		chaincmd.MultiNodeWithNumValidator(args.NumValidator),
+		chaincmd.MultiNodeWithValidatorsStakeAmount(args.ValidatorsStakeAmount),
+	)
+	return err
+}
+
 // Start wraps the "appd start" command to begin running a chain from the daemon.
 func (c Chain) Start(ctx context.Context, runner chaincmdrunner.Runner, cfg *chainconfig.Config) error {
 	validator, err := chainconfig.FirstValidator(cfg)

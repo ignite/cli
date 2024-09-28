@@ -1,6 +1,8 @@
 package chaincmd
 
 import (
+	"fmt"
+
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 )
 
@@ -42,6 +44,58 @@ func (c ChainCmd) TestnetInPlaceCommand(newChainID, newOperatorAddress string, o
 	for _, apply := range options {
 		command = apply(command)
 	}
+
+	return c.daemonCommand(command)
+}
+
+type MultiNodeOption func([]string) []string
+
+func MultiNodeWithChainID(ChainId string) MultiNodeOption {
+	return func(s []string) []string {
+		if len(ChainId) > 0 {
+			return append(s, optionChainID, ChainId)
+		}
+		return s
+	}
+}
+
+func MultiNodeWithDirOutput(dirOutput string) MultiNodeOption {
+	return func(s []string) []string {
+		if len(dirOutput) > 0 {
+			return append(s, optionOutPutDir, dirOutput)
+		}
+		return s
+	}
+}
+
+func MultiNodeWithNumValidator(numVal string) MultiNodeOption {
+	return func(s []string) []string {
+		if len(numVal) > 0 {
+			return append(s, optionNumValidator, numVal)
+		}
+		return s
+	}
+}
+func MultiNodeWithValidatorsStakeAmount(satkeAmounts string) MultiNodeOption {
+	return func(s []string) []string {
+		if len(satkeAmounts) > 0 {
+			return append(s, optionAmountStakes, satkeAmounts)
+		}
+		return s
+	}
+}
+
+// TestnetMultiNodeCommand return command to start testnet multinode.
+func (c ChainCmd) TestnetMultiNodeCommand(options ...MultiNodeOption) step.Option {
+	command := []string{
+		commandTestnetMultiNode,
+	}
+
+	// Apply the options provided by the user
+	for _, apply := range options {
+		command = apply(command)
+	}
+	fmt.Println(command)
 
 	return c.daemonCommand(command)
 }
