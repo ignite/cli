@@ -1,14 +1,18 @@
 package ignitecmd
 
 import (
+	// "fmt"
 	"math/rand"
 	"strconv"
+	"time"
 
 	"cosmossdk.io/math"
 	"github.com/spf13/cobra"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	tea "github.com/charmbracelet/bubbletea"
+	cmdmodel "github.com/ignite/cli/v29/ignite/cmd/model"
 	"github.com/ignite/cli/v29/ignite/config/chain/base"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/services/chain"
@@ -98,9 +102,21 @@ func testnetMultiNode(cmd *cobra.Command, session *cliui.Session) error {
 		ValidatorsStakeAmount: amountDetails,
 		OutputDir:             cfg.MultiNode.OutputDir,
 		NumValidator:          strconv.Itoa(numVal),
+		NodeDirPrefix:         "validator", //node
 	}
 
-	return c.TestnetMultiNode(cmd.Context(), args)
+	//initialized 3 node directories
+	err = c.TestnetMultiNode(cmd.Context(), args)
+	if err != nil {
+		return err
+	}
+
+	time.Sleep(7 * time.Second)
+
+	// c.TestnetStartMultiNode(cmd.Context(), args)
+	m := cmdmodel.NewModel(c.Name(), cmd.Context(), args)
+	_, err = tea.NewProgram(m).Run()
+	return err
 }
 
 // getValidatorAmountStake returns the number of validators and the amountStakes arg from config.MultiNode

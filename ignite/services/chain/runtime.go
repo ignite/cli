@@ -4,6 +4,9 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"strconv"
+	"sync"
+	// "time"
 
 	"github.com/nqd/flat"
 	"github.com/pelletier/go-toml"
@@ -56,6 +59,59 @@ func (c Chain) MultiNode(ctx context.Context, runner chaincmdrunner.Runner, args
 		chaincmd.MultiNodeWithValidatorsStakeAmount(args.ValidatorsStakeAmount),
 	)
 	return err
+}
+
+func (c Chain) StartMultiNode(ctx context.Context, runner chaincmdrunner.Runner, args MultiNodeArgs) error {
+	numVal, err := strconv.Atoi(args.NumValidator)
+	if err != nil {
+		return err
+	}
+
+	// Kênh để nhận lỗi từ các goroutines
+	errCh := make(chan error, numVal)
+	var wg sync.WaitGroup
+
+	// Tạo context có thể hủy bỏ
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	// Tạo các goroutines để chạy các node
+	for i := 0; i < numVal; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			home := filepath.Join(args.OutputDir, args.NodeDirPrefix+strconv.Itoa(i))
+
+			// Kiểm tra nếu context bị hủy
+			select {
+			case <-ctx.Done():
+				return // Kết thúc goroutine nếu context bị hủy
+			default:
+				// Chạy node
+				errRunNode := runner.StartMultiNode(ctx, chaincmd.MultiNodeWithHome(home))
+
+				// Nếu có lỗi, gửi lỗi vào kênh và hủy toàn bộ goroutines
+				if errRunNode != nil {
+					errCh <- errRunNode
+					cancel() // Hủy tất cả goroutines khác
+				}
+			}
+		}(i)
+	}
+
+	// Chờ tất cả các goroutines hoàn thành
+	wg.Wait()
+
+	// Đóng kênh sau khi tất cả các goroutine hoàn tất
+	close(errCh)
+
+	// Kiểm tra lỗi từ các goroutines
+	if len(errCh) > 0 {
+		// Lấy lỗi đầu tiên nếu có lỗi
+		return <-errCh
+	}
+
+	return nil
 }
 
 // Start wraps the "appd start" command to begin running a chain from the daemon.

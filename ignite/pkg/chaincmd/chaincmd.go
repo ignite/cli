@@ -181,6 +181,7 @@ func (c ChainCmd) StartCommand(options ...string) step.Option {
 	command := append([]string{
 		commandStart,
 	}, options...)
+	fmt.Println(command)
 	return c.daemonCommand(command)
 }
 
@@ -641,6 +642,11 @@ func (c ChainCmd) attachNode(command []string) []string {
 // daemonCommand returns the daemon command from the provided command.
 func (c ChainCmd) daemonCommand(command []string) step.Option {
 	return step.Exec(c.appCmd, c.attachHome(command)...)
+}
+
+// daemonCommand returns the daemon command from the given command (including the home flag).
+func (c ChainCmd) daemonCommandIncludedHomeFlag(command []string) step.Option {
+	return step.Exec(c.appCmd, command...)
 }
 
 // cliCommand returns the cli command from the provided command.

@@ -41,6 +41,7 @@ type MultiNodeArgs struct {
 	OutputDir             string
 	NumValidator          string
 	ValidatorsStakeAmount string
+	NodeDirPrefix         string
 }
 
 func (c Chain) TestnetMultiNode(ctx context.Context, args MultiNodeArgs) error {
@@ -59,6 +60,28 @@ func (c Chain) TestnetMultiNode(ctx context.Context, args MultiNodeArgs) error {
 	}
 
 	err = c.MultiNode(ctx, commands, args)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c Chain) TestnetStartMultiNode(ctx context.Context, args MultiNodeArgs) error {
+	commands, err := c.Commands(ctx)
+	if err != nil {
+		return err
+	}
+
+	// make sure that config.yml exists
+	if c.options.ConfigFile != "" {
+		if _, err := os.Stat(c.options.ConfigFile); err != nil {
+			return err
+		}
+	} else if _, err := chainconfig.LocateDefault(c.app.Path); err != nil {
+		return err
+	}
+
+	err = c.StartMultiNode(ctx, commands, args)
 	if err != nil {
 		return err
 	}

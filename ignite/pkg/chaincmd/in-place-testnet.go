@@ -85,6 +85,15 @@ func MultiNodeWithValidatorsStakeAmount(satkeAmounts string) MultiNodeOption {
 	}
 }
 
+func MultiNodeWithHome(home string) MultiNodeOption {
+	return func(s []string) []string {
+		if len(home) > 0 {
+			return append(s, optionHome, home)
+		}
+		return s
+	}
+}
+
 // TestnetMultiNodeCommand return command to start testnet multinode.
 func (c ChainCmd) TestnetMultiNodeCommand(options ...MultiNodeOption) step.Option {
 	command := []string{
@@ -98,4 +107,18 @@ func (c ChainCmd) TestnetMultiNodeCommand(options ...MultiNodeOption) step.Optio
 	fmt.Println(command)
 
 	return c.daemonCommand(command)
+}
+
+// TestnetMultiNodeCommand return command to start testnet multinode.
+func (c ChainCmd) TestnetStartMultiNodeCommand(options ...MultiNodeOption) step.Option {
+	command := []string{
+		commandStart,
+	}
+
+	// Apply the options provided by the user
+	for _, apply := range options {
+		command = apply(command)
+	}
+
+	return c.daemonCommandIncludedHomeFlag(command)
 }
