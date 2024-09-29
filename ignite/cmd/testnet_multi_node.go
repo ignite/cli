@@ -12,6 +12,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	tea "github.com/charmbracelet/bubbletea"
+
 	cmdmodel "github.com/ignite/cli/v29/ignite/cmd/model"
 	"github.com/ignite/cli/v29/ignite/config/chain/base"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
@@ -148,10 +149,10 @@ func getValidatorAmountStake(cfg base.MultiNode) (int, string, error) {
 			stakeAmount := minS + rand.Uint64()%(maxS-minS+1)
 			if amounts == "" {
 				amounts = math.NewIntFromUint64(stakeAmount).String()
-				count += 1
+				count++
 			} else {
 				amounts = amounts + "," + math.NewIntFromUint64(stakeAmount).String()
-				count += 1
+				count++
 			}
 		}
 	} else {

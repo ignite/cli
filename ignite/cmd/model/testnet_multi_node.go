@@ -9,6 +9,7 @@ import (
 	"syscall"
 
 	tea "github.com/charmbracelet/bubbletea"
+
 	"github.com/ignite/cli/v29/ignite/services/chain"
 )
 

@@ -48,10 +48,10 @@ func (c ChainCmd) TestnetInPlaceCommand(newChainID, newOperatorAddress string, o
 
 type MultiNodeOption func([]string) []string
 
-func MultiNodeWithChainID(ChainId string) MultiNodeOption {
+func MultiNodeWithChainID(chainId string) MultiNodeOption {
 	return func(s []string) []string {
-		if len(ChainId) > 0 {
-			return append(s, optionChainID, ChainId)
+		if len(chainId) > 0 {
+			return append(s, optionChainID, chainId)
 		}
 		return s
 	}
@@ -74,6 +74,7 @@ func MultiNodeWithNumValidator(numVal string) MultiNodeOption {
 		return s
 	}
 }
+
 func MultiNodeWithValidatorsStakeAmount(satkeAmounts string) MultiNodeOption {
 	return func(s []string) []string {
 		if len(satkeAmounts) > 0 {
