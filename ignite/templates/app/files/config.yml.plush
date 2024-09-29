@@ -34,3 +34,4 @@ multi-node:
     max_stake: 150000000stake
   output-dir: ./.<%= AppName %>-testnet/
   chain-id: <%= AppName %>-test-1
+  node-dir-prefix: validator

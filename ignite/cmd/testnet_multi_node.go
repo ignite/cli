@@ -33,13 +33,21 @@ func NewTestnetMultiNode() *cobra.Command {
 					stake: 200000000stake
 					- name: validator4
 					stake: 200000000stake
-	or
+				output-dir: ./.testchain-testnet/
+				chain-id: testchain-test-1
+				node-dir-prefix: validator
+
+	or random amount stake
 			....
 			multi-node:
 				random_validators:
-				count: 4
-				min_stake: 50000000stake
-				max_stake: 150000000stake
+					count: 4
+					min_stake: 50000000stake
+					max_stake: 150000000stake
+				output-dir: ./.testchain-testnet/
+				chain-id: testchain-test-1
+				node-dir-prefix: validator
+
 
 		`,
 		Args: cobra.NoArgs,
@@ -101,10 +109,9 @@ func testnetMultiNode(cmd *cobra.Command, session *cliui.Session) error {
 		ValidatorsStakeAmount: amountDetails,
 		OutputDir:             cfg.MultiNode.OutputDir,
 		NumValidator:          strconv.Itoa(numVal),
-		NodeDirPrefix:         "validator", //node
+		NodeDirPrefix:         cfg.MultiNode.NodeDirPrefix,
 	}
-
-	//initialized 3 node directories
+	//initialized numVal node directories
 	err = c.TestnetMultiNode(cmd.Context(), args)
 	if err != nil {
 		return err
