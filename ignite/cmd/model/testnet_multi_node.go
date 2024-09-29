@@ -152,7 +152,7 @@ func (m Model) View() string {
 		return "[Stopped]"
 	}
 
-	output := "Node Control:\n"
+	output := "Press keys 1,2,3.. to start and stop node 1,2,3.. respectively \nNode Control:\n"
 	for i := 0; i < m.numNodes; i++ {
 		output += fmt.Sprintf("%d. Node %d %s\n", i+1, i+1, statusText(m.nodeStatuses[i]))
 	}

@@ -1,6 +1,7 @@
 package ignitecmd
 
 import (
+	"fmt"
 	"math/rand"
 	"strconv"
 	"time"
@@ -111,13 +112,15 @@ func testnetMultiNode(cmd *cobra.Command, session *cliui.Session) error {
 		NumValidator:          strconv.Itoa(numVal),
 		NodeDirPrefix:         cfg.MultiNode.NodeDirPrefix,
 	}
-	//initialized numVal node directories
+
+	fmt.Printf("Creating %s nodes \n\n", args.NumValidator)
 	err = c.TestnetMultiNode(cmd.Context(), args)
 	if err != nil {
 		return err
 	}
 
 	time.Sleep(7 * time.Second)
+	fmt.Println()
 
 	m := cmdmodel.NewModel(c.Name(), cmd.Context(), args)
 	_, err = tea.NewProgram(m).Run()
