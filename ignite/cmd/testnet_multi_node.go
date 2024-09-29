@@ -1,7 +1,6 @@
 package ignitecmd
 
 import (
-	// "fmt"
 	"math/rand"
 	"strconv"
 	"time"
@@ -113,7 +112,6 @@ func testnetMultiNode(cmd *cobra.Command, session *cliui.Session) error {
 
 	time.Sleep(7 * time.Second)
 
-	// c.TestnetStartMultiNode(cmd.Context(), args)
 	m := cmdmodel.NewModel(c.Name(), cmd.Context(), args)
 	_, err = tea.NewProgram(m).Run()
 	return err
