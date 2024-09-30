@@ -20,7 +20,7 @@ const (
 	Running
 )
 
-type Model struct {
+type MultiNode struct {
 	appd string
 	args chain.MultiNodeArgs
 	ctx  context.Context
@@ -40,12 +40,12 @@ type UpdateStatusMsg struct {
 }
 
 // Initialize the model
-func NewModel(chainname string, ctx context.Context, args chain.MultiNodeArgs) Model {
+func NewModel(chainname string, ctx context.Context, args chain.MultiNodeArgs) MultiNode {
 	numNodes, err := strconv.Atoi(args.NumValidator)
 	if err != nil {
 		panic(err)
 	}
-	return Model{
+	return MultiNode{
 		appd:         chainname + "d",
 		args:         args,
 		ctx:          ctx,
@@ -56,7 +56,7 @@ func NewModel(chainname string, ctx context.Context, args chain.MultiNodeArgs) M
 }
 
 // Implement the Update function
-func (m Model) Init() tea.Cmd {
+func (m MultiNode) Init() tea.Cmd {
 	return nil
 }
 
@@ -105,7 +105,7 @@ func RunNode(nodeIdx int, start bool, pid *int, args chain.MultiNodeArgs, appd s
 }
 
 // Stop all nodes
-func (m *Model) StopAllNodes() {
+func (m *MultiNode) StopAllNodes() {
 	for i := 0; i < m.numNodes; i++ {
 		if m.nodeStatuses[i] == Running {
 			RunNode(i, false, &m.pids[i], m.args, m.appd)() // Stop node
@@ -114,7 +114,7 @@ func (m *Model) StopAllNodes() {
 }
 
 // Update handles messages and updates the model
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m MultiNode) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -145,7 +145,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 // View renders the interface
-func (m Model) View() string {
+func (m MultiNode) View() string {
 	statusText := func(status NodeStatus) string {
 		if status == Running {
 			return "[Running]"
@@ -153,9 +153,16 @@ func (m Model) View() string {
 		return "[Stopped]"
 	}
 
+	infoNode := func(i int) string {
+		chainId := m.args.ChainID
+		home := m.args.OutputDir
+		ipaddr := "tcp://127.0.0.1:" + strconv.Itoa(26657-3*i)
+		return fmt.Sprintf("INFO: ChainID:%s | Home:%s | Node:%s ", chainId, home, ipaddr)
+	}
+
 	output := "Press keys 1,2,3.. to start and stop node 1,2,3.. respectively \nNode Control:\n"
 	for i := 0; i < m.numNodes; i++ {
-		output += fmt.Sprintf("%d. Node %d %s\n", i+1, i+1, statusText(m.nodeStatuses[i]))
+		output += fmt.Sprintf("%d. Node %d %s -- %s\n", i+1, i+1, statusText(m.nodeStatuses[i]), infoNode(i))
 	}
 	output += "Press q to quit.\n"
 	return output
