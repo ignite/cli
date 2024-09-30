@@ -5,20 +5,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"strconv"
-	"strings"
-
+	"math/rand"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
+	"time"
 
 	cmtconfig "github.com/cometbft/cometbft/config"
+	types "github.com/cometbft/cometbft/types"
+	tmtime "github.com/cometbft/cometbft/types/time"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
 	"cosmossdk.io/math"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -31,12 +31,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	tmrand "github.com/cometbft/cometbft/libs/rand"
-	types "github.com/cometbft/cometbft/types"
-	tmtime "github.com/cometbft/cometbft/types/time"
 	runtime "github.com/cosmos/cosmos-sdk/runtime"
 )
 
@@ -152,18 +151,18 @@ func initTestnetFiles(
 	args initArgs,
 ) error {
 	if args.chainID == "" {
-		args.chainID = "chain-" + tmrand.Str(6)
+		args.chainID = "chain-" + generateRandomString(6)
 	}
 	nodeIDs := make([]string, args.numValidators)
 	valPubKeys := make([]cryptotypes.PubKey, args.numValidators)
 
-	simappConfig := srvconfig.DefaultConfig()
-	simappConfig.MinGasPrices = args.minGasPrices
-	simappConfig.API.Enable = false
-	simappConfig.BaseConfig.MinGasPrices = "0.0001" + sdk.DefaultBondDenom
-	simappConfig.Telemetry.EnableHostnameLabel = false
-	simappConfig.Telemetry.Enabled = false
-	simappConfig.Telemetry.PrometheusRetentionTime = 0
+	appConfig := srvconfig.DefaultConfig()
+	appConfig.MinGasPrices = args.minGasPrices
+	appConfig.API.Enable = false
+	appConfig.BaseConfig.MinGasPrices = "0.0001" + sdk.DefaultBondDenom
+	appConfig.Telemetry.EnableHostnameLabel = false
+	appConfig.Telemetry.Enabled = false
+	appConfig.Telemetry.PrometheusRetentionTime = 0
 
 	var (
 		genAccounts     []authtypes.GenesisAccount
@@ -174,13 +173,9 @@ func initTestnetFiles(
 	)
 
 	inBuf := bufio.NewReader(cmd.InOrStdin())
-	// generate private keys, node IDs, and initial transactions
 	for i := 0; i < args.numValidators; i++ {
-		// validator1
 		nodeDirName := fmt.Sprintf("%s%d", args.nodeDirPrefix, i)
-		// ../validator1
 		nodeDir := filepath.Join(args.outputDir, nodeDirName)
-		// ../validator1/config/gentx/
 		gentxsDir := filepath.Join(args.outputDir, nodeDirName, "config", "gentx")
 
 		nodeConfig.SetRoot(nodeDir)
@@ -294,9 +289,9 @@ func initTestnetFiles(
 			return err
 		}
 
-		simappConfig.GRPC.Address = args.startingIPAddress + ":" + strconv.Itoa(9090-2*i)
-		simappConfig.API.Address = "tcp://localhost:" + strconv.Itoa(1317-i)
-		srvconfig.WriteConfigFile(filepath.Join(nodeDir, "config", "app.toml"), simappConfig)
+		appConfig.GRPC.Address = args.startingIPAddress + ":" + strconv.Itoa(9090-2*i)
+		appConfig.API.Address = "tcp://localhost:" + strconv.Itoa(1317-i)
+		srvconfig.WriteConfigFile(filepath.Join(nodeDir, "config", "app.toml"), appConfig)
 	}
 
 	if err := initGenFiles(clientCtx, mbm, args.chainID, genAccounts, genBalances, genFiles, args.numValidators); err != nil {
@@ -503,4 +498,16 @@ func isSubDir(src, dstDir string) (bool, error) {
 	// If the relative path doesn't go up the directory tree (doesn't contain ".."), it is inside dstDir
 	isInside := !strings.HasPrefix(relativePath, "..") && !filepath.IsAbs(relativePath)
 	return isInside, nil
+}
+
+// generateRandomString generates a random string of the specified length.
+func generateRandomString(length int) string {
+	const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
+	var seededRand *rand.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = charset[seededRand.Intn(len(charset))]
+	}
+	return string(b)
 }
