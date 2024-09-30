@@ -48,6 +48,7 @@ func (c Chain) InPlace(ctx context.Context, runner chaincmdrunner.Runner, args I
 	return err
 }
 
+// MultiNode sets up multiple nodes in the chain network with the specified arguments and returns an error if any issue occurs.
 func (c Chain) MultiNode(ctx context.Context, runner chaincmdrunner.Runner, args MultiNodeArgs) error {
 	err := runner.MultiNode(ctx,
 		chaincmd.MultiNodeWithChainID(args.ChainID),

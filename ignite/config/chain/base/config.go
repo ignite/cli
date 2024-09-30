@@ -161,7 +161,6 @@ type RandomValidatorDetails struct {
 type MultiNode struct {
 	Validators       []ValidatorDetails     `yaml:"validators" doc:"List of manually configured validators."`
 	RandomValidators RandomValidatorDetails `yaml:"random_validators" doc:"Configuration for randomly generated validators."`
-	OutputDir        string                 `yaml:"output-dir" doc:"Directory to store initialization data for the testnet"`
 	ChainID          string                 `yaml:"chain-id" doc:"Chain id for the testnet"`
 	NodeDirPrefix    string                 `yaml:"node-dir-prefix" doc:"Node directory prefix for the testnet"`
 }

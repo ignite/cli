@@ -106,10 +106,11 @@ func testnetMultiNode(cmd *cobra.Command, session *cliui.Session) error {
 	if err != nil {
 		return err
 	}
+	outputDir := ".ignite/local-chains/" + c.Name() + "d/testnet/"
 	args := chain.MultiNodeArgs{
 		ChainID:               cfg.MultiNode.ChainID,
 		ValidatorsStakeAmount: amountDetails,
-		OutputDir:             cfg.MultiNode.OutputDir,
+		OutputDir:             outputDir,
 		NumValidator:          strconv.Itoa(numVal),
 		NodeDirPrefix:         cfg.MultiNode.NodeDirPrefix,
 	}
@@ -120,8 +121,7 @@ func testnetMultiNode(cmd *cobra.Command, session *cliui.Session) error {
 		return err
 	}
 
-	time.Sleep(7 * time.Second)
-	fmt.Println()
+	time.Sleep(2 * time.Second)
 
 	m := cmdmodel.NewModel(c.Name(), cmd.Context(), args)
 	_, err = tea.NewProgram(m).Run()
