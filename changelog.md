@@ -41,7 +41,6 @@
 - [#4290](https://github.com/ignite/cli/pull/4290) Remove ignite ics logic from ignite cli (this functionality will be in the `consumer` app)
 - [#4295](https://github.com/ignite/cli/pull/4295) Stop scaffolding `pulsar` files
 - [#4317](https://github.com/ignite/cli/pull/4317) Remove xchisel dependency
-- [#4328](https://github.com/ignite/cli/pull/4328) Send ignite bug report to sentry. Opt out the same way as for usage analytics
 - [#4361](https://github.com/ignite/cli/pull/4361) Remove unused `KeyPrefix` method
 
 ### Fixes
@@ -49,6 +48,14 @@
 - [#4000](https://github.com/ignite/cli/pull/4000) Run all dry runners before the wet run in the `xgenny` pkg
 - [#4091](https://github.com/ignite/cli/pull/4091) Fix race conditions in the plugin logic
 - [#4128](https://github.com/ignite/cli/pull/4128) Check for duplicate proto fields in config
+
+## [`v28.5.3`](https://github.com/ignite/cli/releases/tag/v28.5.3)
+
+### Changes
+
+- [#4372](https://github.com/ignite/cli/pull/4372) Bump Cosmos SDK to `v0.50.10`
+- [#4357](https://github.com/ignite/cli/pull/4357) Bump chain dependencies (store, ics, log, etc)
+- [#4328](https://github.com/ignite/cli/pull/4328) Send ignite bug report to sentry. Opt out the same way as for usage analytics
 
 ## [`v28.5.2`](https://github.com/ignite/cli/releases/tag/v28.5.2)
 
