@@ -44,6 +44,8 @@ type MultiNodeArgs struct {
 	NodeDirPrefix         string
 }
 
+// If the app state still exists, TestnetMultiNode will reuse it.
+// Otherwise, it will automatically re-initialize the app state from the beginning.
 func (c Chain) TestnetMultiNode(ctx context.Context, args MultiNodeArgs) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {

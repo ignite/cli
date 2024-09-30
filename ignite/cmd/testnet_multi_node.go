@@ -1,17 +1,17 @@
 package ignitecmd
 
 import (
-	"fmt"
 	"math/rand"
+	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 
 	"cosmossdk.io/math"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	tea "github.com/charmbracelet/bubbletea"
 
 	cmdmodel "github.com/ignite/cli/v29/ignite/cmd/model"
 	"github.com/ignite/cli/v29/ignite/config/chain/base"
@@ -61,6 +61,7 @@ func NewTestnetMultiNode() *cobra.Command {
 	c.Flags().AddFlagSet(flagSetCheckDependencies())
 	c.Flags().AddFlagSet(flagSetSkipProto())
 	c.Flags().AddFlagSet(flagSetVerbose())
+	c.Flags().BoolP(flagResetOnce, "r", false, "reset the app state once on init")
 
 	c.Flags().Bool(flagQuitOnFail, false, "quit program if the app fails to start")
 	return c
@@ -106,7 +107,12 @@ func testnetMultiNode(cmd *cobra.Command, session *cliui.Session) error {
 	if err != nil {
 		return err
 	}
-	outputDir := ".ignite/local-chains/" + c.Name() + "d/testnet/"
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+
+	outputDir := filepath.Join(homeDir, ".ignite/local-chains/"+c.Name()+"d/testnet/")
 	args := chain.MultiNodeArgs{
 		ChainID:               cfg.MultiNode.ChainID,
 		ValidatorsStakeAmount: amountDetails,
@@ -115,7 +121,15 @@ func testnetMultiNode(cmd *cobra.Command, session *cliui.Session) error {
 		NodeDirPrefix:         cfg.MultiNode.NodeDirPrefix,
 	}
 
-	fmt.Printf("Creating %s nodes \n\n", args.NumValidator)
+	resetOnce, _ := cmd.Flags().GetBool(flagResetOnce)
+	if resetOnce {
+		// If resetOnce is true, the app state will be reset by deleting the output directory.
+		err := os.RemoveAll(outputDir)
+		if err != nil {
+			return err
+		}
+	}
+
 	err = c.TestnetMultiNode(cmd.Context(), args)
 	if err != nil {
 		return err
