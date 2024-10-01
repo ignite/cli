@@ -42,6 +42,7 @@
 - [#4295](https://github.com/ignite/cli/pull/4295) Stop scaffolding `pulsar` files
 - [#4317](https://github.com/ignite/cli/pull/4317) Remove xchisel dependency
 - [#4361](https://github.com/ignite/cli/pull/4361) Remove unused `KeyPrefix` method
+- [#4376](https://github.com/ignite/cli/pull/4376) Set different chain-id for in place testnet
 
 ### Fixes
 
