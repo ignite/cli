@@ -121,7 +121,6 @@ func TestCosmosGenScaffold(t *testing.T) {
 		"cosmos.authz.v1beta1",
 		"cosmos.bank.v1beta1",
 		"cosmos.base.tendermint.v1beta1",
-		"cosmos.crisis.v1beta1",
 		"cosmos.distribution.v1beta1",
 		"cosmos.evidence.v1beta1",
 		"cosmos.feegrant.v1beta1",

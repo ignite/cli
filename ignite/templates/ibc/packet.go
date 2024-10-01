@@ -391,7 +391,7 @@ func codecModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 		content := replacer.ReplaceOnce(f.String(), module.Placeholder, replacement)
 
 		// Register the module packet interface
-		templateInterface := `registry.RegisterImplementations((*sdk.Msg)(nil),
+		templateInterface := `registrar.RegisterImplementations((*sdk.Msg)(nil),
 	&MsgSend%[2]v{},
 )
 %[1]v`

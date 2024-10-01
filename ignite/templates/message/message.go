@@ -179,7 +179,7 @@ func typesCodecModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 		replacementImport := `sdk "github.com/cosmos/cosmos-sdk/types"`
 		content := replacer.ReplaceOnce(f.String(), Placeholder, replacementImport)
 
-		templateRegisterImplementations := `registry.RegisterImplementations((*sdk.Msg)(nil),
+		templateRegisterImplementations := `registrar.RegisterImplementations((*sdk.Msg)(nil),
 	&Msg%[2]v{},
 )
 %[1]v`

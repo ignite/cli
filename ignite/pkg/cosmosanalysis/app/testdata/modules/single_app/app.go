@@ -1,6 +1,10 @@
 package app
 
 import (
+	bankkeeper "cosmossdk.io/x/bank/keeper"
+	govkeeper "cosmossdk.io/x/gov/keeper"
+	paramstypes "cosmossdk.io/x/params/types"
+	stakingkeeper "cosmossdk.io/x/staking/keeper"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/api"
@@ -9,10 +13,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	"github.com/gogo/protobuf/codec"
 	abci "github.com/tendermint/tendermint/abci/types"
 	fookeeper "github.com/username/test/x/foo/keeper"
@@ -24,6 +25,7 @@ type Foo struct {
 	StakingKeeper stakingkeeper.Keeper
 	GovKeeper     govkeeper.Keeper
 	FooKeeper     fookeeper.Keeper
+	ibckeeper     ibckeeper.Keeper
 }
 
 func (Foo) Name() string {

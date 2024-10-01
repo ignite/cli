@@ -42,8 +42,8 @@ func (s TxService) Broadcast(ctx context.Context) (Response, error) {
 		}
 	}
 
-	accountName := s.clientContext.GetFromName()
-	if err := s.client.signer.Sign(ctx, s.txFactory, accountName, s.txBuilder, true); err != nil {
+	accountName := s.clientContext.FromName
+	if err := s.client.signer.Sign(s.clientContext, s.txFactory, accountName, s.txBuilder, true); err != nil {
 		return Response{}, errors.WithStack(err)
 	}
 

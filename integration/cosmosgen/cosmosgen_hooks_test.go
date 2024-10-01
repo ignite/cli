@@ -121,7 +121,6 @@ func TestCosmosGenScaffoldHooks(t *testing.T) {
 		"useCosmosAuthzV1Beta1",
 		"useCosmosBankV1Beta1",
 		"useCosmosBaseTendermintV1Beta1",
-		"useCosmosCrisisV1Beta1",
 		"useCosmosDistributionV1Beta1",
 		"useCosmosEvidenceV1Beta1",
 		"useCosmosFeegrantV1Beta1",

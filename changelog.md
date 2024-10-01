@@ -18,8 +18,9 @@
 - [#4131](https://github.com/ignite/cli/pull/4131) Support `bytes` as data type in the `scaffold` commands
 - [#4300](https://github.com/ignite/cli/pull/4300) Only panics the module in the most top function level
 - [#4327](https://github.com/ignite/cli/pull/4327) Use the TxConfig from simState instead create a new one
-- [#4326](https://github.com/ignite/cli/pull/4326) fAdd `buf.build` version to `ignite version` command
+- [#4326](https://github.com/ignite/cli/pull/4326) Add `buf.build` version to `ignite version` command
 - [#4362](https://github.com/ignite/cli/pull/4362) Scaffold `Makefile`
+- [#4289](https://github.com/ignite/cli/pull/4289) Cosmos SDK v0.52 support
 
 ### Changes
 

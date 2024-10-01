@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
+	banktypes "cosmossdk.io/x/bank/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/sync/errgroup"
 

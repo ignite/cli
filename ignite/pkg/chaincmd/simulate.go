@@ -150,26 +150,6 @@ func SimappWithCommit(commit bool) SimappOption {
 	}
 }
 
-// SimappWithSimulateEveryOperation provides simulateEveryOperation option for the simapp command.
-func SimappWithSimulateEveryOperation(simulateEveryOperation bool) SimappOption {
-	return func(command []string) []string {
-		if simulateEveryOperation {
-			return append(command, optionSimappSimulateEveryOperation)
-		}
-		return command
-	}
-}
-
-// SimappWithPrintAllInvariants provides printAllInvariants option for the simapp command.
-func SimappWithPrintAllInvariants(printAllInvariants bool) SimappOption {
-	return func(command []string) []string {
-		if printAllInvariants {
-			return append(command, optionSimappPrintAllInvariants)
-		}
-		return command
-	}
-}
-
 // SimappWithEnable provides enable option for the simapp command.
 func SimappWithEnable(enable bool) SimappOption {
 	return func(command []string) []string {
