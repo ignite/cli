@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changes
+
+- [#4376](https://github.com/ignite/cli/pull/4376) Set different chain-id for in place testnet
+
 ## [`v28.5.3`](https://github.com/ignite/cli/releases/tag/v28.5.3)
 
 ### Changes
