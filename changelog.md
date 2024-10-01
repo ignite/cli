@@ -19,6 +19,7 @@
 - [#4300](https://github.com/ignite/cli/pull/4300) Only panics the module in the most top function level
 - [#4327](https://github.com/ignite/cli/pull/4327) Use the TxConfig from simState instead create a new one
 - [#4326](https://github.com/ignite/cli/pull/4326) Add `buf.build` version to `ignite version` command
+- [#4362](https://github.com/ignite/cli/pull/4362) Scaffold `Makefile`
 - [#4289](https://github.com/ignite/cli/pull/4289) Cosmos SDK v0.52 support
 
 ### Changes
@@ -41,14 +42,22 @@
 - [#4290](https://github.com/ignite/cli/pull/4290) Remove ignite ics logic from ignite cli (this functionality will be in the `consumer` app)
 - [#4295](https://github.com/ignite/cli/pull/4295) Stop scaffolding `pulsar` files
 - [#4317](https://github.com/ignite/cli/pull/4317) Remove xchisel dependency
-- [#4328](https://github.com/ignite/cli/pull/4328) Send ignite bug report to sentry. Opt out the same way as for usage analytics
 - [#4361](https://github.com/ignite/cli/pull/4361) Remove unused `KeyPrefix` method
+- [#4376](https://github.com/ignite/cli/pull/4376) Set different chain-id for in place testnet
 
 ### Fixes
 
 - [#4000](https://github.com/ignite/cli/pull/4000) Run all dry runners before the wet run in the `xgenny` pkg
 - [#4091](https://github.com/ignite/cli/pull/4091) Fix race conditions in the plugin logic
 - [#4128](https://github.com/ignite/cli/pull/4128) Check for duplicate proto fields in config
+
+## [`v28.5.3`](https://github.com/ignite/cli/releases/tag/v28.5.3)
+
+### Changes
+
+- [#4372](https://github.com/ignite/cli/pull/4372) Bump Cosmos SDK to `v0.50.10`
+- [#4357](https://github.com/ignite/cli/pull/4357) Bump chain dependencies (store, ics, log, etc)
+- [#4328](https://github.com/ignite/cli/pull/4328) Send ignite bug report to sentry. Opt out the same way as for usage analytics
 
 ## [`v28.5.2`](https://github.com/ignite/cli/releases/tag/v28.5.2)
 
