@@ -7,9 +7,10 @@ import (
 	"strconv"
 	"time"
 
-	"cosmossdk.io/math"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
+
+	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -137,12 +138,12 @@ func testnetMultiNode(cmd *cobra.Command, session *cliui.Session) error {
 
 	time.Sleep(2 * time.Second)
 
-	m := cmdmodel.NewModel(c.Name(), cmd.Context(), args)
+	m := cmdmodel.NewModel(cmd.Context(), c.Name(), args)
 	_, err = tea.NewProgram(m).Run()
 	return err
 }
 
-// getValidatorAmountStake returns the number of validators and the amountStakes arg from config.MultiNode
+// getValidatorAmountStake returns the number of validators and the amountStakes arg from config.MultiNode.
 func getValidatorAmountStake(cfg base.MultiNode) (int, string, error) {
 	var amounts string
 	count := 0
@@ -160,7 +161,7 @@ func getValidatorAmountStake(cfg base.MultiNode) (int, string, error) {
 		minS := minStake.Amount.Uint64()
 		maxS := maxStake.Amount.Uint64()
 		for i := 0; i < numVal; i++ {
-			stakeAmount := minS + rand.Uint64()%(maxS-minS+1)
+			stakeAmount := minS + rand.Uint64()%(maxS-minS+1) // #nosec G404
 			if amounts == "" {
 				amounts = math.NewIntFromUint64(stakeAmount).String()
 				count++
@@ -177,10 +178,10 @@ func getValidatorAmountStake(cfg base.MultiNode) (int, string, error) {
 			}
 			if amounts == "" {
 				amounts = stakeAmount.Amount.String()
-				count += 1
+				count++
 			} else {
 				amounts = amounts + "," + stakeAmount.Amount.String()
-				count += 1
+				count++
 			}
 		}
 	}

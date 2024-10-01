@@ -21,9 +21,9 @@ const (
 )
 
 type MultiNode struct {
+	ctx  context.Context
 	appd string
 	args chain.MultiNodeArgs
-	ctx  context.Context
 
 	nodeStatuses []NodeStatus
 	pids         []int // Store the PIDs of the running processes
@@ -39,35 +39,35 @@ type UpdateStatusMsg struct {
 	status  NodeStatus
 }
 
-// Initialize the model
-func NewModel(chainname string, ctx context.Context, args chain.MultiNodeArgs) MultiNode {
+// Initialize the model.
+func NewModel(ctx context.Context, chainname string, args chain.MultiNodeArgs) MultiNode {
 	numNodes, err := strconv.Atoi(args.NumValidator)
 	if err != nil {
 		panic(err)
 	}
 	return MultiNode{
+		ctx:          ctx,
 		appd:         chainname + "d",
 		args:         args,
-		ctx:          ctx,
 		nodeStatuses: make([]NodeStatus, numNodes), // initial states of nodes
 		pids:         make([]int, numNodes),
 		numNodes:     numNodes,
 	}
 }
 
-// Implement the Update function
+// Implement the Update function.
 func (m MultiNode) Init() tea.Cmd {
 	return nil
 }
 
-// ToggleNode toggles the state of a node
+// ToggleNode toggles the state of a node.
 func ToggleNode(nodeIdx int) tea.Cmd {
 	return func() tea.Msg {
 		return ToggleNodeMsg{nodeIdx: nodeIdx}
 	}
 }
 
-// Run or stop the node based on its status
+// Run or stop the node based on its status.
 func RunNode(nodeIdx int, start bool, pid *int, args chain.MultiNodeArgs, appd string) tea.Cmd {
 	return func() tea.Msg {
 		if start {
@@ -87,24 +87,27 @@ func RunNode(nodeIdx int, start bool, pid *int, args chain.MultiNodeArgs, appd s
 			}
 
 			*pid = cmd.Process.Pid // Store the PID
-			go cmd.Wait()          // Let the process run asynchronously
-			return UpdateStatusMsg{nodeIdx: nodeIdx, status: Running}
-		} else {
-			// Use kill to stop the node process by PID
-			if *pid != 0 {
-				err := syscall.Kill(-*pid, syscall.SIGTERM) // Stop the daemon process
-				if err != nil {
-					fmt.Printf("Failed to stop node %d: %v\n", nodeIdx+1, err)
-				} else {
-					*pid = 0 // Reset PID after stopping
+			go func() {
+				if err := cmd.Wait(); err != nil {
+					fmt.Printf("Node %d exited with error: %v\n", nodeIdx+1, err)
 				}
-			}
-			return UpdateStatusMsg{nodeIdx: nodeIdx, status: Stopped}
+			}()
+			return UpdateStatusMsg{nodeIdx: nodeIdx, status: Running}
 		}
+		// Use kill to stop the node process by PID
+		if *pid != 0 {
+			err := syscall.Kill(-*pid, syscall.SIGTERM) // Stop the daemon process
+			if err != nil {
+				fmt.Printf("Failed to stop node %d: %v\n", nodeIdx+1, err)
+			} else {
+				*pid = 0 // Reset PID after stopping
+			}
+		}
+		return UpdateStatusMsg{nodeIdx: nodeIdx, status: Stopped}
 	}
 }
 
-// Stop all nodes
+// Stop all nodes.
 func (m *MultiNode) StopAllNodes() {
 	for i := 0; i < m.numNodes; i++ {
 		if m.nodeStatuses[i] == Running {
@@ -113,7 +116,7 @@ func (m *MultiNode) StopAllNodes() {
 	}
 }
 
-// Update handles messages and updates the model
+// Update handles messages and updates the model.
 func (m MultiNode) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -144,7 +147,7 @@ func (m MultiNode) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-// View renders the interface
+// View renders the interface.
 func (m MultiNode) View() string {
 	statusText := func(status NodeStatus) string {
 		if status == Running {
@@ -154,10 +157,10 @@ func (m MultiNode) View() string {
 	}
 
 	infoNode := func(i int) string {
-		chainId := m.args.ChainID
+		chainID := m.args.ChainID
 		home := m.args.OutputDir
 		ipaddr := "tcp://127.0.0.1:" + strconv.Itoa(26657-3*i)
-		return fmt.Sprintf("INFO: ChainID:%s | Home:%s | Node:%s ", chainId, home, ipaddr)
+		return fmt.Sprintf("INFO: ChainID:%s | Home:%s | Node:%s ", chainID, home, ipaddr)
 	}
 
 	output := "Press keys 1,2,3.. to start and stop node 1,2,3.. respectively \nNode Control:\n"
