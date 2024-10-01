@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- [#4362](https://github.com/ignite/cli/pull/4362) Scaffold `Makefile`
+
 ### Changes
 
 - [#4376](https://github.com/ignite/cli/pull/4376) Set different chain-id for in place testnet
