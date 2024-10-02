@@ -24,34 +24,28 @@ const (
 func NewTestnetMultiNode() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "multi-node",
-		Short: "Create a network test multi node",
-		Long: `Create a test network with the number of nodes from the config.yml file:
+		Short: "Initialize and provide multi-node on/off functionality",
+		Long: `Initialize the test network with the number of nodes and bonded from the config.yml file::
 			...
-			multi-node:
-				validators:
-					- name: validator1
-					stake: 100000000stake
-					- name: validator2
-					stake: 200000000stake
-					- name: validator3
-					stake: 200000000stake
-					- name: validator4
-					stake: 200000000stake
-				output-dir: ./.testchain-testnet/
-				chain-id: testchain-test-1
-				node-dir-prefix: validator
+                  validators:
+                        - name: alice
+                        bonded: 100000000stake
+                        - name: validator1
+                        bonded: 100000000stake
+                        - name: validator2
+                        bonded: 200000000stake
+                        - name: validator3
+                        bonded: 300000000stake
 
-	or random amount stake
-			....
-			multi-node:
-				random_validators:
-					count: 4
-					min_stake: 50000000stake
-					max_stake: 150000000stake
-				output-dir: ./.testchain-testnet/
-				chain-id: testchain-test-1
-				node-dir-prefix: validator
 
+			The "multi-node" command allows developers to easily set up, initialize, and manage multiple nodes for a 
+			testnet environment. This command provides full flexibility in enabling or disabling each node as desired, 
+			making it a powerful tool for simulating a multi-node blockchain network during development.
+
+			Usage:
+					ignite testnet multi-node [flags]
+
+		
 
 		`,
 		Args: cobra.NoArgs,
