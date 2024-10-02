@@ -1,7 +1,6 @@
 package ignitecmd
 
 import (
-	"math/rand"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -10,14 +9,16 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 
-	"cosmossdk.io/math"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cmdmodel "github.com/ignite/cli/v29/ignite/cmd/model"
-	"github.com/ignite/cli/v29/ignite/config/chain/base"
+	"github.com/ignite/cli/v29/ignite/config/chain/v1"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/services/chain"
+)
+
+const (
+	flagNodeDirPrefix = "node-dir-prefix"
 )
 
 func NewTestnetMultiNode() *cobra.Command {
@@ -63,6 +64,7 @@ func NewTestnetMultiNode() *cobra.Command {
 	c.Flags().AddFlagSet(flagSetSkipProto())
 	c.Flags().AddFlagSet(flagSetVerbose())
 	c.Flags().BoolP(flagResetOnce, "r", false, "reset the app state once on init")
+	c.Flags().String(flagNodeDirPrefix, "validator", "prefix of dir node")
 
 	c.Flags().Bool(flagQuitOnFail, false, "quit program if the app fails to start")
 	return c
@@ -104,7 +106,7 @@ func testnetMultiNode(cmd *cobra.Command, session *cliui.Session) error {
 		return err
 	}
 
-	numVal, amountDetails, err := getValidatorAmountStake(cfg.MultiNode)
+	numVal, amountDetails, err := getValidatorAmountStake(cfg.Validators)
 	if err != nil {
 		return err
 	}
@@ -112,14 +114,14 @@ func testnetMultiNode(cmd *cobra.Command, session *cliui.Session) error {
 	if err != nil {
 		return err
 	}
+	nodeDirPrefix, _ := cmd.Flags().GetString(flagNodeDirPrefix)
 
 	outputDir := filepath.Join(homeDir, ".ignite/local-chains/"+c.Name()+"d/testnet/")
 	args := chain.MultiNodeArgs{
-		ChainID:               cfg.MultiNode.ChainID,
-		ValidatorsStakeAmount: amountDetails,
 		OutputDir:             outputDir,
 		NumValidator:          strconv.Itoa(numVal),
-		NodeDirPrefix:         cfg.MultiNode.NodeDirPrefix,
+		ValidatorsStakeAmount: amountDetails,
+		NodeDirPrefix:         nodeDirPrefix,
 	}
 
 	resetOnce, _ := cmd.Flags().GetBool(flagResetOnce)
@@ -144,47 +146,21 @@ func testnetMultiNode(cmd *cobra.Command, session *cliui.Session) error {
 }
 
 // getValidatorAmountStake returns the number of validators and the amountStakes arg from config.MultiNode.
-func getValidatorAmountStake(cfg base.MultiNode) (int, string, error) {
+func getValidatorAmountStake(validators []v1.Validator) (int, string, error) {
+	numVal := len(validators)
 	var amounts string
-	count := 0
 
-	if len(cfg.Validators) == 0 {
-		numVal := cfg.RandomValidators.Count
-		minStake, err := sdk.ParseCoinNormalized(cfg.RandomValidators.MinStake)
+	for _, v := range validators {
+		stakeAmount, err := sdk.ParseCoinNormalized(v.Bonded)
 		if err != nil {
-			return count, amounts, err
+			return numVal, amounts, err
 		}
-		maxStake, err := sdk.ParseCoinNormalized(cfg.RandomValidators.MaxStake)
-		if err != nil {
-			return count, amounts, err
-		}
-		minS := minStake.Amount.Uint64()
-		maxS := maxStake.Amount.Uint64()
-		for i := 0; i < numVal; i++ {
-			stakeAmount := minS + rand.Uint64()%(maxS-minS+1) // #nosec G404
-			if amounts == "" {
-				amounts = math.NewIntFromUint64(stakeAmount).String()
-				count++
-			} else {
-				amounts = amounts + "," + math.NewIntFromUint64(stakeAmount).String()
-				count++
-			}
-		}
-	} else {
-		for _, v := range cfg.Validators {
-			stakeAmount, err := sdk.ParseCoinNormalized(v.Stake)
-			if err != nil {
-				return count, amounts, err
-			}
-			if amounts == "" {
-				amounts = stakeAmount.Amount.String()
-				count++
-			} else {
-				amounts = amounts + "," + stakeAmount.Amount.String()
-				count++
-			}
+		if amounts == "" {
+			amounts = stakeAmount.Amount.String()
+		} else {
+			amounts = amounts + "," + stakeAmount.Amount.String()
 		}
 	}
 
-	return count, amounts, nil
+	return numVal, amounts, nil
 }

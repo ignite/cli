@@ -37,7 +37,6 @@ func (c Chain) TestnetInPlace(ctx context.Context, args InPlaceArgs) error {
 }
 
 type MultiNodeArgs struct {
-	ChainID               string
 	OutputDir             string
 	NumValidator          string
 	ValidatorsStakeAmount string

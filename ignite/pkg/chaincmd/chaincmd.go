@@ -63,6 +63,7 @@ const (
 	optionAmountStakes                     = "--validators-stake-amount"
 	optionOutPutDir                        = "--output-dir"
 	optionNumValidator                     = "--v"
+	optionNodeDirPrefix                    = "--node-dir-prefix"
 
 	constTendermint = "tendermint"
 	constJSON       = "json"

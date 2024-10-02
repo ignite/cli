@@ -157,10 +157,9 @@ func (m MultiNode) View() string {
 	}
 
 	infoNode := func(i int) string {
-		chainID := m.args.ChainID
 		home := m.args.OutputDir
 		ipaddr := "tcp://127.0.0.1:" + strconv.Itoa(26657-3*i)
-		return fmt.Sprintf("INFO: ChainID:%s | Home:%s | Node:%s ", chainID, home, ipaddr)
+		return fmt.Sprintf("INFO:| Home:%s | Node:%s ", home, ipaddr)
 	}
 
 	output := "Press keys 1,2,3.. to start and stop node 1,2,3.. respectively \nNode Control:\n"

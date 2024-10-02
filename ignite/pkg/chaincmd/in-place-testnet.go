@@ -84,6 +84,15 @@ func MultiNodeWithValidatorsStakeAmount(satkeAmounts string) MultiNodeOption {
 	}
 }
 
+func MultiNodeDirPrefix(nodeDirPrefix string) MultiNodeOption {
+	return func(s []string) []string {
+		if len(nodeDirPrefix) > 0 {
+			return append(s, optionNodeDirPrefix, nodeDirPrefix)
+		}
+		return s
+	}
+}
+
 // TestnetMultiNodeCommand return command to start testnet multinode.
 func (c ChainCmd) TestnetMultiNodeCommand(options ...MultiNodeOption) step.Option {
 	command := []string{
