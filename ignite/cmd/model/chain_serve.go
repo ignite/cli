@@ -7,6 +7,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
+	"github.com/ignite/cli/v29/ignite/pkg/announcements"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
 	cliuimodel "github.com/ignite/cli/v29/ignite/pkg/cliui/model"
@@ -260,6 +261,7 @@ func (m ChainServe) renderQuitView() string {
 	}
 
 	fmt.Fprintf(&view, "%s %s\n", icons.Info, colors.Info("Stopped"))
+	view.WriteString(announcements.GetAnnouncements())
 
 	return view.String()
 }

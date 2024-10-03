@@ -1,9 +1,11 @@
 package ignitecmd
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"fmt"
 
 	"github.com/spf13/cobra"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosaccount"
@@ -121,7 +123,7 @@ func testnetInplace(cmd *cobra.Command, session *cliui.Session) error {
 	}
 
 	args := chain.InPlaceArgs{
-		NewChainID:         chainID,
+		NewChainID:         fmt.Sprintf("local%s", chainID),
 		NewOperatorAddress: operatorAddress.String(),
 		AccountsToFund:     accounts,
 	}
