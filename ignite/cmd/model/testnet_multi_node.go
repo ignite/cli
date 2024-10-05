@@ -1,6 +1,7 @@
 package cmdmodel
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"os/exec"
@@ -26,8 +27,9 @@ type MultiNode struct {
 	args chain.MultiNodeArgs
 
 	nodeStatuses []NodeStatus
-	pids         []int // Store the PIDs of the running processes
-	numNodes     int   // Number of nodes
+	pids         []int      // Store the PIDs of the running processes
+	numNodes     int        // Number of nodes
+	logs         [][]string // Store logs for each node
 }
 
 type ToggleNodeMsg struct {
@@ -37,6 +39,14 @@ type ToggleNodeMsg struct {
 type UpdateStatusMsg struct {
 	nodeIdx int
 	status  NodeStatus
+}
+
+type UpdateLogsMsg struct{}
+
+func UpdateDeemon() tea.Cmd {
+	return func() tea.Msg {
+		return UpdateLogsMsg{}
+	}
 }
 
 // Initialize the model.
@@ -52,6 +62,7 @@ func NewModel(ctx context.Context, chainname string, args chain.MultiNodeArgs) M
 		nodeStatuses: make([]NodeStatus, numNodes), // initial states of nodes
 		pids:         make([]int, numNodes),
 		numNodes:     numNodes,
+		logs:         make([][]string, numNodes), // Initialize logs for each node
 	}
 }
 
@@ -68,7 +79,13 @@ func ToggleNode(nodeIdx int) tea.Cmd {
 }
 
 // Run or stop the node based on its status.
-func RunNode(nodeIdx int, start bool, pid *int, args chain.MultiNodeArgs, appd string) tea.Cmd {
+func RunNode(nodeIdx int, start bool, m MultiNode) tea.Cmd {
+	var (
+		pid  = &m.pids[nodeIdx]
+		args = m.args
+		appd = m.appd
+	)
+
 	return func() tea.Msg {
 		if start {
 			nodeHome := filepath.Join(args.OutputDir, args.NodeDirPrefix+strconv.Itoa(nodeIdx))
@@ -80,7 +97,13 @@ func RunNode(nodeIdx int, start bool, pid *int, args chain.MultiNodeArgs, appd s
 				Setpgid: true, // Ensure it runs in a new process group
 			}
 
-			err := cmd.Start() // Start the node in the background
+			stdout, err := cmd.StdoutPipe() // Get stdout for logging
+			if err != nil {
+				fmt.Printf("Failed to start node %d: %v\n", nodeIdx+1, err)
+				return UpdateStatusMsg{nodeIdx: nodeIdx, status: Stopped}
+			}
+
+			err = cmd.Start() // Start the node in the background
 			if err != nil {
 				fmt.Printf("Failed to start node %d: %v\n", nodeIdx+1, err)
 				return UpdateStatusMsg{nodeIdx: nodeIdx, status: Stopped}
@@ -88,8 +111,15 @@ func RunNode(nodeIdx int, start bool, pid *int, args chain.MultiNodeArgs, appd s
 
 			*pid = cmd.Process.Pid // Store the PID
 			go func() {
-				if err := cmd.Wait(); err != nil {
-					fmt.Printf("Node %d exited with error: %v\n", nodeIdx+1, err)
+				scanner := bufio.NewScanner(stdout)
+				for scanner.Scan() {
+					line := scanner.Text()
+					// Add log line to the respective node's log slice
+					m.logs[nodeIdx] = append(m.logs[nodeIdx], line)
+					// Keep only the last 5 lines
+					if len(m.logs[nodeIdx]) > 5 {
+						m.logs[nodeIdx] = m.logs[nodeIdx][len(m.logs[nodeIdx])-5:]
+					}
 				}
 			}()
 			return UpdateStatusMsg{nodeIdx: nodeIdx, status: Running}
@@ -111,7 +141,7 @@ func RunNode(nodeIdx int, start bool, pid *int, args chain.MultiNodeArgs, appd s
 func (m *MultiNode) StopAllNodes() {
 	for i := 0; i < m.numNodes; i++ {
 		if m.nodeStatuses[i] == Running {
-			RunNode(i, false, &m.pids[i], m.args, m.appd)() // Stop node
+			RunNode(i, false, *m)() // Stop node
 		}
 	}
 }
@@ -135,13 +165,15 @@ func (m MultiNode) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case ToggleNodeMsg:
 		if m.nodeStatuses[msg.nodeIdx] == Running {
-			return m, RunNode(msg.nodeIdx, false, &m.pids[msg.nodeIdx], m.args, m.appd) // Stop node
+			return m, RunNode(msg.nodeIdx, false, m) // Stop node
 		}
-		return m, RunNode(msg.nodeIdx, true, &m.pids[msg.nodeIdx], m.args, m.appd) // Start node
+		return m, RunNode(msg.nodeIdx, true, m) // Start node
 
 	case UpdateStatusMsg:
 		m.nodeStatuses[msg.nodeIdx] = msg.status
-		return m, nil
+		return m, UpdateDeemon()
+	case UpdateLogsMsg:
+		return m, UpdateDeemon()
 	}
 
 	return m, nil
@@ -149,23 +181,20 @@ func (m MultiNode) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 // View renders the interface.
 func (m MultiNode) View() string {
-	statusText := func(status NodeStatus) string {
-		if status == Running {
-			return "[Running]"
-		}
-		return "[Stopped]"
-	}
-
-	infoNode := func(i int) string {
-		home := m.args.OutputDir
-		ipaddr := "tcp://127.0.0.1:" + strconv.Itoa(26657-3*i)
-		return fmt.Sprintf("INFO:| Home:%s | Node:%s ", home, ipaddr)
-	}
-
-	output := "Press keys 1,2,3.. to start and stop node 1,2,3.. respectively \nNode Control:\n"
+	output := "Node Control:\n"
 	for i := 0; i < m.numNodes; i++ {
-		output += fmt.Sprintf("%d. Node %d %s -- %s\n", i+1, i+1, statusText(m.nodeStatuses[i]), infoNode(i))
+		status := "[Stopped]"
+		if m.nodeStatuses[i] == Running {
+			status = "[Running]"
+		}
+		output += fmt.Sprintf("%d. Node %d %s --node tcp://127.0.0.1:%d:\n", i+1, i+1, status, 26657-3*i)
+		output += " [\n"
+		for _, line := range m.logs[i] {
+			output += "  " + line + "\n"
+		}
+		output += " ]\n\n"
 	}
+
 	output += "Press q to quit.\n"
 	return output
 }
