@@ -20,6 +20,7 @@
 - [#4327](https://github.com/ignite/cli/pull/4327) Use the TxConfig from simState instead create a new one
 - [#4326](https://github.com/ignite/cli/pull/4326) fAdd `buf.build` version to `ignite version` command
 - [#4377](https://github.com/ignite/cli/pull/4377) Add multi node (validator) testnet.
+- [#4362](https://github.com/ignite/cli/pull/4362) Scaffold `Makefile`
 
 ### Changes
 
@@ -42,6 +43,7 @@
 - [#4295](https://github.com/ignite/cli/pull/4295) Stop scaffolding `pulsar` files
 - [#4317](https://github.com/ignite/cli/pull/4317) Remove xchisel dependency
 - [#4361](https://github.com/ignite/cli/pull/4361) Remove unused `KeyPrefix` method
+- [#4376](https://github.com/ignite/cli/pull/4376) Set different chain-id for in place testnet
 
 ### Fixes
 
