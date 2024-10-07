@@ -11,8 +11,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	cmdmodel "github.com/ignite/cli/v29/ignite/cmd/model"
-	"github.com/ignite/cli/v29/ignite/config/chain/v1"
+	cmdmodel "github.com/ignite/cli/v29/ignite/cmd/bubblemodel"
+	v1 "github.com/ignite/cli/v29/ignite/config/chain/v1"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/services/chain"
 )

@@ -9,8 +9,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/stretchr/testify/require"
 
-	cmdmodel "github.com/ignite/cli/v29/ignite/cmd/model"
-	"github.com/ignite/cli/v29/ignite/cmd/model/testdata"
+	cmdmodel "github.com/ignite/cli/v29/ignite/cmd/bubblemodel"
+	"github.com/ignite/cli/v29/ignite/cmd/bubblemodel/testdata"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
 	cliuimodel "github.com/ignite/cli/v29/ignite/pkg/cliui/model"
