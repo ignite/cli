@@ -110,7 +110,7 @@ func testnetMultiNode(cmd *cobra.Command, session *cliui.Session) error {
 	}
 	nodeDirPrefix, _ := cmd.Flags().GetString(flagNodeDirPrefix)
 
-	outputDir := filepath.Join(homeDir, ".ignite/local-chains/"+c.Name()+"d/testnet/")
+	outputDir := xfilepath.Join(config.DirPath, xfilepath.Path("local-chains").c.Name()+"d","testnet")
 	args := chain.MultiNodeArgs{
 		OutputDir:             outputDir,
 		NumValidator:          strconv.Itoa(numVal),
