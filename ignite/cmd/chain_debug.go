@@ -7,7 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 
-	cmdmodel "github.com/ignite/cli/v29/ignite/cmd/model"
+	cmdmodel "github.com/ignite/cli/v29/ignite/cmd/bubblemodel"
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"

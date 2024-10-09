@@ -3666,7 +3666,7 @@ Start a testnet local
 
 **Synopsis**
 
-The commands in this namespace allow you to start your local testnet for development purposes. Currently there is only one feature to create a testnet from any state network (including mainnet).
+The commands in this namespace allow you to start your local testnet for development purposes. 
 
 
 The "in-place" command is used to create and start a testnet from current local net state(including mainnet).
@@ -3675,9 +3675,12 @@ We can create a testnet from the local network state and mint additional coins f
 
 During development, in-place allows you to quickly reboot the chain from a multi-node network state to a node you have full control over.
 
+The "multi-node" initialization and start command is used to set up and launch a multi-node network, allowing you to enable, disable, and providing full interaction capabilities with the chain. The stake amount for each validator is defined in the config.yml file.
+
 **SEE ALSO**
 
 * [ignite testnet in-place](#ignite-testnet-in-place)	 - Create and start a testnet from current local net state
+* [ignite testnet multi-node](#ignite-testnet-multi-node)	 - Initialize and provide multi-node on/off functionality
 
 
 ## ignite testnet in-place 
@@ -3715,6 +3718,57 @@ ignite chain debug [flags]
 **Options**
 
 ```
+  -h, --help                    help for debug
+  -p, --path string             path of the app (default ".")
+```
+
+**Options inherited from parent commands**
+
+```
+  -c, --config string   path to Ignite config file (default: ./config.yml)
+```
+
+## ignite testnet multi-node
+
+Initialize and start multiple nodes
+
+**Synopsis**
+
+The "multi-node" command allows developers to easily set up, initialize, and manage multiple nodes for a testnet environment. This command provides full flexibility in enabling or disabling each node as desired, making it a powerful tool for simulating a multi-node blockchain network during development.
+
+By using the config.yml file, you can define validators with custom bonded amounts, giving you control over how each node participates in the network:
+
+```
+                  validators:
+                        - name: alice
+                        bonded: 100000000stake
+                        - name: validator1
+                        bonded: 100000000stake
+                        - name: validator2
+                        bonded: 200000000stake
+                        - name: validator3
+                        bonded: 300000000stake
+
+```
+
+Each validator's bonded stake can be adjusted according to your testing needs, providing a realistic environment to simulate various scenarios.
+
+The multi-node command not only initializes these nodes but also gives you control over starting, stopping individual nodes. This level of control ensures you can test and iterate rapidly without needing to reinitialize the entire network each time a change is made. This makes it ideal for experimenting with validator behavior, network dynamics, and the impact of various configurations.
+
+All initialized nodes will be stored under the `.ignite/local-chains/<appd>/testnet/` directory, which allows easy access and management.
+
+
+Usage
+
+```
+ignite testnet multi-node [flags]
+```
+
+**Options**
+
+```
+  -r, --reset-once              reset the app state once on init
+  --node-dir-prefix             dir prefix for node (default "validator")
   -h, --help                    help for debug
   -p, --path string             path of the app (default ".")
 ```

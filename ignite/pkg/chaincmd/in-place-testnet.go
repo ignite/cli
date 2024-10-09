@@ -45,3 +45,64 @@ func (c ChainCmd) TestnetInPlaceCommand(newChainID, newOperatorAddress string, o
 
 	return c.daemonCommand(command)
 }
+
+type MultiNodeOption func([]string) []string
+
+func MultiNodeWithChainID(chainID string) MultiNodeOption {
+	return func(s []string) []string {
+		if len(chainID) > 0 {
+			return append(s, optionChainID, chainID)
+		}
+		return s
+	}
+}
+
+func MultiNodeWithDirOutput(dirOutput string) MultiNodeOption {
+	return func(s []string) []string {
+		if len(dirOutput) > 0 {
+			return append(s, optionOutPutDir, dirOutput)
+		}
+		return s
+	}
+}
+
+func MultiNodeWithNumValidator(numVal string) MultiNodeOption {
+	return func(s []string) []string {
+		if len(numVal) > 0 {
+			return append(s, optionNumValidator, numVal)
+		}
+		return s
+	}
+}
+
+func MultiNodeWithValidatorsStakeAmount(satkeAmounts string) MultiNodeOption {
+	return func(s []string) []string {
+		if len(satkeAmounts) > 0 {
+			return append(s, optionAmountStakes, satkeAmounts)
+		}
+		return s
+	}
+}
+
+func MultiNodeDirPrefix(nodeDirPrefix string) MultiNodeOption {
+	return func(s []string) []string {
+		if len(nodeDirPrefix) > 0 {
+			return append(s, optionNodeDirPrefix, nodeDirPrefix)
+		}
+		return s
+	}
+}
+
+// TestnetMultiNodeCommand return command to start testnet multinode.
+func (c ChainCmd) TestnetMultiNodeCommand(options ...MultiNodeOption) step.Option {
+	command := []string{
+		commandTestnetMultiNode,
+	}
+
+	// Apply the options provided by the user
+	for _, apply := range options {
+		command = apply(command)
+	}
+
+	return c.daemonCommand(command)
+}
