@@ -2,7 +2,6 @@ package ignitecmd
 
 import (
 	"os"
-	"path/filepath"
 	"strconv"
 	"time"
 
@@ -12,8 +11,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cmdmodel "github.com/ignite/cli/v29/ignite/cmd/bubblemodel"
+	igcfg "github.com/ignite/cli/v29/ignite/config"
 	v1 "github.com/ignite/cli/v29/ignite/config/chain/v1"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
+	"github.com/ignite/cli/v29/ignite/pkg/xfilepath"
 	"github.com/ignite/cli/v29/ignite/services/chain"
 )
 
@@ -104,13 +105,12 @@ func testnetMultiNode(cmd *cobra.Command, session *cliui.Session) error {
 	if err != nil {
 		return err
 	}
-	homeDir, err := os.UserHomeDir()
+	nodeDirPrefix, _ := cmd.Flags().GetString(flagNodeDirPrefix)
+
+	outputDir, err := xfilepath.Join(igcfg.DirPath, xfilepath.Path("local-chains/"+c.Name()+"d/"+"testnet/"))()
 	if err != nil {
 		return err
 	}
-	nodeDirPrefix, _ := cmd.Flags().GetString(flagNodeDirPrefix)
-
-	outputDir := xfilepath.Join(config.DirPath, xfilepath.Path("local-chains").c.Name()+"d","testnet")
 	args := chain.MultiNodeArgs{
 		OutputDir:             outputDir,
 		NumValidator:          strconv.Itoa(numVal),
