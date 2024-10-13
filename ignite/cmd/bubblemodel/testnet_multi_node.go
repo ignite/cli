@@ -10,6 +10,7 @@ import (
 	"syscall"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 
 	"github.com/ignite/cli/v29/ignite/services/chain"
 )
@@ -185,20 +186,35 @@ func (m MultiNode) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 // View renders the interface.
 func (m MultiNode) View() string {
-	output := "Node Control:\n"
+	// Define styles for the state
+	runningStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("2")) // green
+	stoppedStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("1")) // red
+	tcpStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("3"))     // yellow
+	grayStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("8"))    // gray
+	purpleStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("5"))  // purple
+
+	output := purpleStyle.Render("Node Control:")
 	for i := 0; i < m.numNodes; i++ {
-		status := "[Stopped]"
+		status := stoppedStyle.Render("[Stopped]")
 		if m.nodeStatuses[i] == Running {
-			status = "[Running]"
+			status = runningStyle.Render("[Running]")
 		}
-		output += fmt.Sprintf("%d. Node %d %s --node tcp://127.0.0.1:%d:\n", i+1, i+1, status, 26657-3*i)
+
+		tcpAddress := tcpStyle.Render(fmt.Sprintf("tcp://127.0.0.1:%d", 26657-3*i))
+		nodeGray := grayStyle.Render("--node")
+		nodeNumber := purpleStyle.Render(fmt.Sprintf("%d.", i+1))
+
+		output += fmt.Sprintf("\n%s Node %d %s %s %s:\n", nodeNumber, i+1, status, nodeGray, tcpAddress)
 		output += " [\n"
-		for _, line := range m.logs[i] {
-			output += "  " + line + "\n"
+		if m.logs != nil {
+			for _, line := range m.logs[i] {
+				output += "  " + line + "\n"
+			}
 		}
+
 		output += " ]\n\n"
 	}
 
-	output += "Press q to quit.\n"
+	output += grayStyle.Render("Press q to quit.\n")
 	return output
 }
