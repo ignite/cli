@@ -21,6 +21,8 @@ const (
 	Running
 )
 
+var _ tea.Model = MultiNode{}
+
 type MultiNode struct {
 	ctx  context.Context
 	appd string
@@ -36,11 +38,13 @@ type ToggleNodeMsg struct {
 	nodeIdx int
 }
 
+// UpdateStatusMsg defines a message that updates the status of a node by index.
 type UpdateStatusMsg struct {
 	nodeIdx int
 	status  NodeStatus
 }
 
+// UpdateLogsMsg is for continuously updating the chain logs in the View.
 type UpdateLogsMsg struct{}
 
 func UpdateDeemon() tea.Cmd {
@@ -50,10 +54,10 @@ func UpdateDeemon() tea.Cmd {
 }
 
 // NewModel initializes the model.
-func NewModel(ctx context.Context, chainname string, args chain.MultiNodeArgs) MultiNode {
+func NewModel(ctx context.Context, chainname string, args chain.MultiNodeArgs) (MultiNode, error) {
 	numNodes, err := strconv.Atoi(args.NumValidator)
 	if err != nil {
-		panic(err)
+		return MultiNode{}, err
 	}
 	return MultiNode{
 		ctx:          ctx,
@@ -63,10 +67,10 @@ func NewModel(ctx context.Context, chainname string, args chain.MultiNodeArgs) M
 		pids:         make([]int, numNodes),
 		numNodes:     numNodes,
 		logs:         make([][]string, numNodes), // Initialize logs for each node
-	}
+	}, nil
 }
 
-// Init implements the Update function.
+// Init implements the Init method of the tea.Model interface.
 func (m MultiNode) Init() tea.Cmd {
 	return nil
 }

@@ -46,8 +46,11 @@ func (c ChainCmd) TestnetInPlaceCommand(newChainID, newOperatorAddress string, o
 	return c.daemonCommand(command)
 }
 
+// Options for testnet multi node
 type MultiNodeOption func([]string) []string
 
+// MultiNodeWithChainID returns a MultiNodeOption that appends the chainID option
+// to the provided slice of strings
 func MultiNodeWithChainID(chainID string) MultiNodeOption {
 	return func(s []string) []string {
 		if len(chainID) > 0 {
@@ -57,6 +60,8 @@ func MultiNodeWithChainID(chainID string) MultiNodeOption {
 	}
 }
 
+// MultiNodeWithDirOutput returns a MultiNodeOption that appends the output directory option
+// to the provided slice of strings
 func MultiNodeWithDirOutput(dirOutput string) MultiNodeOption {
 	return func(s []string) []string {
 		if len(dirOutput) > 0 {
@@ -66,6 +71,8 @@ func MultiNodeWithDirOutput(dirOutput string) MultiNodeOption {
 	}
 }
 
+// MultiNodeWithNumValidator returns a MultiNodeOption that appends the number of validators option
+// to the provided slice of strings
 func MultiNodeWithNumValidator(numVal string) MultiNodeOption {
 	return func(s []string) []string {
 		if len(numVal) > 0 {
@@ -75,6 +82,8 @@ func MultiNodeWithNumValidator(numVal string) MultiNodeOption {
 	}
 }
 
+// MultiNodeWithValidatorsStakeAmount returns a MultiNodeOption that appends the stake amounts option
+// to the provided slice of strings
 func MultiNodeWithValidatorsStakeAmount(satkeAmounts string) MultiNodeOption {
 	return func(s []string) []string {
 		if len(satkeAmounts) > 0 {
@@ -84,6 +93,8 @@ func MultiNodeWithValidatorsStakeAmount(satkeAmounts string) MultiNodeOption {
 	}
 }
 
+// MultiNodeDirPrefix returns a MultiNodeOption that appends the node directory prefix option
+// to the provided slice of strings
 func MultiNodeDirPrefix(nodeDirPrefix string) MultiNodeOption {
 	return func(s []string) []string {
 		if len(nodeDirPrefix) > 0 {
