@@ -66,7 +66,7 @@ func NewModel(ctx context.Context, chainname string, args chain.MultiNodeArgs) M
 	}
 }
 
-// Implement the Update function.
+// Init implements the Update function.
 func (m MultiNode) Init() tea.Cmd {
 	return nil
 }
