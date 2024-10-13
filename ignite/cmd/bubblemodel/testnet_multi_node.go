@@ -49,7 +49,7 @@ func UpdateDeemon() tea.Cmd {
 	}
 }
 
-// Initialize the model.
+// NewModel initializes the model.
 func NewModel(ctx context.Context, chainname string, args chain.MultiNodeArgs) MultiNode {
 	numNodes, err := strconv.Atoi(args.NumValidator)
 	if err != nil {
