@@ -78,7 +78,7 @@ func ToggleNode(nodeIdx int) tea.Cmd {
 	}
 }
 
-// Run or stop the node based on its status.
+// RunNode run or stop the node based on its status.
 func RunNode(nodeIdx int, start bool, m MultiNode) tea.Cmd {
 	var (
 		pid  = &m.pids[nodeIdx]
