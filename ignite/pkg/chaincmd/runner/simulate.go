@@ -14,7 +14,6 @@ func (r Runner) Simulation(
 	ctx context.Context,
 	appPath string,
 	enabled bool,
-	verbose bool,
 	config simulation.Config,
 	period uint,
 	genesisTime int64,
@@ -35,7 +34,6 @@ func (r Runner) Simulation(
 			chaincmd.SimappWithLean(config.Lean),
 			chaincmd.SimappWithCommit(config.Commit),
 			chaincmd.SimappWithEnable(enabled),
-			chaincmd.SimappWithVerbose(verbose),
 			chaincmd.SimappWithPeriod(period),
 			chaincmd.SimappWithGenesisTime(genesisTime),
 		))

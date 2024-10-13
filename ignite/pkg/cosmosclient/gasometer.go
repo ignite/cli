@@ -1,8 +1,9 @@
 package cosmosclient
 
 import (
-	"cosmossdk.io/core/transaction"
 	gogogrpc "github.com/cosmos/gogoproto/grpc"
+
+	"cosmossdk.io/core/transaction"
 
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"

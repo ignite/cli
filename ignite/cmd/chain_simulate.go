@@ -22,7 +22,6 @@ const (
 	flagSimappNumBlocks          = "numBlocks"
 	flagSimappBlockSize          = "blockSize"
 	flagSimappLean               = "lean"
-	flagSimappVerbose            = "verbose"
 	flagSimappPeriod             = "period"
 	flagSimappGenesisTime        = "genesisTime"
 )
@@ -42,7 +41,6 @@ func NewChainSimulate() *cobra.Command {
 
 func chainSimulationHandler(cmd *cobra.Command, _ []string) error {
 	var (
-		verbose, _     = cmd.Flags().GetBool(flagSimappVerbose)
 		period, _      = cmd.Flags().GetUint(flagSimappPeriod)
 		genesisTime, _ = cmd.Flags().GetInt64(flagSimappGenesisTime)
 		config         = newConfigFromFlags(cmd)
@@ -64,7 +62,6 @@ func chainSimulationHandler(cmd *cobra.Command, _ []string) error {
 	}
 
 	return c.Simulate(cmd.Context(),
-		chain.SimappWithVerbose(verbose),
 		chain.SimappWithPeriod(period),
 		chain.SimappWithGenesisTime(genesisTime),
 		chain.SimappWithConfig(config),
@@ -117,7 +114,6 @@ func simappFlags(c *cobra.Command) {
 	c.Flags().Bool(flagSimappLean, false, "lean simulation log output")
 
 	// simulation flags
-	c.Flags().BoolP(flagSimappVerbose, "v", false, "verbose log output")
 	c.Flags().Uint(flagSimappPeriod, 0, "run slow invariants only once every period assertions")
 	c.Flags().Int64(flagSimappGenesisTime, 0, "override genesis UNIX time instead of using a random UNIX time")
 }
