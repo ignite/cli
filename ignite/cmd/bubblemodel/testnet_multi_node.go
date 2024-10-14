@@ -141,7 +141,7 @@ func RunNode(nodeIdx int, start bool, m MultiNode) tea.Cmd {
 	}
 }
 
-// Stop all nodes.
+// StopAllNodes stops all nodes.
 func (m *MultiNode) StopAllNodes() {
 	for i := 0; i < m.numNodes; i++ {
 		if m.nodeStatuses[i] == Running {
