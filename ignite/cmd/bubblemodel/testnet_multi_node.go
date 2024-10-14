@@ -25,7 +25,6 @@ const (
 var _ tea.Model = MultiNode{}
 
 type MultiNode struct {
-	ctx  context.Context
 	appd string
 	args chain.MultiNodeArgs
 
