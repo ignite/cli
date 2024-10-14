@@ -187,13 +187,19 @@ func (m MultiNode) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // View renders the interface.
 func (m MultiNode) View() string {
 	// Define styles for the state
-	runningStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("2")) // green
-	stoppedStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("1")) // red
-	tcpStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("3"))     // yellow
-	grayStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("8"))    // gray
-	purpleStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("5"))  // purple
+	runningStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("2"))                                   // green
+	stoppedStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("1"))                                   // red
+	tcpStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("3"))                                       // yellow
+	grayStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("8"))                                      // gray
+	purpleStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("5"))                                    // purple
+	statusBarStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("5")).Background(lipgloss.Color("0")) // Status bar style
 
-	output := purpleStyle.Render("Node Control:")
+	// Add status bar at the top with action information
+	statusBar := statusBarStyle.Render("Press q to quit | Press 1-4 to start/stop corresponding node")
+	output := statusBar + "\n\n"
+
+	// Add node control section
+	output += purpleStyle.Render("Node Control:")
 	for i := 0; i < m.numNodes; i++ {
 		status := stoppedStyle.Render("[Stopped]")
 		if m.nodeStatuses[i] == Running {
@@ -215,6 +221,6 @@ func (m MultiNode) View() string {
 		output += " ]\n\n"
 	}
 
-	output += grayStyle.Render("Press q to quit.\n")
+	output += grayStyle.Render("\nPress q to quit.\n")
 	return output
 }
