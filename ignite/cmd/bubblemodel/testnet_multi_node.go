@@ -14,15 +14,21 @@ import (
 	"github.com/ignite/cli/v29/ignite/services/chain"
 )
 
+// NodeStatus is an integer data type that represents the status of a node.
 type NodeStatus int
 
 const (
+	// Stopped indicates that the node is currently stopped.
 	Stopped NodeStatus = iota
+
+	// Running indicates that the node is currently running.
 	Running
 )
 
+// Make sure MultiNode implements tea.Model interface.
 var _ tea.Model = MultiNode{}
 
+// MultiNode represents a set of nodes, managing state and information related to them.
 type MultiNode struct {
 	appd string
 	args chain.MultiNodeArgs
@@ -33,6 +39,8 @@ type MultiNode struct {
 	logs         [][]string // Store logs for each node
 }
 
+// ToggleNodeMsg is a structure used to pass messages
+// to enable or disable a node based on the node index.
 type ToggleNodeMsg struct {
 	nodeIdx int
 }
@@ -46,6 +54,8 @@ type UpdateStatusMsg struct {
 // UpdateLogsMsg is for continuously updating the chain logs in the View.
 type UpdateLogsMsg struct{}
 
+// UpdateDeemon returns a command that sends an UpdateLogsMsg.
+// This command is intended to continuously refresh the logs displayed in the user interface.
 func UpdateDeemon() tea.Cmd {
 	return func() tea.Msg {
 		return UpdateLogsMsg{}
