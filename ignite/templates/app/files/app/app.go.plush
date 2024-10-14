@@ -1,7 +1,6 @@
 package app
 
 import (
-	_ "embed"
 	"fmt"
 	"io"
 
@@ -47,6 +46,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+
+	"<%= ModulePath %>/docs"
 )
 
 const (
@@ -260,6 +261,9 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
 		panic(err)
 	}
+
+	// register app's OpenAPI routes.
+	docs.RegisterOpenAPIService(Name, apiSvr.Router)
 }
 
 // GetMaccPerms returns a copy of the module account permissions
