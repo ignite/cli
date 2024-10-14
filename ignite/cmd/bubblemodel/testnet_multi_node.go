@@ -2,7 +2,6 @@ package cmdmodel
 
 import (
 	"bufio"
-	"context"
 	"fmt"
 	"os/exec"
 	"path/filepath"
@@ -54,13 +53,12 @@ func UpdateDeemon() tea.Cmd {
 }
 
 // NewModel initializes the model.
-func NewModel(ctx context.Context, chainname string, args chain.MultiNodeArgs) (MultiNode, error) {
+func NewModel(chainname string, args chain.MultiNodeArgs) (MultiNode, error) {
 	numNodes, err := strconv.Atoi(args.NumValidator)
 	if err != nil {
 		return MultiNode{}, err
 	}
 	return MultiNode{
-		ctx:          ctx,
 		appd:         chainname + "d",
 		args:         args,
 		nodeStatuses: make([]NodeStatus, numNodes), // initial states of nodes
