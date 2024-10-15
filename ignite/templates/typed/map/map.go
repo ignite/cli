@@ -710,7 +710,7 @@ func typesCodecModify(replacer placeholder.Replacer, opts *typed.Options) genny.
 		content = replacer.ReplaceOnce(content, typed.Placeholder, replacementImport)
 
 		// Interface
-		templateInterface := `registry.RegisterImplementations((*sdk.Msg)(nil),
+		templateInterface := `registrar.RegisterImplementations((*sdk.Msg)(nil),
 	&MsgCreate%[2]v{},
 	&MsgUpdate%[2]v{},
 	&MsgDelete%[2]v{},

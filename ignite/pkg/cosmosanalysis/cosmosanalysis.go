@@ -25,8 +25,7 @@ const (
 
 var AppImplementation = []string{
 	"AppCodec",
-	"GetKey",
-	"GetMemKey",
+	"TxConfig",
 	"RegisterAPIRoutes",
 }
 

@@ -335,7 +335,7 @@ func (r Registry) DeleteByName(name string) error {
 }
 
 func (r Registry) hdPath() string {
-	return hd.CreateHDPath(sdktypes.GetConfig().GetCoinType(), 0, 0).String()
+	return hd.CreateHDPath(sdktypes.CoinType, 0, 0).String()
 }
 
 func (r Registry) algo() (keyring.SignatureAlgo, error) {
