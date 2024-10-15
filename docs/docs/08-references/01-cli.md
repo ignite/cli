@@ -920,10 +920,7 @@ ignite chain simulate [flags]
       --numBlocks int             number of new blocks to simulate from the initial block height (default 200)
       --params string             custom simulation params file which overrides any random params; cannot be used with genesis
       --period uint               run slow invariants only once every period assertions
-      --printAllInvariants        print all invariants if a broken invariant is found
       --seed int                  simulation random seed (default 42)
-      --simulateEveryOperation    run slow invariants every operation
-  -v, --verbose                   verbose log output
 ```
 
 **Options inherited from parent commands**
@@ -3167,7 +3164,6 @@ ignite scaffold module [name] [flags]
       --clear-cache              clear the build cache (advanced)
       --dep strings              add a dependency on another module
   -h, --help                     help for module
-      --ibc                      add IBC functionality
       --module-configs strings   add module configs
       --ordering string          channel ordering of the IBC module [none|ordered|unordered] (default "none")
       --params strings           add module parameters
