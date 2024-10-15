@@ -9,9 +9,6 @@ const (
 	// StoreKey defines the primary module store key
 	StoreKey = ModuleName
 
-	// MemStoreKey defines the in-memory store key
-	MemStoreKey = "mem_<%= moduleName %>"
-
     <%= if (isIBC) { %>// this line is used by starport scaffolding # ibc/keys/name<% } %>
 )
 
