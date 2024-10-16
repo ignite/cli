@@ -104,6 +104,15 @@ func MultiNodeDirPrefix(nodeDirPrefix string) MultiNodeOption {
 	}
 }
 
+func MultiNodePorts(ports string) MultiNodeOption {
+	return func(s []string) []string {
+		if len(ports) > 0 {
+			return append(s, optionPorts, ports)
+		}
+		return s
+	}
+}
+
 // TestnetMultiNodeCommand return command to start testnet multinode.
 func (c ChainCmd) TestnetMultiNodeCommand(options ...MultiNodeOption) step.Option {
 	command := []string{

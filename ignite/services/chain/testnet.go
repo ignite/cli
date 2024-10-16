@@ -2,7 +2,9 @@ package chain
 
 import (
 	"context"
+	"fmt"
 	"os"
+	"strings"
 
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 )
@@ -41,6 +43,17 @@ type MultiNodeArgs struct {
 	NumValidator          string
 	ValidatorsStakeAmount string
 	NodeDirPrefix         string
+	ListPorts             []uint
+}
+
+func (m MultiNodeArgs) ConvertPorts() string {
+	var result []string
+
+	for _, port := range m.ListPorts {
+		result = append(result, fmt.Sprintf("%d", port))
+	}
+
+	return strings.Join(result, ",")
 }
 
 // If the app state still exists, TestnetMultiNode will reuse it.

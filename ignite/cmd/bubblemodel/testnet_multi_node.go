@@ -213,7 +213,7 @@ func (m MultiNode) View() string {
 			status = runningStyle.Render("[Running]")
 		}
 
-		tcpAddress := tcpStyle.Render(fmt.Sprintf("tcp://127.0.0.1:%d", 26657-3*i))
+		tcpAddress := tcpStyle.Render(fmt.Sprintf("tcp://127.0.0.1:%d", m.args.ListPorts[i]))
 		nodeGray := grayStyle.Render("--node")
 		nodeNumber := purpleStyle.Render(fmt.Sprintf("%d.", i+1))
 

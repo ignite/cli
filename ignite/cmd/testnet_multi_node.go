@@ -12,6 +12,7 @@ import (
 	cmdmodel "github.com/ignite/cli/v29/ignite/cmd/bubblemodel"
 	igcfg "github.com/ignite/cli/v29/ignite/config"
 	v1 "github.com/ignite/cli/v29/ignite/config/chain/v1"
+	"github.com/ignite/cli/v29/ignite/pkg/availableport"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/xfilepath"
 	"github.com/ignite/cli/v29/ignite/services/chain"
@@ -110,11 +111,18 @@ func testnetMultiNode(cmd *cobra.Command, session *cliui.Session) error {
 	if err != nil {
 		return err
 	}
+
+	ports, err := availableport.Find(uint(numVal))
+	if err != nil {
+		return err
+	}
+
 	args := chain.MultiNodeArgs{
 		OutputDir:             outputDir,
 		NumValidator:          strconv.Itoa(numVal),
 		ValidatorsStakeAmount: amountDetails,
 		NodeDirPrefix:         nodeDirPrefix,
+		ListPorts:             ports,
 	}
 
 	resetOnce, _ := cmd.Flags().GetBool(flagResetOnce)

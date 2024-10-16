@@ -64,6 +64,7 @@ const (
 	optionOutPutDir                        = "--output-dir"
 	optionNumValidator                     = "--v"
 	optionNodeDirPrefix                    = "--node-dir-prefix"
+	optionPorts                            = "--list-ports"
 
 	constTendermint = "tendermint"
 	constJSON       = "json"

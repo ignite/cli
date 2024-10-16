@@ -55,6 +55,7 @@ func (c Chain) MultiNode(ctx context.Context, runner chaincmdrunner.Runner, args
 		chaincmd.MultiNodeWithNumValidator(args.NumValidator),
 		chaincmd.MultiNodeWithValidatorsStakeAmount(args.ValidatorsStakeAmount),
 		chaincmd.MultiNodeDirPrefix(args.NodeDirPrefix),
+		chaincmd.MultiNodePorts(args.ConvertPorts()),
 	)
 	return err
 }
