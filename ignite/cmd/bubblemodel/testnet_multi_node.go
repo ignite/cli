@@ -2,6 +2,7 @@ package cmdmodel
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"os/exec"
 	"path/filepath"
@@ -10,6 +11,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/v29/ignite/services/chain"
 )
@@ -30,6 +32,7 @@ var _ tea.Model = MultiNode{}
 
 // MultiNode represents a set of nodes, managing state and information related to them.
 type MultiNode struct {
+	ctx  context.Context
 	appd string
 	args chain.MultiNodeArgs
 
@@ -63,12 +66,13 @@ func UpdateDeemon() tea.Cmd {
 }
 
 // NewModel initializes the model.
-func NewModel(chainname string, args chain.MultiNodeArgs) (MultiNode, error) {
+func NewModel(ctx context.Context, chainname string, args chain.MultiNodeArgs) (MultiNode, error) {
 	numNodes, err := strconv.Atoi(args.NumValidator)
 	if err != nil {
 		return MultiNode{}, err
 	}
 	return MultiNode{
+		ctx:          ctx,
 		appd:         chainname + "d",
 		args:         args,
 		nodeStatuses: make([]NodeStatus, numNodes), // initial states of nodes
@@ -90,7 +94,7 @@ func ToggleNode(nodeIdx int) tea.Cmd {
 	}
 }
 
-// RunNode run or stop the node based on its status.
+// RunNode runs or stops the node based on its status.
 func RunNode(nodeIdx int, start bool, m MultiNode) tea.Cmd {
 	var (
 		pid  = &m.pids[nodeIdx]
@@ -101,7 +105,7 @@ func RunNode(nodeIdx int, start bool, m MultiNode) tea.Cmd {
 	return func() tea.Msg {
 		if start {
 			nodeHome := filepath.Join(args.OutputDir, args.NodeDirPrefix+strconv.Itoa(nodeIdx))
-			// Create the command to run in background as a daemon
+			// Create the command to run in the background as a daemon
 			cmd := exec.Command(appd, "start", "--home", nodeHome)
 
 			// Start the process as a daemon
@@ -122,18 +126,50 @@ func RunNode(nodeIdx int, start bool, m MultiNode) tea.Cmd {
 			}
 
 			*pid = cmd.Process.Pid // Store the PID
-			go func() {
+
+			// Create an errgroup with context
+			g, gCtx := errgroup.WithContext(m.ctx)
+			g.Go(func() error {
 				scanner := bufio.NewScanner(stdout)
 				for scanner.Scan() {
-					line := scanner.Text()
-					// Add log line to the respective node's log slice
-					m.logs[nodeIdx] = append(m.logs[nodeIdx], line)
-					// Keep only the last 5 lines
-					if len(m.logs[nodeIdx]) > 5 {
-						m.logs[nodeIdx] = m.logs[nodeIdx][len(m.logs[nodeIdx])-5:]
+					select {
+					case <-gCtx.Done():
+						// Handle context cancellation
+						return gCtx.Err()
+					default:
+
+						line := scanner.Text()
+						// Add log line to the respective node's log slice
+						m.logs[nodeIdx] = append(m.logs[nodeIdx], line)
+						// Keep only the last 5 lines
+						if len(m.logs[nodeIdx]) > 5 {
+							m.logs[nodeIdx] = m.logs[nodeIdx][len(m.logs[nodeIdx])-5:]
+						}
 					}
 				}
-			}()
+				if err := scanner.Err(); err != nil {
+					return err
+				}
+				return nil
+			})
+
+			// Goroutine to handle stopping the node if context is canceled
+			g.Go(func() error {
+				<-gCtx.Done() // Wait for context to be canceled
+
+				// Stop the daemon process if context is canceled
+				if *pid != 0 {
+					err := syscall.Kill(-*pid, syscall.SIGTERM) // Stop the daemon process
+					if err != nil {
+						fmt.Printf("Failed to stop node %d: %v\n", nodeIdx+1, err)
+					} else {
+						*pid = 0 // Reset PID after stopping
+					}
+				}
+
+				return gCtx.Err()
+			})
+
 			return UpdateStatusMsg{nodeIdx: nodeIdx, status: Running}
 		}
 		// Use kill to stop the node process by PID

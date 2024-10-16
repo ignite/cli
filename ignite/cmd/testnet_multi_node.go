@@ -141,7 +141,7 @@ func testnetMultiNode(cmd *cobra.Command, session *cliui.Session) error {
 
 	time.Sleep(2 * time.Second)
 
-	model, err := cmdmodel.NewModel(c.Name(), args)
+	model, err := cmdmodel.NewModel(cmd.Context(), c.Name(), args)
 	if err != nil {
 		return err
 	}
