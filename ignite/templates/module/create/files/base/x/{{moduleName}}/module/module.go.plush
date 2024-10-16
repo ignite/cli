@@ -8,17 +8,17 @@ import (
 	"cosmossdk.io/core/address"
 	"cosmossdk.io/core/appmodule"
     "cosmossdk.io/core/store"
+	"cosmossdk.io/core/registry"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/depinject/appconfig"
 	"cosmossdk.io/log"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
-	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govtypes "cosmossdk.io/x/gov/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"google.golang.org/grpc"
 	<%= if (isIBC) { %>porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
@@ -32,12 +32,10 @@ import (
 )
 
 var (
-	_ module.AppModuleBasic      = (*AppModule)(nil)
 	_ module.AppModuleSimulation = (*AppModule)(nil)
-	_ module.HasGenesis          = (*AppModule)(nil)
-	_ module.HasInvariants       = (*AppModule)(nil)
-	_ module.HasConsensusVersion = (*AppModule)(nil)
 
+	_ appmodule.HasGenesis          = (*AppModule)(nil)
+	_ appmodule.HasConsensusVersion = (*AppModule)(nil)
 	_ appmodule.AppModule       = (*AppModule)(nil)
 	_ appmodule.HasBeginBlocker = (*AppModule)(nil)
 	_ appmodule.HasEndBlocker   = (*AppModule)(nil)
@@ -51,10 +49,10 @@ var (
 // AppModuleBasic implements the AppModuleBasic interface that defines the
 // independent methods a Cosmos SDK module needs to implement.
 type AppModuleBasic struct {
-	cdc codec.BinaryCodec
+	cdc codec.Codec
 }
 
-func NewAppModuleBasic(cdc codec.BinaryCodec) AppModuleBasic {
+func NewAppModuleBasic(cdc codec.Codec) AppModuleBasic {
 	return AppModuleBasic{cdc: cdc}
 }
 
@@ -63,25 +61,21 @@ func (AppModuleBasic) Name() string {
 	return types.ModuleName
 }
 
-// RegisterLegacyAminoCodec registers the amino codec for the module, which is used
-// to marshal and unmarshal structs to/from []byte in order to persist them in the module's KVStore.
-func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {}
-
 // RegisterInterfaces registers a module's interface types and their concrete implementations as proto.Message.
-func (a AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
-	types.RegisterInterfaces(reg)
+func (a AppModuleBasic) RegisterInterfaces(registrar registry.InterfaceRegistrar) {
+	types.RegisterInterfaces(registrar)
 }
 
 // DefaultGenesis returns a default GenesisState for the module, marshalled to json.RawMessage.
 // The default GenesisState need to be defined by the module developer and is primarily used for testing.
-func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
-	return cdc.MustMarshalJSON(types.DefaultGenesis())
+func (am AppModuleBasic) DefaultGenesis() json.RawMessage {
+	return am.cdc.MustMarshalJSON(types.DefaultGenesis())
 }
 
 // ValidateGenesis used to validate the GenesisState, given in its json.RawMessage form.
-func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
+func (am AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 	var genState types.GenesisState
-	if err := cdc.UnmarshalJSON(bz, &genState); err != nil {
+	if err := am.cdc.UnmarshalJSON(bz, &genState); err != nil {
 		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
 	}
 	return genState.Validate()
@@ -130,32 +124,32 @@ func NewAppModule(
 }
 
 // RegisterServices registers a gRPC query service to respond to the module-specific gRPC queries
-func (am AppModule) RegisterServices(cfg module.Configurator) {
-    types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
-    types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServerImpl(am.keeper))
+func (am AppModule) RegisterServices(registrar grpc.ServiceRegistrar) error {
+    types.RegisterMsgServer(registrar, keeper.NewMsgServerImpl(am.keeper))
+    types.RegisterQueryServer(registrar, keeper.NewQueryServerImpl(am.keeper))
+
+	return nil
 }
 
-// RegisterInvariants registers the invariants of the module. If an invariant deviates from its predicted value, the InvariantRegistry triggers appropriate logic (most often the chain will be halted)
-func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
-
 // InitGenesis performs the module's genesis initialization. It returns no validator updates.
-func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.RawMessage) {
+func (am AppModule) InitGenesis(ctx context.Context, gs json.RawMessage) error {
 	var genState types.GenesisState
 	// Initialize global index to index in genesis state
-	cdc.MustUnmarshalJSON(gs, &genState)
-
-	if err := InitGenesis(ctx, am.keeper, genState); err != nil {
-        panic(err)
+	if err := am.cdc.UnmarshalJSON(gs, &genState); err != nil {
+		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
 	}
+
+	return InitGenesis(ctx, am.keeper, genState)
 }
 
 // ExportGenesis returns the module's exported genesis state as raw JSON bytes.
-func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
+func (am AppModule) ExportGenesis(ctx context.Context) (json.RawMessage, error) {
 	genState, err := ExportGenesis(ctx, am.keeper)
 	if err != nil {
-	    panic(err)
+	    return nil, err
 	}
-	return cdc.MustMarshalJSON(genState)
+
+	return am.cdc.MarshalJSON(genState)
 }
 
 // ConsensusVersion is a sequence number for state-breaking change of the module.

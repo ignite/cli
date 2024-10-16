@@ -20,7 +20,9 @@
 - [#4327](https://github.com/ignite/cli/pull/4327) Use the TxConfig from simState instead create a new one
 - [#4326](https://github.com/ignite/cli/pull/4326) fAdd `buf.build` version to `ignite version` command
 - [#4377](https://github.com/ignite/cli/pull/4377) Add multi node (validator) testnet.
+- [#4326](https://github.com/ignite/cli/pull/4326) Add `buf.build` version to `ignite version` command
 - [#4362](https://github.com/ignite/cli/pull/4362) Scaffold `Makefile`
+- [#4289](https://github.com/ignite/cli/pull/4289) Cosmos SDK v0.52 support
 
 ### Changes
 

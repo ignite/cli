@@ -160,7 +160,7 @@ func TestGenerateAppWithEmptyModule(t *testing.T) {
 				"--yes",
 				"with_dep",
 				"--dep",
-				"account,bank,staking,slashing,example",
+				"auth,bank,staking,slashing,example",
 				"--require-registration",
 			),
 			step.Workdir(app.SourcePath()),
