@@ -253,8 +253,8 @@ create a pull request, or maintain your own fork and submit a cross-repository
 pull request.
 
 Our Ignite CLI bounty program provides incentives for your participation and
-pays rewards. Track new, in-progress, and completed bounties on the [Bounty
-board](https://github.com/ignite/cli/projects/5) in GitHub.
+pays rewards. Track new, in-progress, and completed bounties in the [GitHub Issues
+board](https://github.com/ignite/cli/issues?q=is%3Aissue+is%3Aopen+label%3Abounty).
 
 **Important** Before you start implementing a new Ignite CLI feature, the first
 step is to create an issue on GitHub that describes the proposed changes.
