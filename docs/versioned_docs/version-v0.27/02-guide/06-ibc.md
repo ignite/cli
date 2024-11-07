@@ -26,7 +26,7 @@ end-to-end, connection-oriented, stateful protocol provides reliable, ordered,
 and authenticated communication between heterogeneous blockchains.
 
 The [IBC protocol in the Cosmos
-SDK](https://ibc.cosmos.network/main/ibc/overview.html) is the standard for the
+SDK](https://ibc.cosmos.network/main/ibc/overview) is the standard for the
 interaction between two blockchains. The IBCmodule interface defines how packets
 and messages are constructed to be interpreted by the sending and the receiving
 blockchain.
