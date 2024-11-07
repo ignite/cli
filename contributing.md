@@ -4,8 +4,6 @@ Before submitting a PR to the Ignite CLI repository, please review and follow th
 
 If you have suggestions or want to propose changes to these guidelines, start a new [Discussion topic](https://github.com/ignite/cli/discussions/new) to gather feedback.
 
-For setup instructions, see [Set Up Your Ignite CLI Development Environment](dev-env-setup.md).
-
 To contribute to docs and tutorials, see [Contributing to Ignite CLI Docs](https://docs.ignite.com/contributing).
 
 We appreciate your contribution!
@@ -119,8 +117,6 @@ We use Git Flow as our branch strategy, with each MAJOR release linked to a mile
 
 - **Next Milestone:**  
   The **Next** milestone is used for issues or features that are not tied to a specific release but are still relevant to the project’s roadmap. These issues will be addressed when higher-priority work has been completed, or as part of future planning.
-
-Check the [project board](https://github.com/ignite/cli/projects/7) to see what we're working on and what’s planned.
 
 ## Issue Title Conventions and Labeling
 
