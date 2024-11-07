@@ -3,9 +3,21 @@ module <%= AppName %>
 go 1.23
 
 require (
-	github.com/hashicorp/go-plugin v1.6.0
+	github.com/hashicorp/go-plugin v1.6.2
 	github.com/ignite/cli/v29 v29.0.0
 	github.com/stretchr/testify v1.8.4
 )
 
 replace github.com/ignite/cli/v29 => github.com/ignite/cli/v29 main
+
+// remove once everything is tagged in 0.52
+replace (
+	cosmossdk.io/api => cosmossdk.io/api v0.7.3-0.20241106232657-2290c5ee5582 // main
+	cosmossdk.io/core => cosmossdk.io/core v1.0.0-alpha.4 // main
+	cosmossdk.io/store => cosmossdk.io/store v1.0.0-rc.0.0.20241106232657-2290c5ee5582 // main
+	cosmossdk.io/x/accounts => cosmossdk.io/x/accounts v0.0.0-20241106211233-535aa2f3508e // release/v0.52.x
+	cosmossdk.io/x/bank => cosmossdk.io/x/bank v0.0.0-20241106211233-535aa2f3508e // release/v0.52.x
+	cosmossdk.io/x/consensus => cosmossdk.io/x/consensus v0.0.0-20241106211233-535aa2f3508e // release/v0.52.x
+	cosmossdk.io/x/staking => cosmossdk.io/x/staking v0.0.0-20241106211233-535aa2f3508e // release/v0.52.x
+	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.52.0-beta.2
+)
