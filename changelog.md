@@ -4,22 +4,7 @@
 
 ### Features
 
-- [#3707](https://github.com/ignite/cli/pull/3707) and [#4094](https://github.com/ignite/cli/pull/4094) Add collections support.
-- [#3977](https://github.com/ignite/cli/pull/3977) Add `chain lint` command to lint the chain's codebase using `golangci-lint`
-- [#3770](https://github.com/ignite/cli/pull/3770) Add `scaffold configs` and `scaffold params` commands
-- [#4001](https://github.com/ignite/cli/pull/4001) Improve `xgenny` dry run
-- [#3967](https://github.com/ignite/cli/issues/3967) Add HD wallet parameters `address index` and `account number` to the chain account config
-- [#4004](https://github.com/ignite/cli/pull/4004) Remove all import placeholders using the `xast` pkg
-- [#4071](https://github.com/ignite/cli/pull/4071) Support custom proto path
-- [#3718](https://github.com/ignite/cli/pull/3718) Add `gen-mig-diffs` tool app to compare scaffold output of two versions of ignite
-- [#4100](https://github.com/ignite/cli/pull/4100) Set the `proto-dir` flag only for the `scaffold chain` command and use the proto path from the config
-- [#4111](https://github.com/ignite/cli/pull/4111) Remove vuex generation
-- [#4113](https://github.com/ignite/cli/pull/4113) Generate chain config documentation automatically
-- [#4131](https://github.com/ignite/cli/pull/4131) Support `bytes` as data type in the `scaffold` commands
-- [#4300](https://github.com/ignite/cli/pull/4300) Only panics the module in the most top function level
-- [#4327](https://github.com/ignite/cli/pull/4327) Use the TxConfig from simState instead create a new one
 - [#4377](https://github.com/ignite/cli/pull/4377) Add multi node (validator) testnet.
-- [#4326](https://github.com/ignite/cli/pull/4326) Add `buf.build` version to `ignite version` command
 - [#4362](https://github.com/ignite/cli/pull/4362) Scaffold `Makefile`
 
 ### Changes
