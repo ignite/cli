@@ -7,6 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/stretchr/testify/require"
 
+<<<<<<< HEAD:ignite/cmd/model/chain_debug_test.go
 	cmdmodel "github.com/ignite/cli/v28/ignite/cmd/model"
 	"github.com/ignite/cli/v28/ignite/cmd/model/testdata"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
@@ -14,6 +15,15 @@ import (
 	cliuimodel "github.com/ignite/cli/v28/ignite/pkg/cliui/model"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/events"
+=======
+	cmdmodel "github.com/ignite/cli/v29/ignite/cmd/bubblemodel"
+	"github.com/ignite/cli/v29/ignite/cmd/bubblemodel/testdata"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
+	cliuimodel "github.com/ignite/cli/v29/ignite/pkg/cliui/model"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/events"
+>>>>>>> b7e3ab3c (feat: Add multi node (validator) testnet (#4377)):ignite/cmd/bubblemodel/chain_debug_test.go
 )
 
 func TestChainDebugErrorView(t *testing.T) {

@@ -34,8 +34,14 @@ func initRootCmd(
 	basicManager module.BasicManager,
 ) {
 	rootCmd.AddCommand(
+<<<<<<< HEAD
 		genutilcli.InitCmd(basicManager, app.DefaultNodeHome),
 		NewInPlaceTestnetCmd(addModuleInitFlags),
+=======
+		genutilcli.InitCmd(moduleManager),
+		NewInPlaceTestnetCmd(),
+		NewTestnetMultiNodeCmd(moduleManager),
+>>>>>>> b7e3ab3c (feat: Add multi node (validator) testnet (#4377))
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),
 		pruning.Cmd(newApp, app.DefaultNodeHome),

@@ -47,6 +47,18 @@ func (c Chain) InPlace(ctx context.Context, runner chaincmdrunner.Runner, args I
 	return err
 }
 
+// MultiNode sets up multiple nodes in the chain network with the specified arguments and returns an error if any issue occurs.
+func (c Chain) MultiNode(ctx context.Context, runner chaincmdrunner.Runner, args MultiNodeArgs) error {
+	err := runner.MultiNode(ctx,
+		chaincmd.MultiNodeWithDirOutput(args.OutputDir),
+		chaincmd.MultiNodeWithNumValidator(args.NumValidator),
+		chaincmd.MultiNodeWithValidatorsStakeAmount(args.ValidatorsStakeAmount),
+		chaincmd.MultiNodeDirPrefix(args.NodeDirPrefix),
+		chaincmd.MultiNodePorts(args.ConvertPorts()),
+	)
+	return err
+}
+
 // Start wraps the "appd start" command to begin running a chain from the daemon.
 func (c Chain) Start(ctx context.Context, runner chaincmdrunner.Runner, cfg *chainconfig.Config) error {
 	validator, err := chainconfig.FirstValidator(cfg)
