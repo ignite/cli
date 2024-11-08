@@ -9,13 +9,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
-	cmdmodel "github.com/ignite/cli/v29/ignite/cmd/bubblemodel"
-	igcfg "github.com/ignite/cli/v29/ignite/config"
-	v1 "github.com/ignite/cli/v29/ignite/config/chain/v1"
-	"github.com/ignite/cli/v29/ignite/pkg/availableport"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui"
-	"github.com/ignite/cli/v29/ignite/pkg/xfilepath"
-	"github.com/ignite/cli/v29/ignite/services/chain"
+	cmdmodel "github.com/ignite/cli/v28/ignite/cmd/bubblemodel"
+	igcfg "github.com/ignite/cli/v28/ignite/config"
+	v1 "github.com/ignite/cli/v28/ignite/config/chain/v1"
+	"github.com/ignite/cli/v28/ignite/pkg/availableport"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui"
+	"github.com/ignite/cli/v28/ignite/pkg/xfilepath"
+	"github.com/ignite/cli/v28/ignite/services/chain"
 )
 
 const (
