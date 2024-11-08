@@ -57,7 +57,7 @@ func (r Runner) InPlace(ctx context.Context, newChainID, newOperatorAddress stri
 	)
 }
 
-// Initialize config directories & files for a multi-validator testnet locally
+// Initialize config directories & files for a multi-validator testnet locally.
 func (r Runner) MultiNode(ctx context.Context, options ...chaincmd.MultiNodeOption) error {
 	runOptions := runOptions{
 		stdout: os.Stdout,

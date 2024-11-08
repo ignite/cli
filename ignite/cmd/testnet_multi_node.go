@@ -6,8 +6,9 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cmdmodel "github.com/ignite/cli/v29/ignite/cmd/bubblemodel"
 	igcfg "github.com/ignite/cli/v29/ignite/config"
