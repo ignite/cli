@@ -34,7 +34,7 @@ genesis:
 
 ## Genesis file
 
-For genesis file details and field definitions, see Cosmos Hub documentation for the [Genesis File](https://hub.cosmos.network/resources/genesis).
+For genesis file details and field definitions, see Cosmos Hub documentation for the [Genesis File](https://hub.cosmos.network/main/resources/genesis).
 
 ## Genesis block summary
 
