@@ -3437,6 +3437,7 @@ Start a testnet local
 
 * [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 * [ignite testnet in-place](#ignite-testnet-in-place)	 - Create and start a testnet from current local net state
+* [ignite testnet multi-node](#ignite-testnet-multi-node)	 - Initialize and provide multi-node on/off functionality
 
 
 ## ignite testnet in-place
@@ -3464,6 +3465,60 @@ ignite testnet in-place [flags]
       --quit-on-fail         quit program if the app fails to start
       --skip-proto           skip file generation from proto
   -v, --verbose              verbose output
+```
+
+**SEE ALSO**
+
+* [ignite testnet](#ignite-testnet)	 - Start a testnet local
+
+
+## ignite testnet multi-node
+
+Initialize and provide multi-node on/off functionality
+
+**Synopsis**
+
+Initialize the test network with the number of nodes and bonded from the config.yml file::
+			...
+                  validators:
+                        - name: alice
+                        bonded: 100000000stake
+                        - name: validator1
+                        bonded: 100000000stake
+                        - name: validator2
+                        bonded: 200000000stake
+                        - name: validator3
+                        bonded: 300000000stake
+
+
+			The "multi-node" command allows developers to easily set up, initialize, and manage multiple nodes for a 
+			testnet environment. This command provides full flexibility in enabling or disabling each node as desired, 
+			making it a powerful tool for simulating a multi-node blockchain network during development.
+
+			Usage:
+					ignite testnet multi-node [flags]
+
+		
+
+		
+
+```
+ignite testnet multi-node [flags]
+```
+
+**Options**
+
+```
+      --check-dependencies       verify that cached dependencies have not been modified since they were downloaded
+      --clear-cache              clear the build cache (advanced)
+  -h, --help                     help for multi-node
+      --home string              directory where the blockchain node is initialized
+      --node-dir-prefix string   prefix of dir node (default "validator")
+  -p, --path string              path of the app (default ".")
+      --quit-on-fail             quit program if the app fails to start
+  -r, --reset-once               reset the app state once on init
+      --skip-proto               skip file generation from proto
+  -v, --verbose                  verbose output
 ```
 
 **SEE ALSO**
