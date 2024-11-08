@@ -28,6 +28,7 @@ const (
 	commandUnsafeReset       = "unsafe-reset-all"
 	commandTendermint        = "tendermint"
 	commandTestnetInPlace    = "in-place-testnet"
+	commandTestnetMultiNode  = "multi-node"
 
 	optionHome                             = "--home"
 	optionNode                             = "--node"
@@ -59,6 +60,11 @@ const (
 	optionValidatorPrivateKey              = "--validator-privkey"
 	optionAccountToFund                    = "--accounts-to-fund"
 	optionSkipConfirmation                 = "--skip-confirmation"
+	optionAmountStakes                     = "--validators-stake-amount"
+	optionOutPutDir                        = "--output-dir"
+	optionNumValidator                     = "--v"
+	optionNodeDirPrefix                    = "--node-dir-prefix"
+	optionPorts                            = "--list-ports"
 
 	constTendermint = "tendermint"
 	constJSON       = "json"
