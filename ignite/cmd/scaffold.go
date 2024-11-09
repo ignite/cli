@@ -125,8 +125,8 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 		NewScaffoldMessage(),
 		NewScaffoldQuery(),
 		NewScaffoldPacket(),
-		NewScaffoldVue(),
-		NewScaffoldReact(),
+		// NewScaffoldVue(), // disabled until ts-client works better, in the meantine, ignite app web is the way to go
+		// NewScaffoldReact(), // disabled until ts-client works better, in the meantine, ignite app web is the way to go
 	)
 
 	return c
