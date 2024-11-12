@@ -33,9 +33,9 @@ meant to be edited by hand.
 	flagSetClearCache(c)
 
 	c.AddCommand(NewGenerateGo())
-	// c.AddCommand(NewGenerateTSClient()) // disabled until ts-client works better, in the meantime, ignite app web is the way to go
-	// c.AddCommand(NewGenerateComposables()) // disabled until ts-client works better, in the meantime, ignite app web is the way to go
-	// c.AddCommand(NewGenerateHooks()) // disabled until ts-client works better, in the meantime, ignite app web is the way to go
+	c.AddCommand(NewGenerateTSClient())
+	c.AddCommand(NewGenerateComposables())
+	c.AddCommand(NewGenerateHooks())
 	c.AddCommand(NewGenerateOpenAPI())
 
 	return c
