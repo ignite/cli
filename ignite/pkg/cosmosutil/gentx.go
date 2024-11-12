@@ -7,8 +7,9 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 
-	"github.com/cometbft/cometbft/crypto/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/cometbft/cometbft/crypto/ed25519"
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
@@ -16,11 +17,7 @@ import (
 type (
 	// GentxInfo represents the basic info about gentx file.
 	GentxInfo struct {
-		// Deprecated: Use of Delegator Address in MsgCreateValidator is deprecated.
-		// The validator address bytes and delegator address bytes refer to the same account while creating validator (defer
-		// only in bech32 notation).
 		DelegatorAddress string
-		ValidatorAddress string
 		PubKey           ed25519.PubKey
 		SelfDelegation   sdk.Coin
 		Memo             string
@@ -78,7 +75,6 @@ func ParseGentx(gentxBz []byte) (info GentxInfo, err error) {
 
 	info.Memo = gentx.Body.Memo
 	info.DelegatorAddress = gentx.Body.Messages[0].DelegatorAddress
-	info.ValidatorAddress = gentx.Body.Messages[0].ValidatorAddress
 
 	pb := gentx.Body.Messages[0].PubKey.Key
 	info.PubKey, err = base64.StdEncoding.DecodeString(pb)

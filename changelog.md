@@ -52,7 +52,6 @@
 - [#4000](https://github.com/ignite/cli/pull/4000) Run all dry runners before the wet run in the `xgenny` pkg
 - [#4091](https://github.com/ignite/cli/pull/4091) Fix race conditions in the plugin logic
 - [#4128](https://github.com/ignite/cli/pull/4128) Check for duplicate proto fields in config
-- [#4402](https://github.com/ignite/cli/pull/4402) Fix gentx parser into the cosmosutil package
 
 ## [`v28.5.3`](https://github.com/ignite/cli/releases/tag/v28.5.3)
 

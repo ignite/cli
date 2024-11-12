@@ -29,7 +29,6 @@ func TestParseGentx(t *testing.T) {
 			gentxPath: "testdata/gentx1.json",
 			wantInfo: cosmosutil.GentxInfo{
 				DelegatorAddress: "cosmos1dd246yq6z5vzjz9gh8cff46pll75yyl8ygndsj",
-				ValidatorAddress: "cosmosvaloper1dd246yq6z5vzjz9gh8cff46pll75yyl8pu8cup",
 				PubKey:           ed25519.PubKey(pk1),
 				SelfDelegation: sdk.Coin{
 					Denom:  "stake",
@@ -41,8 +40,7 @@ func TestParseGentx(t *testing.T) {
 			name:      "parse gentx file 2",
 			gentxPath: "testdata/gentx2.json",
 			wantInfo: cosmosutil.GentxInfo{
-				DelegatorAddress: "",
-				ValidatorAddress: "cosmosvaloper1mmlqwyqk7neqegffp99q86eckpm4pjah5sl2dw",
+				DelegatorAddress: "cosmos1mmlqwyqk7neqegffp99q86eckpm4pjah3ytlpa",
 				PubKey:           ed25519.PubKey(pk2),
 				SelfDelegation: sdk.Coin{
 					Denom:  "stake",
