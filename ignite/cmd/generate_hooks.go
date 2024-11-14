@@ -10,9 +10,10 @@ import (
 
 func NewGenerateHooks() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "hooks",
-		Short: "TypeScript frontend client and React hooks",
-		RunE:  generateHooksHandler,
+		Hidden: true, // hidden util we have a better ts-client.
+		Use:    "hooks",
+		Short:  "TypeScript frontend client and React hooks",
+		RunE:   generateHooksHandler,
 	}
 
 	c.Flags().AddFlagSet(flagSetYes())

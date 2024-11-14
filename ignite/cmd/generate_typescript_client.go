@@ -17,8 +17,9 @@ const (
 
 func NewGenerateTSClient() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "ts-client",
-		Short: "TypeScript frontend client",
+		Hidden: true, // hidden util we have a better ts-client.
+		Use:    "ts-client",
+		Short:  "TypeScript frontend client",
 		Long: `Generate a framework agnostic TypeScript client for your blockchain project.
 
 By default the TypeScript client is generated in the "ts-client/" directory. You
