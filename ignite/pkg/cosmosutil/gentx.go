@@ -6,19 +6,10 @@ import (
 	"os"
 
 	sdkmath "cosmossdk.io/math"
-<<<<<<< HEAD
 	"github.com/cometbft/cometbft/crypto/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
-=======
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"github.com/cometbft/cometbft/crypto/ed25519"
-
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
->>>>>>> 68637881 (chore: disable web commands (#4403))
 )
 
 type (
