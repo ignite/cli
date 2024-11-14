@@ -11,6 +11,7 @@ import (
 // NewScaffoldReact scaffolds a React app for a chain.
 func NewScaffoldReact() *cobra.Command {
 	c := &cobra.Command{
+		Hidden:  true, // hidden util we have a better ts-client.
 		Use:     "react",
 		Short:   "React web app template",
 		Args:    cobra.NoArgs,
