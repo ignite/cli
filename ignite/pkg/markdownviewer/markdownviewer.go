@@ -28,6 +28,7 @@ func config(path string) (ui.Config, error) {
 	if err != nil {
 		return ui.Config{}, err
 	}
+	//nolint: gosec
 	width = uint(w)
 	if width > 120 {
 		width = 120

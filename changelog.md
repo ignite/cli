@@ -4,6 +4,7 @@
 
 ### Features
 
+- [#4377](https://github.com/ignite/cli/pull/4377) Add multi node (validator) testnet.
 - [#4362](https://github.com/ignite/cli/pull/4362) Scaffold `Makefile`
 
 ### Changes

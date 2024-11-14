@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"fmt"
 	"io"
 
 	"github.com/imdario/mergo"
@@ -58,8 +59,12 @@ func (c *Config) updateValidatorAddresses() (err error) {
 		if err != nil {
 			return err
 		}
+		portIncrement := margin * i
+		if portIncrement < 0 {
+			return fmt.Errorf("calculated port increment is negative: %d", portIncrement) //nolint: forbidigo
+		}
 
-		servers, err = incrementDefaultServerPortsBy(servers, uint64(margin*i))
+		servers, err = incrementDefaultServerPortsBy(servers, uint64(portIncrement))
 		if err != nil {
 			return err
 		}
