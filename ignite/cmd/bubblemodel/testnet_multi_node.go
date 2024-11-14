@@ -236,7 +236,7 @@ func (m MultiNode) View() string {
 	grayStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("8"))                                  // gray
 	purpleStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("5"))                                // purple
 	statusBarStyle := lipgloss.NewStyle().Background(lipgloss.Color("0"))                             // Status bar style
-	blueStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("45")).Background(lipgloss.Color("0")) //blue
+	blueStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("45")).Background(lipgloss.Color("0")) // blue
 
 	statusBar := blueStyle.Render("Press q to quit | Press 1-4 to ") + statusBarStyle.Render(runningStyle.Render("start")) + blueStyle.Render("/") + statusBarStyle.Render(stoppedStyle.Render("stop")) + blueStyle.Render(" corresponding node")
 	output := statusBar + "\n\n"
