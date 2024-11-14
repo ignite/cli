@@ -1000,69 +1000,8 @@ meant to be edited by hand.
 **SEE ALSO**
 
 * [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-* [ignite generate composables](#ignite-generate-composables)	 - TypeScript frontend client and Vue 3 composables
-* [ignite generate hooks](#ignite-generate-hooks)	 - TypeScript frontend client and React hooks
 * [ignite generate openapi](#ignite-generate-openapi)	 - OpenAPI spec for your chain
 * [ignite generate proto-go](#ignite-generate-proto-go)	 - Compile protocol buffer files to Go source code required by Cosmos SDK
-* [ignite generate ts-client](#ignite-generate-ts-client)	 - TypeScript frontend client
-
-
-## ignite generate composables
-
-TypeScript frontend client and Vue 3 composables
-
-```
-ignite generate composables [flags]
-```
-
-**Options**
-
-```
-  -h, --help            help for composables
-  -o, --output string   Vue 3 composables output path
-  -y, --yes             answers interactive yes/no questions with yes
-```
-
-**Options inherited from parent commands**
-
-```
-      --clear-cache           clear the build cache (advanced)
-      --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
-  -p, --path string           path of the app (default ".")
-```
-
-**SEE ALSO**
-
-* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
-
-
-## ignite generate hooks
-
-TypeScript frontend client and React hooks
-
-```
-ignite generate hooks [flags]
-```
-
-**Options**
-
-```
-  -h, --help            help for hooks
-  -o, --output string   React hooks output path
-  -y, --yes             answers interactive yes/no questions with yes
-```
-
-**Options inherited from parent commands**
-
-```
-      --clear-cache           clear the build cache (advanced)
-      --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
-  -p, --path string           path of the app (default ".")
-```
-
-**SEE ALSO**
-
-* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
 
 
 ## ignite generate openapi
@@ -1106,57 +1045,6 @@ ignite generate proto-go [flags]
 ```
   -h, --help   help for proto-go
   -y, --yes    answers interactive yes/no questions with yes
-```
-
-**Options inherited from parent commands**
-
-```
-      --clear-cache           clear the build cache (advanced)
-      --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
-  -p, --path string           path of the app (default ".")
-```
-
-**SEE ALSO**
-
-* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
-
-
-## ignite generate ts-client
-
-TypeScript frontend client
-
-**Synopsis**
-
-Generate a framework agnostic TypeScript client for your blockchain project.
-
-By default the TypeScript client is generated in the "ts-client/" directory. You
-can customize the output directory in config.yml:
-
-	client:
-	  typescript:
-	    path: new-path
-
-Output can also be customized by using a flag:
-
-	ignite generate ts-client --output new-path
-
-TypeScript client code can be automatically regenerated on reset or source code
-changes when the blockchain is started with a flag:
-
-	ignite chain serve --generate-clients
-
-
-```
-ignite generate ts-client [flags]
-```
-
-**Options**
-
-```
-  -h, --help            help for ts-client
-  -o, --output string   TypeScript client output path
-      --use-cache       use build cache to speed-up generation
-  -y, --yes             answers interactive yes/no questions with yes
 ```
 
 **Options inherited from parent commands**
@@ -2718,10 +2606,8 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 * [ignite scaffold packet](#ignite-scaffold-packet)	 - Message for sending an IBC packet
 * [ignite scaffold params](#ignite-scaffold-params)	 - Parameters for a custom Cosmos SDK module
 * [ignite scaffold query](#ignite-scaffold-query)	 - Query for fetching data from a blockchain
-* [ignite scaffold react](#ignite-scaffold-react)	 - React web app template
 * [ignite scaffold single](#ignite-scaffold-single)	 - CRUD for data stored in a single location
 * [ignite scaffold type](#ignite-scaffold-type)	 - Type definition
-* [ignite scaffold vue](#ignite-scaffold-vue)	 - Vue 3 web app template
 
 
 ## ignite scaffold chain
@@ -3279,27 +3165,6 @@ ignite scaffold query [name] [field1:type1] [field2:type2] ... [flags]
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
 
 
-## ignite scaffold react
-
-React web app template
-
-```
-ignite scaffold react [flags]
-```
-
-**Options**
-
-```
-  -h, --help          help for react
-  -p, --path string   path to scaffold content of the React app (default "./react")
-  -y, --yes           answers interactive yes/no questions with yes
-```
-
-**SEE ALSO**
-
-* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
-
-
 ## ignite scaffold single
 
 CRUD for data stored in a single location
@@ -3389,27 +3254,6 @@ ignite scaffold type NAME [field:type] ... [flags]
   -p, --path string     path of the app (default ".")
       --signer string   label for the message signer (default: creator)
   -y, --yes             answers interactive yes/no questions with yes
-```
-
-**SEE ALSO**
-
-* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
-
-
-## ignite scaffold vue
-
-Vue 3 web app template
-
-```
-ignite scaffold vue [flags]
-```
-
-**Options**
-
-```
-  -h, --help          help for vue
-  -p, --path string   path to scaffold content of the Vue.js app (default "./vue")
-  -y, --yes           answers interactive yes/no questions with yes
 ```
 
 **SEE ALSO**
