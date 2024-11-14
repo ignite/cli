@@ -3755,7 +3755,7 @@ Each validator's bonded stake can be adjusted according to your testing needs, p
 
 The multi-node command not only initializes these nodes but also gives you control over starting, stopping individual nodes. This level of control ensures you can test and iterate rapidly without needing to reinitialize the entire network each time a change is made. This makes it ideal for experimenting with validator behavior, network dynamics, and the impact of various configurations.
 
-All initialized nodes will be stored under the `.ignite/local-chains/<appd>/testnet/` directory, which allows easy access and management.
+All initialized nodes will be stored under the `.ignite/local-chains/<app>/testnet/` directory, which allows easy access and management.
 
 
 Usage

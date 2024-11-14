@@ -7,12 +7,9 @@ import (
 // NewTestnet returns a command that groups scaffolding related sub commands.
 func NewTestnet() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "testnet [command]",
-		Short: "Start a testnet local",
-		Long: `Start a testnet local
-
-`,
-		Aliases: []string{"s"},
+		Use:     "testnet [command]",
+		Short:   "Start a testnet local",
+		Aliases: []string{"t"},
 		Args:    cobra.ExactArgs(1),
 	}
 
