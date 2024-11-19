@@ -220,7 +220,7 @@ ignite scaffold message delete-post id:uint
 This command enables the deletion of posts by their ID.
 
 2. **Delete Logic:**
- 
+
 Implement RemovePost in `x/blog/keeper/post.go` to delete posts from the store.
 
 ```go title="x/blog/keeper/post.go"
@@ -301,7 +301,7 @@ func (k Keeper) ShowPost(goCtx context.Context, req *types.QueryShowPostRequest)
 		return nil, sdkerrors.ErrKeyNotFound
 	}
 
-	return &types.QueryShowPostResponse{Post: post}, nil
+	return &types.QueryShowPostResponse{Post: &post}, nil
 }
 ```
 
@@ -364,6 +364,12 @@ message QueryListPostResponse {
   repeated Post post = 1 [(gogoproto.nullable) = false];
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
+```
+
+Build the blockchain:
+
+```
+ignite chain build
 ```
 
 **Interacting with the Blog**
