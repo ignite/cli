@@ -111,7 +111,7 @@ Add the `PostKey` and `PostCountKey` functions to the `x/blog/types/keys.go` fil
 
 ```go title="x/blog/types/keys.go"
 	// PostKey is used to uniquely identify posts within the system.
-	// It will be used as the beginning of the key for each post, followed bei their unique ID
+	// It will be used as the beginning of the key for each post, followed by their unique ID
 	PostKey = "Post/value/"
 
 	// This key will be used to keep track of the ID of the latest post added to the store.
