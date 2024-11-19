@@ -372,6 +372,12 @@ Build the blockchain:
 ignite chain build
 ```
 
+Start the blockchain:
+
+```
+ignite chain serve
+```
+
 **Interacting with the Blog**
 
 1. **Create a Post:**
