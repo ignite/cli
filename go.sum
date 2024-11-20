@@ -57,27 +57,12 @@ cosmossdk.io/errors v1.0.1 h1:bzu+Kcr0kS/1DuPBtUFdWjzLqyUuCiyHjyJB6srBV/0=
 cosmossdk.io/errors v1.0.1/go.mod h1:MeelVSZThMi4bEakzhhhE/CKqVv3nOJDA25bIqRDu/U=
 cosmossdk.io/log v1.4.1 h1:wKdjfDRbDyZRuWa8M+9nuvpVYxrEOwbD/CA8hvhU8QM=
 cosmossdk.io/log v1.4.1/go.mod h1:k08v0Pyq+gCP6phvdI6RCGhLf/r425UT6Rk/m+o74rU=
-<<<<<<< HEAD
-cosmossdk.io/math v1.3.0 h1:RC+jryuKeytIiictDslBP9i1fhkVm6ZDmZEoNP316zE=
-cosmossdk.io/math v1.3.0/go.mod h1:vnRTxewy+M7BtXBNFybkuhSH4WfedVAAnERHgVFhp3k=
+cosmossdk.io/math v1.4.0 h1:XbgExXFnXmF/CccPPEto40gOO7FpWu9yWNAZPN3nkNQ=
+cosmossdk.io/math v1.4.0/go.mod h1:O5PkD4apz2jZs4zqFdTr16e1dcaQCc5z6lkEnrrppuk=
 cosmossdk.io/store v1.1.1 h1:NA3PioJtWDVU7cHHeyvdva5J/ggyLDkyH0hGHl2804Y=
 cosmossdk.io/store v1.1.1/go.mod h1:8DwVTz83/2PSI366FERGbWSH7hL6sB7HbYp8bqksNwM=
 cosmossdk.io/x/tx v0.13.4 h1:Eg0PbJgeO0gM8p5wx6xa0fKR7hIV6+8lC56UrsvSo0Y=
 cosmossdk.io/x/tx v0.13.4/go.mod h1:BkFqrnGGgW50Y6cwTy+JvgAhiffbGEKW6KF9ufcDpvk=
-=======
-cosmossdk.io/math v1.4.0 h1:XbgExXFnXmF/CccPPEto40gOO7FpWu9yWNAZPN3nkNQ=
-cosmossdk.io/math v1.4.0/go.mod h1:O5PkD4apz2jZs4zqFdTr16e1dcaQCc5z6lkEnrrppuk=
-cosmossdk.io/schema v0.3.1-0.20240930054013-7c6e0388a3f9 h1:DmOoS/1PeY6Ih0hAVlJ69kLMUrLV+TCbfICrZtB1vdU=
-cosmossdk.io/schema v0.3.1-0.20240930054013-7c6e0388a3f9/go.mod h1:RDAhxIeNB4bYqAlF4NBJwRrgtnciMcyyg0DOKnhNZQQ=
-cosmossdk.io/store v1.0.0-rc.0.0.20241106232657-2290c5ee5582 h1:PVMvSrFMaMNy9fJ1D/bvCSS8DepswqJI/VoMuYDeYdA=
-cosmossdk.io/store v1.0.0-rc.0.0.20241106232657-2290c5ee5582/go.mod h1:uaysXSQHWUykekFPvS1JqQ7HM58Zuqcby1DNlLQPWSg=
-cosmossdk.io/x/bank v0.0.0-20241106211233-535aa2f3508e h1:DCULJVM+ztgWJpvRIqZNnSfQNRnyJ/hovP9xBwnGM0E=
-cosmossdk.io/x/bank v0.0.0-20241106211233-535aa2f3508e/go.mod h1:OmcHhLWT30nMpN5kYEQtS7vmLIFXNFFyU2XTaVSpR/s=
-cosmossdk.io/x/staking v0.0.0-20241106211233-535aa2f3508e h1:vdeJrlIqDSMQjS0dSpRWLv6skq2IzX851NjGwQJzZMk=
-cosmossdk.io/x/staking v0.0.0-20241106211233-535aa2f3508e/go.mod h1:ngo+eiaYADHDVslXihZf6ZgA2nWrloHOsiOCRxHVkTY=
-cosmossdk.io/x/tx v1.0.0-alpha.1 h1:5w61etWMQbdCSR7uveWXCnGnD5eQ/64B2vzIhqA80yo=
-cosmossdk.io/x/tx v1.0.0-alpha.1/go.mod h1:xlJjZV1wxZBTCP+ygZx9pNT/XxsfHDPf1H0VhHaUp5w=
->>>>>>> 29b81453 (chore(deps): bump cosmossdk.io/math from 1.3.0 to 1.4.0 (#4416))
 dario.cat/mergo v1.0.0 h1:AGCNq9Evsj31mOgNPcLyXc+4PNABt905YmuqPYYpBWk=
 dario.cat/mergo v1.0.0/go.mod h1:uNxQE+84aUszobStD9th8a29P2fMDhsBdgRYvZOxGmk=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
