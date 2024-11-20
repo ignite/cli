@@ -15,7 +15,14 @@ replace (
 )
 
 require (
+<<<<<<< HEAD
 	cosmossdk.io/math v1.3.0
+=======
+	cosmossdk.io/core v1.0.0
+	cosmossdk.io/math v1.4.0
+	cosmossdk.io/x/bank v0.0.0-20240226161501-23359a0b6d91
+	cosmossdk.io/x/staking v0.0.0-00010101000000-000000000000
+>>>>>>> 29b81453 (chore(deps): bump cosmossdk.io/math from 1.3.0 to 1.4.0 (#4416))
 	github.com/99designs/keyring v1.2.2
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/DATA-DOG/go-sqlmock v1.5.2
