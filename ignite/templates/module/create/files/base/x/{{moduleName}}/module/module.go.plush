@@ -105,12 +105,12 @@ func (am AppModule) InitGenesis(ctx context.Context, gs json.RawMessage) error {
 		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
 	}
 
-	return InitGenesis(ctx, am.keeper, genState)
+	return am.keeper.InitGenesis(ctx, genState)
 }
 
 // ExportGenesis returns the module's exported genesis state as raw JSON bytes.
 func (am AppModule) ExportGenesis(ctx context.Context) (json.RawMessage, error) {
-	genState, err := ExportGenesis(ctx, am.keeper)
+	genState, err := am.keeper.ExportGenesis(ctx)
 	if err != nil {
 	    return nil, err
 	}

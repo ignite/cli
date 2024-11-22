@@ -33,11 +33,10 @@ func init() {
 type ModuleInputs struct {
 	depinject.In
 
-	AddressCodec address.Codec
-	StoreService store.KVStoreService
-	Cdc          codec.Codec
 	Config       *types.Module
-	Logger       log.Logger
+	Environment  appmodule.Environment
+	Cdc          codec.Codec
+	AddressCodec address.Codec
 
 	AccountKeeper types.AccountKeeper
 	BankKeeper    types.BankKeeper<%= for (dependency) in dependencies { %><%= if (dependency.Name != "Bank" && dependency.Name != "Account") { %>
@@ -61,11 +60,10 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
 	}
 	k := keeper.NewKeeper(
+		in.Environment,
 	    in.Cdc,
 		in.AddressCodec,
-		in.StoreService,
-	    in.Logger,
-	    authority.String(), <%= if (isIBC) { %>
+	    authority, <%= if (isIBC) { %>
 		in.IBCKeeperFn,
 		in.CapabilityScopedFn,<% } %><%= for (dependency) in dependencies { %>
         in.<%= dependency.KeeperName() %>,<% } %>
