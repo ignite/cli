@@ -4,12 +4,16 @@
 
 ### Features
 
-- [#4377](https://github.com/ignite/cli/pull/4377) Add multi node (validator) testnet.
+- [#4377](https://github.com/ignite/cli/pull/4377) Add multi node (validator) testnet
 - [#4362](https://github.com/ignite/cli/pull/4362) Scaffold `Makefile`
 
 ### Changes
 
 - [#4376](https://github.com/ignite/cli/pull/4376) Set different chain-id for in place testnet
+
+### Bug Fixes
+
+- [#4421](https://github.com/ignite/cli/pull/4422) Fix typo in simulation template
 
 ## [`v28.5.3`](https://github.com/ignite/cli/releases/tag/v28.5.3)
 

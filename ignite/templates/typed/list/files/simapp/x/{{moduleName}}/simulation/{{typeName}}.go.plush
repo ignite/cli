@@ -96,7 +96,7 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 		var (
 			simAccount = simtypes.Account{}
 			<%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{}
-			msg = &types.MsgUpdate<%= TypeName.UpperCamel %>{}
+			msg = &types.MsgDelete<%= TypeName.UpperCamel %>{}
 			all<%= TypeName.UpperCamel %> = k.GetAll<%= TypeName.UpperCamel %>(ctx)
 			found = false
 		)
