@@ -6,35 +6,36 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/require"
 
-    keepertest "<%= ModulePath %>/testutil/keeper"
     "<%= ModulePath %>/x/<%= ModuleName %>/keeper"
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
 func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
-	k, ctx, addressCodec := keepertest.<%= title(ModuleName) %>Keeper(t)
-	srv := keeper.NewMsgServerImpl(k)
-	<%= MsgSigner.LowerCamel %>, err := addressCodec.BytesToString([]byte("signerAddr__________________"))
+	f := initFixture(t)
+	srv := keeper.NewMsgServerImpl(f.keeper)
+
+	<%= MsgSigner.LowerCamel %>, err := f.addressCodec.BytesToString([]byte("signerAddr__________________"))
 	require.NoError(t, err)
 	expected := &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>}
-    _, err = srv.Create<%= TypeName.UpperCamel %>(ctx, expected)
+    _, err = srv.Create<%= TypeName.UpperCamel %>(f.ctx, expected)
     require.NoError(t, err)
-    rst, err := k.<%= TypeName.UpperCamel %>.Get(ctx)
+    rst, err := k.<%= TypeName.UpperCamel %>.Get(f.ctx)
     require.Nil(t, err)
     require.Equal(t, expected.<%= MsgSigner.UpperCamel %>, rst.<%= MsgSigner.UpperCamel %>)
 }
 
 func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
-	k, ctx, addressCodec := keepertest.<%= title(ModuleName) %>Keeper(t)
-	<%= MsgSigner.LowerCamel %>, err := addressCodec.BytesToString([]byte("signerAddr__________________"))
+	f := initFixture(t)
+	srv := keeper.NewMsgServerImpl(f.keeper)
+	
+	<%= MsgSigner.LowerCamel %>, err := f.addressCodec.BytesToString([]byte("signerAddr__________________"))
 	require.NoError(t, err)
 
-	unauthorizedAddr, err := addressCodec.BytesToString([]byte("unauthorizedAddr___________"))
+	unauthorizedAddr, err := f.addressCodec.BytesToString([]byte("unauthorizedAddr___________"))
 	require.NoError(t, err)
 
-	srv := keeper.NewMsgServerImpl(k)
 	expected := &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>}
-	_, err = srv.Create<%= TypeName.UpperCamel %>(ctx, expected)
+	_, err = srv.Create<%= TypeName.UpperCamel %>(f.ctx, expected)
 	require.NoError(t, err)
 
 	tests := []struct {
@@ -59,12 +60,12 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
-			_, err = srv.Update<%= TypeName.UpperCamel %>(ctx, tc.request)
+			_, err = srv.Update<%= TypeName.UpperCamel %>(f.ctx, tc.request)
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)
 			} else {
 				require.NoError(t, err)
-				rst, err := k.<%= TypeName.UpperCamel %>.Get(ctx)
+				rst, err := f.keeper.<%= TypeName.UpperCamel %>.Get(f.ctx)
 				require.Nil(t, err)
 				require.Equal(t, expected.<%= MsgSigner.UpperCamel %>, rst.<%= MsgSigner.UpperCamel %>)
 			}
@@ -73,15 +74,16 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 }
 
 func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
-	k, ctx, addressCodec := keepertest.<%= title(ModuleName) %>Keeper(t)
-	<%= MsgSigner.LowerCamel %>, err := addressCodec.BytesToString([]byte("signerAddr__________________"))
+	f := initFixture(t)
+	srv := keeper.NewMsgServerImpl(f.keeper)
+	
+	<%= MsgSigner.LowerCamel %>, err := f.addressCodec.BytesToString([]byte("signerAddr__________________"))
 	require.NoError(t, err)
 
-	unauthorizedAddr, err := addressCodec.BytesToString([]byte("unauthorizedAddr___________"))
+	unauthorizedAddr, err := f.addressCodec.BytesToString([]byte("unauthorizedAddr___________"))
 	require.NoError(t, err)
 
-	srv := keeper.NewMsgServerImpl(k)
-	_, err = srv.Create<%= TypeName.UpperCamel %>(ctx, &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>})
+	_, err = srv.Create<%= TypeName.UpperCamel %>(f.ctx, &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>})
 	require.NoError(t, err)
 
 	tests := []struct {
@@ -106,12 +108,12 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
-			_, err = srv.Delete<%= TypeName.UpperCamel %>(ctx, tc.request)
+			_, err = srv.Delete<%= TypeName.UpperCamel %>(f.ctx, tc.request)
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)
 			} else {
 				require.NoError(t, err)
-				found, err := k.<%= TypeName.UpperCamel %>.Has(ctx)
+				found, err := f.keeper.<%= TypeName.UpperCamel %>.Has(f.ctx)
 				require.NoError(t, err)
 				require.False(t, found)
 			}
