@@ -19,7 +19,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
 	expected := &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>}
     _, err = srv.Create<%= TypeName.UpperCamel %>(f.ctx, expected)
     require.NoError(t, err)
-    rst, err := k.<%= TypeName.UpperCamel %>.Get(f.ctx)
+    rst, err := f.keeper.<%= TypeName.UpperCamel %>.Get(f.ctx)
     require.Nil(t, err)
     require.Equal(t, expected.<%= MsgSigner.UpperCamel %>, rst.<%= MsgSigner.UpperCamel %>)
 }
