@@ -96,12 +96,8 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 		var (
 			simAccount = simtypes.Account{}
 			<%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{}
-<<<<<<< HEAD
-			msg = &types.MsgUpdate<%= TypeName.UpperCamel %>{}
-			all<%= TypeName.UpperCamel %> = k.GetAll<%= TypeName.UpperCamel %>(ctx)
-=======
 			msg = &types.MsgDelete<%= TypeName.UpperCamel %>{}
->>>>>>> da55a095 (fix(templates): fix simapp simulation method update->delete (#4421))
+			all<%= TypeName.UpperCamel %> = k.GetAll<%= TypeName.UpperCamel %>(ctx)
 			found = false
 		)
 		for _, obj := range all<%= TypeName.UpperCamel %> {
