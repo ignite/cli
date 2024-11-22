@@ -4,7 +4,7 @@ import (
 	"context"
 
 	<%= if (dependencies.Contains("Staking")) { %>"cosmossdk.io/core/address"
-    stakingtypes "cosmossdk.io/x/staking/types"<% } %>
+    <% } %>
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	<%= if (dependencies.Contains("Authz")) { %>"cosmossdk.io/x/authz"<% } %>
 )
@@ -16,7 +16,7 @@ import (
         // StakingKeeper defines the expected interface for the Staking module.
         type StakingKeeper interface {
         	ConsensusAddressCodec() address.Codec
-        	ValidatorByConsAddr(context.Context, sdk.ConsAddress) (stakingtypes.ValidatorI, error)
+        	ValidatorByConsAddr(context.Context, sdk.ConsAddress) (sdk.ValidatorI, error)
         	// Methods imported from account should be defined here
         }
 
