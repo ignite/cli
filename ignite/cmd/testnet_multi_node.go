@@ -2,6 +2,7 @@ package ignitecmd
 
 import (
 	"os"
+	"path"
 	"strconv"
 	"time"
 
@@ -46,8 +47,6 @@ func NewTestnetMultiNode() *cobra.Command {
 
 			Usage:
 					ignite testnet multi-node [flags]
-
-		
 
 		`,
 		Args: cobra.NoArgs,
@@ -108,7 +107,7 @@ func testnetMultiNode(cmd *cobra.Command, session *cliui.Session) error {
 	}
 	nodeDirPrefix, _ := cmd.Flags().GetString(flagNodeDirPrefix)
 
-	outputDir, err := xfilepath.Join(igcfg.DirPath, xfilepath.Path("local-chains/"+c.Name()+"d/"+"testnet/"))()
+	outputDir, err := xfilepath.Join(igcfg.DirPath, xfilepath.Path(path.Join("local-chains", c.Name(), "testnet")))()
 	if err != nil {
 		return err
 	}
