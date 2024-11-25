@@ -3265,12 +3265,6 @@ ignite scaffold type NAME [field:type] ... [flags]
 
 Start a testnet local
 
-**Synopsis**
-
-Start a testnet local
-
-
-
 **Options**
 
 ```
@@ -3341,8 +3335,6 @@ Initialize the test network with the number of nodes and bonded from the config.
 
 			Usage:
 					ignite testnet multi-node [flags]
-
-		
 
 		
 
