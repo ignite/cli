@@ -1,15 +1,13 @@
-package keeper
+package keeper_test
 
 import (
 	"testing"
 
 	"cosmossdk.io/core/address"
 	"cosmossdk.io/log"
-	"cosmossdk.io/store"
-	"cosmossdk.io/store/metrics"
 	storetypes "cosmossdk.io/store/types"
 	dbm "github.com/cosmos/cosmos-db"
-	"github.com/cosmos/cosmos-sdk/codec"
+	codectestutil "github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -22,33 +20,38 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
+	module "<%= modulePath %>/x/<%= moduleName %>/module"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
-func <%= title(moduleName) %>Keeper(t testing.TB) (keeper.Keeper, sdk.Context, address.Codec) {
+type fixture struct {
+	ctx          context.Context
+	keeper       keeper.Keeper
+	addressCodec address.Codec
+}
+
+func initFixture(t *testing.T) *fixture {
+	t.Helper()
+
+	encCfg := moduletestutil.MakeTestEncodingConfig(codectestutil.CodecOptions{}, module.AppModule{})
+	addressCodec := addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix())
 	storeKey := storetypes.NewKVStoreKey(types.StoreKey)
 
-	db := dbm.NewMemDB()
-	stateStore := store.NewCommitMultiStore(db, log.NewNopLogger(), metrics.NewNoOpMetrics())
-	stateStore.MountStoreWithDB(storeKey, storetypes.StoreTypeIAVL, db)
-	require.NoError(t, stateStore.LoadLatestVersion())
+	env := runtime.NewEnvironment(runtime.NewKVStoreService(storeKey), log.NewTestLogger(t))
+	ctx := testutil.DefaultContextWithDB(t, storeKey, storetypes.NewTransientStoreKey("transient_test")).Ctx
 
-	registry := codectypes.NewInterfaceRegistry()
-	appCodec := codec.NewProtoCodec(registry)
-	capabilityKeeper := capabilitykeeper.NewKeeper(appCodec, storeKey, nil)
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
-	addressCodec := addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix())
 
+	capabilityKeeper := capabilitykeeper.NewKeeper(encCfg.Codec, storeKey, nil)
 	scopedKeeper := capabilityKeeper.ScopeToModule(ibcexported.ModuleName)
 	portKeeper := portkeeper.NewKeeper(scopedKeeper)
 	scopeModule := capabilityKeeper.ScopeToModule(types.ModuleName)
 
 	k := keeper.NewKeeper(
-        appCodec,
+		env,
+        encCfg.Codec,
 		addressCodec,
-        runtime.NewKVStoreService(storeKey),
-        log.NewNopLogger(),
-        authority.String(),
+        authority,
 		func() *ibckeeper.Keeper {
 			return &ibckeeper.Keeper{
 				PortKeeper: &portKeeper,
@@ -60,12 +63,14 @@ func <%= title(moduleName) %>Keeper(t testing.TB) (keeper.Keeper, sdk.Context, a
         nil,<% } %>
     )
 
-	ctx := sdk.NewContext(stateStore, false, log.NewNopLogger())
-
 	// Initialize params
 	if err := k.Params.Set(ctx, types.DefaultParams()); err != nil {
 		t.Fatalf("failed to set params: %v", err)
 	}
-
-	return k, ctx, addressCodec
+	
+	return &fixture{
+		ctx:          ctx,
+		keeper:       k,
+		addressCodec: addressCodec,
+	}
 }
