@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [`v28.6.0`](https://github.com/ignite/cli/releases/tag/v28.6.0)
+
 ### Features
 
 - [#4377](https://github.com/ignite/cli/pull/4377) Add multi node (validator) testnet
