@@ -44,8 +44,6 @@ This command does the following:
 * Creates a directory with module's protocol buffer files in "proto/"
 * Creates a directory with module's boilerplate Go code in "x/"
 * Imports the newly created module by modifying "app/app.go"
-* Creates a file in "testutil/keeper/" that contains logic to create a keeper
-  for testing purposes
 
 This command will proceed with module scaffolding even if "app/app.go" doesn't
 have the required default placeholders. If the placeholders are missing, you

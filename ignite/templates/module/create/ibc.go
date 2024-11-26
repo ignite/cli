@@ -58,7 +58,7 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 
 func genesisModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/genesis.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
