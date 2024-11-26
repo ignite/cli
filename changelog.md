@@ -22,6 +22,7 @@
 - [#4326](https://github.com/ignite/cli/pull/4326) Add `buf.build` version to `ignite version` command
 - [#4362](https://github.com/ignite/cli/pull/4362) Scaffold `Makefile`
 - [#4289](https://github.com/ignite/cli/pull/4289) Cosmos SDK v0.52 support
+- [#4413](https://github.com/ignite/cli/pull/4413) Add `ignite s chain-registry` command
 
 ### Changes
 
