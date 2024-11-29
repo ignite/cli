@@ -18,10 +18,10 @@
 - [#4131](https://github.com/ignite/cli/pull/4131) Support `bytes` as data type in the `scaffold` commands
 - [#4300](https://github.com/ignite/cli/pull/4300) Only panics the module in the most top function level
 - [#4327](https://github.com/ignite/cli/pull/4327) Use the TxConfig from simState instead create a new one
-- [#4377](https://github.com/ignite/cli/pull/4377) Add multi node (validator) testnet.
 - [#4326](https://github.com/ignite/cli/pull/4326) Add `buf.build` version to `ignite version` command
 - [#4362](https://github.com/ignite/cli/pull/4362) Scaffold `Makefile`
 - [#4289](https://github.com/ignite/cli/pull/4289), [#4423](https://github.com/ignite/cli/pull/4423), [#4432](https://github.com/ignite/cli/pull/4432) Cosmos SDK v0.52 support
+- [#4289](https://github.com/ignite/cli/pull/4289), [#4423](https://github.com/ignite/cli/pull/4423) Cosmos SDK v0.52 support
 
 ### Changes
 
@@ -44,7 +44,6 @@
 - [#4295](https://github.com/ignite/cli/pull/4295) Stop scaffolding `pulsar` files
 - [#4317](https://github.com/ignite/cli/pull/4317) Remove xchisel dependency
 - [#4361](https://github.com/ignite/cli/pull/4361) Remove unused `KeyPrefix` method
-- [#4376](https://github.com/ignite/cli/pull/4376) Set different chain-id for in place testnet
 - [#4384](https://github.com/ignite/cli/pull/4384) Compare genesis params into chain genesis tests
 
 ### Fixes
@@ -53,6 +52,21 @@
 - [#4091](https://github.com/ignite/cli/pull/4091) Fix race conditions in the plugin logic
 - [#4128](https://github.com/ignite/cli/pull/4128) Check for duplicate proto fields in config
 - [#4402](https://github.com/ignite/cli/pull/4402) Fix gentx parser into the cosmosutil package
+
+## [`v28.6.0`](https://github.com/ignite/cli/releases/tag/v28.6.0)
+
+### Features
+
+- [#4377](https://github.com/ignite/cli/pull/4377) Add multi node (validator) testnet
+- [#4362](https://github.com/ignite/cli/pull/4362) Scaffold `Makefile`
+
+### Changes
+
+- [#4376](https://github.com/ignite/cli/pull/4376) Set different chain-id for in place testnet
+
+### Bug Fixes
+
+- [#4421](https://github.com/ignite/cli/pull/4422) Fix typo in simulation template
 
 ## [`v28.5.3`](https://github.com/ignite/cli/releases/tag/v28.5.3)
 
