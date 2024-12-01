@@ -114,7 +114,9 @@ func checkAccountBalance(ctx context.Context, t *testing.T, c cosmosclient.Clien
 	require.Len(t, resp.Balances, len(coins))
 	expectedCoins, err := sdk.ParseCoinsNormalized(strings.Join(coins, ","))
 	require.NoError(t, err)
-	require.True(t, resp.Balances.Equal(expectedCoins),
-		fmt.Sprintf("%s should be equals to %s", resp.Balances.String(), expectedCoins.String()),
+	expectedCoins = expectedCoins.Sort()
+	gotCoins := resp.Balances.Sort()
+	require.True(t, gotCoins.Equal(expectedCoins),
+		fmt.Sprintf("%s should be equals to %s", gotCoins.String(), expectedCoins.String()),
 	)
 }
