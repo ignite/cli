@@ -25,7 +25,6 @@ func MsgCreate<%= TypeName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFac
 func MsgUpdate<%= TypeName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFactoryFn[*types.MsgUpdate<%= TypeName.UpperCamel %>] {
 	return func(ctx context.Context, testData *simsx.ChainDataSource, reporter simsx.SimulationReporter) ([]simsx.SimAccount, *types.MsgUpdate<%= TypeName.UpperCamel %>) {
 		var (
-			simAccount = simtypes.Account{}
 			<%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{}
 			msg = &types.MsgUpdate<%= TypeName.UpperCamel %>{}
 			found = false
@@ -40,32 +39,32 @@ func MsgUpdate<%= TypeName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFac
 			return nil, nil
 		}
 
+		simAccount := simsx.SimAccount{}
 		for _, obj := range all<%= TypeName.UpperCamel %> {
-			simAccount, found = FindAccount(accs, obj.<%= MsgSigner.UpperCamel %>)
-			if found {
-				<%= TypeName.LowerCamel %> = obj
+			if ok := testData.HasAccount(obj.<%= MsgSigner.UpperCamel %>); ok {
+				simAccount = testData.GetAccount(reporter, obj.<%= MsgSigner.UpperCamel %>)
 				break
 			}
 		}
-		if !found {
+		if simAccount.Address.Empty() {
 			reporter.Skip("<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found")
 			return nil, nil
 		}
-		msg.<%= MsgSigner.UpperCamel %> = simAccount.Address.String()
+
+		msg.<%= MsgSigner.UpperCamel %> = simAccount.AddressBech32
 		msg.Id = <%= TypeName.LowerCamel %>.Id
 
-		return []simsx.SimAccount{}, msg
+		return []simsx.SimAccount{simAccount}, msg
 	}
 }
 
 func MsgDelete<%= TypeName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFactoryFn[*types.MsgDelete<%= TypeName.UpperCamel %>] {
 	return func(ctx context.Context, testData *simsx.ChainDataSource, reporter simsx.SimulationReporter) ([]simsx.SimAccount, *types.MsgDelete<%= TypeName.UpperCamel %>) {
 		var (
-			simAccount = simtypes.Account{}
 			<%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{}
 			msg = &types.MsgDelete<%= TypeName.UpperCamel %>{}
-			found = false
 		)
+
 		var all<%= TypeName.UpperCamel %> []types.<%= TypeName.UpperCamel %>
 		err := k.<%= TypeName.UpperCamel %>.Walk(ctx, nil, func(key uint64, value types.<%= TypeName.UpperCamel %>) (stop bool, err error) {
 			all<%= TypeName.UpperCamel %> = append(all<%= TypeName.UpperCamel %>, value)
@@ -75,20 +74,22 @@ func MsgDelete<%= TypeName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFac
 			reporter.Skip(err.Error())
 			return nil, nil
 		}
+
+		simAccount := simsx.SimAccount{}
 		for _, obj := range all<%= TypeName.UpperCamel %> {
-			simAccount, found = FindAccount(accs, obj.<%= MsgSigner.UpperCamel %>)
-			if found {
-				<%= TypeName.LowerCamel %> = obj
+			if ok := testData.HasAccount(obj.<%= MsgSigner.UpperCamel %>); ok {
+				simAccount = testData.GetAccount(reporter, obj.<%= MsgSigner.UpperCamel %>)
 				break
 			}
 		}
-		if !found {
+		if simAccount.Address.Empty() {
 			reporter.Skip("<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found")
 			return nil, nil
 		}
-		msg.<%= MsgSigner.UpperCamel %> = simAccount.Address.String()
+
+		msg.<%= MsgSigner.UpperCamel %> = simAccount.AddressBech32
 		msg.Id = <%= TypeName.LowerCamel %>.Id
 
-		return []simsx.SimAccount{}, msg
+		return []simsx.SimAccount{simAccount}, msg
 	}
 }
