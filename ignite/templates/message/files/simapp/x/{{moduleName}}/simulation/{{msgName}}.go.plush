@@ -11,13 +11,15 @@ import (
 )
 
 func Msg<%= MsgName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFactoryFn[*types.Msg<%= MsgName.UpperCamel %>] {
-	return func(_ context.Context, testData *simsx.ChainDataSource, reporter simsx.SimulationReporter) ([]simsx.SimAccount, *types.Msg<%= MsgName.UpperCamel %>) {
+	return func(ctx context.Context, testData *simsx.ChainDataSource, reporter simsx.SimulationReporter) ([]simsx.SimAccount, *types.Msg<%= MsgName.UpperCamel %>) {
+		from := testData.AnyAccount(reporter)
+
 		msg := &types.Msg<%= MsgName.UpperCamel %>{
-			<%= MsgSigner.UpperCamel %>: testData.AnyAccount(reporter).AddressBech32,
+			<%= MsgSigner.UpperCamel %>: from.AddressBech32,
 		}
 
 		// TODO: Handle the <%= MsgName.UpperCamel %> simulation
 		
-		return nil, msg
+		return []simsx.SimAccount{from}, msg
 	}
 }

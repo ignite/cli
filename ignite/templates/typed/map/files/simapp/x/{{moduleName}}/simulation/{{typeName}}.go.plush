@@ -11,23 +11,26 @@ import (
 )
 
 func MsgCreate<%= TypeName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFactoryFn[*types.MsgCreate<%= TypeName.UpperCamel %>] {
-	return func(_ context.Context, testData *simsx.ChainDataSource, reporter simsx.SimulationReporter) ([]simsx.SimAccount, *types.MsgCreate<%= TypeName.UpperCamel %>) {
+	return func(ctx context.Context, testData *simsx.ChainDataSource, reporter simsx.SimulationReporter) ([]simsx.SimAccount, *types.MsgCreate<%= TypeName.UpperCamel %>) {
+		from := testData.AnyAccount(reporter)
+
 		i := r.Int()
 		msg := &types.MsgCreate<%= TypeName.UpperCamel %>{
-			<%= MsgSigner.UpperCamel %>: testData.AnyAccount(reporter).AddressBech32,
+			<%= MsgSigner.UpperCamel %>: from.AddressBech32,
 			<%= Index.Name.UpperCamel %>: <%= Index.ValueLoop() %>,
 		}
 		found, err := k.<%= TypeName.UpperCamel %>.Has(ctx, msg.<%= Index.Name.UpperCamel %>)
 		if err == nil && found {
-			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.UpperCamel %> already exist"), nil, nil
+			reporter.Skip("<%= TypeName.UpperCamel %> already exist")
+			return nil, nil
 		}
-		txCtx := simulation.OperationInput{}
-		return simulation.GenAndDeliverTxWithRandFees(txCtx)
+
+		return []simsx.SimAccount{from}, msg
 	}
 }
 
 func MsgUpdate<%= TypeName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFactoryFn[*types.MsgUpdate<%= TypeName.UpperCamel %>] {
-	return func(_ context.Context, testData *simsx.ChainDataSource, reporter simsx.SimulationReporter) ([]simsx.SimAccount, *types.MsgUpdate<%= TypeName.UpperCamel %>) {
+	return func(ctx context.Context, testData *simsx.ChainDataSource, reporter simsx.SimulationReporter) ([]simsx.SimAccount, *types.MsgUpdate<%= TypeName.UpperCamel %>) {
 		var (
 			simAccount = simtypes.Account{}
 			<%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{}
@@ -41,7 +44,8 @@ func MsgUpdate<%= TypeName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFac
 			return false, nil
 		})
 		if err != nil {
-			panic(err)
+			reporter.Skip(err.Error())
+			return nil, nil
 		}
 		for _, obj := range all<%= TypeName.UpperCamel %> {
 			simAccount, found = FindAccount(accs, obj.<%= MsgSigner.UpperCamel %>)
@@ -51,17 +55,18 @@ func MsgUpdate<%= TypeName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFac
 			}
 		}
 		if !found {
-			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found"), nil, nil
+			reporter.Skip("<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found")
+			return nil, nil
 		}
 		msg.<%= MsgSigner.UpperCamel %> = simAccount.Address.String()
 		msg.<%= Index.Name.UpperCamel %> = <%= TypeName.LowerCamel %>.<%= Index.Name.UpperCamel %>
-		txCtx := simulation.OperationInput{}
-		return simulation.GenAndDeliverTxWithRandFees(txCtx)
+
+		return []simsx.SimAccount{}, msg
 	}
 }
 
 func MsgDelete<%= TypeName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFactoryFn[*types.MsgDelete<%= TypeName.UpperCamel %>] {
-	return func(_ context.Context, testData *simsx.ChainDataSource, reporter simsx.SimulationReporter) ([]simsx.SimAccount, *types.MsgDelete<%= TypeName.UpperCamel %>) {
+	return func(ctx context.Context, testData *simsx.ChainDataSource, reporter simsx.SimulationReporter) ([]simsx.SimAccount, *types.MsgDelete<%= TypeName.UpperCamel %>) {
 		var (
 			simAccount = simtypes.Account{}
 			<%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{}
@@ -74,7 +79,8 @@ func MsgDelete<%= TypeName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFac
 			return false, nil
 		})
 		if err != nil {
-			panic(err)
+			reporter.Skip(err.Error())
+			return nil, nil
 		}
 		for _, obj := range all<%= TypeName.UpperCamel %> {
 			simAccount, found = FindAccount(accs, obj.<%= MsgSigner.UpperCamel %>)
@@ -84,11 +90,12 @@ func MsgDelete<%= TypeName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFac
 			}
 		}
 		if !found {
-			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found"), nil, nil
+			reporter.Skip("<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found")
+			return nil, nil
 		}
 		msg.<%= MsgSigner.UpperCamel %> = simAccount.Address.String()
 		msg.<%= Index.Name.UpperCamel %> = <%= TypeName.LowerCamel %>.<%= Index.Name.UpperCamel %>
-		txCtx := simulation.OperationInput{}
-		return simulation.GenAndDeliverTxWithRandFees(txCtx)
+
+		return []simsx.SimAccount{}, msg
 	}
 }
