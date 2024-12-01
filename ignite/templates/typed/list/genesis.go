@@ -117,7 +117,7 @@ for _, elem := range gs.%[3]vList {
 
 func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/genesis.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -172,7 +172,7 @@ if err != nil {
 
 func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/genesis_test.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/genesis_test.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

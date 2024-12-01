@@ -5,20 +5,19 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	keepertest "<%= modulePath %>/testutil/keeper"
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
 )
 
 func TestParamsQuery(t *testing.T) {
-	k, ctx, _ := keepertest.<%= title(moduleName) %>Keeper(t)
+	f := initFixture(t)
 
-	qs := keeper.NewQueryServerImpl(k)
+	qs := keeper.NewQueryServerImpl(f.keeper)
 	params := types.DefaultParams()
-	require.NoError(t, k.Params.Set(ctx, params))
+	require.NoError(t, f.keeper.Params.Set(f.ctx, params))
 
-	response, err := qs.Params(ctx, &types.QueryParamsRequest{})
+	response, err := qs.Params(f.ctx, &types.QueryParamsRequest{})
 	require.NoError(t, err)
 	require.Equal(t, &types.QueryParamsResponse{Params: params}, response)
 }
