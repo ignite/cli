@@ -101,7 +101,7 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 		})
 	}
 	require.NoError(t, g.Wait())
-	checkAccountBalance(ctx, t, cosmosClient, addr, []string{"130token", "13stake"})
+	checkAccountBalance(ctx, t, cosmosClient, addr, maxCoins)
 }
 
 func checkAccountBalance(ctx context.Context, t *testing.T, c cosmosclient.Client, accAddr string, coins []string) {
