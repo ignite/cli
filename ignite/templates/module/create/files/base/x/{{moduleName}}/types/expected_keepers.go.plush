@@ -3,10 +3,9 @@ package types
 import (
 	"context"
 
-	<%= if (dependencies.Contains("Staking")) { %>"cosmossdk.io/core/address"
-    <% } %>
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	<%= if (dependencies.Contains("Staking")) { %>"cosmossdk.io/core/address"<% } %>
 	<%= if (dependencies.Contains("Authz")) { %>"cosmossdk.io/x/authz"<% } %>
+    sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 <%= for (dependency) in dependencies { %>

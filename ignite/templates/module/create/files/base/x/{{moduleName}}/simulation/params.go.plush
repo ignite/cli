@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"github.com/cosmos/cosmos-sdk/simsx"
+
+	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
 // MsgUpdateParamsFactory creates a gov proposal for param updates
