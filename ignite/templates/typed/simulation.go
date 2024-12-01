@@ -23,13 +23,13 @@ func ModuleSimulationMsgModify(
 		// simulation operations
 		templateOp := `reg.Add(weights.Get("msg_%[4]v", 100 /* determine the simulation weight value */), simulation.Msg%[2]v%[3]vFactory(am.keeper))
 	%[1]v`
-		replacementOp := fmt.Sprintf(templateOp, PlaceholderSimappOperation, msg, typeName.UpperCamel, typeName.Snake)
+		replacementOp := fmt.Sprintf(templateOp, PlaceholderSimappOperation, msg, typeName.UpperCamel, fmt.Sprintf("%s_%s", strings.ToLower(msg), typeName.Snake))
 		content = replacer.Replace(content, PlaceholderSimappOperation, replacementOp)
 
 		if strings.Contains(content, PlaceholderSimappOperationMsg) { // TODO: We need to check if the message has an authority or not
 			templateOpMsg := `reg.Add(weights.Get("msg_%[4]v", 100), simulation.Msg%[2]v%[3]vFactory(am.keeper))
 	%[1]v`
-			replacementOpMsg := fmt.Sprintf(templateOpMsg, PlaceholderSimappOperationMsg, msg, typeName.UpperCamel, typeName.Snake)
+			replacementOpMsg := fmt.Sprintf(templateOpMsg, PlaceholderSimappOperationMsg, msg, typeName.UpperCamel, fmt.Sprintf("%s_%s", strings.ToLower(msg), typeName.Snake))
 			content = replacer.Replace(content, PlaceholderSimappOperationMsg, replacementOpMsg)
 		}
 	}

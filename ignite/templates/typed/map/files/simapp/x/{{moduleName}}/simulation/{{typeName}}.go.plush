@@ -2,6 +2,7 @@ package simulation
 
 import (
 	"math/rand"
+	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/simsx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -10,11 +11,14 @@ import (
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
+// prevent strconv unused error
+var _ = strconv.IntSize
+
 func MsgCreate<%= TypeName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFactoryFn[*types.MsgCreate<%= TypeName.UpperCamel %>] {
 	return func(ctx context.Context, testData *simsx.ChainDataSource, reporter simsx.SimulationReporter) ([]simsx.SimAccount, *types.MsgCreate<%= TypeName.UpperCamel %>) {
 		from := testData.AnyAccount(reporter)
 
-		i := r.Int()
+		i := testData.Rand().Int()
 		msg := &types.MsgCreate<%= TypeName.UpperCamel %>{
 			<%= MsgSigner.UpperCamel %>: from.AddressBech32,
 			<%= Index.Name.UpperCamel %>: <%= Index.ValueLoop() %>,
@@ -34,7 +38,6 @@ func MsgUpdate<%= TypeName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFac
 		var (
 			<%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{}
 			msg = &types.MsgUpdate<%= TypeName.UpperCamel %>{}
-			found = false
 		)
 
 		var all<%= TypeName.UpperCamel %> []types.<%= TypeName.UpperCamel %>

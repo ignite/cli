@@ -27,8 +27,8 @@ func MsgUpdate<%= TypeName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFac
 		var (
 			<%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{}
 			msg = &types.MsgUpdate<%= TypeName.UpperCamel %>{}
-			found = false
 		)
+
 		var all<%= TypeName.UpperCamel %> []types.<%= TypeName.UpperCamel %>
 		err := k.<%= TypeName.UpperCamel %>.Walk(ctx, nil, func(key uint64, value types.<%= TypeName.UpperCamel %>) (stop bool, err error) {
 			all<%= TypeName.UpperCamel %> = append(all<%= TypeName.UpperCamel %>, value)
