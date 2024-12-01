@@ -6,7 +6,6 @@ import (
 	"time"
 
 	sdkmath "cosmossdk.io/math"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	chaincmdrunner "github.com/ignite/cli/v29/ignite/pkg/chaincmd/runner"
@@ -155,6 +154,7 @@ func New(ctx context.Context, ccr chaincmdrunner.Runner, options ...Option) (Fau
 	if len(f.coins) == 0 {
 		Coin(sdkmath.NewInt(DefaultAmount), sdkmath.NewInt(DefaultMaxAmount), DefaultDenom)(&f)
 	}
+	f.coins = f.coins.Sort()
 
 	if f.limitRefreshWindow == 0 {
 		RefreshWindow(DefaultRefreshWindow)(&f)

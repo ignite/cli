@@ -2,7 +2,6 @@ package cosmosfaucet
 
 import (
 	"context"
-	"strings"
 	"sync"
 	"time"
 
@@ -106,7 +105,7 @@ func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sd
 	if err != nil {
 		return err
 	}
-	txHash, err := f.runner.BankSend(ctx, fromAccount.Address, toAccountAddress, strings.Join(coinsStr, ","), chaincmd.BankSendWithFees(f.feeAmount))
+	txHash, err := f.runner.BankSend(ctx, fromAccount.Address, toAccountAddress, coinsStr, chaincmd.BankSendWithFees(f.feeAmount))
 	if err != nil {
 		return err
 	}

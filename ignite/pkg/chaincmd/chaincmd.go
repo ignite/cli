@@ -518,7 +518,7 @@ func BankSendWithFees(fee sdk.Coin) BankSendOption {
 }
 
 // BankSendCommand returns the command for transferring tokens.
-func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string, options ...BankSendOption) step.Option {
+func (c ChainCmd) BankSendCommand(fromAddress, toAddress string, amount []string, options ...BankSendOption) step.Option {
 	command := []string{
 		commandTx,
 	}
@@ -528,7 +528,9 @@ func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string, options
 		"send",
 		fromAddress,
 		toAddress,
-		amount,
+	)
+	command = append(command, amount...)
+	command = append(command,
 		optionBroadcastMode, flags.BroadcastSync,
 		optionYes,
 	)

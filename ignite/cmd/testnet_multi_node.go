@@ -146,7 +146,7 @@ func testnetMultiNode(cmd *cobra.Command, session *cliui.Session) error {
 		return err
 	}
 
-	_, err = tea.NewProgram(model).Run()
+	_, err = tea.NewProgram(model, tea.WithInput(cmd.InOrStdin())).Run()
 	return err
 }
 
