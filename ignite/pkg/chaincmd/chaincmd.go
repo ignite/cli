@@ -2,6 +2,7 @@ package chaincmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -518,7 +519,7 @@ func BankSendWithFees(fee sdk.Coin) BankSendOption {
 }
 
 // BankSendCommand returns the command for transferring tokens.
-func (c ChainCmd) BankSendCommand(fromAddress, toAddress string, amount []string, options ...BankSendOption) step.Option {
+func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string, options ...BankSendOption) step.Option {
 	command := []string{
 		commandTx,
 	}
@@ -529,7 +530,7 @@ func (c ChainCmd) BankSendCommand(fromAddress, toAddress string, amount []string
 		fromAddress,
 		toAddress,
 	)
-	command = append(command, amount...)
+	command = append(command, strings.Split(amount, ",")...)
 	command = append(command,
 		optionBroadcastMode, flags.BroadcastSync,
 		optionYes,

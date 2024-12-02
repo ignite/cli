@@ -70,8 +70,7 @@ func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sd
 	transferMutex.Lock()
 	defer transferMutex.Unlock()
 
-	var coinsStr []string
-
+	transfer := sdk.NewCoins()
 	// check for each coin, the max transferred amount hasn't been reached
 	for _, c := range coins {
 		totalSent, err := f.TotalTransferredAmount(ctx, toAccountAddress, c.Denom)
@@ -97,7 +96,7 @@ func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sd
 			}
 		}
 
-		coinsStr = append(coinsStr, c.String())
+		transfer = transfer.Add(c)
 	}
 
 	// perform transfer for all coins
@@ -105,7 +104,7 @@ func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sd
 	if err != nil {
 		return err
 	}
-	txHash, err := f.runner.BankSend(ctx, fromAccount.Address, toAccountAddress, coinsStr, chaincmd.BankSendWithFees(f.feeAmount))
+	txHash, err := f.runner.BankSend(ctx, fromAccount.Address, toAccountAddress, transfer.String(), chaincmd.BankSendWithFees(f.feeAmount))
 	if err != nil {
 		return err
 	}
