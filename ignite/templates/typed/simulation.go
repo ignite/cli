@@ -10,8 +10,7 @@ import (
 
 func ModuleSimulationMsgModify(
 	replacer placeholder.Replacer,
-	content,
-	moduleName string,
+	content string,
 	typeName multiformatname.Name,
 	msgs ...string,
 ) string {

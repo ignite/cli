@@ -26,10 +26,9 @@ const (
 	optionSimappPeriod             = "-Period"
 	optionSimappGenesisTime        = "-GenesisTime"
 
-	commandGoTest       = "test"
-	optionGoBenchmem    = "-benchmem"
-	optionGoSimappRun   = "-run=^$"
-	optionGoSimappBench = "-bench=^BenchmarkSimulation"
+	commandGoTest     = "test"
+	optionGoBenchmem  = "-benchmem"
+	optionGoSimappRun = "-run=^$"
 )
 
 // SimappOption for the SimulateCommand.
@@ -177,7 +176,6 @@ func SimulationCommand(appPath string, options ...SimappOption) step.Option {
 		commandGoTest,
 		optionGoBenchmem,
 		optionGoSimappRun,
-		optionGoSimappBench,
 		filepath.Join(appPath, "app"),
 	}
 
