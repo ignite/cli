@@ -17,7 +17,7 @@ type TransferRequest struct {
 
 	// Coins that are requested.
 	// default ones used when this one isn't provided.
-	Coins []string `json:"coins"`
+	Coins []string `json:"coins,omitempty"`
 }
 
 func NewTransferRequest(accountAddress string, coins []string) TransferRequest {
@@ -78,16 +78,16 @@ func (f Faucet) faucetInfoHandler(w http.ResponseWriter, _ *http.Request) {
 // coinsFromRequest determines tokens to transfer from transfer request.
 func (f Faucet) coinsFromRequest(req TransferRequest) (sdk.Coins, error) {
 	if len(req.Coins) == 0 {
-		return f.coins, nil
+		return f.coins.Sort(), nil
 	}
 
-	var coins []sdk.Coin
+	coins := sdk.NewCoins()
 	for _, c := range req.Coins {
 		coin, err := sdk.ParseCoinNormalized(c)
 		if err != nil {
 			return nil, err
 		}
-		coins = append(coins, coin)
+		coins = coins.Add(coin)
 	}
 
 	return coins, nil
