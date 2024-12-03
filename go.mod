@@ -72,7 +72,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/manifoldco/promptui v0.9.0
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/moby/moby v24.0.9+incompatible
+	github.com/moby/moby v26.0.0+incompatible
 	github.com/muesli/reflow v0.3.0
 	github.com/nqd/flat v0.2.0
 	github.com/otiai10/copy v1.14.0
