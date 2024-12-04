@@ -2,6 +2,7 @@ package chaincmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -528,7 +529,9 @@ func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string, options
 		"send",
 		fromAddress,
 		toAddress,
-		amount,
+	)
+	command = append(command, strings.Split(amount, ",")...)
+	command = append(command,
 		optionBroadcastMode, flags.BroadcastSync,
 		optionYes,
 	)
