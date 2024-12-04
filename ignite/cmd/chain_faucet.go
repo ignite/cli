@@ -62,9 +62,11 @@ func chainFaucetHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// perform transfer from faucet
-	if err := faucet.Transfer(cmd.Context(), toAddress, parsedCoins); err != nil {
+	hash, err := faucet.Transfer(cmd.Context(), toAddress, parsedCoins)
+	if err != nil {
 		return err
 	}
 
-	return session.Println("📨 Coins sent.")
+	_ = session.Println("📨 Coins sent.")
+	return session.Printf("Transaction Hash: %s\n", hash)
 }
