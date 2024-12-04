@@ -29,7 +29,7 @@ replace (
 	cosmossdk.io/x/slashing => cosmossdk.io/x/slashing v0.0.0-20241202180139-76f8af9617cd
 	cosmossdk.io/x/staking => cosmossdk.io/x/staking v0.0.0-20241202180139-76f8af9617cd
 	cosmossdk.io/x/upgrade => cosmossdk.io/x/upgrade v0.0.0-20241202180139-76f8af9617cd
-	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.52.0-beta.2.0.20241202180139-76f8af9617cd
+	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.52.0-beta.2.0.20241203223452-5a18da34d859
 )
 
 replace (
