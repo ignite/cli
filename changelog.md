@@ -21,6 +21,7 @@
 - [#4326](https://github.com/ignite/cli/pull/4326) Add `buf.build` version to `ignite version` command
 - [#4289](https://github.com/ignite/cli/pull/4289), [#4423](https://github.com/ignite/cli/pull/4423) Cosmos SDK v0.52 support
 - [#4436](https://github.com/ignite/cli/pull/4436) Return tx hash to the faucet API
+- [#4437](https://github.com/ignite/cli/pull/4437) Remove module placeholders
 
 ### Changes
 

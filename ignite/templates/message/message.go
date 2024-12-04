@@ -62,7 +62,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *Options) (*genny.Generato
 
 	g.RunFn(protoTxRPCModify(opts))
 	g.RunFn(protoTxMessageModify(opts))
-	g.RunFn(typesCodecModify(replacer, opts))
+	g.RunFn(typesCodecModify(opts))
 	g.RunFn(clientCliTxModify(replacer, opts))
 
 	template := xgenny.NewEmbedWalker(
@@ -170,7 +170,7 @@ func protoTxMessageModify(opts *Options) genny.RunFn {
 	}
 }
 
-func typesCodecModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+func typesCodecModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/codec.go")
 		f, err := r.Disk.Find(path)

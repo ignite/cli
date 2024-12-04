@@ -63,7 +63,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 	if !opts.NoMessage {
 		// Modifications for new messages
 		g.RunFn(protoTxModify(opts))
-		g.RunFn(typesCodecModify(replacer, opts))
+		g.RunFn(typesCodecModify(opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
 
 		if !opts.NoSimulation {
@@ -342,7 +342,7 @@ func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunF
 	}
 }
 
-func typesCodecModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+func typesCodecModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/codec.go")
 		f, err := r.Disk.Find(path)
