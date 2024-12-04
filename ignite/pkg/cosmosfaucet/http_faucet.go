@@ -28,6 +28,7 @@ func NewTransferRequest(accountAddress string, coins []string) TransferRequest {
 }
 
 type TransferResponse struct {
+	Hash  string `json:"hash,omitempty"`
 	Error string `json:"error,omitempty"`
 }
 
@@ -48,14 +49,15 @@ func (f Faucet) faucetHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// try performing the transfer
-	if err := f.Transfer(r.Context(), req.AccountAddress, coins); err != nil {
+	hash, err := f.Transfer(r.Context(), req.AccountAddress, coins)
+	if err != nil {
 		if errors.Is(err, context.Canceled) {
 			return
 		}
 		responseError(w, http.StatusInternalServerError, err)
-	} else {
-		responseSuccess(w)
+		return
 	}
+	responseSuccess(w, hash)
 }
 
 // FaucetInfoResponse is the faucet info payload.
@@ -93,8 +95,10 @@ func (f Faucet) coinsFromRequest(req TransferRequest) (sdk.Coins, error) {
 	return coins, nil
 }
 
-func responseSuccess(w http.ResponseWriter) {
-	_ = xhttp.ResponseJSON(w, http.StatusOK, TransferResponse{})
+func responseSuccess(w http.ResponseWriter, hash string) {
+	_ = xhttp.ResponseJSON(w, http.StatusOK, TransferResponse{
+		Hash: hash,
+	})
 }
 
 func responseError(w http.ResponseWriter, code int, err error) {

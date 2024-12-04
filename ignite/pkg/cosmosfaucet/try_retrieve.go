@@ -23,7 +23,7 @@ func TryRetrieve(
 	rpcAddress,
 	faucetAddress,
 	accountAddress string,
-) error {
+) (string, error) {
 	var faucetURL *url.URL
 	var err error
 
@@ -35,7 +35,7 @@ func TryRetrieve(
 		faucetURL, err = discoverFaucetURL(ctx, chainID, rpcAddress)
 	}
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, faucetTimeout)
@@ -47,13 +47,13 @@ func TryRetrieve(
 		AccountAddress: accountAddress,
 	})
 	if err != nil {
-		return errors.Wrap(err, "faucet is not operational")
+		return "", errors.Wrap(err, "faucet is not operational")
 	}
 	if resp.Error != "" {
-		return errors.Errorf("faucet is not operational: %s", resp.Error)
+		return "", errors.Errorf("faucet is not operational: %s", resp.Error)
 	}
 
-	return nil
+	return resp.Hash, nil
 }
 
 func discoverFaucetURL(ctx context.Context, chainID, rpcAddress string) (*url.URL, error) {
