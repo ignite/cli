@@ -27,7 +27,7 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 	)
 
 	g.RunFn(genesisModify(replacer, opts))
-	g.RunFn(genesisTypesModify(replacer, opts))
+	g.RunFn(genesisTypesModify(opts))
 	g.RunFn(genesisProtoModify(opts))
 	g.RunFn(keysModify(replacer, opts))
 
@@ -100,7 +100,7 @@ if k.ShouldBound(ctx, genState.PortId) {
 	}
 }
 
-func genesisTypesModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+func genesisTypesModify(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis.go")
 		f, err := r.Disk.Find(path)
@@ -118,19 +118,28 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 		}
 
 		// Default genesis
-		templateDefault := `PortId: PortID,
-%s`
-		replacementDefault := fmt.Sprintf(templateDefault, typed.PlaceholderGenesisTypesDefault)
-		content = replacer.Replace(content, typed.PlaceholderGenesisTypesDefault, replacementDefault)
+		content, err = xast.ModifyFunction(
+			content,
+			"DefaultGenesis",
+			xast.AppendInsideFuncStruct("GenesisState", "PortId", "PortID", -1),
+		)
+		if err != nil {
+			return err
+		}
 
 		// Validate genesis
 		// PlaceholderIBCGenesisTypeValidate
-		templateValidate := `if err := host.PortIdentifierValidator(gs.PortId); err != nil {
+		replacementTypesValidate := `if err := host.PortIdentifierValidator(gs.PortId); err != nil {
 	return err
-}
-%s`
-		replacementValidate := fmt.Sprintf(templateValidate, typed.PlaceholderGenesisTypesValidate)
-		content = replacer.Replace(content, typed.PlaceholderGenesisTypesValidate, replacementValidate)
+}`
+		content, err = xast.ModifyFunction(
+			content,
+			"Validate",
+			xast.AppendFuncCode(replacementTypesValidate),
+		)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

@@ -14,6 +14,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/typed"
 )
@@ -350,18 +351,26 @@ func typesCodecModify(replacer placeholder.Replacer, opts *typed.Options) genny.
 		}
 
 		// Import
-		replacementImport := `sdk "github.com/cosmos/cosmos-sdk/types"`
-		content := replacer.ReplaceOnce(f.String(), typed.Placeholder, replacementImport)
+		content, err := xast.AppendImports(f.String(), xast.WithLastNamedImport("sdk", "github.com/cosmos/cosmos-sdk/types"))
+		if err != nil {
+			return err
+		}
 
 		// Interface
 		templateInterface := `registrar.RegisterImplementations((*sdk.Msg)(nil),
-	&MsgCreate%[2]v{},
-	&MsgUpdate%[2]v{},
-	&MsgDelete%[2]v{},
-)
-%[1]v`
-		replacementInterface := fmt.Sprintf(templateInterface, typed.Placeholder3, opts.TypeName.UpperCamel)
-		content = replacer.Replace(content, typed.Placeholder3, replacementInterface)
+	&MsgCreate%[1]v{},
+	&MsgUpdate%[1]v{},
+	&MsgDelete%[1]v{},
+)`
+		replacementInterface := fmt.Sprintf(templateInterface, opts.TypeName.UpperCamel)
+		content, err = xast.ModifyFunction(
+			content,
+			"RegisterInterfaces",
+			xast.AppendFuncAtLine(replacementInterface, 0),
+		)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

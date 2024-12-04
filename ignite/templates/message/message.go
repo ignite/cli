@@ -14,6 +14,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"
 	"github.com/ignite/cli/v29/ignite/templates/testutil"
@@ -176,19 +177,29 @@ func typesCodecModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 		if err != nil {
 			return err
 		}
-		replacementImport := `sdk "github.com/cosmos/cosmos-sdk/types"`
-		content := replacer.ReplaceOnce(f.String(), Placeholder, replacementImport)
+
+		// Import
+		content, err := xast.AppendImports(f.String(), xast.WithLastNamedImport("sdk", "github.com/cosmos/cosmos-sdk/types"))
+		if err != nil {
+			return err
+		}
 
 		templateRegisterImplementations := `registrar.RegisterImplementations((*sdk.Msg)(nil),
-	&Msg%[2]v{},
-)
-%[1]v`
+	&Msg%[1]v{},
+)`
 		replacementRegisterImplementations := fmt.Sprintf(
 			templateRegisterImplementations,
-			Placeholder3,
 			opts.MsgName.UpperCamel,
 		)
-		content = replacer.Replace(content, Placeholder3, replacementRegisterImplementations)
+
+		content, err = xast.ModifyFunction(
+			content,
+			"RegisterInterfaces",
+			xast.AppendFuncAtLine(replacementRegisterImplementations, 0),
+		)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

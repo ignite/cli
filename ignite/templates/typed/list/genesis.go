@@ -16,7 +16,7 @@ import (
 
 func genesisModify(replacer placeholder.Replacer, opts *typed.Options, g *genny.Generator) {
 	g.RunFn(genesisProtoModify(opts))
-	g.RunFn(genesisTypesModify(replacer, opts))
+	g.RunFn(genesisTypesModify(opts))
 	g.RunFn(genesisModuleModify(replacer, opts))
 	g.RunFn(genesisTestsModify(replacer, opts))
 	g.RunFn(genesisTypesTestsModify(replacer, opts))
@@ -67,7 +67,7 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 	}
 }
 
-func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+func genesisTypesModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis.go")
 		f, err := r.Disk.Find(path)
@@ -80,35 +80,42 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			return err
 		}
 
-		templateTypesDefault := `%[2]vList: []%[2]v{},
-%[1]v`
-		replacementTypesDefault := fmt.Sprintf(
-			templateTypesDefault,
-			typed.PlaceholderGenesisTypesDefault,
-			opts.TypeName.UpperCamel,
-		)
-		content = replacer.Replace(content, typed.PlaceholderGenesisTypesDefault, replacementTypesDefault)
+		// add parameter to the struct into the new method.
+		content, err = xast.ModifyFunction(content, "DefaultGenesis", xast.AppendInsideFuncStruct(
+			"GenesisState",
+			fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
+			fmt.Sprintf("[]%[1]v{}", opts.TypeName.UpperCamel),
+			-1,
+		))
+		if err != nil {
+			return err
+		}
 
-		templateTypesValidate := `// Check for duplicated ID in %[2]v
-%[2]vIdMap := make(map[uint64]bool)
-%[2]vCount := gs.Get%[3]vCount()
-for _, elem := range gs.%[3]vList {
-	if _, ok := %[2]vIdMap[elem.Id]; ok {
-		return fmt.Errorf("duplicated id for %[2]v")
+		templateTypesValidate := `// Check for duplicated ID in %[1]v
+%[1]vIdMap := make(map[uint64]bool)
+%[1]vCount := gs.Get%[2]vCount()
+for _, elem := range gs.%[2]vList {
+	if _, ok := %[1]vIdMap[elem.Id]; ok {
+		return fmt.Errorf("duplicated id for %[1]v")
 	}
-	if elem.Id >= %[2]vCount {
-		return fmt.Errorf("%[2]v id should be lower or equal than the last id")
+	if elem.Id >= %[1]vCount {
+		return fmt.Errorf("%[1]v id should be lower or equal than the last id")
 	}
-	%[2]vIdMap[elem.Id] = true
-}
-%[1]v`
+	%[1]vIdMap[elem.Id] = true
+}`
 		replacementTypesValidate := fmt.Sprintf(
 			templateTypesValidate,
-			typed.PlaceholderGenesisTypesValidate,
 			opts.TypeName.LowerCamel,
 			opts.TypeName.UpperCamel,
 		)
-		content = replacer.Replace(content, typed.PlaceholderGenesisTypesValidate, replacementTypesValidate)
+		content, err = xast.ModifyFunction(
+			content,
+			"Validate",
+			xast.AppendFuncCode(replacementTypesValidate),
+		)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

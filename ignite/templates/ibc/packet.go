@@ -13,11 +13,11 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/pkg/xstrings"
 	"github.com/ignite/cli/v29/ignite/templates/field"
 	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"
-	"github.com/ignite/cli/v29/ignite/templates/module"
 	"github.com/ignite/cli/v29/ignite/templates/testutil"
 	"github.com/ignite/cli/v29/ignite/templates/typed"
 )
@@ -79,7 +79,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	if !opts.NoMessage {
 		g.RunFn(protoTxModify(opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
-		g.RunFn(codecModify(replacer, opts))
+		g.RunFn(codecModify(opts))
 		if err := g.Box(messagesTemplate); err != nil {
 			return g, err
 		}
@@ -378,7 +378,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny
 	}
 }
 
-func codecModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
+func codecModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/codec.go")
 		f, err := r.Disk.Find(path)
@@ -387,16 +387,24 @@ func codecModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 		}
 
 		// Set import if not set yet
-		replacement := `sdk "github.com/cosmos/cosmos-sdk/types"`
-		content := replacer.ReplaceOnce(f.String(), module.Placeholder, replacement)
+		content, err := xast.AppendImports(f.String(), xast.WithLastNamedImport("sdk", "github.com/cosmos/cosmos-sdk/types"))
+		if err != nil {
+			return err
+		}
 
 		// Register the module packet interface
 		templateInterface := `registrar.RegisterImplementations((*sdk.Msg)(nil),
-	&MsgSend%[2]v{},
-)
-%[1]v`
-		replacementInterface := fmt.Sprintf(templateInterface, module.Placeholder3, opts.PacketName.UpperCamel)
-		content = replacer.Replace(content, module.Placeholder3, replacementInterface)
+	&MsgSend%[1]v{},
+)`
+		replacementInterface := fmt.Sprintf(templateInterface, opts.PacketName.UpperCamel)
+		content, err = xast.ModifyFunction(
+			content,
+			"RegisterInterfaces",
+			xast.AppendFuncAtLine(replacementInterface, 0),
+		)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

@@ -15,6 +15,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/module"
 	"github.com/ignite/cli/v29/ignite/templates/typed"
@@ -58,7 +59,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 	g.RunFn(keeperModify(replacer, opts))
 	g.RunFn(clientCliQueryModify(replacer, opts))
 	g.RunFn(genesisProtoModify(opts))
-	g.RunFn(genesisTypesModify(replacer, opts))
+	g.RunFn(genesisTypesModify(opts))
 	g.RunFn(genesisModuleModify(replacer, opts))
 	g.RunFn(genesisTestsModify(replacer, opts))
 	g.RunFn(genesisTypesTestsModify(replacer, opts))
@@ -67,7 +68,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 	if !opts.NoMessage {
 		g.RunFn(protoTxModify(opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
-		g.RunFn(typesCodecModify(replacer, opts))
+		g.RunFn(typesCodecModify(opts))
 
 		if !opts.NoSimulation {
 			g.RunFn(moduleSimulationModify(replacer, opts))
@@ -265,7 +266,7 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 	}
 }
 
-func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+func genesisTypesModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis.go")
 		f, err := r.Disk.Find(path)
@@ -273,14 +274,15 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			return err
 		}
 
-		templateTypesDefault := `%[2]v: nil,
-%[1]v`
-		replacementTypesDefault := fmt.Sprintf(
-			templateTypesDefault,
-			typed.PlaceholderGenesisTypesDefault,
-			opts.TypeName.UpperCamel,
-		)
-		content := replacer.Replace(f.String(), typed.PlaceholderGenesisTypesDefault, replacementTypesDefault)
+		content, err := xast.ModifyFunction(f.String(), "DefaultGenesis", xast.AppendInsideFuncStruct(
+			"GenesisState",
+			fmt.Sprintf("%[1]v", opts.TypeName.UpperCamel),
+			"nil",
+			-1,
+		))
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -550,7 +552,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 	}
 }
 
-func typesCodecModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+func typesCodecModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/codec.go")
 		f, err := r.Disk.Find(path)
@@ -558,25 +560,30 @@ func typesCodecModify(replacer placeholder.Replacer, opts *typed.Options) genny.
 			return err
 		}
 
-		content := f.String()
-
 		// Import
-		replacementImport := `sdk "github.com/cosmos/cosmos-sdk/types"`
-		content = replacer.ReplaceOnce(content, typed.Placeholder, replacementImport)
+		content, err := xast.AppendImports(f.String(), xast.WithLastNamedImport("sdk", "github.com/cosmos/cosmos-sdk/types"))
+		if err != nil {
+			return err
+		}
 
 		// Interface
 		templateInterface := `registrar.RegisterImplementations((*sdk.Msg)(nil),
-	&MsgCreate%[2]v{},
-	&MsgUpdate%[2]v{},
-	&MsgDelete%[2]v{},
-)
-%[1]v`
+	&MsgCreate%[1]v{},
+	&MsgUpdate%[1]v{},
+	&MsgDelete%[1]v{},
+)`
 		replacementInterface := fmt.Sprintf(
 			templateInterface,
-			typed.Placeholder3,
 			opts.TypeName.UpperCamel,
 		)
-		content = replacer.Replace(content, typed.Placeholder3, replacementInterface)
+		content, err = xast.ModifyFunction(
+			content,
+			"RegisterInterfaces",
+			xast.AppendFuncAtLine(replacementInterface, 0),
+		)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

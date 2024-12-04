@@ -2,9 +2,6 @@ package module
 
 //nolint:godot
 const (
-	Placeholder  = "// this line is used by starport scaffolding # 1"
-	Placeholder3 = "// this line is used by starport scaffolding # 3"
-
 	// Placeholders in app.go
 	PlaceholderSgAppKeeperDeclaration = "// this line is used by starport scaffolding # stargate/app/keeperDeclaration"
 	PlaceholderSgAppInitGenesis       = "// this line is used by starport scaffolding # stargate/app/initGenesis"
