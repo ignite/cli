@@ -3,7 +3,6 @@ package cosmosfaucet
 import (
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 
 	"github.com/ignite/cli/v29/ignite/pkg/openapiconsole"
@@ -12,23 +11,33 @@ import (
 // ServeHTTP implements http.Handler to expose the functionality of Faucet.Transfer() via HTTP.
 // request/response payloads are compatible with the previous implementation at allinbits/cosmos-faucet.
 func (f Faucet) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	router := mux.NewRouter()
+	mux := http.NewServeMux()
 
-	router.
-		Handle("/", cors.Default().Handler(http.HandlerFunc(f.faucetHandler))).
-		Methods(http.MethodPost, http.MethodOptions)
+	mux.Handle("/", cors.Default().Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost || r.Method == http.MethodOptions {
+			f.faucetHandler(w, r)
+		} else if r.Method == http.MethodGet {
+			openapiconsole.Handler("Faucet", "openapi.yml")(w, r)
+		} else {
+			http.NotFound(w, r)
+		}
+	})))
 
-	router.
-		Handle("/info", cors.Default().Handler(http.HandlerFunc(f.faucetInfoHandler))).
-		Methods(http.MethodGet, http.MethodOptions)
+	mux.Handle("/info", cors.Default().Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet || r.Method == http.MethodOptions {
+			f.faucetInfoHandler(w, r)
+		} else {
+			http.NotFound(w, r)
+		}
+	})))
 
-	router.
-		HandleFunc("/", openapiconsole.Handler("Faucet", "openapi.yml")).
-		Methods(http.MethodGet)
+	mux.HandleFunc("/openapi.yml", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			f.openAPISpecHandler(w, r)
+		} else {
+			http.NotFound(w, r)
+		}
+	})
 
-	router.
-		HandleFunc("/openapi.yml", f.openAPISpecHandler).
-		Methods(http.MethodGet)
-
-	router.ServeHTTP(w, r)
+	mux.ServeHTTP(w, r)
 }
