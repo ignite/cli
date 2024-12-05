@@ -78,7 +78,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	// Add the send message
 	if !opts.NoMessage {
 		g.RunFn(protoTxModify(opts))
-		g.RunFn(clientCliTxModify(replacer, opts))
+		g.RunFn(clientCliTxModify(opts))
 		g.RunFn(codecModify(opts))
 		if err := g.Box(messagesTemplate); err != nil {
 			return g, err
@@ -362,17 +362,23 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 }
 
 // clientCliTxModify does not use AutoCLI here, because it as a better UX as it is.
-func clientCliTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
+func clientCliTxModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		filePath := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/tx.go")
 		f, err := r.Disk.Find(filePath)
 		if err != nil {
 			return err
 		}
-		template := `cmd.AddCommand(CmdSend%[2]v())
-%[1]v`
-		replacement := fmt.Sprintf(template, Placeholder, opts.PacketName.UpperCamel)
-		content := replacer.Replace(f.String(), Placeholder, replacement)
+		replacement := fmt.Sprintf("cmd.AddCommand(CmdSend%[1]v())", opts.PacketName.UpperCamel)
+		content, err := xast.ModifyFunction(
+			f.String(),
+			"GetTxCmd",
+			xast.AppendFuncCode(replacement),
+		)
+		if err != nil {
+			return err
+		}
+
 		newFile := genny.NewFileS(filePath, content)
 		return r.File(newFile)
 	}

@@ -17,7 +17,7 @@ import (
 func genesisModify(replacer placeholder.Replacer, opts *typed.Options, g *genny.Generator) {
 	g.RunFn(genesisProtoModify(opts))
 	g.RunFn(genesisTypesModify(opts))
-	g.RunFn(genesisModuleModify(replacer, opts))
+	g.RunFn(genesisModuleModify(opts))
 	g.RunFn(genesisTestsModify(replacer, opts))
 	g.RunFn(genesisTypesTestsModify(replacer, opts))
 }
@@ -122,7 +122,7 @@ for _, elem := range gs.%[2]vList {
 	}
 }
 
-func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+func genesisModuleModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/genesis.go")
 		f, err := r.Disk.Find(path)
@@ -130,47 +130,56 @@ func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) gen
 			return err
 		}
 
-		templateModuleInit := `// Set all the %[2]v
-for _, elem := range genState.%[3]vList {
-	if err := k.%[3]v.Set(ctx, elem.Id, elem); err != nil {
+		templateModuleInit := `// Set all the %[1]v
+for _, elem := range genState.%[2]vList {
+	if err := k.%[2]v.Set(ctx, elem.Id, elem); err != nil {
 		return err
 	}
 }
 
-// Set %[2]v count
-if err := k.%[3]vSeq.Set(ctx, genState.%[3]vCount); err != nil {
+// Set %[1]v count
+if err := k.%[2]vSeq.Set(ctx, genState.%[2]vCount); err != nil {
 	return err
-}
-%[1]v`
+}`
 		replacementModuleInit := fmt.Sprintf(
 			templateModuleInit,
-			typed.PlaceholderGenesisModuleInit,
 			opts.TypeName.LowerCamel,
 			opts.TypeName.UpperCamel,
 		)
-		content := replacer.Replace(f.String(), typed.PlaceholderGenesisModuleInit, replacementModuleInit)
+		content, err := xast.ModifyFunction(
+			f.String(),
+			"InitGenesis",
+			xast.AppendFuncCode(replacementModuleInit),
+		)
+		if err != nil {
+			return err
+		}
 
 		templateModuleExport := `
-err = k.%[2]v.Walk(ctx, nil, func(key uint64, elem types.%[2]v) (bool, error) {
-		genesis.%[2]vList = append(genesis.%[2]vList, elem)
+err = k.%[1]v.Walk(ctx, nil, func(key uint64, elem types.%[1]v) (bool, error) {
+		genesis.%[1]vList = append(genesis.%[1]vList, elem)
 		return false, nil
 })
 if err != nil {
 	return nil, err
 }
 
-genesis.%[2]vCount, err = k.%[2]vSeq.Peek(ctx)
+genesis.%[1]vCount, err = k.%[1]vSeq.Peek(ctx)
 if err != nil {
 	return nil, err
-}
-
-%[1]v`
+}`
 		replacementModuleExport := fmt.Sprintf(
 			templateModuleExport,
-			typed.PlaceholderGenesisModuleExport,
 			opts.TypeName.UpperCamel,
 		)
-		content = replacer.Replace(content, typed.PlaceholderGenesisModuleExport, replacementModuleExport)
+		content, err = xast.ModifyFunction(
+			content,
+			"ExportGenesis",
+			xast.AppendFuncCode(replacementModuleExport),
+		)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

@@ -16,7 +16,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/xstrings"
 	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"
 	"github.com/ignite/cli/v29/ignite/templates/module"
-	"github.com/ignite/cli/v29/ignite/templates/typed"
 )
 
 // NewIBC returns the generator to scaffold the implementation of the IBCModule interface inside a module.
@@ -26,7 +25,7 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 		template = xgenny.NewEmbedWalker(fsIBC, "files/ibc/", opts.AppPath)
 	)
 
-	g.RunFn(genesisModify(replacer, opts))
+	g.RunFn(genesisModify(opts))
 	g.RunFn(genesisTypesModify(opts))
 	g.RunFn(genesisProtoModify(opts))
 	g.RunFn(keysModify(replacer, opts))
@@ -56,7 +55,7 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 	return g, nil
 }
 
-func genesisModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+func genesisModify(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/genesis.go")
 		f, err := r.Disk.Find(path)
@@ -74,8 +73,7 @@ func genesisModify(replacer placeholder.Replacer, opts *CreateOptions) genny.Run
 		}
 
 		// Genesis init
-		templateInit := `%s
-k.SetPort(ctx, genState.PortId)
+		replacementModuleInit := `k.SetPort(ctx, genState.PortId)
 // Only try to bind to port if it is not already bound, since we may already own
 // port capability from capability InitGenesis
 if k.ShouldBound(ctx, genState.PortId) {
@@ -86,14 +84,25 @@ if k.ShouldBound(ctx, genState.PortId) {
 		return errors.Wrap(err, "could not claim port capability")
 	}
 }`
-		replacementInit := fmt.Sprintf(templateInit, typed.PlaceholderGenesisModuleInit)
-		content = replacer.Replace(content, typed.PlaceholderGenesisModuleInit, replacementInit)
+		content, err = xast.ModifyFunction(
+			content,
+			"InitGenesis",
+			xast.AppendFuncCode(replacementModuleInit),
+		)
+		if err != nil {
+			return err
+		}
 
 		// Genesis export
-		templateExport := `genesis.PortId = k.GetPort(ctx)
-%s`
-		replacementExport := fmt.Sprintf(templateExport, typed.PlaceholderGenesisModuleExport)
-		content = replacer.Replace(content, typed.PlaceholderGenesisModuleExport, replacementExport)
+		replacementModuleExport := "genesis.PortId = k.GetPort(ctx)"
+		content, err = xast.ModifyFunction(
+			content,
+			"ExportGenesis",
+			xast.AppendFuncCode(replacementModuleExport),
+		)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
