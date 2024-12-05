@@ -66,7 +66,7 @@ func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, de
 }
 
 // Transfer transfers amount of tokens from the faucet account to toAccountAddress.
-func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sdk.Coins) error {
+func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sdk.Coins) (string, error) {
 	transferMutex.Lock()
 	defer transferMutex.Unlock()
 
@@ -75,12 +75,12 @@ func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sd
 	for _, c := range coins {
 		totalSent, err := f.TotalTransferredAmount(ctx, toAccountAddress, c.Denom)
 		if err != nil {
-			return err
+			return "", err
 		}
 		coinMax, found := f.coinsMax[c.Denom]
 		if found && !coinMax.IsNil() && !coinMax.Equal(sdkmath.NewInt(0)) {
 			if totalSent.GTE(coinMax) {
-				return errors.Errorf(
+				return "", errors.Errorf(
 					"account has reached to the max. allowed amount (%d) for %q denom",
 					coinMax,
 					c.Denom,
@@ -88,7 +88,7 @@ func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sd
 			}
 
 			if (totalSent.Add(c.Amount)).GT(coinMax) {
-				return errors.Errorf(
+				return "", errors.Errorf(
 					`ask less amount for %q denom. account is reaching to the limit (%d) that faucet can tolerate`,
 					c.Denom,
 					coinMax,
@@ -102,13 +102,13 @@ func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sd
 	// perform transfer for all coins
 	fromAccount, err := f.runner.ShowAccount(ctx, f.accountName)
 	if err != nil {
-		return err
+		return "", err
 	}
 	txHash, err := f.runner.BankSend(ctx, fromAccount.Address, toAccountAddress, transfer.String(), chaincmd.BankSendWithFees(f.feeAmount))
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// wait for send tx to be confirmed
-	return f.runner.WaitTx(ctx, txHash, time.Second, 30)
+	return txHash, f.runner.WaitTx(ctx, txHash, time.Second, 30)
 }
