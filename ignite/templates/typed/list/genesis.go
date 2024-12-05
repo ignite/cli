@@ -225,22 +225,26 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 			return err
 		}
 
-		templateValid := `%[2]vList: []types.%[2]v{
-	{
-		Id: 0,
-	},
-	{
-		Id: 1,
-	},
-},
-%[2]vCount: 2,
-%[1]v`
-		replacementValid := fmt.Sprintf(
-			templateValid,
-			module.PlaceholderTypesGenesisValidField,
-			opts.TypeName.UpperCamel,
+		// add parameter to the struct into the new method.
+		content, err := xast.ModifyFunction(
+			f.String(),
+			"TestGenesisState_Validate",
+			xast.AppendInsideFuncStruct(
+				"GenesisState",
+				fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
+				fmt.Sprintf("[]types.%[1]v{{ Id: 0 }, { Id: 1 }}", opts.TypeName.UpperCamel),
+				-1,
+			),
+			xast.AppendInsideFuncStruct(
+				"GenesisState",
+				fmt.Sprintf("%[1]vCount", opts.TypeName.UpperCamel),
+				"2",
+				-1,
+			),
 		)
-		content := replacer.Replace(f.String(), module.PlaceholderTypesGenesisValidField, replacementValid)
+		if err != nil {
+			return err
+		}
 
 		templateTests := `{
 	desc:     "duplicated %[2]v",

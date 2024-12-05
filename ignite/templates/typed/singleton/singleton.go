@@ -62,7 +62,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 	g.RunFn(genesisTypesModify(opts))
 	g.RunFn(genesisModuleModify(replacer, opts))
 	g.RunFn(genesisTestsModify(replacer, opts))
-	g.RunFn(genesisTypesTestsModify(replacer, opts))
+	g.RunFn(genesisTypesTestsModify(opts))
 
 	// Modifications for new messages
 	if !opts.NoMessage {
@@ -332,7 +332,7 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 	}
 }
 
-func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis_test.go")
 		f, err := r.Disk.Find(path)
@@ -350,16 +350,20 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 			sampleFields += field.GenesisArgs(int(n.Int64()) + 1)
 		}
 
-		templateValid := `%[2]v: &types.%[2]v{
-		%[3]v},
-%[1]v`
-		replacementValid := fmt.Sprintf(
-			templateValid,
-			module.PlaceholderTypesGenesisValidField,
-			opts.TypeName.UpperCamel,
-			sampleFields,
+		// add parameter to the struct into the new method.
+		content, err := xast.ModifyFunction(
+			f.String(),
+			"TestGenesisState_Validate",
+			xast.AppendInsideFuncStruct(
+				"GenesisState",
+				opts.TypeName.UpperCamel,
+				fmt.Sprintf("&types.%[1]v{ %[2]v }", opts.TypeName.UpperCamel, sampleFields),
+				-1,
+			),
 		)
-		content := replacer.Replace(f.String(), module.PlaceholderTypesGenesisValidField, replacementValid)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
