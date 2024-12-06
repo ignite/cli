@@ -44,7 +44,7 @@ type valArgs struct {
 	newValAddr         bytes.HexBytes
 	newOperatorAddress string
 	newValPubKey       crypto.PubKey
-	accountsToFund     []sdk.AccAddress
+	accountsToFund     []string
 	upgradeToTrigger   string
 	homeDir            string
 }
@@ -205,12 +205,20 @@ func initAppForTestnet(app *app.App, args valArgs) *app.App {
 	defaultCoins := sdk.NewCoins(sdk.NewInt64Coin(bondDenom, 1000000000))
 
 	// Fund local accounts
-	for _, account := range args.accountsToFund {
+	// Fund local accounts
+	for _, accountStr := range args.accountsToFund {
 		err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, defaultCoins)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
 			os.Exit(1)
 		}
+
+		account, err := app.AuthKeeper.AddressCodec().StringToBytes(accountStr)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			os.Exit(1)
+		}
+
 		err = app.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, account, defaultCoins)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
@@ -246,18 +254,9 @@ func getCommandArgs(appOpts servertypes.AppOptions) (valArgs, error) {
 	}
 	args.upgradeToTrigger = upgradeToTrigger
 
-	// validate  and set accounts to fund
+	// parsing  and set accounts to fund
 	accountsString := cast.ToString(appOpts.Get(flagAccountsToFund))
-
-	for _, account := range strings.Split(accountsString, ",") {
-		if account != "" {
-			addr, err := sdk.AccAddressFromBech32(account)
-			if err != nil {
-				return args, fmt.Errorf("invalid bech32 address format %w", err)
-			}
-			args.accountsToFund = append(args.accountsToFund, addr)
-		}
-	}
+	args.accountsToFund = append(args.accountsToFund, strings.Split(accountsString, ",")...)
 
 	// home dir
 	homeDir := cast.ToString(appOpts.Get(flags.FlagHome))
