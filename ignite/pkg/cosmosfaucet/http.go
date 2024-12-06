@@ -14,11 +14,12 @@ func (f Faucet) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	mux := http.NewServeMux()
 
 	mux.Handle("/", cors.Default().Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodPost || r.Method == http.MethodOptions {
+		switch {
+		case r.Method == http.MethodPost || r.Method == http.MethodOptions:
 			f.faucetHandler(w, r)
-		} else if r.Method == http.MethodGet {
+		case r.Method == http.MethodGet:
 			openapiconsole.Handler("Faucet", "openapi.yml")(w, r)
-		} else {
+		default:
 			http.NotFound(w, r)
 		}
 	})))

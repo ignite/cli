@@ -3,10 +3,11 @@ package archive
 import (
 	"archive/tar"
 	"compress/gzip"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 // CreateArchive creates a tar.gz archive from a list of files.
@@ -20,7 +21,7 @@ func CreateArchive(dir string, buf io.Writer) error {
 	tw := tar.NewWriter(gw)
 	defer tw.Close()
 
-	return filepath.WalkDir(dir, func(path string, info os.DirEntry, err error) error {
+	return filepath.WalkDir(dir, func(path string, _ os.DirEntry, _ error) error {
 		return addToArchive(tw, path)
 	})
 }
@@ -82,7 +83,7 @@ func ExtractArchive(outDir string, gzipStream io.Reader) error {
 			return err
 		}
 
-		targetPath := filepath.Join(outDir, header.Name)
+		targetPath := filepath.Join(outDir, header.Name) //nolint:gosec // We trust the tar file
 
 		switch header.Typeflag {
 		case tar.TypeDir:
@@ -94,13 +95,13 @@ func ExtractArchive(outDir string, gzipStream io.Reader) error {
 			if err != nil {
 				return err
 			}
-			if _, err := io.Copy(outFile, tarReader); err != nil {
+			if _, err := io.Copy(outFile, tarReader); err != nil { //nolint:gosec // We trust the tar file
 				return err
 			}
 			outFile.Close()
 
 		default:
-			return fmt.Errorf("unknown type: %s in %s", string(header.Typeflag), header.Name)
+			return errors.Errorf("unknown type: %s in %s", string(header.Typeflag), header.Name)
 		}
 	}
 
