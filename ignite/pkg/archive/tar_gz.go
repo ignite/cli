@@ -20,12 +20,9 @@ func CreateArchive(dir string, buf io.Writer) error {
 	tw := tar.NewWriter(gw)
 	defer tw.Close()
 
-	// Iterate over files from directory and add them to the tar archive
-	filepath.WalkDir(dir, func(path string, info os.DirEntry, err error) error {
+	return filepath.WalkDir(dir, func(path string, info os.DirEntry, err error) error {
 		return addToArchive(tw, path)
 	})
-
-	return nil
 }
 
 func addToArchive(tw *tar.Writer, filename string) error {
