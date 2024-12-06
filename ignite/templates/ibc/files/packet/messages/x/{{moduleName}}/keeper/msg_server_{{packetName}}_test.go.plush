@@ -8,16 +8,15 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 
-	keepertest "<%= ModulePath %>/testutil/keeper"
     "<%= ModulePath %>/x/<%= moduleName %>/keeper"
 	"<%= ModulePath %>/x/<%= moduleName %>/types"
 )
 
 func TestMsgServerSend<%= packetName.UpperCamel %>(t *testing.T) {
-	k, ctx, addressCodec := keepertest.<%= title(moduleName) %>Keeper(t)
-	<%= MsgSigner.LowerCamel %>, err := addressCodec.BytesToString([]byte("signerAddr__________________"))
+	f := initFixture(t)
+	srv := keeper.NewMsgServerImpl(f.keeper)
+	<%= MsgSigner.LowerCamel %>, err := f.addressCodec.BytesToString([]byte("signerAddr__________________"))
 	require.NoError(t, err)
-	srv := keeper.NewMsgServerImpl(k)
 
 	tests := []struct {
 		name string
@@ -73,7 +72,7 @@ func TestMsgServerSend<%= packetName.UpperCamel %>(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err = srv.Send<%= packetName.UpperCamel %>(ctx, &tt.msg)
+			_, err = srv.Send<%= packetName.UpperCamel %>(f.ctx, &tt.msg)
 			if tt.err != nil {
 				require.ErrorContains(t, err, tt.err.Error())
 				return

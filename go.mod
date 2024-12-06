@@ -1,6 +1,6 @@
 module github.com/ignite/cli/v29
 
-go 1.23.1
+go 1.23.3
 
 // Cosmos SDK v0.52 integration
 replace (
@@ -38,9 +38,9 @@ require (
 	github.com/buger/jsonparser v1.1.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/charmbracelet/bubbles v0.7.6
-	github.com/charmbracelet/bubbletea v0.23.2
+	github.com/charmbracelet/bubbletea v1.2.4
 	github.com/charmbracelet/glow v1.4.1
-	github.com/charmbracelet/lipgloss v0.6.0
+	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/cockroachdb/errors v1.11.3
 	github.com/cometbft/cometbft v1.0.0-rc1.0.20240908111210-ab0be101882f
 	github.com/cometbft/cometbft/api v1.0.0-rc.1
@@ -72,7 +72,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/manifoldco/promptui v0.9.0
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/moby/moby v24.0.9+incompatible
+	github.com/moby/moby v26.1.0+incompatible
 	github.com/muesli/reflow v0.3.0
 	github.com/nqd/flat v0.2.0
 	github.com/otiai10/copy v1.14.0
@@ -87,7 +87,7 @@ require (
 	github.com/vektra/mockery/v2 v2.46.0
 	go.etcd.io/bbolt v1.4.0-alpha.1
 	golang.org/x/mod v0.21.0
-	golang.org/x/sync v0.8.0
+	golang.org/x/sync v0.9.0
 	golang.org/x/term v0.25.0
 	golang.org/x/text v0.19.0
 	golang.org/x/tools v0.25.0
@@ -171,6 +171,8 @@ require (
 	github.com/charithe/durationcheck v0.0.10 // indirect
 	github.com/charmbracelet/charm v0.8.6 // indirect
 	github.com/charmbracelet/glamour v0.2.1-0.20210402234443-abe9cda419ba // indirect
+	github.com/charmbracelet/x/ansi v0.4.5 // indirect
+	github.com/charmbracelet/x/term v0.2.1 // indirect
 	github.com/chavacava/garif v0.1.0 // indirect
 	github.com/chigopher/pathlib v0.19.1 // indirect
 	github.com/chzyer/readline v1.5.1 // indirect
@@ -183,7 +185,6 @@ require (
 	github.com/cockroachdb/redact v1.1.5 // indirect
 	github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06 // indirect
 	github.com/cometbft/cometbft-db v1.0.1 // indirect
-	github.com/containerd/console v1.0.4-0.20230508195404-8d3c090fd31c // indirect
 	github.com/containerd/containerd v1.7.11 // indirect
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.15.1 // indirect
@@ -220,6 +221,7 @@ require (
 	github.com/dvsekhvalnov/jose2go v1.6.0 // indirect
 	github.com/emicklei/dot v1.6.2 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
+	github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f // indirect
 	github.com/ettle/strcase v0.2.0 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
@@ -361,7 +363,7 @@ require (
 	github.com/moricho/tparallel v0.3.2 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/mtibben/percent v0.2.1 // indirect
-	github.com/muesli/ansi v0.0.0-20211018074035-2e021307bc4b // indirect
+	github.com/muesli/ansi v0.0.0-20230316100256-276c6243b2f6 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/muesli/gitcha v0.2.0 // indirect
 	github.com/muesli/go-app-paths v0.2.1 // indirect
@@ -397,7 +399,7 @@ require (
 	github.com/quasilyte/regex/syntax v0.0.0-20210819130434-b3f0c404a727 // indirect
 	github.com/quasilyte/stdinfo v0.0.0-20220114132959-f7386bf02567 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
-	github.com/rivo/uniseg v0.2.0 // indirect
+	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rs/zerolog v1.33.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/ryancurrah/gomodguard v1.3.3 // indirect
@@ -477,7 +479,7 @@ require (
 	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20240314144324-c7f7c6466f7f // indirect
 	golang.org/x/net v0.30.0 // indirect
-	golang.org/x/sys v0.26.0 // indirect
+	golang.org/x/sys v0.27.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/genproto v0.0.0-20240227224415-6ceb2ff114de // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240814211410-ddb44dafa142 // indirect

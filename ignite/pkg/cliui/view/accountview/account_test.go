@@ -17,12 +17,12 @@ func TestAccountString(t *testing.T) {
 		{
 			name:    "new account (mnemonic available) to string is not idented",
 			account: accountview.NewAccount("alice", "cosmos193he38n21khnmb2", accountview.WithMnemonic("person estate daughter box chimney clay bronze ring story truck make excess ring frame desk start food leader sleep predict item rifle stem boy")),
-			want:    "✔ Added account \x1b[1malice\x1b[0m with address cosmos193he38n21khnmb2 and mnemonic:\nperson estate daughter box chimney clay bronze ring story truck make excess ring frame desk start food leader sleep predict item rifle stem boy\n",
+			want:    "✔ Added account alice with address cosmos193he38n21khnmb2 and mnemonic:\nperson estate daughter box chimney clay bronze ring story truck make excess ring frame desk start food leader sleep predict item rifle stem boy\n",
 		},
 		{
 			name:    "existent account to string is not idented",
 			account: accountview.NewAccount("alice", "cosmos193he38n21khnmb2"),
-			want:    "👤 \x1b[1malice\x1b[0m's account address: cosmos193he38n21khnmb2\n",
+			want:    "👤 alice's account address: cosmos193he38n21khnmb2\n",
 		},
 	}
 

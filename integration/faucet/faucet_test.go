@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	banktypes "cosmossdk.io/x/bank/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
@@ -15,7 +16,6 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosfaucet"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/xurl"
 	envtest "github.com/ignite/cli/v29/integration"
 )
@@ -32,7 +32,7 @@ var (
 func TestRequestCoinsFromFaucet(t *testing.T) {
 	var (
 		env          = envtest.New(t)
-		app          = env.Scaffold("github.com/test/faucet")
+		app          = env.Scaffold("github.com/test/faucetapp")
 		servers      = app.RandomizeServerPorts()
 		faucetURL    = app.EnableFaucet(defaultCoins, maxCoins)
 		ctx, cancel  = context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
@@ -93,15 +93,17 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		g.Go(func() error {
 			c := faucetClient
-			_, err := c.Transfer(ctx, cosmosfaucet.NewTransferRequest(addr, nil))
-			if err != nil && !errors.As(err, &cosmosfaucet.ErrTransferRequest{}) {
-				return err
+			index := i + 1
+			coins := []string{
+				sdk.NewCoin("token", math.NewInt(int64(index*2))).String(),
+				sdk.NewCoin("stake", math.NewInt(int64(index*3))).String(),
 			}
-			return nil
+			_, err := c.Transfer(ctx, cosmosfaucet.NewTransferRequest(addr, coins))
+			return err
 		})
 	}
 	require.NoError(t, g.Wait())
-	checkAccountBalance(ctx, t, cosmosClient, addr, []string{"130token", "13stake"})
+	checkAccountBalance(ctx, t, cosmosClient, addr, []string{"168stake", "140token"})
 }
 
 func checkAccountBalance(ctx context.Context, t *testing.T, c cosmosclient.Client, accAddr string, coins []string) {
@@ -114,7 +116,9 @@ func checkAccountBalance(ctx context.Context, t *testing.T, c cosmosclient.Clien
 	require.Len(t, resp.Balances, len(coins))
 	expectedCoins, err := sdk.ParseCoinsNormalized(strings.Join(coins, ","))
 	require.NoError(t, err)
-	require.True(t, resp.Balances.Equal(expectedCoins),
-		fmt.Sprintf("%s should be equals to %s", resp.Balances.String(), expectedCoins.String()),
+	expectedCoins = expectedCoins.Sort()
+	gotCoins := resp.Balances.Sort()
+	require.True(t, gotCoins.Equal(expectedCoins),
+		fmt.Sprintf("%s should be equals to %s", gotCoins.String(), expectedCoins.String()),
 	)
 }
