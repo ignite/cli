@@ -37,7 +37,7 @@ To get started, create a blockchain:
 * [ignite network](#ignite-network)	 - Launch a blockchain in production
 * [ignite relayer](#ignite-relayer)	 - Connect blockchains with an IBC relayer
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
-* [ignite testnet](#ignite-testnet)	 - Start a testnet local
+* [ignite testnet](#ignite-testnet)	 - Simulate (Fuzz) the chain or start a testnet, either in place (using mainnet data) or with multiple nodes.
 * [ignite version](#ignite-version)	 - Print the current build information
 
 
@@ -3261,7 +3261,7 @@ ignite scaffold type NAME [field:type] ... [flags]
 
 ## ignite testnet
 
-Start a testnet local
+Simulate (Fuzz) the chain or start a testnet, either in place (using mainnet data) or with multiple nodes.
 
 **Options**
 
@@ -3274,6 +3274,7 @@ Start a testnet local
 * [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 * [ignite testnet in-place](#ignite-testnet-in-place)	 - Create and start a testnet from current local net state
 * [ignite testnet multi-node](#ignite-testnet-multi-node)	 - Initialize and provide multi-node on/off functionality
+* [ignite testnet simulate](#ignite-testnet-simulate)	 - Run simulation testing for the blockchain
 
 
 ## ignite testnet in-place
@@ -3305,7 +3306,7 @@ ignite testnet in-place [flags]
 
 **SEE ALSO**
 
-* [ignite testnet](#ignite-testnet)	 - Start a testnet local
+* [ignite testnet](#ignite-testnet)	 - Simulate (Fuzz) the chain or start a testnet, either in place (using mainnet data) or with multiple nodes.
 
 
 ## ignite testnet multi-node
@@ -3357,7 +3358,43 @@ ignite testnet multi-node [flags]
 
 **SEE ALSO**
 
-* [ignite testnet](#ignite-testnet)	 - Start a testnet local
+* [ignite testnet](#ignite-testnet)	 - Simulate (Fuzz) the chain or start a testnet, either in place (using mainnet data) or with multiple nodes.
+
+
+## ignite testnet simulate
+
+Run simulation testing for the blockchain
+
+**Synopsis**
+
+Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node and checks if invariants break
+
+```
+ignite testnet simulate [flags]
+```
+
+**Options**
+
+```
+      --blockSize int             operations per block (default 30)
+      --exportParamsHeight int    height to which export the randomly generated params
+      --exportParamsPath string   custom file path to save the exported params JSON
+      --exportStatePath string    custom file path to save the exported app state JSON
+      --exportStatsPath string    custom file path to save the exported simulation statistics JSON
+      --genesis string            custom simulation genesis file; cannot be used with params file
+      --genesisTime int           override genesis UNIX time instead of using a random UNIX time
+  -h, --help                      help for simulate
+      --initialBlockHeight int    initial block to start the simulation (default 1)
+      --lean                      lean simulation log output
+      --numBlocks int             number of new blocks to simulate from the initial block height (default 200)
+      --params string             custom simulation params file which overrides any random params; cannot be used with genesis
+      --period uint               run slow invariants only once every period assertions
+      --seed int                  simulation random seed (default 42)
+```
+
+**SEE ALSO**
+
+* [ignite testnet](#ignite-testnet)	 - Simulate (Fuzz) the chain or start a testnet, either in place (using mainnet data) or with multiple nodes.
 
 
 ## ignite version
