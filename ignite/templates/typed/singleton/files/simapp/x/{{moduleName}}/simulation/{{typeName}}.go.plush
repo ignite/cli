@@ -21,6 +21,9 @@ func MsgCreate<%= TypeName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFac
 		if err == nil && found {
 			reporter.Skip("<%= TypeName.UpperCamel %> already exist")
 			return nil, nil
+		} else if err != nil {
+			reporter.Skip(err.Error())
+			return nil, nil
 		}
 
 		return []simsx.SimAccount{from}, msg
