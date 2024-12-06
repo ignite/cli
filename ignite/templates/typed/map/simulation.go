@@ -45,8 +45,8 @@ func moduleSimulationModify(replacer placeholder.Replacer, opts *typed.Options) 
 		content = typed.ModuleSimulationMsgModify(
 			replacer,
 			content,
-			opts.ModuleName,
 			opts.TypeName,
+			opts.MsgSigner,
 			"Create", "Update", "Delete",
 		)
 

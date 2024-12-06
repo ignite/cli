@@ -7,20 +7,18 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
-	"github.com/cosmos/cosmos-sdk/x/simulation"
+	"github.com/cosmos/cosmos-sdk/simsx"
 
 	"<%= modulePath %>/testutil/sample"
-	<%= moduleName %>simulation "<%= modulePath %>/x/<%= moduleName %>/simulation"
+	"<%= modulePath %>/x/<%= moduleName %>/simulation"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
 // avoid unused import issue
 var (
-	_ = <%= moduleName %>simulation.FindAccount
 	_ = rand.Rand{}
 	_ = sample.AccAddress
 	_ = sdk.AccAddress{}
-	_ = simulation.MsgEntryKind
 )
 
 const (
@@ -31,7 +29,7 @@ const (
 func (AppModule) GenerateGenesisState(simState *module.SimulationState) {
 	accs := make([]string, len(simState.Accounts))
 	for i, acc := range simState.Accounts {
-		accs[i] = acc.Address.String()
+		accs[i] = acc.AddressBech32
 	}
 	<%= moduleName %>Genesis := types.GenesisState{
 		Params:	types.DefaultParams(),<%= if (isIBC) { %>
@@ -44,18 +42,13 @@ func (AppModule) GenerateGenesisState(simState *module.SimulationState) {
 // RegisterStoreDecoder registers a decoder.
 func (am AppModule) RegisterStoreDecoder(_ simtypes.StoreDecoderRegistry) {}
 
-// WeightedOperations returns the all the gov module operations with their respective weights.
-func (am AppModule) WeightedOperations(simState module.SimulationState) []simtypes.WeightedOperation {
-	operations := make([]simtypes.WeightedOperation, 0)
-
-	// this line is used by starport scaffolding # simapp/module/operation
-
-	return operations
+// ProposalMsgsX returns msgs used for governance proposals for simulations.
+func (am AppModule) ProposalMsgsX(weights simsx.WeightSource, reg simsx.Registry) {
+	reg.Add(weights.Get("msg_update_params", 100), simulation.MsgUpdateParamsFactory())
+	// this line is used by starport scaffolding # simapp/module/proposalSimulation
 }
 
-// ProposalMsgs returns msgs used for governance proposals for simulations.
-func (am AppModule) ProposalMsgs(simState module.SimulationState) []simtypes.WeightedProposalMsg {
-	return []simtypes.WeightedProposalMsg{
-	    // this line is used by starport scaffolding # simapp/module/OpMsg
-	}
+// WeightedOperations returns the all the module operations with their respective weights.
+func (am AppModule) WeightedOperationsX(weights simsx.WeightSource, reg simsx.Registry) {
+	// this line is used by starport scaffolding # simapp/module/operation
 }
