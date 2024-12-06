@@ -127,6 +127,7 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 		NewScaffoldPacket(),
 		NewScaffoldVue(),
 		NewScaffoldReact(),
+		NewScaffoldChainRegistry(),
 	)
 
 	return c
