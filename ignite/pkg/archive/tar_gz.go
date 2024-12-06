@@ -89,7 +89,7 @@ func ExtractArchive(outDir string, gzipStream io.Reader) error {
 
 		switch header.Typeflag {
 		case tar.TypeDir:
-			if err := os.MkdirAll(targetPath, 0755); err != nil {
+			if err := os.MkdirAll(targetPath, 0o755); err != nil {
 				return err
 			}
 		case tar.TypeReg:
