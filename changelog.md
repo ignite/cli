@@ -24,6 +24,7 @@
 - [#4413](https://github.com/ignite/cli/pull/4413) Add `ignite s chain-registry` command
 - [#4289](https://github.com/ignite/cli/pull/4289), [#4423](https://github.com/ignite/cli/pull/4423) Cosmos SDK v0.52 support
 - [#4436](https://github.com/ignite/cli/pull/4436) Return tx hash to the faucet API
+- [#4289](https://github.com/ignite/cli/pull/4289), [#4423](https://github.com/ignite/cli/pull/4423), [#4432](https://github.com/ignite/cli/pull/4432) Cosmos SDK v0.52 support
 
 ### Changes
 

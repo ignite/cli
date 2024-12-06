@@ -3,15 +3,24 @@ package types
 import (
 	"context"
 
-	<%= if (dependencies.Contains("Staking")) { %>"cosmossdk.io/core/address"
-    <% } %>
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	<%= if (dependencies.Contains("Staking")) { %>"cosmossdk.io/core/address"<% } %>
 	<%= if (dependencies.Contains("Authz")) { %>"cosmossdk.io/x/authz"<% } %>
+    sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 <%= for (dependency) in dependencies { %>
-    <%= if (dependency.Name == "Account") { %>
+    <%= if (dependency.Name == "Auth") { %>
+        // AuthKeeper defines the expected interface for the Auth module.
+        type AuthKeeper interface {
+            GetAccount(context.Context, sdk.AccAddress) sdk.AccountI // only used for simulation
+            // Methods imported from account should be defined here
+        }
     <% } else if (dependency.Name == "Bank") { %>
+        // BankKeeper defines the expected interface for the Bank module.
+        type BankKeeper interface {
+            SpendableCoins(context.Context, sdk.AccAddress) sdk.Coins
+            // Methods imported from bank should be defined here
+        }
     <% } else if (dependency.Name == "Staking") { %>
         // StakingKeeper defines the expected interface for the Staking module.
         type StakingKeeper interface {
@@ -69,21 +78,3 @@ import (
         }
     <% } %>
 <% } %>
-
-// AccountKeeper defines the expected interface for the Account module.
-type AccountKeeper interface {
-    GetAccount(context.Context, sdk.AccAddress) sdk.AccountI // only used for simulation
-    // Methods imported from account should be defined here
-}
-
-// BankKeeper defines the expected interface for the Bank module.
-type BankKeeper interface {
-    SpendableCoins(context.Context, sdk.AccAddress) sdk.Coins
-    // Methods imported from bank should be defined here
-}
-
-// ParamSubspace defines the expected Subspace interface for parameters.
-type ParamSubspace interface {
-	Get(context.Context, []byte, interface{})
-	Set(context.Context, []byte, interface{})
-}

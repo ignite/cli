@@ -20,8 +20,8 @@ func moduleSimulationModify(replacer placeholder.Replacer, opts *typed.Options) 
 		content := typed.ModuleSimulationMsgModify(
 			replacer,
 			f.String(),
-			opts.ModuleName,
 			opts.TypeName,
+			opts.MsgSigner,
 			"Create", "Update", "Delete",
 		)
 
