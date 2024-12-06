@@ -41,11 +41,11 @@ func moduleSimulationModify(replacer placeholder.Replacer, opts *typed.Options) 
 			msgField,
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderSimappGenesisState, replacementGs)
-
 		content = typed.ModuleSimulationMsgModify(
 			replacer,
 			content,
 			opts.TypeName,
+			opts.MsgSigner,
 			"Create", "Update", "Delete",
 		)
 

@@ -21,6 +21,7 @@ func moduleSimulationModify(replacer placeholder.Replacer, opts *typed.Options) 
 			replacer,
 			f.String(),
 			opts.TypeName,
+			opts.MsgSigner,
 			"Create", "Update", "Delete",
 		)
 

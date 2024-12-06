@@ -27,6 +27,9 @@ func MsgCreate<%= TypeName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFac
 		if err == nil && found {
 			reporter.Skip("<%= TypeName.UpperCamel %> already exist")
 			return nil, nil
+		} else if err != nil {
+			reporter.Skip(err.Error())
+			return nil, nil
 		}
 
 		return []simsx.SimAccount{from}, msg
@@ -54,6 +57,7 @@ func MsgUpdate<%= TypeName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFac
 		for _, obj := range all<%= TypeName.UpperCamel %> {
 			if ok := testData.HasAccount(obj.<%= MsgSigner.UpperCamel %>); ok {
 				simAccount = testData.GetAccount(reporter, obj.<%= MsgSigner.UpperCamel %>)
+				<%= TypeName.LowerCamel %> = obj
 				break
 			}
 		}
@@ -90,6 +94,7 @@ func MsgDelete<%= TypeName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFac
 		for _, obj := range all<%= TypeName.UpperCamel %> {
 			if ok := testData.HasAccount(obj.<%= MsgSigner.UpperCamel %>); ok {
 				simAccount = testData.GetAccount(reporter, obj.<%= MsgSigner.UpperCamel %>)
+				<%= TypeName.LowerCamel %> = obj
 				break
 			}
 		}

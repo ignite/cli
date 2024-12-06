@@ -243,6 +243,7 @@ func moduleSimulationModify(replacer placeholder.Replacer, opts *Options) genny.
 			replacer,
 			f.String(),
 			opts.MsgName,
+			opts.MsgSigner,
 		)
 
 		newFile := genny.NewFileS(path, content)

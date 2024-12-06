@@ -43,6 +43,7 @@ func MsgUpdate<%= TypeName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFac
 		for _, obj := range all<%= TypeName.UpperCamel %> {
 			if ok := testData.HasAccount(obj.<%= MsgSigner.UpperCamel %>); ok {
 				simAccount = testData.GetAccount(reporter, obj.<%= MsgSigner.UpperCamel %>)
+				<%= TypeName.LowerCamel %> = obj
 				break
 			}
 		}
@@ -79,6 +80,7 @@ func MsgDelete<%= TypeName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFac
 		for _, obj := range all<%= TypeName.UpperCamel %> {
 			if ok := testData.HasAccount(obj.<%= MsgSigner.UpperCamel %>); ok {
 				simAccount = testData.GetAccount(reporter, obj.<%= MsgSigner.UpperCamel %>)
+				<%= TypeName.LowerCamel %> = obj
 				break
 			}
 		}
