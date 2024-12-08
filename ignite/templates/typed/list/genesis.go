@@ -18,7 +18,7 @@ func genesisModify(replacer placeholder.Replacer, opts *typed.Options, g *genny.
 	g.RunFn(genesisProtoModify(opts))
 	g.RunFn(genesisTypesModify(opts))
 	g.RunFn(genesisModuleModify(opts))
-	g.RunFn(genesisTestsModify(replacer, opts))
+	g.RunFn(genesisTestsModify(opts))
 	g.RunFn(genesisTypesTestsModify(replacer, opts))
 }
 
@@ -186,7 +186,7 @@ if err != nil {
 	}
 }
 
-func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+func genesisTestsModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/genesis_test.go")
 		f, err := r.Disk.Find(path)
@@ -194,32 +194,30 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			return err
 		}
 
-		templateState := `%[2]vList: []types.%[2]v{
-		{
-			Id: 0,
-		},
-		{
-			Id: 1,
-		},
-	},
-	%[2]vCount: 2,
-	%[1]v`
-		replacementValid := fmt.Sprintf(
-			templateState,
-			module.PlaceholderGenesisTestState,
-			opts.TypeName.UpperCamel,
-		)
-		content := replacer.Replace(f.String(), module.PlaceholderGenesisTestState, replacementValid)
+		replacementAssert := fmt.Sprintf(`require.ElementsMatch(t, genesisState.%[1]vList, got.%[1]vList)
+require.Equal(t, genesisState.%[1]vCount, got.%[1]vCount)`, opts.TypeName.UpperCamel)
 
-		templateAssert := `require.ElementsMatch(t, genesisState.%[2]vList, got.%[2]vList)
-require.Equal(t, genesisState.%[2]vCount, got.%[2]vCount)
-%[1]v`
-		replacementTests := fmt.Sprintf(
-			templateAssert,
-			module.PlaceholderGenesisTestAssert,
-			opts.TypeName.UpperCamel,
+		// add parameter to the struct into the new method.
+		content, err := xast.ModifyFunction(
+			f.String(),
+			"TestGenesis",
+			xast.AppendInsideFuncStruct(
+				"GenesisState",
+				fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
+				fmt.Sprintf("[]types.%[1]v{{ Id: 0 }, { Id: 1 }}", opts.TypeName.UpperCamel),
+				-1,
+			),
+			xast.AppendInsideFuncStruct(
+				"GenesisState",
+				fmt.Sprintf("%[1]vCount", opts.TypeName.UpperCamel),
+				"2",
+				-1,
+			),
+			xast.AppendFuncCode(replacementAssert),
 		)
-		content = replacer.Replace(content, module.PlaceholderGenesisTestAssert, replacementTests)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

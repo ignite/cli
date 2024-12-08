@@ -17,7 +17,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
-	"github.com/ignite/cli/v29/ignite/templates/module"
 	"github.com/ignite/cli/v29/ignite/templates/typed"
 )
 
@@ -61,7 +60,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 	g.RunFn(genesisProtoModify(opts))
 	g.RunFn(genesisTypesModify(opts))
 	g.RunFn(genesisModuleModify(opts))
-	g.RunFn(genesisTestsModify(replacer, opts))
+	g.RunFn(genesisTestsModify(opts))
 	g.RunFn(genesisTypesTestsModify(opts))
 
 	// Modifications for new messages
@@ -289,7 +288,7 @@ func genesisTypesModify(opts *typed.Options) genny.RunFn {
 	}
 }
 
-func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+func genesisTestsModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/genesis_test.go")
 		f, err := r.Disk.Find(path)
@@ -306,26 +305,23 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			}
 			sampleFields += field.GenesisArgs(int(n.Int64()) + 1)
 		}
-
-		templateState := `%[2]v: &types.%[2]v{
-		%[3]v},
-		%[1]v`
-		replacementState := fmt.Sprintf(
-			templateState,
-			module.PlaceholderGenesisTestState,
-			opts.TypeName.UpperCamel,
-			sampleFields,
+		// add parameter to the struct into the new method.
+		content, err := xast.ModifyFunction(
+			f.String(),
+			"TestGenesisState_Validate",
+			xast.AppendInsideFuncStruct(
+				"GenesisState",
+				opts.TypeName.UpperCamel,
+				fmt.Sprintf("&types.%[1]v{ %[2]v }", opts.TypeName.UpperCamel, sampleFields),
+				-1,
+			),
+			xast.AppendFuncCode(
+				fmt.Sprintf("require.Equal(t, genesisState.%[1]v, got.%[1]v)", opts.TypeName.UpperCamel),
+			),
 		)
-		content := replacer.Replace(f.String(), module.PlaceholderGenesisTestState, replacementState)
-
-		templateAssert := `require.Equal(t, genesisState.%[2]v, got.%[2]v)
-%[1]v`
-		replacementTests := fmt.Sprintf(
-			templateAssert,
-			module.PlaceholderGenesisTestAssert,
-			opts.TypeName.UpperCamel,
-		)
-		content = replacer.Replace(content, module.PlaceholderGenesisTestAssert, replacementTests)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
