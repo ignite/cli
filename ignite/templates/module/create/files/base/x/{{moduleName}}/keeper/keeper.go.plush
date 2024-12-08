@@ -33,6 +33,7 @@ type Keeper struct {
 
 	Schema       collections.Schema
 	Params       collections.Item[types.Params]
+	// this line is used by starport scaffolding # collection/type
 
     <%= if (isIBC) { %>
 	ibcKeeperFn        func() *ibckeeper.Keeper
