@@ -70,7 +70,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 		g.RunFn(typesCodecModify(opts))
 
 		if !opts.NoSimulation {
-			g.RunFn(moduleSimulationModify(replacer, opts))
+			g.RunFn(moduleSimulationModify(opts))
 			if err := typed.Box(simappTemplate, opts, g); err != nil {
 				return nil, err
 			}

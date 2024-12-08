@@ -72,7 +72,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *Options) (*genny.Generato
 	)
 
 	if !opts.NoSimulation {
-		g.RunFn(moduleSimulationModify(replacer, opts))
+		g.RunFn(moduleSimulationModify(opts))
 		simappTemplate := xgenny.NewEmbedWalker(
 			fsSimapp,
 			"files/simapp",
@@ -242,7 +242,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn
 	}
 }
 
-func moduleSimulationModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+func moduleSimulationModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/simulation.go")
 		f, err := r.Disk.Find(path)
@@ -250,12 +250,14 @@ func moduleSimulationModify(replacer placeholder.Replacer, opts *Options) genny.
 			return err
 		}
 
-		content := typed.ModuleSimulationMsgModify(
-			replacer,
+		content, err := typed.ModuleSimulationMsgModify(
 			f.String(),
 			opts.MsgName,
 			opts.MsgSigner,
 		)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
