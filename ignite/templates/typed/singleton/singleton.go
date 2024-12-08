@@ -123,15 +123,23 @@ func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunF
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderCollectionType, replacementModuleType)
 
-		templateKeeperInstantiate := `%[2]v: collections.NewItem(sb, types.%[2]vKey, "%[3]v", codec.CollValue[types.%[2]v](cdc)),
-	%[1]v`
-		replacementInstantiate := fmt.Sprintf(
-			templateKeeperInstantiate,
-			typed.PlaceholderCollectionInstantiate,
-			opts.TypeName.UpperCamel,
-			opts.TypeName.LowerCamel,
+		// add parameter to the struct into the new keeper method.
+		content, err = xast.ModifyFunction(
+			content,
+			"NewKeeper",
+			xast.AppendInsideFuncStruct(
+				"Keeper",
+				opts.TypeName.UpperCamel,
+				fmt.Sprintf(`collections.NewItem(sb, types.%[1]vKey, "%[2]v", codec.CollValue[types.%[1]v](cdc))`,
+					opts.TypeName.UpperCamel,
+					opts.TypeName.LowerCamel,
+				),
+				-1,
+			),
 		)
-		content = replacer.Replace(content, typed.PlaceholderCollectionInstantiate, replacementInstantiate)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -308,7 +316,7 @@ func genesisTestsModify(opts *typed.Options) genny.RunFn {
 		// add parameter to the struct into the new method.
 		content, err := xast.ModifyFunction(
 			f.String(),
-			"TestGenesisState_Validate",
+			"TestGenesis",
 			xast.AppendInsideFuncStruct(
 				"GenesisState",
 				opts.TypeName.UpperCamel,

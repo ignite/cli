@@ -326,16 +326,32 @@ func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunF
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderCollectionType, replacementModuleType)
 
-		templateKeeperInstantiate := `%[2]vSeq: collections.NewSequence(sb, types.%[2]vCountKey, "%[3]v_seq"),
-	%[2]v:    collections.NewMap(sb, types.%[2]vKey, "%[3]v", collections.Uint64Key, codec.CollValue[types.%[2]v](cdc)),
-	%[1]v`
-		replacementInstantiate := fmt.Sprintf(
-			templateKeeperInstantiate,
-			typed.PlaceholderCollectionInstantiate,
-			opts.TypeName.UpperCamel,
-			opts.TypeName.LowerCamel,
+		// add parameter to the struct into the new keeper method.
+		content, err = xast.ModifyFunction(
+			content,
+			"NewKeeper",
+			xast.AppendInsideFuncStruct(
+				"Keeper",
+				fmt.Sprintf("%[1]vSeq", opts.TypeName.UpperCamel),
+				fmt.Sprintf(`collections.NewSequence(sb, types.%[1]vCountKey, "%[2]v_seq")`,
+					opts.TypeName.UpperCamel,
+					opts.TypeName.LowerCamel,
+				),
+				-1,
+			),
+			xast.AppendInsideFuncStruct(
+				"Keeper",
+				opts.TypeName.UpperCamel,
+				fmt.Sprintf(`collections.NewMap(sb, types.%[1]vKey, "%[2]v", collections.Uint64Key, codec.CollValue[types.%[1]v](cdc))`,
+					opts.TypeName.UpperCamel,
+					opts.TypeName.LowerCamel,
+				),
+				-1,
+			),
 		)
-		content = replacer.Replace(content, typed.PlaceholderCollectionInstantiate, replacementInstantiate)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
