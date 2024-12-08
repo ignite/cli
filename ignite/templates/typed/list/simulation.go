@@ -6,11 +6,11 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/templates/typed"
 )
 
-func moduleSimulationModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+func moduleSimulationModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/simulation.go")
 		f, err := r.Disk.Find(path)
@@ -22,32 +22,39 @@ func moduleSimulationModify(replacer placeholder.Replacer, opts *typed.Options) 
 		msgField := fmt.Sprintf("%s: sample.AccAddress(),\n", opts.MsgSigner.UpperCamel)
 
 		// simulation genesis state
-		templateGs := `	%[2]vList: []types.%[2]v{
-		{
-			Id: 0,
-			%[3]v
-		},
-		{
-			Id: 1,
-			%[3]v
-		},
-	},
-	%[2]vCount: 2,
-	%[1]v`
-		replacementGs := fmt.Sprintf(
-			templateGs,
-			typed.PlaceholderSimappGenesisState,
-			opts.TypeName.UpperCamel,
-			msgField,
+		content, err := xast.ModifyFunction(
+			f.String(),
+			"GenerateGenesisState",
+			xast.AppendInsideFuncStruct(
+				"GenesisState",
+				fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
+				fmt.Sprintf(
+					"[]types.%[1]v{{ Id: 0, %[2]v }, { Id: 1, %[2]v }}",
+					opts.TypeName.UpperCamel,
+					msgField,
+				),
+				-1,
+			),
+			xast.AppendInsideFuncStruct(
+				"GenesisState",
+				fmt.Sprintf("%[1]vCount", opts.TypeName.UpperCamel),
+				"2",
+				-1,
+			),
 		)
-		content := replacer.Replace(f.String(), typed.PlaceholderSimappGenesisState, replacementGs)
-		content = typed.ModuleSimulationMsgModify(
-			replacer,
+		if err != nil {
+			return err
+		}
+
+		content, err = typed.ModuleSimulationMsgModify(
 			content,
 			opts.TypeName,
 			opts.MsgSigner,
 			"Create", "Update", "Delete",
 		)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

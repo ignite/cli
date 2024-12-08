@@ -16,9 +16,9 @@ import (
 
 func genesisModify(replacer placeholder.Replacer, opts *typed.Options, g *genny.Generator) {
 	g.RunFn(genesisProtoModify(opts))
-	g.RunFn(genesisTypesModify(replacer, opts))
-	g.RunFn(genesisModuleModify(replacer, opts))
-	g.RunFn(genesisTestsModify(replacer, opts))
+	g.RunFn(genesisTypesModify(opts))
+	g.RunFn(genesisModuleModify(opts))
+	g.RunFn(genesisTestsModify(opts))
 	g.RunFn(genesisTypesTestsModify(replacer, opts))
 }
 
@@ -67,7 +67,7 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 	}
 }
 
-func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+func genesisTypesModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis.go")
 		f, err := r.Disk.Find(path)
@@ -80,42 +80,49 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			return err
 		}
 
-		templateTypesDefault := `%[2]vList: []%[2]v{},
-%[1]v`
-		replacementTypesDefault := fmt.Sprintf(
-			templateTypesDefault,
-			typed.PlaceholderGenesisTypesDefault,
-			opts.TypeName.UpperCamel,
-		)
-		content = replacer.Replace(content, typed.PlaceholderGenesisTypesDefault, replacementTypesDefault)
+		// add parameter to the struct into the new method.
+		content, err = xast.ModifyFunction(content, "DefaultGenesis", xast.AppendInsideFuncStruct(
+			"GenesisState",
+			fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
+			fmt.Sprintf("[]%[1]v{}", opts.TypeName.UpperCamel),
+			-1,
+		))
+		if err != nil {
+			return err
+		}
 
-		templateTypesValidate := `// Check for duplicated ID in %[2]v
-%[2]vIdMap := make(map[uint64]bool)
-%[2]vCount := gs.Get%[3]vCount()
-for _, elem := range gs.%[3]vList {
-	if _, ok := %[2]vIdMap[elem.Id]; ok {
-		return fmt.Errorf("duplicated id for %[2]v")
+		templateTypesValidate := `// Check for duplicated ID in %[1]v
+%[1]vIdMap := make(map[uint64]bool)
+%[1]vCount := gs.Get%[2]vCount()
+for _, elem := range gs.%[2]vList {
+	if _, ok := %[1]vIdMap[elem.Id]; ok {
+		return fmt.Errorf("duplicated id for %[1]v")
 	}
-	if elem.Id >= %[2]vCount {
-		return fmt.Errorf("%[2]v id should be lower or equal than the last id")
+	if elem.Id >= %[1]vCount {
+		return fmt.Errorf("%[1]v id should be lower or equal than the last id")
 	}
-	%[2]vIdMap[elem.Id] = true
-}
-%[1]v`
+	%[1]vIdMap[elem.Id] = true
+}`
 		replacementTypesValidate := fmt.Sprintf(
 			templateTypesValidate,
-			typed.PlaceholderGenesisTypesValidate,
 			opts.TypeName.LowerCamel,
 			opts.TypeName.UpperCamel,
 		)
-		content = replacer.Replace(content, typed.PlaceholderGenesisTypesValidate, replacementTypesValidate)
+		content, err = xast.ModifyFunction(
+			content,
+			"Validate",
+			xast.AppendFuncCode(replacementTypesValidate),
+		)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+func genesisModuleModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/genesis.go")
 		f, err := r.Disk.Find(path)
@@ -123,54 +130,63 @@ func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) gen
 			return err
 		}
 
-		templateModuleInit := `// Set all the %[2]v
-for _, elem := range genState.%[3]vList {
-	if err := k.%[3]v.Set(ctx, elem.Id, elem); err != nil {
+		templateModuleInit := `// Set all the %[1]v
+for _, elem := range genState.%[2]vList {
+	if err := k.%[2]v.Set(ctx, elem.Id, elem); err != nil {
 		return err
 	}
 }
 
-// Set %[2]v count
-if err := k.%[3]vSeq.Set(ctx, genState.%[3]vCount); err != nil {
+// Set %[1]v count
+if err := k.%[2]vSeq.Set(ctx, genState.%[2]vCount); err != nil {
 	return err
-}
-%[1]v`
+}`
 		replacementModuleInit := fmt.Sprintf(
 			templateModuleInit,
-			typed.PlaceholderGenesisModuleInit,
 			opts.TypeName.LowerCamel,
 			opts.TypeName.UpperCamel,
 		)
-		content := replacer.Replace(f.String(), typed.PlaceholderGenesisModuleInit, replacementModuleInit)
+		content, err := xast.ModifyFunction(
+			f.String(),
+			"InitGenesis",
+			xast.AppendFuncCode(replacementModuleInit),
+		)
+		if err != nil {
+			return err
+		}
 
 		templateModuleExport := `
-err = k.%[2]v.Walk(ctx, nil, func(key uint64, elem types.%[2]v) (bool, error) {
-		genesis.%[2]vList = append(genesis.%[2]vList, elem)
+err = k.%[1]v.Walk(ctx, nil, func(key uint64, elem types.%[1]v) (bool, error) {
+		genesis.%[1]vList = append(genesis.%[1]vList, elem)
 		return false, nil
 })
 if err != nil {
 	return nil, err
 }
 
-genesis.%[2]vCount, err = k.%[2]vSeq.Peek(ctx)
+genesis.%[1]vCount, err = k.%[1]vSeq.Peek(ctx)
 if err != nil {
 	return nil, err
-}
-
-%[1]v`
+}`
 		replacementModuleExport := fmt.Sprintf(
 			templateModuleExport,
-			typed.PlaceholderGenesisModuleExport,
 			opts.TypeName.UpperCamel,
 		)
-		content = replacer.Replace(content, typed.PlaceholderGenesisModuleExport, replacementModuleExport)
+		content, err = xast.ModifyFunction(
+			content,
+			"ExportGenesis",
+			xast.AppendFuncCode(replacementModuleExport),
+		)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+func genesisTestsModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/genesis_test.go")
 		f, err := r.Disk.Find(path)
@@ -178,32 +194,30 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			return err
 		}
 
-		templateState := `%[2]vList: []types.%[2]v{
-		{
-			Id: 0,
-		},
-		{
-			Id: 1,
-		},
-	},
-	%[2]vCount: 2,
-	%[1]v`
-		replacementValid := fmt.Sprintf(
-			templateState,
-			module.PlaceholderGenesisTestState,
-			opts.TypeName.UpperCamel,
-		)
-		content := replacer.Replace(f.String(), module.PlaceholderGenesisTestState, replacementValid)
+		replacementAssert := fmt.Sprintf(`require.ElementsMatch(t, genesisState.%[1]vList, got.%[1]vList)
+require.Equal(t, genesisState.%[1]vCount, got.%[1]vCount)`, opts.TypeName.UpperCamel)
 
-		templateAssert := `require.ElementsMatch(t, genesisState.%[2]vList, got.%[2]vList)
-require.Equal(t, genesisState.%[2]vCount, got.%[2]vCount)
-%[1]v`
-		replacementTests := fmt.Sprintf(
-			templateAssert,
-			module.PlaceholderGenesisTestAssert,
-			opts.TypeName.UpperCamel,
+		// add parameter to the struct into the new method.
+		content, err := xast.ModifyFunction(
+			f.String(),
+			"TestGenesis",
+			xast.AppendInsideFuncStruct(
+				"GenesisState",
+				fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
+				fmt.Sprintf("[]types.%[1]v{{ Id: 0 }, { Id: 1 }}", opts.TypeName.UpperCamel),
+				-1,
+			),
+			xast.AppendInsideFuncStruct(
+				"GenesisState",
+				fmt.Sprintf("%[1]vCount", opts.TypeName.UpperCamel),
+				"2",
+				-1,
+			),
+			xast.AppendFuncCode(replacementAssert),
 		)
-		content = replacer.Replace(content, module.PlaceholderGenesisTestAssert, replacementTests)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -218,22 +232,26 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 			return err
 		}
 
-		templateValid := `%[2]vList: []types.%[2]v{
-	{
-		Id: 0,
-	},
-	{
-		Id: 1,
-	},
-},
-%[2]vCount: 2,
-%[1]v`
-		replacementValid := fmt.Sprintf(
-			templateValid,
-			module.PlaceholderTypesGenesisValidField,
-			opts.TypeName.UpperCamel,
+		// add parameter to the struct into the new method.
+		content, err := xast.ModifyFunction(
+			f.String(),
+			"TestGenesisState_Validate",
+			xast.AppendInsideFuncStruct(
+				"GenesisState",
+				fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
+				fmt.Sprintf("[]types.%[1]v{{ Id: 0 }, { Id: 1 }}", opts.TypeName.UpperCamel),
+				-1,
+			),
+			xast.AppendInsideFuncStruct(
+				"GenesisState",
+				fmt.Sprintf("%[1]vCount", opts.TypeName.UpperCamel),
+				"2",
+				-1,
+			),
 		)
-		content := replacer.Replace(f.String(), module.PlaceholderTypesGenesisValidField, replacementValid)
+		if err != nil {
+			return err
+		}
 
 		templateTests := `{
 	desc:     "duplicated %[2]v",
