@@ -8,7 +8,6 @@ import (
 
 // InitGenesis initializes the module's state from a provided genesis state.
 func (k Keeper) InitGenesis(ctx context.Context, genState types.GenesisState) error {
-	// this line is used by starport scaffolding # genesis/module/init
 	return k.Params.Set(ctx, genState.Params)
 }
 
@@ -22,7 +21,6 @@ func (k Keeper) ExportGenesis(ctx context.Context) (*types.GenesisState, error) 
 		return nil, err
 	}
 
-	// this line is used by starport scaffolding # genesis/module/export
 
 	return genesis, nil
 }

@@ -12,8 +12,6 @@ import (
 	<%= if (isIBC) { %>capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"<% } %>
 
-	// this line is used by starport scaffolding # 1
-
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )

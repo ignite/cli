@@ -223,48 +223,48 @@ the `msg.Creator` value to the IBC `packet`.
 package keeper
 
 func (k msgServer) SendIbcPost(goCtx context.Context, msg *types.MsgSendIbcPost) (*types.MsgSendIbcPostResponse, error) {
- // validate incoming message
- if _, err := k.addressCodec.StringToBytes(msg.Creator); err != nil {
-  return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", err))
- }
+	// validate incoming message
+	if _, err := k.addressCodec.StringToBytes(msg.Creator); err != nil {
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", err))
+	}
 
- if msg.Port == "" {
-  return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet port")
- }
+	if msg.Port == "" {
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet port")
+	}
 
- if msg.ChannelID == "" {
-  return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet channel")
- }
+	if msg.ChannelID == "" {
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet channel")
+	}
 
- if msg.TimeoutTimestamp == 0 {
-  return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet timeout")
- }
+	if msg.TimeoutTimestamp == 0 {
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet timeout")
+	}
 
- // TODO: logic before transmitting the packet
+	// TODO: logic before transmitting the packet
 
- // Construct the packet
- var packet types.IbcPostPacketData
+	// Construct the packet
+	var packet types.IbcPostPacketData
 
- packet.Title = msg.Title
- packet.Content = msg.Content
- // highlight-next-line
- packet.Creator = msg.Creator
+	packet.Title = msg.Title
+	packet.Content = msg.Content
+	// highlight-next-line
+	packet.Creator = msg.Creator
 
- // Transmit the packet
- ctx := sdk.UnwrapSDKContext(goCtx)
- _, err := k.TransmitIbcPostPacket(
-  ctx,
-  packet,
-  msg.Port,
-  msg.ChannelID,
-  clienttypes.ZeroHeight(),
-  msg.TimeoutTimestamp,
- )
- if err != nil {
-  return nil, err
- }
+	// Transmit the packet
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	_, err := k.TransmitIbcPostPacket(
+		ctx,
+		packet,
+		msg.Port,
+		msg.ChannelID,
+		clienttypes.ZeroHeight(),
+		msg.TimeoutTimestamp,
+	)
+	if err != nil {
+		return nil, err
+	}
 
- return &types.MsgSendIbcPostResponse{}, nil
+	return &types.MsgSendIbcPostResponse{}, nil
 }
 ```
 
@@ -315,11 +315,11 @@ Then modify the `OnRecvIbcPostPacket` keeper function with the following code:
 package keeper
 
 func (k Keeper) OnRecvIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData) (packetAck types.IbcPostPacketAck, err error) {
- packetAck.PostId, err = k.PostSeq.Next(ctx)
- if err != nil {
-  return packetAck, err
- }
- return packetAck, k.Post.Set(ctx, packetAck.PostId, types.Post{Title: data.Title, Content: data.Content})
+	packetAck.PostId, err = k.PostSeq.Next(ctx)
+	if err != nil {
+		return packetAck, err
+	}
+	return packetAck, k.Post.Set(ctx, packetAck.PostId, types.Post{Title: data.Title, Content: data.Content})
 }
 ```
 
@@ -339,33 +339,33 @@ from the packet.
 package keeper
 
 func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData, ack channeltypes.Acknowledgement) error {
- switch dispatchedAck := ack.Response.(type) {
- case *channeltypes.Acknowledgement_Error:
-  // We will not treat acknowledgment error in this tutorial
-  return nil
- case *channeltypes.Acknowledgement_Result:
-  // Decode the packet acknowledgment
-  var packetAck types.IbcPostPacketAck
-  if err := types.ModuleCdc.UnmarshalJSON(dispatchedAck.Result, &packetAck); err != nil {
-   // The counter-party module doesn't implement the correct acknowledgment format
-   return errors.New("cannot unmarshal acknowledgment")
-  }
+	switch dispatchedAck := ack.Response.(type) {
+	case *channeltypes.Acknowledgement_Error:
+		// We will not treat acknowledgment error in this tutorial
+		return nil
+	case *channeltypes.Acknowledgement_Result:
+		// Decode the packet acknowledgment
+		var packetAck types.IbcPostPacketAck
+		if err := types.ModuleCdc.UnmarshalJSON(dispatchedAck.Result, &packetAck); err != nil {
+			// The counter-party module doesn't implement the correct acknowledgment format
+			return errors.New("cannot unmarshal acknowledgment")
+		}
 
-  seq, err := k.SentPostSeq.Next(ctx)
-  if err != nil {
-   return err
-  }
+		seq, err := k.SentPostSeq.Next(ctx)
+		if err != nil {
+			return err
+		}
 
-  return k.SentPost.Set(ctx, seq,
-   types.SentPost{
-    PostId: packetAck.PostId,
-    Title:  data.Title,
-    Chain:  packet.DestinationPort + "-" + packet.DestinationChannel,
-   },
-  )
- default:
-  return errors.New("the counter-party module does not implement the correct acknowledgment format")
- }
+		return k.SentPost.Set(ctx, seq,
+			types.SentPost{
+				PostId: packetAck.PostId,
+				Title:  data.Title,
+				Chain:  packet.DestinationPort + "-" + packet.DestinationChannel,
+			},
+		)
+	default:
+		return errors.New("the counter-party module does not implement the correct acknowledgment format")
+	}
 }
 ```
 
@@ -376,17 +376,17 @@ posts. This logic follows the same format as `sentPost`.
 
 ```go title="x/blog/keeper/ibc_post.go"
 func (k Keeper) OnTimeoutIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData) error {
- seq, err := k.TimeoutPostSeq.Next(ctx)
- if err != nil {
-  return err
- }
+	seq, err := k.TimeoutPostSeq.Next(ctx)
+	if err != nil {
+		return err
+	}
 
- return k.TimeoutPost.Set(ctx, seq,
-  types.TimeoutPost{
-   Title: data.Title,
-   Chain: packet.DestinationPort + "-" + packet.DestinationChannel,
-  },
- )
+	return k.TimeoutPost.Set(ctx, seq,
+		types.TimeoutPost{
+			Title: data.Title,
+			Chain: packet.DestinationPort + "-" + packet.DestinationChannel,
+		},
+	)
 }
 ```
 

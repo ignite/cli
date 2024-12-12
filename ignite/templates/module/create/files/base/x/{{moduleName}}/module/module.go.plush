@@ -14,8 +14,6 @@ import (
 	<%= if (isIBC) { %>porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 	"github.com/spf13/cobra"<% } %>
 
-	// this line is used by starport scaffolding # 1
-
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 	<%= if (isIBC) { %>"<%= modulePath %>/x/<%= moduleName %>/client/cli"<% } %>
