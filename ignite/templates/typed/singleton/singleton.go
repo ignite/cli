@@ -358,8 +358,11 @@ func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 		content, err := xast.ModifyFunction(
 			f.String(),
 			"TestGenesisState_Validate",
-			xast.AppendFuncTestCase(
+			xast.AppendInsideFuncStruct(
+				"GenesisState",
+				opts.TypeName.UpperCamel,
 				fmt.Sprintf("&types.%[1]v{ %[2]v }", opts.TypeName.UpperCamel, sampleFields),
+				-1,
 			),
 		)
 		if err != nil {
