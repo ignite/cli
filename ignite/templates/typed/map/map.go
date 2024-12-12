@@ -16,7 +16,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
-	"github.com/ignite/cli/v29/ignite/templates/module"
 	"github.com/ignite/cli/v29/ignite/templates/typed"
 )
 
@@ -83,7 +82,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 	g.RunFn(genesisTypesModify(opts))
 	g.RunFn(genesisModuleModify(opts))
 	g.RunFn(genesisTestsModify(opts))
-	g.RunFn(genesisTypesTestsModify(replacer, opts))
+	g.RunFn(genesisTypesTestsModify(opts))
 
 	// Modifications for new messages
 	if !opts.NoMessage {
@@ -499,7 +498,7 @@ func genesisTestsModify(opts *typed.Options) genny.RunFn {
 	}
 }
 
-func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis_test.go")
 		f, err := r.Disk.Find(path)
@@ -512,6 +511,25 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 		for i := 0; i < 2; i++ {
 			sampleIndexes[i] = opts.Index.GenesisArgs(i)
 		}
+
+		templateDuplicated := `{
+	desc:     "duplicated %[1]v",
+	genState: &types.GenesisState{
+		%[2]vList: []types.%[2]v{
+			{
+				%[3]v},
+			{
+				%[3]v},
+		},
+	},
+	valid:    false,
+}`
+		replacementDuplicated := fmt.Sprintf(
+			templateDuplicated,
+			opts.TypeName.LowerCamel,
+			opts.TypeName.UpperCamel,
+			sampleIndexes[0],
+		)
 
 		// add parameter to the struct into the new method.
 		content, err := xast.ModifyFunction(
@@ -528,32 +546,11 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 				),
 				-1,
 			),
+			xast.AppendFuncTestCase(replacementDuplicated),
 		)
 		if err != nil {
 			return err
 		}
-
-		templateDuplicated := `{
-	desc:     "duplicated %[2]v",
-	genState: &types.GenesisState{
-		%[3]vList: []types.%[3]v{
-			{
-				%[4]v},
-			{
-				%[4]v},
-		},
-	},
-	valid:    false,
-},
-%[1]v`
-		replacementDuplicated := fmt.Sprintf(
-			templateDuplicated,
-			module.PlaceholderTypesGenesisTestcase,
-			opts.TypeName.LowerCamel,
-			opts.TypeName.UpperCamel,
-			sampleIndexes[0],
-		)
-		content = replacer.Replace(content, module.PlaceholderTypesGenesisTestcase, replacementDuplicated)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

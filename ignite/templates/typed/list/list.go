@@ -58,7 +58,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 	g.RunFn(clientCliQueryModify(replacer, opts))
 
 	// Genesis modifications
-	genesisModify(replacer, opts, g)
+	genesisModify(opts, g)
 
 	if !opts.NoMessage {
 		// Modifications for new messages

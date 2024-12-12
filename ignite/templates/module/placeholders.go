@@ -14,7 +14,4 @@ const (
 	PlaceholderIBCKeysName  = "// this line is used by starport scaffolding # ibc/keys/name"
 	PlaceholderIBCKeysPort  = "// this line is used by starport scaffolding # ibc/keys/port"
 	PlaceholderIBCNewModule = "// this line is used by starport scaffolding # ibc/app/module"
-
-	// Genesis test
-	PlaceholderTypesGenesisTestcase = "// this line is used by starport scaffolding # types/genesis/testcase"
 )

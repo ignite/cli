@@ -15,13 +15,14 @@ import (
 type (
 	// functionOpts represent the options for functions.
 	functionOpts struct {
-		newParams    []param
-		body         string
-		newLines     []line
-		insideCall   []call
-		insideStruct []str
-		appendCode   []string
-		returnVars   []string
+		newParams      []param
+		body           string
+		newLines       []line
+		insideCall     []call
+		insideStruct   []str
+		appendTestCase []string
+		appendCode     []string
+		returnVars     []string
 	}
 
 	// FunctionOptions configures code generation.
@@ -64,6 +65,13 @@ func AppendFuncParams(name, varType string, index int) FunctionOptions {
 func ReplaceFuncBody(body string) FunctionOptions {
 	return func(c *functionOpts) {
 		c.body = body
+	}
+}
+
+// AppendFuncTestCase append test a new test case, if exists, of a function in Go source code content.
+func AppendFuncTestCase(testCase string) FunctionOptions {
+	return func(c *functionOpts) {
+		c.appendTestCase = append(c.appendTestCase, testCase)
 	}
 }
 
@@ -119,13 +127,14 @@ func NewFuncReturn(returnVars ...string) FunctionOptions {
 
 func newFunctionOptions() functionOpts {
 	return functionOpts{
-		newParams:    make([]param, 0),
-		body:         "",
-		newLines:     make([]line, 0),
-		insideCall:   make([]call, 0),
-		insideStruct: make([]str, 0),
-		appendCode:   make([]string, 0),
-		returnVars:   make([]string, 0),
+		newParams:      make([]param, 0),
+		body:           "",
+		newLines:       make([]line, 0),
+		insideCall:     make([]call, 0),
+		insideStruct:   make([]str, 0),
+		appendTestCase: make([]string, 0),
+		appendCode:     make([]string, 0),
+		returnVars:     make([]string, 0),
 	}
 }
 
@@ -148,23 +157,20 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 	// Parse the content of the new function into an ast.
 	var newFunctionBody *ast.BlockStmt
 	if opts.body != "" {
-		newFuncContent := fmt.Sprintf("package p; func _() { %s }", strings.TrimSpace(opts.body))
-		newContent, err := parser.ParseFile(fileSet, "", newFuncContent, parser.ParseComments)
+		newFunctionBody, err = codeToBlockStmt(fileSet, opts.body)
 		if err != nil {
 			return "", err
 		}
-		newFunctionBody = newContent.Decls[0].(*ast.FuncDecl).Body
 	}
 
 	// Parse the content of the append code an ast.
 	appendCode := make([]ast.Stmt, 0)
 	for _, codeToInsert := range opts.appendCode {
-		newFuncContent := fmt.Sprintf("package p; func _() { %s }", strings.TrimSpace(codeToInsert))
-		newContent, err := parser.ParseFile(fileSet, "", newFuncContent, parser.ParseComments)
+		body, err := codeToBlockStmt(fileSet, codeToInsert)
 		if err != nil {
 			return "", err
 		}
-		appendCode = append(appendCode, newContent.Decls[0].(*ast.FuncDecl).Body.List...)
+		appendCode = append(appendCode, body.List...)
 	}
 
 	// Parse the content of the return vars into an ast.
@@ -235,6 +241,7 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 		// Check if the function has the code you want to replace.
 		if newFunctionBody != nil {
 			funcDecl.Body = newFunctionBody
+			funcDecl.Body.Rbrace = funcDecl.Body.Pos() // Re-adjust positions if necessary.
 		}
 
 		// Add the new code at line.
@@ -390,6 +397,37 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 			return false
 		}
 
+		// Locate the `tests` variable inside the function
+		for _, stmt := range funcDecl.Body.List {
+			assignStmt, ok := stmt.(*ast.AssignStmt)
+			if !ok || len(assignStmt.Lhs) == 0 {
+				continue
+			}
+
+			// Check if the `tests` variable is being declared
+			ident, ok := assignStmt.Lhs[0].(*ast.Ident)
+			if !ok || ident.Name != "tests" {
+				continue
+			}
+
+			// Find the composite literal (slice) for the `tests` variable
+			compositeLit, ok := assignStmt.Rhs[0].(*ast.CompositeLit)
+			if !ok {
+				continue
+			}
+
+			for _, testCase := range opts.appendTestCase {
+				// Parse the new test case into an AST expression
+				testCaseStmt, err := structToBlockStmt(testCase)
+				if err != nil {
+					errInspect = err
+					return false
+				}
+				// Append the new test case to the list
+				compositeLit.Elts = append(compositeLit.Elts, testCaseStmt)
+			}
+		}
+
 		// everything is ok, mark as found and stop the inspect
 		found = true
 		return false
@@ -409,4 +447,39 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 
 	// Return the modified content.
 	return buf.String(), nil
+}
+
+func codeToBlockStmt(fileSet *token.FileSet, code string) (*ast.BlockStmt, error) {
+	newFuncContent := toCode(code)
+	newContent, err := parser.ParseFile(fileSet, "", newFuncContent, parser.ParseComments)
+	if err != nil {
+		return nil, err
+	}
+	return newContent.Decls[0].(*ast.FuncDecl).Body, nil
+}
+
+func toCode(code string) string {
+	return fmt.Sprintf("package p; func _() { %s }", strings.TrimSpace(code))
+}
+
+func structToBlockStmt(code string) (ast.Expr, error) {
+	newFuncContent := toStruct(code)
+	newContent, err := parser.ParseExpr(newFuncContent)
+	if err != nil {
+		return nil, err
+	}
+	newCompositeList, ok := newContent.(*ast.CompositeLit)
+	if !ok {
+		return nil, errors.New("not a composite literal")
+	}
+
+	if len(newCompositeList.Elts) != 1 {
+		return nil, errors.New("composite literal has more than one element or zero")
+	}
+
+	return newCompositeList.Elts[0], nil
+}
+
+func toStruct(code string) string {
+	return fmt.Sprintf(`struct {}{ %s }`, strings.TrimSpace(code))
 }

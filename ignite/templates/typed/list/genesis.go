@@ -7,19 +7,17 @@ import (
 	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
-	"github.com/ignite/cli/v29/ignite/templates/module"
 	"github.com/ignite/cli/v29/ignite/templates/typed"
 )
 
-func genesisModify(replacer placeholder.Replacer, opts *typed.Options, g *genny.Generator) {
+func genesisModify(opts *typed.Options, g *genny.Generator) {
 	g.RunFn(genesisProtoModify(opts))
 	g.RunFn(genesisTypesModify(opts))
 	g.RunFn(genesisModuleModify(opts))
 	g.RunFn(genesisTestsModify(opts))
-	g.RunFn(genesisTypesTestsModify(replacer, opts))
+	g.RunFn(genesisTypesTestsModify(opts))
 }
 
 // Modifies the genesis.proto file to add a new field.
@@ -224,13 +222,51 @@ require.Equal(t, genesisState.%[1]vCount, got.%[1]vCount)`, opts.TypeName.UpperC
 	}
 }
 
-func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis_test.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
+
+		templateTestDuplicated := `{
+	desc:     "duplicated %[1]v",
+	genState: &types.GenesisState{
+		%[2]vList: []types.%[2]v{
+			{
+				Id: 0,
+			},
+			{
+				Id: 0,
+			},
+		},
+	},
+	valid:    false,
+}`
+		replacementTestDuplicated := fmt.Sprintf(
+			templateTestDuplicated,
+			opts.TypeName.LowerCamel,
+			opts.TypeName.UpperCamel,
+		)
+
+		templateTestInvalidCount := `{
+	desc:     "invalid %[1]v count",
+	genState: &types.GenesisState{
+		%[2]vList: []types.%[2]v{
+			{
+				Id: 1,
+			},
+		},
+		%[2]vCount: 0,
+	},
+	valid:    false,
+}`
+		replacementInvalidCount := fmt.Sprintf(
+			templateTestInvalidCount,
+			opts.TypeName.LowerCamel,
+			opts.TypeName.UpperCamel,
+		)
 
 		// add parameter to the struct into the new method.
 		content, err := xast.ModifyFunction(
@@ -248,45 +284,12 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 				"2",
 				-1,
 			),
+			xast.AppendFuncTestCase(replacementTestDuplicated),
+			xast.AppendFuncTestCase(replacementInvalidCount),
 		)
 		if err != nil {
 			return err
 		}
-
-		templateTests := `{
-	desc:     "duplicated %[2]v",
-	genState: &types.GenesisState{
-		%[3]vList: []types.%[3]v{
-			{
-				Id: 0,
-			},
-			{
-				Id: 0,
-			},
-		},
-	},
-	valid:    false,
-},
-{
-	desc:     "invalid %[2]v count",
-	genState: &types.GenesisState{
-		%[3]vList: []types.%[3]v{
-			{
-				Id: 1,
-			},
-		},
-		%[3]vCount: 0,
-	},
-	valid:    false,
-},
-%[1]v`
-		replacementTests := fmt.Sprintf(
-			templateTests,
-			module.PlaceholderTypesGenesisTestcase,
-			opts.TypeName.LowerCamel,
-			opts.TypeName.UpperCamel,
-		)
-		content = replacer.Replace(content, module.PlaceholderTypesGenesisTestcase, replacementTests)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
