@@ -350,3 +350,144 @@ func add(a, b int) int {
 		})
 	}
 }
+
+func TestModifyStruct(t *testing.T) {
+	type args struct {
+		fileContent string
+		structName  string
+		options     []StructOpts
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+		err  error
+	}{
+		{
+			name: "Add field to existing struct",
+			args: args{
+				fileContent: `package main
+
+type MyStruct struct {
+	ExistingField int
+}
+`,
+				structName: "MyStruct",
+				options:    []StructOpts{AppendStructValue("NewField", "string")},
+			},
+			want: `package main
+
+type MyStruct struct {
+	ExistingField int
+	NewField      string
+}
+`,
+		},
+		{
+			name: "Add field to empty struct",
+			args: args{
+				fileContent: `package main
+
+type EmptyStruct struct {
+}
+`,
+				structName: "EmptyStruct",
+				options:    []StructOpts{AppendStructValue("NewField", "string")},
+			},
+			want: `package main
+
+type EmptyStruct struct {
+	NewField string
+}
+`,
+		},
+		{
+			name: "Struct not found",
+			args: args{
+				fileContent: `package main
+
+type AnotherStruct struct {
+	ExistingField int
+}
+`,
+				structName: "NonExistentStruct",
+				options:    []StructOpts{AppendStructValue("NewField", "string")},
+			},
+			err: errors.New(`struct "NonExistentStruct" not found in file content`),
+		},
+		{
+			name: "Invalid Go code",
+			args: args{
+				fileContent: `package main
+
+type MyStruct`,
+				structName: "MyStruct",
+				options:    []StructOpts{AppendStructValue("NewField", "string")},
+			},
+			err: errors.New("3:14: expected type, found newline"),
+		},
+		{
+			name: "Add field after multiple existing fields",
+			args: args{
+				fileContent: `package main
+
+type MyStruct struct {
+	Field1 int
+	Field2 string
+}
+`,
+				structName: "MyStruct",
+				options:    []StructOpts{AppendStructValue("Field3", "bool")},
+			},
+			want: `package main
+
+type MyStruct struct {
+	Field1 int
+	Field2 string
+	Field3 bool
+}
+`,
+		},
+		{
+			name: "Empty file input",
+			args: args{
+				fileContent: ``,
+				structName:  "MyStruct",
+				options:     []StructOpts{AppendStructValue("NewField", "string")},
+			},
+			err: errors.New("1:1: expected 'package', found 'EOF'"),
+		},
+		{
+			name: "Add field with pointer type",
+			args: args{
+				fileContent: `package main
+
+type MyStruct struct {
+	ExistingField int
+}
+`,
+				structName: "MyStruct",
+				options:    []StructOpts{AppendStructValue("PointerField", "*int")},
+			},
+			want: `package main
+
+type MyStruct struct {
+	ExistingField int
+	PointerField  *int
+}
+`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ModifyStruct(tt.args.fileContent, tt.args.structName, tt.args.options...)
+			if tt.err != nil {
+				require.Error(t, err)
+				require.Equal(t, tt.err.Error(), err.Error())
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, tt.want, got)
+		})
+	}
+}

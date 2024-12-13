@@ -179,3 +179,101 @@ func AppendFunction(fileContent string, function string) (modifiedContent string
 
 	return buf.String(), nil
 }
+
+type (
+	// structOpts represent the options for structs.
+	structOpts struct {
+		values []structValue
+	}
+
+	// StructOpts configures code generation.
+	StructOpts func(*structOpts)
+
+	structValue struct {
+		value     string
+		valueType string
+	}
+)
+
+// AppendStructValue add a new value inside struct. For instances,
+// the struct have only one field 'test struct{ test1 string }' and we want to add
+// the `test2 int` the result will be 'test struct{ test1 string, test int }'.
+func AppendStructValue(value, valueType string) StructOpts {
+	return func(c *structOpts) {
+		c.values = append(c.values, structValue{
+			value:     value,
+			valueType: valueType,
+		})
+	}
+}
+
+func newStructOptions() structOpts {
+	return structOpts{
+		values: make([]structValue, 0),
+	}
+}
+
+// ModifyStruct modifies a struct in the provided Go source code.
+func ModifyStruct(fileContent, structName string, options ...StructOpts) (string, error) {
+	// Apply struct options.
+	opts := newStructOptions()
+	for _, o := range options {
+		o(&opts)
+	}
+
+	fileSet := token.NewFileSet()
+
+	// Parse the Go source code content.
+	f, err := parser.ParseFile(fileSet, "", fileContent, parser.ParseComments)
+	if err != nil {
+		return "", err
+	}
+
+	// Locate and modify the struct declaration.
+	var found bool
+	ast.Inspect(f, func(n ast.Node) bool {
+		genDecl, ok := n.(*ast.GenDecl)
+		if !ok {
+			return true // Not a general declaration, continue searching.
+		}
+
+		for _, spec := range genDecl.Specs {
+			// Check for type specification.
+			typeSpec, ok := spec.(*ast.TypeSpec)
+			if !ok || typeSpec.Name.Name != structName {
+				continue
+			}
+
+			// Check if the type is a struct.
+			structType, ok := typeSpec.Type.(*ast.StructType)
+			if !ok {
+				continue
+			}
+
+			for _, v := range opts.values {
+				// Add the new field to the struct.
+				newField := &ast.Field{
+					Names: []*ast.Ident{ast.NewIdent(v.value)},
+					Type:  ast.NewIdent(v.valueType),
+				}
+				structType.Fields.List = append(structType.Fields.List, newField)
+			}
+
+			found = true
+			return false // Stop searching once we modify the struct.
+		}
+		return true
+	})
+	if !found {
+		return "", errors.Errorf("struct %q not found in file content", structName)
+	}
+
+	// Format the modified AST.
+	var buf bytes.Buffer
+	if err := format.Node(&buf, fileSet, f); err != nil {
+		return "", err
+	}
+
+	// Return the modified content.
+	return buf.String(), nil
+}

@@ -9,6 +9,7 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
+	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"
 	"github.com/ignite/cli/v29/ignite/templates/module"
@@ -64,11 +65,14 @@ func codecPath(replacer placeholder.Replacer, appPath, moduleName string) genny.
 		content := replacer.Replace(f.String(), oldImport, newImport)
 
 		// Add RegisterMsgServiceDesc method call
-		template := `%[1]v
-
-msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)`
-		replacement := fmt.Sprintf(template, module.Placeholder3)
-		content = replacer.Replace(content, module.Placeholder3, replacement)
+		content, err = xast.ModifyFunction(
+			content,
+			"RegisterInterfaces",
+			xast.AppendFuncCode("msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)"),
+		)
+		if err != nil {
+			return err
+		}
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

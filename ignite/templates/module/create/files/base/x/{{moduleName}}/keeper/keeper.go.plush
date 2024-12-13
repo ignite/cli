@@ -33,7 +33,6 @@ type Keeper struct {
 
 	Schema       collections.Schema
 	Params       collections.Item[types.Params]
-	// this line is used by starport scaffolding # collection/type
 
     <%= if (isIBC) { %>
 	ibcKeeperFn        func() *ibckeeper.Keeper
@@ -68,7 +67,6 @@ func NewKeeper(
 		<%= for (dependency) in dependencies { %>
 		<%= toVariableName(dependency.KeeperName()) %>: <%= toVariableName(dependency.KeeperName()) %>,<% } %>
 		Params:  collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
-		// this line is used by starport scaffolding # collection/instantiate
 	}
 	
 	schema, err := sb.Build()
