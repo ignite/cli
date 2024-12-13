@@ -130,7 +130,7 @@ func keeperModify(opts *typed.Options) genny.RunFn {
 		content, err = xast.ModifyFunction(
 			content,
 			"NewKeeper",
-			xast.AppendInsideFuncStruct(
+			xast.AppendFuncStruct(
 				"Keeper",
 				opts.TypeName.UpperCamel,
 				fmt.Sprintf(`collections.NewItem(sb, types.%[1]vKey, "%[2]v", codec.CollValue[types.%[1]v](cdc))`,
@@ -284,7 +284,7 @@ func genesisTypesModify(opts *typed.Options) genny.RunFn {
 			return err
 		}
 
-		content, err := xast.ModifyFunction(f.String(), "DefaultGenesis", xast.AppendInsideFuncStruct(
+		content, err := xast.ModifyFunction(f.String(), "DefaultGenesis", xast.AppendFuncStruct(
 			"GenesisState",
 			fmt.Sprintf("%[1]v", opts.TypeName.UpperCamel),
 			"nil",
@@ -320,7 +320,7 @@ func genesisTestsModify(opts *typed.Options) genny.RunFn {
 		content, err := xast.ModifyFunction(
 			f.String(),
 			"TestGenesis",
-			xast.AppendInsideFuncStruct(
+			xast.AppendFuncStruct(
 				"GenesisState",
 				opts.TypeName.UpperCamel,
 				fmt.Sprintf("&types.%[1]v{ %[2]v }", opts.TypeName.UpperCamel, sampleFields),
@@ -361,7 +361,7 @@ func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 		content, err := xast.ModifyFunction(
 			f.String(),
 			"TestGenesisState_Validate",
-			xast.AppendInsideFuncStruct(
+			xast.AppendFuncStruct(
 				"GenesisState",
 				opts.TypeName.UpperCamel,
 				fmt.Sprintf("&types.%[1]v{ %[2]v }", opts.TypeName.UpperCamel, sampleFields),

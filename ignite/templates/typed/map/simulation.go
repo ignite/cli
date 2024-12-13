@@ -29,7 +29,7 @@ func moduleSimulationModify(opts *typed.Options) genny.RunFn {
 		content, err := xast.ModifyFunction(
 			f.String(),
 			"GenerateGenesisState",
-			xast.AppendInsideFuncStruct(
+			xast.AppendFuncStruct(
 				"GenesisState",
 				fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
 				fmt.Sprintf(

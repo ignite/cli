@@ -130,7 +130,7 @@ func genesisTypesModify(opts *CreateOptions) genny.RunFn {
 		content, err = xast.ModifyFunction(
 			content,
 			"DefaultGenesis",
-			xast.AppendInsideFuncStruct("GenesisState", "PortId", "PortID", -1),
+			xast.AppendFuncStruct("GenesisState", "PortId", "PortID", -1),
 		)
 		if err != nil {
 			return err

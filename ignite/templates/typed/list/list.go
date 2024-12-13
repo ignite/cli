@@ -336,7 +336,7 @@ func keeperModify(opts *typed.Options) genny.RunFn {
 		content, err = xast.ModifyFunction(
 			content,
 			"NewKeeper",
-			xast.AppendInsideFuncStruct(
+			xast.AppendFuncStruct(
 				"Keeper",
 				fmt.Sprintf("%[1]vSeq", opts.TypeName.UpperCamel),
 				fmt.Sprintf(`collections.NewSequence(sb, types.%[1]vCountKey, "%[2]v_seq")`,
@@ -345,7 +345,7 @@ func keeperModify(opts *typed.Options) genny.RunFn {
 				),
 				-1,
 			),
-			xast.AppendInsideFuncStruct(
+			xast.AppendFuncStruct(
 				"Keeper",
 				opts.TypeName.UpperCamel,
 				fmt.Sprintf(`collections.NewMap(sb, types.%[1]vKey, "%[2]v", collections.Uint64Key, codec.CollValue[types.%[1]v](cdc))`,

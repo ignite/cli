@@ -29,10 +29,10 @@ type (
 	FunctionOptions func(*functionOpts)
 
 	functionStruct struct {
-		structName string
-		paramName  string
-		code       string
-		index      int
+		name  string
+		param string
+		code  string
+		index int
 	}
 	functionCall struct {
 		name  string
@@ -104,16 +104,16 @@ func AppendInsideFuncCall(callName, code string, index int) FunctionOptions {
 	}
 }
 
-// AppendInsideFuncStruct add code inside another function call. For instances,
+// AppendFuncStruct add code inside another function call. For instances,
 // the struct have only one parameter 'Params{Param1: param1}' and we want to add
 // the param2 the result will be 'Params{Param1: param1, Param2: param2}'.
-func AppendInsideFuncStruct(structName, paramName, code string, index int) FunctionOptions {
+func AppendFuncStruct(name, param, code string, index int) FunctionOptions {
 	return func(c *functionOpts) {
 		c.insideStruct = append(c.insideStruct, functionStruct{
-			structName: structName,
-			paramName:  paramName,
-			code:       code,
-			index:      index,
+			name:  name,
+			param: param,
+			code:  code,
+			index: index,
 		})
 	}
 }
@@ -198,12 +198,12 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 	structMap := make(map[string][]functionStruct)
 	structMapCheck := make(map[string][]functionStruct)
 	for _, s := range opts.insideStruct {
-		structs, ok := structMap[s.structName]
+		structs, ok := structMap[s.name]
 		if !ok {
 			structs = []functionStruct{}
 		}
-		structMap[s.structName] = append(structs, s)
-		structMapCheck[s.structName] = append(structs, s)
+		structMap[s.name] = append(structs, s)
+		structMapCheck[s.name] = append(structs, s)
 	}
 
 	// Parse the Go code to insert.
@@ -359,9 +359,9 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 				// Construct the new argument to be added
 				for _, s := range structs {
 					var newArg ast.Expr = ast.NewIdent(s.code)
-					if s.paramName != "" {
+					if s.param != "" {
 						newArg = &ast.KeyValueExpr{
-							Key:   ast.NewIdent(s.paramName),
+							Key:   ast.NewIdent(s.param),
 							Colon: token.Pos(s.index),
 							Value: ast.NewIdent(s.code),
 						}

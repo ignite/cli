@@ -78,7 +78,7 @@ func TestValidate(t *testing.T) {
 					AppendInsideFuncCall("SimpleCall", "baz", 0),
 					AppendInsideFuncCall("SimpleCall", "bla", -1),
 					AppendInsideFuncCall("Println", strconv.Quote("test"), -1),
-					AppendInsideFuncStruct("Param", "Bar", strconv.Quote("bar"), -1),
+					AppendFuncStruct("Param", "Bar", strconv.Quote("bar"), -1),
 					AppendFuncTestCase(`{
 								desc:     "valid first genesis state",
 								genState: GenesisState{},
@@ -448,9 +448,9 @@ func TestValidate(t *testing.T) {
 `,
 				functionName: "anotherFunction",
 				functions: []FunctionOptions{
-					AppendInsideFuncStruct("Param", "Bar", "bar", -1),
-					AppendInsideFuncStruct("Param", "Bla", "bla", 1),
-					AppendInsideFuncStruct("Client", "", "bar", 0),
+					AppendFuncStruct("Param", "Bar", "bar", -1),
+					AppendFuncStruct("Param", "Bla", "bla", 1),
+					AppendFuncStruct("Client", "", "bar", 0),
 				},
 			},
 			want: `package main

@@ -79,7 +79,7 @@ func genesisTypesModify(opts *typed.Options) genny.RunFn {
 		}
 
 		// add parameter to the struct into the new method.
-		content, err = xast.ModifyFunction(content, "DefaultGenesis", xast.AppendInsideFuncStruct(
+		content, err = xast.ModifyFunction(content, "DefaultGenesis", xast.AppendFuncStruct(
 			"GenesisState",
 			fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
 			fmt.Sprintf("[]%[1]v{}", opts.TypeName.UpperCamel),
@@ -199,13 +199,13 @@ require.Equal(t, genesisState.%[1]vCount, got.%[1]vCount)`, opts.TypeName.UpperC
 		content, err := xast.ModifyFunction(
 			f.String(),
 			"TestGenesis",
-			xast.AppendInsideFuncStruct(
+			xast.AppendFuncStruct(
 				"GenesisState",
 				fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
 				fmt.Sprintf("[]types.%[1]v{{ Id: 0 }, { Id: 1 }}", opts.TypeName.UpperCamel),
 				-1,
 			),
-			xast.AppendInsideFuncStruct(
+			xast.AppendFuncStruct(
 				"GenesisState",
 				fmt.Sprintf("%[1]vCount", opts.TypeName.UpperCamel),
 				"2",
@@ -272,13 +272,13 @@ func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 		content, err := xast.ModifyFunction(
 			f.String(),
 			"TestGenesisState_Validate",
-			xast.AppendInsideFuncStruct(
+			xast.AppendFuncStruct(
 				"GenesisState",
 				fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
 				fmt.Sprintf("[]types.%[1]v{{ Id: 0 }, { Id: 1 }}", opts.TypeName.UpperCamel),
 				-1,
 			),
-			xast.AppendInsideFuncStruct(
+			xast.AppendFuncStruct(
 				"GenesisState",
 				fmt.Sprintf("%[1]vCount", opts.TypeName.UpperCamel),
 				"2",
