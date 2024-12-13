@@ -76,7 +76,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 	)
 
 	g.RunFn(protoRPCModify(opts))
-	g.RunFn(keeperModify(replacer, opts))
+	g.RunFn(keeperModify(opts))
 	g.RunFn(clientCliQueryModify(replacer, opts))
 	g.RunFn(genesisProtoModify(opts))
 	g.RunFn(genesisTypesModify(opts))
@@ -116,7 +116,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 }
 
 // keeperModify modifies the keeper to add a new collections map type.
-func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+func keeperModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/keeper.go")
 		f, err := r.Disk.Find(path)
