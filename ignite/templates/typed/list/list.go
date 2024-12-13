@@ -54,7 +54,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 
 	g.RunFn(protoQueryModify(opts))
 	g.RunFn(typesKeyModify(opts))
-	g.RunFn(keeperModify(replacer, opts))
+	g.RunFn(keeperModify(opts))
 	g.RunFn(clientCliQueryModify(replacer, opts))
 
 	// Genesis modifications
@@ -308,7 +308,7 @@ var (
 }
 
 // keeperModify modifies the keeper to add a new collections item type.
-func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+func keeperModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/keeper.go")
 		f, err := r.Disk.Find(path)
@@ -316,15 +316,21 @@ func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunF
 			return err
 		}
 
-		templateKeeperType := `%[2]vSeq collections.Sequence
-	%[2]v    collections.Map[uint64, types.%[2]v]
-	%[1]v`
-		replacementModuleType := fmt.Sprintf(
-			templateKeeperType,
-			typed.PlaceholderCollectionType,
-			opts.TypeName.UpperCamel,
+		content, err := xast.ModifyStruct(
+			f.String(),
+			"Keeper",
+			xast.AppendStructValue(
+				fmt.Sprintf("%[1]vSeq", opts.TypeName.UpperCamel),
+				"collections.Sequence",
+			),
+			xast.AppendStructValue(
+				opts.TypeName.UpperCamel,
+				fmt.Sprintf("collections.Map[uint64, types.%[1]v]", opts.TypeName.UpperCamel),
+			),
 		)
-		content := replacer.Replace(f.String(), typed.PlaceholderCollectionType, replacementModuleType)
+		if err != nil {
+			return err
+		}
 
 		// add parameter to the struct into the new keeper method.
 		content, err = xast.ModifyFunction(

@@ -15,11 +15,11 @@ import (
 type (
 	// functionOpts represent the options for functions.
 	functionOpts struct {
-		newParams      []param
+		newParams      []functionParam
 		body           string
-		newLines       []line
-		insideCall     []call
-		insideStruct   []str
+		newLines       []functionLine
+		insideCall     []functionCall
+		insideStruct   []functionStruct
 		appendTestCase []string
 		appendCode     []string
 		returnVars     []string
@@ -28,23 +28,23 @@ type (
 	// FunctionOptions configures code generation.
 	FunctionOptions func(*functionOpts)
 
-	str struct {
+	functionStruct struct {
 		structName string
 		paramName  string
 		code       string
 		index      int
 	}
-	call struct {
+	functionCall struct {
 		name  string
 		code  string
 		index int
 	}
-	param struct {
+	functionParam struct {
 		name    string
 		varType string
 		index   int
 	}
-	line struct {
+	functionLine struct {
 		code   string
 		number uint64
 	}
@@ -53,7 +53,7 @@ type (
 // AppendFuncParams add a new param value.
 func AppendFuncParams(name, varType string, index int) FunctionOptions {
 	return func(c *functionOpts) {
-		c.newParams = append(c.newParams, param{
+		c.newParams = append(c.newParams, functionParam{
 			name:    name,
 			varType: varType,
 			index:   index,
@@ -85,7 +85,7 @@ func AppendFuncCode(code string) FunctionOptions {
 // AppendFuncAtLine append a new code at line.
 func AppendFuncAtLine(code string, lineNumber uint64) FunctionOptions {
 	return func(c *functionOpts) {
-		c.newLines = append(c.newLines, line{
+		c.newLines = append(c.newLines, functionLine{
 			code:   code,
 			number: lineNumber,
 		})
@@ -96,7 +96,7 @@ func AppendFuncAtLine(code string, lineNumber uint64) FunctionOptions {
 // call 'New(param1, param2)' and we want to add the param3 the result will be 'New(param1, param2, param3)'.
 func AppendInsideFuncCall(callName, code string, index int) FunctionOptions {
 	return func(c *functionOpts) {
-		c.insideCall = append(c.insideCall, call{
+		c.insideCall = append(c.insideCall, functionCall{
 			name:  callName,
 			code:  code,
 			index: index,
@@ -109,7 +109,7 @@ func AppendInsideFuncCall(callName, code string, index int) FunctionOptions {
 // the param2 the result will be 'Params{Param1: param1, Param2: param2}'.
 func AppendInsideFuncStruct(structName, paramName, code string, index int) FunctionOptions {
 	return func(c *functionOpts) {
-		c.insideStruct = append(c.insideStruct, str{
+		c.insideStruct = append(c.insideStruct, functionStruct{
 			structName: structName,
 			paramName:  paramName,
 			code:       code,
@@ -127,11 +127,11 @@ func NewFuncReturn(returnVars ...string) FunctionOptions {
 
 func newFunctionOptions() functionOpts {
 	return functionOpts{
-		newParams:      make([]param, 0),
+		newParams:      make([]functionParam, 0),
 		body:           "",
-		newLines:       make([]line, 0),
-		insideCall:     make([]call, 0),
-		insideStruct:   make([]str, 0),
+		newLines:       make([]functionLine, 0),
+		insideCall:     make([]functionCall, 0),
+		insideStruct:   make([]functionStruct, 0),
 		appendTestCase: make([]string, 0),
 		appendCode:     make([]string, 0),
 		returnVars:     make([]string, 0),
@@ -184,23 +184,23 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 		returnStmts = append(returnStmts, newRetExpr)
 	}
 
-	callMap := make(map[string][]call)
-	callMapCheck := make(map[string][]call)
+	callMap := make(map[string][]functionCall)
+	callMapCheck := make(map[string][]functionCall)
 	for _, c := range opts.insideCall {
 		calls, ok := callMap[c.name]
 		if !ok {
-			calls = []call{}
+			calls = []functionCall{}
 		}
 		callMap[c.name] = append(calls, c)
 		callMapCheck[c.name] = append(calls, c)
 	}
 
-	structMap := make(map[string][]str)
-	structMapCheck := make(map[string][]str)
+	structMap := make(map[string][]functionStruct)
+	structMapCheck := make(map[string][]functionStruct)
 	for _, s := range opts.insideStruct {
 		structs, ok := structMap[s.structName]
 		if !ok {
-			structs = []str{}
+			structs = []functionStruct{}
 		}
 		structMap[s.structName] = append(structs, s)
 		structMapCheck[s.structName] = append(structs, s)
