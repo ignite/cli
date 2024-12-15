@@ -514,7 +514,7 @@ Respects key value pairs declared after the app path to be added to the generate
 
 			if err := plugins[0].Error; err != nil {
 				if strings.Contains(err.Error(), "go.mod file not found in current directory") {
-					return errors.Errorf("We can not find an app at the root of this repository (%s), please make sure your repository url is correct. If you're trying to install an app under a sub folder don't forget to add the path at the end of your repository url. E.g. github.com/ignite/apps/appregistry.", args[0])
+					return errors.Errorf("we can not find an app at the root of this repository (%s), please make sure your repository url is correct. If you're trying to install an app under a sub folder don't forget to add the path at the end of your repository url, e.g: github.com/ignite/apps/appregistry", args[0])
 				}
 
 				return errors.Errorf("error while loading app %q: %w", args[0], plugins[0].Error)
