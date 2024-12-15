@@ -3,7 +3,9 @@ package <%= moduleName %>
 import (
 	"fmt"
 
+	"cosmossdk.io/core/event"
 	errorsmod "cosmossdk.io/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
@@ -193,28 +195,21 @@ func (im IBCModule) OnAcknowledgementPacket(
 		return errorsmod.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
 	}
 
-    ctx.EventManager().EmitEvent(
-        sdk.NewEvent(
-            eventType,
-            sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-            sdk.NewAttribute(types.AttributeKeyAck, fmt.Sprintf("%v", ack)),
-        ),
-    )
+	_ = im.EventService.EventManager(ctx).EmitKV(
+		eventType,
+		event.NewAttribute(types.AttributeKeyAck, fmt.Sprintf("%v", ack)),
+	)
 
 	switch resp := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Result:
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				eventType,
-				sdk.NewAttribute(types.AttributeKeyAckSuccess, string(resp.Result)),
-			),
+		_ = im.EventService.EventManager(ctx).EmitKV(
+			eventType,
+			event.NewAttribute(types.AttributeKeyAckSuccess, string(resp.Result)),
 		)
 	case *channeltypes.Acknowledgement_Error:
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				eventType,
-				sdk.NewAttribute(types.AttributeKeyAckError, resp.Error),
-			),
+		_ = im.EventService.EventManager(ctx).EmitKV(
+			eventType,
+			event.NewAttribute(types.AttributeKeyAckError, resp.Error),
 		)
 	}
 
