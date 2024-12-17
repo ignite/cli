@@ -14,6 +14,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/typed"
 )
@@ -53,20 +54,20 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 
 	g.RunFn(protoQueryModify(opts))
 	g.RunFn(typesKeyModify(opts))
-	g.RunFn(keeperModify(replacer, opts))
+	g.RunFn(keeperModify(opts))
 	g.RunFn(clientCliQueryModify(replacer, opts))
 
 	// Genesis modifications
-	genesisModify(replacer, opts, g)
+	genesisModify(opts, g)
 
 	if !opts.NoMessage {
 		// Modifications for new messages
 		g.RunFn(protoTxModify(opts))
-		g.RunFn(typesCodecModify(replacer, opts))
+		g.RunFn(typesCodecModify(opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
 
 		if !opts.NoSimulation {
-			g.RunFn(moduleSimulationModify(replacer, opts))
+			g.RunFn(moduleSimulationModify(opts))
 			if err := typed.Box(simappTemplate, opts, g); err != nil {
 				return nil, err
 			}
@@ -307,7 +308,7 @@ var (
 }
 
 // keeperModify modifies the keeper to add a new collections item type.
-func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+func keeperModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/keeper.go")
 		f, err := r.Disk.Find(path)
@@ -315,33 +316,55 @@ func keeperModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunF
 			return err
 		}
 
-		templateKeeperType := `%[2]vSeq collections.Sequence
-	%[2]v    collections.Map[uint64, types.%[2]v]
-	%[1]v`
-		replacementModuleType := fmt.Sprintf(
-			templateKeeperType,
-			typed.PlaceholderCollectionType,
-			opts.TypeName.UpperCamel,
+		content, err := xast.ModifyStruct(
+			f.String(),
+			"Keeper",
+			xast.AppendStructValue(
+				fmt.Sprintf("%[1]vSeq", opts.TypeName.UpperCamel),
+				"collections.Sequence",
+			),
+			xast.AppendStructValue(
+				opts.TypeName.UpperCamel,
+				fmt.Sprintf("collections.Map[uint64, types.%[1]v]", opts.TypeName.UpperCamel),
+			),
 		)
-		content := replacer.Replace(f.String(), typed.PlaceholderCollectionType, replacementModuleType)
+		if err != nil {
+			return err
+		}
 
-		templateKeeperInstantiate := `%[2]vSeq: collections.NewSequence(sb, types.%[2]vCountKey, "%[3]v_seq"),
-	%[2]v:    collections.NewMap(sb, types.%[2]vKey, "%[3]v", collections.Uint64Key, codec.CollValue[types.%[2]v](cdc)),
-	%[1]v`
-		replacementInstantiate := fmt.Sprintf(
-			templateKeeperInstantiate,
-			typed.PlaceholderCollectionInstantiate,
-			opts.TypeName.UpperCamel,
-			opts.TypeName.LowerCamel,
+		// add parameter to the struct into the new keeper method.
+		content, err = xast.ModifyFunction(
+			content,
+			"NewKeeper",
+			xast.AppendFuncStruct(
+				"Keeper",
+				fmt.Sprintf("%[1]vSeq", opts.TypeName.UpperCamel),
+				fmt.Sprintf(`collections.NewSequence(sb, types.%[1]vCountKey, "%[2]v_seq")`,
+					opts.TypeName.UpperCamel,
+					opts.TypeName.LowerCamel,
+				),
+				-1,
+			),
+			xast.AppendFuncStruct(
+				"Keeper",
+				opts.TypeName.UpperCamel,
+				fmt.Sprintf(`collections.NewMap(sb, types.%[1]vKey, "%[2]v", collections.Uint64Key, codec.CollValue[types.%[1]v](cdc))`,
+					opts.TypeName.UpperCamel,
+					opts.TypeName.LowerCamel,
+				),
+				-1,
+			),
 		)
-		content = replacer.Replace(content, typed.PlaceholderCollectionInstantiate, replacementInstantiate)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func typesCodecModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+func typesCodecModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/codec.go")
 		f, err := r.Disk.Find(path)
@@ -350,18 +373,26 @@ func typesCodecModify(replacer placeholder.Replacer, opts *typed.Options) genny.
 		}
 
 		// Import
-		replacementImport := `sdk "github.com/cosmos/cosmos-sdk/types"`
-		content := replacer.ReplaceOnce(f.String(), typed.Placeholder, replacementImport)
+		content, err := xast.AppendImports(f.String(), xast.WithLastNamedImport("sdk", "github.com/cosmos/cosmos-sdk/types"))
+		if err != nil {
+			return err
+		}
 
 		// Interface
 		templateInterface := `registrar.RegisterImplementations((*sdk.Msg)(nil),
-	&MsgCreate%[2]v{},
-	&MsgUpdate%[2]v{},
-	&MsgDelete%[2]v{},
-)
-%[1]v`
-		replacementInterface := fmt.Sprintf(templateInterface, typed.Placeholder3, opts.TypeName.UpperCamel)
-		content = replacer.Replace(content, typed.Placeholder3, replacementInterface)
+	&MsgCreate%[1]v{},
+	&MsgUpdate%[1]v{},
+	&MsgDelete%[1]v{},
+)`
+		replacementInterface := fmt.Sprintf(templateInterface, opts.TypeName.UpperCamel)
+		content, err = xast.ModifyFunction(
+			content,
+			"RegisterInterfaces",
+			xast.AppendFuncAtLine(replacementInterface, 0),
+		)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

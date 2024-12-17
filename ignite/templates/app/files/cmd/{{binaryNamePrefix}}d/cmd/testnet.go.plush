@@ -44,7 +44,7 @@ type valArgs struct {
 	newValAddr         bytes.HexBytes
 	newOperatorAddress string
 	newValPubKey       crypto.PubKey
-	accountsToFund     []sdk.AccAddress
+	accountsToFund     []string
 	upgradeToTrigger   string
 	homeDir            string
 }
@@ -158,27 +158,37 @@ func initAppForTestnet(app *app.App, args valArgs) *app.App {
 	iterator.Close()
 
 	// Add our validator to power and last validators store
-	app.StakingKeeper.SetValidator(ctx, newVal)
-	err = app.StakingKeeper.SetValidatorByConsAddr(ctx, newVal)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-		os.Exit(1)
-	}
-	app.StakingKeeper.SetValidatorByPowerIndex(ctx, newVal)
-	app.StakingKeeper.SetLastValidatorPower(ctx, validator, 0)
-	if err := app.StakingKeeper.Hooks().AfterValidatorCreated(ctx, validator); err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-		os.Exit(1)
-	}
-
+	handleErr(app.StakingKeeper.SetValidator(ctx, newVal))
+	handleErr(app.StakingKeeper.SetValidatorByConsAddr(ctx, newVal))
+	handleErr(app.StakingKeeper.SetValidatorByPowerIndex(ctx, newVal))
+	handleErr(app.StakingKeeper.SetLastValidatorPower(ctx, validator, 0))
+	handleErr(app.StakingKeeper.Hooks().AfterValidatorCreated(ctx, validator))
+	
 	// DISTRIBUTION
 	//
 
 	// Initialize records for this validator across all distribution stores
-	app.DistrKeeper.ValidatorHistoricalRewards.Set(ctx, collections.Join(sdk.ValAddress(validator), uint64(0)), distrtypes.NewValidatorHistoricalRewards(sdk.DecCoins{}, 1))
-	app.DistrKeeper.ValidatorCurrentRewards.Set(ctx, validator, distrtypes.NewValidatorCurrentRewards(sdk.DecCoins{}, 1))
-	app.DistrKeeper.ValidatorsAccumulatedCommission.Set(ctx, validator, distrtypes.InitialValidatorAccumulatedCommission())
-	app.DistrKeeper.ValidatorOutstandingRewards.Set(ctx, validator, distrtypes.ValidatorOutstandingRewards{Rewards: sdk.DecCoins{}})
+	handleErr(app.DistrKeeper.ValidatorHistoricalRewards.Set(
+		ctx,
+		collections.Join(sdk.ValAddress(validator), uint64(0)),
+		distrtypes.NewValidatorHistoricalRewards(sdk.DecCoins{}, 1),
+	))
+
+	handleErr(app.DistrKeeper.ValidatorCurrentRewards.Set(
+		ctx,
+		validator,
+		distrtypes.NewValidatorCurrentRewards(sdk.DecCoins{}, 1),
+	))
+
+	handleErr(app.DistrKeeper.ValidatorsAccumulatedCommission.Set(
+		ctx, validator, distrtypes.InitialValidatorAccumulatedCommission(),
+	))
+
+	handleErr(app.DistrKeeper.ValidatorOutstandingRewards.Set(
+		ctx,
+		validator,
+		distrtypes.ValidatorOutstandingRewards{Rewards: sdk.DecCoins{}},
+	))
 	
 <%= if (!IsChainMinimal) { %>
 	// SLASHING
@@ -205,12 +215,19 @@ func initAppForTestnet(app *app.App, args valArgs) *app.App {
 	defaultCoins := sdk.NewCoins(sdk.NewInt64Coin(bondDenom, 1000000000))
 
 	// Fund local accounts
-	for _, account := range args.accountsToFund {
+	for _, accountStr := range args.accountsToFund {
 		err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, defaultCoins)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
 			os.Exit(1)
 		}
+
+		account, err := app.AuthKeeper.AddressCodec().StringToBytes(accountStr)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			os.Exit(1)
+		}
+
 		err = app.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, account, defaultCoins)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
@@ -246,18 +263,9 @@ func getCommandArgs(appOpts servertypes.AppOptions) (valArgs, error) {
 	}
 	args.upgradeToTrigger = upgradeToTrigger
 
-	// validate  and set accounts to fund
+	// parsing  and set accounts to fund
 	accountsString := cast.ToString(appOpts.Get(flagAccountsToFund))
-
-	for _, account := range strings.Split(accountsString, ",") {
-		if account != "" {
-			addr, err := sdk.AccAddressFromBech32(account)
-			if err != nil {
-				return args, fmt.Errorf("invalid bech32 address format %w", err)
-			}
-			args.accountsToFund = append(args.accountsToFund, addr)
-		}
-	}
+	args.accountsToFund = append(args.accountsToFund, strings.Split(accountsString, ",")...)
 
 	// home dir
 	homeDir := cast.ToString(appOpts.Get(flags.FlagHome))
@@ -267,4 +275,12 @@ func getCommandArgs(appOpts servertypes.AppOptions) (valArgs, error) {
 	args.homeDir = homeDir
 
 	return args, nil
+}
+
+// handleErr prints the error and exits the program if the error is not nil
+func handleErr(err error) {
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(1)
+	}
 }

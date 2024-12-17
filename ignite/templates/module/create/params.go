@@ -81,7 +81,7 @@ func paramsTypesModify(opts ParamsOptions) genny.RunFn {
 			newParamsModifier = append(
 				newParamsModifier,
 				xast.AppendFuncParams(param.Name.LowerCamel, param.DataType(), -1),
-				xast.AppendInsideFuncStruct(
+				xast.AppendFuncStruct(
 					"Params",
 					param.Name.UpperCamel,
 					param.Name.LowerCamel,
