@@ -3,6 +3,8 @@ package scaffolder
 import (
 	"encoding/json"
 	"os"
+
+	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 )
 
 const (
@@ -245,7 +247,31 @@ func (c assetListJSON) SaveJSON(out string) error {
 	return os.WriteFile(out, bz, 0666)
 }
 
-// CreateChainRegistryFiles creates a the chain registry files in the scaffolded chains.
-func (s Scaffolder) CreateChainRegistryFiles() error {
+// AddChainInfo generates the chain registry files in the scaffolded chains.
+func (s Scaffolder) AddChainInfo(cfg *chainconfig.Config) error {
+	chain := chainJSON{
+		ChainName:   cfg.Chain.Name,
+		Status:      StatusUpcoming,
+		NetworkType: NetworkDevnet,
+		Website:     cfg.Chain.Name,
+		PrettyName:  cfg.Chain.PrettyName,
+		ChainType:   DefaultChainType,
+		ChainID:     "", // get from genesis
+		// ...populate other fields based on cfg...
+	}
+
+	assetList := assetListJSON{
+		ChainName: chain.ChainName,
+		Assets:    nil,
+	}
+
+	if err := chain.SaveJSON("chain.json"); err != nil {
+		return err
+	}
+
+	if err := assetList.SaveJSON("assets.json"); err != nil {
+		return err
+	}
+
 	return nil
 }
