@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## [`v28.6.1`](https://github.com/ignite/cli/releases/tag/v28.6.1)
+
+### Changes
+
+- []() Bump scaffolded chain to Cosmos SDK `v0.50.11`. Previous version have a high security vulnerability.
+
 ## [`v28.6.0`](https://github.com/ignite/cli/releases/tag/v28.6.0)
 
 ### Features
