@@ -111,7 +111,7 @@ Add the `PostKey` and `PostCountKey` functions to the `x/blog/types/keys.go` fil
 
 ```go title="x/blog/types/keys.go"
 	// PostKey is used to uniquely identify posts within the system.
-	// It will be used as the beginning of the key for each post, followed by their unique ID
+	// It will be used as the beginning of the key for each post, followed bei their unique ID
 	PostKey = "Post/value/"
 
 	// This key will be used to keep track of the ID of the latest post added to the store.
@@ -220,7 +220,7 @@ ignite scaffold message delete-post id:uint
 This command enables the deletion of posts by their ID.
 
 2. **Delete Logic:**
-
+ 
 Implement RemovePost in `x/blog/keeper/post.go` to delete posts from the store.
 
 ```go title="x/blog/keeper/post.go"
@@ -301,7 +301,7 @@ func (k Keeper) ShowPost(goCtx context.Context, req *types.QueryShowPostRequest)
 		return nil, sdkerrors.ErrKeyNotFound
 	}
 
-	return &types.QueryShowPostResponse{Post: &post}, nil
+	return &types.QueryShowPostResponse{Post: post}, nil
 }
 ```
 
@@ -364,18 +364,6 @@ message QueryListPostResponse {
   repeated Post post = 1 [(gogoproto.nullable) = false];
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
-```
-
-Build the blockchain:
-
-```
-ignite chain build
-```
-
-Start the blockchain:
-
-```
-ignite chain serve
 ```
 
 **Interacting with the Blog**
