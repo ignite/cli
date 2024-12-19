@@ -1,6 +1,7 @@
 module github.com/ignite/cli/ignite/internal/tools/gen-mig-diffs
 
-go 1.23.1
+go 1.23.3
+
 toolchain go1.23.4
 
 replace (
@@ -23,7 +24,7 @@ require (
 require (
 	dario.cat/mergo v1.0.0 // indirect
 	github.com/AlecAivazis/survey/v2 v2.3.7 // indirect
-	github.com/Microsoft/go-winio v0.6.1 // indirect
+	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/ProtonMail/go-crypto v1.0.0 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
