@@ -1,4 +1,4 @@
-version: v1
+version: v2
 plugins:
   - remote: buf.build/protocolbuffers/go
     out: .
