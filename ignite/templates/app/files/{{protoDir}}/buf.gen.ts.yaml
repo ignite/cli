@@ -3,7 +3,7 @@
 #
 # buf.gen.ts.yaml
 #
-version: v2
+version: v1
 managed:
   enabled: true
 plugins:
