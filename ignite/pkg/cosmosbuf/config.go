@@ -7,7 +7,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const workFilename = "buf.work.yaml"
+const bufConfig = "buf.yaml"
 
 // BufWork represents the buf.work.yaml file.
 type BufWork struct {
@@ -17,9 +17,9 @@ type BufWork struct {
 	Directories []string `yaml:"directories"`
 }
 
-// ParseBufWork parse the buf.work.yaml file at app path.
-func ParseBufWork(appPath string) (BufWork, error) {
-	path := filepath.Join(appPath, workFilename)
+// ParseBufConfig parse the buf.yaml file at app path.
+func ParseBufConfig(appPath string) (BufWork, error) {
+	path := filepath.Join(appPath, bufConfig)
 
 	f, err := os.Open(path)
 	if err != nil {
