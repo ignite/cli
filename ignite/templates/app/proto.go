@@ -13,7 +13,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"
 )
 
-//go:embed files/{{protoDir}}/* files/buf.work.yaml.plush
+//go:embed files/{{protoDir}}/* files/buf.lock files/buf.yaml.plush
 var fsProto embed.FS
 
 // NewBufGenerator returns the generator to buf build files.

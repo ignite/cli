@@ -11,22 +11,22 @@ import (
 
 // CheckBufProtoDir check if the proto path exist into the directory list in the buf.work.yaml file.
 func CheckBufProtoDir(appPath, protoDir string) (bool, []string, error) {
-	workFile, err := cosmosbuf.ParseBufWork(appPath)
+	bufCfg, err := cosmosbuf.ParseBufConfig(appPath)
 	if err != nil {
 		return false, nil, err
 	}
 
-	missing, err := workFile.MissingDirectories()
+	missing, err := bufCfg.MissingDirectories()
 	if err != nil {
 		return false, nil, err
 	}
 
-	return workFile.HasProtoDir(protoDir), missing, nil
+	return bufCfg.HasProtoDir(protoDir), missing, nil
 }
 
 // AddBufProtoDir add the proto path into the directory list in the buf.work.yaml file.
 func AddBufProtoDir(appPath, protoDir string) error {
-	workFile, err := cosmosbuf.ParseBufWork(appPath)
+	workFile, err := cosmosbuf.ParseBufConfig(appPath)
 	if err != nil {
 		return err
 	}
@@ -36,7 +36,7 @@ func AddBufProtoDir(appPath, protoDir string) error {
 
 // RemoveBufProtoDirs add the proto path into the directory list in the buf.work.yaml file.
 func RemoveBufProtoDirs(appPath string, protoDirs ...string) error {
-	workFile, err := cosmosbuf.ParseBufWork(appPath)
+	workFile, err := cosmosbuf.ParseBufConfig(appPath)
 	if err != nil {
 		return err
 	}

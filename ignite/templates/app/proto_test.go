@@ -10,7 +10,7 @@ import (
 )
 
 func TestBufFiles(t *testing.T) {
-	want := []string{"buf.work.yaml"}
+	want := []string{"buf.lock", "buf.yaml"}
 	protoDir, err := os.ReadDir("files/{{protoDir}}")
 	require.NoError(t, err)
 	for _, e := range protoDir {

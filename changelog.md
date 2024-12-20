@@ -22,6 +22,7 @@
 - [#4436](https://github.com/ignite/cli/pull/4436) Return tx hash to the faucet API
 - [#4437](https://github.com/ignite/cli/pull/4437) Remove module placeholders
 - [#4289](https://github.com/ignite/cli/pull/4289), [#4423](https://github.com/ignite/cli/pull/4423), [#4432](https://github.com/ignite/cli/pull/4432) Cosmos SDK v0.52 support
+- [#4166](https://github.com/ignite/cli/issues/4166) Migrate buf config files to v2
 
 ### Changes
 
