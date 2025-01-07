@@ -74,7 +74,7 @@ func scaffoldChainRegistryFiles(cmd *cobra.Command, args []string) error {
 	}
 
 	session.Println(modificationsStr)
-	session.Printf("\n🎉 Chain Registry files (assets.json and chain.json) succesfully scaffolded.\n")
+	session.Printf("\n🎉 Chain Registry files (assets.json and chain.json) successfully scaffolded.\n")
 
 	return nil
 }
