@@ -54,6 +54,12 @@
 - [#4128](https://github.com/ignite/cli/pull/4128) Check for duplicate proto fields in config
 - [#4402](https://github.com/ignite/cli/pull/4402) Fix gentx parser into the cosmosutil package
 
+## [`v28.6.1`](https://github.com/ignite/cli/releases/tag/v28.6.1)
+
+### Changes
+
+- [#4449](https://github.com/ignite/cli/pull/4449) Bump scaffolded chain to Cosmos SDK `v0.50.11`. Previous version have a high security vulnerability.
+
 ## [`v28.6.0`](https://github.com/ignite/cli/releases/tag/v28.6.0)
 
 ### Features
