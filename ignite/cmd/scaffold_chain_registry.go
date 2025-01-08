@@ -49,7 +49,7 @@ func scaffoldChainRegistryFiles(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	var appPath = flagGetPath(cmd)
+	appPath := flagGetPath(cmd)
 	sc, err := scaffolder.New(cmd.Context(), appPath, cfg.Build.Proto.Path)
 	if err != nil {
 		return err

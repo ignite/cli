@@ -8,12 +8,12 @@ import (
 	"path/filepath"
 	"strings"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/xgit"
 	"github.com/ignite/cli/v29/ignite/services/chain"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 const (
@@ -117,7 +117,7 @@ func (c chainJSON) SaveJSON(out string) error {
 		return err
 	}
 
-	return os.WriteFile(out, bz, 0666)
+	return os.WriteFile(out, bz, 0o666)
 }
 
 // https://raw.githubusercontent.com/cosmos/chain-registry/master/assetlist.schema.json
@@ -156,7 +156,7 @@ func (c assetListJSON) SaveJSON(out string) error {
 		return err
 	}
 
-	return os.WriteFile(out, bz, 0666)
+	return os.WriteFile(out, bz, 0o666)
 }
 
 // AddChainRegistryFiles generates the chain registry files in the scaffolded chains.
