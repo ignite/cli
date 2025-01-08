@@ -3,6 +3,7 @@ package scaffolder
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -47,61 +48,61 @@ type chainJSON struct {
 	KeyAlgos     []string `json:"key_algos"`
 	Slip44       int      `json:"slip44"`
 	Fees         struct {
-		FeeTokens []FeeToken `json:"fee_tokens"`
+		FeeTokens []feeToken `json:"fee_tokens"`
 	} `json:"fees"`
-	Staking     Staking  `json:"staking"`
-	Codebase    Codebase `json:"codebase"`
+	Staking     staking  `json:"staking"`
+	Codebase    codebase `json:"codebase"`
 	Description string   `json:"description"`
 }
 
-type Staking struct {
-	StakingTokens []StakingToken `json:"staking_tokens"`
+type staking struct {
+	StakingTokens []stakingToken `json:"staking_tokens"`
 }
 
-type StakingToken struct {
+type stakingToken struct {
 	Denom string `json:"denom"`
 }
 
-type Codebase struct {
+type codebase struct {
 	GitRepo            string            `json:"git_repo"`
-	Genesis            CodebaseGenesis   `json:"genesis"`
+	Genesis            codebaseGenesis   `json:"genesis"`
 	RecommendedVersion string            `json:"recommended_version"`
 	CompatibleVersions []string          `json:"compatible_versions"`
-	Consensus          CodebaseConsensus `json:"consensus"`
-	Sdk                CodebaseSDK       `json:"sdk"`
-	Ibc                CodebaseIBC       `json:"ibc,omitempty"`
-	Cosmwasm           CodebaseCosmwam   `json:"cosmwasm,omitempty"`
+	Consensus          codebaseConsensus `json:"consensus"`
+	Sdk                codebaseSDK       `json:"sdk"`
+	Ibc                codebaseIBC       `json:"ibc,omitempty"`
+	Cosmwasm           codebaseCosmwam   `json:"cosmwasm,omitempty"`
 }
 
-type CodebaseGenesis struct {
+type codebaseGenesis struct {
 	GenesisURL string `json:"genesis_url"`
 }
 
-type CodebaseConsensus struct {
+type codebaseConsensus struct {
 	Type    string `json:"type"`
 	Version string `json:"version"`
 }
 
-type CodebaseSDK struct {
+type codebaseSDK struct {
 	Type    string `json:"type"`
 	Version string `json:"version"`
 }
 
-type CodebaseIBC struct {
+type codebaseIBC struct {
 	Type    string `json:"type"`
 	Version string `json:"version"`
 }
 
-type CodebaseCosmwam struct {
+type codebaseCosmwam struct {
 	Version string `json:"version,omitempty"`
 	Enabled bool   `json:"enabled"`
 }
 
-type Fees struct {
-	FeeTokens []FeeToken `json:"fee_tokens"`
+type fees struct {
+	FeeTokens []feeToken `json:"fee_tokens"`
 }
 
-type FeeToken struct {
+type feeToken struct {
 	Denom            string  `json:"denom"`
 	FixedMinGasPrice float64 `json:"fixed_min_gas_price"`
 	LowGasPrice      float64 `json:"low_gas_price"`
@@ -122,48 +123,30 @@ func (c chainJSON) SaveJSON(out string) error {
 // https://raw.githubusercontent.com/cosmos/chain-registry/master/assetlist.schema.json
 // https://github.com/cosmos/chain-registry?tab=readme-ov-file#assetlists
 type assetListJSON struct {
-	ChainName string `json:"chain_name"`
-	Assets    []struct {
-		Description         string `json:"description"`
-		ExtendedDescription string `json:"extended_description,omitempty"`
-		DenomUnits          []struct {
-			Denom    string `json:"denom"`
-			Exponent int    `json:"exponent"`
-		} `json:"denom_units"`
-		Base     string `json:"base"`
-		Name     string `json:"name"`
-		Display  string `json:"display"`
-		Symbol   string `json:"symbol"`
-		LogoURIs struct {
-			Png string `json:"png"`
-			Svg string `json:"svg"`
-		} `json:"logo_URIs"`
-		CoingeckoID string `json:"coingecko_id,omitempty"`
-		Images      []struct {
-			Png   string `json:"png"`
-			Svg   string `json:"svg"`
-			Theme struct {
-				PrimaryColorHex string `json:"primary_color_hex"`
-			} `json:"theme"`
-		} `json:"images"`
-		Socials struct {
-			Website string `json:"website"`
-			Twitter string `json:"twitter"`
-		} `json:"socials,omitempty"`
-		TypeAsset string `json:"type_asset"`
-		Traces    []struct {
-			Type         string `json:"type"`
-			Counterparty struct {
-				ChainName string `json:"chain_name"`
-				BaseDenom string `json:"base_denom"`
-				ChannelID string `json:"channel_id"`
-			} `json:"counterparty"`
-			Chain struct {
-				ChannelID string `json:"channel_id"`
-				Path      string `json:"path"`
-			} `json:"chain"`
-		} `json:"traces,omitempty"`
-	} `json:"assets"`
+	ChainName string  `json:"chain_name"`
+	Assets    []asset `json:"assets"`
+}
+
+type asset struct {
+	Description string      `json:"description"`
+	DenomUnits  []denomUnit `json:"denom_units"`
+	Base        string      `json:"base"`
+	Name        string      `json:"name"`
+	Display     string      `json:"display"`
+	Symbol      string      `json:"symbol"`
+	CoingeckoID string      `json:"coingecko_id,omitempty"`
+	Socials     socials     `json:"socials,omitempty"`
+	TypeAsset   string      `json:"type_asset"`
+}
+
+type denomUnit struct {
+	Denom    string `json:"denom"`
+	Exponent int    `json:"exponent"`
+}
+
+type socials struct {
+	Website string `json:"website"`
+	Twitter string `json:"twitter"`
 }
 
 // SaveJSON saves the assetList to the given out directory.
@@ -196,14 +179,14 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 	chainGitURL, _ /* do not fail on non-existing git repo */ := xgit.RespositoryURL(chain.AppPath())
 
 	var (
-		consensus CodebaseConsensus
-		cosmwasm  CodebaseCosmwam
-		ibc       CodebaseIBC
+		consensus codebaseConsensus
+		cosmwasm  codebaseCosmwam
+		ibc       codebaseIBC
 	)
 
 	consensusVersion, err := getVersionOfFromGoMod(chain, "github.com/cometbft/cometbft")
 	if err == nil {
-		consensus = CodebaseConsensus{
+		consensus = codebaseConsensus{
 			Type:    "cometbft",
 			Version: consensusVersion,
 		}
@@ -211,7 +194,7 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 
 	cosmwasmVersion, err := getVersionOfFromGoMod(chain, "github.com/CosmWasm/wasmd")
 	if err == nil {
-		cosmwasm = CodebaseCosmwam{
+		cosmwasm = codebaseCosmwam{
 			Version: cosmwasmVersion,
 			Enabled: true,
 		}
@@ -219,7 +202,7 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 
 	ibcVersion, err := getVersionOfFromGoMod(chain, "github.com/cosmos/ibc-go")
 	if err == nil {
-		ibc = CodebaseIBC{
+		ibc = codebaseIBC{
 			Type:    "go",
 			Version: ibcVersion,
 		}
@@ -248,8 +231,8 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 		NodeHome:     chainHome,
 		KeyAlgos:     []string{"secp256k1"},
 		Slip44:       118,
-		Fees: Fees{
-			FeeTokens: []FeeToken{
+		Fees: fees{
+			FeeTokens: []feeToken{
 				{
 					Denom:            defaultDenom,
 					FixedMinGasPrice: 0.025,
@@ -259,18 +242,18 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 				},
 			},
 		},
-		Staking: Staking{
-			StakingTokens: []StakingToken{
+		Staking: staking{
+			StakingTokens: []stakingToken{
 				{
 					Denom: defaultDenom,
 				},
 			},
 		},
-		Codebase: Codebase{
+		Codebase: codebase{
 			GitRepo:            chainGitURL,
 			RecommendedVersion: "v1.0.0",
 			CompatibleVersions: []string{"v1.0.0"},
-			Sdk: CodebaseSDK{
+			Sdk: codebaseSDK{
 				Type:    "cosmos",
 				Version: chain.Version.String(),
 			},
@@ -282,7 +265,25 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 
 	assetListJson := assetListJSON{
 		ChainName: chainJson.ChainName,
-		Assets:    nil,
+		Assets: []asset{
+			{
+				Description: fmt.Sprintf("The native token of the %s chain", chainJson.ChainName),
+				DenomUnits: []denomUnit{
+					{
+						Denom:    defaultDenom,
+						Exponent: 0,
+					},
+				},
+				Base:      defaultDenom,
+				Name:      chainJson.ChainName,
+				Symbol:    strings.ToUpper(defaultDenom),
+				TypeAsset: "sdk.coin",
+				Socials: socials{
+					Website: "https://example.com",
+					Twitter: "https://x.com/ignite",
+				},
+			},
+		},
 	}
 
 	if err := chainJson.SaveJSON(chainFilename); err != nil {
