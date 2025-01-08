@@ -247,8 +247,8 @@ func (c assetListJSON) SaveJSON(out string) error {
 	return os.WriteFile(out, bz, 0666)
 }
 
-// AddChainInfo generates the chain registry files in the scaffolded chains.
-func (s Scaffolder) AddChainInfo(cfg *chainconfig.Config) error {
+// AddChainRegistryFiles generates the chain registry files in the scaffolded chains.
+func (s Scaffolder) AddChainRegistryFiles(cfg *chainconfig.Config) error {
 	chain := chainJSON{
 		ChainName:   cfg.Chain.Name,
 		Status:      StatusUpcoming,
