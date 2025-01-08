@@ -35,7 +35,7 @@ Read more about the assets.json at https://github.com/cosmos/chain-registry?tab=
 	return c
 }
 
-func scaffoldChainRegistryFiles(cmd *cobra.Command, args []string) error {
+func scaffoldChainRegistryFiles(cmd *cobra.Command, _ []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
 

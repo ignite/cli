@@ -117,7 +117,7 @@ func (c chainJSON) SaveJSON(out string) error {
 		return err
 	}
 
-	return os.WriteFile(out, bz, 0o666)
+	return os.WriteFile(out, bz, 0o600)
 }
 
 // https://raw.githubusercontent.com/cosmos/chain-registry/master/assetlist.schema.json
@@ -156,7 +156,7 @@ func (c assetListJSON) SaveJSON(out string) error {
 		return err
 	}
 
-	return os.WriteFile(out, bz, 0o666)
+	return os.WriteFile(out, bz, 0o600)
 }
 
 // AddChainRegistryFiles generates the chain registry files in the scaffolded chains.
@@ -218,7 +218,7 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 		}
 	}
 
-	chainJson := chainJSON{
+	chainData := chainJSON{
 		ChainName:    chain.Name(),
 		PrettyName:   chain.Name(),
 		ChainType:    DefaultChainType,
@@ -263,11 +263,11 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 		},
 	}
 
-	assetListJson := assetListJSON{
-		ChainName: chainJson.ChainName,
+	assetListData := assetListJSON{
+		ChainName: chainData.ChainName,
 		Assets: []asset{
 			{
-				Description: fmt.Sprintf("The native token of the %s chain", chainJson.ChainName),
+				Description: fmt.Sprintf("The native token of the %s chain", chainData.ChainName),
 				DenomUnits: []denomUnit{
 					{
 						Denom:    defaultDenom,
@@ -275,7 +275,7 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 					},
 				},
 				Base:      defaultDenom,
-				Name:      chainJson.ChainName,
+				Name:      chainData.ChainName,
 				Symbol:    strings.ToUpper(defaultDenom),
 				TypeAsset: "sdk.coin",
 				Socials: socials{
@@ -286,11 +286,11 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 		},
 	}
 
-	if err := chainJson.SaveJSON(chainFilename); err != nil {
+	if err := chainData.SaveJSON(chainFilename); err != nil {
 		return err
 	}
 
-	if err := assetListJson.SaveJSON(assetListFilename); err != nil {
+	if err := assetListData.SaveJSON(assetListFilename); err != nil {
 		return err
 	}
 
