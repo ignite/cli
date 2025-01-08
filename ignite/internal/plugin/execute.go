@@ -3,6 +3,7 @@ package plugininternal
 import (
 	"bytes"
 	"context"
+	"sync"
 
 	"google.golang.org/grpc/status"
 
@@ -14,6 +15,7 @@ import (
 // Execute starts and executes a plugin, then shutdowns it.
 func Execute(ctx context.Context, path string, args []string, options ...plugin.APIOption) (string, error) {
 	var buf bytes.Buffer
+	var mu sync.Mutex
 	plugins, err := plugin.Load(
 		ctx,
 		[]pluginsconfig.Plugin{{Path: path}},
@@ -38,5 +40,7 @@ func Execute(ctx context.Context, path string, args []string, options ...plugin.
 	}
 
 	plugins[0].KillClient()
+	mu.Lock()
+	defer mu.Unlock()
 	return buf.String(), err
 }
