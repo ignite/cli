@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
+	"github.com/ignite/cli/v29/ignite/services/chain"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
 )
 
@@ -21,7 +22,7 @@ publish the chain's metadata in the chain registry.
 
 Read more about the chain.json at https://github.com/cosmos/chain-registry?tab=readme-ov-file#chainjson
 Read more about the assets.json at https://github.com/cosmos/chain-registry?tab=readme-ov-file#assetlists`,
-		Args:    cobra.MinimumNArgs(1),
+		Args:    cobra.NoArgs,
 		PreRunE: migrationPreRunHandler,
 		RunE:    scaffoldChainRegistryFiles,
 	}
@@ -35,8 +36,6 @@ Read more about the assets.json at https://github.com/cosmos/chain-registry?tab=
 }
 
 func scaffoldChainRegistryFiles(cmd *cobra.Command, args []string) error {
-	var appPath = flagGetPath(cmd)
-
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
 	defer session.End()
 
@@ -45,36 +44,25 @@ func scaffoldChainRegistryFiles(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	cacheStorage, err := newCache(cmd)
+	c, err := chain.NewWithHomeFlags(cmd)
 	if err != nil {
 		return err
 	}
 
+	var appPath = flagGetPath(cmd)
 	sc, err := scaffolder.New(cmd.Context(), appPath, cfg.Build.Proto.Path)
 	if err != nil {
 		return err
 	}
 
-	if err = sc.AddChainRegistryFiles(cfg); err != nil {
+	if err = sc.AddChainRegistryFiles(c, cfg); err != nil {
 		return err
 	}
 
-	sm, err := sc.ApplyModifications()
-	if err != nil {
-		return err
-	}
+	// no need for post scaffolding, as we are just creating two files
+	// that are not part of the build process
 
-	if err := sc.PostScaffold(cmd.Context(), cacheStorage, false); err != nil {
-		return err
-	}
-
-	modificationsStr, err := sm.String()
-	if err != nil {
-		return err
-	}
-
-	session.Println(modificationsStr)
-	session.Printf("\n🎉 Chain Registry files (assets.json and chain.json) successfully scaffolded.\n")
+	session.Printf("🎉 chain-registry files successfully scaffolded\n")
 
 	return nil
 }

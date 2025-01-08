@@ -8,13 +8,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
 )
 
-type ChainInfo struct {
-	Name       string `yaml:"chain_name" doc:"Contains the name of the chain."`
-	PrettyName string `yaml:"pretty_name" docs:"Contains the pretty name of the chain."`
-	Website    string `yaml:"website" doc:"Contains the website of the chain."`
-	ChainID    string `yaml:"chain_id" docs:"Contains the chain ID."`
-}
-
 // Account holds the options related to setting up Cosmos wallets.
 type Account struct {
 	Name          string   `yaml:"name" doc:"Local name associated with the Account's key pair."`
@@ -140,7 +133,6 @@ const (
 
 // Config defines a struct with the fields that are common to all config versions.
 type Config struct {
-	Chain      ChainInfo       `yaml:"chain_info" doc:"Defines the chain information."`
 	Validation Validation      `yaml:"validation,omitempty" doc:"Specifies the type of validation the blockchain uses (e.g., sovereign)."`
 	Version    version.Version `yaml:"version" doc:"Defines the configuration version number."`
 	Build      Build           `yaml:"build,omitempty" doc:"Contains build configuration options."`

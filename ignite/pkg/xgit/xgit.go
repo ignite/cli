@@ -159,3 +159,23 @@ func IsRepository(path string) (bool, error) {
 	}
 	return true, nil
 }
+
+// RespositoryURL returns the URL of the origin remote of a Git repository.
+func RespositoryURL(path string) (string, error) {
+	repo, err := git.PlainOpenWithOptions(path, &defaultOpenOpts)
+	if err != nil {
+		return "", err
+	}
+
+	cfg, err := repo.Config()
+	if err != nil {
+		return "", err
+	}
+
+	origin, ok := cfg.Remotes["origin"]
+	if !ok {
+		return "", errors.Errorf("no origin remote found in %s", path)
+	}
+
+	return origin.URLs[0], nil
+}
