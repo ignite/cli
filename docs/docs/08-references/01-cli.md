@@ -876,6 +876,7 @@ ignite chain serve [flags]
   -p, --path string          path of the app (default ".")
       --quit-on-fail         quit program if the app fails to start
   -r, --reset-once           reset the app state once on init
+      --skip-build           skip initial build of the app (uses local binary)
       --skip-proto           skip file generation from proto
   -v, --verbose              verbose output
 ```
