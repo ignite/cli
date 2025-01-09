@@ -3,8 +3,6 @@ name: Lint
 on:
   pull_request:
   push:
-    paths-ignore:
-      - "**.md"
     branches:
       - main
       - release/*
@@ -26,9 +24,10 @@ jobs:
           go-version-file: go.mod
           cache: false
 
-      - uses: golangci/golangci-lint-action@v3
+      - uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.54.2
+          version: v1.60.3
           install-mode: goinstall
           args: --timeout 10m
           github-token: ${{ secrets.github_token }}
+          skip-save-cache: true
