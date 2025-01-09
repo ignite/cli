@@ -71,6 +71,7 @@ production, you may want to run "appd start" manually.
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetCheckDependencies())
 	c.Flags().AddFlagSet(flagSetSkipProto())
+	c.Flags().AddFlagSet(flagSetSkipBuild())
 	c.Flags().AddFlagSet(flagSetVerbose())
 	c.Flags().BoolP(flagForceReset, "f", false, "force reset of the app state on start and every source change")
 	c.Flags().BoolP(flagResetOnce, "r", false, "reset the app state once on init")
@@ -181,6 +182,10 @@ func chainServe(cmd *cobra.Command, session *cliui.Session) error {
 
 	if flagGetSkipProto(cmd) {
 		serveOptions = append(serveOptions, chain.ServeSkipProto())
+	}
+
+	if flagGetSkipBuild(cmd) {
+		serveOptions = append(serveOptions, chain.ServeSkipBuild())
 	}
 
 	if quitOnFail {
