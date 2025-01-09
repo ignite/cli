@@ -12,7 +12,7 @@ func NewDoctor() *cobra.Command {
 		Use:    "doctor",
 		Short:  "Fix chain configuration",
 		Hidden: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			session := cliui.New()
 			defer session.End()
 

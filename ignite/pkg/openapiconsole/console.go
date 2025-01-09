@@ -13,7 +13,7 @@ var index embed.FS
 func Handler(title, specURL string) http.HandlerFunc {
 	t, _ := template.ParseFS(index, "index.tpl")
 
-	return func(w http.ResponseWriter, req *http.Request) {
+	return func(w http.ResponseWriter, _ *http.Request) {
 		_ = t.Execute(w, struct {
 			Title string
 			URL   string

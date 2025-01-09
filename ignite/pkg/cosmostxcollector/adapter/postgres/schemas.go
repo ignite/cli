@@ -82,7 +82,7 @@ func (s Schemas) WalkFrom(fromVersion uint64, fn SchemasWalkFunc) error {
 	paths := map[uint64]string{}
 
 	// Index the paths to the schemas with the matching versions
-	err := fs.WalkDir(s.fs, SchemasDir, func(path string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(s.fs, SchemasDir, func(path string, _ fs.DirEntry, err error) error {
 		if err != nil {
 			return errors.Errorf("failed to read schema %s: %w", path, err)
 		}
