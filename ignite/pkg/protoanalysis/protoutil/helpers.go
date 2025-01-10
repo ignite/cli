@@ -179,7 +179,7 @@ func GetMessageByName(f *proto.Proto, name string) (node *proto.Message, err err
 			return ok
 		},
 		// return immediately iff found.
-		func(c *Cursor) bool { return !found })
+		func(*Cursor) bool { return !found })
 	if found {
 		return
 	}
@@ -210,7 +210,7 @@ func GetServiceByName(f *proto.Proto, name string) (node *proto.Service, err err
 			return ok
 		},
 		// return immediately iff found.
-		func(c *Cursor) bool { return !found })
+		func(*Cursor) bool { return !found })
 	if found {
 		return
 	}
@@ -241,7 +241,7 @@ func GetImportByPath(f *proto.Proto, path string) (node *proto.Import, err error
 			return ok
 		},
 		// return immediately iff found.
-		func(c *Cursor) bool { return !found })
+		func(*Cursor) bool { return !found })
 	if found {
 		return
 	}
