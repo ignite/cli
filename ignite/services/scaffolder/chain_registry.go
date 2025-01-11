@@ -71,7 +71,7 @@ type codebase struct {
 	Consensus          codebaseConsensus `json:"consensus"`
 	Sdk                codebaseSDK       `json:"sdk"`
 	Ibc                codebaseIBC       `json:"ibc,omitempty"`
-	Cosmwasm           codebaseCosmwam   `json:"cosmwasm,omitempty"`
+	Cosmwasm           codebaseCosmwasm  `json:"cosmwasm,omitempty"`
 }
 
 type codebaseGenesis struct {
@@ -93,7 +93,7 @@ type codebaseIBC struct {
 	Version string `json:"version"`
 }
 
-type codebaseCosmwam struct {
+type codebaseCosmwasm struct {
 	Version string `json:"version,omitempty"`
 	Enabled bool   `json:"enabled"`
 }
@@ -176,11 +176,11 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 		return errors.Wrap(err, "failed to get chain ID")
 	}
 
-	chainGitURL, _ /* do not fail on non-existing git repo */ := xgit.RespositoryURL(chain.AppPath())
+	chainGitURL, _ /* do not fail on non-existing git repo */ := xgit.RepositoryURL(chain.AppPath())
 
 	var (
 		consensus codebaseConsensus
-		cosmwasm  codebaseCosmwam
+		cosmwasm  codebaseCosmwasm
 		ibc       codebaseIBC
 	)
 
@@ -194,7 +194,7 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 
 	cosmwasmVersion, err := getVersionOfFromGoMod(chain, "github.com/CosmWasm/wasmd")
 	if err == nil {
-		cosmwasm = codebaseCosmwam{
+		cosmwasm = codebaseCosmwasm{
 			Version: cosmwasmVersion,
 			Enabled: true,
 		}
