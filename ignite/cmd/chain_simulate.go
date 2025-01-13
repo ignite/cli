@@ -22,8 +22,8 @@ const (
 	flagSimappNumBlocks          = "numBlocks"
 	flagSimappBlockSize          = "blockSize"
 	flagSimappLean               = "lean"
-	flagSimappPeriod             = "period"
 	flagSimappGenesisTime        = "genesisTime"
+	flagSimName                  = "simName"
 )
 
 // NewChainSimulate creates a new simulation command to run the blockchain simulation.
@@ -31,7 +31,7 @@ func NewChainSimulate() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "simulate",
 		Short: "Run simulation testing for the blockchain",
-		Long:  "Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node and checks if invariants break",
+		Long:  "Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node.",
 		Args:  cobra.NoArgs,
 		RunE:  chainSimulationHandler,
 	}
@@ -41,8 +41,8 @@ func NewChainSimulate() *cobra.Command {
 
 func chainSimulationHandler(cmd *cobra.Command, _ []string) error {
 	var (
-		period, _      = cmd.Flags().GetUint(flagSimappPeriod)
 		genesisTime, _ = cmd.Flags().GetInt64(flagSimappGenesisTime)
+		simName, _     = cmd.Flags().GetString(flagSimName)
 		config         = newConfigFromFlags(cmd)
 		appPath        = flagGetPath(cmd)
 	)
@@ -62,7 +62,7 @@ func chainSimulationHandler(cmd *cobra.Command, _ []string) error {
 	}
 
 	return c.Simulate(cmd.Context(),
-		chain.SimappWithPeriod(period),
+		chain.SimappWithSimulationTestName(simName),
 		chain.SimappWithGenesisTime(genesisTime),
 		chain.SimappWithConfig(config),
 	)
@@ -114,6 +114,6 @@ func simappFlags(c *cobra.Command) {
 	c.Flags().Bool(flagSimappLean, false, "lean simulation log output")
 
 	// simulation flags
-	c.Flags().Uint(flagSimappPeriod, 0, "run slow invariants only once every period assertions")
+	c.Flags().String(flagSimName, "TestFullAppSimulation", "name of the simulation to run")
 	c.Flags().Int64(flagSimappGenesisTime, 0, "override genesis UNIX time instead of using a random UNIX time")
 }

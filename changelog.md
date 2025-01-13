@@ -47,6 +47,7 @@
 - [#4317](https://github.com/ignite/cli/pull/4317) Remove xchisel dependency
 - [#4361](https://github.com/ignite/cli/pull/4361) Remove unused `KeyPrefix` method
 - [#4384](https://github.com/ignite/cli/pull/4384) Compare genesis params into chain genesis tests
+- [#4463](https://github.com/ignite/cli/pull/4463) Run `chain simulation` with any simulation test case
 
 ### Fixes
 

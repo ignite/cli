@@ -12,15 +12,15 @@ import (
 // Simulation run the chain simulation.
 func (r Runner) Simulation(
 	ctx context.Context,
-	appPath string,
+	appPath, simName string,
 	enabled bool,
 	config simulation.Config,
-	period uint,
 	genesisTime int64,
 ) error {
 	return r.run(ctx, runOptions{stdout: os.Stdout},
 		chaincmd.SimulationCommand(
 			appPath,
+			simName,
 			chaincmd.SimappWithGenesis(config.GenesisFile),
 			chaincmd.SimappWithParams(config.ParamsFile),
 			chaincmd.SimappWithExportParamsPath(config.ExportParamsPath),
@@ -34,7 +34,6 @@ func (r Runner) Simulation(
 			chaincmd.SimappWithLean(config.Lean),
 			chaincmd.SimappWithCommit(config.Commit),
 			chaincmd.SimappWithEnable(enabled),
-			chaincmd.SimappWithPeriod(period),
 			chaincmd.SimappWithGenesisTime(genesisTime),
 		))
 }
