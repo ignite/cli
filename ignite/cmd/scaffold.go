@@ -130,6 +130,7 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 		NewScaffoldBandchain(),
 		NewScaffoldVue(),
 		NewScaffoldReact(),
+		NewScaffoldChainRegistry(),
 	)
 
 	return c
