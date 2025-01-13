@@ -137,11 +137,6 @@ func appExport(
 	appOpts servertypes.AppOptions,
 	modulesToExport []string,
 ) (servertypes.ExportedApp, error) {
-	viperAppOpts, ok := appOpts.(*viper.Viper)
-	if !ok {
-		return servertypes.ExportedApp{}, errors.New("appOpts is not viper.Viper")
-	}
-
 	var bApp *app.App
 	if height != -1 {
 		bApp = app.New(logger, db, traceStore, false, appOpts)
