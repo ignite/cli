@@ -899,7 +899,7 @@ Run simulation testing for the blockchain
 
 **Synopsis**
 
-Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node and checks if invariants break
+Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node.
 
 ```
 ignite chain simulate [flags]
@@ -920,8 +920,8 @@ ignite chain simulate [flags]
       --lean                      lean simulation log output
       --numBlocks int             number of new blocks to simulate from the initial block height (default 200)
       --params string             custom simulation params file which overrides any random params; cannot be used with genesis
-      --period uint               run slow invariants only once every period assertions
       --seed int                  simulation random seed (default 42)
+      --simName string            name of the simulation to run (default "TestFullAppSimulation")
 ```
 
 **Options inherited from parent commands**
@@ -3403,7 +3403,7 @@ Run simulation testing for the blockchain
 
 **Synopsis**
 
-Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node and checks if invariants break
+Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node.
 
 ```
 ignite testnet simulate [flags]
@@ -3424,8 +3424,8 @@ ignite testnet simulate [flags]
       --lean                      lean simulation log output
       --numBlocks int             number of new blocks to simulate from the initial block height (default 200)
       --params string             custom simulation params file which overrides any random params; cannot be used with genesis
-      --period uint               run slow invariants only once every period assertions
       --seed int                  simulation random seed (default 42)
+      --simName string            name of the simulation to run (default "TestFullAppSimulation")
 ```
 
 **SEE ALSO**
