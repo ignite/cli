@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [`v28.7.0`](https://github.com/ignite/cli/releases/tag/v28.7.0)
+
 ### Features
 
 - [#4457](https://github.com/ignite/cli/pull/4457) Add `skip-build` flag to `chain serve` command to avoid (re)building the chain
