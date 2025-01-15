@@ -53,6 +53,7 @@ type chainJSON struct {
 	Staking     staking  `json:"staking"`
 	Codebase    codebase `json:"codebase"`
 	Description string   `json:"description"`
+	Apis        apis     `json:"apis"`
 }
 
 type staking struct {
@@ -110,6 +111,17 @@ type feeToken struct {
 	HighGasPrice     float64 `json:"high_gas_price"`
 }
 
+type apis struct {
+	RPC  []apiProvider `json:"rpc"`
+	Rest []apiProvider `json:"rest"`
+	Grpc []apiProvider `json:"grpc"`
+}
+
+type apiProvider struct {
+	Address  string `json:"address"`
+	Provider string `json:"provider"`
+}
+
 // SaveJSON saves the chainJSON to the given out directory.
 func (c chainJSON) SaveJSON(out string) error {
 	bz, err := json.MarshalIndent(c, "", "  ")
@@ -134,6 +146,7 @@ type asset struct {
 	Name        string      `json:"name"`
 	Display     string      `json:"display"`
 	Symbol      string      `json:"symbol"`
+	LogoURIs    logoURIs    `json:"logo_URIs"`
 	CoingeckoID string      `json:"coingecko_id,omitempty"`
 	Socials     socials     `json:"socials,omitempty"`
 	TypeAsset   string      `json:"type_asset"`
@@ -147,6 +160,11 @@ type denomUnit struct {
 type socials struct {
 	Website string `json:"website"`
 	Twitter string `json:"twitter"`
+}
+
+type logoURIs struct {
+	Png string `json:"png"`
+	Svg string `json:"svg"`
 }
 
 // SaveJSON saves the assetList to the given out directory.
@@ -226,7 +244,7 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 		NetworkType:  DefaultNetworkType,
 		Website:      "https://example.com",
 		ChainID:      chainID,
-		Bech32Prefix: "",
+		Bech32Prefix: "cosmos",
 		DaemonName:   binaryName,
 		NodeHome:     chainHome,
 		KeyAlgos:     []string{"secp256k1"},
@@ -261,6 +279,26 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 			Ibc:       ibc,
 			Cosmwasm:  cosmwasm,
 		},
+		Apis: apis{
+			RPC: []apiProvider{
+				{
+					Address:  "http://localhost:26657",
+					Provider: "localhost",
+				},
+			},
+			Rest: []apiProvider{
+				{
+					Address:  "http://localhost:1317",
+					Provider: "localhost",
+				},
+			},
+			Grpc: []apiProvider{
+				{
+					Address:  "localhost:9090",
+					Provider: "localhost",
+				},
+			},
+		},
 	}
 
 	assetListData := assetListJSON{
@@ -274,12 +312,16 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 						Exponent: 0,
 					},
 				},
-				Base:      defaultDenom,
-				Name:      chainData.ChainName,
-				Symbol:    strings.ToUpper(defaultDenom),
+				Base:   defaultDenom,
+				Name:   chainData.ChainName,
+				Symbol: strings.ToUpper(defaultDenom),
+				LogoURIs: logoURIs{
+					Png: "https://ignite.com/favicon.ico",
+					Svg: "https://ignite.com/favicon.ico",
+				},
 				TypeAsset: "sdk.coin",
 				Socials: socials{
-					Website: "https://example.com",
+					Website: "https://ignite.com",
 					Twitter: "https://x.com/ignite",
 				},
 			},
