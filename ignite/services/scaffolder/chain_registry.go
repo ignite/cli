@@ -244,7 +244,7 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 		NetworkType:  DefaultNetworkType,
 		Website:      "https://example.com",
 		ChainID:      chainID,
-		Bech32Prefix: "",
+		Bech32Prefix: "cosmos",
 		DaemonName:   binaryName,
 		NodeHome:     chainHome,
 		KeyAlgos:     []string{"secp256k1"},
@@ -282,13 +282,13 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 		Apis: apis{
 			RPC: []apiProvider{
 				{
-					Address:  "localhost:26657",
-					Provider: "lpcalhost",
+					Address:  "http://localhost:26657",
+					Provider: "localhost",
 				},
 			},
 			Rest: []apiProvider{
 				{
-					Address:  "localhost:1317",
+					Address:  "http://localhost:1317",
 					Provider: "localhost",
 				},
 			},
