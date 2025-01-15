@@ -30,10 +30,7 @@ func chainFaucetHandler(cmd *cobra.Command, args []string) error {
 	var (
 		toAddress = args[0]
 		coins     = args[1]
-		session   = cliui.New(
-			cliui.WithVerbosity(getVerbosity(cmd)),
-			cliui.StartSpinner(),
-		)
+		session   = cliui.New(cliui.StartSpinner())
 	)
 	defer session.End()
 
@@ -41,6 +38,11 @@ func chainFaucetHandler(cmd *cobra.Command, args []string) error {
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 		chain.WithOutputer(session),
 		chain.CollectEvents(session.EventBus()),
+	}
+
+	config, _ := cmd.Flags().GetString(flagConfig)
+	if config != "" {
+		chainOption = append(chainOption, chain.ConfigFile(config))
 	}
 
 	c, err := chain.NewWithHomeFlags(cmd, chainOption...)
@@ -60,9 +62,11 @@ func chainFaucetHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// perform transfer from faucet
-	if err := faucet.Transfer(cmd.Context(), toAddress, parsedCoins); err != nil {
+	hash, err := faucet.Transfer(cmd.Context(), toAddress, parsedCoins)
+	if err != nil {
 		return err
 	}
 
-	return session.Println("📨 Coins sent.")
+	_ = session.Println("📨 Coins sent.")
+	return session.Printf("Transaction Hash: %s\n", hash)
 }

@@ -2,7 +2,6 @@ package ignitecmd
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
@@ -38,6 +37,7 @@ const (
 	flagYes        = "yes"
 	flagClearCache = "clear-cache"
 	flagSkipProto  = "skip-proto"
+	flagSkipBuild  = "skip-build"
 
 	checkVersionTimeout = time.Millisecond * 600
 	cacheFileName       = "ignite_cache.db"
@@ -73,7 +73,7 @@ To get started, create a blockchain:
 			// Check for new versions only when shell completion scripts are not being
 			// generated to avoid invalid output to stdout when a new version is available
 			if cmd.Use != "completion" || !strings.HasPrefix(cmd.Use, cobra.ShellCompRequestCmd) {
-				checkNewVersion(cmd.Context())
+				checkNewVersion(cmd)
 			}
 
 			return goenv.ConfigurePath()
@@ -90,6 +90,7 @@ To get started, create a blockchain:
 		NewApp(),
 		NewDoctor(),
 		NewCompletionCmd(),
+		NewTestnet(),
 	)
 	c.AddCommand(deprecated()...)
 	c.SetContext(ctx)
@@ -110,8 +111,14 @@ To get started, create a blockchain:
 	}, nil
 }
 
+func flagSetVerbose() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.BoolP(flagVerbose, "v", false, "verbose output")
+	return fs
+}
+
 func getVerbosity(cmd *cobra.Command) uilog.Verbosity {
-	if verbose, _ := cmd.Flags().GetBool("verbose"); verbose {
+	if verbose, _ := cmd.Flags().GetBool(flagVerbose); verbose {
 		return uilog.VerbosityVerbose
 	}
 
@@ -210,6 +217,17 @@ func flagGetSkipProto(cmd *cobra.Command) bool {
 	return skip
 }
 
+func flagSetSkipBuild() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.Bool(flagSkipBuild, false, "skip initial build of the app (uses local binary)")
+	return fs
+}
+
+func flagGetSkipBuild(cmd *cobra.Command) bool {
+	skip, _ := cmd.Flags().GetBool(flagSkipBuild)
+	return skip
+}
+
 func flagSetClearCache(cmd *cobra.Command) {
 	cmd.PersistentFlags().Bool(flagClearCache, false, "clear the build cache (advanced)")
 }
@@ -240,12 +258,12 @@ func deprecated() []*cobra.Command {
 	}
 }
 
-func checkNewVersion(ctx context.Context) {
+func checkNewVersion(cmd *cobra.Command) {
 	if gitpod.IsOnGitpod() {
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, checkVersionTimeout)
+	ctx, cancel := context.WithTimeout(cmd.Context(), checkVersionTimeout)
 	defer cancel()
 
 	isAvailable, next, err := version.CheckNext(ctx)
@@ -253,7 +271,7 @@ func checkNewVersion(ctx context.Context) {
 		return
 	}
 
-	fmt.Printf("⬆️ Ignite CLI %s is available! To upgrade: https://docs.ignite.com/welcome/install#upgrade", next)
+	cmd.Printf("⬆️ Ignite CLI %s is available! To upgrade: https://docs.ignite.com/welcome/install#upgrade (or use snap or homebrew)\n\n", next)
 }
 
 func newCache(cmd *cobra.Command) (cache.Storage, error) {

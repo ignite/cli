@@ -1,6 +1,7 @@
 package chaincmd
 
 import (
+	"fmt"
 	"path/filepath"
 	"strconv"
 
@@ -9,29 +10,24 @@ import (
 )
 
 const (
-	optionSimappGenesis                = "-Genesis"
-	optionSimappParams                 = "-Params"
-	optionSimappExportParamsPath       = "-ExportParamsPath"
-	optionSimappExportParamsHeight     = "-ExportParamsHeight"
-	optionSimappExportStatePath        = "-ExportStatePath"
-	optionSimappExportStatsPath        = "-ExportStatsPath"
-	optionSimappSeed                   = "-Seed"
-	optionSimappInitialBlockHeight     = "-InitialBlockHeight"
-	optionSimappNumBlocks              = "-NumBlocks"
-	optionSimappBlockSize              = "-BlockSize"
-	optionSimappLean                   = "-Lean"
-	optionSimappCommit                 = "-Commit"
-	optionSimappSimulateEveryOperation = "-SimulateEveryOperation"
-	optionSimappPrintAllInvariants     = "-PrintAllInvariants"
-	optionSimappEnabled                = "-Enabled"
-	optionSimappVerbose                = "-Verbose"
-	optionSimappPeriod                 = "-Period"
-	optionSimappGenesisTime            = "-GenesisTime"
+	optionSimappGenesis            = "-Genesis"
+	optionSimappParams             = "-Params"
+	optionSimappExportParamsPath   = "-ExportParamsPath"
+	optionSimappExportParamsHeight = "-ExportParamsHeight"
+	optionSimappExportStatePath    = "-ExportStatePath"
+	optionSimappExportStatsPath    = "-ExportStatsPath"
+	optionSimappSeed               = "-Seed"
+	optionSimappInitialBlockHeight = "-InitialBlockHeight"
+	optionSimappNumBlocks          = "-NumBlocks"
+	optionSimappBlockSize          = "-BlockSize"
+	optionSimappLean               = "-Lean"
+	optionSimappCommit             = "-Commit"
+	optionSimappEnabled            = "-Enabled"
+	optionSimappGenesisTime        = "-GenesisTime"
 
-	commandGoTest       = "test"
-	optionGoBenchmem    = "-benchmem"
-	optionGoSimappRun   = "-run=^$"
-	optionGoSimappBench = "-bench=^BenchmarkSimulation"
+	commandGoTest    = "test"
+	optionGoBenchmem = "-benchmem"
+	optionGoSimsTags = "-tags='sims'"
 )
 
 // SimappOption for the SimulateCommand.
@@ -149,26 +145,6 @@ func SimappWithCommit(commit bool) SimappOption {
 	}
 }
 
-// SimappWithSimulateEveryOperation provides simulateEveryOperation option for the simapp command.
-func SimappWithSimulateEveryOperation(simulateEveryOperation bool) SimappOption {
-	return func(command []string) []string {
-		if simulateEveryOperation {
-			return append(command, optionSimappSimulateEveryOperation)
-		}
-		return command
-	}
-}
-
-// SimappWithPrintAllInvariants provides printAllInvariants option for the simapp command.
-func SimappWithPrintAllInvariants(printAllInvariants bool) SimappOption {
-	return func(command []string) []string {
-		if printAllInvariants {
-			return append(command, optionSimappPrintAllInvariants)
-		}
-		return command
-	}
-}
-
 // SimappWithEnable provides enable option for the simapp command.
 func SimappWithEnable(enable bool) SimappOption {
 	return func(command []string) []string {
@@ -176,23 +152,6 @@ func SimappWithEnable(enable bool) SimappOption {
 			return append(command, optionSimappEnabled)
 		}
 		return command
-	}
-}
-
-// SimappWithVerbose provides verbose option for the simapp command.
-func SimappWithVerbose(verbose bool) SimappOption {
-	return func(command []string) []string {
-		if verbose {
-			return append(command, optionSimappVerbose)
-		}
-		return command
-	}
-}
-
-// SimappWithPeriod provides period option for the simapp command.
-func SimappWithPeriod(period uint) SimappOption {
-	return func(command []string) []string {
-		return append(command, optionSimappPeriod, strconv.Itoa(int(period)))
 	}
 }
 
@@ -204,12 +163,17 @@ func SimappWithGenesisTime(genesisTime int64) SimappOption {
 }
 
 // SimulationCommand returns the cli command for simapp tests.
-func SimulationCommand(appPath string, options ...SimappOption) step.Option {
+// simName must be a test defined within the application (defaults to TestFullAppSimulation).
+func SimulationCommand(appPath string, simName string, options ...SimappOption) step.Option {
+	if simName == "" {
+		simName = "TestFullAppSimulation"
+	}
+
 	command := []string{
 		commandGoTest,
 		optionGoBenchmem,
-		optionGoSimappRun,
-		optionGoSimappBench,
+		fmt.Sprintf("-run=^%s$", simName),
+		optionGoSimsTags,
 		filepath.Join(appPath, "app"),
 	}
 

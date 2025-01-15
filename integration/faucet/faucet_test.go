@@ -8,14 +8,14 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
+	banktypes "cosmossdk.io/x/bank/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosfaucet"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/xurl"
 	envtest "github.com/ignite/cli/v29/integration"
 )
@@ -32,15 +32,15 @@ var (
 func TestRequestCoinsFromFaucet(t *testing.T) {
 	var (
 		env          = envtest.New(t)
-		app          = env.Scaffold("github.com/test/faucet")
+		app          = env.Scaffold("github.com/test/faucetapp")
 		servers      = app.RandomizeServerPorts()
 		faucetURL    = app.EnableFaucet(defaultCoins, maxCoins)
 		ctx, cancel  = context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
 		faucetClient = cosmosfaucet.NewClient(faucetURL)
 	)
 	isErrTransferRequest := func(err error, expectedCode int) {
-		require.ErrorAs(t, err, &cosmosfaucet.ErrTransferRequest{})
-		errTransfer := err.(cosmosfaucet.ErrTransferRequest)
+		var errTransfer cosmosfaucet.ErrTransferRequest
+		require.ErrorAs(t, err, &errTransfer)
 		require.EqualValues(t, expectedCode, errTransfer.StatusCode)
 	}
 
@@ -69,12 +69,12 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 	// the faucet sends the default faucet coins value when not specified
 	_, err = faucetClient.Transfer(ctx, cosmosfaucet.NewTransferRequest(addr, nil))
 	require.NoError(t, err)
-	checkAccountBalance(t, ctx, cosmosClient, addr, defaultCoins)
+	checkAccountBalance(ctx, t, cosmosClient, addr, defaultCoins)
 
 	// the faucet can send a specified amount of coins
 	_, err = faucetClient.Transfer(ctx, cosmosfaucet.NewTransferRequest(addr, []string{"20token", "2stake"}))
 	require.NoError(t, err)
-	checkAccountBalance(t, ctx, cosmosClient, addr, []string{"30token", "3stake"})
+	checkAccountBalance(ctx, t, cosmosClient, addr, []string{"30token", "3stake"})
 
 	// faucet request fails on malformed coins
 	_, err = faucetClient.Transfer(ctx, cosmosfaucet.NewTransferRequest(addr, []string{"no-token"}))
@@ -93,18 +93,21 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		g.Go(func() error {
 			c := faucetClient
-			_, err := c.Transfer(ctx, cosmosfaucet.NewTransferRequest(addr, nil))
-			if err != nil && !errors.As(err, &cosmosfaucet.ErrTransferRequest{}) {
-				return err
+			index := i + 1
+			coins := []string{
+				sdk.NewCoin("token", math.NewInt(int64(index*2))).String(),
+				sdk.NewCoin("stake", math.NewInt(int64(index*3))).String(),
 			}
-			return nil
+			_, err := c.Transfer(ctx, cosmosfaucet.NewTransferRequest(addr, coins))
+			return err
 		})
 	}
 	require.NoError(t, g.Wait())
-	checkAccountBalance(t, ctx, cosmosClient, addr, []string{"130token", "13stake"})
+	checkAccountBalance(ctx, t, cosmosClient, addr, []string{"168stake", "140token"})
 }
 
-func checkAccountBalance(t *testing.T, ctx context.Context, c cosmosclient.Client, accAddr string, coins []string) {
+func checkAccountBalance(ctx context.Context, t *testing.T, c cosmosclient.Client, accAddr string, coins []string) {
+	t.Helper()
 	resp, err := banktypes.NewQueryClient(c.Context()).AllBalances(ctx, &banktypes.QueryAllBalancesRequest{
 		Address: accAddr,
 	})
@@ -113,7 +116,9 @@ func checkAccountBalance(t *testing.T, ctx context.Context, c cosmosclient.Clien
 	require.Len(t, resp.Balances, len(coins))
 	expectedCoins, err := sdk.ParseCoinsNormalized(strings.Join(coins, ","))
 	require.NoError(t, err)
-	require.True(t, resp.Balances.Equal(expectedCoins),
-		fmt.Sprintf("%s should be equals to %s", resp.Balances.String(), expectedCoins.String()),
+	expectedCoins = expectedCoins.Sort()
+	gotCoins := resp.Balances.Sort()
+	require.True(t, gotCoins.Equal(expectedCoins),
+		fmt.Sprintf("%s should be equals to %s", gotCoins.String(), expectedCoins.String()),
 	)
 }

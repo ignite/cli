@@ -24,7 +24,7 @@
   </a>
     <img alt="Test Status" src="https://github.com/ignite/cli/workflows/Test/badge.svg" />
     <img alt="Lint Status" src="https://github.com/ignite/cli/workflows/Lint/badge.svg" />
-    <a href="https://discord.gg/STGn7vqT" target="_blank"><img alt="Discord" src="https://img.shields.io/discord/893126937067802685"></a>
+    <a href="https://discord.com/invite/ignite" target="_blank"><img alt="Discord" src="https://img.shields.io/discord/893126937067802685"></a>
 </div>
 
 ![Ignite CLI](./assets/ignite-cli.png)
@@ -38,9 +38,11 @@ so you can focus on writing business logic.
 
 ## Quick start
 
+Ignite CLI can be installed using popular package managers such as Homebrew and Snap, making it easy to stay up-to-date with the latest versions. These package manager installations are maintained regularly for both macOS and GNU/Linux. For those who prefer manual installation or need to set up a development environment, additional instructions are provided at the end of this section.
+
 ### Installation
 
-You can install Ignite using [HomeBrew](https://formulae.brew.sh/formula/ignite) on macOS and GNU/Linux:
+Install Ignite using [Homebrew](https://formulae.brew.sh/formula/ignite) on macOS and GNU/Linux:
 
 ```sh
 brew install ignite
@@ -61,13 +63,13 @@ curl https://get.ignite.com/cli! | bash
 <details>
   <summary>Troubleshoot</summary>
 
-If Ignite doesn't automatically move to your `/usr/local/bin` directory, use this command to do so:
+If Ignite doesn't automatically move to your `/usr/local/bin` directory, use the following command:
 
 ```sh
 sudo mv ignite /usr/local/bin
 ```
 
-If you encounter an error, you might need to create the `/usr/local/bin` directory and set the necessary permissions as follows:
+If you encounter an error, you may need to create the `/usr/local/bin` directory and set the necessary permissions:
 
 ```sh
 mkdir /usr/local/bin
@@ -75,10 +77,6 @@ sudo chown -R $(whoami) /usr/local/bin
 ```
 
 </details>
-
-For more options on installing and using Ignite, please see the following:
-
-Open Ignite CLI [in your web browser](https://gitpod.io/#https://github.com/ignite/cli/tree/v28.1.1) (or open [nightly version](https://gitpod.io/#https://github.com/ignite/cli)), or [install the latest release](https://docs.ignite.com/welcome/install).
 
 To create and start a blockchain:
 
@@ -89,6 +87,86 @@ cd mars
 
 ignite chain serve
 ```
+
+The instructions for installing Ignite CLI manually and configuring your system are provided below.
+
+<details>
+  <summary>View development setup instructions</summary>
+
+#### Supported Operating Systems:
+
+- GNU/Linux
+- macOS
+
+#### Install Go:
+
+1. Install the latest version of Go.
+2. Download the release suitable for your system.
+3. Follow the installation instructions.
+
+**Note:** We recommend not using `brew` to install Go.
+
+#### Add the Go bin Directory to Your PATH:
+
+1. Edit your `~/.bashrc` file and add the following line:
+
+   ```sh
+   export PATH=$PATH:$(go env GOPATH)/bin
+   ```
+
+2. Apply the changes:
+
+   ```sh
+   source ~/.bashrc
+   ```
+
+#### Remove Existing Ignite CLI Installations:
+
+1. Remove the Ignite CLI binary:
+
+   ```sh
+   rm $(which ignite)
+   ```
+
+   You may need to run this with `sudo`.
+
+2. Repeat the step until all Ignite CLI installations are removed.
+
+#### Install Ignite CLI:
+
+```sh
+curl https://get.ignite.com/cli! | bash
+```
+
+#### Clone the Ignite CLI Repo:
+
+1. Clone the repository:
+
+   ```sh
+   git clone --depth=1 git@github.com:ignite/cli.git
+   ```
+
+2. Change to the `cli` directory:
+
+   ```sh
+   cd cli
+   ```
+
+#### Run make install:
+
+```sh
+make install
+```
+
+#### Verify Your Ignite CLI Version:
+
+```sh
+ignite version
+```
+
+</details>
+
+Alternatively, you can open Ignite CLI directly in your web browser via [Gitpod](https://gitpod.io/#https://github.com/ignite/cli).
 
 ## Documentation
 
@@ -118,12 +196,12 @@ version of Cosmos SDK that your blockchain is built with. Unless noted
 otherwise, a row refers to a minor version and all associated patch versions.
 
 | Ignite CLI  | Cosmos SDK  | IBC                  | Notes                                                         |
-|-------------|-------------|----------------------|---------------------------------------------------------------|
+| ----------- | ----------- | -------------------- | ------------------------------------------------------------- |
 | v28.x.y     | v0.50.x     | v8.0.0               | -                                                             |
 | v0.27.1     | v0.47.3     | v7.1.0               | -                                                             |
 | v0.26.0     | v0.46.7     | v6.1.0               | -                                                             |
 | v0.25.2     | v0.46.6     | v5.1.0               | Bump Tendermint version to v0.34.24                           |
-| v0.25.1     | v0.46.3     | v5.0.0               | Includes  Dragonberry security fix                            |
+| v0.25.1     | v0.46.3     | v5.0.0               | Includes Dragonberry security fix                             |
 | ~~v0.24.0~~ | ~~v0.46.0~~ | ~~v5.0.0~~           | This version is deprecated due to a security fix in `v0.25.0` |
 | v0.23.0     | v0.45.5     | v3.0.1               |                                                               |
 | v0.21.1     | v0.45.4     | v2.0.3               | Supports Cosmos SDK v0.46.0-alpha1 and above                  |
@@ -175,8 +253,8 @@ create a pull request, or maintain your own fork and submit a cross-repository
 pull request.
 
 Our Ignite CLI bounty program provides incentives for your participation and
-pays rewards. Track new, in-progress, and completed bounties on the [Bounty
-board](https://github.com/ignite/cli/projects/5) in GitHub.
+pays rewards. Track new, in-progress, and completed bounties in the [GitHub Issues
+board](https://github.com/ignite/cli/issues?q=is%3Aissue+is%3Aopen+label%3Abounty).
 
 **Important** Before you start implementing a new Ignite CLI feature, the first
 step is to create an issue on GitHub that describes the proposed changes.
@@ -190,10 +268,10 @@ everyone who has contributed to Ignite CLI!
 Ignite CLI is a free and open source product maintained by
 [Ignite](https://ignite.com). Here's where you can find us. Stay in touch.
 
-* [ignite.com website](https://ignite.com)
-* [@ignite on Twitter](https://twitter.com/ignite)
-* [ignite.com/blog](https://ignite.com/blog)
-* [Ignite Discord](https://discord.com/invite/ignite)
-* [Ignite YouTube](https://www.youtube.com/@ignitehq)
-* [Ignite docs](https://docs.ignite.com)
-* [Ignite jobs](https://ignite.com/careers)
+- [ignite.com website](https://ignite.com)
+- [@ignite on Twitter](https://twitter.com/ignite)
+- [ignite.com/blog](https://ignite.com/blog)
+- [Ignite Discord](https://discord.com/invite/ignite)
+- [Ignite YouTube](https://www.youtube.com/@ignitehq)
+- [Ignite docs](https://docs.ignite.com)
+- [Ignite jobs](https://ignite.com/careers)

@@ -26,7 +26,7 @@ end-to-end, connection-oriented, stateful protocol provides reliable, ordered,
 and authenticated communication between heterogeneous blockchains.
 
 The [IBC protocol in the Cosmos
-SDK](https://ibc.cosmos.network/main/ibc/overview.html) is the standard for the
+SDK](https://ibc.cosmos.network/main/ibc/overview) is the standard for the
 interaction between two blockchains. The IBCmodule interface defines how packets
 and messages are constructed to be interpreted by the sending and the receiving
 blockchain.
@@ -110,21 +110,21 @@ transactions:
 
 - Creating blog posts
 
-  ```bash
-  ignite scaffold list post title content creator --no-message --module blog
-  ```
+```bash
+ignite scaffold list post title content creator --no-message --module blog
+```
 
 - Processing acknowledgments for sent posts
 
-  ```bash
-  ignite scaffold list sentPost postID title chain creator --no-message --module blog
-  ```
+```bash
+ignite scaffold list sentPost postID:uint title chain creator --no-message --module blog
+```
 
 - Managing post timeouts
 
-  ```bash
-  ignite scaffold list timedoutPost title chain creator --no-message --module blog
-  ```
+```bash
+ignite scaffold list timeoutPost title chain creator --no-message --module blog
+```
 
 The scaffolded code includes proto files for defining data structures, messages,
 messages handlers, keepers for modifying the state, and CLI commands.
@@ -137,7 +137,7 @@ ignite scaffold list [typeName] [field1] [field2] ... [flags]
 
 The first argument of the `ignite scaffold list [typeName]` command specifies
 the name of the type being created. For the blog app, you created `post`,
-`sentPost`, and `timedoutPost` types.
+`sentPost`, and `timeoutPost` types.
 
 The next arguments define the fields that are associated with the type. For the
 blog app, you created `title`, `content`, `postID`, and `chain` fields.
@@ -168,7 +168,7 @@ to another blockchain.
 To scaffold a sendable and interpretable IBC packet:
 
 ```bash
-ignite scaffold packet ibcPost title content --ack postID --module blog
+ignite scaffold packet ibcPost title content --ack postID:uint --module blog
 ```
 
 Notice the fields in the `ibcPost` packet match the fields in the `post` type
@@ -222,13 +222,23 @@ the `msg.Creator` value to the IBC `packet`.
 ```go title="x/blog/keeper/msg_server_ibc_post.go"
 package keeper
 
-import (
-	// ...
-	"planet/x/blog/types"
-)
-
 func (k msgServer) SendIbcPost(goCtx context.Context, msg *types.MsgSendIbcPost) (*types.MsgSendIbcPostResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
+	// validate incoming message
+	if _, err := k.addressCodec.StringToBytes(msg.Creator); err != nil {
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", err))
+	}
+
+	if msg.Port == "" {
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet port")
+	}
+
+	if msg.ChannelID == "" {
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet channel")
+	}
+
+	if msg.TimeoutTimestamp == 0 {
+		return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet timeout")
+	}
 
 	// TODO: logic before transmitting the packet
 
@@ -241,6 +251,7 @@ func (k msgServer) SendIbcPost(goCtx context.Context, msg *types.MsgSendIbcPost)
 	packet.Creator = msg.Creator
 
 	// Transmit the packet
+	ctx := sdk.UnwrapSDKContext(goCtx)
 	_, err := k.TransmitIbcPostPacket(
 		ctx,
 		packet,
@@ -298,44 +309,17 @@ Append the type instance as `PostId` on receiving the packet:
 - The `title` is the Title of the blog post
 - The `content` is the Content of the blog post
 
-In the `x/blog/keeper/ibc_post.go` file, make sure to import `"strconv"` below
-`"errors"`:
-
-```go title="x/blog/keeper/ibc_post.go"
-import (
-	//...
-
-	"strconv"
-
-// ...
-)
-```
-
 Then modify the `OnRecvIbcPostPacket` keeper function with the following code:
 
-```go
+```go title="x/blog/keeper/ibc_post.go"
 package keeper
 
-// ...
-
 func (k Keeper) OnRecvIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData) (packetAck types.IbcPostPacketAck, err error) {
-	// validate packet data upon receiving
-	if err := data.ValidateBasic(); err != nil {
+	packetAck.PostId, err = k.PostSeq.Next(ctx)
+	if err != nil {
 		return packetAck, err
 	}
-
-	id := k.AppendPost(
-		ctx,
-		types.Post{
-			Creator: packet.SourcePort + "-" + packet.SourceChannel + "-" + data.Creator,
-			Title:   data.Title,
-			Content: data.Content,
-		},
-	)
-
-	packetAck.PostId = strconv.FormatUint(id, 10)
-
-	return packetAck, nil
+	return packetAck, k.Post.Set(ctx, packetAck.PostId, types.Post{Title: data.Title, Content: data.Content})
 }
 ```
 
@@ -354,9 +338,6 @@ from the packet.
 ```go title="x/blog/keeper/ibc_post.go"
 package keeper
 
-// ...
-
-// x/blog/keeper/ibc_post.go
 func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData, ack channeltypes.Acknowledgement) error {
 	switch dispatchedAck := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
@@ -365,23 +346,23 @@ func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channelty
 	case *channeltypes.Acknowledgement_Result:
 		// Decode the packet acknowledgment
 		var packetAck types.IbcPostPacketAck
-
 		if err := types.ModuleCdc.UnmarshalJSON(dispatchedAck.Result, &packetAck); err != nil {
 			// The counter-party module doesn't implement the correct acknowledgment format
 			return errors.New("cannot unmarshal acknowledgment")
 		}
 
-		k.AppendSentPost(
-			ctx,
+		seq, err := k.SentPostSeq.Next(ctx)
+		if err != nil {
+			return err
+		}
+
+		return k.SentPost.Set(ctx, seq,
 			types.SentPost{
-				Creator: data.Creator,
-				PostId:  packetAck.PostId,
-				Title:   data.Title,
-				Chain:   packet.DestinationPort + "-" + packet.DestinationChannel,
+				PostId: packetAck.PostId,
+				Title:  data.Title,
+				Chain:  packet.DestinationPort + "-" + packet.DestinationChannel,
 			},
 		)
-
-		return nil
 	default:
 		return errors.New("the counter-party module does not implement the correct acknowledgment format")
 	}
@@ -390,23 +371,23 @@ func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channelty
 
 ### Store information about the timed-out packet
 
-Store posts that have not been received by target chains in `timedoutPost`
+Store posts that have not been received by target chains in `timeoutPost`
 posts. This logic follows the same format as `sentPost`.
 
 ```go title="x/blog/keeper/ibc_post.go"
 func (k Keeper) OnTimeoutIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData) error {
-	k.AppendTimedoutPost(
-		ctx,
-		types.TimedoutPost{
-			Creator: data.Creator,
-			Title:   data.Title,
-			Chain:   packet.DestinationPort + "-" + packet.DestinationChannel,
+	seq, err := k.TimeoutPostSeq.Next(ctx)
+	if err != nil {
+		return err
+	}
+
+	return k.TimeoutPost.Set(ctx, seq,
+		types.TimeoutPost{
+			Title: data.Title,
+			Chain: packet.DestinationPort + "-" + packet.DestinationChannel,
 		},
 	)
-
-	return nil
 }
-
 ```
 
 This last step completes the basic `blog` module setup. The blockchain is now
@@ -532,70 +513,52 @@ found` and no action is taken.
 
 ### Configure and start the relayer
 
-First, configure the relayer. Use the Ignite CLI `configure` command with the
-`--advanced` option:
+First, add the Hermes relayer app.
 
 ```bash
-ignite relayer configure -a \
-  --source-rpc "http://0.0.0.0:26657" \
-  --source-faucet "http://0.0.0.0:4500" \
-  --source-port "blog" \
-  --source-version "blog-1" \
-  --source-gasprice "0.0000025stake" \
-  --source-prefix "cosmos" \
-  --source-gaslimit 300000 \
-  --target-rpc "http://0.0.0.0:26659" \
-  --target-faucet "http://0.0.0.0:4501" \
-  --target-port "blog" \
-  --target-version "blog-1" \
-  --target-gasprice "0.0000025stake" \
-  --target-prefix "cosmos" \
-  --target-gaslimit 300000
+ignite app install -g github.com/ignite/apps/hermes
 ```
 
-When prompted, press Enter to accept the default values for `Source Account` and
-`Target Account`.
+and after configure the relayer.
+
+```bash
+ignite relayer hermes configure \                        
+"earth" "http://localhost:26657" "http://localhost:9090" \
+"mars" "http://localhost:26659" "http://localhost:9092" \
+--chain-a-faucet "http://0.0.0.0:4500" \
+--chain-b-faucet "http://0.0.0.0:4501" \
+--chain-a-port-id "blog" \
+--chain-b-port-id "blog" \
+--channel-version "blog-1"
+```
+
+When prompted, press Enter to accept the default values for `Chain A Account` and
+`Chain B Account`.
 
 The output looks like:
 
 ```
----------------------------------------------
-Setting up chains
----------------------------------------------
-
-🔐  Account on "source" is "cosmos1xcxgzq75yrxzd0tu2kwmwajv7j550dkj7m00za"
-
- |· received coins from a faucet
- |· (balance: 100000stake,5token)
-
-🔐  Account on "target" is "cosmos1nxg8e4mfp5v7sea6ez23a65rvy0j59kayqr8cx"
-
- |· received coins from a faucet
- |· (balance: 100000stake,5token)
-
-⛓  Configured chains: earth-mars
+Hermes config created at /Users/danilopantani/.ignite/relayer/hermes/earth_mars
+? Chain earth doesn't have a default Hermes key. Type your mnemonic to continue or type enter to generate a new one: (optional) 
+New mnemonic generated: danger plate flavor twist chimney myself sketch assist copy expand core tattoo ignore ensure quote mean forum carbon enroll gadget immense grab early maze
+Chain earth key created
+Chain earth relayer wallet: cosmos1jk6wmyl880j6t9vw6umy9v8ex0yhrfwgx0vv2d
+New balance from faucet: 100000stake,5token
+? Chain mars doesn't have a default Hermes key. Type your mnemonic to continue or type enter to generate a new one: (optional) 
+New mnemonic generated: invest box icon session lens demise purse link boss dwarf give minimum jazz eye vocal seven sunset coach express want ask version anger ranch
+Chain mars key created
+Chain mars relayer wallet: cosmos1x9kt37c0sutanaqwy9gxpvq5990yt0qnpqntmp
+New balance from faucet: 100000stake,5token
+Client '07-tendermint-0' created (earth -> mars)
+Client 07-tendermint-0' created (mars -> earth)
+Connection 'earth (connection-0) <-> mars (connection-0)' created
+Channel 'earth (channel-0) <-> mars (channel-0)' created
 ```
 
-In a new terminal window, start the relayer process:
+Now start the relayer:
 
 ```bash
-ignite relayer connect
-```
-
-Results:
-
-```
-------
-Paths
-------
-
-earth-mars:
-    earth > (port: blog) (channel: channel-0)
-    mars  > (port: blog) (channel: channel-0)
-
-------
-Listening and relaying packets between chains...
-------
+ignite relayer hermes start "earth" "mars"
 ```
 
 ### Send packets
@@ -655,13 +618,13 @@ planetd tx blog send-ibc-post blog channel-0 "Sorry" "Sorry Mars, you will never
 Check the timed-out posts:
 
 ```bash
-planetd q blog list-timedout-post
+planetd q blog list-timeout-post
 ```
 
 Results:
 
 ```yaml
-TimedoutPost:
+TimeoutPost:
   - chain: blog-channel-0
     creator: cosmos1fhpcsxn0g8uask73xpcgwxlfxtuunn3ey5ptjv
     id: "0"

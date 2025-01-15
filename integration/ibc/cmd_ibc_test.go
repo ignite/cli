@@ -10,6 +10,8 @@ import (
 )
 
 func TestCreateModuleWithIBC(t *testing.T) {
+	t.Skip("skipping test as IBC isn't available with v0.52 yet") // https://github.com/ignite/cli/pull/4289
+
 	var (
 		env = envtest.New(t)
 		app = env.Scaffold("github.com/test/blogibc")
@@ -96,7 +98,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 				"with_dep",
 				"--ibc",
 				"--dep",
-				"account,bank,staking,slashing",
+				"auth,bank,staking,slashing",
 				"--require-registration",
 			),
 			step.Workdir(app.SourcePath()),
@@ -107,9 +109,11 @@ func TestCreateModuleWithIBC(t *testing.T) {
 }
 
 func TestCreateIBCPacket(t *testing.T) {
+	t.Skip("skipping test as IBC isn't available with v0.52 yet") // https://github.com/ignite/cli/pull/4289
+
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/blogibc2")
+		app = env.Scaffold("github.com/test/blogibcb")
 	)
 
 	env.Must(env.Exec("create an IBC module",

@@ -1,7 +1,7 @@
 ---
 sidebar_position: 3
 description: Primary configuration file to describe the development environment for your blockchain.
-title: Configuration file
+title: Configuration documentation
 ---
 
 # Configuration file reference

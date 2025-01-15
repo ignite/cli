@@ -148,7 +148,7 @@ func TestParseTypeFields(t *testing.T) {
 	}
 }
 
-// indirectly tests checkForbiddenTypeField()
+// indirectly tests checkForbiddenTypeField().
 func TestCheckForbiddenTypeIndexField(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -216,5 +216,5 @@ func TestCheckForbiddenTypeIndexField(t *testing.T) {
 	}
 }
 
-func TestAddType(t *testing.T) {
+func TestAddType(_ *testing.T) {
 }

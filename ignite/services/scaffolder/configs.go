@@ -16,7 +16,6 @@ func (s Scaffolder) CreateConfigs(
 	moduleName string,
 	configs ...string,
 ) error {
-	appName := s.modpath.Package
 	// If no module is provided, we add the type to the app's module
 	if moduleName == "" {
 		moduleName = s.modpath.Package
@@ -36,7 +35,7 @@ func (s Scaffolder) CreateConfigs(
 		return errors.Errorf("the module %v not exist", moduleName)
 	}
 
-	if err := checkConfigCreated(s.appPath, appName, moduleName, configs); err != nil {
+	if err := checkConfigCreated(s.appPath, moduleName, configs); err != nil {
 		return err
 	}
 
@@ -64,8 +63,8 @@ func (s Scaffolder) CreateConfigs(
 }
 
 // checkConfigCreated checks if the config has been already created.
-func checkConfigCreated(appPath, appName, moduleName string, configs []string) (err error) {
-	path := filepath.Join(appPath, "api", appName, moduleName, "module")
+func checkConfigCreated(appPath, moduleName string, configs []string) (err error) {
+	path := filepath.Join(appPath, "x", moduleName, "module")
 	ok, err := goanalysis.HasAnyStructFieldsInPkg(path, "Module", configs)
 	if err != nil {
 		return err

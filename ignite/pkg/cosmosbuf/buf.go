@@ -1,17 +1,21 @@
 package cosmosbuf
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	"github.com/gobwas/glob"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v29/ignite/pkg/dircache"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/goenv"
 	"github.com/ignite/cli/v29/ignite/pkg/xexec"
 	"github.com/ignite/cli/v29/ignite/pkg/xos"
 )
@@ -123,7 +127,7 @@ func FileByFile() GenOption {
 
 // New creates a new Buf based on the installed binary.
 func New(cacheStorage cache.Storage, goModPath string) (Buf, error) {
-	path, err := xexec.ResolveAbsPath(binaryName)
+	p, err := path()
 	if err != nil {
 		return Buf{}, err
 	}
@@ -135,7 +139,7 @@ func New(cacheStorage cache.Storage, goModPath string) (Buf, error) {
 	}
 
 	return Buf{
-		path:  path,
+		path:  p,
 		cache: c,
 	}, nil
 }
@@ -307,4 +311,23 @@ func (b Buf) command(
 		)
 	}
 	return command, nil
+}
+
+func path() (string, error) {
+	return xexec.ResolveAbsPath(filepath.Join(goenv.Bin(), binaryName))
+}
+
+// Version runs the buf Version command.
+func Version(ctx context.Context) (string, error) {
+	p, err := path()
+	if err != nil {
+		return "", err
+	}
+
+	bufOut := &bytes.Buffer{}
+	if err := exec.Exec(ctx, []string{p, "--version"}, exec.StepOption(step.Stdout(bufOut))); err != nil {
+		return "", err
+	}
+
+	return strings.TrimSpace(bufOut.String()), nil
 }

@@ -5,152 +5,109 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"cosmossdk.io/core/address"
-    "cosmossdk.io/core/appmodule"
-    "cosmossdk.io/core/store"
-	"cosmossdk.io/depinject"
-	"cosmossdk.io/log"
+	"cosmossdk.io/core/appmodule"
+	"cosmossdk.io/core/registry"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
-	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"google.golang.org/grpc"
 	<%= if (isIBC) { %>porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
-	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
-	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 	"github.com/spf13/cobra"<% } %>
 
-	// this line is used by starport scaffolding # 1
-
-	modulev1 "<%= modulePath %>/api/<%= appName %>/<%= moduleName %>/module/<%= protoVer %>"
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 	<%= if (isIBC) { %>"<%= modulePath %>/x/<%= moduleName %>/client/cli"<% } %>
 )
 
 var (
-	_ module.AppModuleBasic      = (*AppModule)(nil)
-	_ module.AppModuleSimulation = (*AppModule)(nil)
-	_ module.HasGenesis          = (*AppModule)(nil)
-	_ module.HasInvariants       = (*AppModule)(nil)
-	_ module.HasConsensusVersion = (*AppModule)(nil)
-
 	_ appmodule.AppModule       = (*AppModule)(nil)
+	_ appmodule.HasGenesis          = (*AppModule)(nil)
+	_ appmodule.HasConsensusVersion = (*AppModule)(nil)
+	_ appmodule.HasRegisterInterfaces            = AppModule{}
 	_ appmodule.HasBeginBlocker = (*AppModule)(nil)
 	_ appmodule.HasEndBlocker   = (*AppModule)(nil)
-	<%= if (isIBC) { %>_ porttypes.IBCModule   = IBCModule{}<% } %>
+	<%= if (isIBC) { %>_ porttypes.IBCModule   = (*IBCModule)(nil)<% } %>
 )
-
-// ----------------------------------------------------------------------------
-// AppModuleBasic
-// ----------------------------------------------------------------------------
-
-// AppModuleBasic implements the AppModuleBasic interface that defines the
-// independent methods a Cosmos SDK module needs to implement.
-type AppModuleBasic struct {
-	cdc codec.BinaryCodec
-}
-
-func NewAppModuleBasic(cdc codec.BinaryCodec) AppModuleBasic {
-	return AppModuleBasic{cdc: cdc}
-}
-
-// Name returns the name of the module as a string.
-func (AppModuleBasic) Name() string {
-	return types.ModuleName
-}
-
-// RegisterLegacyAminoCodec registers the amino codec for the module, which is used
-// to marshal and unmarshal structs to/from []byte in order to persist them in the module's KVStore.
-func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {}
-
-// RegisterInterfaces registers a module's interface types and their concrete implementations as proto.Message.
-func (a AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
-	types.RegisterInterfaces(reg)
-}
-
-// DefaultGenesis returns a default GenesisState for the module, marshalled to json.RawMessage.
-// The default GenesisState need to be defined by the module developer and is primarily used for testing.
-func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
-	return cdc.MustMarshalJSON(types.DefaultGenesis())
-}
-
-// ValidateGenesis used to validate the GenesisState, given in its json.RawMessage form.
-func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
-	var genState types.GenesisState
-	if err := cdc.UnmarshalJSON(bz, &genState); err != nil {
-		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
-	}
-	return genState.Validate()
-}
-
-// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	if err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)); err != nil {
-		panic(err)
-	}
-}
-
-<%= if (isIBC) { %>
-// GetTxCmd returns the root Tx command for the module.
-// These commands enrich the AutoCLI tx commands.
-func (a AppModuleBasic) GetTxCmd() *cobra.Command {
-    return cli.GetTxCmd()
-}
-<% } %>
-
-// ----------------------------------------------------------------------------
-// AppModule
-// ----------------------------------------------------------------------------
 
 // AppModule implements the AppModule interface that defines the inter-dependent methods that modules need to implement
 type AppModule struct {
-	AppModuleBasic
-
+	cdc           codec.Codec
 	keeper        keeper.Keeper
-	accountKeeper types.AccountKeeper
-	bankKeeper    types.BankKeeper
 }
 
 func NewAppModule(
 	cdc codec.Codec,
 	keeper keeper.Keeper,
-	accountKeeper types.AccountKeeper,
-	bankKeeper types.BankKeeper,
 ) AppModule {
 	return AppModule{
-		AppModuleBasic: NewAppModuleBasic(cdc),
-		keeper:         keeper,
-		accountKeeper:  accountKeeper,
-		bankKeeper:     bankKeeper,
+		cdc:           cdc,
+		keeper:        keeper,
 	}
 }
 
-// RegisterServices registers a gRPC query service to respond to the module-specific gRPC queries
-func (am AppModule) RegisterServices(cfg module.Configurator) {
-    types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
-    types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServerImpl(am.keeper))
+// IsAppModule implements the appmodule.AppModule interface.
+func (AppModule) IsAppModule() {}
+
+// Name returns the name of the module as a string.
+func (AppModule) Name() string {
+	return types.ModuleName
 }
 
-// RegisterInvariants registers the invariants of the module. If an invariant deviates from its predicted value, the InvariantRegistry triggers appropriate logic (most often the chain will be halted)
-func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
+// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
+func (AppModule) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+	if err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)); err != nil {
+		panic(err)
+	}
+}
+
+// RegisterInterfaces registers a module's interface types and their concrete implementations as proto.Message.
+func (AppModule) RegisterInterfaces(registrar registry.InterfaceRegistrar) {
+	types.RegisterInterfaces(registrar)
+}
+
+// RegisterServices registers a gRPC query service to respond to the module-specific gRPC queries
+func (am AppModule) RegisterServices(registrar grpc.ServiceRegistrar) error {
+    types.RegisterMsgServer(registrar, keeper.NewMsgServerImpl(am.keeper))
+    types.RegisterQueryServer(registrar, keeper.NewQueryServerImpl(am.keeper))
+
+	return nil
+}
+
+// DefaultGenesis returns a default GenesisState for the module, marshalled to json.RawMessage.
+// The default GenesisState need to be defined by the module developer and is primarily used for testing.
+func (am AppModule) DefaultGenesis() json.RawMessage {
+	return am.cdc.MustMarshalJSON(types.DefaultGenesis())
+}
+
+// ValidateGenesis used to validate the GenesisState, given in its json.RawMessage form.
+func (am AppModule) ValidateGenesis(bz json.RawMessage) error {
+	var genState types.GenesisState
+	if err := am.cdc.UnmarshalJSON(bz, &genState); err != nil {
+		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
+	}
+
+	return genState.Validate()
+}
 
 // InitGenesis performs the module's genesis initialization. It returns no validator updates.
-func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.RawMessage) {
+func (am AppModule) InitGenesis(ctx context.Context, gs json.RawMessage) error {
 	var genState types.GenesisState
 	// Initialize global index to index in genesis state
-	cdc.MustUnmarshalJSON(gs, &genState)
+	if err := am.cdc.UnmarshalJSON(gs, &genState); err != nil {
+		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
+	}
 
-	InitGenesis(ctx, am.keeper, genState)
+	return am.keeper.InitGenesis(ctx, genState)
 }
 
 // ExportGenesis returns the module's exported genesis state as raw JSON bytes.
-func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
-	genState := ExportGenesis(ctx, am.keeper)
-	return cdc.MustMarshalJSON(genState)
+func (am AppModule) ExportGenesis(ctx context.Context) (json.RawMessage, error) {
+	genState, err := am.keeper.ExportGenesis(ctx)
+	if err != nil {
+	    return nil, err
+	}
+
+	return am.cdc.MarshalJSON(genState)
 }
 
 // ConsensusVersion is a sequence number for state-breaking change of the module.
@@ -170,69 +127,10 @@ func (am AppModule) EndBlock(_ context.Context) error {
 	return nil
 }
 
-// IsOnePerModuleType implements the depinject.OnePerModuleType interface.
-func (am AppModule) IsOnePerModuleType() {}
-
-// IsAppModule implements the appmodule.AppModule interface.
-func (am AppModule) IsAppModule() {}
-
-// ----------------------------------------------------------------------------
-// App Wiring Setup
-// ----------------------------------------------------------------------------
-
-func init() {
-	appmodule.Register(
-	    &modulev1.Module{},
-		appmodule.Provide(ProvideModule),
-	)
+<%= if (isIBC) { %>
+// GetTxCmd returns the root Tx command for the module.
+// These commands enrich the AutoCLI tx commands.
+func (AppModule) GetTxCmd() *cobra.Command {
+    return cli.GetTxCmd()
 }
-
-type ModuleInputs struct {
-	depinject.In
-
-	AddressCodec address.Codec
-	StoreService store.KVStoreService
-	Cdc          codec.Codec
-	Config       *modulev1.Module
-	Logger       log.Logger
-
-	AccountKeeper types.AccountKeeper
-	BankKeeper    types.BankKeeper<%= for (dependency) in dependencies { %><%= if (dependency.Name != "Bank" && dependency.Name != "Account") { %>
-    <%= dependency.KeeperName() %> types.<%= dependency.KeeperName() %><% } %><% } %>
-
-    <%= if (isIBC) { %>IBCKeeperFn        func() *ibckeeper.Keeper                   `optional:"true"`
-    CapabilityScopedFn func(string) capabilitykeeper.ScopedKeeper `optional:"true"`<% } %>
-}
-
-type ModuleOutputs struct {
-	depinject.Out
-
-	<%= title(moduleName) %>Keeper keeper.Keeper
-	Module appmodule.AppModule
-}
-
-func ProvideModule(in ModuleInputs) ModuleOutputs {
-	// default to governance authority if not provided
-	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
-	if in.Config.Authority != "" {
-		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
-	}
-	k := keeper.NewKeeper(
-	    in.Cdc,
-		in.AddressCodec,
-		in.StoreService,
-	    in.Logger,
-	    authority.String(), <%= if (isIBC) { %>
-		in.IBCKeeperFn,
-		in.CapabilityScopedFn,<% } %><%= for (dependency) in dependencies { %>
-        in.<%= dependency.KeeperName() %>,<% } %>
-	)
-	m := NewAppModule(
-	    in.Cdc,
-	    k,
-	    in.AccountKeeper,
-	    in.BankKeeper,
-	)
-
-	return ModuleOutputs{<%= title(moduleName) %>Keeper: k, Module: m}
-}
+<% } %>

@@ -1,0 +1,30 @@
+package keeper_test
+
+import (
+	"testing"
+
+	"<%= modulePath %>/testutil/nullify"
+	"<%= modulePath %>/x/<%= moduleName %>/types"
+
+	"github.com/stretchr/testify/require"
+)
+
+func TestGenesis(t *testing.T) {
+	genesisState := types.GenesisState{
+		Params: types.DefaultParams(),
+		<%= if (isIBC) { %>PortId: types.PortID,<% } %>
+	}
+
+	f := initFixture(t)
+	err := f.keeper.InitGenesis(f.ctx, genesisState)
+	require.NoError(t, err)
+	got, err := f.keeper.ExportGenesis(f.ctx)
+	require.NoError(t, err)
+	require.NotNil(t, got)
+
+	nullify.Fill(&genesisState)
+	nullify.Fill(got)
+
+	<%= if (isIBC) { %>require.Equal(t, genesisState.PortId, got.PortId)<% } %>
+	require.Equal(t, genesisState.Params, got.Params)
+}

@@ -18,6 +18,7 @@ const (
 )
 
 func randomBytes(t *testing.T, n int) []byte {
+	t.Helper()
 	bytes := make([]byte, n)
 	_, err := rand.Read(bytes)
 	require.NoError(t, err)
@@ -72,8 +73,8 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	paths := []string{dir1, dir2, dir3}
 	checksum, err := dirchange.ChecksumFromPaths("", paths...)
 	require.NoError(t, err)
-	// md5 checksum is 16 bytes
-	require.Len(t, checksum, 16)
+	// sha256 checksum is 32 bytes
+	require.Len(t, checksum, 32)
 
 	// Checksum remains the same if a file is deleted and recreated with the same content
 	err = os.Remove(filepath.Join(dir1, "foo"))

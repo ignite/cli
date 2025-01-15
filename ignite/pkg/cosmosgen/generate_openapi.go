@@ -65,7 +65,7 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 
 		if !errors.Is(err, cache.ErrorNotFound) {
 			specPath := filepath.Join(dir, specFilename)
-			if err := os.WriteFile(specPath, existingSpec, 0o644); err != nil {
+			if err := os.WriteFile(specPath, existingSpec, 0o600); err != nil {
 				return err
 			}
 			return conf.AddSpec(name, specPath, true)
@@ -78,6 +78,7 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 			dir,
 			g.openAPITemplate(),
 			cosmosbuf.ExcludeFiles(
+				"*/osmosis-labs/fee-abstraction/*",
 				"*/module.proto",
 				"*/testutil/*",
 				"*/testdata/*",
@@ -86,6 +87,7 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 				"*/cosmos/app/v1alpha1/*",
 				"*/cosmos/tx/config/v1/config.proto",
 				"*/cosmos/msg/textual/v1/textual.proto",
+				"*/cosmos/vesting/v1beta1/vesting.proto",
 			),
 			cosmosbuf.FileByFile(),
 		); err != nil {

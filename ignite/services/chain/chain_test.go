@@ -5,9 +5,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/moby/moby/pkg/archive"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/ignite/cli/v29/ignite/pkg/archive"
 )
 
 func TestSourceVersion(t *testing.T) {
@@ -29,6 +30,8 @@ func TestSourceVersion(t *testing.T) {
 }
 
 func tempSource(t *testing.T, tarPath string) (path string) {
+	t.Helper()
+
 	f, err := os.Open(tarPath)
 	require.NoError(t, err)
 
@@ -36,7 +39,7 @@ func tempSource(t *testing.T, tarPath string) (path string) {
 
 	dir := t.TempDir()
 
-	require.NoError(t, archive.Untar(f, dir, &archive.TarOptions{NoLchown: true}))
+	require.NoError(t, archive.ExtractArchive(dir, f))
 
 	dirs, err := os.ReadDir(dir)
 	require.NoError(t, err)

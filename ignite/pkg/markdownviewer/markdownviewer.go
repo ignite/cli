@@ -5,6 +5,8 @@ import (
 
 	"github.com/charmbracelet/glow/ui"
 	"golang.org/x/term"
+
+	"github.com/ignite/cli/v29/ignite/pkg/safeconverter"
 )
 
 // View starts the Markdown viewer at path that .md files are located at.
@@ -24,10 +26,12 @@ func View(path string) error {
 func config(path string) (ui.Config, error) {
 	var width uint
 
-	w, _, err := term.GetSize(int(os.Stdout.Fd()))
+	fd := safeconverter.ToInt[uintptr](os.Stdout.Fd())
+	w, _, err := term.GetSize(fd)
 	if err != nil {
 		return ui.Config{}, err
 	}
+
 	width = uint(w)
 	if width > 120 {
 		width = 120

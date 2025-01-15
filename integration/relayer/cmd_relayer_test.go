@@ -127,89 +127,76 @@ var (
 		},
 	}
 
-	nameSendIbcPost = "SendIbcPost"
-	funcSendIbcPost = `package keeper
-func (k msgServer) SendIbcPost(goCtx context.Context, msg *types.MsgSendIbcPost) (*types.MsgSendIbcPostResponse, error) {
-    ctx := sdk.UnwrapSDKContext(goCtx)
-    // Construct the packet
-    var packet types.IbcPostPacketData
-    packet.Title = msg.Title
-    packet.Content = msg.Content
-    // Transmit the packet
-    _, err := k.TransmitIbcPostPacket(
-        ctx,
-        packet,
-        msg.Port,
-        msg.ChannelID,
-        clienttypes.ZeroHeight(),
-        msg.TimeoutTimestamp,
-    )
-    return &types.MsgSendIbcPostResponse{}, err
-}`
-
 	nameOnRecvIbcPostPacket = "OnRecvIbcPostPacket"
 	funcOnRecvIbcPostPacket = `package keeper
-func (k Keeper) OnRecvIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData) (packetAck types.IbcPostPacketAck, err error) {
-    // validate packet data upon receiving
-    if err := data.ValidateBasic(); err != nil {
-        return packetAck, err
-    }
-    packetAck.PostId = k.AppendPost(ctx, types.Post{Title: data.Title, Content: data.Content})
-    return packetAck, nil
+func (k Keeper) OnRecvIbcPostPacket(ctx context.Context, packet channeltypes.Packet, data types.IbcPostPacketData) (packetAck types.IbcPostPacketAck, err error) {
+	packetAck.PostId, err = k.PostSeq.Next(ctx)
+	if err != nil {
+		return packetAck, err
+	}
+	return packetAck, k.Post.Set(ctx, packetAck.PostId, types.Post{Title: data.Title, Content: data.Content})
 }`
 
 	nameOnAcknowledgementIbcPostPacket = "OnAcknowledgementIbcPostPacket"
 	funcOnAcknowledgementIbcPostPacket = `package keeper
-func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData, ack channeltypes.Acknowledgement) error {
+func (k Keeper) OnAcknowledgementIbcPostPacket(ctx context.Context, packet channeltypes.Packet, data types.IbcPostPacketData, ack channeltypes.Acknowledgement) error {
     switch dispatchedAck := ack.Response.(type) {
-    case *channeltypes.Acknowledgement_Error:
-        // We will not treat acknowledgment error in this tutorial
-        return nil
-    case *channeltypes.Acknowledgement_Result:
-        // Decode the packet acknowledgment
-        var packetAck types.IbcPostPacketAck
-        if err := types.ModuleCdc.UnmarshalJSON(dispatchedAck.Result, &packetAck); err != nil {
-            // The counter-party module doesn't implement the correct acknowledgment format
-            return errors.New("cannot unmarshal acknowledgment")
-        }
+	case *channeltypes.Acknowledgement_Error:
+		// We will not treat acknowledgment error in this tutorial
+		return nil
+	case *channeltypes.Acknowledgement_Result:
+		// Decode the packet acknowledgment
+		var packetAck types.IbcPostPacketAck
+		if err := types.ModuleCdc.UnmarshalJSON(dispatchedAck.Result, &packetAck); err != nil {
+			// The counter-party module doesn't implement the correct acknowledgment format
+			return errors.New("cannot unmarshal acknowledgment")
+		}
 
-        k.AppendSentPost(ctx,
-            types.SentPost{
-                PostId:  packetAck.PostId,
-                Title:   data.Title,
-                Chain:   packet.DestinationPort + "-" + packet.DestinationChannel,
-            },
-        )
-        return nil
-    default:
-        return errors.New("the counter-party module does not implement the correct acknowledgment format")
-    }
+		seq, err := k.SentPostSeq.Next(ctx)
+		if err != nil {
+			return err
+		}
+
+		return k.SentPost.Set(ctx, seq,
+			types.SentPost{
+				PostId: packetAck.PostId,
+				Title:  data.Title,
+				Chain:  packet.DestinationPort + "-" + packet.DestinationChannel,
+			},
+		)
+	default:
+		return errors.New("the counter-party module does not implement the correct acknowledgment format")
+	}
 }`
 
 	nameOnTimeoutIbcPostPacket = "OnTimeoutIbcPostPacket"
 	funcOnTimeoutIbcPostPacket = `package keeper
-func (k Keeper) OnTimeoutIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData) error {
-    k.AppendTimeoutPost(ctx,
-        types.TimeoutPost{
-            Title:   data.Title,
-            Chain:   packet.DestinationPort + "-" + packet.DestinationChannel,
-        },
-    )
-    return nil
+func (k Keeper) OnTimeoutIbcPostPacket(ctx context.Context, packet channeltypes.Packet, data types.IbcPostPacketData) error {
+	seq, err := k.TimeoutPostSeq.Next(ctx)
+	if err != nil {
+		return err
+	}
+
+	return k.TimeoutPost.Set(ctx, seq,
+		types.TimeoutPost{
+			Title: data.Title,
+			Chain: packet.DestinationPort + "-" + packet.DestinationChannel,
+		},
+	)
 }`
 )
 
 type (
 	QueryChannels struct {
 		Channels []struct {
-			ChannelId      string   `json:"channel_id"`
+			ChannelID      string   `json:"channel_id"`
 			ConnectionHops []string `json:"connection_hops"`
 			Counterparty   struct {
-				ChannelId string `json:"channel_id"`
-				PortId    string `json:"port_id"`
+				ChannelID string `json:"channel_id"`
+				PortID    string `json:"port_id"`
 			} `json:"counterparty"`
 			Ordering string `json:"ordering"`
-			PortId   string `json:"port_id"`
+			PortID   string `json:"port_id"`
 			State    string `json:"state"`
 			Version  string `json:"version"`
 		} `json:"channels"`
@@ -221,8 +208,8 @@ type (
 )
 
 func runChain(
-	t *testing.T,
 	ctx context.Context,
+	t *testing.T,
 	env envtest.Env,
 	app envtest.App,
 	cfg v1.Config,
@@ -278,7 +265,7 @@ func runChain(
 func TestBlogIBC(t *testing.T) {
 	var (
 		env    = envtest.New(t)
-		app    = env.Scaffold("github.com/test/planet")
+		app    = env.Scaffold("github.com/ignite/blog", "--no-module")
 		ctx    = env.Ctx()
 		tmpDir = t.TempDir()
 	)
@@ -376,11 +363,6 @@ func TestBlogIBC(t *testing.T) {
 	blogKeeperPath := filepath.Join(app.SourcePath(), "x/blog/keeper")
 	require.NoError(t, goanalysis.ReplaceCode(
 		blogKeeperPath,
-		nameSendIbcPost,
-		funcSendIbcPost,
-	))
-	require.NoError(t, goanalysis.ReplaceCode(
-		blogKeeperPath,
 		nameOnRecvIbcPostPacket,
 		funcOnRecvIbcPostPacket,
 	))
@@ -402,10 +384,10 @@ func TestBlogIBC(t *testing.T) {
 		availableport.WithMaxPort(5000),
 	)
 	require.NoError(t, err)
-	earthAPI, earthRPC, earthGRPC, earthFaucet := runChain(t, ctx, env, app, earthConfig, tmpDir, ports[:7])
+	earthAPI, earthRPC, earthGRPC, earthFaucet := runChain(ctx, t, env, app, earthConfig, tmpDir, ports[:7])
 	earthChainID := earthConfig.Genesis["chain_id"].(string)
 	earthHome := earthConfig.Validators[0].Home
-	marsAPI, marsRPC, marsGRPC, marsFaucet := runChain(t, ctx, env, app, marsConfig, tmpDir, ports[7:])
+	marsAPI, marsRPC, marsGRPC, marsFaucet := runChain(ctx, t, env, app, marsConfig, tmpDir, ports[7:])
 	marsChainID := marsConfig.Genesis["chain_id"].(string)
 	marsHome := marsConfig.Validators[0].Home
 

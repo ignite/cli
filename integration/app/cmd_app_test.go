@@ -3,6 +3,7 @@
 package app_test
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
 	"testing"
@@ -50,6 +51,23 @@ func TestGenerateAnAppWithName(t *testing.T) {
 	require.False(t, os.IsNotExist(statErr), "the default module should be scaffolded")
 
 	app.EnsureSteady()
+}
+
+// TestGenerateAnAppWithInvalidName tests scaffolding a new chain using an invalid name.
+func TestGenerateAnAppWithInvalidName(t *testing.T) {
+	buf := new(bytes.Buffer)
+
+	env := envtest.New(t)
+	env.Must(env.Exec("should prevent creating an app with an invalid name",
+		step.NewSteps(step.New(
+			step.Exec(envtest.IgniteApp, "s", "chain", "blog2"),
+			step.Stdout(buf),
+			step.Stderr(buf),
+		)),
+		envtest.ExecShouldError(),
+	))
+
+	require.Contains(t, buf.String(), "Invalid app name blog2: cannot contain numbers")
 }
 
 func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
@@ -142,7 +160,7 @@ func TestGenerateAppWithEmptyModule(t *testing.T) {
 				"--yes",
 				"with_dep",
 				"--dep",
-				"account,bank,staking,slashing,example",
+				"auth,bank,staking,slashing,example",
 				"--require-registration",
 			),
 			step.Workdir(app.SourcePath()),
@@ -182,18 +200,6 @@ func TestGenerateAppWithEmptyModule(t *testing.T) {
 		)),
 		envtest.ExecShouldError(),
 	))
-
-	app.EnsureSteady()
-}
-
-func TestGenerateAConsumerApp(t *testing.T) {
-	var (
-		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/blog", "--consumer")
-	)
-
-	_, statErr := os.Stat(filepath.Join(app.SourcePath(), "x", "blog"))
-	require.False(t, os.IsNotExist(statErr), "the default module should be scaffolded")
 
 	app.EnsureSteady()
 }

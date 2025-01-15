@@ -14,6 +14,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"
 	"github.com/ignite/cli/v29/ignite/templates/testutil"
@@ -61,7 +62,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *Options) (*genny.Generato
 
 	g.RunFn(protoTxRPCModify(opts))
 	g.RunFn(protoTxMessageModify(opts))
-	g.RunFn(typesCodecModify(replacer, opts))
+	g.RunFn(typesCodecModify(opts))
 	g.RunFn(clientCliTxModify(replacer, opts))
 
 	template := xgenny.NewEmbedWalker(
@@ -71,7 +72,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *Options) (*genny.Generato
 	)
 
 	if !opts.NoSimulation {
-		g.RunFn(moduleSimulationModify(replacer, opts))
+		g.RunFn(moduleSimulationModify(opts))
 		simappTemplate := xgenny.NewEmbedWalker(
 			fsSimapp,
 			"files/simapp",
@@ -169,26 +170,36 @@ func protoTxMessageModify(opts *Options) genny.RunFn {
 	}
 }
 
-func typesCodecModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+func typesCodecModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/codec.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
-		replacementImport := `sdk "github.com/cosmos/cosmos-sdk/types"`
-		content := replacer.ReplaceOnce(f.String(), Placeholder, replacementImport)
 
-		templateRegisterImplementations := `registry.RegisterImplementations((*sdk.Msg)(nil),
-	&Msg%[2]v{},
-)
-%[1]v`
+		// Import
+		content, err := xast.AppendImports(f.String(), xast.WithLastNamedImport("sdk", "github.com/cosmos/cosmos-sdk/types"))
+		if err != nil {
+			return err
+		}
+
+		templateRegisterImplementations := `registrar.RegisterImplementations((*sdk.Msg)(nil),
+	&Msg%[1]v{},
+)`
 		replacementRegisterImplementations := fmt.Sprintf(
 			templateRegisterImplementations,
-			Placeholder3,
 			opts.MsgName.UpperCamel,
 		)
-		content = replacer.Replace(content, Placeholder3, replacementRegisterImplementations)
+
+		content, err = xast.ModifyFunction(
+			content,
+			"RegisterInterfaces",
+			xast.AppendFuncAtLine(replacementRegisterImplementations, 0),
+		)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -231,7 +242,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn
 	}
 }
 
-func moduleSimulationModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+func moduleSimulationModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/simulation.go")
 		f, err := r.Disk.Find(path)
@@ -239,12 +250,14 @@ func moduleSimulationModify(replacer placeholder.Replacer, opts *Options) genny.
 			return err
 		}
 
-		content := typed.ModuleSimulationMsgModify(
-			replacer,
+		content, err := typed.ModuleSimulationMsgModify(
 			f.String(),
-			opts.ModuleName,
 			opts.MsgName,
+			opts.MsgSigner,
 		)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

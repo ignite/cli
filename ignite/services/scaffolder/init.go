@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/app"
@@ -20,12 +21,19 @@ func Init(
 	ctx context.Context,
 	runner *xgenny.Runner,
 	root, name, addressPrefix, protoDir string,
-	noDefaultModule, minimal, isConsumerChain bool,
+	noDefaultModule, minimal bool,
 	params, moduleConfigs []string,
 ) (string, string, error) {
 	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
 		return "", "", err
+	}
+
+	// Check if the module name is valid (no numbers)
+	for _, r := range pathInfo.Package {
+		if r >= '0' && r <= '9' {
+			return "", "", errors.Errorf("invalid app name %s: cannot contain numbers", pathInfo.Package)
+		}
 	}
 
 	// Create a new folder named as the blockchain when a custom path is not specified
@@ -52,7 +60,6 @@ func Init(
 		path,
 		noDefaultModule,
 		minimal,
-		isConsumerChain,
 		params,
 		moduleConfigs,
 	)
@@ -67,7 +74,7 @@ func generate(
 	addressPrefix,
 	protoDir,
 	absRoot string,
-	noDefaultModule, minimal, isConsumerChain bool,
+	noDefaultModule, minimal bool,
 	params, moduleConfigs []string,
 ) (xgenny.SourceModification, error) {
 	// Parse params with the associated type
@@ -98,7 +105,6 @@ func generate(
 		BinaryNamePrefix: pathInfo.Root,
 		AddressPrefix:    addressPrefix,
 		IsChainMinimal:   minimal,
-		IsConsumerChain:  isConsumerChain,
 	})
 	if err != nil {
 		return xgenny.SourceModification{}, err

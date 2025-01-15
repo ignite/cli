@@ -1,0 +1,71 @@
+package <%= moduleName %>
+
+import (
+	"cosmossdk.io/core/address"
+	"cosmossdk.io/core/appmodule"
+	"cosmossdk.io/core/store"
+	"cosmossdk.io/depinject"
+	"cosmossdk.io/depinject/appconfig"
+	"cosmossdk.io/log"
+	"github.com/cosmos/cosmos-sdk/codec"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	<%= if (isIBC) { %>capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"<% } %>
+
+	"<%= modulePath %>/x/<%= moduleName %>/keeper"
+	"<%= modulePath %>/x/<%= moduleName %>/types"
+)
+
+var _ depinject.OnePerModuleType = AppModule{}
+
+// IsOnePerModuleType implements the depinject.OnePerModuleType interface.
+func (AppModule) IsOnePerModuleType() {}
+
+func init() {
+	appconfig.Register(
+	    &types.Module{},
+		appconfig.Provide(ProvideModule),
+	)
+}
+
+type ModuleInputs struct {
+	depinject.In
+
+	Config       *types.Module
+	Environment  appmodule.Environment
+	Cdc          codec.Codec
+	AddressCodec address.Codec
+
+	<%= for (dependency) in dependencies { %>
+	<%= dependency.KeeperName() %> types.<%= dependency.KeeperName() %><% } %>
+
+    <%= if (isIBC) { %>IBCKeeperFn        func() *ibckeeper.Keeper                   `optional:"true"`
+    CapabilityScopedFn func(string) capabilitykeeper.ScopedKeeper `optional:"true"`<% } %>
+}
+
+type ModuleOutputs struct {
+	depinject.Out
+
+	<%= title(moduleName) %>Keeper keeper.Keeper
+	Module appmodule.AppModule
+}
+
+func ProvideModule(in ModuleInputs) ModuleOutputs {
+	// default to governance authority if not provided
+	authority := authtypes.NewModuleAddress(types.GovModuleName)
+	if in.Config.Authority != "" {
+		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
+	}
+	k := keeper.NewKeeper(
+		in.Environment,
+	    in.Cdc,
+		in.AddressCodec,
+	    authority, <%= if (isIBC) { %>
+		in.IBCKeeperFn,
+		in.CapabilityScopedFn,<% } %><%= for (dependency) in dependencies { %>
+        in.<%= dependency.KeeperName() %>,<% } %>
+	)
+	m := NewAppModule(in.Cdc, k,)
+
+	return ModuleOutputs{<%= title(moduleName) %>Keeper: k, Module: m}
+}

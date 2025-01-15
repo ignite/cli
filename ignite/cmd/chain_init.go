@@ -88,6 +88,7 @@ commands manually to ensure a production-level node initialization.
 	c.Flags().AddFlagSet(flagSetCheckDependencies())
 	c.Flags().AddFlagSet(flagSetSkipProto())
 	c.Flags().AddFlagSet(flagSetDebug())
+	c.Flags().AddFlagSet(flagSetVerbose())
 	c.Flags().StringSlice(flagBuildTags, []string{}, "parameters to build the chain binary")
 
 	return c
@@ -109,6 +110,12 @@ func chainInitHandler(cmd *cobra.Command, _ []string) error {
 
 	if flagGetCheckDependencies(cmd) {
 		chainOption = append(chainOption, chain.CheckDependencies())
+	}
+
+	// check if custom config is defined
+	config, _ := cmd.Flags().GetString(flagConfig)
+	if config != "" {
+		chainOption = append(chainOption, chain.ConfigFile(config))
 	}
 
 	c, err := chain.NewWithHomeFlags(cmd, chainOption...)

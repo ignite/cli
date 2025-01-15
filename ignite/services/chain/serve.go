@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/otiai10/copy"
 	"golang.org/x/sync/errgroup"
@@ -68,6 +69,7 @@ type serveOptions struct {
 	forceReset      bool
 	resetOnce       bool
 	skipProto       bool
+	skipBuild       bool
 	quitOnFail      bool
 	generateClients bool
 	buildTags       []string
@@ -115,6 +117,14 @@ func GenerateClients() ServeOption {
 func ServeSkipProto() ServeOption {
 	return func(c *serveOptions) {
 		c.skipProto = true
+	}
+}
+
+// ServeSkipBuild allows to serve the app without rebuilding it.
+// It looks up the binary in the PATH.
+func ServeSkipBuild() ServeOption {
+	return func(c *serveOptions) {
+		c.skipBuild = true
 	}
 }
 
@@ -189,6 +199,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 					serveOptions.buildTags,
 					shouldReset,
 					serveOptions.skipProto,
+					serveOptions.skipBuild,
 					serveOptions.generateClients,
 				)
 				serveOptions.resetOnce = false
@@ -323,7 +334,7 @@ func (c *Chain) serve(
 	ctx context.Context,
 	cacheStorage cache.Storage,
 	buildTags []string,
-	forceReset, skipProto, generateClients bool,
+	forceReset, skipProto, skipBuild, generateClients bool,
 ) error {
 	conf, err := c.Config()
 	if err != nil {
@@ -405,7 +416,13 @@ func (c *Chain) serve(
 	}
 
 	// build phase
-	if !isInit || appModified {
+	// if the app is not initialized or the source/binary has been modified
+	// and if the --skip-build flag is not set
+	if skipBuild {
+		c.ev.SendInfo("Skip building activated. Binary won't be rebuilt, nor refresh on changes")
+	}
+
+	if (!isInit || appModified) && !skipBuild {
 		// build the blockchain app
 		if err := c.build(ctx, cacheStorage, buildTags, "", skipProto, generateClients, true); err != nil {
 			return err
@@ -566,8 +583,9 @@ func (c *Chain) runFaucetServer(ctx context.Context, faucet cosmosfaucet.Faucet)
 	}
 
 	return xhttp.Serve(ctx, &http.Server{
-		Addr:    chainconfig.FaucetHost(cfg),
-		Handler: faucet,
+		Addr:              chainconfig.FaucetHost(cfg),
+		Handler:           faucet,
+		ReadHeaderTimeout: 5 * time.Second, // Set a reasonable timeout
 	})
 }
 

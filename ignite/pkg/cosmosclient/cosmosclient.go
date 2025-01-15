@@ -18,10 +18,15 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 	prototypes "github.com/cosmos/gogoproto/types"
 
+	"cosmossdk.io/core/transaction"
+	banktypes "cosmossdk.io/x/bank/types"
+	staking "cosmossdk.io/x/staking/types"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/codec"
+	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
@@ -29,8 +34,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
@@ -82,14 +85,14 @@ type FaucetClient interface {
 //
 //go:generate mockery --srcpkg . --name Gasometer --filename gasometer.go --with-expecter
 type Gasometer interface {
-	CalculateGas(clientCtx gogogrpc.ClientConn, txf tx.Factory, msgs ...sdktypes.Msg) (*txtypes.SimulateResponse, uint64, error)
+	CalculateGas(clientCtx gogogrpc.ClientConn, txf tx.Factory, msgs ...transaction.Msg) (*txtypes.SimulateResponse, uint64, error)
 }
 
 // Signer allows to mock the tx.Sign func.
 //
 //go:generate mockery --srcpkg . --name Signer --filename signer.go --with-expecter
 type Signer interface {
-	Sign(ctx context.Context, txf tx.Factory, name string, txBuilder client.TxBuilder, overwriteSig bool) error
+	Sign(ctx client.Context, txf tx.Factory, name string, txBuilder client.TxBuilder, overwriteSig bool) error
 }
 
 // Client is a client to access your chain by querying and broadcasting transactions.
@@ -136,6 +139,8 @@ type Client struct {
 }
 
 // Option configures your client.
+// Option, are global to the client and affect all transactions.
+// If you want to override a global option on a transaction, use the TxOptions struct.
 type Option func(*Client)
 
 // WithHome sets the data dir of your chain. This option is used to access your chain's
@@ -177,12 +182,14 @@ func WithNodeAddress(addr string) Option {
 	}
 }
 
+// WithAddressPrefix sets the address prefix on the client.
 func WithAddressPrefix(prefix string) Option {
 	return func(c *Client) {
 		c.addressPrefix = prefix
 	}
 }
 
+// WithUseFaucet sets the faucet address on the client.
 func WithUseFaucet(faucetAddress, denom string, minAmount uint64) Option {
 	return func(c *Client) {
 		c.useFaucet = true
@@ -218,7 +225,8 @@ func WithGasAdjustment(gasAdjustment float64) Option {
 	}
 }
 
-// WithFees sets the fees (e.g. 10uatom).
+// WithFees sets the fees (e.g. 10uatom) on the client.
+// It will be used for all transactions if not overridden on the transaction options.
 func WithFees(fees string) Option {
 	return func(c *Client) {
 		c.fees = fees
@@ -300,7 +308,7 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 	}
 
 	if c.RPC == nil {
-		if c.RPC, err = rpchttp.New(c.nodeAddress, "/websocket"); err != nil {
+		if c.RPC, err = rpchttp.New(c.nodeAddress); err != nil {
 			return Client{}, err
 		}
 	}
@@ -537,7 +545,7 @@ func (c Client) lockBech32Prefix() (unlockFn func()) {
 	return mconf.Unlock
 }
 
-func (c Client) BroadcastTx(ctx context.Context, account cosmosaccount.Account, msgs ...sdktypes.Msg) (Response, error) {
+func (c Client) BroadcastTx(ctx context.Context, account cosmosaccount.Account, msgs ...transaction.Msg) (Response, error) {
 	txService, err := c.CreateTx(ctx, account, msgs...)
 	if err != nil {
 		return Response{}, err
@@ -546,7 +554,9 @@ func (c Client) BroadcastTx(ctx context.Context, account cosmosaccount.Account, 
 	return txService.Broadcast(ctx)
 }
 
-func (c Client) CreateTx(goCtx context.Context, account cosmosaccount.Account, msgs ...sdktypes.Msg) (TxService, error) {
+// CreateTxWithOptions creates a transaction with the given options.
+// Options override global client options.
+func (c Client) CreateTxWithOptions(ctx context.Context, account cosmosaccount.Account, options TxOptions, msgs ...transaction.Msg) (TxService, error) {
 	defer c.lockBech32Prefix()()
 
 	if c.useFaucet && !c.generateOnly {
@@ -554,7 +564,7 @@ func (c Client) CreateTx(goCtx context.Context, account cosmosaccount.Account, m
 		if err != nil {
 			return TxService{}, errors.WithStack(err)
 		}
-		if err := c.makeSureAccountHasTokens(goCtx, addr); err != nil {
+		if err := c.makeSureAccountHasTokens(ctx, addr); err != nil {
 			return TxService{}, err
 		}
 	}
@@ -564,39 +574,52 @@ func (c Client) CreateTx(goCtx context.Context, account cosmosaccount.Account, m
 		return TxService{}, errors.WithStack(err)
 	}
 
-	ctx := c.context.
+	clientCtx := c.context.
 		WithFromName(account.Name).
 		WithFromAddress(sdkaddr)
 
-	txf, err := c.prepareFactory(ctx)
+	txf, err := c.prepareFactory(clientCtx)
 	if err != nil {
 		return TxService{}, err
 	}
 
-	var gas uint64
-	if c.gas != "" && c.gas != GasAuto {
-		gas, err = strconv.ParseUint(c.gas, 10, 64)
-		if err != nil {
-			return TxService{}, errors.WithStack(err)
-		}
-	} else {
-		_, gas, err = c.gasometer.CalculateGas(ctx, txf, msgs...)
-		if err != nil {
-			return TxService{}, errors.WithStack(err)
-		}
-		// the simulated gas can vary from the actual gas needed for a real transaction
-		// we add an amount to ensure sufficient gas is provided
-		gas += 20000
+	if options.Memo != "" {
+		txf = txf.WithMemo(options.Memo)
 	}
-	txf = txf.WithGas(gas)
+
 	txf = txf.WithFees(c.fees)
+	if options.Fees != "" {
+		txf = txf.WithFees(options.Fees)
+	}
+
+	if options.GasLimit != 0 {
+		txf = txf.WithGas(options.GasLimit)
+	} else {
+		if c.gasAdjustment != 0 && c.gasAdjustment != defaultGasAdjustment {
+			txf = txf.WithGasAdjustment(c.gasAdjustment)
+		}
+
+		var gas uint64
+		if c.gas != "" && c.gas != GasAuto {
+			gas, err = strconv.ParseUint(c.gas, 10, 64)
+			if err != nil {
+				return TxService{}, errors.WithStack(err)
+			}
+		} else {
+			_, gas, err = c.gasometer.CalculateGas(clientCtx, txf, msgs...)
+			if err != nil {
+				return TxService{}, errors.WithStack(err)
+			}
+			// the simulated gas can vary from the actual gas needed for a real transaction
+			// we add an amount to ensure sufficient gas is provided
+			gas += 20000
+		}
+
+		txf = txf.WithGas(gas)
+	}
 
 	if c.gasPrices != "" {
 		txf = txf.WithGasPrices(c.gasPrices)
-	}
-
-	if c.gasAdjustment != 0 && c.gasAdjustment != defaultGasAdjustment {
-		txf = txf.WithGasAdjustment(c.gasAdjustment)
 	}
 
 	txUnsigned, err := txf.BuildUnsignedTx(msgs...)
@@ -604,14 +627,18 @@ func (c Client) CreateTx(goCtx context.Context, account cosmosaccount.Account, m
 		return TxService{}, errors.WithStack(err)
 	}
 
-	txUnsigned.SetFeeGranter(ctx.GetFeeGranterAddress())
+	txUnsigned.SetFeeGranter(clientCtx.FeeGranter)
 
 	return TxService{
 		client:        c,
-		clientContext: ctx,
+		clientContext: clientCtx,
 		txBuilder:     txUnsigned,
 		txFactory:     txf,
 	}, nil
+}
+
+func (c Client) CreateTx(ctx context.Context, account cosmosaccount.Account, msgs ...transaction.Msg) (TxService, error) {
+	return c.CreateTxWithOptions(ctx, account, TxOptions{}, msgs...)
 }
 
 // GetBlockTXs returns the transactions in a block.
@@ -787,11 +814,15 @@ func (c *Client) prepareFactory(clientCtx client.Context) (tx.Factory, error) {
 }
 
 func (c Client) newContext() client.Context {
+	addressCodec := addresscodec.NewBech32Codec(c.addressPrefix)
+	validatorAddressCodec := addresscodec.NewBech32Codec(c.addressPrefix + "val")
+	consensusAddressCodec := addresscodec.NewBech32Codec(c.addressPrefix + "cons")
+
 	var (
 		amino             = codec.NewLegacyAmino()
 		interfaceRegistry = codectypes.NewInterfaceRegistry()
 		marshaler         = codec.NewProtoCodec(interfaceRegistry)
-		txConfig          = authtx.NewTxConfig(marshaler, authtx.DefaultSignModes)
+		txConfig          = authtx.NewTxConfig(marshaler, addressCodec, validatorAddressCodec, authtx.DefaultSignModes)
 	)
 
 	authtypes.RegisterInterfaces(interfaceRegistry)
@@ -815,7 +846,10 @@ func (c Client) newContext() client.Context {
 		WithClient(c.RPC).
 		WithSkipConfirmation(true).
 		WithKeyring(c.AccountRegistry.Keyring).
-		WithGenerateOnly(c.generateOnly)
+		WithGenerateOnly(c.generateOnly).
+		WithAddressCodec(addressCodec).
+		WithValidatorAddressCodec(validatorAddressCodec).
+		WithConsensusAddressCodec(consensusAddressCodec)
 }
 
 func newFactory(clientCtx client.Context) tx.Factory {

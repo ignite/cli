@@ -45,6 +45,31 @@ func NewKV(key, value string) KV {
 
 var gentxRe = regexp.MustCompile(`(?m)"(.+?)"`)
 
+func (r Runner) InPlace(ctx context.Context, newChainID, newOperatorAddress string, options ...chaincmd.InPlaceOption) error {
+	runOptions := runOptions{
+		stdout: os.Stdout,
+		stderr: os.Stderr,
+	}
+	return r.run(
+		ctx,
+		runOptions,
+		r.chainCmd.TestnetInPlaceCommand(newChainID, newOperatorAddress, options...),
+	)
+}
+
+// Initialize config directories & files for a multi-validator testnet locally.
+func (r Runner) MultiNode(ctx context.Context, options ...chaincmd.MultiNodeOption) error {
+	runOptions := runOptions{
+		stdout: os.Stdout,
+		stderr: os.Stderr,
+	}
+	return r.run(
+		ctx,
+		runOptions,
+		r.chainCmd.TestnetMultiNodeCommand(options...),
+	)
+}
+
 // Gentx generates a genesis tx carrying a self delegation.
 func (r Runner) Gentx(
 	ctx context.Context,
@@ -240,7 +265,7 @@ func (r Runner) Export(ctx context.Context, exportedFile string) error {
 	}
 
 	// Save the new state
-	return os.WriteFile(exportedFile, exportedState, 0o644)
+	return os.WriteFile(exportedFile, exportedState, 0o600)
 }
 
 // EventSelector is used to query events.

@@ -1,5 +1,5 @@
 version: 1
-validation: <%= if (IsConsumerChain) { %>consumer<% } else { %>sovereign<% } %>
+validation: sovereign
 accounts: 
 - name: alice
   coins:
@@ -20,3 +20,9 @@ faucet:
 validators:
 - name: alice
   bonded: 100000000stake
+- name: validator1
+  bonded: 100000000stake
+- name: validator2
+  bonded: 200000000stake
+- name: validator3
+  bonded: 300000000stake

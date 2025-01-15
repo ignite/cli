@@ -15,35 +15,36 @@ import (
 type (
 	// functionOpts represent the options for functions.
 	functionOpts struct {
-		newParams    []param
-		body         string
-		newLines     []line
-		insideCall   []call
-		insideStruct []str
-		appendCode   []string
-		returnVars   []string
+		newParams      []functionParam
+		body           string
+		newLines       []functionLine
+		insideCall     []functionCall
+		insideStruct   []functionStruct
+		appendTestCase []string
+		appendCode     []string
+		returnVars     []string
 	}
 
 	// FunctionOptions configures code generation.
 	FunctionOptions func(*functionOpts)
 
-	str struct {
-		structName string
-		paramName  string
-		code       string
-		index      int
+	functionStruct struct {
+		name  string
+		param string
+		code  string
+		index int
 	}
-	call struct {
+	functionCall struct {
 		name  string
 		code  string
 		index int
 	}
-	param struct {
+	functionParam struct {
 		name    string
 		varType string
 		index   int
 	}
-	line struct {
+	functionLine struct {
 		code   string
 		number uint64
 	}
@@ -52,7 +53,7 @@ type (
 // AppendFuncParams add a new param value.
 func AppendFuncParams(name, varType string, index int) FunctionOptions {
 	return func(c *functionOpts) {
-		c.newParams = append(c.newParams, param{
+		c.newParams = append(c.newParams, functionParam{
 			name:    name,
 			varType: varType,
 			index:   index,
@@ -67,6 +68,13 @@ func ReplaceFuncBody(body string) FunctionOptions {
 	}
 }
 
+// AppendFuncTestCase append test a new test case, if exists, of a function in Go source code content.
+func AppendFuncTestCase(testCase string) FunctionOptions {
+	return func(c *functionOpts) {
+		c.appendTestCase = append(c.appendTestCase, testCase)
+	}
+}
+
 // AppendFuncCode append code before the end or the return, if exists, of a function in Go source code content.
 func AppendFuncCode(code string) FunctionOptions {
 	return func(c *functionOpts) {
@@ -77,7 +85,7 @@ func AppendFuncCode(code string) FunctionOptions {
 // AppendFuncAtLine append a new code at line.
 func AppendFuncAtLine(code string, lineNumber uint64) FunctionOptions {
 	return func(c *functionOpts) {
-		c.newLines = append(c.newLines, line{
+		c.newLines = append(c.newLines, functionLine{
 			code:   code,
 			number: lineNumber,
 		})
@@ -88,7 +96,7 @@ func AppendFuncAtLine(code string, lineNumber uint64) FunctionOptions {
 // call 'New(param1, param2)' and we want to add the param3 the result will be 'New(param1, param2, param3)'.
 func AppendInsideFuncCall(callName, code string, index int) FunctionOptions {
 	return func(c *functionOpts) {
-		c.insideCall = append(c.insideCall, call{
+		c.insideCall = append(c.insideCall, functionCall{
 			name:  callName,
 			code:  code,
 			index: index,
@@ -96,16 +104,16 @@ func AppendInsideFuncCall(callName, code string, index int) FunctionOptions {
 	}
 }
 
-// AppendInsideFuncStruct add code inside another function call. For instances,
+// AppendFuncStruct add code inside another function call. For instances,
 // the struct have only one parameter 'Params{Param1: param1}' and we want to add
 // the param2 the result will be 'Params{Param1: param1, Param2: param2}'.
-func AppendInsideFuncStruct(structName, paramName, code string, index int) FunctionOptions {
+func AppendFuncStruct(name, param, code string, index int) FunctionOptions {
 	return func(c *functionOpts) {
-		c.insideStruct = append(c.insideStruct, str{
-			structName: structName,
-			paramName:  paramName,
-			code:       code,
-			index:      index,
+		c.insideStruct = append(c.insideStruct, functionStruct{
+			name:  name,
+			param: param,
+			code:  code,
+			index: index,
 		})
 	}
 }
@@ -119,13 +127,14 @@ func NewFuncReturn(returnVars ...string) FunctionOptions {
 
 func newFunctionOptions() functionOpts {
 	return functionOpts{
-		newParams:    make([]param, 0),
-		body:         "",
-		newLines:     make([]line, 0),
-		insideCall:   make([]call, 0),
-		insideStruct: make([]str, 0),
-		appendCode:   make([]string, 0),
-		returnVars:   make([]string, 0),
+		newParams:      make([]functionParam, 0),
+		body:           "",
+		newLines:       make([]functionLine, 0),
+		insideCall:     make([]functionCall, 0),
+		insideStruct:   make([]functionStruct, 0),
+		appendTestCase: make([]string, 0),
+		appendCode:     make([]string, 0),
+		returnVars:     make([]string, 0),
 	}
 }
 
@@ -148,23 +157,20 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 	// Parse the content of the new function into an ast.
 	var newFunctionBody *ast.BlockStmt
 	if opts.body != "" {
-		newFuncContent := fmt.Sprintf("package p; func _() { %s }", strings.TrimSpace(opts.body))
-		newContent, err := parser.ParseFile(fileSet, "", newFuncContent, parser.ParseComments)
+		newFunctionBody, err = codeToBlockStmt(fileSet, opts.body)
 		if err != nil {
 			return "", err
 		}
-		newFunctionBody = newContent.Decls[0].(*ast.FuncDecl).Body
 	}
 
 	// Parse the content of the append code an ast.
 	appendCode := make([]ast.Stmt, 0)
 	for _, codeToInsert := range opts.appendCode {
-		newFuncContent := fmt.Sprintf("package p; func _() { %s }", strings.TrimSpace(codeToInsert))
-		newContent, err := parser.ParseFile(fileSet, "", newFuncContent, parser.ParseComments)
+		body, err := codeToBlockStmt(fileSet, codeToInsert)
 		if err != nil {
 			return "", err
 		}
-		appendCode = append(appendCode, newContent.Decls[0].(*ast.FuncDecl).Body.List...)
+		appendCode = append(appendCode, body.List...)
 	}
 
 	// Parse the content of the return vars into an ast.
@@ -178,26 +184,26 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 		returnStmts = append(returnStmts, newRetExpr)
 	}
 
-	callMap := make(map[string][]call)
-	callMapCheck := make(map[string][]call)
+	callMap := make(map[string][]functionCall)
+	callMapCheck := make(map[string][]functionCall)
 	for _, c := range opts.insideCall {
 		calls, ok := callMap[c.name]
 		if !ok {
-			calls = []call{}
+			calls = []functionCall{}
 		}
 		callMap[c.name] = append(calls, c)
 		callMapCheck[c.name] = append(calls, c)
 	}
 
-	structMap := make(map[string][]str)
-	structMapCheck := make(map[string][]str)
+	structMap := make(map[string][]functionStruct)
+	structMapCheck := make(map[string][]functionStruct)
 	for _, s := range opts.insideStruct {
-		structs, ok := structMap[s.structName]
+		structs, ok := structMap[s.name]
 		if !ok {
-			structs = []str{}
+			structs = []functionStruct{}
 		}
-		structMap[s.structName] = append(structs, s)
-		structMapCheck[s.structName] = append(structs, s)
+		structMap[s.name] = append(structs, s)
+		structMapCheck[s.name] = append(structs, s)
 	}
 
 	// Parse the Go code to insert.
@@ -235,6 +241,7 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 		// Check if the function has the code you want to replace.
 		if newFunctionBody != nil {
 			funcDecl.Body = newFunctionBody
+			funcDecl.Body.Rbrace = funcDecl.Body.Pos() // Re-adjust positions if necessary.
 		}
 
 		// Add the new code at line.
@@ -352,9 +359,9 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 				// Construct the new argument to be added
 				for _, s := range structs {
 					var newArg ast.Expr = ast.NewIdent(s.code)
-					if s.paramName != "" {
+					if s.param != "" {
 						newArg = &ast.KeyValueExpr{
-							Key:   ast.NewIdent(s.paramName),
+							Key:   ast.NewIdent(s.param),
 							Colon: token.Pos(s.index),
 							Value: ast.NewIdent(s.code),
 						}
@@ -390,6 +397,37 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 			return false
 		}
 
+		// Locate the `tests` variable inside the function
+		for _, stmt := range funcDecl.Body.List {
+			assignStmt, ok := stmt.(*ast.AssignStmt)
+			if !ok || len(assignStmt.Lhs) == 0 {
+				continue
+			}
+
+			// Check if the `tests` variable is being declared
+			ident, ok := assignStmt.Lhs[0].(*ast.Ident)
+			if !ok || ident.Name != "tests" {
+				continue
+			}
+
+			// Find the composite literal (slice) for the `tests` variable
+			compositeLit, ok := assignStmt.Rhs[0].(*ast.CompositeLit)
+			if !ok {
+				continue
+			}
+
+			for _, testCase := range opts.appendTestCase {
+				// Parse the new test case into an AST expression
+				testCaseStmt, err := structToBlockStmt(testCase)
+				if err != nil {
+					errInspect = err
+					return false
+				}
+				// Append the new test case to the list
+				compositeLit.Elts = append(compositeLit.Elts, testCaseStmt)
+			}
+		}
+
 		// everything is ok, mark as found and stop the inspect
 		found = true
 		return false
@@ -409,4 +447,39 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 
 	// Return the modified content.
 	return buf.String(), nil
+}
+
+func codeToBlockStmt(fileSet *token.FileSet, code string) (*ast.BlockStmt, error) {
+	newFuncContent := toCode(code)
+	newContent, err := parser.ParseFile(fileSet, "", newFuncContent, parser.ParseComments)
+	if err != nil {
+		return nil, err
+	}
+	return newContent.Decls[0].(*ast.FuncDecl).Body, nil
+}
+
+func toCode(code string) string {
+	return fmt.Sprintf("package p; func _() { %s }", strings.TrimSpace(code))
+}
+
+func structToBlockStmt(code string) (ast.Expr, error) {
+	newFuncContent := toStruct(code)
+	newContent, err := parser.ParseExpr(newFuncContent)
+	if err != nil {
+		return nil, err
+	}
+	newCompositeList, ok := newContent.(*ast.CompositeLit)
+	if !ok {
+		return nil, errors.New("not a composite literal")
+	}
+
+	if len(newCompositeList.Elts) != 1 {
+		return nil, errors.New("composite literal has more than one element or zero")
+	}
+
+	return newCompositeList.Elts[0], nil
+}
+
+func toStruct(code string) string {
+	return fmt.Sprintf(`struct {}{ %s }`, strings.TrimSpace(code))
 }

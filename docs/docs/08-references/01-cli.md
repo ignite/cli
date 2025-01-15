@@ -35,9 +35,9 @@ To get started, create a blockchain:
 * [ignite docs](#ignite-docs)	 - Show Ignite CLI docs
 * [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
 * [ignite network](#ignite-network)	 - Launch a blockchain in production
-* [ignite node](#ignite-node)	 - Make requests to a live blockchain node
 * [ignite relayer](#ignite-relayer)	 - Connect blockchains with an IBC relayer
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+* [ignite testnet](#ignite-testnet)	 - Simulate (Fuzz) the chain or start a testnet, either in place (using mainnet data) or with multiple nodes.
 * [ignite version](#ignite-version)	 - Print the current build information
 
 
@@ -49,7 +49,7 @@ Create, delete, and show Ignite accounts
 
 Commands for managing Ignite accounts. An Ignite account is a private/public
 keypair stored in a keyring. Currently Ignite accounts are used when interacting
-with Ignite relayer commands and when using "ignite network" commands.
+with Ignite Apps (namely ignite relayer, ignite network and ignite connect).
 
 Note: Ignite account commands are not for managing your chain's keys and accounts. Use
 you chain's binary to manage accounts from "config.yml". For example, if your
@@ -774,6 +774,7 @@ ignite chain init [flags]
       --home string          directory where the blockchain node is initialized
   -p, --path string          path of the app (default ".")
       --skip-proto           skip file generation from proto
+  -v, --verbose              verbose output
 ```
 
 **Options inherited from parent commands**
@@ -875,6 +876,7 @@ ignite chain serve [flags]
   -p, --path string          path of the app (default ".")
       --quit-on-fail         quit program if the app fails to start
   -r, --reset-once           reset the app state once on init
+      --skip-build           skip initial build of the app (uses local binary)
       --skip-proto           skip file generation from proto
   -v, --verbose              verbose output
 ```
@@ -897,7 +899,7 @@ Run simulation testing for the blockchain
 
 **Synopsis**
 
-Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node and checks if invariants break
+Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node.
 
 ```
 ignite chain simulate [flags]
@@ -918,11 +920,8 @@ ignite chain simulate [flags]
       --lean                      lean simulation log output
       --numBlocks int             number of new blocks to simulate from the initial block height (default 200)
       --params string             custom simulation params file which overrides any random params; cannot be used with genesis
-      --period uint               run slow invariants only once every period assertions
-      --printAllInvariants        print all invariants if a broken invariant is found
       --seed int                  simulation random seed (default 42)
-      --simulateEveryOperation    run slow invariants every operation
-  -v, --verbose                   verbose log output
+      --simName string            name of the simulation to run (default "TestFullAppSimulation")
 ```
 
 **Options inherited from parent commands**
@@ -1002,69 +1001,8 @@ meant to be edited by hand.
 **SEE ALSO**
 
 * [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-* [ignite generate composables](#ignite-generate-composables)	 - TypeScript frontend client and Vue 3 composables
-* [ignite generate hooks](#ignite-generate-hooks)	 - TypeScript frontend client and React hooks
 * [ignite generate openapi](#ignite-generate-openapi)	 - OpenAPI spec for your chain
 * [ignite generate proto-go](#ignite-generate-proto-go)	 - Compile protocol buffer files to Go source code required by Cosmos SDK
-* [ignite generate ts-client](#ignite-generate-ts-client)	 - TypeScript frontend client
-
-
-## ignite generate composables
-
-TypeScript frontend client and Vue 3 composables
-
-```
-ignite generate composables [flags]
-```
-
-**Options**
-
-```
-  -h, --help            help for composables
-  -o, --output string   Vue 3 composables output path
-  -y, --yes             answers interactive yes/no questions with yes
-```
-
-**Options inherited from parent commands**
-
-```
-      --clear-cache           clear the build cache (advanced)
-      --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
-  -p, --path string           path of the app (default ".")
-```
-
-**SEE ALSO**
-
-* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
-
-
-## ignite generate hooks
-
-TypeScript frontend client and React hooks
-
-```
-ignite generate hooks [flags]
-```
-
-**Options**
-
-```
-  -h, --help            help for hooks
-  -o, --output string   React hooks output path
-  -y, --yes             answers interactive yes/no questions with yes
-```
-
-**Options inherited from parent commands**
-
-```
-      --clear-cache           clear the build cache (advanced)
-      --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
-  -p, --path string           path of the app (default ".")
-```
-
-**SEE ALSO**
-
-* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
 
 
 ## ignite generate openapi
@@ -1108,57 +1046,6 @@ ignite generate proto-go [flags]
 ```
   -h, --help   help for proto-go
   -y, --yes    answers interactive yes/no questions with yes
-```
-
-**Options inherited from parent commands**
-
-```
-      --clear-cache           clear the build cache (advanced)
-      --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
-  -p, --path string           path of the app (default ".")
-```
-
-**SEE ALSO**
-
-* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
-
-
-## ignite generate ts-client
-
-TypeScript frontend client
-
-**Synopsis**
-
-Generate a framework agnostic TypeScript client for your blockchain project.
-
-By default the TypeScript client is generated in the "ts-client/" directory. You
-can customize the output directory in config.yml:
-
-	client:
-	  typescript:
-	    path: new-path
-
-Output can also be customized by using a flag:
-
-	ignite generate ts-client --output new-path
-
-TypeScript client code can be automatically regenerated on reset or source code
-changes when the blockchain is started with a flag:
-
-	ignite chain serve --generate-clients
-
-
-```
-ignite generate ts-client [flags]
-```
-
-**Options**
-
-```
-  -h, --help            help for ts-client
-  -o, --output string   TypeScript client output path
-      --use-cache       use build cache to speed-up generation
-  -y, --yes             answers interactive yes/no questions with yes
 ```
 
 **Options inherited from parent commands**
@@ -2622,225 +2509,6 @@ ignite network version [flags]
 * [ignite network](#ignite-network)	 - Launch a blockchain in production
 
 
-## ignite node
-
-Make requests to a live blockchain node
-
-**Options**
-
-```
-  -h, --help          help for node
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
-```
-
-**SEE ALSO**
-
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-* [ignite node query](#ignite-node-query)	 - Querying subcommands
-* [ignite node tx](#ignite-node-tx)	 - Transactions subcommands
-
-
-## ignite node query
-
-Querying subcommands
-
-**Options**
-
-```
-  -h, --help   help for query
-```
-
-**Options inherited from parent commands**
-
-```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
-```
-
-**SEE ALSO**
-
-* [ignite node](#ignite-node)	 - Make requests to a live blockchain node
-* [ignite node query bank](#ignite-node-query-bank)	 - Querying commands for the bank module
-* [ignite node query tx](#ignite-node-query-tx)	 - Query for transaction by hash
-
-
-## ignite node query bank
-
-Querying commands for the bank module
-
-**Options**
-
-```
-  -h, --help   help for bank
-```
-
-**Options inherited from parent commands**
-
-```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
-```
-
-**SEE ALSO**
-
-* [ignite node query](#ignite-node-query)	 - Querying subcommands
-* [ignite node query bank balances](#ignite-node-query-bank-balances)	 - Query for account balances by account name or address
-
-
-## ignite node query bank balances
-
-Query for account balances by account name or address
-
-```
-ignite node query bank balances [from_account_or_address] [flags]
-```
-
-**Options**
-
-```
-      --address-prefix string    account address prefix (default "cosmos")
-      --count-total              count total number of records in all balances to query for
-  -h, --help                     help for balances
-      --home string              directory where the blockchain node is initialized
-      --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
-      --limit uint               pagination limit of all balances to query for (default 100)
-      --offset uint              pagination offset of all balances to query for
-      --page uint                pagination page of all balances to query for. This sets offset to a multiple of limit (default 1)
-      --page-key string          pagination page-key of all balances to query for
-      --reverse                  results are sorted in descending order
-```
-
-**Options inherited from parent commands**
-
-```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
-```
-
-**SEE ALSO**
-
-* [ignite node query bank](#ignite-node-query-bank)	 - Querying commands for the bank module
-
-
-## ignite node query tx
-
-Query for transaction by hash
-
-```
-ignite node query tx [hash] [flags]
-```
-
-**Options**
-
-```
-  -h, --help   help for tx
-```
-
-**Options inherited from parent commands**
-
-```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
-```
-
-**SEE ALSO**
-
-* [ignite node query](#ignite-node-query)	 - Querying subcommands
-
-
-## ignite node tx
-
-Transactions subcommands
-
-**Options**
-
-```
-      --address-prefix string    account address prefix (default "cosmos")
-      --fees string              fees to pay along with transaction; eg: 10uatom
-      --gas string               gas limit to set per-transaction; set to "auto" to calculate sufficient gas automatically (default "auto")
-      --gas-adjustment float     gas adjustment to set per-transaction
-      --gas-prices string        gas prices in decimal format to determine the transaction fee (e.g. 0.1uatom)
-      --generate-only            build an unsigned transaction and write it to STDOUT
-  -h, --help                     help for tx
-      --home string              directory where the blockchain node is initialized
-      --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
-```
-
-**Options inherited from parent commands**
-
-```
-      --node string   <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
-```
-
-**SEE ALSO**
-
-* [ignite node](#ignite-node)	 - Make requests to a live blockchain node
-* [ignite node tx bank](#ignite-node-tx-bank)	 - Bank transaction subcommands
-
-
-## ignite node tx bank
-
-Bank transaction subcommands
-
-**Options**
-
-```
-  -h, --help   help for bank
-```
-
-**Options inherited from parent commands**
-
-```
-      --address-prefix string    account address prefix (default "cosmos")
-      --fees string              fees to pay along with transaction; eg: 10uatom
-      --gas string               gas limit to set per-transaction; set to "auto" to calculate sufficient gas automatically (default "auto")
-      --gas-adjustment float     gas adjustment to set per-transaction
-      --gas-prices string        gas prices in decimal format to determine the transaction fee (e.g. 0.1uatom)
-      --generate-only            build an unsigned transaction and write it to STDOUT
-      --home string              directory where the blockchain node is initialized
-      --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
-      --node string              <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
-```
-
-**SEE ALSO**
-
-* [ignite node tx](#ignite-node-tx)	 - Transactions subcommands
-* [ignite node tx bank send](#ignite-node-tx-bank-send)	 - Send funds from one account to another.
-
-
-## ignite node tx bank send
-
-Send funds from one account to another.
-
-```
-ignite node tx bank send [from_account_or_address] [to_account_or_address] [amount] [flags]
-```
-
-**Options**
-
-```
-  -h, --help   help for send
-```
-
-**Options inherited from parent commands**
-
-```
-      --address-prefix string    account address prefix (default "cosmos")
-      --fees string              fees to pay along with transaction; eg: 10uatom
-      --gas string               gas limit to set per-transaction; set to "auto" to calculate sufficient gas automatically (default "auto")
-      --gas-adjustment float     gas adjustment to set per-transaction
-      --gas-prices string        gas prices in decimal format to determine the transaction fee (e.g. 0.1uatom)
-      --generate-only            build an unsigned transaction and write it to STDOUT
-      --home string              directory where the blockchain node is initialized
-      --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
-      --node string              <host>:<port> to tendermint rpc interface for this chain (default "https://rpc.cosmos.directory:443/cosmoshub")
-```
-
-**SEE ALSO**
-
-* [ignite node tx bank](#ignite-node-tx-bank)	 - Bank transaction subcommands
-
-
 ## ignite relayer
 
 Connect blockchains with an IBC relayer
@@ -2931,6 +2599,7 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 
 * [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 * [ignite scaffold chain](#ignite-scaffold-chain)	 - New Cosmos SDK blockchain
+* [ignite scaffold chain-registry](#ignite-scaffold-chain-registry)	 - Configs for the chain registry
 * [ignite scaffold configs](#ignite-scaffold-configs)	 - Configs for a custom Cosmos SDK module
 * [ignite scaffold list](#ignite-scaffold-list)	 - CRUD for data stored as an array
 * [ignite scaffold map](#ignite-scaffold-map)	 - CRUD for data stored as key-value pairs
@@ -2939,10 +2608,8 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 * [ignite scaffold packet](#ignite-scaffold-packet)	 - Message for sending an IBC packet
 * [ignite scaffold params](#ignite-scaffold-params)	 - Parameters for a custom Cosmos SDK module
 * [ignite scaffold query](#ignite-scaffold-query)	 - Query for fetching data from a blockchain
-* [ignite scaffold react](#ignite-scaffold-react)	 - React web app template
 * [ignite scaffold single](#ignite-scaffold-single)	 - CRUD for data stored in a single location
 * [ignite scaffold type](#ignite-scaffold-type)	 - Type definition
-* [ignite scaffold vue](#ignite-scaffold-vue)	 - Vue 3 web app template
 
 
 ## ignite scaffold chain
@@ -3002,7 +2669,6 @@ ignite scaffold chain [name] [flags]
 ```
       --address-prefix string    account address prefix (default "cosmos")
       --clear-cache              clear the build cache (advanced)
-      --consumer                 scafffold an ICS consumer chain
   -h, --help                     help for chain
       --minimal                  create a minimal blockchain (with the minimum required Cosmos SDK modules)
       --module-configs strings   add module configs
@@ -3012,6 +2678,40 @@ ignite scaffold chain [name] [flags]
       --proto-dir string         chain proto directory (default "proto")
       --skip-git                 skip Git repository initialization
       --skip-proto               skip proto generation
+```
+
+**SEE ALSO**
+
+* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+
+
+## ignite scaffold chain-registry
+
+Configs for the chain registry
+
+**Synopsis**
+
+Scaffold the chain registry chain.json and assets.json files.
+
+The chain registry is a GitHub repo, hosted at https://github.com/cosmos/cosmos-registry, that
+contains the chain.json and assets.json files of most of chains in the Cosmos ecosystem.
+It is good practices, when creating a new chain, and about to launch a testnet or mainnet, to
+publish the chain's metadata in the chain registry.
+
+Read more about the chain.json at https://github.com/cosmos/chain-registry?tab=readme-ov-file#chainjson
+Read more about the assets.json at https://github.com/cosmos/chain-registry?tab=readme-ov-file#assetlists
+
+```
+ignite scaffold chain-registry [flags]
+```
+
+**Options**
+
+```
+      --clear-cache   clear the build cache (advanced)
+  -h, --help          help for chain-registry
+  -p, --path string   path of the app (default ".")
+  -y, --yes           answers interactive yes/no questions with yes
 ```
 
 **SEE ALSO**
@@ -3328,8 +3028,6 @@ This command does the following:
 * Creates a directory with module's protocol buffer files in "proto/"
 * Creates a directory with module's boilerplate Go code in "x/"
 * Imports the newly created module by modifying "app/app.go"
-* Creates a file in "testutil/keeper/" that contains logic to create a keeper
-  for testing purposes
 
 This command will proceed with module scaffolding even if "app/app.go" doesn't
 have the required default placeholders. If the placeholders are missing, you
@@ -3386,7 +3084,6 @@ ignite scaffold module [name] [flags]
       --clear-cache              clear the build cache (advanced)
       --dep strings              add a dependency on another module
   -h, --help                     help for module
-      --ibc                      add IBC functionality
       --module-configs strings   add module configs
       --ordering string          channel ordering of the IBC module [none|ordered|unordered] (default "none")
       --params strings           add module parameters
@@ -3502,27 +3199,6 @@ ignite scaffold query [name] [field1:type1] [field2:type2] ... [flags]
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
 
 
-## ignite scaffold react
-
-React web app template
-
-```
-ignite scaffold react [flags]
-```
-
-**Options**
-
-```
-  -h, --help          help for react
-  -p, --path string   path to scaffold content of the React app (default "./react")
-  -y, --yes           answers interactive yes/no questions with yes
-```
-
-**SEE ALSO**
-
-* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
-
-
 ## ignite scaffold single
 
 CRUD for data stored in a single location
@@ -3619,25 +3295,142 @@ ignite scaffold type NAME [field:type] ... [flags]
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
 
 
-## ignite scaffold vue
+## ignite testnet
 
-Vue 3 web app template
+Simulate (Fuzz) the chain or start a testnet, either in place (using mainnet data) or with multiple nodes.
+
+**Options**
 
 ```
-ignite scaffold vue [flags]
+  -h, --help   help for testnet
+```
+
+**SEE ALSO**
+
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite testnet in-place](#ignite-testnet-in-place)	 - Create and start a testnet from current local net state
+* [ignite testnet multi-node](#ignite-testnet-multi-node)	 - Initialize and provide multi-node on/off functionality
+* [ignite testnet simulate](#ignite-testnet-simulate)	 - Run simulation testing for the blockchain
+
+
+## ignite testnet in-place
+
+Create and start a testnet from current local net state
+
+**Synopsis**
+
+Testnet in-place command is used to create and start a testnet from current local net state(including mainnet).
+After using this command in the repo containing the config.yml file, the network will start.
+We can create a testnet from the local network state and mint additional coins for the desired accounts from the config.yml file.
+
+```
+ignite testnet in-place [flags]
 ```
 
 **Options**
 
 ```
-  -h, --help          help for vue
-  -p, --path string   path to scaffold content of the Vue.js app (default "./vue")
-  -y, --yes           answers interactive yes/no questions with yes
+      --check-dependencies   verify that cached dependencies have not been modified since they were downloaded
+      --clear-cache          clear the build cache (advanced)
+  -h, --help                 help for in-place
+      --home string          directory where the blockchain node is initialized
+  -p, --path string          path of the app (default ".")
+      --quit-on-fail         quit program if the app fails to start
+      --skip-proto           skip file generation from proto
+  -v, --verbose              verbose output
 ```
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+* [ignite testnet](#ignite-testnet)	 - Simulate (Fuzz) the chain or start a testnet, either in place (using mainnet data) or with multiple nodes.
+
+
+## ignite testnet multi-node
+
+Initialize and provide multi-node on/off functionality
+
+**Synopsis**
+
+Initialize the test network with the number of nodes and bonded from the config.yml file::
+			...
+                  validators:
+                        - name: alice
+                        bonded: 100000000stake
+                        - name: validator1
+                        bonded: 100000000stake
+                        - name: validator2
+                        bonded: 200000000stake
+                        - name: validator3
+                        bonded: 300000000stake
+
+
+			The "multi-node" command allows developers to easily set up, initialize, and manage multiple nodes for a 
+			testnet environment. This command provides full flexibility in enabling or disabling each node as desired, 
+			making it a powerful tool for simulating a multi-node blockchain network during development.
+
+			Usage:
+					ignite testnet multi-node [flags]
+
+		
+
+```
+ignite testnet multi-node [flags]
+```
+
+**Options**
+
+```
+      --check-dependencies       verify that cached dependencies have not been modified since they were downloaded
+      --clear-cache              clear the build cache (advanced)
+  -h, --help                     help for multi-node
+      --home string              directory where the blockchain node is initialized
+      --node-dir-prefix string   prefix of dir node (default "validator")
+  -p, --path string              path of the app (default ".")
+      --quit-on-fail             quit program if the app fails to start
+  -r, --reset-once               reset the app state once on init
+      --skip-proto               skip file generation from proto
+  -v, --verbose                  verbose output
+```
+
+**SEE ALSO**
+
+* [ignite testnet](#ignite-testnet)	 - Simulate (Fuzz) the chain or start a testnet, either in place (using mainnet data) or with multiple nodes.
+
+
+## ignite testnet simulate
+
+Run simulation testing for the blockchain
+
+**Synopsis**
+
+Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node.
+
+```
+ignite testnet simulate [flags]
+```
+
+**Options**
+
+```
+      --blockSize int             operations per block (default 30)
+      --exportParamsHeight int    height to which export the randomly generated params
+      --exportParamsPath string   custom file path to save the exported params JSON
+      --exportStatePath string    custom file path to save the exported app state JSON
+      --exportStatsPath string    custom file path to save the exported simulation statistics JSON
+      --genesis string            custom simulation genesis file; cannot be used with params file
+      --genesisTime int           override genesis UNIX time instead of using a random UNIX time
+  -h, --help                      help for simulate
+      --initialBlockHeight int    initial block to start the simulation (default 1)
+      --lean                      lean simulation log output
+      --numBlocks int             number of new blocks to simulate from the initial block height (default 200)
+      --params string             custom simulation params file which overrides any random params; cannot be used with genesis
+      --seed int                  simulation random seed (default 42)
+      --simName string            name of the simulation to run (default "TestFullAppSimulation")
+```
+
+**SEE ALSO**
+
+* [ignite testnet](#ignite-testnet)	 - Simulate (Fuzz) the chain or start a testnet, either in place (using mainnet data) or with multiple nodes.
 
 
 ## ignite version

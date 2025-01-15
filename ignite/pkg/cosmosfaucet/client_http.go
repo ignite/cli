@@ -52,8 +52,7 @@ func (c HTTPClient) Transfer(ctx context.Context, req TransferRequest) (Transfer
 	}
 
 	var res TransferResponse
-	err = json.NewDecoder(hres.Body).Decode(&res)
-	return res, err
+	return res, json.NewDecoder(hres.Body).Decode(&res)
 }
 
 // FaucetInfo fetch the faucet info for clients to determine if this is a real faucet and
