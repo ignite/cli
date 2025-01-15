@@ -22,11 +22,9 @@
 - [#4436](https://github.com/ignite/cli/pull/4436) Return tx hash to the faucet API
 - [#4437](https://github.com/ignite/cli/pull/4437) Remove module placeholders
 - [#4289](https://github.com/ignite/cli/pull/4289), [#4423](https://github.com/ignite/cli/pull/4423), [#4432](https://github.com/ignite/cli/pull/4432) Cosmos SDK v0.52 support
-- [#4413](https://github.com/ignite/cli/pull/4413) Add `ignite s chain-registry` command
 
 ### Changes
 
-- [#4457](https://github.com/ignite/cli/pull/4457) Add `ski-build` flag to `chain serve` command to avoid building the chain
 - [#4094](https://github.com/ignite/cli/pull/4094) Scaffolding a multi-index map using `ignite s map foo bar baz --index foobar,foobaz` is no longer supported. Use one index instead of use `collections.IndexedMap`.
 - [#4058](https://github.com/ignite/cli/pull/4058) Simplify scaffolded modules by including `ValidateBasic()` logic in message handler.
 - [#4058](https://github.com/ignite/cli/pull/4058) Use `address.Codec` instead of `AccAddressFromBech32`.
@@ -55,6 +53,13 @@
 - [#4091](https://github.com/ignite/cli/pull/4091) Fix race conditions in the plugin logic
 - [#4128](https://github.com/ignite/cli/pull/4128) Check for duplicate proto fields in config
 - [#4402](https://github.com/ignite/cli/pull/4402) Fix gentx parser into the cosmosutil package
+
+## [`v28.7.0`](https://github.com/ignite/cli/releases/tag/v28.7.0)
+
+### Features
+
+- [#4457](https://github.com/ignite/cli/pull/4457) Add `skip-build` flag to `chain serve` command to avoid (re)building the chain
+- [#4413](https://github.com/ignite/cli/pull/4413) Add `ignite s chain-registry` command
 
 ## [`v28.6.1`](https://github.com/ignite/cli/releases/tag/v28.6.1)
 
