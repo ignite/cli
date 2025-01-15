@@ -1,5 +1,5 @@
-// package chainregistry is a package that contains the chain.json and assetlist.json structs.
-// It is allowed to create or parse chain.json and assetlist.json files for/from the chain registry.
+// package chainregistry is a package that contains the chain.json and assetlist.json structs from the chain registry.
+// Useful when parsing or creating chain.json and assetlist.json files.
 package chainregistry
 
 import (
