@@ -146,6 +146,7 @@ type asset struct {
 	Name        string      `json:"name"`
 	Display     string      `json:"display"`
 	Symbol      string      `json:"symbol"`
+	LogoURIs    logoURIs    `json:"logo_URIs"`
 	CoingeckoID string      `json:"coingecko_id,omitempty"`
 	Socials     socials     `json:"socials,omitempty"`
 	TypeAsset   string      `json:"type_asset"`
@@ -159,6 +160,11 @@ type denomUnit struct {
 type socials struct {
 	Website string `json:"website"`
 	Twitter string `json:"twitter"`
+}
+
+type logoURIs struct {
+	Png string `json:"png"`
+	Svg string `json:"svg"`
 }
 
 // SaveJSON saves the assetList to the given out directory.
@@ -306,12 +312,16 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 						Exponent: 0,
 					},
 				},
-				Base:      defaultDenom,
-				Name:      chainData.ChainName,
-				Symbol:    strings.ToUpper(defaultDenom),
+				Base:   defaultDenom,
+				Name:   chainData.ChainName,
+				Symbol: strings.ToUpper(defaultDenom),
+				LogoURIs: logoURIs{
+					Png: "https://ignite.com/favicon.ico",
+					Svg: "https://ignite.com/favicon.ico",
+				},
 				TypeAsset: "sdk.coin",
 				Socials: socials{
-					Website: "https://example.com",
+					Website: "https://ignite.com",
 					Twitter: "https://x.com/ignite",
 				},
 			},
