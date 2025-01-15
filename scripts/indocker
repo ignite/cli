@@ -3,7 +3,7 @@
 function build {
     echo "building container..."
     docker build -t ignite-cli -f - > /dev/null . << EOF
-FROM golang:1.21.5
+FROM golang:1.23.4
 
 WORKDIR /apps
 

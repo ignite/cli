@@ -4,7 +4,7 @@
 
 ### Changes
 
-- []() Bump CometBFT to v0.38.15. This leads to bumping the chain minimum Go version to 1.23.
+- [#4471](https://github.com/ignite/cli/pull/4471) Bump CometBFT to v0.38.15. This leads to bumping the chain minimum Go version to 1.23.
 
 ## [`v28.7.0`](https://github.com/ignite/cli/releases/tag/v28.7.0)
 
