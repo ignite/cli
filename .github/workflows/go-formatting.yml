@@ -3,7 +3,7 @@ on:
   push:
     branches: [main]
     paths:
-      - '**.go'
+      - "**.go"
 
 jobs:
   go-formatting:
@@ -15,7 +15,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.21'
+          go-version: 'stable'
 
       - name: Run make format
         run: make format
