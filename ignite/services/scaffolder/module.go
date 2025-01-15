@@ -46,7 +46,6 @@ var (
 		"slashing":           {},
 		"gov":                {},
 		"mint":               {},
-		"crisis":             {},
 		"ibc":                {},
 		"genutil":            {},
 		"evidence":           {},
@@ -77,7 +76,6 @@ var (
 		"slashing",
 		"gov",
 		"mint",
-		"crisis",
 		"ibc",
 		"transfer", // IBC transfer
 		"feeibc",
