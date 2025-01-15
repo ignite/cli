@@ -120,7 +120,6 @@ func TestFindRegisteredModules(t *testing.T) {
 				"cosmossdk.io/x/authz/module",
 				"cosmossdk.io/x/bank",
 				"cosmossdk.io/x/consensus",
-				"cosmossdk.io/x/crisis",
 				"cosmossdk.io/x/distribution",
 				"cosmossdk.io/x/group/module",
 				"cosmossdk.io/x/mint",

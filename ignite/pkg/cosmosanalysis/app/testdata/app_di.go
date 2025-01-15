@@ -18,8 +18,6 @@ import (
 	bankkeeper "cosmossdk.io/x/bank/keeper"
 	consensus "cosmossdk.io/x/consensus"
 	consensuskeeper "cosmossdk.io/x/consensus/keeper"
-	"cosmossdk.io/x/crisis"
-	crisiskeeper "cosmossdk.io/x/crisis/keeper"
 	distr "cosmossdk.io/x/distribution"
 	distrkeeper "cosmossdk.io/x/distribution/keeper"
 	"cosmossdk.io/x/evidence"
@@ -88,7 +86,6 @@ var (
 			},
 		),
 		params.AppModuleBasic{},
-		crisis.AppModuleBasic{},
 		slashing.AppModuleBasic{},
 		feegrantmodule.AppModuleBasic{},
 		upgrade.AppModuleBasic{},
@@ -125,7 +122,6 @@ type SimApp struct {
 	MintKeeper            mintkeeper.Keeper
 	DistrKeeper           distrkeeper.Keeper
 	GovKeeper             *govkeeper.Keeper
-	CrisisKeeper          *crisiskeeper.Keeper
 	UpgradeKeeper         *upgradekeeper.Keeper
 	ParamsKeeper          paramskeeper.Keeper
 	AuthzKeeper           authzkeeper.Keeper
@@ -209,7 +205,6 @@ func NewSimApp(
 		&app.MintKeeper,
 		&app.DistrKeeper,
 		&app.GovKeeper,
-		&app.CrisisKeeper,
 		&app.UpgradeKeeper,
 		&app.ParamsKeeper,
 		&app.AuthzKeeper,
@@ -256,8 +251,6 @@ func NewSimApp(
 	}
 
 	/****  Module Options ****/
-
-	app.ModuleManager.RegisterInvariants(app.CrisisKeeper)
 
 	// RegisterUpgradeHandlers is used for registering any on-chain upgrades.
 	app.RegisterUpgradeHandlers()
