@@ -279,7 +279,7 @@ func (k msgServer) UpdateDenom(goCtx context.Context, msg *types.MsgUpdateDenom)
 		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "Denom to update not found")
 	}
 
-	// Checks if the the msg owner is the same as the current owner
+	// Checks if the msg owner is the same as the current owner
 	if msg.Owner != valFound.Owner {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
 	}
@@ -418,7 +418,7 @@ func (k msgServer) MintAndSendTokens(goCtx context.Context, msg *types.MsgMintAn
 		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "denom does not exist")
 	}
 
-	// Checks if the the msg owner is the same as the current owner
+	// Checks if the msg owner is the same as the current owner
 	if msg.Owner != valFound.Owner {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
 	}
@@ -488,7 +488,7 @@ func (k msgServer) UpdateOwner(goCtx context.Context, msg *types.MsgUpdateOwner)
 		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "denom does not exist")
 	}
 
-	// Checks if the the msg owner is the same as the current owner
+	// Checks if the msg owner is the same as the current owner
 	if msg.Owner != valFound.Owner {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
 	}

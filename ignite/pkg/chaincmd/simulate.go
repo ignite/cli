@@ -1,12 +1,12 @@
 package chaincmd
 
 import (
+	"fmt"
 	"path/filepath"
 	"strconv"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
-	"github.com/ignite/cli/v29/ignite/pkg/safeconverter"
 )
 
 const (
@@ -23,13 +23,11 @@ const (
 	optionSimappLean               = "-Lean"
 	optionSimappCommit             = "-Commit"
 	optionSimappEnabled            = "-Enabled"
-	optionSimappPeriod             = "-Period"
 	optionSimappGenesisTime        = "-GenesisTime"
 
-	commandGoTest     = "test"
-	optionGoBenchmem  = "-benchmem"
-	optionGoSimappRun = "-run=^TestFullAppSimulation$"
-	optionGoSimsTags  = "-tags='sims'"
+	commandGoTest    = "test"
+	optionGoBenchmem = "-benchmem"
+	optionGoSimsTags = "-tags='sims'"
 )
 
 // SimappOption for the SimulateCommand.
@@ -157,13 +155,6 @@ func SimappWithEnable(enable bool) SimappOption {
 	}
 }
 
-// SimappWithPeriod provides period option for the simapp command.
-func SimappWithPeriod(period uint) SimappOption {
-	return func(command []string) []string {
-		return append(command, optionSimappPeriod, strconv.Itoa(safeconverter.ToInt[uint](period)))
-	}
-}
-
 // SimappWithGenesisTime provides genesisTime option for the simapp command.
 func SimappWithGenesisTime(genesisTime int64) SimappOption {
 	return func(command []string) []string {
@@ -172,11 +163,16 @@ func SimappWithGenesisTime(genesisTime int64) SimappOption {
 }
 
 // SimulationCommand returns the cli command for simapp tests.
-func SimulationCommand(appPath string, options ...SimappOption) step.Option {
+// simName must be a test defined within the application (defaults to TestFullAppSimulation).
+func SimulationCommand(appPath string, simName string, options ...SimappOption) step.Option {
+	if simName == "" {
+		simName = "TestFullAppSimulation"
+	}
+
 	command := []string{
 		commandGoTest,
 		optionGoBenchmem,
-		optionGoSimappRun,
+		fmt.Sprintf("-run=^%s$", simName),
 		optionGoSimsTags,
 		filepath.Join(appPath, "app"),
 	}
