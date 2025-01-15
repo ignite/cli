@@ -35,3 +35,16 @@ const (
 	// ChainStatusKilled is the inactive chain status
 	ChainStatusKilled ChainStatus = "killed"
 )
+
+type KeyAlgos string
+
+const (
+	// KeyAlgoSecp256k1 is the secp256k1 key algorithm
+	KeyAlgoSecp256k1 KeyAlgos = "secp256k1"
+
+	// KeyAlgosEthSecp256k1 is the secp256k1 key algorithm with ethereum compatibility
+	KeyAlgosEthSecp256k1 KeyAlgos = "ethsecp256k1"
+
+	// KeyAlgoEd25519 is the ed25519 key algorithm
+	KeyAlgoEd25519 KeyAlgos = "ed25519"
+)

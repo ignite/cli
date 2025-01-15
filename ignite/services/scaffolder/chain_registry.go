@@ -91,7 +91,7 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 		Bech32Prefix: "cosmos",
 		DaemonName:   binaryName,
 		NodeHome:     chainHome,
-		KeyAlgos:     []string{"secp256k1"},
+		KeyAlgos:     []chainregistry.KeyAlgos{chainregistry.KeyAlgoSecp256k1},
 		Slip44:       118,
 		Fees: chainregistry.Fees{
 			FeeTokens: []chainregistry.FeeToken{

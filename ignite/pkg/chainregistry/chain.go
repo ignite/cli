@@ -18,7 +18,7 @@ type Chain struct {
 	Bech32Prefix string      `json:"bech32_prefix"`
 	DaemonName   string      `json:"daemon_name"`
 	NodeHome     string      `json:"node_home"`
-	KeyAlgos     []string    `json:"key_algos"`
+	KeyAlgos     []KeyAlgos  `json:"key_algos"`
 	Slip44       int         `json:"slip44"`
 	Fees         Fees        `json:"fees"`
 	Staking      Staking     `json:"staking"`
