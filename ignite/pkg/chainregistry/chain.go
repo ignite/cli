@@ -5,40 +5,26 @@ import (
 	"os"
 )
 
-const (
-	// DefaultChainType is the default chain type for the chain.json
-	// More value are allowed by the chain registry schema, but Ignite only scaffolds Cosmos chains.
-	DefaultChainType = "cosmos"
-
-	// DefaultChainStatus is the default chain status for the chain.json
-	// More value are allowed by the chain registry schema, but Ignite only scaffolds upcoming chains.
-	DefaultChainStatus = "upcoming"
-
-	// DefaultNetworkType is the default network type for the chain.json
-	// More value are allowed by the chain registry schema, but Ignite only scaffolds devnet chains.
-	DefaultNetworkType = "devnet"
-)
-
 // Chain represents the chain.json file from the chain registry.
 // https://raw.githubusercontent.com/cosmos/chain-registry/master/chain.schema.json
 type Chain struct {
-	ChainName    string   `json:"chain_name"`
-	Status       string   `json:"status"`
-	NetworkType  string   `json:"network_type"`
-	Website      string   `json:"website"`
-	PrettyName   string   `json:"pretty_name"`
-	ChainType    string   `json:"chain_type"`
-	ChainID      string   `json:"chain_id"`
-	Bech32Prefix string   `json:"bech32_prefix"`
-	DaemonName   string   `json:"daemon_name"`
-	NodeHome     string   `json:"node_home"`
-	KeyAlgos     []string `json:"key_algos"`
-	Slip44       int      `json:"slip44"`
-	Fees         Fees     `json:"fees"`
-	Staking      Staking  `json:"staking"`
-	Codebase     Codebase `json:"codebase"`
-	Description  string   `json:"description"`
-	Apis         Apis     `json:"apis"`
+	ChainName    string      `json:"chain_name"`
+	Status       ChainStatus `json:"status"`
+	NetworkType  NetworkType `json:"network_type"`
+	Website      string      `json:"website"`
+	PrettyName   string      `json:"pretty_name"`
+	ChainType    ChainType   `json:"chain_type"`
+	ChainID      string      `json:"chain_id"`
+	Bech32Prefix string      `json:"bech32_prefix"`
+	DaemonName   string      `json:"daemon_name"`
+	NodeHome     string      `json:"node_home"`
+	KeyAlgos     []string    `json:"key_algos"`
+	Slip44       int         `json:"slip44"`
+	Fees         Fees        `json:"fees"`
+	Staking      Staking     `json:"staking"`
+	Codebase     Codebase    `json:"codebase"`
+	Description  string      `json:"description"`
+	APIs         APIs        `json:"apis"`
 }
 
 type Staking struct {
@@ -90,13 +76,13 @@ type FeeToken struct {
 	HighGasPrice     float64 `json:"high_gas_price"`
 }
 
-type Apis struct {
-	RPC  []ApiProvider `json:"rpc"`
-	Rest []ApiProvider `json:"rest"`
-	Grpc []ApiProvider `json:"grpc"`
+type APIs struct {
+	RPC  []APIProvider `json:"rpc"`
+	Rest []APIProvider `json:"rest"`
+	Grpc []APIProvider `json:"grpc"`
 }
 
-type ApiProvider struct {
+type APIProvider struct {
 	Address  string `json:"address"`
 	Provider string `json:"provider"`
 }

@@ -83,9 +83,9 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 	chainData := chainregistry.Chain{
 		ChainName:    chain.Name(),
 		PrettyName:   chain.Name(),
-		ChainType:    chainregistry.DefaultChainType,
-		Status:       chainregistry.DefaultChainStatus,
-		NetworkType:  chainregistry.DefaultNetworkType,
+		ChainType:    chainregistry.ChainTypeCosmos,
+		Status:       chainregistry.ChainStatusUpcoming,
+		NetworkType:  chainregistry.NetworkTypeDevnet,
 		Website:      "https://example.com",
 		ChainID:      chainID,
 		Bech32Prefix: "cosmos",
@@ -123,20 +123,20 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 			Ibc:       ibc,
 			Cosmwasm:  cosmwasm,
 		},
-		Apis: chainregistry.Apis{
-			RPC: []chainregistry.ApiProvider{
+		APIs: chainregistry.APIs{
+			RPC: []chainregistry.APIProvider{
 				{
 					Address:  "http://localhost:26657",
 					Provider: "localhost",
 				},
 			},
-			Rest: []chainregistry.ApiProvider{
+			Rest: []chainregistry.APIProvider{
 				{
 					Address:  "http://localhost:1317",
 					Provider: "localhost",
 				},
 			},
-			Grpc: []chainregistry.ApiProvider{
+			Grpc: []chainregistry.APIProvider{
 				{
 					Address:  "localhost:9090",
 					Provider: "localhost",
