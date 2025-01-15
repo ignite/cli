@@ -53,6 +53,7 @@ type chainJSON struct {
 	Staking     staking  `json:"staking"`
 	Codebase    codebase `json:"codebase"`
 	Description string   `json:"description"`
+	Apis        apis     `json:"apis"`
 }
 
 type staking struct {
@@ -108,6 +109,17 @@ type feeToken struct {
 	LowGasPrice      float64 `json:"low_gas_price"`
 	AverageGasPrice  float64 `json:"average_gas_price"`
 	HighGasPrice     float64 `json:"high_gas_price"`
+}
+
+type apis struct {
+	RPC  []apiProvider `json:"rpc"`
+	Rest []apiProvider `json:"rest"`
+	Grpc []apiProvider `json:"grpc"`
+}
+
+type apiProvider struct {
+	Address  string `json:"address"`
+	Provider string `json:"provider"`
 }
 
 // SaveJSON saves the chainJSON to the given out directory.
@@ -260,6 +272,26 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 			Consensus: consensus,
 			Ibc:       ibc,
 			Cosmwasm:  cosmwasm,
+		},
+		Apis: apis{
+			RPC: []apiProvider{
+				{
+					Address:  "localhost:26657",
+					Provider: "lpcalhost",
+				},
+			},
+			Rest: []apiProvider{
+				{
+					Address:  "localhost:1317",
+					Provider: "localhost",
+				},
+			},
+			Grpc: []apiProvider{
+				{
+					Address:  "localhost:9090",
+					Provider: "localhost",
+				},
+			},
 		},
 	}
 
