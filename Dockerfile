@@ -3,7 +3,7 @@
 
 ## prep the base image.
 #
-FROM golang:1.23.4 as base
+FROM golang:latest as base
 
 RUN apt update && \
     apt-get install -y \
