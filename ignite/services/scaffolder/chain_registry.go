@@ -2,7 +2,6 @@ package scaffolder
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,172 +9,24 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+<<<<<<< HEAD
 	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/xgit"
 	"github.com/ignite/cli/v28/ignite/services/chain"
+=======
+	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
+	"github.com/ignite/cli/v29/ignite/pkg/chainregistry"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/xgit"
+	"github.com/ignite/cli/v29/ignite/services/chain"
+>>>>>>> ec26e2ee (feat: expose chain-registry structs (#4472))
 )
 
 const (
-	// DefaultChainType is the default chain type for the chain.json
-	// More value are allowed by the chain registry schema, but Ignite only scaffolds Cosmos chains.
-	DefaultChainType = "cosmos"
-
-	// DefaultChainStatus is the default chain status for the chain.json
-	// More value are allowed by the chain registry schema, but Ignite only scaffolds upcoming chains.
-	DefaultChainStatus = "upcoming"
-
-	// DefaultNetworkType is the default network type for the chain.json
-	// More value are allowed by the chain registry schema, but Ignite only scaffolds devnet chains.
-	DefaultNetworkType = "devnet"
-
 	chainFilename     = "chain.json"
 	assetListFilename = "assetlist.json"
 )
-
-// https://raw.githubusercontent.com/cosmos/chain-registry/master/chain.schema.json
-type chainJSON struct {
-	ChainName    string   `json:"chain_name"`
-	Status       string   `json:"status"`
-	NetworkType  string   `json:"network_type"`
-	Website      string   `json:"website"`
-	PrettyName   string   `json:"pretty_name"`
-	ChainType    string   `json:"chain_type"`
-	ChainID      string   `json:"chain_id"`
-	Bech32Prefix string   `json:"bech32_prefix"`
-	DaemonName   string   `json:"daemon_name"`
-	NodeHome     string   `json:"node_home"`
-	KeyAlgos     []string `json:"key_algos"`
-	Slip44       int      `json:"slip44"`
-	Fees         struct {
-		FeeTokens []feeToken `json:"fee_tokens"`
-	} `json:"fees"`
-	Staking     staking  `json:"staking"`
-	Codebase    codebase `json:"codebase"`
-	Description string   `json:"description"`
-	Apis        apis     `json:"apis"`
-}
-
-type staking struct {
-	StakingTokens []stakingToken `json:"staking_tokens"`
-}
-
-type stakingToken struct {
-	Denom string `json:"denom"`
-}
-
-type codebase struct {
-	GitRepo            string            `json:"git_repo"`
-	Genesis            codebaseGenesis   `json:"genesis"`
-	RecommendedVersion string            `json:"recommended_version"`
-	CompatibleVersions []string          `json:"compatible_versions"`
-	Consensus          codebaseConsensus `json:"consensus"`
-	Sdk                codebaseSDK       `json:"sdk"`
-	Ibc                codebaseIBC       `json:"ibc,omitempty"`
-	Cosmwasm           codebaseCosmwasm  `json:"cosmwasm,omitempty"`
-}
-
-type codebaseGenesis struct {
-	GenesisURL string `json:"genesis_url"`
-}
-
-type codebaseConsensus struct {
-	Type    string `json:"type"`
-	Version string `json:"version"`
-}
-
-type codebaseSDK struct {
-	Type    string `json:"type"`
-	Version string `json:"version"`
-}
-
-type codebaseIBC struct {
-	Type    string `json:"type"`
-	Version string `json:"version"`
-}
-
-type codebaseCosmwasm struct {
-	Version string `json:"version,omitempty"`
-	Enabled bool   `json:"enabled"`
-}
-
-type fees struct {
-	FeeTokens []feeToken `json:"fee_tokens"`
-}
-
-type feeToken struct {
-	Denom            string  `json:"denom"`
-	FixedMinGasPrice float64 `json:"fixed_min_gas_price"`
-	LowGasPrice      float64 `json:"low_gas_price"`
-	AverageGasPrice  float64 `json:"average_gas_price"`
-	HighGasPrice     float64 `json:"high_gas_price"`
-}
-
-type apis struct {
-	RPC  []apiProvider `json:"rpc"`
-	Rest []apiProvider `json:"rest"`
-	Grpc []apiProvider `json:"grpc"`
-}
-
-type apiProvider struct {
-	Address  string `json:"address"`
-	Provider string `json:"provider"`
-}
-
-// SaveJSON saves the chainJSON to the given out directory.
-func (c chainJSON) SaveJSON(out string) error {
-	bz, err := json.MarshalIndent(c, "", "  ")
-	if err != nil {
-		return err
-	}
-
-	return os.WriteFile(out, bz, 0o600)
-}
-
-// https://raw.githubusercontent.com/cosmos/chain-registry/master/assetlist.schema.json
-// https://github.com/cosmos/chain-registry?tab=readme-ov-file#assetlists
-type assetListJSON struct {
-	ChainName string  `json:"chain_name"`
-	Assets    []asset `json:"assets"`
-}
-
-type asset struct {
-	Description string      `json:"description"`
-	DenomUnits  []denomUnit `json:"denom_units"`
-	Base        string      `json:"base"`
-	Name        string      `json:"name"`
-	Display     string      `json:"display"`
-	Symbol      string      `json:"symbol"`
-	LogoURIs    logoURIs    `json:"logo_URIs"`
-	CoingeckoID string      `json:"coingecko_id,omitempty"`
-	Socials     socials     `json:"socials,omitempty"`
-	TypeAsset   string      `json:"type_asset"`
-}
-
-type denomUnit struct {
-	Denom    string `json:"denom"`
-	Exponent int    `json:"exponent"`
-}
-
-type socials struct {
-	Website string `json:"website"`
-	Twitter string `json:"twitter"`
-}
-
-type logoURIs struct {
-	Png string `json:"png"`
-	Svg string `json:"svg"`
-}
-
-// SaveJSON saves the assetList to the given out directory.
-func (c assetListJSON) SaveJSON(out string) error {
-	bz, err := json.MarshalIndent(c, "", "  ")
-	if err != nil {
-		return err
-	}
-
-	return os.WriteFile(out, bz, 0o600)
-}
 
 // AddChainRegistryFiles generates the chain registry files in the scaffolded chains.
 func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.Config) error {
@@ -197,14 +48,14 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 	chainGitURL, _ /* do not fail on non-existing git repo */ := xgit.RepositoryURL(chain.AppPath())
 
 	var (
-		consensus codebaseConsensus
-		cosmwasm  codebaseCosmwasm
-		ibc       codebaseIBC
+		consensus chainregistry.CodebaseInfo
+		ibc       chainregistry.CodebaseInfo
+		cosmwasm  chainregistry.CodebaseInfoEnabled
 	)
 
 	consensusVersion, err := getVersionOfFromGoMod(chain, "github.com/cometbft/cometbft")
 	if err == nil {
-		consensus = codebaseConsensus{
+		consensus = chainregistry.CodebaseInfo{
 			Type:    "cometbft",
 			Version: consensusVersion,
 		}
@@ -212,7 +63,7 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 
 	cosmwasmVersion, err := getVersionOfFromGoMod(chain, "github.com/CosmWasm/wasmd")
 	if err == nil {
-		cosmwasm = codebaseCosmwasm{
+		cosmwasm = chainregistry.CodebaseInfoEnabled{
 			Version: cosmwasmVersion,
 			Enabled: true,
 		}
@@ -220,7 +71,7 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 
 	ibcVersion, err := getVersionOfFromGoMod(chain, "github.com/cosmos/ibc-go")
 	if err == nil {
-		ibc = codebaseIBC{
+		ibc = chainregistry.CodebaseInfo{
 			Type:    "go",
 			Version: ibcVersion,
 		}
@@ -236,21 +87,21 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 		}
 	}
 
-	chainData := chainJSON{
+	chainData := chainregistry.Chain{
 		ChainName:    chain.Name(),
 		PrettyName:   chain.Name(),
-		ChainType:    DefaultChainType,
-		Status:       DefaultChainStatus,
-		NetworkType:  DefaultNetworkType,
+		ChainType:    chainregistry.ChainTypeCosmos,
+		Status:       chainregistry.ChainStatusUpcoming,
+		NetworkType:  chainregistry.NetworkTypeDevnet,
 		Website:      "https://example.com",
 		ChainID:      chainID,
 		Bech32Prefix: "cosmos",
 		DaemonName:   binaryName,
 		NodeHome:     chainHome,
-		KeyAlgos:     []string{"secp256k1"},
+		KeyAlgos:     []chainregistry.KeyAlgos{chainregistry.KeyAlgoSecp256k1},
 		Slip44:       118,
-		Fees: fees{
-			FeeTokens: []feeToken{
+		Fees: chainregistry.Fees{
+			FeeTokens: []chainregistry.FeeToken{
 				{
 					Denom:            defaultDenom,
 					FixedMinGasPrice: 0.025,
@@ -260,18 +111,18 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 				},
 			},
 		},
-		Staking: staking{
-			StakingTokens: []stakingToken{
+		Staking: chainregistry.Staking{
+			StakingTokens: []chainregistry.StakingToken{
 				{
 					Denom: defaultDenom,
 				},
 			},
 		},
-		Codebase: codebase{
+		Codebase: chainregistry.Codebase{
 			GitRepo:            chainGitURL,
 			RecommendedVersion: "v1.0.0",
 			CompatibleVersions: []string{"v1.0.0"},
-			Sdk: codebaseSDK{
+			Sdk: chainregistry.CodebaseInfo{
 				Type:    "cosmos",
 				Version: chain.Version.String(),
 			},
@@ -279,20 +130,20 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 			Ibc:       ibc,
 			Cosmwasm:  cosmwasm,
 		},
-		Apis: apis{
-			RPC: []apiProvider{
+		APIs: chainregistry.APIs{
+			RPC: []chainregistry.APIProvider{
 				{
 					Address:  "http://localhost:26657",
 					Provider: "localhost",
 				},
 			},
-			Rest: []apiProvider{
+			Rest: []chainregistry.APIProvider{
 				{
 					Address:  "http://localhost:1317",
 					Provider: "localhost",
 				},
 			},
-			Grpc: []apiProvider{
+			Grpc: []chainregistry.APIProvider{
 				{
 					Address:  "localhost:9090",
 					Provider: "localhost",
@@ -301,12 +152,12 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 		},
 	}
 
-	assetListData := assetListJSON{
+	assetListData := chainregistry.AssetList{
 		ChainName: chainData.ChainName,
-		Assets: []asset{
+		Assets: []chainregistry.Asset{
 			{
 				Description: fmt.Sprintf("The native token of the %s chain", chainData.ChainName),
-				DenomUnits: []denomUnit{
+				DenomUnits: []chainregistry.DenomUnit{
 					{
 						Denom:    defaultDenom,
 						Exponent: 0,
@@ -315,12 +166,12 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 				Base:   defaultDenom,
 				Name:   chainData.ChainName,
 				Symbol: strings.ToUpper(defaultDenom),
-				LogoURIs: logoURIs{
+				LogoURIs: chainregistry.LogoURIs{
 					Png: "https://ignite.com/favicon.ico",
 					Svg: "https://ignite.com/favicon.ico",
 				},
 				TypeAsset: "sdk.coin",
-				Socials: socials{
+				Socials: chainregistry.Socials{
 					Website: "https://ignite.com",
 					Twitter: "https://x.com/ignite",
 				},
