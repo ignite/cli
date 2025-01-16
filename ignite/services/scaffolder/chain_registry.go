@@ -9,18 +9,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-<<<<<<< HEAD
 	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
+	"github.com/ignite/cli/v28/ignite/pkg/chainregistry"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/xgit"
 	"github.com/ignite/cli/v28/ignite/services/chain"
-=======
-	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
-	"github.com/ignite/cli/v29/ignite/pkg/chainregistry"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/xgit"
-	"github.com/ignite/cli/v29/ignite/services/chain"
->>>>>>> ec26e2ee (feat: expose chain-registry structs (#4472))
 )
 
 const (
