@@ -3,14 +3,12 @@ package chain
 import (
 	"context"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
 
-	"github.com/moby/moby/pkg/archive"
-
+	"github.com/ignite/cli/v28/ignite/pkg/archive"
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/checksum"
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner"
@@ -181,11 +179,6 @@ func (c *Chain) BuildRelease(
 			return "", err
 		}
 
-		tarr, err := archive.Tar(out, archive.Gzip)
-		if err != nil {
-			return "", err
-		}
-
 		tarName := fmt.Sprintf("%s_%s_%s.tar.gz", prefix, goos, goarch)
 		tarPath := filepath.Join(releasePath, tarName)
 
@@ -195,15 +188,9 @@ func (c *Chain) BuildRelease(
 		}
 		defer tarf.Close()
 
-<<<<<<< HEAD
-		if _, err := io.Copy(tarf, tarr); err != nil {
-			return "", err
-=======
 		if err := archive.CreateArchive(out, tarf); err != nil {
 			return "", errors.Errorf("error creating release archive: %w", err)
->>>>>>> a0ac8452 (fix(chain): fix issue in release ci and command (#4474))
 		}
-		tarf.Close()
 	}
 
 	checksumPath := filepath.Join(releasePath, releaseChecksumKey)
