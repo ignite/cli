@@ -6,6 +6,35 @@
 
 - [#4471](https://github.com/ignite/cli/pull/4471) Bump CometBFT to v0.38.15.
 - [#4471](https://github.com/ignite/cli/pull/4471) Bump Ignite & chain minimum Go version to 1.23.
+- [#4094](https://github.com/ignite/cli/pull/4094) Scaffolding a multi-index map using `ignite s map foo bar baz --index foobar,foobaz` is no longer supported. Use one index instead of use `collections.IndexedMap`.
+- [#4058](https://github.com/ignite/cli/pull/4058) Simplify scaffolded modules by including `ValidateBasic()` logic in message handler.
+- [#4058](https://github.com/ignite/cli/pull/4058) Use `address.Codec` instead of `AccAddressFromBech32`.
+- [#3993](https://github.com/ignite/cli/pull/3993) Oracle scaffolding was deprecated and has been removed
+- [#3962](https://github.com/ignite/cli/pull/3962) Rename all RPC endpoints and autocli commands generated for `map`/`list`/`single` types
+- [#3976](https://github.com/ignite/cli/pull/3976) Remove error checks for Cobra command value get calls
+- [#4002](https://github.com/ignite/cli/pull/4002) Bump buf build
+- [#4008](https://github.com/ignite/cli/pull/4008) Rename `pkg/yaml` to `pkg/xyaml`
+- [#4075](https://github.com/ignite/cli/pull/4075) Use `gopkg.in/yaml.v3` instead `gopkg.in/yaml.v2`
+- [#4118](https://github.com/ignite/cli/pull/4118) Version scaffolded protos as `v1` to follow SDK structure.
+- [#4167](https://github.com/ignite/cli/pull/4167) Scaffold `int64` instead of `int32` when a field type is `int`
+- [#4159](https://github.com/ignite/cli/pull/4159) Enable gci linter
+- [#4160](https://github.com/ignite/cli/pull/4160) Enable copyloopvar linter
+- [#4162](https://github.com/ignite/cli/pull/4162) Enable errcheck linter
+- [#4189](https://github.com/ignite/cli/pull/4189) Deprecate `ignite node` for `ignite connect` app
+- [#4290](https://github.com/ignite/cli/pull/4290) Remove ignite ics logic from ignite cli (this functionality will be in the `consumer` app)
+- [#4295](https://github.com/ignite/cli/pull/4295) Stop scaffolding `pulsar` files
+- [#4317](https://github.com/ignite/cli/pull/4317) Remove xchisel dependency
+- [#4361](https://github.com/ignite/cli/pull/4361) Remove unused `KeyPrefix` method
+- [#4384](https://github.com/ignite/cli/pull/4384) Compare genesis params into chain genesis tests
+- [#4463](https://github.com/ignite/cli/pull/4463) Run `chain simulation` with any simulation test case
+
+### Fixes
+
+- [#4000](https://github.com/ignite/cli/pull/4000) Run all dry runners before the wet run in the `xgenny` pkg
+- [#4091](https://github.com/ignite/cli/pull/4091) Fix race conditions in the plugin logic
+- [#4128](https://github.com/ignite/cli/pull/4128) Check for duplicate proto fields in config
+- [#4402](https://github.com/ignite/cli/pull/4402) Fix gentx parser into the cosmosutil package
+- [#4474](https://github.com/ignite/cli/pull/4474) Fix issue in `build --release` command
 
 ## [`v28.7.0`](https://github.com/ignite/cli/releases/tag/v28.7.0)
 

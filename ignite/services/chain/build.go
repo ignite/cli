@@ -195,8 +195,13 @@ func (c *Chain) BuildRelease(
 		}
 		defer tarf.Close()
 
+<<<<<<< HEAD
 		if _, err := io.Copy(tarf, tarr); err != nil {
 			return "", err
+=======
+		if err := archive.CreateArchive(out, tarf); err != nil {
+			return "", errors.Errorf("error creating release archive: %w", err)
+>>>>>>> a0ac8452 (fix(chain): fix issue in release ci and command (#4474))
 		}
 		tarf.Close()
 	}
