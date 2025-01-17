@@ -58,10 +58,6 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/manifoldco/promptui v0.9.0
 	github.com/mitchellh/mapstructure v1.5.0
-<<<<<<< HEAD
-	github.com/moby/moby v24.0.9+incompatible
-=======
->>>>>>> e97d643c (refactor: remove moby/gorilla dependency (#4439))
 	github.com/muesli/reflow v0.3.0
 	github.com/nqd/flat v0.2.0
 	github.com/otiai10/copy v1.14.0
@@ -171,14 +167,8 @@ require (
 	github.com/cockroachdb/pebble v1.1.2 // indirect
 	github.com/cockroachdb/redact v1.1.5 // indirect
 	github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06 // indirect
-<<<<<<< HEAD
 	github.com/cometbft/cometbft-db v0.14.1 // indirect
 	github.com/containerd/console v1.0.4-0.20230508195404-8d3c090fd31c // indirect
-	github.com/containerd/containerd v1.7.11 // indirect
-	github.com/containerd/log v0.1.0 // indirect
-=======
-	github.com/cometbft/cometbft-db v1.0.1 // indirect
->>>>>>> e97d643c (refactor: remove moby/gorilla dependency (#4439))
 	github.com/containerd/stargz-snapshotter/estargz v0.15.1 // indirect
 	github.com/cosiner/argv v0.1.0 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect

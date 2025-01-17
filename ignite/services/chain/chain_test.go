@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/v29/ignite/pkg/archive"
+	"github.com/ignite/cli/v28/ignite/pkg/archive"
 )
 
 func TestSourceVersion(t *testing.T) {

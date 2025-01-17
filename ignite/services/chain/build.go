@@ -8,9 +8,7 @@ import (
 	"runtime"
 	"strings"
 
-<<<<<<< HEAD
-	"github.com/moby/moby/pkg/archive"
-
+	"github.com/ignite/cli/v28/ignite/pkg/archive"
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/checksum"
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner"
@@ -22,20 +20,6 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/v28/ignite/pkg/gocmd"
 	"github.com/ignite/cli/v28/ignite/pkg/xstrings"
-=======
-	"github.com/ignite/cli/v29/ignite/pkg/archive"
-	"github.com/ignite/cli/v29/ignite/pkg/cache"
-	"github.com/ignite/cli/v29/ignite/pkg/checksum"
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner"
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/v29/ignite/pkg/dirchange"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/events"
-	"github.com/ignite/cli/v29/ignite/pkg/goanalysis"
-	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
-	"github.com/ignite/cli/v29/ignite/pkg/xstrings"
->>>>>>> e97d643c (refactor: remove moby/gorilla dependency (#4439))
 )
 
 const (
