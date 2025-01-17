@@ -189,7 +189,7 @@ func (c *Chain) BuildRelease(
 		defer tarf.Close()
 
 		if err := archive.CreateArchive(out, tarf); err != nil {
-			return "", err
+			return "", errors.Errorf("error creating release archive: %w", err)
 		}
 	}
 
