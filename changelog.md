@@ -4,6 +4,7 @@
 
 ### Changes
 
+- [#4439](https://github.com/ignite/cli/pull/4439) Simplify Ignite CLI dependencies by removing `moby` and `gorilla` dependencies.
 - [#4471](https://github.com/ignite/cli/pull/4471) Bump CometBFT to v0.38.15.
 - [#4471](https://github.com/ignite/cli/pull/4471) Bump Ignite & chain minimum Go version to 1.23.
 
