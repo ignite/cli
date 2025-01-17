@@ -8,6 +8,10 @@
 - [#4471](https://github.com/ignite/cli/pull/4471) Bump CometBFT to v0.38.15.
 - [#4471](https://github.com/ignite/cli/pull/4471) Bump Ignite & chain minimum Go version to 1.23.
 
+### Bug Fixes
+
+- [#4474](https://github.com/ignite/cli/pull/4474) Fix issue in `build --release` command
+
 ## [`v28.7.0`](https://github.com/ignite/cli/releases/tag/v28.7.0)
 
 ### Features

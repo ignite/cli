@@ -41,6 +41,19 @@ func addToArchive(tw *tar.Writer, filename string) error {
 	}
 
 	// Create a tar Header from the FileInfo data
+	if info.IsDir() {
+		hdr, err := tar.FileInfoHeader(info, info.Name())
+		if err != nil {
+			return err
+		}
+		hdr.Name = filename
+		if err := tw.WriteHeader(hdr); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
 	header, err := tar.FileInfoHeader(info, info.Name())
 	if err != nil {
 		return err
