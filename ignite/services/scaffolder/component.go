@@ -193,7 +193,7 @@ func checkGoReservedWord(name string) error {
 		"uintptr":
 		return errors.Errorf("%s is a Go built-in identifier", name)
 	}
-	return nil
+	return checkMaxLength(name)
 }
 
 // containsCustomTypes returns true if the list of fields contains at least one custom type.
