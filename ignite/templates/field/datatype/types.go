@@ -18,10 +18,14 @@ const (
 	Bool Name = "bool"
 	// Int represents the int type name.
 	Int Name = "int"
+	// Int64 represents the int64 type name.
+	Int64 Name = "int64"
 	// IntSlice represents the int array type name.
 	IntSlice Name = "array.int"
 	// Uint represents the uint type name.
 	Uint Name = "uint"
+	// Uint64 represents the uint64 type name.
+	Uint64 Name = "uint64"
 	// UintSlice represents the uint array type name.
 	UintSlice Name = "array.uint"
 	// Coin represents the coin type name.
@@ -56,9 +60,11 @@ var supportedTypes = map[Name]DataType{
 	StringSliceAlias: DataStringSlice,
 	Bool:             DataBool,
 	Int:              DataInt,
+	Int64:            DataInt,
 	IntSlice:         DataIntSlice,
 	IntSliceAlias:    DataIntSlice,
 	Uint:             DataUint,
+	Uint64:           DataUint,
 	UintSlice:        DataUintSlice,
 	UintSliceAlias:   DataUintSlice,
 	Coin:             DataCoin,
