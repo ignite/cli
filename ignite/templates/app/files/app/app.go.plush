@@ -180,6 +180,11 @@ func New(
 	// build app
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
 
+	// register legacy modules
+	if err := app.registerIBCModules(appOpts); err != nil {
+		return nil, err
+	}
+
 	/****  Module Options ****/
 
 	// create the simulation manager and define the order of the modules for deterministic simulations

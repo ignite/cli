@@ -105,8 +105,6 @@ params.
 	c.Flags().StringSlice(flagParams, []string{}, "add module parameters")
 	c.Flags().StringSlice(flagModuleConfigs, []string{}, "add module configs")
 
-	_ = c.Flags().MarkDeprecated(flagIBC, "IBC modules are temporarily not supported in Ignite v29 (waiting to IBC compatible version with Cosmos SDK v0.52)") // https://github.com/ignite/cli/pull/4289
-
 	return c
 }
 
