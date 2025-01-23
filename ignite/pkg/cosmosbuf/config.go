@@ -20,6 +20,7 @@ type (
 	// Module represents the buf.yaml module.
 	Module struct {
 		Path string `yaml:"path"`
+		Name string `yaml:"name"`
 	}
 )
 
