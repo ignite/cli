@@ -9,13 +9,19 @@ import (
 
 const bufConfig = "buf.yaml"
 
-// BufWork represents the buf.work.yaml file.
-type BufWork struct {
-	appPath     string   `yaml:"-"`
-	filePath    string   `yaml:"-"`
-	Version     string   `yaml:"version"`
-	Directories []string `yaml:"directories"`
-}
+type (
+	// BufWork represents the buf.yaml file.
+	BufWork struct {
+		appPath  string   `yaml:"-"`
+		filePath string   `yaml:"-"`
+		Version  string   `yaml:"version"`
+		Modules  []Module `yaml:"modules"`
+	}
+	// Module represents the buf.yaml module.
+	Module struct {
+		Path string `yaml:"path"`
+	}
+)
 
 // ParseBufConfig parse the buf.yaml file at app path.
 func ParseBufConfig(appPath string) (BufWork, error) {
@@ -34,10 +40,10 @@ func ParseBufConfig(appPath string) (BufWork, error) {
 // MissingDirectories check if the directories inside the buf work exist.
 func (w BufWork) MissingDirectories() ([]string, error) {
 	missingPaths := make([]string, 0)
-	for _, dir := range w.Directories {
-		protoDir := filepath.Join(w.appPath, dir)
+	for _, module := range w.Modules {
+		protoDir := filepath.Join(w.appPath, module.Path)
 		if _, err := os.Stat(protoDir); os.IsNotExist(err) {
-			missingPaths = append(missingPaths, dir)
+			missingPaths = append(missingPaths, module.Path)
 		} else if !os.IsNotExist(err) {
 			return nil, err
 		}
@@ -47,16 +53,16 @@ func (w BufWork) MissingDirectories() ([]string, error) {
 
 // AddProtoDir add a proto directory path from the buf work file.
 func (w BufWork) AddProtoDir(newPath string) error {
-	w.Directories = append(w.Directories, newPath)
+	w.Modules = append(w.Modules, Module{Path: newPath})
 	return w.save()
 }
 
 // RemoveProtoDirs remove a list a proto directory paths from the buf work file.
 func (w BufWork) RemoveProtoDirs(paths ...string) error {
 	for _, path := range paths {
-		for i, dir := range w.Directories {
-			if dir == path {
-				w.Directories = append(w.Directories[:i], w.Directories[i+1:]...)
+		for i, module := range w.Modules {
+			if module.Path == path {
+				w.Modules = append(w.Modules[:i], w.Modules[i+1:]...)
 				break
 			}
 		}
@@ -66,8 +72,8 @@ func (w BufWork) RemoveProtoDirs(paths ...string) error {
 
 // HasProtoDir returns true if the proto path exist into the directories slice.
 func (w BufWork) HasProtoDir(path string) bool {
-	for _, dirPath := range w.Directories {
-		if path == dirPath {
+	for _, module := range w.Modules {
+		if path == module.Path {
 			return true
 		}
 	}
