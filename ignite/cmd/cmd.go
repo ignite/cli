@@ -37,6 +37,7 @@ const (
 	flagYes        = "yes"
 	flagClearCache = "clear-cache"
 	flagSkipProto  = "skip-proto"
+	flagSkipBuild  = "skip-build"
 
 	checkVersionTimeout = time.Millisecond * 600
 	cacheFileName       = "ignite_cache.db"
@@ -213,6 +214,17 @@ func flagSetSkipProto() *flag.FlagSet {
 
 func flagGetSkipProto(cmd *cobra.Command) bool {
 	skip, _ := cmd.Flags().GetBool(flagSkipProto)
+	return skip
+}
+
+func flagSetSkipBuild() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.Bool(flagSkipBuild, false, "skip initial build of the app (uses local binary)")
+	return fs
+}
+
+func flagGetSkipBuild(cmd *cobra.Command) bool {
+	skip, _ := cmd.Flags().GetBool(flagSkipBuild)
 	return skip
 }
 

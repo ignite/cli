@@ -46,6 +46,7 @@
 - [#4317](https://github.com/ignite/cli/pull/4317) Remove xchisel dependency
 - [#4361](https://github.com/ignite/cli/pull/4361) Remove unused `KeyPrefix` method
 - [#4384](https://github.com/ignite/cli/pull/4384) Compare genesis params into chain genesis tests
+- [#4463](https://github.com/ignite/cli/pull/4463) Run `chain simulation` with any simulation test case
 
 ### Fixes
 
@@ -53,6 +54,20 @@
 - [#4091](https://github.com/ignite/cli/pull/4091) Fix race conditions in the plugin logic
 - [#4128](https://github.com/ignite/cli/pull/4128) Check for duplicate proto fields in config
 - [#4402](https://github.com/ignite/cli/pull/4402) Fix gentx parser into the cosmosutil package
+- [#4474](https://github.com/ignite/cli/pull/4474) Fix issue in `build --release` command
+
+## [`v28.7.0`](https://github.com/ignite/cli/releases/tag/v28.7.0)
+
+### Features
+
+- [#4457](https://github.com/ignite/cli/pull/4457) Add `skip-build` flag to `chain serve` command to avoid (re)building the chain
+- [#4413](https://github.com/ignite/cli/pull/4413) Add `ignite s chain-registry` command
+
+## [`v28.6.1`](https://github.com/ignite/cli/releases/tag/v28.6.1)
+
+### Changes
+
+- [#4449](https://github.com/ignite/cli/pull/4449) Bump scaffolded chain to Cosmos SDK `v0.50.11`. Previous version have a high security vulnerability.
 
 ## [`v28.6.0`](https://github.com/ignite/cli/releases/tag/v28.6.0)
 

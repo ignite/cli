@@ -876,6 +876,7 @@ ignite chain serve [flags]
   -p, --path string          path of the app (default ".")
       --quit-on-fail         quit program if the app fails to start
   -r, --reset-once           reset the app state once on init
+      --skip-build           skip initial build of the app (uses local binary)
       --skip-proto           skip file generation from proto
   -v, --verbose              verbose output
 ```
@@ -898,7 +899,7 @@ Run simulation testing for the blockchain
 
 **Synopsis**
 
-Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node and checks if invariants break
+Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node.
 
 ```
 ignite chain simulate [flags]
@@ -919,8 +920,8 @@ ignite chain simulate [flags]
       --lean                      lean simulation log output
       --numBlocks int             number of new blocks to simulate from the initial block height (default 200)
       --params string             custom simulation params file which overrides any random params; cannot be used with genesis
-      --period uint               run slow invariants only once every period assertions
       --seed int                  simulation random seed (default 42)
+      --simName string            name of the simulation to run (default "TestFullAppSimulation")
 ```
 
 **Options inherited from parent commands**
@@ -2598,6 +2599,7 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 
 * [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 * [ignite scaffold chain](#ignite-scaffold-chain)	 - New Cosmos SDK blockchain
+* [ignite scaffold chain-registry](#ignite-scaffold-chain-registry)	 - Configs for the chain registry
 * [ignite scaffold configs](#ignite-scaffold-configs)	 - Configs for a custom Cosmos SDK module
 * [ignite scaffold list](#ignite-scaffold-list)	 - CRUD for data stored as an array
 * [ignite scaffold map](#ignite-scaffold-map)	 - CRUD for data stored as key-value pairs
@@ -2676,6 +2678,40 @@ ignite scaffold chain [name] [flags]
       --proto-dir string         chain proto directory (default "proto")
       --skip-git                 skip Git repository initialization
       --skip-proto               skip proto generation
+```
+
+**SEE ALSO**
+
+* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+
+
+## ignite scaffold chain-registry
+
+Configs for the chain registry
+
+**Synopsis**
+
+Scaffold the chain registry chain.json and assets.json files.
+
+The chain registry is a GitHub repo, hosted at https://github.com/cosmos/cosmos-registry, that
+contains the chain.json and assets.json files of most of chains in the Cosmos ecosystem.
+It is good practices, when creating a new chain, and about to launch a testnet or mainnet, to
+publish the chain's metadata in the chain registry.
+
+Read more about the chain.json at https://github.com/cosmos/chain-registry?tab=readme-ov-file#chainjson
+Read more about the assets.json at https://github.com/cosmos/chain-registry?tab=readme-ov-file#assetlists
+
+```
+ignite scaffold chain-registry [flags]
+```
+
+**Options**
+
+```
+      --clear-cache   clear the build cache (advanced)
+  -h, --help          help for chain-registry
+  -p, --path string   path of the app (default ".")
+  -y, --yes           answers interactive yes/no questions with yes
 ```
 
 **SEE ALSO**
@@ -3367,7 +3403,7 @@ Run simulation testing for the blockchain
 
 **Synopsis**
 
-Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node and checks if invariants break
+Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node.
 
 ```
 ignite testnet simulate [flags]
@@ -3388,8 +3424,8 @@ ignite testnet simulate [flags]
       --lean                      lean simulation log output
       --numBlocks int             number of new blocks to simulate from the initial block height (default 200)
       --params string             custom simulation params file which overrides any random params; cannot be used with genesis
-      --period uint               run slow invariants only once every period assertions
       --seed int                  simulation random seed (default 42)
+      --simName string            name of the simulation to run (default "TestFullAppSimulation")
 ```
 
 **SEE ALSO**
