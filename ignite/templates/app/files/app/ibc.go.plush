@@ -137,14 +137,18 @@ func (app *App) registerIBCModules(appOpts servertypes.AppOptions) error {
 
 	app.IBCKeeper.SetRouter(ibcRouter)
 
+	storeProvider := app.IBCKeeper.ClientKeeper.GetStoreProvider()
+	tmLightClientModule := ibctm.NewLightClientModule(app.appCodec, storeProvider)
+	soloLightClientModule := solomachine.NewLightClientModule(app.appCodec, storeProvider)
+
 	// register IBC modules
 	if err := app.RegisterModules(
 		ibc.NewAppModule(app.appCodec, app.IBCKeeper),
 		ibctransfer.NewAppModule(app.appCodec, app.TransferKeeper),
 		ibcfee.NewAppModule(app.appCodec, app.IBCFeeKeeper),
 		icamodule.NewAppModule(app.appCodec, &app.ICAControllerKeeper, &app.ICAHostKeeper),
-		ibctm.NewAppModule(),
-		solomachine.NewAppModule(),
+		ibctm.NewAppModule(tmLightClientModule),
+		solomachine.NewAppModule(soloLightClientModule),
 	); err != nil {
 		return err
 	}
