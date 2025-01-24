@@ -11,11 +11,6 @@ import (
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
 	"cosmossdk.io/x/accounts"
-	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/auth/ante/unorderedtx"
-	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authzkeeper "cosmossdk.io/x/authz/keeper"
 	bankkeeper "cosmossdk.io/x/bank/keeper"
 	circuitkeeper "cosmossdk.io/x/circuit/keeper"
@@ -23,23 +18,35 @@ import (
 	distrkeeper "cosmossdk.io/x/distribution/keeper"
 	govkeeper "cosmossdk.io/x/gov/keeper"
 	mintkeeper "cosmossdk.io/x/mint/keeper"
+	paramskeeper "cosmossdk.io/x/params/keeper"
+	paramstypes "cosmossdk.io/x/params/types"
 	poolkeeper "cosmossdk.io/x/protocolpool/keeper"
 	slashingkeeper "cosmossdk.io/x/slashing/keeper"
 	stakingkeeper "cosmossdk.io/x/staking/keeper"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
-
+	
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/auth/ante/unorderedtx"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	icacontrollerkeeper "github.com/cosmos/ibc-go/v9/modules/apps/27-interchain-accounts/controller/keeper"
+	icahostkeeper "github.com/cosmos/ibc-go/v9/modules/apps/27-interchain-accounts/host/keeper"
+	ibcfeekeeper "github.com/cosmos/ibc-go/v9/modules/apps/29-fee/keeper"
+	ibctransferkeeper "github.com/cosmos/ibc-go/v9/modules/apps/transfer/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/v9/modules/core/keeper"
 
 	"<%= ModulePath %>/docs"
 )
@@ -83,9 +90,10 @@ type App struct {
 	ConsensusParamsKeeper consensuskeeper.Keeper
 	CircuitBreakerKeeper  circuitkeeper.Keeper
 	PoolKeeper            poolkeeper.Keeper
-    // ibc keepers
+	ParamsKeeper          paramskeeper.Keeper
+
+	// ibc keepers
 	IBCKeeper           *ibckeeper.Keeper
-	CapabilityKeeper    *capabilitykeeper.Keeper
 	IBCFeeKeeper        ibcfeekeeper.Keeper
 	ICAControllerKeeper icacontrollerkeeper.Keeper
 	ICAHostKeeper       icahostkeeper.Keeper
@@ -100,7 +108,7 @@ type App struct {
 func init() {
 	var err error
 	clienthelpers.EnvPrefix = Name
-	DefaultNodeHome, err = clienthelpers.GetNodeHomeDirectory("."+Name)
+	DefaultNodeHome, err = clienthelpers.GetNodeHomeDirectory("." + Name)
 	if err != nil {
 		panic(err)
 	}
@@ -131,7 +139,7 @@ func New(
 			AppConfig(),
 			depinject.Supply(
 				appOpts, // supply app options
-				logger, // supply logger
+				logger,  // supply logger
 				// here alternative options can be supplied to the DI container.
 				// those options can be used f.e to override the default behavior of some modules.
 				// for instance supplying a custom address codec for not using bech32 addresses.
@@ -162,6 +170,7 @@ func New(
 		&app.ConsensusParamsKeeper,
 		&app.CircuitBreakerKeeper,
 		&app.PoolKeeper,
+		&app.ParamsKeeper,
 	); err != nil {
 		panic(err)
 	}
@@ -175,7 +184,7 @@ func New(
 
 	// register legacy modules
 	if err := app.registerIBCModules(appOpts); err != nil {
-		return nil, err
+		panic(err)
 	}
 
 	/****  Module Options ****/
@@ -215,10 +224,13 @@ func New(
 	return app
 }
 
+// GetSubspace returns a param subspace for a given module name.
+func (app *App) GetSubspace(moduleName string) paramstypes.Subspace {
+	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
+	return subspace
+}
+
 // LegacyAmino returns App's amino codec.
-//
-// NOTE: This is solely to be used for testing purposes as it may be desirable
-// for modules to register their own custom testing types.
 func (app *App) LegacyAmino() *codec.LegacyAmino {
 	switch cdc := app.legacyAmino.(type) {
 	case *codec.LegacyAmino:
@@ -229,9 +241,6 @@ func (app *App) LegacyAmino() *codec.LegacyAmino {
 }
 
 // AppCodec returns App's app codec.
-//
-// NOTE: This is solely to be used for testing purposes as it may be desirable
-// for modules to register their own custom testing types.
 func (app *App) AppCodec() codec.Codec {
 	return app.appCodec
 }
