@@ -9,7 +9,7 @@ import (
 	"cosmossdk.io/log"
 	"github.com/cosmos/cosmos-sdk/codec"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"<% } %>
+	ibckeeper "github.com/cosmos/ibc-go/v9/modules/core/keeper"<% } %>
 
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
 	"<%= modulePath %>/x/<%= moduleName %>/types"

@@ -120,7 +120,7 @@ func genesisTypesModify(opts *CreateOptions) genny.RunFn {
 		// Import
 		content, err := xast.AppendImports(
 			f.String(),
-			xast.WithLastNamedImport("host", "github.com/cosmos/ibc-go/v8/modules/core/24-host"),
+			xast.WithLastNamedImport("host", "github.com/cosmos/ibc-go/v9/modules/core/24-host"),
 		)
 		if err != nil {
 			return err

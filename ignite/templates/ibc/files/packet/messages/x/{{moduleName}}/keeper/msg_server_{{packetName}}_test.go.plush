@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	channeltypes "github.com/cosmos/ibc-go/v9/modules/core/04-channel/types"
 
     "<%= ModulePath %>/x/<%= moduleName %>/keeper"
 	"<%= ModulePath %>/x/<%= moduleName %>/types"

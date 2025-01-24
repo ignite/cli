@@ -8,7 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "cosmossdk.io/x/gov/types"
-	paramstypes "cosmossdk.io/x/params/types"
 	icamodule "github.com/cosmos/ibc-go/v9/modules/apps/27-interchain-accounts"
 	icacontroller "github.com/cosmos/ibc-go/v9/modules/apps/27-interchain-accounts/controller"
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v9/modules/apps/27-interchain-accounts/controller/keeper"
@@ -42,7 +41,6 @@ func (app *App) registerIBCModules(appOpts servertypes.AppOptions) error {
 		storetypes.NewKVStoreKey(ibcfeetypes.StoreKey),
 		storetypes.NewKVStoreKey(icahosttypes.StoreKey),
 		storetypes.NewKVStoreKey(icacontrollertypes.StoreKey),
-		storetypes.NewTransientStoreKey(paramstypes.TStoreKey),
 	); err != nil {
 		return err
 	}

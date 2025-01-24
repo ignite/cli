@@ -12,10 +12,10 @@ import (
     <%= if (isIBC) { %>errorsmod "cosmossdk.io/errors"
     "cosmossdk.io/store/prefix"
     "github.com/cosmos/cosmos-sdk/runtime"
-    channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
-    host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
-    "github.com/cosmos/ibc-go/v8/modules/core/exported"
-    ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"<% } %>
+    channeltypes "github.com/cosmos/ibc-go/v9/modules/core/04-channel/types"
+    host "github.com/cosmos/ibc-go/v9/modules/core/24-host"
+    "github.com/cosmos/ibc-go/v9/modules/core/exported"
+    ibckeeper "github.com/cosmos/ibc-go/v9/modules/core/keeper"<% } %>
 
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )

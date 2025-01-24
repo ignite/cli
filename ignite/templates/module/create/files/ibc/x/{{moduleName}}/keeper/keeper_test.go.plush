@@ -13,9 +13,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "cosmossdk.io/x/gov/types"
-	portkeeper "github.com/cosmos/ibc-go/v8/modules/core/05-port/keeper"
-	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
-	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
+	portkeeper "github.com/cosmos/ibc-go/v9/modules/core/05-port/keeper"
+	ibcexported "github.com/cosmos/ibc-go/v9/modules/core/exported"
+	ibckeeper "github.com/cosmos/ibc-go/v9/modules/core/keeper"
 	"github.com/stretchr/testify/require"
 
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
