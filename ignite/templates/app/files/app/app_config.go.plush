@@ -22,6 +22,7 @@ import (
 	groupmodulev1 "cosmossdk.io/api/cosmos/group/module/v1"
 	mintmodulev1 "cosmossdk.io/api/cosmos/mint/module/v1"
 	nftmodulev1 "cosmossdk.io/api/cosmos/nft/module/v1"
+	paramsmodulev1 "cosmossdk.io/api/cosmos/params/module/v1"
 	poolmodulev1 "cosmossdk.io/api/cosmos/protocolpool/module/v1"
 	slashingmodulev1 "cosmossdk.io/api/cosmos/slashing/module/v1"
 	stakingmodulev1 "cosmossdk.io/api/cosmos/staking/module/v1"
@@ -29,8 +30,6 @@ import (
 	upgrademodulev1 "cosmossdk.io/api/cosmos/upgrade/module/v1"
 	"cosmossdk.io/depinject/appconfig"
 	"cosmossdk.io/x/accounts"
-	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"cosmossdk.io/x/authz"
 	_ "cosmossdk.io/x/authz/module" // import for side-effects
 	_ "cosmossdk.io/x/bank"         // import for side-effects
@@ -54,7 +53,9 @@ import (
 	_ "cosmossdk.io/x/mint"         // import for side-effects
 	minttypes "cosmossdk.io/x/mint/types"
 	"cosmossdk.io/x/nft"
-	_ "cosmossdk.io/x/nft/module"   // import for side-effects
+	_ "cosmossdk.io/x/nft/module" // import for side-effects
+	_ "cosmossdk.io/x/params"     // import for side-effects
+	paramstypes "cosmossdk.io/x/params/types"
 	_ "cosmossdk.io/x/protocolpool" // import for side-effects
 	pooltypes "cosmossdk.io/x/protocolpool/types"
 	_ "cosmossdk.io/x/slashing" // import for side-effects
@@ -66,11 +67,16 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/runtime"
 	_ "github.com/cosmos/cosmos-sdk/testutil/x/counter" // import for side-effects
+	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config"   // import for side-effects
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	icatypes "github.com/cosmos/ibc-go/v9/modules/apps/27-interchain-accounts/types"
+	ibcfeetypes "github.com/cosmos/ibc-go/v9/modules/apps/29-fee/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v9/modules/apps/transfer/types"
+	ibcexported "github.com/cosmos/ibc-go/v9/modules/core/exported"
 )
 
 var (
-	// module account permissions
 	moduleAccPerms = []*authmodulev1.ModuleAccountPermission{
 		{Account: authtypes.FeeCollectorName},
 		{Account: distrtypes.ModuleName},
@@ -123,6 +129,8 @@ var (
 						stakingtypes.ModuleName,
 						authz.ModuleName,
 						epochstypes.ModuleName,
+						// ibc modules
+						ibcexported.ModuleName,
 						// chain modules
 						// this line is used by starport scaffolding # stargate/app/beginBlockers
 					},
@@ -169,6 +177,11 @@ var (
 						circuittypes.ModuleName,
 						pooltypes.ModuleName,
 						epochstypes.ModuleName,
+						// ibc modules
+						ibcexported.ModuleName,
+						ibctransfertypes.ModuleName,
+						icatypes.ModuleName,
+						ibcfeetypes.ModuleName,
 						// chain modules
 						// this line is used by starport scaffolding # stargate/app/initGenesis
 					},
@@ -176,6 +189,8 @@ var (
 					// module's keeper. This is useful when a module does not have a store key.
 					SkipStoreKeys: []string{
 						"tx",
+						runtime.ModuleName,
+						genutiltypes.ModuleName,
 					},
 				}),
 			},
@@ -196,7 +211,7 @@ var (
 				}),
 			},
 			{
-				Name: stakingtypes.ModuleName,
+				Name:   stakingtypes.ModuleName,
 				Config: appconfig.WrapAny(&stakingmodulev1.Module{}),
 			},
 			{
@@ -204,7 +219,7 @@ var (
 				Config: appconfig.WrapAny(&slashingmodulev1.Module{}),
 			},
 			{
-				Name: "tx",
+				Name:   "tx",
 				Config: appconfig.WrapAny(&txconfigv1.Config{}),
 			},
 			{
@@ -269,6 +284,10 @@ var (
 			{
 				Name:   epochstypes.ModuleName,
 				Config: appconfig.WrapAny(&epochsmodulev1.Module{}),
+			},
+			{
+				Name:   paramstypes.ModuleName,
+				Config: appconfig.WrapAny(&paramsmodulev1.Module{}),
 			},
 			// this line is used by starport scaffolding # stargate/app/moduleConfig
 		},
