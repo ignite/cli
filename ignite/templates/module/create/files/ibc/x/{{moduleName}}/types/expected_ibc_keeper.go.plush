@@ -21,15 +21,3 @@ type ChannelKeeper interface {
 	) (uint64, error)
 	ChanCloseInit(ctx context.Context, portID, channelID string) error
 }
-
-// PortKeeper defines the expected IBC port keeper.
-type PortKeeper interface {
-	BindPort(ctx context.Context, portID string) *capabilitytypes.Capability
-}
-
-// ScopedKeeper defines the expected IBC scoped keeper.
-type ScopedKeeper interface {
-	GetCapability(ctx context.Context, name string) (*capabilitytypes.Capability, bool)
-	AuthenticateCapability(ctx context.Context, cap *capabilitytypes.Capability, name string) bool
-	ClaimCapability(ctx context.Context, cap *capabilitytypes.Capability, name string) error
-}
