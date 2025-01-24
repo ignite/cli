@@ -99,7 +99,7 @@ params.
 
 	c.Flags().AddFlagSet(flagSetYes())
 	c.Flags().StringSlice(flagDep, []string{}, "add a dependency on another module")
-	// c.Flags().Bool(flagIBC, false, "add IBC functionality")
+	c.Flags().Bool(flagIBC, false, "add IBC functionality")
 	c.Flags().String(flagIBCOrdering, "none", "channel ordering of the IBC module [none|ordered|unordered]")
 	c.Flags().Bool(flagRequireRegistration, false, "fail if module can't be registered")
 	c.Flags().StringSlice(flagParams, []string{}, "add module parameters")
