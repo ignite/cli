@@ -19,7 +19,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/templates/typed/singleton"
 )
 
-const maxLength = 126
+const maxLength = 64
 
 // AddTypeOption configures options for AddType.
 type AddTypeOption func(*addTypeOptions)
