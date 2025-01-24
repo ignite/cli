@@ -13,8 +13,6 @@ import (
     "cosmossdk.io/store/prefix"
     "github.com/cosmos/cosmos-sdk/runtime"
     channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
-    capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
-    capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
     host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
     "github.com/cosmos/ibc-go/v8/modules/core/exported"
     ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"<% } %>

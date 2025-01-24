@@ -13,7 +13,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "cosmossdk.io/x/gov/types"
-	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	portkeeper "github.com/cosmos/ibc-go/v8/modules/core/05-port/keeper"
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
@@ -42,11 +41,6 @@ func initFixture(t *testing.T) *fixture {
 
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
 
-	capabilityKeeper := capabilitykeeper.NewKeeper(encCfg.Codec, storeKey, nil)
-	scopedKeeper := capabilityKeeper.ScopeToModule(ibcexported.ModuleName)
-	portKeeper := portkeeper.NewKeeper(scopedKeeper)
-	scopeModule := capabilityKeeper.ScopeToModule(types.ModuleName)
-
 	k := keeper.NewKeeper(
 		env,
         encCfg.Codec,
@@ -56,9 +50,6 @@ func initFixture(t *testing.T) *fixture {
 			return &ibckeeper.Keeper{
 				PortKeeper: &portKeeper,
 			}
-		},
-		func(string) capabilitykeeper.ScopedKeeper {
-			return scopeModule
 		},<%= for (dependency) in dependencies { %>
         nil,<% } %>
     )

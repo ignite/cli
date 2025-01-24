@@ -3,6 +3,7 @@ module <%= ModulePath %>
 go 1.23.4
 
 replace github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.52.0-rc.1.0.20250107080912-2bcc7678255f
+replace github.com/cosmos/ibc-go/v9 => github.com/cosmos/ibc-go/v9 44af86ebb61ee4bd4e69e3a3e85ad145ccf2f53b
 
 replace (
 	// fix upstream GHSA-h395-qcrw-5vmq vulnerability.
