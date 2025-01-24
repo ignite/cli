@@ -5,7 +5,7 @@ go 1.23.4
 // 0.52 integration
 replace (
 	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.52.0-rc.2
-	github.com/cosmos/ibc-go/v9 => github.com/cosmos/ibc-go/v9 v9.0.0-20250122140428-44af86ebb61e
+	github.com/cosmos/ibc-go/v9 => github.com/cosmos/ibc-go/v9 v9.0.0-20250124215514-f0469954dfc7 // https://github.com/cosmos/ibc-go/pull/7882
 )
 
 replace (
