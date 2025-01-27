@@ -67,7 +67,6 @@ func TestMsgServerSend<%= packetName.UpperCamel %>(t *testing.T) {
 				ChannelID:        "channel-0",
 				TimeoutTimestamp: 100,
 			},
-			err: channeltypes.ErrChannelCapabilityNotFound,
 		},
 	}
 	for _, tt := range tests {
