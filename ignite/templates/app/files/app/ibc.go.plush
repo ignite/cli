@@ -5,6 +5,7 @@ import (
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 	govtypes "cosmossdk.io/x/gov/types"
+	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -159,14 +160,14 @@ func (app *App) registerIBCModules(appOpts servertypes.AppOptions) error {
 // RegisterIBC Since the IBC modules don't support dependency injection,
 // we need to manually register the modules on the client side.
 // This needs to be removed after IBC supports App Wiring.
-func RegisterIBC(registry cdctypes.InterfaceRegistry) map[string]appmodule.AppModule {
+func RegisterIBC(codec codec.Codec, registry cdctypes.InterfaceRegistry) map[string]appmodule.AppModule {
 	modules := map[string]appmodule.AppModule{
-		ibcexported.ModuleName:      ibc.AppModule{},
-		ibctransfertypes.ModuleName: ibctransfer.AppModule{},
-		ibcfeetypes.ModuleName:      ibcfee.AppModule{},
-		icatypes.ModuleName:         icamodule.AppModule{},
-		ibctm.ModuleName:            ibctm.AppModule{},
-		solomachine.ModuleName:      solomachine.AppModule{},
+		ibcexported.ModuleName:      ibc.NewAppModule(cdc, &ibckeeper.Keeper{}),
+		ibctransfertypes.ModuleName: ibctransfer.NewAppModule(cdc, ibctransferkeeper.Keeper{}),
+		ibcfeetypes.ModuleName:      ibcfee.NewAppModule(cdc, ibcfeekeeper.Keeper{}),
+		icatypes.ModuleName:         icamodule.NewAppModule(cdc, &icacontrollerkeeper.Keeper{}, &icahostkeeper.Keeper{}),
+		ibctm.ModuleName:            ibctm.NewAppModule(ibctm.NewLightClientModule(cdc, ibcclienttypes.StoreProvider{})),
+		solomachine.ModuleName:      solomachine.NewAppModule(solomachine.NewLightClientModule(cdc, ibcclienttypes.StoreProvider{})),
 	}
 
 	for _, m := range modules {
