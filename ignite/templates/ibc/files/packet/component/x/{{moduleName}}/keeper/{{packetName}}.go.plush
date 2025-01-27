@@ -25,7 +25,7 @@ func (k Keeper) Transmit<%= packetName.UpperCamel %>Packet(
         return 0, errorsmod.Wrapf(sdkerrors.ErrJSONMarshal, "cannot marshal the packet: %s", err)
     }
 
-    return k.ibcKeeperFn().ChannelKeeper.SendPacket(ctx, channelCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, packetBytes)
+    return k.ibcKeeperFn().ChannelKeeper.SendPacket(ctx, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, packetBytes)
 }
 
 // OnRecv<%= packetName.UpperCamel %>Packet processes packet reception
