@@ -78,7 +78,7 @@ func genesisModify(opts *CreateOptions) genny.RunFn {
 
 		// Genesis export
 		replacementModuleExport := `genesis.PortId, err = k.Port.Get(ctx)
-	if err != nil {
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
 		return nil, err
 	}`
 		content, err = xast.ModifyFunction(
