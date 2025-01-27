@@ -186,7 +186,7 @@ func (im IBCModule) OnTimeoutPacket(
 	modulePacket channeltypes.Packet,
 	relayer sdk.AccAddress,
 ) error {
-	var modulePacketData types.ImamalistPacketData
+	var modulePacketData types.<%= title(moduleName) %>PacketData
 	if err := modulePacketData.Unmarshal(modulePacket.GetData()); err != nil {
 		return errorsmod.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: %s", err.Error())
 	}

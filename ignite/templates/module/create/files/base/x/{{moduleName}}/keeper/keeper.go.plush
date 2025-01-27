@@ -7,7 +7,7 @@ import (
 	"cosmossdk.io/core/address"
 	"cosmossdk.io/core/appmodule"
 	"github.com/cosmos/cosmos-sdk/codec"
-	 <%= if (isIBC) { ibckeeper "github.com/cosmos/ibc-go/v9/modules/core/keeper" <% } %>
+	 <%= if (isIBC) { %> ibckeeper "github.com/cosmos/ibc-go/v9/modules/core/keeper" <% } %>
 
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
@@ -26,7 +26,7 @@ type Keeper struct {
     <%= if (isIBC) { %>
 	Port   collections.Item[string]
 
-	ibcKeeperFn func() *ibckeeper.Keeper<% } %>
+	ibcKeeperFn func() *ibckeeper.Keeper <% } %>
 	<%= for (dependency) in dependencies { %>
     <%= toVariableName(dependency.KeeperName()) %> types.<%= dependency.KeeperName() %><% } %>
 }
