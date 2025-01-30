@@ -230,12 +230,12 @@ func Test_checkMaxLength(t *testing.T) {
 		},
 		{
 			desc:        "should fail with name exceeding max length",
-			name:        randstr.Runes(257),
+			name:        randstr.Runes(maxLength + 1),
 			shouldError: true,
 		},
 		{
 			desc:        "should pass with name at max length",
-			name:        randstr.Runes(256),
+			name:        randstr.Runes(maxLength),
 			shouldError: false,
 		},
 	}
