@@ -16,7 +16,7 @@ version: 1
 module github.com/ignite/cli
 
 require (
-	github.com/bufbuild/buf v1.32.1
+	github.com/bufbuild/buf v1.50.0
 )
 
 go 1.20
