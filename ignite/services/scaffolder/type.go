@@ -216,7 +216,7 @@ func (s Scaffolder) AddType(
 	return s.Run(append(gens, g)...)
 }
 
-// checkMaxLength checks if the index length exceeds the maximum allowed length
+// checkMaxLength checks if the index length exceeds the maximum allowed length.
 func checkMaxLength(name string) error {
 	if len(name) > maxLength {
 		return errors.Errorf("index exceeds maximum allowed length of %d characters", maxLength)
@@ -224,7 +224,7 @@ func checkMaxLength(name string) error {
 	return nil
 }
 
-// checkForbiddenTypeIndex returns true if the name is forbidden as a index name.
+// checkForbiddenTypeIndex returns true if the name is forbidden as an index name.
 func checkForbiddenTypeIndex(index string) error {
 	indexSplit := strings.Split(index, datatype.Separator)
 	if len(indexSplit) > 1 {
