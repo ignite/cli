@@ -837,7 +837,8 @@ func (c Client) newContext() client.Context {
 		WithGenerateOnly(c.generateOnly).
 		WithAddressCodec(addressCodec).
 		WithValidatorAddressCodec(validatorAddressCodec).
-		WithConsensusAddressCodec(consensusAddressCodec)
+		WithConsensusAddressCodec(consensusAddressCodec).
+		WithAddressPrefix(c.addressPrefix)
 }
 
 func newFactory(clientCtx client.Context) tx.Factory {
