@@ -148,8 +148,5 @@ func flagValue(flag *Flag) string {
 	if flag.Value != "" {
 		return flag.Value
 	}
-	if flag.DefaultValue != "" {
-		return flag.DefaultValue
-	}
-	return ""
+	return flag.DefaultValue
 }

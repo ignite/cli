@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -93,7 +94,7 @@ func TestFlags_GetBool(t *testing.T) {
 			name: "flag without value and default value",
 			key:  flagBool3,
 			f:    testFlags,
-			want: false,
+			err:  errors.New("strconv.ParseBool: parsing \"\": invalid syntax"),
 		},
 		{
 			name: "invalid flag type",
@@ -158,7 +159,7 @@ func TestFlags_GetInt(t *testing.T) {
 			name: "flag without value and default value",
 			key:  flagInt3,
 			f:    testFlags,
-			want: 0,
+			err:  errors.New("strconv.Atoi: parsing \"\": invalid syntax"),
 		},
 		{
 			name: "invalid flag type",
@@ -182,7 +183,7 @@ func TestFlags_GetInt(t *testing.T) {
 			name: "wrong flag value without default or value",
 			key:  flagWrongType3,
 			f:    testFlags,
-			want: 0,
+			err:  errors.New("strconv.Atoi: parsing \"\": invalid syntax"),
 		},
 	}
 	for _, tt := range tests {
@@ -223,7 +224,7 @@ func TestFlags_GetInt64(t *testing.T) {
 			name: "flag without value and default value",
 			key:  flagInt643,
 			f:    testFlags,
-			want: 0,
+			err:  errors.New("strconv.ParseInt: parsing \"\": invalid syntax"),
 		},
 		{
 			name: "invalid flag type",
@@ -400,7 +401,7 @@ func TestFlags_GetUint(t *testing.T) {
 			name: "flag without value and default value",
 			key:  flagUint3,
 			f:    testFlags,
-			want: 0,
+			err:  errors.New("strconv.ParseUint: parsing \"\": invalid syntax"),
 		},
 		{
 			name: "invalid flag type",
@@ -459,7 +460,7 @@ func TestFlags_GetUint64(t *testing.T) {
 			name: "flag without value and default value",
 			key:  flagUint643,
 			f:    testFlags,
-			want: 0,
+			err:  errors.New("strconv.ParseUint: parsing \"\": invalid syntax"),
 		},
 		{
 			name: "invalid flag type",
@@ -511,7 +512,7 @@ func TestFlags_getValue(t *testing.T) {
 		err      error
 	}{
 		{
-			name:     "Valid string conversion",
+			name:     "valid string conversion",
 			f:        testFlags,
 			key:      flagString1,
 			flagType: FlagTypeString,
@@ -519,7 +520,15 @@ func TestFlags_getValue(t *testing.T) {
 			want:     "text_1",
 		},
 		{
-			name:     "Invalid flag type",
+			name:     "valid int conversion",
+			f:        testFlags,
+			key:      flagInt1,
+			flagType: FlagTypeInt,
+			convFunc: func(v string) (interface{}, error) { return strconv.Atoi(v) },
+			want:     -100,
+		},
+		{
+			name:     "invalid flag type",
 			f:        testFlags,
 			key:      flagString1,
 			flagType: FlagTypeInt,
@@ -527,7 +536,7 @@ func TestFlags_getValue(t *testing.T) {
 			err:      errors.Wrapf(ErrInvalidFlagType, "invalid flag type %v for key %s", FlagTypeString, flagString1),
 		},
 		{
-			name:     "Flag not found",
+			name:     "flag not found",
 			f:        testFlags,
 			key:      "non_existing_flag",
 			flagType: FlagTypeString,
@@ -556,18 +565,23 @@ func Test_flagValue(t *testing.T) {
 		want string
 	}{
 		{
-			name: "Flag with value",
+			name: "with value",
 			flag: &Flag{Name: flagString1, Value: "actual_value", DefaultValue: "default_value"},
 			want: "actual_value",
 		},
 		{
-			name: "Flag with default value",
+			name: "with default value",
 			flag: &Flag{Name: flagString1, DefaultValue: "default_value"},
 			want: "default_value",
 		},
 		{
-			name: "Flag without value and default value",
+			name: "without value and default value",
 			flag: &Flag{Name: flagString1},
+			want: "",
+		},
+		{
+			name: "number without value and default value",
+			flag: &Flag{Name: flagUint642, Type: FlagTypeUint64},
 			want: "",
 		},
 	}
