@@ -19,6 +19,8 @@ import (
 	"github.com/ignite/cli/v29/ignite/templates/typed/singleton"
 )
 
+const maxLength = 64
+
 // AddTypeOption configures options for AddType.
 type AddTypeOption func(*addTypeOptions)
 
@@ -214,7 +216,15 @@ func (s Scaffolder) AddType(
 	return s.Run(append(gens, g)...)
 }
 
-// checkForbiddenTypeIndex returns true if the name is forbidden as a index name.
+// checkMaxLength checks if the index length exceeds the maximum allowed length.
+func checkMaxLength(name string) error {
+	if len(name) > maxLength {
+		return errors.Errorf("index exceeds maximum allowed length of %d characters", maxLength)
+	}
+	return nil
+}
+
+// checkForbiddenTypeIndex returns true if the name is forbidden as an index name.
 func checkForbiddenTypeIndex(index string) error {
 	indexSplit := strings.Split(index, datatype.Separator)
 	if len(indexSplit) > 1 {
