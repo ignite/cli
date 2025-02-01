@@ -93,7 +93,7 @@ func TestFlags_GetBool(t *testing.T) {
 			name: "flag without value and default value",
 			key:  flagBool3,
 			f:    testFlags,
-			want: false,
+			err:  errors.New("strconv.ParseBool: parsing \"\": invalid syntax"),
 		},
 		{
 			name: "invalid flag type",
@@ -158,7 +158,7 @@ func TestFlags_GetInt(t *testing.T) {
 			name: "flag without value and default value",
 			key:  flagInt3,
 			f:    testFlags,
-			want: 0,
+			err:  errors.New("strconv.Atoi: parsing \"\": invalid syntax"),
 		},
 		{
 			name: "invalid flag type",
@@ -182,7 +182,7 @@ func TestFlags_GetInt(t *testing.T) {
 			name: "wrong flag value without default or value",
 			key:  flagWrongType3,
 			f:    testFlags,
-			want: 0,
+			err:  errors.New("strconv.Atoi: parsing \"\": invalid syntax"),
 		},
 	}
 	for _, tt := range tests {
@@ -223,7 +223,7 @@ func TestFlags_GetInt64(t *testing.T) {
 			name: "flag without value and default value",
 			key:  flagInt643,
 			f:    testFlags,
-			want: 0,
+			err:  errors.New("strconv.ParseInt: parsing \"\": invalid syntax"),
 		},
 		{
 			name: "invalid flag type",
@@ -400,7 +400,7 @@ func TestFlags_GetUint(t *testing.T) {
 			name: "flag without value and default value",
 			key:  flagUint3,
 			f:    testFlags,
-			want: 0,
+			err:  errors.New("strconv.ParseUint: parsing \"\": invalid syntax"),
 		},
 		{
 			name: "invalid flag type",
@@ -459,7 +459,7 @@ func TestFlags_GetUint64(t *testing.T) {
 			name: "flag without value and default value",
 			key:  flagUint643,
 			f:    testFlags,
-			want: 0,
+			err:  errors.New("strconv.ParseUint: parsing \"\": invalid syntax"),
 		},
 		{
 			name: "invalid flag type",
@@ -570,6 +570,14 @@ func Test_flagValue(t *testing.T) {
 			flag: &Flag{Name: flagString1},
 			want: "",
 		},
+<<<<<<< HEAD
+=======
+		{
+			name: "number without value and default value",
+			flag: &Flag{Name: flagUint642, Type: FlagTypeUint64},
+			want: "",
+		},
+>>>>>>> 7f914230 (fix: default flag parser for apps (#4483))
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
