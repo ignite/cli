@@ -148,15 +148,5 @@ func flagValue(flag *Flag) string {
 	if flag.Value != "" {
 		return flag.Value
 	}
-	if flag.DefaultValue != "" {
-		return flag.DefaultValue
-	}
-	if flag.Type == FlagTypeBool ||
-		flag.Type == FlagTypeInt ||
-		flag.Type == FlagTypeInt64 ||
-		flag.Type == FlagTypeUint ||
-		flag.Type == FlagTypeUint64 {
-		return "0"
-	}
-	return ""
+	return flag.DefaultValue
 }
