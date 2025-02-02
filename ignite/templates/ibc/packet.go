@@ -132,13 +132,12 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 		}
 		ack = channeltypes.NewResultAcknowledgement(packetAckBytes)
 	}
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventType%[3]vPacket,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-			sdk.NewAttribute(types.AttributeKeyAckSuccess, fmt.Sprintf("%%t", err != nil)),
-		),
-	)
+	_ = im.keeper.Environment.EventService.EventManager(ctx).
+			EmitKV(
+				types.EventType%[3]vPacket,
+				event.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+				event.NewAttribute(types.AttributeKeyAckSuccess, fmt.Sprintf("%%t", err != nil)),
+			)
 %[1]v`
 		replacementRecv := fmt.Sprintf(
 			templateRecv,

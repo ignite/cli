@@ -406,7 +406,7 @@ if genState.%[1]v != nil {
 
 		templateModuleExport := `// Get all %[1]v
 %[1]v, err := k.%[2]v.Get(ctx)
-if err != nil {
+if err != nil && !errors.Is(err, collections.ErrNotFound) {
 	return nil, err
 }
 genesis.%[2]v = &%[1]v`
