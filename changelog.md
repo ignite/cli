@@ -48,6 +48,7 @@
 - [#4361](https://github.com/ignite/cli/pull/4361) Remove unused `KeyPrefix` method
 - [#4384](https://github.com/ignite/cli/pull/4384) Compare genesis params into chain genesis tests
 - [#4463](https://github.com/ignite/cli/pull/4463) Run `chain simulation` with any simulation test case
+- [#4486](https://github.com/ignite/cli/pull/4486) Fix issue when set account prefix with sdk v0.52
 
 ### Fixes
 
@@ -57,6 +58,7 @@
 - [#4402](https://github.com/ignite/cli/pull/4402) Fix gentx parser into the cosmosutil package
 - [#4474](https://github.com/ignite/cli/pull/4474) Fix issue in `build --release` command
 - [#4479](https://github.com/ignite/cli/pull/4479) Scaffold an `uint64 type crashs Ignite
+- [#4483](https://github.com/ignite/cli/pull/4483) Fix default flag parser for apps
 
 ## [`v28.7.0`](https://github.com/ignite/cli/releases/tag/v28.7.0)
 
