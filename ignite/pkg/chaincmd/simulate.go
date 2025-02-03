@@ -105,16 +105,16 @@ func SimappWithSeed(seed int64) SimappOption {
 }
 
 // SimappWithInitialBlockHeight provides initialBlockHeight option for the simapp command.
-func SimappWithInitialBlockHeight(initialBlockHeight int) SimappOption {
+func SimappWithInitialBlockHeight(initialBlockHeight uint64) SimappOption {
 	return func(command []string) []string {
-		return append(command, optionSimappInitialBlockHeight, strconv.Itoa(initialBlockHeight))
+		return append(command, optionSimappInitialBlockHeight, strconv.FormatUint(initialBlockHeight, 10))
 	}
 }
 
 // SimappWithNumBlocks provides numBlocks option for the simapp command.
-func SimappWithNumBlocks(numBlocks int) SimappOption {
+func SimappWithNumBlocks(numBlocks uint64) SimappOption {
 	return func(command []string) []string {
-		return append(command, optionSimappNumBlocks, strconv.Itoa(numBlocks))
+		return append(command, optionSimappNumBlocks, strconv.FormatUint(numBlocks, 10))
 	}
 }
 

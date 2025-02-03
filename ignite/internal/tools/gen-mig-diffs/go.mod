@@ -3,7 +3,7 @@ module github.com/ignite/cli/ignite/internal/tools/gen-mig-diffs
 go 1.23.4
 
 replace (
-	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.52.0-rc.1
+	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.52.0-rc.2
 	github.com/ignite/cli/v29 => ../../../../
 )
 
