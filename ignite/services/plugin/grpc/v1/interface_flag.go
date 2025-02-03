@@ -53,15 +53,11 @@ func (f *Flag) ExportToFlagSet(fs *pflag.FlagSet) error {
 		}
 
 		fs.BoolP(f.Name, f.Shorthand, v, f.Usage)
-<<<<<<< HEAD
-		fs.Set(f.Name, f.Value)
-=======
 		if f.Value != "" {
 			if err := fs.Set(f.Name, f.Value); err != nil {
 				return newDefaultFlagValueError(cobraFlagTypeBool, f.Value)
 			}
 		}
->>>>>>> 7f914230 (fix: default flag parser for apps (#4483))
 	case Flag_TYPE_FLAG_INT:
 		v, err := strconv.Atoi(f.DefaultValue)
 		if err != nil {
@@ -69,15 +65,11 @@ func (f *Flag) ExportToFlagSet(fs *pflag.FlagSet) error {
 		}
 
 		fs.IntP(f.Name, f.Shorthand, v, f.Usage)
-<<<<<<< HEAD
-		fs.Set(f.Name, f.Value)
-=======
 		if f.Value != "" {
 			if err := fs.Set(f.Name, f.Value); err != nil {
 				return newDefaultFlagValueError(cobraFlagTypeInt, f.Value)
 			}
 		}
->>>>>>> 7f914230 (fix: default flag parser for apps (#4483))
 	case Flag_TYPE_FLAG_UINT:
 		v, err := strconv.ParseUint(f.DefaultValue, 10, 64)
 		if err != nil {
@@ -85,15 +77,11 @@ func (f *Flag) ExportToFlagSet(fs *pflag.FlagSet) error {
 		}
 
 		fs.UintP(f.Name, f.Shorthand, uint(v), f.Usage)
-<<<<<<< HEAD
-		fs.Set(f.Name, f.Value)
-=======
 		if f.Value != "" {
 			if err := fs.Set(f.Name, f.Value); err != nil {
 				return newDefaultFlagValueError(cobraFlagTypeUint, f.Value)
 			}
 		}
->>>>>>> 7f914230 (fix: default flag parser for apps (#4483))
 	case Flag_TYPE_FLAG_INT64:
 		v, err := strconv.ParseInt(f.DefaultValue, 10, 64)
 		if err != nil {
@@ -101,15 +89,11 @@ func (f *Flag) ExportToFlagSet(fs *pflag.FlagSet) error {
 		}
 
 		fs.Int64P(f.Name, f.Shorthand, v, f.Usage)
-<<<<<<< HEAD
-		fs.Set(f.Name, f.Value)
-=======
 		if f.Value != "" {
 			if err := fs.Set(f.Name, f.Value); err != nil {
 				return newDefaultFlagValueError(cobraFlagTypeInt64, f.Value)
 			}
 		}
->>>>>>> 7f914230 (fix: default flag parser for apps (#4483))
 	case Flag_TYPE_FLAG_UINT64:
 		v, err := strconv.ParseUint(f.DefaultValue, 10, 64)
 		if err != nil {
@@ -117,16 +101,6 @@ func (f *Flag) ExportToFlagSet(fs *pflag.FlagSet) error {
 		}
 
 		fs.Uint64P(f.Name, f.Shorthand, v, f.Usage)
-<<<<<<< HEAD
-		fs.Set(f.Name, f.Value)
-	case Flag_TYPE_FLAG_STRING_SLICE:
-		s := strings.Trim(f.DefaultValue, "[]")
-		fs.StringSliceP(f.Name, f.Shorthand, strings.Fields(s), f.Usage)
-		fs.Set(f.Name, strings.Trim(f.Value, "[]"))
-	case Flag_TYPE_FLAG_STRING_UNSPECIFIED:
-		fs.StringP(f.Name, f.Shorthand, f.DefaultValue, f.Usage)
-		fs.Set(f.Name, f.Value)
-=======
 		if f.Value != "" {
 			if err := fs.Set(f.Name, f.Value); err != nil {
 				return newDefaultFlagValueError(cobraFlagTypeUint64, f.Value)
@@ -147,7 +121,6 @@ func (f *Flag) ExportToFlagSet(fs *pflag.FlagSet) error {
 				return newDefaultFlagValueError(cobraFlagTypeString, f.Value)
 			}
 		}
->>>>>>> 7f914230 (fix: default flag parser for apps (#4483))
 	}
 	return nil
 }

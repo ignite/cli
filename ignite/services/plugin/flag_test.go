@@ -570,14 +570,11 @@ func Test_flagValue(t *testing.T) {
 			flag: &Flag{Name: flagString1},
 			want: "",
 		},
-<<<<<<< HEAD
-=======
 		{
 			name: "number without value and default value",
 			flag: &Flag{Name: flagUint642, Type: FlagTypeUint64},
 			want: "",
 		},
->>>>>>> 7f914230 (fix: default flag parser for apps (#4483))
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
