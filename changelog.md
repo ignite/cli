@@ -11,6 +11,7 @@
 ### Bug Fixes
 
 - [#4474](https://github.com/ignite/cli/pull/4474) Fix issue in `build --release` command
+- [#4479](https://github.com/ignite/cli/pull/4479) Scaffold an `uint64 type crashs Ignite
 
 ## [`v28.7.0`](https://github.com/ignite/cli/releases/tag/v28.7.0)
 
