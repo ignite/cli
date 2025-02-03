@@ -192,11 +192,14 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, app
 
 func bufMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPath, protoDir string) error {
 	// check if the buf files exist.
-	hasFiles, err := chain.CheckBufFiles(appPath, protoDir)
+	hasFiles, needMigration, err := chain.CheckBufFiles(appPath, protoDir)
 	if err != nil {
 		return err
 	}
 
+	if needMigration {
+
+	}
 	if !hasFiles {
 		if !getYes(cmd) {
 			if err := session.AskConfirm(msgMigrationBuf); err != nil {

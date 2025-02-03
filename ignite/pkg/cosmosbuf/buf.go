@@ -26,6 +26,7 @@ const (
 	flagOutput                = "output"
 	flagErrorFormat           = "error-format"
 	flagLogFormat             = "log-format"
+	flagWorkspace             = "workspace"
 	flagIncludeImports        = "include-imports"
 	flagIncludeWellKnownTypes = "include-wkt"
 	flagPath                  = "path"
@@ -33,6 +34,7 @@ const (
 
 	// CMDGenerate generate command.
 	CMDGenerate Command = "generate"
+	CMDMigrate  Command = "migrate"
 	CMDExport   Command = "export"
 	CMDDep      Command = "dep"
 
@@ -42,6 +44,7 @@ const (
 var (
 	commands = map[Command]struct{}{
 		CMDGenerate: {},
+		CMDMigrate:  {},
 		CMDExport:   {},
 		CMDDep:      {},
 	}
@@ -161,6 +164,18 @@ func (b Buf) Update(ctx context.Context, modDir string) error {
 	}
 
 	cmd, err := b.command(CMDDep, nil, "update", modDir)
+	if err != nil {
+		return err
+	}
+	return b.runCommand(ctx, cmd...)
+}
+
+// Migrate runs the buf Migrate command for the files in the proto directory.
+func (b Buf) Migrate(ctx context.Context, appDir string) error {
+	flags := map[string]string{
+		flagWorkspace: appDir,
+	}
+	cmd, err := b.command(CMDMigrate, flags, "config")
 	if err != nil {
 		return err
 	}
