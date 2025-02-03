@@ -7,9 +7,10 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
 	envtest "github.com/ignite/cli/v28/integration"
-	"github.com/stretchr/testify/require"
 )
 
 func TestCreateChainRegistry(t *testing.T) {
