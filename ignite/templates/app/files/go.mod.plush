@@ -1,8 +1,12 @@
 module <%= ModulePath %>
 
-go 1.23.4
+go 1.23.5
 
-replace github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.52.0-rc.1.0.20250107080912-2bcc7678255f
+// 0.52 integration
+replace (
+	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.52.0-rc.2.0.20250127135924-c9d68e4322bb
+	github.com/cosmos/ibc-go/v9 => github.com/cosmos/ibc-go/v9 v9.0.0-20250124215514-f0469954dfc7 // https://github.com/cosmos/ibc-go/pull/7882
+)
 
 replace (
 	// fix upstream GHSA-h395-qcrw-5vmq vulnerability.
@@ -12,8 +16,8 @@ replace (
 )
 
 require (
-	cosmossdk.io/api v0.8.0
-	cosmossdk.io/client/v2 v2.10.0-beta.1
+	cosmossdk.io/api v0.8.2
+	cosmossdk.io/client/v2 v2.10.0-beta.2
 	cosmossdk.io/collections v1.0.0
 	cosmossdk.io/core v1.0.0
 	cosmossdk.io/depinject v1.1.0
@@ -24,6 +28,8 @@ require (
 	cosmossdk.io/store v1.10.0-rc.1.0.20241218084712-ca559989da43
 	cosmossdk.io/tools/confix v0.2.0-rc.1
 	cosmossdk.io/x/accounts v0.2.0-rc.1
+	cosmossdk.io/x/accounts/defaults/lockup v0.2.0-rc.1 // indirect
+	cosmossdk.io/x/accounts/defaults/multisig v0.2.0-rc.1 // indirect
 	cosmossdk.io/x/authz v0.2.0-rc.1
 	cosmossdk.io/x/bank v0.2.0-rc.1
 	cosmossdk.io/x/circuit v0.2.0-rc.1
@@ -36,27 +42,29 @@ require (
 	cosmossdk.io/x/group v0.2.0-rc.1
 	cosmossdk.io/x/mint v0.2.0-rc.1
 	cosmossdk.io/x/nft v0.2.0-rc.1
+	cosmossdk.io/x/params v0.2.0-rc.1
 	cosmossdk.io/x/protocolpool v0.2.0-rc.1
 	cosmossdk.io/x/slashing v0.2.0-rc.1
 	cosmossdk.io/x/staking v0.2.0-rc.1
 	cosmossdk.io/x/upgrade v0.2.0-rc.1
 	github.com/bufbuild/buf v1.50.0
-	github.com/cometbft/cometbft v1.0.0
+	github.com/cometbft/cometbft v1.0.1
 	github.com/cometbft/cometbft/api v1.0.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.5
 	github.com/cosmos/cosmos-sdk v0.53.0
 	github.com/cosmos/gogoproto v1.7.0
+	github.com/cosmos/ibc-go/v9 v9.0.0-00010101000000-000000000000
 	github.com/golang/protobuf v1.5.4
 	github.com/gorilla/mux v1.8.1
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.24.0
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.25.1
 	github.com/spf13/cast v1.7.1
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.10.0
 	golang.org/x/tools v0.29.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250106144421-5f5ef82da422
-	google.golang.org/grpc v1.69.4
+	google.golang.org/grpc v1.70.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.5.1
-	google.golang.org/protobuf v1.36.4-0.20250116160514-2005adbe0cf6
+	google.golang.org/protobuf v1.36.4
 )

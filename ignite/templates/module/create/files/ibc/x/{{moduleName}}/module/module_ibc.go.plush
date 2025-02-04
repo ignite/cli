@@ -1,6 +1,7 @@
 package <%= moduleName %>
 
 import (
+	"context"
 	"fmt"
 
 	"cosmossdk.io/core/event"
@@ -8,11 +9,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
-	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
-	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
-	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
-	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
+	channeltypes "github.com/cosmos/ibc-go/v9/modules/core/04-channel/types"
+	porttypes "github.com/cosmos/ibc-go/v9/modules/core/05-port/types"
+	ibcexported "github.com/cosmos/ibc-go/v9/modules/core/exported"
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
@@ -36,27 +35,11 @@ func (im IBCModule) OnChanOpenInit(
 	connectionHops []string,
 	portID string,
 	channelID string,
-	chanCap *capabilitytypes.Capability,
 	counterparty channeltypes.Counterparty,
 	version string,
 ) (string, error) {
-    <%= if (ibcOrdering != "NONE") { %>if order != channeltypes.<%= ibcOrdering %> {
-		return "", errorsmod.Wrapf(channeltypes.ErrInvalidChannelOrdering, "expected %s channel, got %s ", channeltypes.<%= ibcOrdering %>, order)
-	}<% } %>
-
-	// Require portID is the portID module is bound to
-	boundPort := im.keeper.GetPort(ctx)
-	if boundPort != portID {
-		return "", errorsmod.Wrapf(porttypes.ErrInvalidPort, "invalid port: %s, expected %s", portID, boundPort)
-	}
-
 	if version != types.Version {
 		return "", errorsmod.Wrapf(types.ErrInvalidVersion, "got %s, expected %s", version, types.Version)
-	}
-
-	// Claim channel capability passed back by IBC module
-	if err := im.keeper.ClaimCapability(ctx, chanCap, host.ChannelCapabilityPath(portID, channelID)); err != nil {
-		return "", err
 	}
 
 	return version, nil
@@ -69,44 +52,22 @@ func (im IBCModule) OnChanOpenTry(
 	connectionHops []string,
 	portID,
 	channelID string,
-	chanCap *capabilitytypes.Capability,
 	counterparty channeltypes.Counterparty,
 	counterpartyVersion string,
 ) (string, error) {
-	<%= if (ibcOrdering != "NONE") { %>if order != channeltypes.<%= ibcOrdering %> {
-		return "", errorsmod.Wrapf(channeltypes.ErrInvalidChannelOrdering, "expected %s channel, got %s ", channeltypes.<%= ibcOrdering %>, order)
-	}<% } %>
-
-	// Require portID is the portID module is bound to
-	boundPort := im.keeper.GetPort(ctx)
-	if boundPort != portID {
-		return "", errorsmod.Wrapf(porttypes.ErrInvalidPort, "invalid port: %s, expected %s", portID, boundPort)
-	}
-
 	if counterpartyVersion != types.Version {
 		return "", errorsmod.Wrapf(types.ErrInvalidVersion, "invalid counterparty version: got: %s, expected %s", counterpartyVersion, types.Version)
 	}
 
-	// Module may have already claimed capability in OnChanOpenInit in the case of crossing hellos
-	// (ie chainA and chainB both call ChanOpenInit before one of them calls ChanOpenTry)
-	// If module can already authenticate the capability then module already owns it so we don't need to claim
-	// Otherwise, module does not have channel capability and we must claim it from IBC
-	if !im.keeper.AuthenticateCapability(ctx, chanCap, host.ChannelCapabilityPath(portID, channelID)) {
-		// Only claim channel capability passed back by IBC module if we do not already own it
-		if err := im.keeper.ClaimCapability(ctx, chanCap, host.ChannelCapabilityPath(portID, channelID)); err != nil {
-			return "", err
-		}
-	}
-
-	return types.Version, nil
+	return counterpartyVersion, nil
 }
 
 // OnChanOpenAck implements the IBCModule interface
 func (im IBCModule) OnChanOpenAck(
 	ctx context.Context,
 	portID,
-	channelID string,
-	_,
+	channelID,
+	counterpartyChannelID,
 	counterpartyVersion string,
 ) error {
 	if counterpartyVersion != types.Version {
@@ -146,6 +107,7 @@ func (im IBCModule) OnChanCloseConfirm(
 // OnRecvPacket implements the IBCModule interface
 func (im IBCModule) OnRecvPacket(
 	ctx context.Context,
+	channelVersion string,
 	modulePacket channeltypes.Packet,
 	relayer sdk.AccAddress,
 ) ibcexported.Acknowledgement {
@@ -165,12 +127,13 @@ func (im IBCModule) OnRecvPacket(
 	}
 
 	// NOTE: acknowledgement will be written synchronously during IBC handler execution.
-    return ack
+	return ack
 }
 
 // OnAcknowledgementPacket implements the IBCModule interface
 func (im IBCModule) OnAcknowledgementPacket(
 	ctx context.Context,
+	channelVersion string,
 	modulePacket channeltypes.Packet,
 	acknowledgement []byte,
 	relayer sdk.AccAddress,
@@ -195,19 +158,19 @@ func (im IBCModule) OnAcknowledgementPacket(
 		return errorsmod.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
 	}
 
-	_ = im.EventService.EventManager(ctx).EmitKV(
+	_ = im.keeper.Environment.EventService.EventManager(ctx).EmitKV(
 		eventType,
 		event.NewAttribute(types.AttributeKeyAck, fmt.Sprintf("%v", ack)),
 	)
 
 	switch resp := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Result:
-		_ = im.EventService.EventManager(ctx).EmitKV(
+		_ = im.keeper.Environment.EventService.EventManager(ctx).EmitKV(
 			eventType,
 			event.NewAttribute(types.AttributeKeyAckSuccess, string(resp.Result)),
 		)
 	case *channeltypes.Acknowledgement_Error:
-		_ = im.EventService.EventManager(ctx).EmitKV(
+		_ = im.keeper.Environment.EventService.EventManager(ctx).EmitKV(
 			eventType,
 			event.NewAttribute(types.AttributeKeyAckError, resp.Error),
 		)
@@ -219,8 +182,9 @@ func (im IBCModule) OnAcknowledgementPacket(
 // OnTimeoutPacket implements the IBCModule interface
 func (im IBCModule) OnTimeoutPacket(
 	ctx context.Context,
+	channelVersion string,
 	modulePacket channeltypes.Packet,
-    relayer sdk.AccAddress,
+	relayer sdk.AccAddress,
 ) error {
 	var modulePacketData types.<%= title(moduleName) %>PacketData
 	if err := modulePacketData.Unmarshal(modulePacket.GetData()); err != nil {
@@ -228,12 +192,12 @@ func (im IBCModule) OnTimeoutPacket(
 	}
 
 	// Dispatch packet
-    switch packet := modulePacketData.Packet.(type) {
-        // this line is used by starport scaffolding # ibc/packet/module/timeout
-        default:
-            errMsg := fmt.Sprintf("unrecognized %s packet type: %T", types.ModuleName, packet)
-            return errorsmod.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
-    }
+	switch packet := modulePacketData.Packet.(type) {
+	// this line is used by starport scaffolding # ibc/packet/module/timeout
+	default:
+		errMsg := fmt.Sprintf("unrecognized %s packet type: %T", types.ModuleName, packet)
+		return errorsmod.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
+	}
 
-    return nil
+	return nil
 }
