@@ -7,7 +7,6 @@ import (
 
 	"github.com/otiai10/copy"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
@@ -35,7 +34,6 @@ func (g *generator) generateGoGo(ctx context.Context) error {
 		g.protoPath(),
 		tmp,
 		g.gogoTemplate(),
-		cosmosbuf.ExcludeFiles("*/module.proto"),
 	); err != nil {
 		return err
 	}
