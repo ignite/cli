@@ -55,7 +55,7 @@ func CheckBufFiles(appPath, protoDir string) (bool, bool, error) {
 	}
 	// if the buf.work.yaml exist, we only need the migration
 	if xos.FileExists(filepath.Join(appPath, oldBufWorkFile)) {
-		return false, true, nil
+		return true, true, nil
 	}
 	for _, bufFile := range files {
 		bufFile, ok := app.CutTemplatePrefix(bufFile)
