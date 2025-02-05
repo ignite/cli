@@ -8,5 +8,5 @@ require (
 	github.com/stretchr/testify v1.8.4
 )
 
-replace github.com/ignite/cli/v29 => github.com/ignite/cli/v29 20bd797e6edbf136c9f27c2720f3c357ca62ded9
+replace github.com/ignite/cli/v29 => github.com/ignite/cli/v29 main
 replace github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.52.0-rc.2.0.20250127135924-c9d68e4322bb
