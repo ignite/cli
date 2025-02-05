@@ -397,8 +397,6 @@ func TestClientStatus(t *testing.T) {
 }
 
 func TestClientCreateTx(t *testing.T) {
-	t.Skip() // TODO(@julienrbrt): Investigate timeout_timestamp fix need to by extended -> https://github.com/cosmos/cosmos-sdk/pull/22723. This will be done in a follow-up PR.
-
 	var (
 		ctx         = context.Background()
 		accountName = "bob"
