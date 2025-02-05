@@ -14,7 +14,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/goanalysis"
@@ -29,17 +28,13 @@ const (
 	msgMigrationPrefix       = "Your blockchain config version is v%d and the latest is v%d."
 	msgMigrationPrompt       = "Would you like to upgrade your config file to v%d"
 	msgMigrationBuf          = "Now ignite supports the `buf.build` (https://buf.build) registry to manage the protobuf dependencies. The embed protoc binary was deprecated and, your blockchain is still using it. Would you like to upgrade and add the `buf.build` config files to `proto/` folder"
-	msgMigrationBufV2        = "Now ignite supports the new `buf.build` (https://buf.build) v2 configuration. Would you like to upgrade your buf files to v2 using the `buf config migrate` command"
 	msgMigrationBufProtoDir  = "Ignite proto directory path from the chain config doesn't match the proto directory path from the chain `buf.work.yaml`. Do you want to add the proto path `%[1]v` to the directories list from the buf work file"
 	msgMigrationBufProtoDirs = "Chain `buf.work.yaml` file contains directories that don't exist anymore (%[1]v). Do you want to delete them"
 	msgMigrationAddTools     = "Some required imports are missing in %s file: %s. Would you like to add them"
 	msgMigrationRemoveTools  = "File %s contains deprecated imports: %s. Would you like to remove them"
 )
 
-var (
-	ErrProtocUnsupported           = errors.New("code generation using protoc is only supported by Ignite CLI v0.26.1 or older")
-	ErrBufConfigVersionUnsupported = errors.New("buf config version must be v2")
-)
+var ErrProtocUnsupported = errors.New("code generation using protoc is only supported by Ignite CLI v0.26.1 or older")
 
 // NewChain returns a command that groups sub commands related to compiling, serving
 // blockchains and so on.
@@ -197,27 +192,9 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, app
 
 func bufMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPath, protoDir string) error {
 	// check if the buf files exist.
-	hasFiles, needMigration, err := chain.CheckBufFiles(appPath, protoDir)
+	hasFiles, err := chain.CheckBufFiles(appPath, protoDir)
 	if err != nil {
 		return err
-	}
-
-	if needMigration {
-		if !getYes(cmd) {
-			if err := session.AskConfirm(msgMigrationBufV2); err != nil {
-				return ErrBufConfigVersionUnsupported
-			}
-		}
-
-		cacheStorage, err := newCache(cmd)
-		b, err := cosmosbuf.New(cacheStorage, appPath)
-		if err != nil {
-			return err
-		}
-
-		if err := b.Migrate(cmd.Context(), protoDir); err != nil {
-			return err
-		}
 	}
 
 	if !hasFiles {

@@ -9,9 +9,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/templates/app"
 )
 
-// oldBufWorkFile represents the v1 buf work file, may this check should be remove in v30
-const oldBufWorkFile = "buf.work.yaml"
-
 // CheckBufProtoDir check if the proto path exist into the directory list in the buf.work.yaml file.
 func CheckBufProtoDir(appPath, protoDir string) (bool, []string, error) {
 	bufCfg, err := cosmosbuf.ParseBufConfig(appPath)
@@ -47,15 +44,11 @@ func RemoveBufProtoDirs(appPath string, protoDirs ...string) error {
 	return workFile.RemoveProtoDirs(protoDirs...)
 }
 
-// CheckBufFiles check if the buf files exist, and if needs a migration to v2.
-func CheckBufFiles(appPath, protoDir string) (bool, bool, error) {
+// CheckBufFiles check if the buf files exist.
+func CheckBufFiles(appPath, protoDir string) (bool, error) {
 	files, err := app.BufFiles()
 	if err != nil {
-		return false, false, nil
-	}
-	// if the buf.work.yaml exist, we only need the migration
-	if xos.FileExists(filepath.Join(appPath, oldBufWorkFile)) {
-		return true, true, nil
+		return false, nil
 	}
 	for _, bufFile := range files {
 		bufFile, ok := app.CutTemplatePrefix(bufFile)
@@ -63,10 +56,10 @@ func CheckBufFiles(appPath, protoDir string) (bool, bool, error) {
 			bufFile = filepath.Join(protoDir, bufFile)
 		}
 		if !xos.FileExists(filepath.Join(appPath, bufFile)) {
-			return false, false, nil
+			return false, nil
 		}
 	}
-	return true, false, nil
+	return true, nil
 }
 
 // BoxBufFiles box all buf files.
