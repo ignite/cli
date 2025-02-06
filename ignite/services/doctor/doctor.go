@@ -64,7 +64,7 @@ func (d *Doctor) MigrateBufConfig(ctx context.Context, cacheStorage cache.Storag
 	if _, err := os.Stat(bufWorkFile); os.IsNotExist(err) {
 		return nil
 	} else if err != nil {
-		return errf(fmt.Errorf("unable to check if buf.work.yaml exists: %w", err))
+		return errf(errors.Errorf("unable to check if buf.work.yaml exists: %w", err))
 	}
 
 	d.ev.Send("Migrating buf config file to v2")
@@ -90,7 +90,7 @@ func (d *Doctor) MigrateBufConfig(ctx context.Context, cacheStorage cache.Storag
 	}
 
 	d.ev.Send(
-		fmt.Sprintf("buf config files migrated"),
+		"buf config files migrated",
 		events.Icon(icons.OK),
 		events.Indent(1),
 		events.ProgressFinish(),
