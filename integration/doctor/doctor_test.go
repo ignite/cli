@@ -12,6 +12,8 @@ import (
 	envtest "github.com/ignite/cli/v29/integration"
 )
 
+const envDoNotTrack = "DO_NOT_TRACK"
+
 func TestDoctor(t *testing.T) {
 	// Ensure ignite binary is compiled
 	envtest.New(t)
@@ -19,6 +21,7 @@ func TestDoctor(t *testing.T) {
 	params := testscript.Params{
 		Setup: func(env *testscript.Env) error {
 			env.Vars = append(env.Vars,
+				envDoNotTrack+"=true",
 				// Pass ignite binary path
 				"IGNITE="+envtest.IgniteApp,
 				// Pass ignite config dir

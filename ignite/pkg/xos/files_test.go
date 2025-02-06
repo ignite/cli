@@ -16,42 +16,90 @@ func TestFindFiles(t *testing.T) {
 		name      string
 		files     []string
 		extension string
+		prefix    string
 		want      []string
 		err       error
 	}{
 		{
-			name:      "test 3 json files",
+			name:  "test zero files",
+			files: []string{},
+			want:  []string{},
+			err:   nil,
+		},
+		{
+			name:  "test one file",
+			files: []string{"file.json"},
+			want:  []string{"file.json"},
+			err:   nil,
+		},
+		{
+			name:  "test 3 files",
+			files: []string{"file1.json", "file2.txt", "file3.json"},
+			want:  []string{"file1.json", "file2.txt", "file3.json"},
+			err:   nil,
+		},
+		{
+			name:   "test file prefix",
+			files:  []string{"file.prefix.test.json"},
+			prefix: "file.prefix",
+			want:   []string{"file.prefix.test.json"},
+			err:    nil,
+		},
+		{
+			name:   "test bigger file prefix",
+			files:  []string{"file.prefix.test.json"},
+			prefix: "file.prefix.test",
+			want:   []string{"file.prefix.test.json"},
+			err:    nil,
+		},
+		{
+			name:   "test 3 files prefix",
+			files:  []string{"test.file1.json", "test.file2.txt", "test.file3.json"},
+			prefix: "test.file",
+			want:   []string{"test.file1.json", "test.file2.txt", "test.file3.json"},
+			err:    nil,
+		},
+		{
+			name:      "test 3 extension json files",
 			files:     []string{"file1.json", "file2.txt", "file3.json", "file4.json"},
 			extension: "json",
 			want:      []string{"file1.json", "file3.json", "file4.json"},
 			err:       nil,
 		},
 		{
-			name:      "test 3 json files with subfolder",
+			name:      "test 3 extension json files with subfolder",
 			files:     []string{"testdata/file1.json", "file2.txt", "foo/file3.json", "file4.json"},
 			extension: "json",
 			want:      []string{"testdata/file1.json", "foo/file3.json", "file4.json"},
 			err:       nil,
 		},
 		{
-			name:      "test 1 txt files",
+			name:      "test 1 extension txt files",
 			files:     []string{"file1.json", "file2.txt", "file3.json", "file4.json"},
 			extension: "txt",
 			want:      []string{"file2.txt"},
 			err:       nil,
 		},
 		{
-			name:      "test 1 json files",
+			name:      "test 1 extension json files",
 			files:     []string{"file1.json"},
 			extension: "json",
 			want:      []string{"file1.json"},
 			err:       nil,
 		},
 		{
-			name:      "test no files",
+			name:      "test invalid files extension",
 			files:     []string{"file1.json", "file2.json", "file3.json", "file4.json"},
 			extension: "txt",
 			want:      []string{},
+			err:       nil,
+		},
+		{
+			name:      "test file prefix and extension",
+			files:     []string{"test.file1.json", "test.file2.txt", "test.file3.json"},
+			prefix:    "test.file",
+			extension: "json",
+			want:      []string{"test.file1.json", "test.file3.json"},
 			err:       nil,
 		},
 	}
@@ -72,7 +120,15 @@ func TestFindFiles(t *testing.T) {
 				require.NoError(t, file.Close())
 			}
 
-			gotFiles, err := xos.FindFilesExtension(tempDir, tt.extension)
+			opts := make([]xos.FindFileOptions, 0)
+			if tt.prefix != "" {
+				opts = append(opts, xos.WithPrefix(tt.prefix))
+			}
+			if tt.extension != "" {
+				opts = append(opts, xos.WithExtension(tt.extension))
+			}
+
+			gotFiles, err := xos.FindFiles(tempDir, opts...)
 			if tt.err != nil {
 				require.Error(t, err)
 				require.ErrorIs(t, err, tt.err)

@@ -7,7 +7,6 @@ import (
 
 	"github.com/otiai10/copy"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
@@ -20,10 +19,6 @@ func (g *generator) protoPath() string {
 }
 
 func (g *generator) generateGoGo(ctx context.Context) error {
-	return g.generate(ctx, g.gogoTemplate(), g.goModPath)
-}
-
-func (g *generator) generate(ctx context.Context, template, fromPath string, excluded ...string) error {
 	// create a temporary dir to locate generated code under which later only some of them will be moved to the
 	// app's source code. this also prevents having leftover files in the app's source code or its parent dir - when
 	// command executed directly there - in case of an interrupt.
@@ -38,14 +33,13 @@ func (g *generator) generate(ctx context.Context, template, fromPath string, exc
 		ctx,
 		g.protoPath(),
 		tmp,
-		template,
-		cosmosbuf.ExcludeFiles(excluded...),
+		g.gogoTemplate(),
 	); err != nil {
 		return err
 	}
 
 	// move generated code for the app under the relative locations in its source code.
-	path := filepath.Join(tmp, fromPath)
+	path := filepath.Join(tmp, g.goModPath)
 	if _, err := os.Stat(path); err == nil {
 		err = copy.Copy(path, g.appPath)
 		if err != nil {

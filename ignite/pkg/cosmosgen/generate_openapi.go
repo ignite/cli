@@ -94,7 +94,7 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 			return errors.Wrapf(err, "failed to generate openapi spec %s, probally you need to exclude some proto files", protoPath)
 		}
 
-		specs, err := xos.FindFilesExtension(dir, xos.JSONFile)
+		specs, err := xos.FindFiles(dir, xos.WithExtension(xos.JSONFile))
 		if err != nil {
 			return err
 		}

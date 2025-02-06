@@ -26,14 +26,18 @@ const (
 	flagOutput                = "output"
 	flagErrorFormat           = "error-format"
 	flagLogFormat             = "log-format"
+	flagWorkspace             = "workspace"
+	flagBufGenYaml            = "buf-gen-yaml"
 	flagIncludeImports        = "include-imports"
 	flagIncludeWellKnownTypes = "include-wkt"
 	flagPath                  = "path"
 	fmtJSON                   = "json"
+	bufGenPrefix              = "buf.gen."
 
 	// CMDGenerate generate command.
 	CMDGenerate Command = "generate"
 	CMDExport   Command = "export"
+	CMDConfig   Command = "config"
 	CMDDep      Command = "dep"
 
 	specCacheNamespace = "generate.buf"
@@ -43,6 +47,7 @@ var (
 	commands = map[Command]struct{}{
 		CMDGenerate: {},
 		CMDExport:   {},
+		CMDConfig:   {},
 		CMDDep:      {},
 	}
 
@@ -152,7 +157,7 @@ func (c Command) String() string {
 // Update updates module dependencies.
 // By default updates all dependencies unless one or more dependencies are specified.
 func (b Buf) Update(ctx context.Context, modDir string) error {
-	files, err := xos.FindFilesExtension(modDir, xos.ProtoFile)
+	files, err := xos.FindFiles(modDir, xos.WithExtension(xos.ProtoFile))
 	if err != nil {
 		return err
 	}
@@ -167,9 +172,35 @@ func (b Buf) Update(ctx context.Context, modDir string) error {
 	return b.runCommand(ctx, cmd...)
 }
 
+// Migrate runs the buf Migrate command for the files in the app directory.
+func (b Buf) Migrate(ctx context.Context, protoDir string) error {
+	yamlFiles, err := xos.FindFiles(protoDir, xos.WithExtension(xos.YAMLFile), xos.WithPrefix(bufGenPrefix))
+	if err != nil {
+		return err
+	}
+	ymlfiles, err := xos.FindFiles(protoDir, xos.WithExtension(xos.YMLFile), xos.WithPrefix(bufGenPrefix))
+	if err != nil {
+		return err
+	}
+	yamlFiles = append(yamlFiles, ymlfiles...)
+
+	flags := map[string]string{
+		flagWorkspace: ".",
+	}
+	if len(yamlFiles) > 0 {
+		flags[flagBufGenYaml] = strings.Join(yamlFiles, ",")
+	}
+
+	cmd, err := b.command(CMDConfig, flags, "migrate")
+	if err != nil {
+		return err
+	}
+	return b.runCommand(ctx, cmd...)
+}
+
 // Export runs the buf Export command for the files in the proto directory.
 func (b Buf) Export(ctx context.Context, protoDir, output string) error {
-	files, err := xos.FindFilesExtension(protoDir, xos.ProtoFile)
+	files, err := xos.FindFiles(protoDir, xos.WithExtension(xos.ProtoFile))
 	if err != nil {
 		return err
 	}
@@ -202,7 +233,7 @@ func (b Buf) Generate(
 	}
 
 	// find all proto files into the path.
-	foundFiles, err := xos.FindFilesExtension(protoPath, xos.ProtoFile)
+	foundFiles, err := xos.FindFiles(protoPath, xos.WithExtension(xos.ProtoFile))
 	if err != nil || len(foundFiles) == 0 {
 		return err
 	}
