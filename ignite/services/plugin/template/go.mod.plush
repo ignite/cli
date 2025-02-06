@@ -9,4 +9,4 @@ require (
 )
 
 replace github.com/ignite/cli/v29 => github.com/ignite/cli/v29 main
-replace github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.52.0-rc.1.0.20250107080912-2bcc7678255f
+replace github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.52.0-rc.2.0.20250127135924-c9d68e4322bb

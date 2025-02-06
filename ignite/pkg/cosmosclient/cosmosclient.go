@@ -18,6 +18,7 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 	prototypes "github.com/cosmos/gogoproto/types"
 
+	apisigning "cosmossdk.io/api/cosmos/tx/signing/v1beta1"
 	"cosmossdk.io/core/transaction"
 	banktypes "cosmossdk.io/x/bank/types"
 	staking "cosmossdk.io/x/staking/types"
@@ -31,7 +32,6 @@ import (
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
-	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
@@ -364,8 +364,6 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 	if c.signer == nil {
 		c.signer = signer{}
 	}
-	// set address prefix in SDK global config
-	c.SetConfigAddressPrefix()
 
 	return c, nil
 }
@@ -466,16 +464,6 @@ func (c Client) Address(accountName string) (string, error) {
 // Context returns client context.
 func (c Client) Context() client.Context {
 	return c.context
-}
-
-// SetConfigAddressPrefix sets the account prefix in the SDK global config.
-func (c Client) SetConfigAddressPrefix() {
-	// TODO find a better way if possible.
-	// https://github.com/ignite/cli/issues/2744
-	mconf.Lock()
-	defer mconf.Unlock()
-	config := sdktypes.GetConfig()
-	config.SetBech32PrefixForAccount(c.addressPrefix, c.addressPrefix+"pub")
 }
 
 // Response of your broadcasted transaction.
@@ -849,7 +837,8 @@ func (c Client) newContext() client.Context {
 		WithGenerateOnly(c.generateOnly).
 		WithAddressCodec(addressCodec).
 		WithValidatorAddressCodec(validatorAddressCodec).
-		WithConsensusAddressCodec(consensusAddressCodec)
+		WithConsensusAddressCodec(consensusAddressCodec).
+		WithAddressPrefix(c.addressPrefix)
 }
 
 func newFactory(clientCtx client.Context) tx.Factory {
@@ -858,7 +847,7 @@ func newFactory(clientCtx client.Context) tx.Factory {
 		WithKeybase(clientCtx.Keyring).
 		WithGas(defaultGasLimit).
 		WithGasAdjustment(defaultGasAdjustment).
-		WithSignMode(signing.SignMode_SIGN_MODE_UNSPECIFIED).
+		WithSignMode(apisigning.SignMode_SIGN_MODE_UNSPECIFIED).
 		WithAccountRetriever(clientCtx.AccountRetriever).
 		WithTxConfig(clientCtx.TxConfig)
 }
