@@ -47,10 +47,10 @@ func TryRetrieve(
 		AccountAddress: accountAddress,
 	})
 	if err != nil {
-		return errors.Wrap(err, "faucet is not operational")
+		return errors.Errorf("faucet (%s) is not operational", faucetAddress)
 	}
 	if resp.Error != "" {
-		return errors.Errorf("faucet is not operational: %s", resp.Error)
+		return errors.Errorf("faucet (%s) is not operational: %s", faucetAddress, resp.Error)
 	}
 
 	return nil

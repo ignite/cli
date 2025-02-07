@@ -27,6 +27,7 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/gocmd"
 	"github.com/ignite/cli/v28/ignite/pkg/xfilepath"
 	"github.com/ignite/cli/v28/ignite/pkg/xgit"
+	"github.com/ignite/cli/v28/ignite/pkg/xos"
 	"github.com/ignite/cli/v28/ignite/pkg/xurl"
 )
 
@@ -63,6 +64,8 @@ type Plugin struct {
 	// plugin instance is controlling the rpc server.
 	isHost       bool
 	isSharedHost bool
+
+	cleanup func() error
 
 	ev events.Bus
 
@@ -141,6 +144,11 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 	for _, apply := range options {
 		apply(p)
 	}
+	err := p.setupStdOutRedirect()
+	if err != nil {
+		p.Error = errors.Errorf("failed to redirect plugin (%s) stdout: %w", pluginPath, err)
+		return p
+	}
 
 	// This is a local plugin, check if the file exists
 	if pluginsconfig.IsLocalPath(pluginPath) {
@@ -201,6 +209,19 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 	return p
 }
 
+// setupStdOutRedirect redirects the standard output to allow the spinner and other interactive
+// terminal operations to function correctly.
+func (p *Plugin) setupStdOutRedirect() error {
+	tty, cleanup, err := xos.StdOutRedirect(p.stdout)
+	if err != nil {
+		return err
+	}
+	// Assign cleanup function and writer to struct fields for proper management.
+	p.stdout = tty
+	p.cleanup = cleanup
+	return nil
+}
+
 // KillClient kills the running plugin client.
 func (p *Plugin) KillClient() {
 	if p.isSharedHost && !p.isHost {
@@ -211,6 +232,10 @@ func (p *Plugin) KillClient() {
 
 	if p.client != nil {
 		p.client.Kill()
+	}
+
+	if p.cleanup != nil {
+		_ = p.cleanup()
 	}
 
 	if p.isHost {

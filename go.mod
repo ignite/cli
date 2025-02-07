@@ -31,6 +31,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.50.11
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.7.0
+	github.com/creack/pty v1.1.18
 	github.com/emicklei/proto v1.12.2
 	github.com/emicklei/proto-contrib v0.15.0
 	github.com/getsentry/sentry-go v0.27.0
