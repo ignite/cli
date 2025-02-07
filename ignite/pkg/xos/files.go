@@ -4,39 +4,64 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 const (
 	JSONFile  = "json"
 	ProtoFile = "proto"
+	YAMLFile  = "yaml"
+	YMLFile   = "yml"
 )
 
-func FindFiles(directory string) ([]string, error) {
+type findFileOptions struct {
+	extension string
+	prefix    string
+}
+
+type FindFileOptions func(o *findFileOptions)
+
+func WithExtension(extension string) FindFileOptions {
+	return func(o *findFileOptions) {
+		o.extension = extension
+	}
+}
+
+func WithPrefix(prefix string) FindFileOptions {
+	return func(o *findFileOptions) {
+		o.prefix = prefix
+	}
+}
+
+// FindFiles searches for files in the specified directory based on the given options.
+// It supports filtering files by extension and prefix. Returns a list of matching files or an error.
+func FindFiles(directory string, options ...FindFileOptions) ([]string, error) {
+	opts := findFileOptions{}
+	for _, apply := range options {
+		apply(&opts)
+	}
+
 	files := make([]string, 0)
 	return files, filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 
+		// Filter by file extension if provided
+		if opts.extension != "" && filepath.Ext(path) != fmt.Sprintf(".%s", opts.extension) {
+			return nil // Skip files that don't match the extension
+		}
+
+		// Filter by file prefix if provided
+		if opts.prefix != "" && !strings.HasPrefix(filepath.Base(path), opts.prefix) {
+			return nil // Skip files that don't match the prefix
+		}
+
+		// Add file to the result list if it is not a directory
 		if !info.IsDir() {
 			files = append(files, path)
 		}
-		return nil
-	})
-}
 
-func FindFilesExtension(directory, extension string) ([]string, error) {
-	files := make([]string, 0)
-	return files, filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if !info.IsDir() {
-			if filepath.Ext(path) == fmt.Sprintf(".%s", extension) {
-				files = append(files, path)
-			}
-		}
 		return nil
 	})
 }
