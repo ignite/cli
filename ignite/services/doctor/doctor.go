@@ -8,8 +8,10 @@ import (
 	"path"
 
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
+	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/events"
@@ -49,41 +51,82 @@ func CollectEvents(ev events.Bus) Option {
 	}
 }
 
-// MigrateConfig migrates the chain config if required.
-func (d *Doctor) MigrateConfig(_ context.Context) error {
+// MigrateBufConfig migrates the buf chain config if required.
+func (d *Doctor) MigrateBufConfig(ctx context.Context, cacheStorage cache.Storage, appPath, configPath string) error {
+	errf := func(err error) error {
+		return errors.Errorf("doctor migrate buf config: %w", err)
+	}
+
+	d.ev.Send("Checking buf config file version")
+
+	// Check if the appPath contains the buf.work.yaml file in the root folder.
+	bufWorkFile := path.Join(appPath, "buf.work.yaml")
+	if _, err := os.Stat(bufWorkFile); os.IsNotExist(err) {
+		return nil
+	} else if err != nil {
+		return errf(errors.Errorf("unable to check if buf.work.yaml exists: %w", err))
+	}
+
+	d.ev.Send("Migrating buf config file to v2")
+
+	configFile, err := os.Open(configPath)
+	if err != nil {
+		return err
+	}
+	defer configFile.Close()
+
+	protoPath, err := chainconfig.ReadProtoPath(configFile)
+	if err != nil {
+		return errf(err)
+	}
+
+	b, err := cosmosbuf.New(cacheStorage, appPath)
+	if err != nil {
+		return errf(err)
+	}
+
+	if err := b.Migrate(ctx, protoPath); err != nil {
+		return errf(err)
+	}
+
+	d.ev.Send(
+		"buf config files migrated",
+		events.Icon(icons.OK),
+		events.Indent(1),
+		events.ProgressFinish(),
+	)
+
+	return nil
+}
+
+// MigrateChainConfig migrates the chain config if required.
+func (d *Doctor) MigrateChainConfig(configPath string) error {
 	errf := func(err error) error {
 		return errors.Errorf("doctor migrate config: %w", err)
 	}
 
 	d.ev.Send("Checking chain config file:")
-
-	configPath, err := chainconfig.LocateDefault(".")
+	configFile, err := os.Open(configPath)
 	if err != nil {
-		return errf(err)
+		return err
 	}
+	defer configFile.Close()
 
-	f, err := os.Open(configPath)
-	if err != nil {
-		return errf(err)
-	}
-	defer f.Close()
-
-	version, err := chainconfig.ReadConfigVersion(f)
+	version, err := chainconfig.ReadConfigVersion(configFile)
 	if err != nil {
 		return errf(err)
 	}
 
 	status := "OK"
-
 	if version != chainconfig.LatestVersion {
-		_, err := f.Seek(0, 0)
+		_, err := configFile.Seek(0, 0)
 		if err != nil {
 			return errf(errors.Errorf("failed to reset the file: %w", err))
 		}
 		// migrate config file
 		// Convert the current config to the latest version and update the YAML file
 		var buf bytes.Buffer
-		if err := chainconfig.MigrateLatest(f, &buf); err != nil {
+		if err := chainconfig.MigrateLatest(configFile, &buf); err != nil {
 			return errf(err)
 		}
 
