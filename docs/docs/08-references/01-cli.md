@@ -37,7 +37,7 @@ To get started, create a blockchain:
 * [ignite network](#ignite-network)	 - Launch a blockchain in production
 * [ignite relayer](#ignite-relayer)	 - Connect blockchains with an IBC relayer
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
-* [ignite testnet](#ignite-testnet)	 - Simulate (Fuzz) the chain or start a testnet, either in place (using mainnet data) or with multiple nodes.
+* [ignite testnet](#ignite-testnet)	 - Simulate and manage test networks
 * [ignite version](#ignite-version)	 - Print the current build information
 
 
@@ -3298,7 +3298,11 @@ ignite scaffold type NAME [field:type] ... [flags]
 
 ## ignite testnet
 
-Simulate (Fuzz) the chain or start a testnet, either in place (using mainnet data) or with multiple nodes.
+Simulate and manage test networks
+
+**Synopsis**
+
+Comprehensive toolset for managing and simulating blockchain test networks. It allows users to either run a test network in place using mainnet data or set up a multi-node environment for more complex testing scenarios. Additionally, it includes a subcommand for simulating the chain, which is useful for fuzz testing and other testing-related tasks.
 
 **Options**
 
@@ -3343,7 +3347,7 @@ ignite testnet in-place [flags]
 
 **SEE ALSO**
 
-* [ignite testnet](#ignite-testnet)	 - Simulate (Fuzz) the chain or start a testnet, either in place (using mainnet data) or with multiple nodes.
+* [ignite testnet](#ignite-testnet)	 - Simulate and manage test networks
 
 
 ## ignite testnet multi-node
@@ -3395,7 +3399,7 @@ ignite testnet multi-node [flags]
 
 **SEE ALSO**
 
-* [ignite testnet](#ignite-testnet)	 - Simulate (Fuzz) the chain or start a testnet, either in place (using mainnet data) or with multiple nodes.
+* [ignite testnet](#ignite-testnet)	 - Simulate and manage test networks
 
 
 ## ignite testnet simulate
@@ -3431,7 +3435,7 @@ ignite testnet simulate [flags]
 
 **SEE ALSO**
 
-* [ignite testnet](#ignite-testnet)	 - Simulate (Fuzz) the chain or start a testnet, either in place (using mainnet data) or with multiple nodes.
+* [ignite testnet](#ignite-testnet)	 - Simulate and manage test networks
 
 
 ## ignite version
