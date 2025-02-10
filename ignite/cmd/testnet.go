@@ -8,7 +8,8 @@ import (
 func NewTestnet() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "testnet [command]",
-		Short:   "Simulate (Fuzz) the chain or start a testnet, either in place (using mainnet data) or with multiple nodes.",
+		Short:   "Simulate and manage test networks",
+		Long:    `Comprehensive toolset for managing and simulating blockchain test networks. It allows users to either run a test network in place using mainnet data or set up a multi-node environment for more complex testing scenarios. Additionally, it includes a subcommand for simulating the chain, which is useful for fuzz testing and other testing-related tasks.`,
 		Aliases: []string{"t"},
 		Args:    cobra.ExactArgs(1),
 	}
