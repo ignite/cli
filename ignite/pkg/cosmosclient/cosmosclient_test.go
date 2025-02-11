@@ -11,14 +11,13 @@ import (
 	"time"
 
 	apisigning "cosmossdk.io/api/cosmos/tx/signing/v1beta1"
-	"cosmossdk.io/core/transaction"
 	"cosmossdk.io/math"
-	banktypes "cosmossdk.io/x/bank/types"
 	"github.com/cometbft/cometbft/p2p"
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -417,7 +416,7 @@ func TestClientCreateTx(t *testing.T) {
 	tests := []struct {
 		name           string
 		opts           []cosmosclient.Option
-		msg            transaction.Msg
+		msg            sdktypes.Msg
 		expectedJSONTx string
 		expectedError  string
 		setup          func(s suite)
