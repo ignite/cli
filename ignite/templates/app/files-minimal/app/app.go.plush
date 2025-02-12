@@ -5,19 +5,12 @@ import (
 
 	clienthelpers "cosmossdk.io/client/v2/helpers"
 	"cosmossdk.io/core/appmodule"
-	"cosmossdk.io/core/registry"
 	corestore "cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
-	"cosmossdk.io/x/accounts"
-	basedepinject "cosmossdk.io/x/accounts/defaults/base/depinject"
-	lockupdepinject "cosmossdk.io/x/accounts/defaults/lockup/depinject"
-	multisigdepinject "cosmossdk.io/x/accounts/defaults/multisig/depinject"
-	basedepinject "cosmossdk.io/x/accounts/defaults/base/depinject"
-	bankkeeper "cosmossdk.io/x/bank/keeper"
-	distrkeeper "cosmossdk.io/x/distribution/keeper"
-	_ "cosmossdk.io/x/protocolpool"
-	stakingkeeper "cosmossdk.io/x/staking/keeper"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -52,13 +45,12 @@ var (
 // capabilities aren't needed for testing.
 type App struct {
 	*runtime.App
-	legacyAmino       registry.AminoRegistrar
+	legacyAmino       *codec.LegacyAmino
 	appCodec          codec.Codec
 	txConfig          client.TxConfig
 	interfaceRegistry codectypes.InterfaceRegistry
 
 	// keepers
-	AccountsKeeper accounts.Keeper
 	AuthKeeper     authkeeper.AccountKeeper
 	BankKeeper     bankkeeper.Keeper
 	StakingKeeper  *stakingkeeper.Keeper
@@ -127,7 +119,6 @@ func New(
 		&app.txConfig,
 		&app.interfaceRegistry,
 		&app.AuthKeeper,
-		&app.AccountsKeeper,
 		&app.BankKeeper,
 		&app.StakingKeeper,
 		&app.DistrKeeper,

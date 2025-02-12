@@ -6,9 +6,9 @@ import (
 	"fmt"
 
 	"cosmossdk.io/core/appmodule"
-	"cosmossdk.io/core/registry"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
 	<%= if (isIBC) { %>porttypes "github.com/cosmos/ibc-go/v9/modules/core/05-port/types"
@@ -61,7 +61,7 @@ func (AppModule) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtim
 }
 
 // RegisterInterfaces registers a module's interface types and their concrete implementations as proto.Message.
-func (AppModule) RegisterInterfaces(registrar registry.InterfaceRegistrar) {
+func (AppModule) RegisterInterfaces(registrar codectypes.InterfaceRegistry) {
 	types.RegisterInterfaces(registrar)
 }
 

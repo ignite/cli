@@ -4,7 +4,7 @@ import (
 	"context"
 
 	<%= if (dependencies.Contains("Staking")) { %>"cosmossdk.io/core/address"<% } %>
-	<%= if (dependencies.Contains("Authz")) { %>"cosmossdk.io/x/authz"<% } %>
+	<%= if (dependencies.Contains("Authz")) { %>"github.com/cosmos/cosmos-sdk/x/authz"<% } %>
     sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

@@ -3,10 +3,9 @@ package cosmosclient
 import (
 	"context"
 
-	banktypes "cosmossdk.io/x/bank/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosaccount"
 )

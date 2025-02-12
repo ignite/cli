@@ -1,15 +1,13 @@
 package types
 
 import (
-	"cosmossdk.io/core/registry"
-
     <%= if (isIBC) { %>"github.com/cosmos/cosmos-sdk/codec"<% } %>
-	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 )
 
-func RegisterInterfaces(registrar registry.InterfaceRegistrar) {
+func RegisterInterfaces(registrar codectypes.InterfaceRegistry) {
 	registrar.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgUpdateParams{},
 	)
@@ -23,6 +21,6 @@ var (
 	//
 	// The actual codec used for serialization should be provided to x/ibc transfer and
 	// defined at the application level.
-	ModuleCdc = codec.NewProtoCodec(cdctypes.NewInterfaceRegistry())
+	ModuleCdc = codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
 )
 <% } %>
