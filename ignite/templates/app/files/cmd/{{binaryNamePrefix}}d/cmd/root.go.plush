@@ -9,7 +9,6 @@ import (
 	stakingv1 "cosmossdk.io/api/cosmos/staking/module/v1"
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/core/address"
-	"cosmossdk.io/core/registry"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
@@ -103,7 +102,7 @@ func ProvideClientContext(
 	appCodec codec.Codec,
 	interfaceRegistry codectypes.InterfaceRegistry,
 	txConfigOpts tx.ConfigOptions,
-	legacyAmino registry.AminoRegistrar,
+	legacyAmino *codec.LegacyAmino,
 	addressCodec address.Codec,
 	validatorAddressCodec address.ValidatorAddressCodec,
 	consensusAddressCodec address.ConsensusAddressCodec,

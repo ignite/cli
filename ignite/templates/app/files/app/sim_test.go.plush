@@ -22,10 +22,10 @@ import (
 	"cosmossdk.io/log"
 	"cosmossdk.io/store"
 	storetypes "cosmossdk.io/store/types"
-	authzkeeper "cosmossdk.io/x/authz/keeper"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	"cosmossdk.io/x/feegrant"
-	slashingtypes "cosmossdk.io/x/slashing/types"
-	stakingtypes "cosmossdk.io/x/staking/types"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
