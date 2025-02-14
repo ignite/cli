@@ -18,7 +18,6 @@ require (
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/blang/semver/v4 v4.0.0
-	github.com/briandowns/spinner v1.23.0
 	github.com/bufbuild/buf v1.34.0
 	github.com/buger/jsonparser v1.1.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
@@ -69,6 +68,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.9.0
 	github.com/tbruyelle/mdgofmt v0.1.3
+	github.com/theckman/yacspin v0.13.12
 	github.com/vektra/mockery/v2 v2.40.1
 	go.etcd.io/bbolt v1.4.0-alpha.0.0.20240404170359-43604f3112c5
 	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56

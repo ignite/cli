@@ -4,7 +4,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/briandowns/spinner"
+	"github.com/theckman/yacspin"
 )
 
 // DefaultText defines the default spinner text.
@@ -12,12 +12,12 @@ const DefaultText = "Initializing..."
 
 var (
 	refreshRate  = time.Millisecond * 200
-	charset      = spinner.CharSets[4]
+	charset      = yacspin.CharSets[4]
 	spinnerColor = "blue"
 )
 
 type Spinner struct {
-	sp *spinner.Spinner
+	sp *yacspin.Spinner
 }
 
 type (
@@ -44,7 +44,7 @@ func WithText(text string) Option {
 }
 
 // New creates a new spinner.
-func New(options ...Option) *Spinner {
+func New(options ...Option) (*Spinner, error) {
 	o := Options{}
 	for _, apply := range options {
 		apply(&o)
@@ -55,64 +55,68 @@ func New(options ...Option) *Spinner {
 		text = DefaultText
 	}
 
-	spOptions := []spinner.Option{
-		spinner.WithColor(spinnerColor),
-		spinner.WithSuffix(" " + text),
+	cfg := yacspin.Config{
+		Frequency:  refreshRate,
+		CharSet:    yacspin.CharSets[59],
+		Message:    text,
+		Colors:     []string{spinnerColor},
+		StopColors: []string{"fgGreen"},
 	}
 
 	if o.writer != nil {
-		spOptions = append(spOptions, spinner.WithWriter(o.writer))
+		cfg.Writer = o.writer
+	}
+
+	sp, err := yacspin.New(cfg)
+	if err != nil {
+		return nil, err
 	}
 
 	return &Spinner{
-		sp: spinner.New(charset, refreshRate, spOptions...),
-	}
+		sp: sp,
+	}, nil
 }
 
 // SetText sets the text for spinner.
 func (s *Spinner) SetText(text string) *Spinner {
-	s.sp.Lock()
-	s.sp.Suffix = " " + text
-	s.sp.Unlock()
+	s.sp.Message(" " + text)
 	return s
 }
 
 // SetPrefix sets the prefix for spinner.
 func (s *Spinner) SetPrefix(text string) *Spinner {
-	s.sp.Lock()
-	s.sp.Prefix = text + " "
-	s.sp.Unlock()
+	s.sp.Prefix(text + " ")
 	return s
 }
 
 // SetCharset sets the prefix for spinner.
 func (s *Spinner) SetCharset(charset []string) *Spinner {
-	s.sp.UpdateCharSet(charset)
+	_ = s.sp.CharSet(charset)
 	return s
 }
 
 // SetColor sets the prefix for spinner.
 func (s *Spinner) SetColor(color string) *Spinner {
-	_ = s.sp.Color(color)
+	_ = s.sp.Colors(color)
 	return s
 }
 
 // Start starts spinning.
 func (s *Spinner) Start() *Spinner {
-	s.sp.Start()
+	_ = s.sp.Start()
 	return s
 }
 
 // Stop stops spinning.
 func (s *Spinner) Stop() *Spinner {
-	s.sp.Stop()
-	s.sp.Prefix = ""
-	_ = s.sp.Color(spinnerColor)
-	s.sp.UpdateCharSet(charset)
-	s.sp.Stop()
+	_ = s.sp.Stop()
+	s.sp.Prefix("")
+	_ = s.sp.Colors(spinnerColor)
+	_ = s.sp.CharSet(charset)
+	_ = s.sp.Stop()
 	return s
 }
 
 func (s *Spinner) IsActive() bool {
-	return s.sp.Active()
+	return s.sp.Status() != yacspin.SpinnerRunning && s.sp.Status() != yacspin.SpinnerStarting
 }

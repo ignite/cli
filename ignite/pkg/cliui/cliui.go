@@ -179,9 +179,10 @@ func (s *Session) StartSpinner(text string) {
 	}
 
 	if s.spinner == nil {
-		s.spinner = clispinner.New(clispinner.WithWriter(s.out.Stdout()))
+		s.spinner, _ = clispinner.New(clispinner.WithWriter(s.out.Stdout()))
 	}
 
+	s.spinner.Stop()
 	s.spinner.SetText(text).Start()
 }
 
