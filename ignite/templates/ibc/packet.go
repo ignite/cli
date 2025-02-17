@@ -134,7 +134,8 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 	}
 
 
-    ctx.EventManager().EmitEvent(
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+    sdkCtx.EventManager().EmitEvent(
         sdk.NewEvent(
 			types.EventType%[3]vPacket,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),

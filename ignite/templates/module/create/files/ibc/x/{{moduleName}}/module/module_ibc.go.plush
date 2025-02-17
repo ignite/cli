@@ -1,7 +1,6 @@
 package <%= moduleName %>
 
 import (
-	"context"
 	"fmt"
 
 	"cosmossdk.io/core/event"
@@ -24,7 +23,7 @@ type IBCModule struct {
 }
 
 // NewIBCModule creates a new IBCModule given the associated keeper
-func NewIBCModule(cdc codec.Codedc, k keeper.Keeper) IBCModule {
+func NewIBCModule(cdc codec.Codec, k keeper.Keeper) IBCModule {
 	return IBCModule{
 		cdc: cdc,
 		keeper: k,
@@ -33,7 +32,7 @@ func NewIBCModule(cdc codec.Codedc, k keeper.Keeper) IBCModule {
 
 // OnChanOpenInit implements the IBCModule interface
 func (im IBCModule) OnChanOpenInit(
-	ctx context.Context,
+	ctx sdk.Context,
 	order channeltypes.Order,
 	connectionHops []string,
 	portID string,
@@ -50,7 +49,7 @@ func (im IBCModule) OnChanOpenInit(
 
 // OnChanOpenTry implements the IBCModule interface
 func (im IBCModule) OnChanOpenTry(
-	ctx context.Context,
+	ctx sdk.Context,
 	order channeltypes.Order,
 	connectionHops []string,
 	portID,
@@ -67,7 +66,7 @@ func (im IBCModule) OnChanOpenTry(
 
 // OnChanOpenAck implements the IBCModule interface
 func (im IBCModule) OnChanOpenAck(
-	ctx context.Context,
+	ctx sdk.Context,
 	portID,
 	channelID,
 	counterpartyChannelID,
@@ -81,7 +80,7 @@ func (im IBCModule) OnChanOpenAck(
 
 // OnChanOpenConfirm implements the IBCModule interface
 func (im IBCModule) OnChanOpenConfirm(
-	ctx context.Context,
+	ctx sdk.Context,
 	portID,
 	channelID string,
 ) error {
@@ -90,7 +89,7 @@ func (im IBCModule) OnChanOpenConfirm(
 
 // OnChanCloseInit implements the IBCModule interface
 func (im IBCModule) OnChanCloseInit(
-	ctx context.Context,
+	ctx sdk.Context,
 	portID,
 	channelID string,
 ) error {
@@ -100,7 +99,7 @@ func (im IBCModule) OnChanCloseInit(
 
 // OnChanCloseConfirm implements the IBCModule interface
 func (im IBCModule) OnChanCloseConfirm(
-	ctx context.Context,
+	ctx sdk.Context,
 	portID,
 	channelID string,
 ) error {
@@ -109,7 +108,7 @@ func (im IBCModule) OnChanCloseConfirm(
 
 // OnRecvPacket implements the IBCModule interface
 func (im IBCModule) OnRecvPacket(
-	ctx context.Context,
+	ctx sdk.Context,
 	channelVersion string,
 	modulePacket channeltypes.Packet,
 	relayer sdk.AccAddress,
@@ -135,7 +134,7 @@ func (im IBCModule) OnRecvPacket(
 
 // OnAcknowledgementPacket implements the IBCModule interface
 func (im IBCModule) OnAcknowledgementPacket(
-	ctx context.Context,
+	ctx sdk.Context,
 	channelVersion string,
 	modulePacket channeltypes.Packet,
 	acknowledgement []byte,
@@ -191,7 +190,7 @@ func (im IBCModule) OnAcknowledgementPacket(
 
 // OnTimeoutPacket implements the IBCModule interface
 func (im IBCModule) OnTimeoutPacket(
-	ctx context.Context,
+	ctx sdk.Context,
 	channelVersion string,
 	modulePacket channeltypes.Packet,
 	relayer sdk.AccAddress,

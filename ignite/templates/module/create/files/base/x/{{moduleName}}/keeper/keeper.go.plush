@@ -14,7 +14,7 @@ import (
 
 type Keeper struct {
 	storeService corestore.KVStoreService
-	cdc          codec.BinaryCodec
+	cdc          codec.Codec
 	addressCodec address.Codec
 	// Address capable of executing a MsgUpdateParams message.
 	// Typically, this should be the x/gov module account.
@@ -32,7 +32,7 @@ type Keeper struct {
 
 func NewKeeper(
 	storeService corestore.KVStoreService,
-	cdc codec.BinaryCodec,
+	cdc codec.Codec,
 	addressCodec address.Codec,
 	authority []byte,<%= if (isIBC) { %>
 	ibcKeeperFn func() *ibckeeper.Keeper,<% } %>

@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	errorsmod "cosmossdk.io/errors"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"<%= ModulePath %>/x/<%= moduleName %>/types"
 	clienttypes "github.com/cosmos/ibc-go/v10/modules/core/02-client/types"
@@ -25,7 +26,8 @@ func (k Keeper) Transmit<%= packetName.UpperCamel %>Packet(
         return 0, errorsmod.Wrapf(sdkerrors.ErrJSONMarshal, "cannot marshal the packet: %s", err)
     }
 
-    return k.ibcKeeperFn().ChannelKeeper.SendPacket(ctx, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, packetBytes)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+    return k.ibcKeeperFn().ChannelKeeper.SendPacket(sdkCtx, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, packetBytes)
 }
 
 // OnRecv<%= packetName.UpperCamel %>Packet processes packet reception

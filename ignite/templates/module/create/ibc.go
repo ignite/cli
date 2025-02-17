@@ -226,7 +226,7 @@ func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunF
 		}
 
 		// create IBC module
-		templateIBCModule := `%[2]vIBCModule := ibcfee.NewIBCMiddleware(%[2]vmodule.NewIBCModule(app.%[3]vKeeper), app.IBCFeeKeeper)
+		templateIBCModule := `%[2]vIBCModule := ibcfee.NewIBCMiddleware(%[2]vmodule.NewIBCModule(app.appCodec, app.%[3]vKeeper), app.IBCFeeKeeper)
 ibcRouter.AddRoute(%[2]vmoduletypes.ModuleName, %[2]vIBCModule)
 %[1]v`
 		replacementIBCModule := fmt.Sprintf(
