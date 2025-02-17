@@ -161,22 +161,29 @@ func (im IBCModule) OnAcknowledgementPacket(
 		return errorsmod.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
 	}
 
-	_ = im.keeper.Environment.EventService.EventManager(ctx).EmitKV(
-		eventType,
-		event.NewAttribute(types.AttributeKeyAck, fmt.Sprintf("%v", ack)),
-	)
+
+    ctx.EventManager().EmitEvent(
+        sdk.NewEvent(
+            eventType,
+            sdk.NewAttribute(types.AttributeKeyAck, fmt.Sprintf("%v", ack)),
+        ),
+    )
 
 	switch resp := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Result:
-		_ = im.keeper.Environment.EventService.EventManager(ctx).EmitKV(
-			eventType,
-			event.NewAttribute(types.AttributeKeyAckSuccess, string(resp.Result)),
-		)
+    	ctx.EventManager().EmitEvent(
+    	    sdk.NewEvent(
+    	        eventType,
+    	        sdk.NewAttribute(types.AttributeKeyAckSuccess, string(resp.Result)),
+    	    ),
+    	)
 	case *channeltypes.Acknowledgement_Error:
-		_ = im.keeper.Environment.EventService.EventManager(ctx).EmitKV(
-			eventType,
-			event.NewAttribute(types.AttributeKeyAckError, resp.Error),
-		)
+    	ctx.EventManager().EmitEvent(
+    	    sdk.NewEvent(
+    	        eventType,
+    	        sdk.NewAttribute(types.AttributeKeyAckError, resp.Error),
+    	    ),
+    	)
 	}
 
 	return nil
