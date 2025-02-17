@@ -3,29 +3,18 @@ package types
 import (
 	"context"
 
-	<%= if (dependencies.Contains("Staking")) { %>"cosmossdk.io/core/address"<% } %>
+	<%= if (dependencies.Contains("Staking")) { %>"cosmossdk.io/core/address"
+    stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"<% } %>
 	<%= if (dependencies.Contains("Authz")) { %>"github.com/cosmos/cosmos-sdk/x/authz"<% } %>
     sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 <%= for (dependency) in dependencies { %>
-    <%= if (dependency.Name == "Auth") { %>
-        // AuthKeeper defines the expected interface for the Auth module.
-        type AuthKeeper interface {
-            GetAccount(context.Context, sdk.AccAddress) sdk.AccountI // only used for simulation
-            // Methods imported from account should be defined here
-        }
-    <% } else if (dependency.Name == "Bank") { %>
-        // BankKeeper defines the expected interface for the Bank module.
-        type BankKeeper interface {
-            SpendableCoins(context.Context, sdk.AccAddress) sdk.Coins
-            // Methods imported from bank should be defined here
-        }
-    <% } else if (dependency.Name == "Staking") { %>
+    <%= if (dependency.Name == "Staking") { %>
         // StakingKeeper defines the expected interface for the Staking module.
         type StakingKeeper interface {
         	ConsensusAddressCodec() address.Codec
-        	ValidatorByConsAddr(context.Context, sdk.ConsAddress) (sdk.ValidatorI, error)
+        	ValidatorByConsAddr(context.Context, sdk.ConsAddress) (stakingtypes.ValidatorI, error)
         	// Methods imported from account should be defined here
         }
 
@@ -78,3 +67,21 @@ import (
         }
     <% } %>
 <% } %>
+
+// AccountKeeper defines the expected interface for the Account module.
+type AccountKeeper interface {
+    GetAccount(context.Context, sdk.AccAddress) sdk.AccountI // only used for simulation
+    // Methods imported from account should be defined here
+}
+
+// BankKeeper defines the expected interface for the Bank module.
+type BankKeeper interface {
+    SpendableCoins(context.Context, sdk.AccAddress) sdk.Coins
+    // Methods imported from bank should be defined here
+}
+
+// ParamSubspace defines the expected Subspace interface for parameters.
+type ParamSubspace interface {
+	Get(context.Context, []byte, interface{})
+	Set(context.Context, []byte, interface{})
+}

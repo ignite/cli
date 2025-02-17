@@ -6,7 +6,6 @@ import (
 
 	clienthelpers "cosmossdk.io/client/v2/helpers"
 	"cosmossdk.io/core/appmodule"
-	corestore "cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
@@ -23,6 +22,7 @@ import (
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
 	
 	abci "github.com/cometbft/cometbft/abci/types"
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -118,7 +118,7 @@ func AppConfig() depinject.Config {
 // New returns a reference to an initialized App.
 func New(
 	logger log.Logger,
-	db corestore.KVStoreWithBatch,
+	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
 	appOpts servertypes.AppOptions,
@@ -215,12 +215,7 @@ func (app *App) GetSubspace(moduleName string) paramstypes.Subspace {
 
 // LegacyAmino returns App's amino codec.
 func (app *App) LegacyAmino() *codec.LegacyAmino {
-	switch cdc := app.legacyAmino.(type) {
-	case *codec.LegacyAmino:
-		return cdc
-	default:
-		panic("unexpected codec type")
-	}
+	return app.legacyAmino
 }
 
 // AppCodec returns App's app codec.

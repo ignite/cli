@@ -5,13 +5,13 @@ import (
 
 	clienthelpers "cosmossdk.io/client/v2/helpers"
 	"cosmossdk.io/core/appmodule"
-	corestore "cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -81,7 +81,7 @@ func AppConfig() depinject.Config {
 // New returns a reference to an initialized App.
 func New(
 	logger log.Logger,
-	db corestore.KVStoreWithBatch,
+	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
 	appOpts servertypes.AppOptions,
@@ -158,16 +158,8 @@ func New(
 }
 
 // LegacyAmino returns App's amino codec.
-//
-// NOTE: This is solely to be used for testing purposes as it may be desirable
-// for modules to register their own custom testing types.
 func (app *App) LegacyAmino() *codec.LegacyAmino {
-	switch cdc := app.legacyAmino.(type) {
-	case *codec.LegacyAmino:
-		return cdc
-	default:
-		panic("unexpected codec type")
-	}
+	return app.legacyAmino
 }
 
 // AppCodec returns App's app codec.

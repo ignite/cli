@@ -7,10 +7,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	corestore "cosmossdk.io/core/store"
 	"cosmossdk.io/log"
 	confixcmd "cosmossdk.io/tools/confix/cmd"
 
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/debug"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -114,7 +114,7 @@ func txCommand() *cobra.Command {
 // newApp creates the application
 func newApp(
 	logger log.Logger,
-	db corestore.KVStoreWithBatch,
+	db dbm.DB,
 	traceStore io.Writer,
 	appOpts servertypes.AppOptions,
 ) servertypes.Application {
@@ -129,7 +129,7 @@ func newApp(
 // appExport creates a new app (optionally at a given height) and exports state.
 func appExport(
 	logger log.Logger,
-	db corestore.KVStoreWithBatch,
+	db dbm.DB,
 	traceStore io.Writer,
 	height int64,
 	forZeroHeight bool,
