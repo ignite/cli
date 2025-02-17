@@ -8,16 +8,9 @@ import (
 
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
-
-	"cosmossdk.io/collections"
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
-	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
 	"github.com/cometbft/cometbft/crypto"
 	"github.com/cometbft/cometbft/libs/bytes"
 	dbm "github.com/cosmos/cosmos-db"
@@ -28,6 +21,10 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"<%= ModulePath %>/app"
 )
@@ -138,10 +135,15 @@ func initAppForTestnet(app *app.App, args valArgs) *app.App {
 	iterator.Close()
 
 	// Remove all valdiators from last validators store
-	if err := app.StakingKeeper.LastValidatorPower.Clear(ctx, nil); err != nil {
+	iterator, err = app.StakingKeeper.LastValidatorsIterator(ctx)
+	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(1)
 	}
+	for ; iterator.Valid(); iterator.Next() {
+		stakingStore.Delete(iterator.Key())
+	}
+	iterator.Close()
 
 	// Remove all validators from validators store
 	iterator = stakingStore.Iterator(stakingtypes.ValidatorsKey, storetypes.PrefixEndBytes(stakingtypes.ValidatorsKey))
@@ -163,33 +165,16 @@ func initAppForTestnet(app *app.App, args valArgs) *app.App {
 	handleErr(app.StakingKeeper.SetValidatorByPowerIndex(ctx, newVal))
 	handleErr(app.StakingKeeper.SetLastValidatorPower(ctx, validator, 0))
 	handleErr(app.StakingKeeper.Hooks().AfterValidatorCreated(ctx, validator))
-	
+
 	// DISTRIBUTION
 	//
 
 	// Initialize records for this validator across all distribution stores
-	handleErr(app.DistrKeeper.ValidatorHistoricalRewards.Set(
-		ctx,
-		collections.Join(sdk.ValAddress(validator), uint64(0)),
-		distrtypes.NewValidatorHistoricalRewards(sdk.DecCoins{}, 1),
-	))
+	handleErr(app.DistrKeeper.SetValidatorHistoricalRewards(ctx, validator, 0, distrtypes.NewValidatorHistoricalRewards(sdk.DecCoins{}, 1)))
+	handleErr(app.DistrKeeper.SetValidatorCurrentRewards(ctx, validator, distrtypes.NewValidatorCurrentRewards(sdk.DecCoins{}, 1)))
+	handleErr(app.DistrKeeper.SetValidatorAccumulatedCommission(ctx, validator, distrtypes.InitialValidatorAccumulatedCommission()))
+	handleErr(app.DistrKeeper.SetValidatorOutstandingRewards(ctx, validator, distrtypes.ValidatorOutstandingRewards{Rewards: sdk.DecCoins{}}))
 
-	handleErr(app.DistrKeeper.ValidatorCurrentRewards.Set(
-		ctx,
-		validator,
-		distrtypes.NewValidatorCurrentRewards(sdk.DecCoins{}, 1),
-	))
-
-	handleErr(app.DistrKeeper.ValidatorsAccumulatedCommission.Set(
-		ctx, validator, distrtypes.InitialValidatorAccumulatedCommission(),
-	))
-
-	handleErr(app.DistrKeeper.ValidatorOutstandingRewards.Set(
-		ctx,
-		validator,
-		distrtypes.ValidatorOutstandingRewards{Rewards: sdk.DecCoins{}},
-	))
-	
 <%= if (!IsChainMinimal) { %>
 	// SLASHING
 	//
@@ -201,7 +186,7 @@ func initAppForTestnet(app *app.App, args valArgs) *app.App {
 		StartHeight: app.App.LastBlockHeight() - 1,
 		Tombstoned:  false,
 	}
-	app.SlashingKeeper.ValidatorSigningInfo.Set(ctx, newConsAddr, newValidatorSigningInfo)	
+	_ = app.SlashingKeeper.SetValidatorSigningInfo(ctx, newConsAddr, newValidatorSigningInfo)	
 <% } %>
 
 	// BANK
@@ -216,11 +201,7 @@ func initAppForTestnet(app *app.App, args valArgs) *app.App {
 
 	// Fund local accounts
 	for _, accountStr := range args.accountsToFund {
-		err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, defaultCoins)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
-			os.Exit(1)
-		}
+		handleErr(app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, defaultCoins))
 
 		account, err := app.AuthKeeper.AddressCodec().StringToBytes(accountStr)
 		if err != nil {
@@ -228,11 +209,7 @@ func initAppForTestnet(app *app.App, args valArgs) *app.App {
 			os.Exit(1)
 		}
 
-		err = app.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, account, defaultCoins)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
-			os.Exit(1)
-		}
+		handleErr(app.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, account, defaultCoins))
 	}
 
 	return app
