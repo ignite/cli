@@ -1,7 +1,5 @@
 package typed
 
-// TODO
-
 import (
 	"fmt"
 	"strings"
@@ -21,6 +19,8 @@ func ModuleSimulationMsgModify(
 
 	var err error
 	for _, msg := range msgs {
+		continue // TODO(@julienrbrt): remove this line when simulation is brought back
+
 		// simulation operations
 		replacementOp := fmt.Sprintf(
 			`reg.Add(weights.Get("msg_%[3]v", 100 /* determine the simulation weight value */), simulation.Msg%[1]v%[2]vFactory(am.keeper))`,
@@ -28,20 +28,20 @@ func ModuleSimulationMsgModify(
 			typeName.UpperCamel,
 			fmt.Sprintf("%s_%s", strings.ToLower(msg), typeName.Snake),
 		)
-		content, err = xast.ModifyFunction(content, "WeightedOperations", xast.AppendFuncCode(replacementOp))
+		content, err = xast.ModifyFunction(content, "WeightedOperationsX", xast.AppendFuncCode(replacementOp))
 		if err != nil {
 			return "", err
 		}
 
 		// add proposal simulation operations for msgs having an authority as signer.
-		if strings.Contains(content, "ProposalMsgs") && strings.EqualFold(msgSigner.Original, "authority") {
+		if strings.Contains(content, "ProposalMsgsX") && strings.EqualFold(msgSigner.Original, "authority") {
 			replacementOpMsg := fmt.Sprintf(
 				`reg.Add(weights.Get("msg_%[2]v", 100), simulation.Msg%[1]v%[2]vFactory(am.keeper))`,
 				msg,
 				typeName.UpperCamel,
 				fmt.Sprintf("%s_%s", strings.ToLower(msg), typeName.Snake),
 			)
-			content, err = xast.ModifyFunction(content, "ProposalMsgs", xast.AppendFuncCode(replacementOpMsg))
+			content, err = xast.ModifyFunction(content, "ProposalMsgsX", xast.AppendFuncCode(replacementOpMsg))
 			if err != nil {
 				return "", err
 			}
