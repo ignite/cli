@@ -164,7 +164,7 @@ var (
 						ibcfeetypes.ModuleName,
 						// chain modules
 						// this line is used by starport scaffolding # stargate/app/initGenesis
-					}
+					},
 				}),
 			},
 			{
