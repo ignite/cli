@@ -107,6 +107,16 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 		faucetOptions = append(faucetOptions, cosmosfaucet.Coin(parsedCoin.Amount, amountMax, parsedCoin.Denom))
 	}
 
+	// parse fees to pass to the faucet as fees.
+	if fee := conf.Faucet.TxFee; fee != "" {
+		parsedFee, err := sdk.ParseCoinNormalized(fee)
+		if err != nil {
+			return cosmosfaucet.Faucet{}, errors.Errorf("%w: %s", err, fee)
+		}
+
+		faucetOptions = append(faucetOptions, cosmosfaucet.FeeAmount(parsedFee.Amount, parsedFee.Denom))
+	}
+
 	if conf.Faucet.RateLimitWindow != "" {
 		rateLimitWindow, err := time.ParseDuration(conf.Faucet.RateLimitWindow)
 		if err != nil {

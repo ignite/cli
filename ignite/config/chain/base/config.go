@@ -120,6 +120,9 @@ type Faucet struct {
 
 	// Port number for faucet server to listen at.
 	Port uint `yaml:"port,omitempty"`
+
+	// TxFee is the tx fee the faucet needs to pay for each transaction.
+	TxFee string `yaml:"tx_fee,omitempty"`
 }
 
 // Init overwrites sdk configurations with given values.

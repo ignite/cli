@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- [#4513](https://github.com/ignite/cli/pull/4513) Allow to pass tx fees to faucet server
+
 ### Changes
 
 - [#4439](https://github.com/ignite/cli/pull/4439) Simplify Ignite CLI dependencies by removing `moby` and `gorilla` dependencies.
