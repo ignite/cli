@@ -20,10 +20,10 @@ import (
 )
 
 var (
+	_ module.AppModuleBasic = (*AppModule)(nil)
+	_ module.AppModule      = (*AppModule)(nil)
+
 	_ appmodule.AppModule       = (*AppModule)(nil)
-	_ appmodule.HasGenesis          = (*AppModule)(nil)
-	_ appmodule.HasConsensusVersion = (*AppModule)(nil)
-	_ appmodule.HasRegisterInterfaces            = AppModule{}
 	_ appmodule.HasBeginBlocker = (*AppModule)(nil)
 	_ appmodule.HasEndBlocker   = (*AppModule)(nil)
 	<%= if (isIBC) { %>_ porttypes.IBCModule   = (*IBCModule)(nil)<% } %>
@@ -52,6 +52,9 @@ func (AppModule) IsAppModule() {}
 func (AppModule) Name() string {
 	return types.ModuleName
 }
+
+// RegisterLegacyAminoCodec registers the amino codec
+func (am *AppModule) RegisterLegacyAminoCodec(*codec.LegacyAmino) {}
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
 func (AppModule) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {

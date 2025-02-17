@@ -126,7 +126,7 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 		ack = channeltypes.NewErrorAcknowledgement(err)
 	} else {
 		// Encode packet acknowledgment
-		packetAckBytes, err := types.ModuleCdc.MarshalJSON(&packetAck)
+		packetAckBytes, err := im.cdc.MarshalJSON(&packetAck)
 		if err != nil {
 			return channeltypes.NewErrorAcknowledgement(errorsmod.Wrap(sdkerrors.ErrJSONMarshal, err.Error()))
 		}

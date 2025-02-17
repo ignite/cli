@@ -10,13 +10,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 
 	"<%= modulePath %>/testutil/sample"
-	<%= moduleName %>simulation "<%= modulePath %>/x/<%= moduleName %>/simulation"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
 // avoid unused import issue
 var (
-	_ = <%= moduleName %>simulation.FindAccount
 	_ = rand.Rand{}
 	_ = sample.AccAddress
 	_ = sdk.AccAddress{}

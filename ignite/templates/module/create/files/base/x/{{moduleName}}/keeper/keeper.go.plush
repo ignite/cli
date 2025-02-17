@@ -5,7 +5,7 @@ import (
 
 	"cosmossdk.io/collections"
 	"cosmossdk.io/core/address"
-	"cosmossdk.io/core/appmodule"
+	corestore "cosmossdk.io/core/store"
 	"github.com/cosmos/cosmos-sdk/codec"
 	 <%= if (isIBC) { %> ibckeeper "github.com/cosmos/ibc-go/v10/modules/core/keeper" <% } %>
 
@@ -13,8 +13,7 @@ import (
 )
 
 type Keeper struct {
-	appmodule.Environment
-
+	storeService corestore.KVStoreService
 	cdc          codec.BinaryCodec
 	addressCodec address.Codec
 	// Address capable of executing a MsgUpdateParams message.
@@ -32,7 +31,7 @@ type Keeper struct {
 }
 
 func NewKeeper(
-	env appmodule.Environment,
+	storeService corestore.KVStoreService,
 	cdc codec.BinaryCodec,
 	addressCodec address.Codec,
 	authority []byte,<%= if (isIBC) { %>
@@ -44,10 +43,10 @@ func NewKeeper(
 		panic(fmt.Sprintf("invalid authority address %s: %s", authority, err))
 	}
 
-	sb := collections.NewSchemaBuilder(env.KVStoreService)
+	sb := collections.NewSchemaBuilder(storeService)
 
 	k := Keeper{
-		Environment:  env,
+		storeService: storeService,
 		cdc:          cdc,
 		addressCodec: addressCodec,
 		authority:    authority,

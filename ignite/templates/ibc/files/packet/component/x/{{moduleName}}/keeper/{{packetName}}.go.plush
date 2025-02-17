@@ -51,7 +51,7 @@ func (k Keeper) OnAcknowledgement<%= packetName.UpperCamel %>Packet(ctx context.
         // Decode the packet acknowledgment
         var packetAck types.<%= packetName.UpperCamel %>PacketAck
 
-        if err := types.ModuleCdc.UnmarshalJSON(dispatchedAck.Result, &packetAck); err != nil {
+        if err := k.cdc.UnmarshalJSON(dispatchedAck.Result, &packetAck); err != nil {
             // The counter-party module doesn't implement the correct acknowledgment format
             return errors.New("cannot unmarshal acknowledgment")
         }

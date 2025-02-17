@@ -35,23 +35,23 @@ type fixture struct {
 func initFixture(t *testing.T) *fixture {
 	t.Helper()
 
-	encCfg := moduletestutil.MakeTestEncodingConfig(codectestutil.CodecOptions{}, module.AppModule{})
+	encCfg := moduletestutil.MakeTestEncodingConfig(module.AppModule{})
 	addressCodec := addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix())
 	storeKey := storetypes.NewKVStoreKey(types.StoreKey)
 
-	env := runtime.NewEnvironment(runtime.NewKVStoreService(storeKey), log.NewTestLogger(t))
+	storeService := runtime.NewKVStoreService(storeKey)
 	ctx := testutil.DefaultContextWithDB(t, storeKey, storetypes.NewTransientStoreKey("transient_test")).Ctx
 
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
 	mockUpgradeKeeper := newMockUpgradeKeeper()
 
 	k := keeper.NewKeeper(
-		env,
+		storeService,
 		encCfg.Codec,
 		addressCodec,
 		authority,
 		func() *ibckeeper.Keeper {
-			return ibckeeper.NewKeeper(encCfg.Codec, env, newMockParams(), mockUpgradeKeeper, authority.String())
+			return ibckeeper.NewKeeper(encCfg.Codec, storeService, newMockParams(), mockUpgradeKeeper, authority.String())
 		},<%= for (dependency) in dependencies { %>
         nil,<% } %>
 	)
