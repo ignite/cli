@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+### Features
+
+- [#3707](https://github.com/ignite/cli/pull/3707) and [#4094](https://github.com/ignite/cli/pull/4094) Add collections support.
+- [#3977](https://github.com/ignite/cli/pull/3977) Add `chain lint` command to lint the chain's codebase using `golangci-lint`
+- [#3770](https://github.com/ignite/cli/pull/3770) Add `scaffold configs` and `scaffold params` commands
+- [#4001](https://github.com/ignite/cli/pull/4001) Improve `xgenny` dry run
+- [#3967](https://github.com/ignite/cli/issues/3967) Add HD wallet parameters `address index` and `account number` to the chain account config
+- [#4004](https://github.com/ignite/cli/pull/4004) Remove all import placeholders using the `xast` pkg
+- [#4071](https://github.com/ignite/cli/pull/4071) Support custom proto path
+- [#3718](https://github.com/ignite/cli/pull/3718) Add `gen-mig-diffs` tool app to compare scaffold output of two versions of ignite
+- [#4100](https://github.com/ignite/cli/pull/4100) Set the `proto-dir` flag only for the `scaffold chain` command and use the proto path from the config
+- [#4111](https://github.com/ignite/cli/pull/4111) Remove vuex generation
+- [#4113](https://github.com/ignite/cli/pull/4113) Generate chain config documentation automatically
+- [#4131](https://github.com/ignite/cli/pull/4131) Support `bytes` as data type in the `scaffold` commands
+- [#4300](https://github.com/ignite/cli/pull/4300) Only panics the module in the most top function level
+- [#4327](https://github.com/ignite/cli/pull/4327) Use the TxConfig from simState instead create a new one
+- [#4326](https://github.com/ignite/cli/pull/4326) Add `buf.build` version to `ignite version` command
+- [#4436](https://github.com/ignite/cli/pull/4436) Return tx hash to the faucet API
+- [#4437](https://github.com/ignite/cli/pull/4437) Remove module placeholders
+- [#4289](https://github.com/ignite/cli/pull/4289), [#4423](https://github.com/ignite/cli/pull/4423), [#4432](https://github.com/ignite/cli/pull/4432) Cosmos SDK v0.52 support
+- [#4480](https://github.com/ignite/cli/pull/4480) Add field max length
+- [#4477](https://github.com/ignite/cli/pull/4477) IBC v10 support
+- [#4166](https://github.com/ignite/cli/issues/4166) Migrate buf config files to v2
+- [#4494](https://github.com/ignite/cli/pull/4494) Automatic migrate the buf configs to v2
+- [#4513](https://github.com/ignite/cli/pull/4513) Allow to pass tx fees to faucet server
+
 ### Changes
 
 - [#4439](https://github.com/ignite/cli/pull/4439) Simplify Ignite CLI dependencies by removing `moby` and `gorilla` dependencies.

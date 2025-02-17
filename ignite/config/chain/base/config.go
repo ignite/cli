@@ -119,7 +119,14 @@ type Faucet struct {
 	Host string `yaml:"host,omitempty"`
 
 	// Port number for faucet server to listen at.
+<<<<<<< HEAD
 	Port uint `yaml:"port,omitempty"`
+=======
+	Port uint `yaml:"port,omitempty" doc:"Port number for the faucet server."`
+
+	// TxFee is the tx fee the faucet needs to pay for each transaction.
+	TxFee string `yaml:"tx_fee,omitempty" doc:"Tx fee the faucet needs to pay for each transaction."`
+>>>>>>> 4abea764 (feat(services): add faucet fee config (#4513))
 }
 
 // Init overwrites sdk configurations with given values.
