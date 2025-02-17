@@ -26,6 +26,7 @@
 - [#4477](https://github.com/ignite/cli/pull/4477) IBC v10 support
 - [#4166](https://github.com/ignite/cli/issues/4166) Migrate buf config files to v2
 - [#4494](https://github.com/ignite/cli/pull/4494) Automatic migrate the buf configs to v2
+- []() Allow to pass tx fees to faucet server
 
 ### Changes
 
