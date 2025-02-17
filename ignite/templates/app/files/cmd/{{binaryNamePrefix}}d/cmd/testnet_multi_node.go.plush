@@ -19,8 +19,6 @@ import (
 	"github.com/spf13/pflag"
 
 	"cosmossdk.io/math"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -33,8 +31,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	runtime "github.com/cosmos/cosmos-sdk/runtime"
 )
 
 var (
@@ -291,7 +293,7 @@ func initTestnetFiles(
 			WithKeybase(kb).
 			WithTxConfig(clientCtx.TxConfig)
 
-		if err := tx.Sign(clientCtx.CmdContext, txFactory, nodeDirName, txBuilder, true); err != nil {
+		if err := tx.Sign(cmd.Context(), txFactory, nodeDirName, txBuilder, true); err != nil {
 			return err
 		}
 
@@ -328,11 +330,12 @@ func initTestnetFiles(
 			if err != nil {
 				return err
 			}
-
 		}
 	}
 	err := collectGenFiles(
 		clientCtx, nodeConfig, nodeIDs, valPubKeys,
+		genBalIterator,
+		clientCtx.TxConfig.SigningContext().ValidatorAddressCodec(),
 		persistentPeers, args,
 	)
 	if err != nil {
@@ -356,11 +359,11 @@ func writeFile(file, dir string, contents []byte) error {
 }
 
 func initGenFiles(
-	clientCtx client.Context, mbm *module.Manager, chainID string,
+	clientCtx client.Context, mbm module.BasicManager, chainID string,
 	genAccounts []authtypes.GenesisAccount, genBalances []banktypes.Balance,
 	genFiles []string, numValidators int,
 ) error {
-	appGenState := mbm.DefaultGenesis()
+	appGenState := mbm.DefaultGenesis(clientCtx.Codec)
 
 	// set the accounts in the genesis state
 	var authGenState authtypes.GenesisState
@@ -407,7 +410,8 @@ func initGenFiles(
 func collectGenFiles(
 	clientCtx client.Context, nodeConfig *cmtconfig.Config,
 	nodeIDs []string, valPubKeys []cryptotypes.PubKey,
-	persistentPeers string,
+	genBalIterator banktypes.GenesisBalancesIterator,
+	valAddrCodec runtime.ValidatorAddressCodec, persistentPeers string,
 	args initArgs,
 ) error {
 	chainID := args.chainID
@@ -434,8 +438,8 @@ func collectGenFiles(
 			return err
 		}
 
-		nodeAppState, err := genutil.GenAppStateFromConfig(clientCtx.Codec, clientCtx.TxConfig, nodeConfig, initCfg, appGenesis, genutiltypes.DefaultMessageValidator,
-			clientCtx.ValidatorAddressCodec, clientCtx.AddressCodec)
+		nodeAppState, err := genutil.GenAppStateFromConfig(clientCtx.Codec, clientCtx.TxConfig, nodeConfig, initCfg, appGenesis, genBalIterator, genutiltypes.DefaultMessageValidator,
+			valAddrCodec)
 		if err != nil {
 			return err
 		}

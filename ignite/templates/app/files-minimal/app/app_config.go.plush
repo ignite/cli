@@ -93,12 +93,7 @@ var (
 						genutiltypes.ModuleName,
 						// chain modules
 						// this line is used by starport scaffolding # stargate/app/initGenesis
-					},
-					// SkipStoreKeys is an optional list of store keys to skip when constructing the
-					// module's keeper. This is useful when a module does not have a store key.
-					SkipStoreKeys: []string{
-						"tx",
-					},
+					}
 				}),
 			},
 			{
