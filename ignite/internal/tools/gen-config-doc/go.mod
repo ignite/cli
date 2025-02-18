@@ -2,7 +2,7 @@ module github.com/ignite/cli/ignite/internal/tools/gen-config-doc
 
 go 1.23.4
 
-toolchain go1.23.5
+toolchain go1.23.6
 
 replace (
 	github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.52.0-rc.2

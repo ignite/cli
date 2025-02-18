@@ -1,6 +1,6 @@
 module github.com/ignite/cli/v29
 
-go 1.23.5
+go 1.23.6
 
 replace (
 	cosmossdk.io/core => cosmossdk.io/core v0.11.2
