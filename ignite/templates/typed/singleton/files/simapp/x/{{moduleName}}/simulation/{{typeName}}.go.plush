@@ -15,7 +15,7 @@ import (
 )
 
 func SimulateMsgCreate<%= TypeName.UpperCamel %>(
-	ak types.AccountKeeper,
+	ak types.AuthKeeper,
 	bk types.BankKeeper,
 	k keeper.Keeper,
 	txGen client.TxConfig,
@@ -51,7 +51,7 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(
 }
 
 func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
-	ak types.AccountKeeper,
+	ak types.AuthKeeper,
 	bk types.BankKeeper,
 	k keeper.Keeper,
 	txGen client.TxConfig,
@@ -70,7 +70,7 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 
 		acc, err := ak.AddressCodec().StringToBytes(<%= TypeName.LowerCamel %>.<%= MsgSigner.UpperCamel %>)
 		if err != nil {
-			return nil, nil, err
+			return simtypes.OperationMsg{}, nil, err
 		}
 
 		simAccount, found := simtypes.FindAccount(accs, acc)
@@ -97,7 +97,7 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 }
 
 func SimulateMsgDelete<%= TypeName.UpperCamel %>(
-	ak types.AccountKeeper,
+	ak types.AuthKeeper,
 	bk types.BankKeeper,
 	k keeper.Keeper,
 	txGen client.TxConfig,
@@ -116,7 +116,7 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 
 		acc, err := ak.AddressCodec().StringToBytes(<%= TypeName.LowerCamel %>.<%= MsgSigner.UpperCamel %>)
 		if err != nil {
-			return nil, nil, err
+			return simtypes.OperationMsg{}, nil, err
 		}
 
 		simAccount, found := simtypes.FindAccount(accs, acc)

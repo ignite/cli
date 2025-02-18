@@ -12,7 +12,7 @@ import (
 )
 
 func SimulateMsg<%= MsgName.UpperCamel %>(
-	ak types.AccountKeeper,
+	ak types.AuthKeeper,
 	bk types.BankKeeper,
 	k keeper.Keeper,
 	txGen client.TxConfig,

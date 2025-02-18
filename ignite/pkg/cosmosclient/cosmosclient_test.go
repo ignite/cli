@@ -10,13 +10,13 @@ import (
 	"testing"
 	"time"
 
-	apisigning "cosmossdk.io/api/cosmos/tx/signing/v1beta1"
 	"cosmossdk.io/math"
 	"github.com/cometbft/cometbft/p2p"
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -105,7 +105,7 @@ func TestNew(t *testing.T) {
 	require.Equal(t, c.AccountRegistry.Keyring, txf.Keybase())
 	require.EqualValues(t, 300000, txf.Gas())
 	require.Equal(t, 1.0, txf.GasAdjustment())
-	require.Equal(t, apisigning.SignMode_SIGN_MODE_UNSPECIFIED, txf.SignMode())
+	require.Equal(t, signing.SignMode_SIGN_MODE_UNSPECIFIED, txf.SignMode())
 	require.NotNil(t, txf.AccountRetriever())
 }
 
