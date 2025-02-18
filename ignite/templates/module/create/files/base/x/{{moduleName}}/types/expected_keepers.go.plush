@@ -10,7 +10,10 @@ import (
 )
 
 <%= for (dependency) in dependencies { %>
-    <%= if (dependency.Name == "Staking") { %>
+    <%= if (dependency.Name == "Account") { %>
+    <% } else if (dependency.Name == "Auth") { %>
+    <% } else if (dependency.Name == "Bank") { %>
+    <% } else if (dependency.Name == "Staking") { %>
         // StakingKeeper defines the expected interface for the Staking module.
         type StakingKeeper interface {
         	ConsensusAddressCodec() address.Codec

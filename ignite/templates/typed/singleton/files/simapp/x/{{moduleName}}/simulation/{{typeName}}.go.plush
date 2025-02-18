@@ -73,6 +73,7 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 			return simtypes.OperationMsg{}, nil, err
 		}
 
+		var found bool
 		simAccount, found = simtypes.FindAccount(accs, sdk.AccAddress(acc))
 		if !found {
 			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found"), nil, nil
@@ -119,6 +120,7 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 			return simtypes.OperationMsg{}, nil, err
 		}
 
+		var found bool
 		simAccount, found = simtypes.FindAccount(accs, sdk.AccAddress(acc))
 		if !found {
 			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found"), nil, nil
