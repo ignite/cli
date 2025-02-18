@@ -3,6 +3,7 @@ package simulation
 import (
 	"math/rand"
 
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
@@ -18,7 +19,7 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(
 	k keeper.Keeper,
 	txGen client.TxConfig,
 ) simtypes.Operation {
-	return func(r *rand.Rand, app simtypes.AppEntrypoint, ctx sdk.Context, accs []simtypes.Account, chainID string,
+	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		simAccount, _ := simtypes.RandomAcc(r, accs)
 
@@ -49,7 +50,7 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 	k keeper.Keeper,
 	txGen client.TxConfig,
 ) simtypes.Operation {
-	return func(r *rand.Rand, app simtypes.AppEntrypoint, ctx sdk.Context, accs []simtypes.Account, chainID string,
+	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		var (
 			simAccount = simtypes.Account{}
@@ -68,7 +69,12 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 		}
 		
 		for _, obj := range all<%= TypeName.UpperCamel %> {
-			simAccount, found = FindAccount(accs, obj.<%= MsgSigner.UpperCamel %>)
+			acc, err := ak.AddressCodec().StringToBytes(obj.<%= MsgSigner.UpperCamel %>)
+			if err != nil {
+				return nil, nil, err
+			}
+			
+			simAccount, found = simtypes.FindAccount(accs, acc)
 			if found {
 				<%= TypeName.LowerCamel %> = obj
 				break
@@ -103,7 +109,7 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 	k keeper.Keeper,
 	txGen client.TxConfig,
 ) simtypes.Operation {
-	return func(r *rand.Rand, app simtypes.AppEntrypoint, ctx sdk.Context, accs []simtypes.Account, chainID string,
+	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		var (
 			simAccount = simtypes.Account{}
@@ -122,7 +128,12 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 		}
 
 		for _, obj := range all<%= TypeName.UpperCamel %> {
-			simAccount, found = FindAccount(accs, obj.<%= MsgSigner.UpperCamel %>)
+			acc, err := ak.AddressCodec().StringToBytes(obj.<%= MsgSigner.UpperCamel %>)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			simAccount, found = simtypes.FindAccount(accs, acc)
 			if found {
 				<%= TypeName.LowerCamel %> = obj
 				break
