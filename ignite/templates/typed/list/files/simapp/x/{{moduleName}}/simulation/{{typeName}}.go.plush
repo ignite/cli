@@ -74,7 +74,7 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 				return simtypes.OperationMsg{}, nil, err
 			}
 			
-			simAccount, found = simtypes.FindAccount(accs, acc)
+			simAccount, found = simtypes.FindAccount(accs, sdk.AccAddress(acc))
 			if found {
 				<%= TypeName.LowerCamel %> = obj
 				break
@@ -133,7 +133,7 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 				return simtypes.OperationMsg{}, nil, err
 			}
 
-			simAccount, found = simtypes.FindAccount(accs, acc)
+			simAccount, found = simtypes.FindAccount(accs, sdk.AccAddress(acc))
 			if found {
 				<%= TypeName.LowerCamel %> = obj
 				break

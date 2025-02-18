@@ -106,10 +106,6 @@ func New(
 			depinject.Supply(
 				appOpts,                              // supply app options
 				logger,                               // supply logger
-				basedepinject.ProvideAccount,             // supply baseapp account
-				basedepinject.ProvideSecp256K1PubKey,     // supply default base account public key format
-				multisigdepinject.ProvideAccount,         // multisig account type
-				lockupdepinject.ProvideAllLockupAccounts, // lockup account type
 				// here alternative options can be supplied to the DI container.
 				// those options can be used f.e to override the default behavior of some modules.
 				// for instance supplying a custom address codec for not using bech32 addresses.
