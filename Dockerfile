@@ -3,13 +3,13 @@
 
 ## prep the base image.
 #
-FROM golang as base
+FROM golang:1.23.6 as base
 
 RUN apt update && \
     apt-get install -y \
-        build-essential \
-        ca-certificates \
-        curl
+    build-essential \
+    ca-certificates \
+    curl
 
 # enable faster module downloading.
 ENV GOPROXY https://proxy.golang.org
