@@ -3,67 +3,143 @@ package simulation
 import (
 	"math/rand"
 
-	"github.com/cosmos/cosmos-sdk/simsx"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/collections"
 
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	"<%= ModulePath %>/x/<%= ModuleName %>/keeper"
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
+	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
+	"github.com/cosmos/cosmos-sdk/x/simulation"
 )
 
-func MsgCreate<%= TypeName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFactoryFn[*types.MsgCreate<%= TypeName.UpperCamel %>] {
-	return func(ctx context.Context, testData *simsx.ChainDataSource, reporter simsx.SimulationReporter) ([]simsx.SimAccount, *types.MsgCreate<%= TypeName.UpperCamel %>) {
-		from := testData.AnyAccount(reporter)
+func SimulateMsgCreate<%= TypeName.UpperCamel %>(
+	ak types.AuthKeeper,
+	bk types.BankKeeper,
+	k keeper.Keeper,
+	txGen client.TxConfig,
+) simtypes.Operation {
+	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
+	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
+		simAccount, _ := simtypes.RandomAcc(r, accs)
+
 		msg := &types.MsgCreate<%= TypeName.UpperCamel %>{
-			<%= MsgSigner.UpperCamel %>: from.AddressBech32,
+			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),
 		}
 
 		found, err := k.<%= TypeName.UpperCamel %>.Has(ctx)
 		if err == nil && found {
-			reporter.Skip("<%= TypeName.UpperCamel %> already exist")
-			return nil, nil
-		} else if err != nil {
-			reporter.Skip(err.Error())
-			return nil, nil
+			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.UpperCamel %> already exist"), nil, nil
 		}
 
-		return []simsx.SimAccount{from}, msg
+		txCtx := simulation.OperationInput{
+			R:               r,
+			App:             app,
+			TxGen:           txGen,
+			Cdc:             nil,
+			Msg:             msg,
+			Context:         ctx,
+			SimAccount:      simAccount,
+			ModuleName:      types.ModuleName,
+			CoinsSpentInMsg: sdk.NewCoins(),
+			AccountKeeper:   ak,
+			Bankkeeper:      bk,
+		}
+		return simulation.GenAndDeliverTxWithRandFees(txCtx)
 	}
 }
 
-func MsgUpdate<%= TypeName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFactoryFn[*types.MsgUpdate<%= TypeName.UpperCamel %>] {
-	return func(ctx context.Context, testData *simsx.ChainDataSource, reporter simsx.SimulationReporter) ([]simsx.SimAccount, *types.MsgUpdate<%= TypeName.UpperCamel %>) {
+func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
+	ak types.AuthKeeper,
+	bk types.BankKeeper,
+	k keeper.Keeper,
+	txGen client.TxConfig,
+) simtypes.Operation {
+	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
+	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		var (
+			simAccount = simtypes.Account{}
 			msg = &types.MsgUpdate<%= TypeName.UpperCamel %>{}
 		)
 
 		<%= TypeName.LowerCamel %>, err := k.<%= TypeName.UpperCamel %>.Get(ctx)
 		if err != nil {
-			reporter.Skip("<%= TypeName.LowerCamel %> store is empty")
-			return nil, nil
+			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> store is empty"), nil, nil
 		}
 
-		simAccount := testData.GetAccount(reporter, <%= TypeName.LowerCamel %>.<%= MsgSigner.UpperCamel %>)
-		msg.<%= MsgSigner.UpperCamel %> = simAccount.AddressBech32
+		acc, err := ak.AddressCodec().StringToBytes(<%= TypeName.LowerCamel %>.<%= MsgSigner.UpperCamel %>)
+		if err != nil {
+			return simtypes.OperationMsg{}, nil, err
+		}
 
-		return []simsx.SimAccount{simAccount}, msg
+		var found bool
+		simAccount, found = simtypes.FindAccount(accs, sdk.AccAddress(acc))
+		if !found {
+			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found"), nil, nil
+		}
+		msg.<%= MsgSigner.UpperCamel %> = simAccount.Address.String()
+
+		txCtx := simulation.OperationInput{
+			R:               r,
+			App:             app,
+			TxGen:           txGen,
+			Cdc:             nil,
+			Msg:             msg,
+			Context:         ctx,
+			SimAccount:      simAccount,
+			ModuleName:      types.ModuleName,
+			CoinsSpentInMsg: sdk.NewCoins(),
+			AccountKeeper:   ak,
+			Bankkeeper:      bk,
+		}
+		return simulation.GenAndDeliverTxWithRandFees(txCtx)
 	}
 }
 
-func MsgDelete<%= TypeName.UpperCamel %>Factory(k keeper.Keeper) simsx.SimMsgFactoryFn[*types.MsgDelete<%= TypeName.UpperCamel %>] {
-	return func(ctx context.Context, testData *simsx.ChainDataSource, reporter simsx.SimulationReporter) ([]simsx.SimAccount, *types.MsgDelete<%= TypeName.UpperCamel %>) {
+func SimulateMsgDelete<%= TypeName.UpperCamel %>(
+	ak types.AuthKeeper,
+	bk types.BankKeeper,
+	k keeper.Keeper,
+	txGen client.TxConfig,
+) simtypes.Operation {
+	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
+	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		var (
-			msg = &types.MsgDelete<%= TypeName.UpperCamel %>{}
+			simAccount = simtypes.Account{}
+			msg = &types.MsgUpdate<%= TypeName.UpperCamel %>{}
 		)
 
 		<%= TypeName.LowerCamel %>, err := k.<%= TypeName.UpperCamel %>.Get(ctx)
 		if err != nil {
-			reporter.Skip("<%= TypeName.LowerCamel %> store is empty")
-			return nil, nil
+			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> store is empty"), nil, nil
 		}
 
-		simAccount := testData.GetAccount(reporter, <%= TypeName.LowerCamel %>.<%= MsgSigner.UpperCamel %>)
-		msg.<%= MsgSigner.UpperCamel %> = simAccount.AddressBech32
+		acc, err := ak.AddressCodec().StringToBytes(<%= TypeName.LowerCamel %>.<%= MsgSigner.UpperCamel %>)
+		if err != nil {
+			return simtypes.OperationMsg{}, nil, err
+		}
 
-		return []simsx.SimAccount{simAccount}, msg
+		var found bool
+		simAccount, found = simtypes.FindAccount(accs, sdk.AccAddress(acc))
+		if !found {
+			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found"), nil, nil
+		}
+		msg.<%= MsgSigner.UpperCamel %> = simAccount.Address.String()
+
+		txCtx := simulation.OperationInput{
+			R:               r,
+			App:             app,
+			TxGen:           txGen,
+			Cdc:             nil,
+			Msg:             msg,
+			Context:         ctx,
+			SimAccount:      simAccount,
+			ModuleName:      types.ModuleName,
+			CoinsSpentInMsg: sdk.NewCoins(),
+			AccountKeeper:   ak,
+			Bankkeeper:      bk,
+		}
+		return simulation.GenAndDeliverTxWithRandFees(txCtx)
 	}
 }

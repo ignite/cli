@@ -8,11 +8,11 @@ import (
     "<%= ModulePath %>/x/<%= moduleName %>/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
+	clienttypes "github.com/cosmos/ibc-go/v10/modules/core/02-client/types"
 )
 
 
-func (k msgServer) Send<%= packetName.UpperCamel %>(goCtx context.Context,  msg *types.MsgSend<%= packetName.UpperCamel %>) (*types.MsgSend<%= packetName.UpperCamel %>Response, error) {
+func (k msgServer) Send<%= packetName.UpperCamel %>(ctx context.Context,  msg *types.MsgSend<%= packetName.UpperCamel %>) (*types.MsgSend<%= packetName.UpperCamel %>Response, error) {
     // validate incoming message
     if _, err := k.addressCodec.StringToBytes(msg.<%= MsgSigner.UpperCamel %>); err != nil {
         return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", err))
@@ -38,7 +38,6 @@ func (k msgServer) Send<%= packetName.UpperCamel %>(goCtx context.Context,  msg 
     packet.<%= field.Name.UpperCamel %> = msg.<%= field.Name.UpperCamel %><% } %>
 
     // Transmit the packet
-	ctx := sdk.UnwrapSDKContext(goCtx)
     _, err := k.Transmit<%= packetName.UpperCamel %>Packet(
         ctx,
         packet,

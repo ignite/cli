@@ -30,9 +30,9 @@ func (_m *RPCClient) EXPECT() *RPCClient_Expecter {
 	return &RPCClient_Expecter{mock: &_m.Mock}
 }
 
-// ABCIInfo provides a mock function with given fields: ctx
-func (_m *RPCClient) ABCIInfo(ctx context.Context) (*coretypes.ResultABCIInfo, error) {
-	ret := _m.Called(ctx)
+// ABCIInfo provides a mock function with given fields: _a0
+func (_m *RPCClient) ABCIInfo(_a0 context.Context) (*coretypes.ResultABCIInfo, error) {
+	ret := _m.Called(_a0)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ABCIInfo")
@@ -41,10 +41,10 @@ func (_m *RPCClient) ABCIInfo(ctx context.Context) (*coretypes.ResultABCIInfo, e
 	var r0 *coretypes.ResultABCIInfo
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context) (*coretypes.ResultABCIInfo, error)); ok {
-		return rf(ctx)
+		return rf(_a0)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context) *coretypes.ResultABCIInfo); ok {
-		r0 = rf(ctx)
+		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*coretypes.ResultABCIInfo)
@@ -52,7 +52,7 @@ func (_m *RPCClient) ABCIInfo(ctx context.Context) (*coretypes.ResultABCIInfo, e
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+		r1 = rf(_a0)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -66,12 +66,12 @@ type RPCClient_ABCIInfo_Call struct {
 }
 
 // ABCIInfo is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *RPCClient_Expecter) ABCIInfo(ctx interface{}) *RPCClient_ABCIInfo_Call {
-	return &RPCClient_ABCIInfo_Call{Call: _e.mock.On("ABCIInfo", ctx)}
+//   - _a0 context.Context
+func (_e *RPCClient_Expecter) ABCIInfo(_a0 interface{}) *RPCClient_ABCIInfo_Call {
+	return &RPCClient_ABCIInfo_Call{Call: _e.mock.On("ABCIInfo", _a0)}
 }
 
-func (_c *RPCClient_ABCIInfo_Call) Run(run func(ctx context.Context)) *RPCClient_ABCIInfo_Call {
+func (_c *RPCClient_ABCIInfo_Call) Run(run func(_a0 context.Context)) *RPCClient_ABCIInfo_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context))
 	})
@@ -508,9 +508,9 @@ func (_c *RPCClient_BlockchainInfo_Call) RunAndReturn(run func(context.Context, 
 	return _c
 }
 
-// BroadcastEvidence provides a mock function with given fields: ctx, ev
-func (_m *RPCClient) BroadcastEvidence(ctx context.Context, ev types.Evidence) (*coretypes.ResultBroadcastEvidence, error) {
-	ret := _m.Called(ctx, ev)
+// BroadcastEvidence provides a mock function with given fields: _a0, _a1
+func (_m *RPCClient) BroadcastEvidence(_a0 context.Context, _a1 types.Evidence) (*coretypes.ResultBroadcastEvidence, error) {
+	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
 		panic("no return value specified for BroadcastEvidence")
@@ -519,10 +519,10 @@ func (_m *RPCClient) BroadcastEvidence(ctx context.Context, ev types.Evidence) (
 	var r0 *coretypes.ResultBroadcastEvidence
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, types.Evidence) (*coretypes.ResultBroadcastEvidence, error)); ok {
-		return rf(ctx, ev)
+		return rf(_a0, _a1)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, types.Evidence) *coretypes.ResultBroadcastEvidence); ok {
-		r0 = rf(ctx, ev)
+		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*coretypes.ResultBroadcastEvidence)
@@ -530,7 +530,7 @@ func (_m *RPCClient) BroadcastEvidence(ctx context.Context, ev types.Evidence) (
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, types.Evidence) error); ok {
-		r1 = rf(ctx, ev)
+		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -544,13 +544,13 @@ type RPCClient_BroadcastEvidence_Call struct {
 }
 
 // BroadcastEvidence is a helper method to define mock.On call
-//   - ctx context.Context
-//   - ev types.Evidence
-func (_e *RPCClient_Expecter) BroadcastEvidence(ctx interface{}, ev interface{}) *RPCClient_BroadcastEvidence_Call {
-	return &RPCClient_BroadcastEvidence_Call{Call: _e.mock.On("BroadcastEvidence", ctx, ev)}
+//   - _a0 context.Context
+//   - _a1 types.Evidence
+func (_e *RPCClient_Expecter) BroadcastEvidence(_a0 interface{}, _a1 interface{}) *RPCClient_BroadcastEvidence_Call {
+	return &RPCClient_BroadcastEvidence_Call{Call: _e.mock.On("BroadcastEvidence", _a0, _a1)}
 }
 
-func (_c *RPCClient_BroadcastEvidence_Call) Run(run func(ctx context.Context, ev types.Evidence)) *RPCClient_BroadcastEvidence_Call {
+func (_c *RPCClient_BroadcastEvidence_Call) Run(run func(_a0 context.Context, _a1 types.Evidence)) *RPCClient_BroadcastEvidence_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(types.Evidence))
 	})
@@ -567,9 +567,9 @@ func (_c *RPCClient_BroadcastEvidence_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
-// BroadcastTxAsync provides a mock function with given fields: ctx, tx
-func (_m *RPCClient) BroadcastTxAsync(ctx context.Context, tx types.Tx) (*coretypes.ResultBroadcastTx, error) {
-	ret := _m.Called(ctx, tx)
+// BroadcastTxAsync provides a mock function with given fields: _a0, _a1
+func (_m *RPCClient) BroadcastTxAsync(_a0 context.Context, _a1 types.Tx) (*coretypes.ResultBroadcastTx, error) {
+	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
 		panic("no return value specified for BroadcastTxAsync")
@@ -578,10 +578,10 @@ func (_m *RPCClient) BroadcastTxAsync(ctx context.Context, tx types.Tx) (*corety
 	var r0 *coretypes.ResultBroadcastTx
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, types.Tx) (*coretypes.ResultBroadcastTx, error)); ok {
-		return rf(ctx, tx)
+		return rf(_a0, _a1)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, types.Tx) *coretypes.ResultBroadcastTx); ok {
-		r0 = rf(ctx, tx)
+		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*coretypes.ResultBroadcastTx)
@@ -589,7 +589,7 @@ func (_m *RPCClient) BroadcastTxAsync(ctx context.Context, tx types.Tx) (*corety
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, types.Tx) error); ok {
-		r1 = rf(ctx, tx)
+		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -603,13 +603,13 @@ type RPCClient_BroadcastTxAsync_Call struct {
 }
 
 // BroadcastTxAsync is a helper method to define mock.On call
-//   - ctx context.Context
-//   - tx types.Tx
-func (_e *RPCClient_Expecter) BroadcastTxAsync(ctx interface{}, tx interface{}) *RPCClient_BroadcastTxAsync_Call {
-	return &RPCClient_BroadcastTxAsync_Call{Call: _e.mock.On("BroadcastTxAsync", ctx, tx)}
+//   - _a0 context.Context
+//   - _a1 types.Tx
+func (_e *RPCClient_Expecter) BroadcastTxAsync(_a0 interface{}, _a1 interface{}) *RPCClient_BroadcastTxAsync_Call {
+	return &RPCClient_BroadcastTxAsync_Call{Call: _e.mock.On("BroadcastTxAsync", _a0, _a1)}
 }
 
-func (_c *RPCClient_BroadcastTxAsync_Call) Run(run func(ctx context.Context, tx types.Tx)) *RPCClient_BroadcastTxAsync_Call {
+func (_c *RPCClient_BroadcastTxAsync_Call) Run(run func(_a0 context.Context, _a1 types.Tx)) *RPCClient_BroadcastTxAsync_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(types.Tx))
 	})
@@ -626,9 +626,9 @@ func (_c *RPCClient_BroadcastTxAsync_Call) RunAndReturn(run func(context.Context
 	return _c
 }
 
-// BroadcastTxCommit provides a mock function with given fields: ctx, tx
-func (_m *RPCClient) BroadcastTxCommit(ctx context.Context, tx types.Tx) (*coretypes.ResultBroadcastTxCommit, error) {
-	ret := _m.Called(ctx, tx)
+// BroadcastTxCommit provides a mock function with given fields: _a0, _a1
+func (_m *RPCClient) BroadcastTxCommit(_a0 context.Context, _a1 types.Tx) (*coretypes.ResultBroadcastTxCommit, error) {
+	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
 		panic("no return value specified for BroadcastTxCommit")
@@ -637,10 +637,10 @@ func (_m *RPCClient) BroadcastTxCommit(ctx context.Context, tx types.Tx) (*coret
 	var r0 *coretypes.ResultBroadcastTxCommit
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, types.Tx) (*coretypes.ResultBroadcastTxCommit, error)); ok {
-		return rf(ctx, tx)
+		return rf(_a0, _a1)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, types.Tx) *coretypes.ResultBroadcastTxCommit); ok {
-		r0 = rf(ctx, tx)
+		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*coretypes.ResultBroadcastTxCommit)
@@ -648,7 +648,7 @@ func (_m *RPCClient) BroadcastTxCommit(ctx context.Context, tx types.Tx) (*coret
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, types.Tx) error); ok {
-		r1 = rf(ctx, tx)
+		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -662,13 +662,13 @@ type RPCClient_BroadcastTxCommit_Call struct {
 }
 
 // BroadcastTxCommit is a helper method to define mock.On call
-//   - ctx context.Context
-//   - tx types.Tx
-func (_e *RPCClient_Expecter) BroadcastTxCommit(ctx interface{}, tx interface{}) *RPCClient_BroadcastTxCommit_Call {
-	return &RPCClient_BroadcastTxCommit_Call{Call: _e.mock.On("BroadcastTxCommit", ctx, tx)}
+//   - _a0 context.Context
+//   - _a1 types.Tx
+func (_e *RPCClient_Expecter) BroadcastTxCommit(_a0 interface{}, _a1 interface{}) *RPCClient_BroadcastTxCommit_Call {
+	return &RPCClient_BroadcastTxCommit_Call{Call: _e.mock.On("BroadcastTxCommit", _a0, _a1)}
 }
 
-func (_c *RPCClient_BroadcastTxCommit_Call) Run(run func(ctx context.Context, tx types.Tx)) *RPCClient_BroadcastTxCommit_Call {
+func (_c *RPCClient_BroadcastTxCommit_Call) Run(run func(_a0 context.Context, _a1 types.Tx)) *RPCClient_BroadcastTxCommit_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(types.Tx))
 	})
@@ -685,9 +685,9 @@ func (_c *RPCClient_BroadcastTxCommit_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
-// BroadcastTxSync provides a mock function with given fields: ctx, tx
-func (_m *RPCClient) BroadcastTxSync(ctx context.Context, tx types.Tx) (*coretypes.ResultBroadcastTx, error) {
-	ret := _m.Called(ctx, tx)
+// BroadcastTxSync provides a mock function with given fields: _a0, _a1
+func (_m *RPCClient) BroadcastTxSync(_a0 context.Context, _a1 types.Tx) (*coretypes.ResultBroadcastTx, error) {
+	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
 		panic("no return value specified for BroadcastTxSync")
@@ -696,10 +696,10 @@ func (_m *RPCClient) BroadcastTxSync(ctx context.Context, tx types.Tx) (*coretyp
 	var r0 *coretypes.ResultBroadcastTx
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, types.Tx) (*coretypes.ResultBroadcastTx, error)); ok {
-		return rf(ctx, tx)
+		return rf(_a0, _a1)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, types.Tx) *coretypes.ResultBroadcastTx); ok {
-		r0 = rf(ctx, tx)
+		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*coretypes.ResultBroadcastTx)
@@ -707,7 +707,7 @@ func (_m *RPCClient) BroadcastTxSync(ctx context.Context, tx types.Tx) (*coretyp
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, types.Tx) error); ok {
-		r1 = rf(ctx, tx)
+		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -721,13 +721,13 @@ type RPCClient_BroadcastTxSync_Call struct {
 }
 
 // BroadcastTxSync is a helper method to define mock.On call
-//   - ctx context.Context
-//   - tx types.Tx
-func (_e *RPCClient_Expecter) BroadcastTxSync(ctx interface{}, tx interface{}) *RPCClient_BroadcastTxSync_Call {
-	return &RPCClient_BroadcastTxSync_Call{Call: _e.mock.On("BroadcastTxSync", ctx, tx)}
+//   - _a0 context.Context
+//   - _a1 types.Tx
+func (_e *RPCClient_Expecter) BroadcastTxSync(_a0 interface{}, _a1 interface{}) *RPCClient_BroadcastTxSync_Call {
+	return &RPCClient_BroadcastTxSync_Call{Call: _e.mock.On("BroadcastTxSync", _a0, _a1)}
 }
 
-func (_c *RPCClient_BroadcastTxSync_Call) Run(run func(ctx context.Context, tx types.Tx)) *RPCClient_BroadcastTxSync_Call {
+func (_c *RPCClient_BroadcastTxSync_Call) Run(run func(_a0 context.Context, _a1 types.Tx)) *RPCClient_BroadcastTxSync_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(types.Tx))
 	})
@@ -744,9 +744,9 @@ func (_c *RPCClient_BroadcastTxSync_Call) RunAndReturn(run func(context.Context,
 	return _c
 }
 
-// CheckTx provides a mock function with given fields: ctx, tx
-func (_m *RPCClient) CheckTx(ctx context.Context, tx types.Tx) (*coretypes.ResultCheckTx, error) {
-	ret := _m.Called(ctx, tx)
+// CheckTx provides a mock function with given fields: _a0, _a1
+func (_m *RPCClient) CheckTx(_a0 context.Context, _a1 types.Tx) (*coretypes.ResultCheckTx, error) {
+	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CheckTx")
@@ -755,10 +755,10 @@ func (_m *RPCClient) CheckTx(ctx context.Context, tx types.Tx) (*coretypes.Resul
 	var r0 *coretypes.ResultCheckTx
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, types.Tx) (*coretypes.ResultCheckTx, error)); ok {
-		return rf(ctx, tx)
+		return rf(_a0, _a1)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, types.Tx) *coretypes.ResultCheckTx); ok {
-		r0 = rf(ctx, tx)
+		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*coretypes.ResultCheckTx)
@@ -766,7 +766,7 @@ func (_m *RPCClient) CheckTx(ctx context.Context, tx types.Tx) (*coretypes.Resul
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, types.Tx) error); ok {
-		r1 = rf(ctx, tx)
+		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -780,13 +780,13 @@ type RPCClient_CheckTx_Call struct {
 }
 
 // CheckTx is a helper method to define mock.On call
-//   - ctx context.Context
-//   - tx types.Tx
-func (_e *RPCClient_Expecter) CheckTx(ctx interface{}, tx interface{}) *RPCClient_CheckTx_Call {
-	return &RPCClient_CheckTx_Call{Call: _e.mock.On("CheckTx", ctx, tx)}
+//   - _a0 context.Context
+//   - _a1 types.Tx
+func (_e *RPCClient_Expecter) CheckTx(_a0 interface{}, _a1 interface{}) *RPCClient_CheckTx_Call {
+	return &RPCClient_CheckTx_Call{Call: _e.mock.On("CheckTx", _a0, _a1)}
 }
 
-func (_c *RPCClient_CheckTx_Call) Run(run func(ctx context.Context, tx types.Tx)) *RPCClient_CheckTx_Call {
+func (_c *RPCClient_CheckTx_Call) Run(run func(_a0 context.Context, _a1 types.Tx)) *RPCClient_CheckTx_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(types.Tx))
 	})
@@ -921,9 +921,9 @@ func (_c *RPCClient_ConsensusParams_Call) RunAndReturn(run func(context.Context,
 	return _c
 }
 
-// ConsensusState provides a mock function with given fields: ctx
-func (_m *RPCClient) ConsensusState(ctx context.Context) (*coretypes.ResultConsensusState, error) {
-	ret := _m.Called(ctx)
+// ConsensusState provides a mock function with given fields: _a0
+func (_m *RPCClient) ConsensusState(_a0 context.Context) (*coretypes.ResultConsensusState, error) {
+	ret := _m.Called(_a0)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ConsensusState")
@@ -932,10 +932,10 @@ func (_m *RPCClient) ConsensusState(ctx context.Context) (*coretypes.ResultConse
 	var r0 *coretypes.ResultConsensusState
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context) (*coretypes.ResultConsensusState, error)); ok {
-		return rf(ctx)
+		return rf(_a0)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context) *coretypes.ResultConsensusState); ok {
-		r0 = rf(ctx)
+		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*coretypes.ResultConsensusState)
@@ -943,7 +943,7 @@ func (_m *RPCClient) ConsensusState(ctx context.Context) (*coretypes.ResultConse
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+		r1 = rf(_a0)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -957,12 +957,12 @@ type RPCClient_ConsensusState_Call struct {
 }
 
 // ConsensusState is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *RPCClient_Expecter) ConsensusState(ctx interface{}) *RPCClient_ConsensusState_Call {
-	return &RPCClient_ConsensusState_Call{Call: _e.mock.On("ConsensusState", ctx)}
+//   - _a0 context.Context
+func (_e *RPCClient_Expecter) ConsensusState(_a0 interface{}) *RPCClient_ConsensusState_Call {
+	return &RPCClient_ConsensusState_Call{Call: _e.mock.On("ConsensusState", _a0)}
 }
 
-func (_c *RPCClient_ConsensusState_Call) Run(run func(ctx context.Context)) *RPCClient_ConsensusState_Call {
+func (_c *RPCClient_ConsensusState_Call) Run(run func(_a0 context.Context)) *RPCClient_ConsensusState_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context))
 	})
@@ -979,9 +979,9 @@ func (_c *RPCClient_ConsensusState_Call) RunAndReturn(run func(context.Context) 
 	return _c
 }
 
-// DumpConsensusState provides a mock function with given fields: ctx
-func (_m *RPCClient) DumpConsensusState(ctx context.Context) (*coretypes.ResultDumpConsensusState, error) {
-	ret := _m.Called(ctx)
+// DumpConsensusState provides a mock function with given fields: _a0
+func (_m *RPCClient) DumpConsensusState(_a0 context.Context) (*coretypes.ResultDumpConsensusState, error) {
+	ret := _m.Called(_a0)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DumpConsensusState")
@@ -990,10 +990,10 @@ func (_m *RPCClient) DumpConsensusState(ctx context.Context) (*coretypes.ResultD
 	var r0 *coretypes.ResultDumpConsensusState
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context) (*coretypes.ResultDumpConsensusState, error)); ok {
-		return rf(ctx)
+		return rf(_a0)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context) *coretypes.ResultDumpConsensusState); ok {
-		r0 = rf(ctx)
+		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*coretypes.ResultDumpConsensusState)
@@ -1001,7 +1001,7 @@ func (_m *RPCClient) DumpConsensusState(ctx context.Context) (*coretypes.ResultD
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+		r1 = rf(_a0)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -1015,12 +1015,12 @@ type RPCClient_DumpConsensusState_Call struct {
 }
 
 // DumpConsensusState is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *RPCClient_Expecter) DumpConsensusState(ctx interface{}) *RPCClient_DumpConsensusState_Call {
-	return &RPCClient_DumpConsensusState_Call{Call: _e.mock.On("DumpConsensusState", ctx)}
+//   - _a0 context.Context
+func (_e *RPCClient_Expecter) DumpConsensusState(_a0 interface{}) *RPCClient_DumpConsensusState_Call {
+	return &RPCClient_DumpConsensusState_Call{Call: _e.mock.On("DumpConsensusState", _a0)}
 }
 
-func (_c *RPCClient_DumpConsensusState_Call) Run(run func(ctx context.Context)) *RPCClient_DumpConsensusState_Call {
+func (_c *RPCClient_DumpConsensusState_Call) Run(run func(_a0 context.Context)) *RPCClient_DumpConsensusState_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context))
 	})
@@ -1037,9 +1037,9 @@ func (_c *RPCClient_DumpConsensusState_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
-// Genesis provides a mock function with given fields: ctx
-func (_m *RPCClient) Genesis(ctx context.Context) (*coretypes.ResultGenesis, error) {
-	ret := _m.Called(ctx)
+// Genesis provides a mock function with given fields: _a0
+func (_m *RPCClient) Genesis(_a0 context.Context) (*coretypes.ResultGenesis, error) {
+	ret := _m.Called(_a0)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Genesis")
@@ -1048,10 +1048,10 @@ func (_m *RPCClient) Genesis(ctx context.Context) (*coretypes.ResultGenesis, err
 	var r0 *coretypes.ResultGenesis
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context) (*coretypes.ResultGenesis, error)); ok {
-		return rf(ctx)
+		return rf(_a0)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context) *coretypes.ResultGenesis); ok {
-		r0 = rf(ctx)
+		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*coretypes.ResultGenesis)
@@ -1059,7 +1059,7 @@ func (_m *RPCClient) Genesis(ctx context.Context) (*coretypes.ResultGenesis, err
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+		r1 = rf(_a0)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -1073,12 +1073,12 @@ type RPCClient_Genesis_Call struct {
 }
 
 // Genesis is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *RPCClient_Expecter) Genesis(ctx interface{}) *RPCClient_Genesis_Call {
-	return &RPCClient_Genesis_Call{Call: _e.mock.On("Genesis", ctx)}
+//   - _a0 context.Context
+func (_e *RPCClient_Expecter) Genesis(_a0 interface{}) *RPCClient_Genesis_Call {
+	return &RPCClient_Genesis_Call{Call: _e.mock.On("Genesis", _a0)}
 }
 
-func (_c *RPCClient_Genesis_Call) Run(run func(ctx context.Context)) *RPCClient_Genesis_Call {
+func (_c *RPCClient_Genesis_Call) Run(run func(_a0 context.Context)) *RPCClient_Genesis_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context))
 	})
@@ -1095,9 +1095,9 @@ func (_c *RPCClient_Genesis_Call) RunAndReturn(run func(context.Context) (*coret
 	return _c
 }
 
-// GenesisChunked provides a mock function with given fields: ctx, id
-func (_m *RPCClient) GenesisChunked(ctx context.Context, id uint) (*coretypes.ResultGenesisChunk, error) {
-	ret := _m.Called(ctx, id)
+// GenesisChunked provides a mock function with given fields: _a0, _a1
+func (_m *RPCClient) GenesisChunked(_a0 context.Context, _a1 uint) (*coretypes.ResultGenesisChunk, error) {
+	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GenesisChunked")
@@ -1106,10 +1106,10 @@ func (_m *RPCClient) GenesisChunked(ctx context.Context, id uint) (*coretypes.Re
 	var r0 *coretypes.ResultGenesisChunk
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, uint) (*coretypes.ResultGenesisChunk, error)); ok {
-		return rf(ctx, id)
+		return rf(_a0, _a1)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, uint) *coretypes.ResultGenesisChunk); ok {
-		r0 = rf(ctx, id)
+		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*coretypes.ResultGenesisChunk)
@@ -1117,7 +1117,7 @@ func (_m *RPCClient) GenesisChunked(ctx context.Context, id uint) (*coretypes.Re
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, uint) error); ok {
-		r1 = rf(ctx, id)
+		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -1131,13 +1131,13 @@ type RPCClient_GenesisChunked_Call struct {
 }
 
 // GenesisChunked is a helper method to define mock.On call
-//   - ctx context.Context
-//   - id uint
-func (_e *RPCClient_Expecter) GenesisChunked(ctx interface{}, id interface{}) *RPCClient_GenesisChunked_Call {
-	return &RPCClient_GenesisChunked_Call{Call: _e.mock.On("GenesisChunked", ctx, id)}
+//   - _a0 context.Context
+//   - _a1 uint
+func (_e *RPCClient_Expecter) GenesisChunked(_a0 interface{}, _a1 interface{}) *RPCClient_GenesisChunked_Call {
+	return &RPCClient_GenesisChunked_Call{Call: _e.mock.On("GenesisChunked", _a0, _a1)}
 }
 
-func (_c *RPCClient_GenesisChunked_Call) Run(run func(ctx context.Context, id uint)) *RPCClient_GenesisChunked_Call {
+func (_c *RPCClient_GenesisChunked_Call) Run(run func(_a0 context.Context, _a1 uint)) *RPCClient_GenesisChunked_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(uint))
 	})
@@ -1272,9 +1272,9 @@ func (_c *RPCClient_HeaderByHash_Call) RunAndReturn(run func(context.Context, by
 	return _c
 }
 
-// Health provides a mock function with given fields: ctx
-func (_m *RPCClient) Health(ctx context.Context) (*coretypes.ResultHealth, error) {
-	ret := _m.Called(ctx)
+// Health provides a mock function with given fields: _a0
+func (_m *RPCClient) Health(_a0 context.Context) (*coretypes.ResultHealth, error) {
+	ret := _m.Called(_a0)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Health")
@@ -1283,10 +1283,10 @@ func (_m *RPCClient) Health(ctx context.Context) (*coretypes.ResultHealth, error
 	var r0 *coretypes.ResultHealth
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context) (*coretypes.ResultHealth, error)); ok {
-		return rf(ctx)
+		return rf(_a0)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context) *coretypes.ResultHealth); ok {
-		r0 = rf(ctx)
+		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*coretypes.ResultHealth)
@@ -1294,7 +1294,7 @@ func (_m *RPCClient) Health(ctx context.Context) (*coretypes.ResultHealth, error
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+		r1 = rf(_a0)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -1308,12 +1308,12 @@ type RPCClient_Health_Call struct {
 }
 
 // Health is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *RPCClient_Expecter) Health(ctx interface{}) *RPCClient_Health_Call {
-	return &RPCClient_Health_Call{Call: _e.mock.On("Health", ctx)}
+//   - _a0 context.Context
+func (_e *RPCClient_Expecter) Health(_a0 interface{}) *RPCClient_Health_Call {
+	return &RPCClient_Health_Call{Call: _e.mock.On("Health", _a0)}
 }
 
-func (_c *RPCClient_Health_Call) Run(run func(ctx context.Context)) *RPCClient_Health_Call {
+func (_c *RPCClient_Health_Call) Run(run func(_a0 context.Context)) *RPCClient_Health_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context))
 	})
@@ -1375,9 +1375,9 @@ func (_c *RPCClient_IsRunning_Call) RunAndReturn(run func() bool) *RPCClient_IsR
 	return _c
 }
 
-// NetInfo provides a mock function with given fields: ctx
-func (_m *RPCClient) NetInfo(ctx context.Context) (*coretypes.ResultNetInfo, error) {
-	ret := _m.Called(ctx)
+// NetInfo provides a mock function with given fields: _a0
+func (_m *RPCClient) NetInfo(_a0 context.Context) (*coretypes.ResultNetInfo, error) {
+	ret := _m.Called(_a0)
 
 	if len(ret) == 0 {
 		panic("no return value specified for NetInfo")
@@ -1386,10 +1386,10 @@ func (_m *RPCClient) NetInfo(ctx context.Context) (*coretypes.ResultNetInfo, err
 	var r0 *coretypes.ResultNetInfo
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context) (*coretypes.ResultNetInfo, error)); ok {
-		return rf(ctx)
+		return rf(_a0)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context) *coretypes.ResultNetInfo); ok {
-		r0 = rf(ctx)
+		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*coretypes.ResultNetInfo)
@@ -1397,7 +1397,7 @@ func (_m *RPCClient) NetInfo(ctx context.Context) (*coretypes.ResultNetInfo, err
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+		r1 = rf(_a0)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -1411,12 +1411,12 @@ type RPCClient_NetInfo_Call struct {
 }
 
 // NetInfo is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *RPCClient_Expecter) NetInfo(ctx interface{}) *RPCClient_NetInfo_Call {
-	return &RPCClient_NetInfo_Call{Call: _e.mock.On("NetInfo", ctx)}
+//   - _a0 context.Context
+func (_e *RPCClient_Expecter) NetInfo(_a0 interface{}) *RPCClient_NetInfo_Call {
+	return &RPCClient_NetInfo_Call{Call: _e.mock.On("NetInfo", _a0)}
 }
 
-func (_c *RPCClient_NetInfo_Call) Run(run func(ctx context.Context)) *RPCClient_NetInfo_Call {
+func (_c *RPCClient_NetInfo_Call) Run(run func(_a0 context.Context)) *RPCClient_NetInfo_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context))
 	})
@@ -1433,9 +1433,9 @@ func (_c *RPCClient_NetInfo_Call) RunAndReturn(run func(context.Context) (*coret
 	return _c
 }
 
-// NumUnconfirmedTxs provides a mock function with given fields: ctx
-func (_m *RPCClient) NumUnconfirmedTxs(ctx context.Context) (*coretypes.ResultUnconfirmedTxs, error) {
-	ret := _m.Called(ctx)
+// NumUnconfirmedTxs provides a mock function with given fields: _a0
+func (_m *RPCClient) NumUnconfirmedTxs(_a0 context.Context) (*coretypes.ResultUnconfirmedTxs, error) {
+	ret := _m.Called(_a0)
 
 	if len(ret) == 0 {
 		panic("no return value specified for NumUnconfirmedTxs")
@@ -1444,10 +1444,10 @@ func (_m *RPCClient) NumUnconfirmedTxs(ctx context.Context) (*coretypes.ResultUn
 	var r0 *coretypes.ResultUnconfirmedTxs
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context) (*coretypes.ResultUnconfirmedTxs, error)); ok {
-		return rf(ctx)
+		return rf(_a0)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context) *coretypes.ResultUnconfirmedTxs); ok {
-		r0 = rf(ctx)
+		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*coretypes.ResultUnconfirmedTxs)
@@ -1455,7 +1455,7 @@ func (_m *RPCClient) NumUnconfirmedTxs(ctx context.Context) (*coretypes.ResultUn
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+		r1 = rf(_a0)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -1469,12 +1469,12 @@ type RPCClient_NumUnconfirmedTxs_Call struct {
 }
 
 // NumUnconfirmedTxs is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *RPCClient_Expecter) NumUnconfirmedTxs(ctx interface{}) *RPCClient_NumUnconfirmedTxs_Call {
-	return &RPCClient_NumUnconfirmedTxs_Call{Call: _e.mock.On("NumUnconfirmedTxs", ctx)}
+//   - _a0 context.Context
+func (_e *RPCClient_Expecter) NumUnconfirmedTxs(_a0 interface{}) *RPCClient_NumUnconfirmedTxs_Call {
+	return &RPCClient_NumUnconfirmedTxs_Call{Call: _e.mock.On("NumUnconfirmedTxs", _a0)}
 }
 
-func (_c *RPCClient_NumUnconfirmedTxs_Call) Run(run func(ctx context.Context)) *RPCClient_NumUnconfirmedTxs_Call {
+func (_c *RPCClient_NumUnconfirmedTxs_Call) Run(run func(_a0 context.Context)) *RPCClient_NumUnconfirmedTxs_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context))
 	})
@@ -1705,9 +1705,9 @@ func (_c *RPCClient_Reset_Call) RunAndReturn(run func() error) *RPCClient_Reset_
 	return _c
 }
 
-// SetLogger provides a mock function with given fields: l
-func (_m *RPCClient) SetLogger(l log.Logger) {
-	_m.Called(l)
+// SetLogger provides a mock function with given fields: _a0
+func (_m *RPCClient) SetLogger(_a0 log.Logger) {
+	_m.Called(_a0)
 }
 
 // RPCClient_SetLogger_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetLogger'
@@ -1716,12 +1716,12 @@ type RPCClient_SetLogger_Call struct {
 }
 
 // SetLogger is a helper method to define mock.On call
-//   - l log.Logger
-func (_e *RPCClient_Expecter) SetLogger(l interface{}) *RPCClient_SetLogger_Call {
-	return &RPCClient_SetLogger_Call{Call: _e.mock.On("SetLogger", l)}
+//   - _a0 log.Logger
+func (_e *RPCClient_Expecter) SetLogger(_a0 interface{}) *RPCClient_SetLogger_Call {
+	return &RPCClient_SetLogger_Call{Call: _e.mock.On("SetLogger", _a0)}
 }
 
-func (_c *RPCClient_SetLogger_Call) Run(run func(l log.Logger)) *RPCClient_SetLogger_Call {
+func (_c *RPCClient_SetLogger_Call) Run(run func(_a0 log.Logger)) *RPCClient_SetLogger_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(log.Logger))
 	})
@@ -1783,9 +1783,9 @@ func (_c *RPCClient_Start_Call) RunAndReturn(run func() error) *RPCClient_Start_
 	return _c
 }
 
-// Status provides a mock function with given fields: ctx
-func (_m *RPCClient) Status(ctx context.Context) (*coretypes.ResultStatus, error) {
-	ret := _m.Called(ctx)
+// Status provides a mock function with given fields: _a0
+func (_m *RPCClient) Status(_a0 context.Context) (*coretypes.ResultStatus, error) {
+	ret := _m.Called(_a0)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Status")
@@ -1794,10 +1794,10 @@ func (_m *RPCClient) Status(ctx context.Context) (*coretypes.ResultStatus, error
 	var r0 *coretypes.ResultStatus
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context) (*coretypes.ResultStatus, error)); ok {
-		return rf(ctx)
+		return rf(_a0)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context) *coretypes.ResultStatus); ok {
-		r0 = rf(ctx)
+		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*coretypes.ResultStatus)
@@ -1805,7 +1805,7 @@ func (_m *RPCClient) Status(ctx context.Context) (*coretypes.ResultStatus, error
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+		r1 = rf(_a0)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -1819,12 +1819,12 @@ type RPCClient_Status_Call struct {
 }
 
 // Status is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *RPCClient_Expecter) Status(ctx interface{}) *RPCClient_Status_Call {
-	return &RPCClient_Status_Call{Call: _e.mock.On("Status", ctx)}
+//   - _a0 context.Context
+func (_e *RPCClient_Expecter) Status(_a0 interface{}) *RPCClient_Status_Call {
+	return &RPCClient_Status_Call{Call: _e.mock.On("Status", _a0)}
 }
 
-func (_c *RPCClient_Status_Call) Run(run func(ctx context.Context)) *RPCClient_Status_Call {
+func (_c *RPCClient_Status_Call) Run(run func(_a0 context.Context)) *RPCClient_Status_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context))
 	})

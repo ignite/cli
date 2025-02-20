@@ -8,9 +8,9 @@ import (
     "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
-	channelutils "github.com/cosmos/ibc-go/v9/modules/core/04-channel/client/utils"
-	"github.com/cosmos/ibc-go/v9/modules/core/exported"
+	clienttypes "github.com/cosmos/ibc-go/v10/modules/core/02-client/types"
+	channelutils "github.com/cosmos/ibc-go/v10/modules/core/04-channel/client/utils"
+	"github.com/cosmos/ibc-go/v10/modules/core/exported"
 
 	"<%= ModulePath %>/x/<%= moduleName %>/types"
 )
