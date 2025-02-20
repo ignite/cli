@@ -3,7 +3,7 @@ package types
 // DONTCOVER
 
 import (
-	"cosmossdk.io/errors/v2"
+	"cosmossdk.io/errors"
 )
 
 // x/<%= moduleName %> module sentinel errors

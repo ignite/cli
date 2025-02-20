@@ -1,11 +1,11 @@
 package foo
 
 import (
-	paramstypes "cosmossdk.io/x/params/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	app "github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/app/testdata/modules/registration_not_in_app_go"

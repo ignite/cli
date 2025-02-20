@@ -5,10 +5,11 @@ import (
 	"errors"
 
 	errorsmod "cosmossdk.io/errors"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"<%= ModulePath %>/x/<%= moduleName %>/types"
-	clienttypes "github.com/cosmos/ibc-go/v9/modules/core/02-client/types"
-	channeltypes "github.com/cosmos/ibc-go/v9/modules/core/04-channel/types"
+	clienttypes "github.com/cosmos/ibc-go/v10/modules/core/02-client/types"
+	channeltypes "github.com/cosmos/ibc-go/v10/modules/core/04-channel/types"
 )
 
 // Transmit<%= packetName.UpperCamel %>Packet transmits the packet over IBC with the specified source port and source channel
@@ -25,7 +26,8 @@ func (k Keeper) Transmit<%= packetName.UpperCamel %>Packet(
         return 0, errorsmod.Wrapf(sdkerrors.ErrJSONMarshal, "cannot marshal the packet: %s", err)
     }
 
-    return k.ibcKeeperFn().ChannelKeeper.SendPacket(ctx, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, packetBytes)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+    return k.ibcKeeperFn().ChannelKeeper.SendPacket(sdkCtx, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, packetBytes)
 }
 
 // OnRecv<%= packetName.UpperCamel %>Packet processes packet reception
@@ -51,7 +53,7 @@ func (k Keeper) OnAcknowledgement<%= packetName.UpperCamel %>Packet(ctx context.
         // Decode the packet acknowledgment
         var packetAck types.<%= packetName.UpperCamel %>PacketAck
 
-        if err := types.ModuleCdc.UnmarshalJSON(dispatchedAck.Result, &packetAck); err != nil {
+        if err := k.cdc.UnmarshalJSON(dispatchedAck.Result, &packetAck); err != nil {
             // The counter-party module doesn't implement the correct acknowledgment format
             return errors.New("cannot unmarshal acknowledgment")
         }

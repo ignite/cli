@@ -1,36 +1,38 @@
 package <%= moduleName %>
 
 import (
-	"context"
 	"fmt"
 
 	"cosmossdk.io/core/event"
 	errorsmod "cosmossdk.io/errors"
 
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	channeltypes "github.com/cosmos/ibc-go/v9/modules/core/04-channel/types"
-	porttypes "github.com/cosmos/ibc-go/v9/modules/core/05-port/types"
-	ibcexported "github.com/cosmos/ibc-go/v9/modules/core/exported"
+	channeltypes "github.com/cosmos/ibc-go/v10/modules/core/04-channel/types"
+	porttypes "github.com/cosmos/ibc-go/v10/modules/core/05-port/types"
+	ibcexported "github.com/cosmos/ibc-go/v10/modules/core/exported"
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
 // IBCModule implements the ICS26 interface for interchain accounts host chains
 type IBCModule struct {
+	cdc    codec.Codec
 	keeper keeper.Keeper
 }
 
 // NewIBCModule creates a new IBCModule given the associated keeper
-func NewIBCModule(k keeper.Keeper) IBCModule {
+func NewIBCModule(cdc codec.Codec, k keeper.Keeper) IBCModule {
 	return IBCModule{
+		cdc: cdc,
 		keeper: k,
 	}
 }
 
 // OnChanOpenInit implements the IBCModule interface
 func (im IBCModule) OnChanOpenInit(
-	ctx context.Context,
+	ctx sdk.Context,
 	order channeltypes.Order,
 	connectionHops []string,
 	portID string,
@@ -47,7 +49,7 @@ func (im IBCModule) OnChanOpenInit(
 
 // OnChanOpenTry implements the IBCModule interface
 func (im IBCModule) OnChanOpenTry(
-	ctx context.Context,
+	ctx sdk.Context,
 	order channeltypes.Order,
 	connectionHops []string,
 	portID,
@@ -64,7 +66,7 @@ func (im IBCModule) OnChanOpenTry(
 
 // OnChanOpenAck implements the IBCModule interface
 func (im IBCModule) OnChanOpenAck(
-	ctx context.Context,
+	ctx sdk.Context,
 	portID,
 	channelID,
 	counterpartyChannelID,
@@ -78,7 +80,7 @@ func (im IBCModule) OnChanOpenAck(
 
 // OnChanOpenConfirm implements the IBCModule interface
 func (im IBCModule) OnChanOpenConfirm(
-	ctx context.Context,
+	ctx sdk.Context,
 	portID,
 	channelID string,
 ) error {
@@ -87,7 +89,7 @@ func (im IBCModule) OnChanOpenConfirm(
 
 // OnChanCloseInit implements the IBCModule interface
 func (im IBCModule) OnChanCloseInit(
-	ctx context.Context,
+	ctx sdk.Context,
 	portID,
 	channelID string,
 ) error {
@@ -97,7 +99,7 @@ func (im IBCModule) OnChanCloseInit(
 
 // OnChanCloseConfirm implements the IBCModule interface
 func (im IBCModule) OnChanCloseConfirm(
-	ctx context.Context,
+	ctx sdk.Context,
 	portID,
 	channelID string,
 ) error {
@@ -106,7 +108,7 @@ func (im IBCModule) OnChanCloseConfirm(
 
 // OnRecvPacket implements the IBCModule interface
 func (im IBCModule) OnRecvPacket(
-	ctx context.Context,
+	ctx sdk.Context,
 	channelVersion string,
 	modulePacket channeltypes.Packet,
 	relayer sdk.AccAddress,
@@ -132,14 +134,14 @@ func (im IBCModule) OnRecvPacket(
 
 // OnAcknowledgementPacket implements the IBCModule interface
 func (im IBCModule) OnAcknowledgementPacket(
-	ctx context.Context,
+	ctx sdk.Context,
 	channelVersion string,
 	modulePacket channeltypes.Packet,
 	acknowledgement []byte,
 	relayer sdk.AccAddress,
 ) error {
 	var ack channeltypes.Acknowledgement
-	if err := types.ModuleCdc.UnmarshalJSON(acknowledgement, &ack); err != nil {
+	if err := im.cdc.UnmarshalJSON(acknowledgement, &ack); err != nil {
 		return errorsmod.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet acknowledgement: %v", err)
 	}
 
@@ -158,22 +160,29 @@ func (im IBCModule) OnAcknowledgementPacket(
 		return errorsmod.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
 	}
 
-	_ = im.keeper.Environment.EventService.EventManager(ctx).EmitKV(
-		eventType,
-		event.NewAttribute(types.AttributeKeyAck, fmt.Sprintf("%v", ack)),
-	)
+
+    ctx.EventManager().EmitEvent(
+        sdk.NewEvent(
+            eventType,
+            sdk.NewAttribute(types.AttributeKeyAck, fmt.Sprintf("%v", ack)),
+        ),
+    )
 
 	switch resp := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Result:
-		_ = im.keeper.Environment.EventService.EventManager(ctx).EmitKV(
-			eventType,
-			event.NewAttribute(types.AttributeKeyAckSuccess, string(resp.Result)),
-		)
+    	ctx.EventManager().EmitEvent(
+    	    sdk.NewEvent(
+    	        eventType,
+    	        sdk.NewAttribute(types.AttributeKeyAckSuccess, string(resp.Result)),
+    	    ),
+    	)
 	case *channeltypes.Acknowledgement_Error:
-		_ = im.keeper.Environment.EventService.EventManager(ctx).EmitKV(
-			eventType,
-			event.NewAttribute(types.AttributeKeyAckError, resp.Error),
-		)
+    	ctx.EventManager().EmitEvent(
+    	    sdk.NewEvent(
+    	        eventType,
+    	        sdk.NewAttribute(types.AttributeKeyAckError, resp.Error),
+    	    ),
+    	)
 	}
 
 	return nil
@@ -181,7 +190,7 @@ func (im IBCModule) OnAcknowledgementPacket(
 
 // OnTimeoutPacket implements the IBCModule interface
 func (im IBCModule) OnTimeoutPacket(
-	ctx context.Context,
+	ctx sdk.Context,
 	channelVersion string,
 	modulePacket channeltypes.Packet,
 	relayer sdk.AccAddress,
