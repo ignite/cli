@@ -916,9 +916,9 @@ ignite chain simulate [flags]
       --genesis string            custom simulation genesis file; cannot be used with params file
       --genesisTime int           override genesis UNIX time instead of using a random UNIX time
   -h, --help                      help for simulate
-      --initialBlockHeight uint   initial block to start the simulation (default 1)
+      --initialBlockHeight int    initial block to start the simulation (default 1)
       --lean                      lean simulation log output
-      --numBlocks uint            number of new blocks to simulate from the initial block height (default 200)
+      --numBlocks int             number of new blocks to simulate from the initial block height (default 200)
       --params string             custom simulation params file which overrides any random params; cannot be used with genesis
       --seed int                  simulation random seed (default 42)
       --simName string            name of the simulation to run (default "TestFullAppSimulation")
@@ -3425,9 +3425,9 @@ ignite testnet simulate [flags]
       --genesis string            custom simulation genesis file; cannot be used with params file
       --genesisTime int           override genesis UNIX time instead of using a random UNIX time
   -h, --help                      help for simulate
-      --initialBlockHeight uint   initial block to start the simulation (default 1)
+      --initialBlockHeight int    initial block to start the simulation (default 1)
       --lean                      lean simulation log output
-      --numBlocks uint            number of new blocks to simulate from the initial block height (default 200)
+      --numBlocks int             number of new blocks to simulate from the initial block height (default 200)
       --params string             custom simulation params file which overrides any random params; cannot be used with genesis
       --seed int                  simulation random seed (default 42)
       --simName string            name of the simulation to run (default "TestFullAppSimulation")
