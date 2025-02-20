@@ -2,11 +2,6 @@ module github.com/ignite/cli/v29
 
 go 1.23.6
 
-replace (
-	cosmossdk.io/core => cosmossdk.io/core v0.11.2
-	github.com/cometbft/cometbft => github.com/cometbft/cometbft v0.38.17
-)
-
 require (
 	cosmossdk.io/math v1.5.0
 	github.com/99designs/keyring v1.2.2
