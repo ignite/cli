@@ -26,7 +26,6 @@
 - [#4477](https://github.com/ignite/cli/pull/4477) IBC v10 support
 - [#4166](https://github.com/ignite/cli/issues/4166) Migrate buf config files to v2
 - [#4494](https://github.com/ignite/cli/pull/4494) Automatic migrate the buf configs to v2
-- [#4513](https://github.com/ignite/cli/pull/4513) Allow to pass tx fees to faucet server
 
 ### Changes
 
@@ -59,6 +58,22 @@
 - [#4091](https://github.com/ignite/cli/pull/4091) Fix race conditions in the plugin logic
 - [#4128](https://github.com/ignite/cli/pull/4128) Check for duplicate proto fields in config
 - [#4402](https://github.com/ignite/cli/pull/4402) Fix gentx parser into the cosmosutil package
+
+## [`v28.8.0`](https://github.com/ignite/cli/releases/tag/v28.8.0)
+
+### Features
+
+- [#4513](https://github.com/ignite/cli/pull/4513) Allow to pass tx fees to faucet server
+
+### Changes
+
+- [#4439](https://github.com/ignite/cli/pull/4439) Simplify Ignite CLI dependencies by removing `moby` and `gorilla` dependencies.
+- [#4471](https://github.com/ignite/cli/pull/4471) Bump CometBFT to v0.38.15.
+- [#4471](https://github.com/ignite/cli/pull/4471) Bump Ignite & chain minimum Go version to 1.23.
+- [#4529](https://github.com/ignite/cli/pull/4531) Bump Cosmos SDK to v0.50.12.
+
+### Bug Fixes
+
 - [#4474](https://github.com/ignite/cli/pull/4474) Fix issue in `build --release` command
 - [#4479](https://github.com/ignite/cli/pull/4479) Scaffold an `uint64 type crashs Ignite
 - [#4483](https://github.com/ignite/cli/pull/4483) Fix default flag parser for apps
