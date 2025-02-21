@@ -84,11 +84,14 @@ func (m StatusEvents) Update(msg tea.Msg) (StatusEvents, tea.Cmd) {
 			if m.events.Len() > m.maxHistory {
 				m.events.Remove(m.events.Back())
 			}
+			fmt.Println("exist  event  - " + msg.Event.String())
 		} else {
 			// Events that have no progress status are considered static,
 			// so they will be printed without the spinner and won't be
 			// removed from the output until the view is removed.
+			fmt.Println("new  event  - " + msg.Event.String())
 			m.static = append(m.static, msg.Event)
+
 		}
 
 		// Return a command to wait for the next event
