@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [`v28.8.0`](https://github.com/ignite/cli/releases/tag/v28.8.0)
+
 ### Features
 
 - [#4513](https://github.com/ignite/cli/pull/4513) Allow to pass tx fees to faucet server
@@ -11,6 +13,7 @@
 - [#4439](https://github.com/ignite/cli/pull/4439) Simplify Ignite CLI dependencies by removing `moby` and `gorilla` dependencies.
 - [#4471](https://github.com/ignite/cli/pull/4471) Bump CometBFT to v0.38.15.
 - [#4471](https://github.com/ignite/cli/pull/4471) Bump Ignite & chain minimum Go version to 1.23.
+- [#4529](https://github.com/ignite/cli/pull/4531) Bump Cosmos SDK to v0.50.12.
 
 ### Bug Fixes
 
