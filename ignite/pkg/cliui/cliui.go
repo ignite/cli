@@ -31,7 +31,7 @@ type sessionOptions struct {
 type Session struct {
 	options sessionOptions
 	ev      events.Bus
-	spinner *clispinner.Spinner
+	spinner clispinner.Spinner
 	out     uilog.Output
 	wg      *sync.WaitGroup
 	ended   bool
