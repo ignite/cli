@@ -384,6 +384,32 @@ func (k msgServer) LiquidateLoan(goCtx context.Context, msg *types.MsgLiquidateL
 }
 ```
 
+```go title="x/loan/keeper/msg_update_params.go"
+package keeper
+
+import (
+	"context"
+
+	errorsmod "cosmossdk.io/errors"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"loan/x/loan/types"
+)
+
+func (k msgServer) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
+	if k.GetAuthority() != req.Authority {
+		return nil, errorsmod.Wrapf(types.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.GetAuthority(), req.Authority)
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	if err := k.SetParams(ctx, req.Params); err != nil {
+		return nil, err
+	}
+
+	return &types.MsgUpdateParamsResponse{}, nil
+}
+```
+
 Add the custom errors `ErrWrongLoanState` and `ErrDeadline`:
 
 ```go title="x/loan/types/errors.go"
@@ -394,6 +420,7 @@ import (
 )
 
 var (
+	ErrInvalidSigner = sdkerrors.Register(ModuleName, 1100, "expected gov account as only signer for proposal message")
 	ErrWrongLoanState = sdkerrors.Register(ModuleName, 2, "wrong loan state")
 	ErrDeadline       = sdkerrors.Register(ModuleName, 3, "deadline")
 )
