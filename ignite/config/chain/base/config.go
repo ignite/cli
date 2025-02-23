@@ -1,7 +1,7 @@
 package base
 
 import (
-	"github.com/imdario/mergo"
+	"dario.cat/mergo"
 
 	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/config/chain/version"

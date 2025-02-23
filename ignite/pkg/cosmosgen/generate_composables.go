@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/imdario/mergo"
+	"dario.cat/mergo"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/module"
