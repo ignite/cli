@@ -2,30 +2,33 @@ package clispinner
 
 import (
 	"io"
-	"time"
+	"os"
 
-	"github.com/briandowns/spinner"
+	"github.com/mattn/go-isatty"
+	"golang.org/x/term"
 )
 
 // DefaultText defines the default spinner text.
 const DefaultText = "Initializing..."
 
-var (
-	refreshRate  = time.Millisecond * 200
-	charset      = spinner.CharSets[4]
-	spinnerColor = "blue"
-)
-
-type Spinner struct {
-	sp *spinner.Spinner
-}
-
 type (
+	Spinner interface {
+		SetText(text string) Spinner
+		SetPrefix(text string) Spinner
+		SetCharset(charset []string) Spinner
+		SetColor(color string) Spinner
+		Start() Spinner
+		Stop() Spinner
+		IsActive() bool
+		Writer() io.Writer
+	}
+
 	Option func(*Options)
 
 	Options struct {
-		writer io.Writer
-		text   string
+		writer  io.Writer
+		text    string
+		charset []string
 	}
 )
 
@@ -43,76 +46,33 @@ func WithText(text string) Option {
 	}
 }
 
+// WithCharset configures the spinner charset.
+func WithCharset(charset []string) Option {
+	return func(options *Options) {
+		options.charset = charset
+	}
+}
+
 // New creates a new spinner.
-func New(options ...Option) *Spinner {
+func New(options ...Option) Spinner {
 	o := Options{}
 	for _, apply := range options {
 		apply(&o)
 	}
 
-	text := o.text
-	if text == "" {
-		text = DefaultText
+	if isRunningInTerminal(o.writer) {
+		return newTermSpinner(o)
 	}
+	return newSimpleSpinner(o)
+}
 
-	spOptions := []spinner.Option{
-		spinner.WithColor(spinnerColor),
-		spinner.WithSuffix(" " + text),
+// isRunningInTerminal check if the writer file descriptor is a terminal
+func isRunningInTerminal(w io.Writer) bool {
+	if w == nil {
+		return isatty.IsTerminal(os.Stdout.Fd())
 	}
-
-	if o.writer != nil {
-		spOptions = append(spOptions, spinner.WithWriter(o.writer))
+	if f, ok := w.(*os.File); ok {
+		return term.IsTerminal(int(f.Fd()))
 	}
-
-	return &Spinner{
-		sp: spinner.New(charset, refreshRate, spOptions...),
-	}
-}
-
-// SetText sets the text for spinner.
-func (s *Spinner) SetText(text string) *Spinner {
-	s.sp.Lock()
-	s.sp.Suffix = " " + text
-	s.sp.Unlock()
-	return s
-}
-
-// SetPrefix sets the prefix for spinner.
-func (s *Spinner) SetPrefix(text string) *Spinner {
-	s.sp.Lock()
-	s.sp.Prefix = text + " "
-	s.sp.Unlock()
-	return s
-}
-
-// SetCharset sets the prefix for spinner.
-func (s *Spinner) SetCharset(charset []string) *Spinner {
-	s.sp.UpdateCharSet(charset)
-	return s
-}
-
-// SetColor sets the prefix for spinner.
-func (s *Spinner) SetColor(color string) *Spinner {
-	_ = s.sp.Color(color)
-	return s
-}
-
-// Start starts spinning.
-func (s *Spinner) Start() *Spinner {
-	s.sp.Start()
-	return s
-}
-
-// Stop stops spinning.
-func (s *Spinner) Stop() *Spinner {
-	s.sp.Stop()
-	s.sp.Prefix = ""
-	_ = s.sp.Color(spinnerColor)
-	s.sp.UpdateCharSet(charset)
-	s.sp.Stop()
-	return s
-}
-
-func (s *Spinner) IsActive() bool {
-	return s.sp.Active()
+	return false
 }
