@@ -86,6 +86,12 @@ func RedirectStdout(w io.Writer) Option {
 	}
 }
 
+func RedirectStderr(w io.Writer) Option {
+	return func(p *Plugin) {
+		p.stderr = w
+	}
+}
+
 // Load loads the plugins found in the chain config.
 //
 // There's 2 kinds of plugins, local or remote.
@@ -274,7 +280,7 @@ func (p *Plugin) load(ctx context.Context) {
 	}
 	logger := hclog.New(&hclog.LoggerOptions{
 		Name:   fmt.Sprintf("app %s", p.Path),
-		Output: os.Stderr,
+		Output: p.stderr,
 		Level:  logLevel,
 	})
 
