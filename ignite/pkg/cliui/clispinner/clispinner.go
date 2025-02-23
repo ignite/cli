@@ -4,7 +4,6 @@ import (
 	"io"
 	"os"
 
-	"github.com/mattn/go-isatty"
 	"golang.org/x/term"
 )
 
@@ -69,7 +68,7 @@ func New(options ...Option) Spinner {
 // isRunningInTerminal check if the writer file descriptor is a terminal
 func isRunningInTerminal(w io.Writer) bool {
 	if w == nil {
-		return isatty.IsTerminal(os.Stdout.Fd())
+		return term.IsTerminal(int(os.Stdout.Fd()))
 	}
 	if f, ok := w.(*os.File); ok {
 		return term.IsTerminal(int(f.Fd()))
