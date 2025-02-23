@@ -36,9 +36,12 @@ type Gentx struct {
 	// Moniker is the validator's (optional) moniker.
 	Moniker string `yaml:"moniker"`
 
+<<<<<<< HEAD
 	// Home is directory for config and data.
 	Home string `yaml:"home"`
 
+=======
+>>>>>>> ff663c97 (fix(services): allow tilde and env in config validator home path (#4532))
 	// KeyringBackend is keyring's backend.
 	KeyringBackend string `yaml:"keyring-backend"`
 
