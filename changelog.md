@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Bug Fixe
+
+- [#4532](https://github.com/ignite/cli/pull/4532) Fix non working _shortcuts_ in validator home config
+
 ## [`v28.8.0`](https://github.com/ignite/cli/releases/tag/v28.8.0)
 
 ### Features
