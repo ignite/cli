@@ -537,18 +537,6 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 
 	return chaincmdrunner.New(ctx, cc, ccrOptions...)
 }
-<<<<<<< HEAD
-=======
-
-func appBackendSourceWatchPaths(protoDir string) []string {
-	return []string{
-		"app",
-		"cmd",
-		"x",
-		"third_party",
-		protoDir,
-	}
-}
 
 // expandHome expands a path that may start with "~" and may contain environment variables.
 func expandHome(path string) (string, error) {
@@ -562,4 +550,3 @@ func expandHome(path string) (string, error) {
 	}
 	return os.ExpandEnv(path), nil
 }
->>>>>>> ff663c97 (fix(services): allow tilde and env in config validator home path (#4532))

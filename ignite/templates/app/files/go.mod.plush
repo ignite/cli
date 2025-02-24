@@ -1,14 +1,6 @@
 module <%= ModulePath %>
 
-<<<<<<< HEAD
 go 1.23
-=======
-go 1.23.6
-
-replace (
-	github.com/cosmos/ibc-go/v10 => github.com/cosmos/ibc-go/v10 v10.0.0-beta.0
-)
->>>>>>> ff663c97 (fix(services): allow tilde and env in config validator home path (#4532))
 
 replace (
 	// fix upstream GHSA-h395-qcrw-5vmq vulnerability.
