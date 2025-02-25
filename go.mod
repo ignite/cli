@@ -4,6 +4,7 @@ go 1.23.6
 
 require (
 	cosmossdk.io/math v1.5.0
+	dario.cat/mergo v1.0.1
 	github.com/99designs/keyring v1.2.2
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/DATA-DOG/go-sqlmock v1.5.2
@@ -42,7 +43,6 @@ require (
 	github.com/hashicorp/go-plugin v1.6.3
 	github.com/iancoleman/strcase v0.3.0
 	github.com/ignite/web v0.6.1
-	github.com/imdario/mergo v0.3.15
 	github.com/lib/pq v1.10.9
 	github.com/manifoldco/promptui v0.9.0
 	github.com/mitchellh/mapstructure v1.5.0
@@ -94,7 +94,6 @@ require (
 	cosmossdk.io/log v1.4.1 // indirect
 	cosmossdk.io/store v1.1.1 // indirect
 	cosmossdk.io/x/tx v0.13.7 // indirect
-	dario.cat/mergo v1.0.1 // indirect
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/4meepo/tagalign v1.4.1 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
@@ -295,6 +294,7 @@ require (
 	github.com/hexops/gotextdiff v1.0.3 // indirect
 	github.com/huandu/skiplist v1.2.0 // indirect
 	github.com/huandu/xstrings v1.4.0 // indirect
+	github.com/imdario/mergo v0.3.15 // indirect
 	github.com/improbable-eng/grpc-web v0.15.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect

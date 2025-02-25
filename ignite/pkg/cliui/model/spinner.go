@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/bubbles/spinner"
+	"github.com/charmbracelet/lipgloss"
 )
 
 // ColorSpinner defines the foreground color for the spinner.
@@ -17,8 +18,8 @@ var Spinner = spinner.Spinner{
 
 // NewSpinner returns a new spinner model.
 func NewSpinner() spinner.Model {
-	s := spinner.NewModel()
+	s := spinner.New()
 	s.Spinner = Spinner
-	s.ForegroundColor = ColorSpinner
+	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color(ColorSpinner))
 	return s
 }
