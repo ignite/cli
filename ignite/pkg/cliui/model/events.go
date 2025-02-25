@@ -52,7 +52,12 @@ func (m *StatusEvents) ClearEvents() {
 }
 
 func (m StatusEvents) Wait() tea.Cmd {
-	return tea.Batch(spinner.Tick, m.WaitEvent)
+	return tea.Batch(m.Tick, m.WaitEvent)
+}
+
+func (m StatusEvents) Tick() tea.Msg {
+	// TODO: add tick id
+	return spinner.TickMsg{Time: time.Now()}
 }
 
 func (m StatusEvents) WaitEvent() tea.Msg {
@@ -173,12 +178,17 @@ func (m Events) Wait() tea.Cmd {
 	// and if so make sure that the spinner is updated.
 	if e := m.events.Back(); e != nil {
 		if evt := e.Value.(events.Event); evt.InProgress() {
-			return tea.Batch(spinner.Tick, m.WaitEvent)
+			return tea.Batch(m.Tick, m.WaitEvent)
 		}
 	}
 
 	// By default, just wait until the next event is received
 	return m.WaitEvent
+}
+
+func (m Events) Tick() tea.Msg {
+	// TODO: add tick id
+	return spinner.TickMsg{Time: time.Now()}
 }
 
 func (m Events) WaitEvent() tea.Msg {
