@@ -116,7 +116,7 @@ func (s *SimpleSpinner) Start() Spinner {
 				s.mu.Lock()
 				frame := charset[index]
 				str := fmt.Sprintf("\r%s%s %s", prefix, simpleColor.Sprint(frame), text)
-				_, _ = fmt.Fprintf(writer, str) // Update the spinner in the same line
+				_, _ = fmt.Fprint(writer, str) // Update the spinner in the same line
 				index++
 				if index >= len(charset) {
 					index = 0

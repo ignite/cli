@@ -65,7 +65,9 @@ func New(options ...Option) Spinner {
 	return newSimpleSpinner(o)
 }
 
-// isRunningInTerminal check if the writer file descriptor is a terminal
+// isRunningInTerminal check if the writer file descriptor is a terminal.
+//
+// nolint
 func isRunningInTerminal(w io.Writer) bool {
 	if w == nil {
 		return term.IsTerminal(int(os.Stdout.Fd()))
