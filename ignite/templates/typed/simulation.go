@@ -4,11 +4,11 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
 )
 
-// TODO(@julienrbrt): remove this line when simulation is brought back
+// TODO(@julienrbrt): remove this line when simulation is brought back.
 func ModuleSimulationMsgModify(
 	content string,
-	typeName, msgSigner multiformatname.Name,
-	msgs ...string,
+	_, _ multiformatname.Name,
+	_ ...string,
 ) (string, error) {
 	// if len(msgs) == 0 {
 	// 	msgs = append(msgs, "")

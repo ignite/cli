@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/imdario/mergo"
+	"dario.cat/mergo"
 	"gopkg.in/yaml.v3"
 
 	"github.com/ignite/cli/v29/ignite/config/chain/base"
