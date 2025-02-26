@@ -31,7 +31,6 @@ Notice the `--no-module` flag, in the next step we make sure the `bank` dependen
 
 2. **Create a Module:**
    
-
 Create a new "loan" module that is based on the standard Cosmos SDK `bank` module.
 
 ```bash
@@ -411,7 +410,7 @@ func (k msgServer) UpdateParams(goCtx context.Context, req *types.MsgUpdateParam
 }
 ```
 
-Add the errors `ErrInvalidSigner`, `ErrWrongLoanState`  and `ErrDeadline`:
+Add the custom errors `ErrWrongLoanState` and `ErrDeadline`:
 
 ```go title="x/loan/types/errors.go"
 package types
@@ -421,7 +420,7 @@ import (
 )
 
 var (
-  ErrInvalidSigner = sdkerrors.Register(ModuleName, 1100, "expected gov account as only signer for proposal message")
+	ErrInvalidSigner = sdkerrors.Register(ModuleName, 1100, "expected gov account as only signer for proposal message")
 	ErrWrongLoanState = sdkerrors.Register(ModuleName, 2, "wrong loan state")
 	ErrDeadline       = sdkerrors.Register(ModuleName, 3, "deadline")
 )
