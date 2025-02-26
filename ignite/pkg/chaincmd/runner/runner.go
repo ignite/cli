@@ -165,7 +165,7 @@ func (b *buffer) JSONEnsuredBytes() ([]byte, error) {
 			bz = bz[startIndex : endIndex+1]
 
 			// Verify it's actually valid JSON
-			var jsonTest interface{}
+			var jsonTest any
 			if err := json.Unmarshal(bz, &jsonTest); err == nil {
 				return bz, nil
 			}
