@@ -143,33 +143,104 @@ type buffer struct {
 
 // JSONEnsuredBytes ensures that encoding format for returned bytes is always
 // JSON even if the written data is originally encoded in YAML.
+// This method is purposely verbose to trim gibberish output.
 func (b *buffer) JSONEnsuredBytes() ([]byte, error) {
 	bz := b.Bytes()
+	content := strings.TrimSpace(string(bz))
 
-	// check for valid json
-	startIndex := strings.IndexAny(string(bz), "{[")
-	if startIndex >= 0 {
-		// check if we need to find the matching closing bracket
-		opening := bz[startIndex]
-		var closing byte
-		if opening == '{' {
-			closing = '}'
-		} else {
-			closing = ']'
+	// Early detection - check first non-whitespace character
+	if len(content) > 0 {
+		firstChar := content[0]
+
+		// Quick check for JSON format (starts with { or [)
+		if firstChar == '{' || firstChar == '[' {
+			// Attempt to validate and extract clean JSON
+			return cleanAndValidateJSON(bz)
 		}
 
-		// look for the last matching closing bracket
-		endIndex := bytes.LastIndexByte(bz, closing)
-		if endIndex > startIndex {
-			// extract what appears to be valid JSON
-			bz = bz[startIndex : endIndex+1]
-
-			// verify it's actually valid JSON
-			var jsonTest any
-			if err := json.Unmarshal(bz, &jsonTest); err == nil {
-				return bz, nil
+		// Quick check for YAML format (common indicators)
+		if firstChar == '-' || strings.HasPrefix(content, "---") ||
+			strings.Contains(content, ":\n") || strings.Contains(content, ": ") {
+			// Likely YAML, convert to JSON directly
+			var out any
+			if err := yaml.Unmarshal(bz, &out); err == nil {
+				return yaml.YAMLToJSON(bz)
 			}
 		}
+	}
+
+	// If format wasn't immediately obvious, try the more thorough approach
+	return fallbackFormatDetection(bz)
+}
+
+// cleanAndValidateJSON attempts to extract valid JSON from potentially messy output
+func cleanAndValidateJSON(bz []byte) ([]byte, error) {
+	// Find the first JSON opening character
+	startIndex := strings.IndexAny(string(bz), "{[")
+	if startIndex < 0 {
+		return bz, nil // No JSON structure found
+	}
+
+	// Determine matching closing character
+	opening := bz[startIndex]
+	var closing byte
+	if opening == '{' {
+		closing = '}'
+	} else {
+		closing = ']'
+	}
+
+	endIndex := findMatchingCloseBracket(bz[startIndex:], opening, closing)
+	if endIndex < 0 {
+		// no proper closing found, try last instance
+		endIndex = bytes.LastIndexByte(bz, closing)
+		if endIndex <= startIndex {
+			return bz[startIndex:], nil // Return from start to end if no closing found
+		}
+	} else {
+		endIndex += startIndex
+	}
+
+	// validate JSON
+	jsonData := bz[startIndex : endIndex+1]
+	var jsonTest any
+	if err := json.Unmarshal(jsonData, &jsonTest); err == nil {
+		return jsonData, nil
+	}
+
+	// if validation failed, return from start to end
+	return bz[startIndex:], nil
+}
+
+// findMatchingCloseBracket finds the index of the matching closing bracket
+// accounting for nested structures
+func findMatchingCloseBracket(data []byte, openChar, closeChar byte) int {
+	depth := 0
+	for i, b := range data {
+		if b == openChar {
+			depth++
+		} else if b == closeChar {
+			depth--
+			if depth == 0 {
+				return i // Found matching closing bracket
+			}
+		}
+	}
+	return -1 // No matching bracket found
+}
+
+// fallbackFormatDetection tries different approaches to detect and convert format
+func fallbackFormatDetection(bz []byte) ([]byte, error) {
+	// first try to find and extract JSON
+	startIndex := strings.IndexAny(string(bz), "{[")
+	if startIndex >= 0 {
+		result, err := cleanAndValidateJSON(bz)
+		if err == nil {
+			return result, nil
+		}
+
+		// if extraction failed but we found a start, return from there
+		return bz[startIndex:], nil
 	}
 
 	// fallback to yaml parsing
@@ -178,12 +249,7 @@ func (b *buffer) JSONEnsuredBytes() ([]byte, error) {
 		return yaml.YAMLToJSON(bz)
 	}
 
-	// if neither JSON nor YAML parsing succeeded, return the original bytes
-	// starting from the first opening brace if found, or the entire buffer
-	if startIndex >= 0 {
-		return bz[startIndex:], nil
-	}
-
+	// nothing worked, return original
 	return bz, nil
 }
 
