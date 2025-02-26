@@ -26,7 +26,6 @@
 - [#4477](https://github.com/ignite/cli/pull/4477) IBC v10 support
 - [#4166](https://github.com/ignite/cli/issues/4166) Migrate buf config files to v2
 - [#4494](https://github.com/ignite/cli/pull/4494) Automatic migrate the buf configs to v2
-- [#4538](https://github.com/ignite/cli/pull/4538) Create a simple spinner for non-terminal interactions
 
 ### Changes
 
@@ -59,6 +58,13 @@
 - [#4091](https://github.com/ignite/cli/pull/4091) Fix race conditions in the plugin logic
 - [#4128](https://github.com/ignite/cli/pull/4128) Check for duplicate proto fields in config
 - [#4402](https://github.com/ignite/cli/pull/4402) Fix gentx parser into the cosmosutil package
+
+## [`v28.8.1`](https://github.com/ignite/cli/releases/tag/v28.8.1)
+
+### Bug Fixes
+
+- [#4532](https://github.com/ignite/cli/pull/4532) Fix non working _shortcuts_ in validator home config
+- [#4538](https://github.com/ignite/cli/pull/4538) Create a simple spinner for non-terminal interactions
 - [#4540](https://github.com/ignite/cli/pull/4540), [#4543](https://github.com/ignite/cli/pull/4543) Skip logs / gibberish when parsing commands outputs
 
 ## [`v28.8.0`](https://github.com/ignite/cli/releases/tag/v28.8.0)
@@ -79,7 +85,6 @@
 - [#4474](https://github.com/ignite/cli/pull/4474) Fix issue in `build --release` command
 - [#4479](https://github.com/ignite/cli/pull/4479) Scaffold an `uint64 type crashs Ignite
 - [#4483](https://github.com/ignite/cli/pull/4483) Fix default flag parser for apps
-- [#4532](https://github.com/ignite/cli/pull/4532) Fix non working _shortcuts_ in validator home config
 
 ## [`v28.7.0`](https://github.com/ignite/cli/releases/tag/v28.7.0)
 
