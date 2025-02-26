@@ -5,6 +5,7 @@
 ### Bug Fixe
 
 - [#4532](https://github.com/ignite/cli/pull/4532) Fix non working _shortcuts_ in validator home config
+- [#4540](https://github.com/ignite/cli/pull/4540) Skip logs / gibberish when parsing commands outputs
 
 ## [`v28.8.0`](https://github.com/ignite/cli/releases/tag/v28.8.0)
 
