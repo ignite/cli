@@ -220,7 +220,7 @@ ignite scaffold message delete-post id:uint
 This command enables the deletion of posts by their ID.
 
 2. **Delete Logic:**
-
+ 
 Implement RemovePost in `x/blog/keeper/post.go` to delete posts from the store.
 
 ```go title="x/blog/keeper/post.go"
