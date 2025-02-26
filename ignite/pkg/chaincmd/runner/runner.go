@@ -146,10 +146,10 @@ type buffer struct {
 func (b *buffer) JSONEnsuredBytes() ([]byte, error) {
 	bz := b.Bytes()
 
-	// Attempt to find valid JSON in the buffer
+	// check for valid json
 	startIndex := strings.IndexAny(string(bz), "{[")
 	if startIndex >= 0 {
-		// Check if we need to find the matching closing bracket
+		// check if we need to find the matching closing bracket
 		opening := bz[startIndex]
 		var closing byte
 		if opening == '{' {
@@ -158,13 +158,13 @@ func (b *buffer) JSONEnsuredBytes() ([]byte, error) {
 			closing = ']'
 		}
 
-		// Look for the last matching closing bracket
+		// look for the last matching closing bracket
 		endIndex := bytes.LastIndexByte(bz, closing)
 		if endIndex > startIndex {
-			// Extract what appears to be valid JSON
+			// extract what appears to be valid JSON
 			bz = bz[startIndex : endIndex+1]
 
-			// Verify it's actually valid JSON
+			// verify it's actually valid JSON
 			var jsonTest any
 			if err := json.Unmarshal(bz, &jsonTest); err == nil {
 				return bz, nil
@@ -172,17 +172,18 @@ func (b *buffer) JSONEnsuredBytes() ([]byte, error) {
 		}
 	}
 
-	// If we couldn't extract valid JSON, try parsing as YAML
-	var out interface{}
+	// fallback to yaml parsing
+	var out any
 	if err := yaml.Unmarshal(bz, &out); err == nil {
 		return yaml.YAMLToJSON(bz)
 	}
 
-	// If neither JSON nor YAML parsing succeeded, return the original bytes
+	// if neither JSON nor YAML parsing succeeded, return the original bytes
 	// starting from the first opening brace if found, or the entire buffer
 	if startIndex >= 0 {
 		return bz[startIndex:], nil
 	}
+
 	return bz, nil
 }
 
