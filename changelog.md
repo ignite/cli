@@ -59,7 +59,7 @@
 - [#4091](https://github.com/ignite/cli/pull/4091) Fix race conditions in the plugin logic
 - [#4128](https://github.com/ignite/cli/pull/4128) Check for duplicate proto fields in config
 - [#4402](https://github.com/ignite/cli/pull/4402) Fix gentx parser into the cosmosutil package
-- [#4540](https://github.com/ignite/cli/pull/4540) Skip logs / gibberish when parsing commands outputs
+- [#4540](https://github.com/ignite/cli/pull/4540), [#4543](https://github.com/ignite/cli/pull/4543) Skip logs / gibberish when parsing commands outputs
 
 ## [`v28.8.0`](https://github.com/ignite/cli/releases/tag/v28.8.0)
 
