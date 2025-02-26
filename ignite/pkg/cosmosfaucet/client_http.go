@@ -55,16 +55,11 @@ func (c HTTPClient) Transfer(ctx context.Context, req TransferRequest) (Transfer
 	}
 
 	var res TransferResponse
-<<<<<<< HEAD
-	err = json.NewDecoder(hres.Body).Decode(&res)
-	return res, err
-=======
 	if err = json.NewDecoder(hres.Body).Decode(&res); err != nil {
 		return TransferResponse{}, err
 	}
 
 	return res, nil
->>>>>>> c60540e0 (test: fix faucet test (#4543))
 }
 
 // FaucetInfo fetch the faucet info for clients to determine if this is a real faucet and
