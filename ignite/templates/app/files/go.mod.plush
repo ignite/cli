@@ -1,6 +1,6 @@
 module <%= ModulePath %>
 
-go 1.23.6
+go 1.24.0
 
 replace (
 	github.com/cosmos/ibc-go/v10 => github.com/cosmos/ibc-go/v10 v10.0.0-beta.0
@@ -51,4 +51,9 @@ require (
 	google.golang.org/grpc v1.68.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.3.0
 	google.golang.org/protobuf v1.36.1
+)
+
+tool (
+	<%= for (depTool) in DepTools { %>
+	"<%= depTool %>"<% } %>
 )
