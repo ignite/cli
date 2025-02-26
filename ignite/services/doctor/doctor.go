@@ -22,11 +22,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/templates/app"
 )
 
-const (
-	// ToolsFile defines the app relative path to the Go tools file.
-	ToolsFile = "tools/tools.go"
-)
-
 // DONTCOVER: Doctor read and write the filesystem intensively, so it's better
 // to rely on integration tests only. See integration/doctor package.
 type Doctor struct {
@@ -150,24 +145,27 @@ func (d *Doctor) MigrateChainConfig(configPath string) error {
 // FixDependencyTools ensures that:
 // - tools/tools.go is present and populated properly
 // - dependency tools are installed.
+// Deprecated: This isn't required since Go 1.14.
 func (d *Doctor) FixDependencyTools(ctx context.Context) error {
+	const toolsFile = "tools/tools.go"
+
 	errf := func(err error) error {
 		return errors.Errorf("doctor fix dependency tools: %w", err)
 	}
 
 	d.ev.Send("Checking dependency tools:")
 
-	_, err := os.Stat(ToolsFile)
+	_, err := os.Stat(toolsFile)
 
 	switch {
 	case err == nil:
 		d.ev.Send(
-			fmt.Sprintf("%s %s", ToolsFile, colors.Success("exists")),
+			fmt.Sprintf("%s %s", toolsFile, colors.Success("exists")),
 			events.Icon(icons.OK),
 			events.Indent(1),
 		)
 
-		updated, err := d.ensureDependencyImports(ToolsFile)
+		updated, err := d.ensureDependencyImports(toolsFile)
 		if err != nil {
 			return errf(err)
 		}
@@ -185,7 +183,7 @@ func (d *Doctor) FixDependencyTools(ctx context.Context) error {
 		)
 
 	case os.IsNotExist(err):
-		if err := d.createToolsFile(ctx, ToolsFile); err != nil {
+		if err := d.createToolsFile(ctx, toolsFile); err != nil {
 			return errf(err)
 		}
 

@@ -20,7 +20,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/services/chain"
-	"github.com/ignite/cli/v29/ignite/services/doctor"
 )
 
 const (
@@ -130,9 +129,9 @@ func preRunHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	if err := toolsMigrationPreRunHandler(cmd, session, appPath); err != nil {
-		return err
-	}
+	// if err := toolsMigrationPreRunHandler(cmd, session, appPath); err != nil {
+	// 	return err
+	// }
 
 	return bufMigrationPreRunHandler(cmd, session, appPath, cfg.Build.Proto.Path)
 }
@@ -140,14 +139,10 @@ func preRunHandler(cmd *cobra.Command, _ []string) error {
 func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPath string) error {
 	session.StartSpinner("Checking missing tools...")
 
-	toolsFilename := filepath.Join(appPath, doctor.ToolsFile)
-	if _, err := os.Stat(toolsFilename); os.IsNotExist(err) {
-		return errors.New("the dependency tools file is missing, run `ignite doctor` and try again")
-	}
-
-	f, _, err := xast.ParseFile(toolsFilename)
+	toolsFilename := filepath.Join(appPath, "go.mod")
+	f, _, err := xast.ParseFile(filepath.Join(appPath, "go.mod"))
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to parse file: %w", err)
 	}
 
 	missing := cosmosgen.MissingTools(f)

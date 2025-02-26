@@ -42,7 +42,7 @@ func NewDoctor() *cobra.Command {
 				return err
 			}
 
-			return doc.FixDependencyTools(cmd.Context())
+			return nil
 		},
 	}
 
