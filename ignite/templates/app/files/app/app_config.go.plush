@@ -27,6 +27,7 @@ import (
 	upgrademodulev1 "cosmossdk.io/api/cosmos/upgrade/module/v1"
 	vestingmodulev1 "cosmossdk.io/api/cosmos/vesting/module/v1"
 	"cosmossdk.io/depinject/appconfig"
+	_ "github.com/cosmos/cosmos-sdk/x/auth/vesting" // import for side-effects
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	_ "github.com/cosmos/cosmos-sdk/x/authz/module" // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/bank"         // import for side-effects
