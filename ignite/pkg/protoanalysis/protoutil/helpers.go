@@ -142,15 +142,15 @@ func NextUniqueID(m *proto.Message) int {
 	// messages can embed other messages and the Apply could get
 	// hairy.
 	// if no elements exist => 1.
-	max := 0
+	maximum := 0
 	for _, el := range m.Elements {
 		if f, ok := el.(*proto.NormalField); ok {
-			if f.Sequence > max {
-				max = f.Sequence
+			if f.Sequence > maximum {
+				maximum = f.Sequence
 			}
 		}
 	}
-	return max + 1
+	return maximum + 1
 }
 
 // GetMessageByName returns the message with the given name or nil if not found.
