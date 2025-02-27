@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 
 	"<%= modulePath %>/testutil/sample"
+	<%= moduleName %>simulation "<%= modulePath %>/x/<%= moduleName %>/simulation"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
@@ -19,6 +20,7 @@ var (
 	_ = sample.AccAddress
 	_ = sdk.AccAddress{}
 	_ = simulation.MsgEntryKind
+	_ = <%= moduleName %>simulation.PlaceHolder
 )
 
 // GenerateGenesisState creates a randomized GenState of the module.

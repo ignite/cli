@@ -35,10 +35,11 @@ type ModuleInputs struct {
 	Cdc          codec.Codec
 	AddressCodec address.Codec
 
-	<%= for (dependency) in dependencies { %>
-	<%= dependency.KeeperName() %> types.<%= dependency.KeeperName() %><% } %>
+	AuthKeeper types.AuthKeeper
+	BankKeeper types.BankKeeper<%= for (dependency) in dependencies { %><%= if (dependency.Name != "Bank" && dependency.Name != "Auth") { %>
+    <%= dependency.KeeperName() %> types.<%= dependency.KeeperName() %><% } %><% } %>
 
-    <%= if (isIBC) { %>IBCKeeperFn        func() *ibckeeper.Keeper                   `optional:"true"` <% } %>
+    <%= if (isIBC) { %>IBCKeeperFn func() *ibckeeper.Keeper `optional:"true"` <% } %>
 }
 
 type ModuleOutputs struct {
@@ -62,7 +63,7 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 		in.IBCKeeperFn,<% } %><%= for (dependency) in dependencies { %>
         in.<%= dependency.KeeperName() %>,<% } %>
 	)
-	m := NewAppModule(in.Cdc, k,)
+	m := NewAppModule(in.Cdc, k, in.AuthKeeper, in.BankKeeper)
 
 	return ModuleOutputs{<%= title(moduleName) %>Keeper: k, Module: m}
 }
