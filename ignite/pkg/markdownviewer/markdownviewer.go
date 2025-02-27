@@ -32,7 +32,7 @@ func config(path string) (ui.Config, error) {
 		return ui.Config{}, err
 	}
 
-	width = min(uint(w), 120)
+	width = min(uint(w), 120) //nolint:gosec,nolintlint // conversion is fine
 
 	docTypes := ui.NewDocTypeSet()
 	docTypes.Add(ui.LocalDoc)
