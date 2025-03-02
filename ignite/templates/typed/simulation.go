@@ -1,47 +1,66 @@
 package typed
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v29/ignite/pkg/xast"
 )
 
-// TODO(@julienrbrt): remove this line when simulation is brought back.
 func ModuleSimulationMsgModify(
 	content string,
-	_, _ multiformatname.Name,
-	_ ...string,
+	moduleName string,
+	typeName, msgSigner multiformatname.Name,
+	msgs ...string,
 ) (string, error) {
-	// if len(msgs) == 0 {
-	// 	msgs = append(msgs, "")
-	// }
+	if len(msgs) == 0 {
+		msgs = append(msgs, "")
+	}
 
-	// var err error
-	// for _, msg := range msgs {
-	// 	// simulation operations
-	// 	replacementOp := fmt.Sprintf(
-	// 		`reg.Add(weights.Get("msg_%[3]v", 100 /* determine the simulation weight value */), simulation.Msg%[1]v%[2]vFactory(am.keeper))`,
-	// 		msg,
-	// 		typeName.UpperCamel,
-	// 		fmt.Sprintf("%s_%s", strings.ToLower(msg), typeName.Snake),
-	// 	)
-	// 	content, err = xast.ModifyFunction(content, "WeightedOperationsX", xast.AppendFuncCode(replacementOp))
-	// 	if err != nil {
-	// 		return "", err
-	// 	}
+	var err error
+	for _, msg := range msgs {
+		// simulation operations
+		replacementOp := fmt.Sprintf(`
+	const (
+		opWeightMsg%[1]v%[2]v = "op_weight_msg_%[3]v"
+		defaultWeightMsg%[1]v%[2]v int = 100 // TODO: Determine the simulation weight value for your use case
+	)
 
-	// 	// add proposal simulation operations for msgs having an authority as signer.
-	// 	if strings.Contains(content, "ProposalMsgsX") && strings.EqualFold(msgSigner.Original, "authority") {
-	// 		replacementOpMsg := fmt.Sprintf(
-	// 			`reg.Add(weights.Get("msg_%[2]v", 100), simulation.Msg%[1]v%[2]vFactory(am.keeper))`,
-	// 			msg,
-	// 			typeName.UpperCamel,
-	// 			fmt.Sprintf("%s_%s", strings.ToLower(msg), typeName.Snake),
-	// 		)
-	// 		content, err = xast.ModifyFunction(content, "ProposalMsgsX", xast.AppendFuncCode(replacementOpMsg))
-	// 		if err != nil {
-	// 			return "", err
-	// 		}
-	// 	}
-	// }
+	var weightMsg%[1]v%[2]v int
+	simState.AppParams.GetOrGenerate(opWeightMsg%[1]v%[2]v, &weightMsg%[1]v%[2]v, nil,
+		func(_ *rand.Rand) {
+			weightMsg%[1]v%[2]v = defaultWeightMsg%[1]v%[2]v
+		},
+	)
+	operations = append(operations, simulation.NewWeightedOperation(
+		weightMsg%[1]v%[2]v,
+		%[3]vsimulation.SimulateMsg%[1]v%[2]v(am.authKeeper, am.bankKeeper, am.keeper, simState.TxConfig),
+	))
+
+`, msg, typeName.UpperCamel, moduleName)
+
+		content, err = xast.ModifyFunction(content, "WeightedOperations", xast.AppendFuncCode(replacementOp))
+		if err != nil {
+			return "", err
+		}
+
+		// add proposal simulation operations for msgs having an authority as signer.
+		if strings.Contains(content, "ProposalMsgs") && strings.EqualFold(msgSigner.Original, "authority") {
+			replacementOpMsg := fmt.Sprintf(`simulation.NewWeightedProposalMsg(
+	opWeightMsg%[1]v%[2]v,
+	defaultWeightMsg%[1]v%[2]v,
+	func(r *rand.Rand, ctx sdk.Context, accs []simtypes.Account) sdk.Msg {
+		%[3]vsimulation.SimulateMsg%[1]v%[2]v(am.authKeeper, am.bankKeeper, am.keeper)
+		return nil
+	},
+),`, msg, typeName.UpperCamel, moduleName)
+			content, err = xast.ModifyFunction(content, "ProposalMsgs", xast.AppendFuncCode(replacementOpMsg))
+			if err != nil {
+				return "", err
+			}
+		}
+	}
 
 	return content, nil
 }

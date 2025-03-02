@@ -173,7 +173,7 @@ func (b *buffer) JSONEnsuredBytes() ([]byte, error) {
 	return fallbackFormatDetection(bz)
 }
 
-// cleanAndValidateJSON attempts to extract valid JSON from potentially messy output
+// cleanAndValidateJSON attempts to extract valid JSON from potentially messy output.
 func cleanAndValidateJSON(bz []byte) ([]byte, error) {
 	// Find the first JSON opening character
 	startIndex := strings.IndexAny(string(bz), "{[")
@@ -212,8 +212,7 @@ func cleanAndValidateJSON(bz []byte) ([]byte, error) {
 	return bz[startIndex:], nil
 }
 
-// findMatchingCloseBracket finds the index of the matching closing bracket
-// accounting for nested structures
+// findMatchingCloseBracket returns the accounting for nested structures.
 func findMatchingCloseBracket(data []byte, openChar, closeChar byte) int {
 	depth := 0
 	for i, b := range data {
@@ -229,7 +228,7 @@ func findMatchingCloseBracket(data []byte, openChar, closeChar byte) int {
 	return -1 // No matching bracket found
 }
 
-// fallbackFormatDetection tries different approaches to detect and convert format
+// fallbackFormatDetection tries different approaches to detect and convert format.
 func fallbackFormatDetection(bz []byte) ([]byte, error) {
 	// first try to find and extract JSON
 	startIndex := strings.IndexAny(string(bz), "{[")
