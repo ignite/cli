@@ -34,15 +34,21 @@ var (
 type AppModule struct {
 	cdc           codec.Codec
 	keeper        keeper.Keeper
+	authKeeper    types.AuthKeeper
+	bankKeeper    types.BankKeeper
 }
 
 func NewAppModule(
 	cdc codec.Codec,
 	keeper keeper.Keeper,
+	authKeeper types.AuthKeeper,
+	bankKeeper types.BankKeeper,
 ) AppModule {
 	return AppModule{
 		cdc:           cdc,
 		keeper:        keeper,
+		authKeeper:    authKeeper,
+		bankKeeper:    bankKeeper,
 	}
 }
 

@@ -225,18 +225,18 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 			return errors.Errorf("could not find 'oneof packet' in message '%s' of file %s", name, path)
 		}
 		// Count fields of oneof:
-		max := 1
+		maximum := 1
 		protoutil.Apply(packet, nil, func(c *protoutil.Cursor) bool {
 			if o, ok := c.Node().(*proto.OneOfField); ok {
-				if o.Sequence > max {
-					max = o.Sequence
+				if o.Sequence > maximum {
+					maximum = o.Sequence
 				}
 			}
 			return true
 		})
 		// Add it to Oneof.
 		typenameUpper, typenameLower := opts.PacketName.UpperCamel, opts.PacketName.LowerCamel
-		packetField := protoutil.NewOneofField(typenameLower+"Packet", typenameUpper+"PacketData", max+1)
+		packetField := protoutil.NewOneofField(typenameLower+"Packet", typenameUpper+"PacketData", maximum+1)
 		protoutil.Append(packet, packetField)
 
 		// Add the message definition for packet and acknowledgment

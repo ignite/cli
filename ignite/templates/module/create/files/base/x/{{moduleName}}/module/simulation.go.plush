@@ -6,7 +6,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
+	<%= moduleName %>simulation "<%= modulePath %>/x/<%= moduleName %>/simulation"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
+)
+
+// avoid unused import issue
+var (
+	_ = <%= moduleName %>simulation.PlaceHolder
 )
 
 // GenerateGenesisState creates a randomized GenState of the module.
@@ -18,7 +24,6 @@ func (AppModule) GenerateGenesisState(simState *module.SimulationState) {
 	<%= moduleName %>Genesis := types.GenesisState{
 		Params:	types.DefaultParams(),<%= if (isIBC) { %>
 		PortId: types.PortID,<% } %>
-		// this line is used by starport scaffolding # simapp/module/genesisState
 	}
 	simState.GenState[types.ModuleName] = simState.Cdc.MustMarshalJSON(&<%= moduleName %>Genesis)
 }

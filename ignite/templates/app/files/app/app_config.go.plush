@@ -25,7 +25,9 @@ import (
 	stakingmodulev1 "cosmossdk.io/api/cosmos/staking/module/v1"
 	txconfigv1 "cosmossdk.io/api/cosmos/tx/config/v1"
 	upgrademodulev1 "cosmossdk.io/api/cosmos/upgrade/module/v1"
+	vestingmodulev1 "cosmossdk.io/api/cosmos/vesting/module/v1"
 	"cosmossdk.io/depinject/appconfig"
+	_ "github.com/cosmos/cosmos-sdk/x/auth/vesting" // import for side-effects
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	_ "github.com/cosmos/cosmos-sdk/x/authz/module" // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/bank"         // import for side-effects
@@ -60,6 +62,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/runtime"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config"   // import for side-effects
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	icatypes "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/types"
 	ibcfeetypes "github.com/cosmos/ibc-go/v10/modules/apps/29-fee/types"
@@ -153,6 +156,7 @@ var (
 						evidencetypes.ModuleName,
 						authz.ModuleName,
 						feegrant.ModuleName,
+						vestingtypes.ModuleName,
 						nft.ModuleName,
 						group.ModuleName,
 						upgradetypes.ModuleName,
@@ -176,6 +180,10 @@ var (
 					// Authority: "group", // A custom module authority can be set using a module name
 					// Authority: "cosmos1cwwv22j5ca08ggdv9c2uky355k908694z577tv", // or a specific address
 				}),
+			},
+			{
+				Name:   vestingtypes.ModuleName,
+				Config: appconfig.WrapAny(&vestingmodulev1.Module{}),
 			},
 			{
 				Name: banktypes.ModuleName,
