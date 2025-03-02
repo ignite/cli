@@ -212,7 +212,7 @@ func cleanAndValidateJSON(bz []byte) ([]byte, error) {
 	return bz[startIndex:], nil
 }
 
-// accounting for nested structures.
+// findMatchingCloseBracket returns the accounting for nested structures.
 func findMatchingCloseBracket(data []byte, openChar, closeChar byte) int {
 	depth := 0
 	for i, b := range data {
