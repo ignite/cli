@@ -9,7 +9,8 @@ import (
 )
 
 func ModuleSimulationMsgModify(
-	content string,
+	content,
+	appPath,
 	moduleName string,
 	typeName, msgSigner multiformatname.Name,
 	msgs ...string,
@@ -18,7 +19,19 @@ func ModuleSimulationMsgModify(
 		msgs = append(msgs, "")
 	}
 
-	var err error
+	//<%= moduleName %>simulation ""
+	// Import
+	content, err := xast.AppendImports(
+		content,
+		xast.WithLastNamedImport(
+			fmt.Sprintf("%[1]vsimulation", moduleName),
+			fmt.Sprintf("%[1]v/x/%[2]v/simulation", appPath, moduleName),
+		),
+	)
+	if err != nil {
+		return "", err
+	}
+
 	for _, msg := range msgs {
 		// simulation operations
 		replacementOp := fmt.Sprintf(`

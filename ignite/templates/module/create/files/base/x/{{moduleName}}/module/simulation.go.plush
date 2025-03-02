@@ -10,11 +10,6 @@ import (
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
-// avoid unused import issue
-var (
-	_ = <%= moduleName %>simulation.PlaceHolder
-)
-
 // GenerateGenesisState creates a randomized GenState of the module.
 func (AppModule) GenerateGenesisState(simState *module.SimulationState) {
 	accs := make([]string, len(simState.Accounts))
