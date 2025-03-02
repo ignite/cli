@@ -1,7 +1,6 @@
 package cli
 
 import (
-    "strconv"
     <%= for (goImport) in mergeGoImports(fields) { %>
     <%= goImport.Alias %> "<%= goImport.Name %>"<% } %>
 	"github.com/spf13/cobra"
@@ -14,8 +13,6 @@ import (
 
 	"<%= ModulePath %>/x/<%= moduleName %>/types"
 )
-
-var _ = strconv.Itoa(0)
 
 // CmdSend<%= packetName.UpperCamel %>() returns the <%= packetName.UpperCamel %> send packet command.
 // This command does not use AutoCLI because it gives a better UX to do not.

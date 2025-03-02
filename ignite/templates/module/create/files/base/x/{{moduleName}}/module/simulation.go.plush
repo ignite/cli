@@ -1,28 +1,12 @@
 package <%= moduleName %>
 
 import (
-	"math/rand"
-
 	"cosmossdk.io/core/address"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
-	"github.com/cosmos/cosmos-sdk/x/simulation"
 
-	"<%= modulePath %>/testutil/sample"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
-)
-
-// avoid unused import issue
-var (
-	_ = rand.Rand{}
-	_ = sample.AccAddress
-	_ = sdk.AccAddress{}
-	_ = simulation.MsgEntryKind
-)
-
-const (
-    // this line is used by starport scaffolding # simapp/module/const
 )
 
 // GenerateGenesisState creates a randomized GenState of the module.
