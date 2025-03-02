@@ -13,7 +13,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
-	"github.com/ignite/cli/v29/ignite/pkg/xstrings"
 	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"
 	"github.com/ignite/cli/v29/ignite/templates/module"
 )
@@ -195,47 +194,6 @@ PortID = "%[1]v"`
 )`
 		replacementPort := fmt.Sprintf(templatePort, opts.ModuleName)
 		content = replacer.Replace(content, module.PlaceholderIBCKeysPort, replacementPort)
-
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
-func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, module.PathIBCConfigGo)
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		// Import
-		content, err := xast.AppendImports(
-			f.String(),
-			xast.WithLastNamedImport(
-				fmt.Sprintf("%[1]vmodule", opts.ModuleName),
-				fmt.Sprintf("%[1]v/x/%[2]v/module", opts.ModulePath, opts.ModuleName),
-			),
-			xast.WithLastNamedImport(
-				fmt.Sprintf("%[1]vmoduletypes", opts.ModuleName),
-				fmt.Sprintf("%[1]v/x/%[2]v/types", opts.ModulePath, opts.ModuleName),
-			),
-		)
-		if err != nil {
-			return err
-		}
-
-		// create IBC module
-		templateIBCModule := `%[2]vIBCModule := ibcfee.NewIBCMiddleware(%[2]vmodule.NewIBCModule(app.appCodec, app.%[3]vKeeper), app.IBCFeeKeeper)
-ibcRouter.AddRoute(%[2]vmoduletypes.ModuleName, %[2]vIBCModule)
-%[1]v`
-		replacementIBCModule := fmt.Sprintf(
-			templateIBCModule,
-			module.PlaceholderIBCNewModule,
-			opts.ModuleName,
-			xstrings.Title(opts.ModuleName),
-		)
-		content = replacer.Replace(content, module.PlaceholderIBCNewModule, replacementIBCModule)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

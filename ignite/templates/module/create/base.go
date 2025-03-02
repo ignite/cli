@@ -72,9 +72,7 @@ func NewAppModify(replacer placeholder.Replacer, opts *CreateOptions) *genny.Gen
 	g := genny.New()
 	g.RunFn(appModify(replacer, opts))
 	g.RunFn(appConfigModify(replacer, opts))
-	if opts.IsIBC {
-		g.RunFn(appIBCModify(replacer, opts))
-	}
+
 	return g
 }
 
