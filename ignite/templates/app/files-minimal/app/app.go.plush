@@ -218,7 +218,7 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig
 func GetMaccPerms() map[string][]string {
 	dup := make(map[string][]string)
 	for _, perms := range moduleAccPerms {
-		dup[perms.Account] = perms.Permissions
+		dup[perms.GetAccount()] = perms.GetPermissions()
 	}
 
 	return dup
