@@ -13,4 +13,5 @@ const (
 	// Placeholders IBC
 	PlaceholderIBCKeysName  = "// this line is used by starport scaffolding # ibc/keys/name"
 	PlaceholderIBCKeysPort  = "// this line is used by starport scaffolding # ibc/keys/port"
+	PlaceholderIBCNewModule = "// this line is used by starport scaffolding # ibc/app/module"
 )

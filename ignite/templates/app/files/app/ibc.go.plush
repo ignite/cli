@@ -98,7 +98,22 @@ func (app *App) registerIBCModules(appOpts servertypes.AppOptions) error {
 		govModuleAddr,
 	)
 
+	// create IBC module from bottom to top of stack
+	var (
+		transferStack porttypes.IBCModule = ibctransfer.NewIBCModule(app.TransferKeeper)
+		icaControllerStack porttypes.IBCModule = icacontroller.NewIBCMiddleware(app.ICAControllerKeeper)
+		icaHostStack porttypes.IBCModule = icahost.NewIBCModule(app.ICAHostKeeper)
+	)
+
+	// create static IBC router, add transfer route, then set it on the keeper
+	ibcRouter := porttypes.NewRouter().
+		AddRoute(ibctransfertypes.ModuleName, transferStack).
+		AddRoute(icacontrollertypes.SubModuleName, icaControllerStack).
+		AddRoute(icahosttypes.SubModuleName, icaHostStack)
+
 	// this line is used by starport scaffolding # ibc/app/module
+
+	app.IBCKeeper.SetRouter(ibcRouter)
 
 	storeProvider := app.IBCKeeper.ClientKeeper.GetStoreProvider()
 	tmLightClientModule := ibctm.NewLightClientModule(app.appCodec, storeProvider)
