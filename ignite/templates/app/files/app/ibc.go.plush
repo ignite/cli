@@ -69,7 +69,7 @@ func (app *App) registerIBCModules(appOpts servertypes.AppOptions) error {
 		app.GetSubspace(ibctransfertypes.ModuleName),
 		app.IBCKeeper.ChannelKeeper,
 		app.IBCKeeper.ChannelKeeper,
-		app.IBCKeeper.ChannelKeeperV2,
+		app.MsgServiceRouter(),
 		app.AuthKeeper,
 		app.BankKeeper,
 		govModuleAddr,
