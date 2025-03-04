@@ -31,7 +31,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/controller/keeper"
 	icahostkeeper "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/host/keeper"
-	ibcfeekeeper "github.com/cosmos/ibc-go/v10/modules/apps/29-fee/keeper"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v10/modules/apps/transfer/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v10/modules/core/keeper"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
@@ -91,7 +90,6 @@ type App struct {
 
 	// ibc keepers
 	IBCKeeper           *ibckeeper.Keeper
-	IBCFeeKeeper        ibcfeekeeper.Keeper
 	ICAControllerKeeper icacontrollerkeeper.Keeper
 	ICAHostKeeper       icahostkeeper.Keeper
 	TransferKeeper      ibctransferkeeper.Keeper
@@ -275,7 +273,7 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig
 func GetMaccPerms() map[string][]string {
 	dup := make(map[string][]string)
 	for _, perms := range moduleAccPerms {
-		dup[perms.Account] = perms.Permissions
+		dup[perms.GetAccount()] = perms.GetPermissions()
 	}
 
 	return dup
