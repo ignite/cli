@@ -129,13 +129,14 @@ func preRunHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	// if err := toolsMigrationPreRunHandler(cmd, session, appPath); err != nil {
-	// 	return err
-	// }
+	if err := toolsMigrationPreRunHandler(cmd, session, appPath); err != nil {
+		return err
+	}
 
 	return bufMigrationPreRunHandler(cmd, session, appPath, cfg.Build.Proto.Path)
 }
 
+// TODO update to go 1.24
 func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPath string) error {
 	session.StartSpinner("Checking missing tools...")
 
