@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [`v29.0.0-beta.1`](https://github.com/ignite/cli/releases/tag/v29.0.0-beta.1)
+
 ### Features
 
 - [#3707](https://github.com/ignite/cli/pull/3707) and [#4094](https://github.com/ignite/cli/pull/4094) Add collections support.
@@ -51,6 +53,7 @@
 - [#4384](https://github.com/ignite/cli/pull/4384) Compare genesis params into chain genesis tests
 - [#4463](https://github.com/ignite/cli/pull/4463) Run `chain simulation` with any simulation test case
 - [#4533](https://github.com/ignite/cli/pull/4533) Promote GitHub codespace instead of Gitpod
+- [#4549](https://github.com/ignite/cli/pull/4549) Remove unused placeholder vars
 
 ### Fixes
 
