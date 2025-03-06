@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"strconv"
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -14,14 +13,10 @@ import (
 	"<%= ModulePath %>/x/<%= ModuleName %>/keeper"
 )
 
-// Prevent strconv unused error
-var _ = strconv.IntSize
-
 func createN<%= TypeName.UpperCamel %>(keeper keeper.Keeper, ctx context.Context, n int) []types.<%= TypeName.UpperCamel %> {
 	items := make([]types.<%= TypeName.UpperCamel %>, n)
 	for i := range items {
 		items[i].<%= Index.Name.UpperCamel %> = <%= Index.ValueLoop() %>
-		
 		_ = keeper.<%= TypeName.UpperCamel %>.Set(ctx, items[i].<%= Index.Name.UpperCamel %>, items[i])
 	}
 	return items
