@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-    "strconv"
 	"testing"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -10,9 +9,6 @@ import (
     "<%= ModulePath %>/x/<%= ModuleName %>/keeper"
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
-
-// Prevent strconv unused error
-var _ = strconv.IntSize
 
 func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
 	f := initFixture(t)
