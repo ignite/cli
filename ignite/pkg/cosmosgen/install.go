@@ -15,6 +15,8 @@ func DepTools() []string {
 		// buf build code generation.
 		"github.com/bufbuild/buf/cmd/buf",
 		"github.com/cosmos/gogoproto/protoc-gen-gocosmos",
+		"github.com/cosmos/gogoproto/protoc-gen-gogo",
+		"github.com/cosmos/cosmos-proto/cmd/protoc-gen-go-pulsar",
 
 		// Go code generation plugin.
 		"google.golang.org/grpc/cmd/protoc-gen-go-grpc",
@@ -24,8 +26,9 @@ func DepTools() []string {
 		"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway",
 		"github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2",
 
-		// goimports
+		// code style
 		"golang.org/x/tools/cmd/goimports",
+		"github.com/golangci/golangci-lint/cmd/golangci-lint",
 	}
 }
 

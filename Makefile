@@ -47,23 +47,23 @@ govet:
 ## govulncheck: Run govulncheck
 govulncheck:
 	@echo Running govulncheck...
-	@go run golang.org/x/vuln/cmd/govulncheck ./...
+	@go tool golang.org/x/vuln/cmd/govulncheck ./...
 
 ## format: Install and run goimports and gofumpt
 format:
 	@echo Formatting...
-	@go run mvdan.cc/gofumpt -w .
-	@go run golang.org/x/tools/cmd/goimports -w -local github.com/ignite/cli/v29 .
-	@go run github.com/tbruyelle/mdgofmt/cmd/mdgofmt -w docs
+	@go tool mvdan.cc/gofumpt -w .
+	@go tool golang.org/x/tools/cmd/goimports -w -local github.com/ignite/cli/v29 .
+	@go tool github.com/tbruyelle/mdgofmt/cmd/mdgofmt -w docs
 
 ## lint: Run Golang CI Lint.
 lint:
 	@echo Running golangci-lint...
-	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run --out-format=tab --issues-exit-code=0
+	@go tool github.com/golangci/golangci-lint/cmd/golangci-lint run --out-format=tab --issues-exit-code=0
 
 lint-fix:
 	@echo Running golangci-lint...
-	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run --fix --out-format=tab --issues-exit-code=0
+	@go tool github.com/golangci/golangci-lint/cmd/golangci-lint run --fix --out-format=tab --issues-exit-code=0
 
 .PHONY: govet format lint
 
