@@ -4,6 +4,8 @@ package scaffolder
 
 import (
 	"context"
+	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/gobuffalo/genny/v2"
@@ -92,7 +94,21 @@ func (s Scaffolder) PostScaffold(ctx context.Context, cacheStorage cache.Storage
 }
 
 func PostScaffold(ctx context.Context, cacheStorage cache.Storage, path, protoDir, gomodPath string, skipProto bool) error {
+	wd, err := os.Getwd()
+	if err != nil {
+		return fmt.Errorf("failed to get current working directory: %w", err)
+	}
+
+	// go to the app path, in other to use the go tools
+	if err := os.Chdir(path); err != nil {
+		return fmt.Errorf("failed to change directory to %s: %w", path, err)
+	}
+
 	if !skipProto {
+		if err := gocmd.ModTidy(ctx, path); err != nil {
+			return err
+		}
+
 		if err := protoc(ctx, cacheStorage, path, protoDir, gomodPath); err != nil {
 			return err
 		}
@@ -108,6 +124,11 @@ func PostScaffold(ctx context.Context, cacheStorage cache.Storage, path, protoDi
 
 	if err := gocmd.GoImports(ctx, path); err != nil {
 		return err
+	}
+
+	// return to the original working directory
+	if err := os.Chdir(wd); err != nil {
+		return fmt.Errorf("failed to change directory to %s: %w", wd, err)
 	}
 
 	return nil

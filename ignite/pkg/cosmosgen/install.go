@@ -27,7 +27,7 @@ func DepTools() []string {
 	}
 }
 
-// MissingTools find missing tools imports from a given go.mod
+// MissingTools find missing tools imports from a given go.mod.
 func MissingTools(f *modfile.File) (missingTools []string) {
 	imports := make(map[string]struct{})
 	for _, imp := range f.Tool {
@@ -43,7 +43,7 @@ func MissingTools(f *modfile.File) (missingTools []string) {
 	return missingTools
 }
 
-// UnusedTools find unused tools imports from a given go.mod
+// UnusedTools find unused tools imports from a given go.mod.
 func UnusedTools(f *modfile.File) (unusedTools []string) {
 	unused := []string{
 		// regen protoc plugin

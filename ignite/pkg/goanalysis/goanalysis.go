@@ -11,8 +11,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"golang.org/x/mod/modfile"
+
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 const (

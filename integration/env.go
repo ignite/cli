@@ -47,7 +47,7 @@ type Env struct {
 // New creates a new testing environment.
 func New(t *testing.T) Env {
 	t.Helper()
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	e := Env{
 		t:   t,
 		ctx: ctx,

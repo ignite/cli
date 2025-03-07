@@ -67,7 +67,7 @@ func Init(
 
 //nolint:interfacer
 func generate(
-	ctx context.Context,
+	_ context.Context,
 	runner *xgenny.Runner,
 	pathInfo gomodulepath.Path,
 	addressPrefix,
