@@ -32,6 +32,11 @@ func (f Field) ProtoFieldName() string {
 	return f.Name.Snake
 }
 
+// CLIUsage returns the field name used in CLI usage.
+func (f Field) CLIUsage() string {
+	return f.Name.Kebab
+}
+
 // ProtoType returns the field proto Datatype.
 func (f Field) ProtoType(index int) string {
 	dt, ok := datatype.IsSupportedType(f.DatatypeName)
@@ -145,7 +150,7 @@ func (f Field) ToProtoField(index int) *proto.NormalField {
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
-	return dt.ToProtoField(f.Datatype, f.Name.Snake, index)
+	return dt.ToProtoField(f.Datatype, f.ProtoFieldName(), index)
 }
 
 // GoCLIImports returns the Datatype imports for CLI package.
