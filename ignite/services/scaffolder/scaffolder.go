@@ -4,7 +4,6 @@ package scaffolder
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -15,6 +14,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
@@ -96,12 +96,12 @@ func (s Scaffolder) PostScaffold(ctx context.Context, cacheStorage cache.Storage
 func PostScaffold(ctx context.Context, cacheStorage cache.Storage, path, protoDir, gomodPath string, skipProto bool) error {
 	wd, err := os.Getwd()
 	if err != nil {
-		return fmt.Errorf("failed to get current working directory: %w", err)
+		return errors.Errorf("failed to get current working directory: %w", err)
 	}
 
 	// go to the app path, in other to use the go tools
 	if err := os.Chdir(path); err != nil {
-		return fmt.Errorf("failed to change directory to %s: %w", path, err)
+		return errors.Errorf("failed to change directory to %s: %w", path, err)
 	}
 
 	if !skipProto {
@@ -128,7 +128,7 @@ func PostScaffold(ctx context.Context, cacheStorage cache.Storage, path, protoDi
 
 	// return to the original working directory
 	if err := os.Chdir(wd); err != nil {
-		return fmt.Errorf("failed to change directory to %s: %w", wd, err)
+		return errors.Errorf("failed to change directory to %s: %w", wd, err)
 	}
 
 	return nil
