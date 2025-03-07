@@ -7,6 +7,8 @@ import (
 	"os"
 	"path"
 
+	"golang.org/x/mod/modfile"
+
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
@@ -14,6 +16,8 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/events"
+	"github.com/ignite/cli/v29/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/v29/ignite/pkg/xast"
 )
 
 // DONTCOVER: Doctor read and write the filesystem intensively, so it's better
@@ -128,6 +132,89 @@ func (d *Doctor) MigrateChainConfig(configPath string) error {
 
 	d.ev.Send(
 		fmt.Sprintf("config file %s", colors.Success(status)),
+		events.Icon(icons.OK),
+		events.Indent(1),
+		events.ProgressFinish(),
+	)
+
+	return nil
+}
+
+// MigrateToolsGo ensures that:
+// - go.mod is bumped to go 1.24
+// - removes tools.go file from chain
+// - add all tools to go.mod
+func (d *Doctor) MigrateToolsGo(appPath string) error {
+	errf := func(err error) error {
+		return errors.Errorf("doctor migrate tools.go: %w", err)
+	}
+
+	const (
+		// toolsFile defines the app relative path to the Go tools file.
+		toolsFile = "tools/tools.go"
+		// goModFile defines the app relative path to the Go module file.
+		goModFile = "go.mod"
+	)
+
+	_, err := os.Stat(toolsFile)
+	if os.IsNotExist(err) { // file doesn't exist, nothing to do
+		return nil
+	}
+
+	d.ev.Send("Migrating dependency tools:")
+
+	toolsAst, _, err := xast.ParseFile(toolsFile)
+	if err != nil {
+		return errf(errors.Errorf("failed to parse tools.go file: %w", err))
+	}
+
+	imports := goanalysis.FormatImports(toolsAst)
+	if len(imports) == 0 {
+		d.ev.Send(
+			"no tools to migrate",
+			events.Icon(icons.OK),
+			events.Indent(1),
+			events.ProgressFinish(),
+		)
+		return nil
+	}
+
+	goModPath := path.Join(appPath, goModFile)
+	data, err := os.ReadFile(goModPath)
+	if err != nil {
+		return errf(errors.Errorf("failed to read go.mod file: %w", err))
+	}
+
+	goModAst, err := modfile.Parse(goModPath, data, nil)
+	if err != nil {
+		return errf(errors.Errorf("failed to parse go.mod file: %w", err))
+	}
+
+	// bump to go 1.24
+	if goModAst.Go.Version < "1.24" {
+		goModAst.Go.Version = "1.24"
+	}
+
+	for _, imp := range imports {
+		goModAst.AddTool(imp)
+	}
+
+	// remove the tools.go file
+	if err := os.Remove(toolsFile); err != nil {
+		return errf(errors.Errorf("failed to remove tools.go file: %w", err))
+	}
+
+	// write the updated go.mod file
+	data, err = goModAst.Format()
+	if err != nil {
+		return errf(errors.Errorf("failed to format go.mod file: %w", err))
+	}
+
+	if err := os.WriteFile(goModPath, data, 0o600); err != nil {
+		return errf(errors.Errorf("failed to write go.mod file: %w", err))
+	}
+	d.ev.Send(
+		fmt.Sprintf("tools migrated to %s", colors.Success(goModFile)),
 		events.Icon(icons.OK),
 		events.Indent(1),
 		events.ProgressFinish(),
