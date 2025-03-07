@@ -9,10 +9,10 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"golang.org/x/mod/modfile"
 )
 
 const (
@@ -227,56 +227,23 @@ func FormatImports(f *ast.File) map[string]string {
 	return m
 }
 
-// UpdateInitImports helper function to remove and add underscore (init) imports to an *ast.File.
-func UpdateInitImports(file *ast.File, writer io.Writer, importsToAdd, importsToRemove []string) error {
-	// Create a map for faster lookup of items to remove
-	importMap := make(map[string]bool)
-	for _, astImport := range file.Imports {
-		value, err := strconv.Unquote(astImport.Path.Value)
-		if err != nil {
-			return err
-		}
-		importMap[value] = true
-	}
-	for _, removeImport := range importsToRemove {
-		importMap[removeImport] = false
-	}
-	for _, addImport := range importsToAdd {
-		importMap[addImport] = true
+// AddOrRemoveTools helper function to add or remove tools from the go.mod file.
+func AddOrRemoveTools(f *modfile.File, writer io.Writer, importsToAdd, importsToRemove []string) error {
+	for _, imp := range importsToAdd {
+		f.AddTool(imp)
 	}
 
-	// Add the imports
-	for _, d := range file.Decls {
-		if dd, ok := d.(*ast.GenDecl); ok {
-			if dd.Tok == token.IMPORT {
-				file.Imports = make([]*ast.ImportSpec, 0)
-				dd.Specs = make([]ast.Spec, 0)
-				for imp, exist := range importMap {
-					if exist {
-						spec := createUnderscoreImport(imp)
-						file.Imports = append(file.Imports, spec)
-						dd.Specs = append(dd.Specs, spec)
-					}
-				}
-			}
-		}
+	for _, imp := range importsToRemove {
+		f.DropTool(imp)
 	}
 
-	if _, err := writer.Write([]byte(toolsBuildTag)); err != nil {
-		return errors.Errorf("failed to write the build tag: %w", err)
+	data, err := f.Format()
+	if err != nil {
+		return errors.Errorf("failed to format go.mod file: %w", err)
 	}
-	return format.Node(writer, token.NewFileSet(), file)
-}
 
-// createUnderscoreImports helper function to create an AST underscore import with given path.
-func createUnderscoreImport(imp string) *ast.ImportSpec {
-	return &ast.ImportSpec{
-		Name: ast.NewIdent("_"),
-		Path: &ast.BasicLit{
-			Kind:  token.STRING,
-			Value: strconv.Quote(imp),
-		},
-	}
+	_, err = writer.Write(data)
+	return err
 }
 
 // ReplaceCode replace a function implementation into a package path. The method will find
@@ -314,9 +281,6 @@ func ReplaceCode(pkgPath, oldFunctionName, newFunction string) (err error) {
 				}
 				return true
 			})
-			if err != nil {
-				return err
-			}
 			if !found {
 				continue
 			}

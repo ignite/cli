@@ -1,12 +1,7 @@
 package cosmosgen
 
 import (
-	"context"
-	"go/ast"
-
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/goanalysis"
-	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
+	"golang.org/x/mod/modfile"
 )
 
 // DepTools necessary tools to build and run the chain.
@@ -32,25 +27,11 @@ func DepTools() []string {
 	}
 }
 
-// InstallDepTools installs protoc dependencies needed by Cosmos ecosystem.
-func InstallDepTools(ctx context.Context, appPath string) error {
-	if err := gocmd.ModTidy(ctx, appPath); err != nil {
-		return err
-	}
-
-	err := gocmd.Install(ctx, appPath, DepTools())
-	if gocmd.IsInstallError(err) {
-		return errors.New("unable to install dependency tools, run `ignite doctor` and try again")
-	}
-
-	return err
-}
-
-// MissingTools find missing tools import indo a *ast.File.
-func MissingTools(f *ast.File) (missingTools []string) {
-	imports := make(map[string]string)
-	for name, imp := range goanalysis.FormatImports(f) {
-		imports[imp] = name
+// MissingTools find missing tools imports from a given go.mod
+func MissingTools(f *modfile.File) (missingTools []string) {
+	imports := make(map[string]struct{})
+	for _, imp := range f.Tool {
+		imports[imp.Path] = struct{}{}
 	}
 
 	for _, tool := range DepTools() {
@@ -58,11 +39,12 @@ func MissingTools(f *ast.File) (missingTools []string) {
 			missingTools = append(missingTools, tool)
 		}
 	}
-	return
+
+	return missingTools
 }
 
-// UnusedTools find unused tools import indo a *ast.File.
-func UnusedTools(f *ast.File) (unusedTools []string) {
+// UnusedTools find unused tools imports from a given go.mod
+func UnusedTools(f *modfile.File) (unusedTools []string) {
 	unused := []string{
 		// regen protoc plugin
 		"github.com/regen-network/cosmos-proto/protoc-gen-gocosmos",
@@ -72,9 +54,9 @@ func UnusedTools(f *ast.File) (unusedTools []string) {
 		"github.com/ignite-hq/cli/ignite/pkg/cmdrunner/step",
 	}
 
-	imports := make(map[string]string)
-	for name, imp := range goanalysis.FormatImports(f) {
-		imports[imp] = name
+	imports := make(map[string]struct{})
+	for _, imp := range f.Tool {
+		imports[imp.Path] = struct{}{}
 	}
 
 	for _, tool := range unused {

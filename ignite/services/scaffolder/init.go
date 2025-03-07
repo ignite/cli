@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
@@ -118,10 +117,6 @@ func generate(
 	runner.Root = absRoot
 	smc, err := runner.RunAndApply(g)
 	if err != nil {
-		return smc, err
-	}
-
-	if err := cosmosgen.InstallDepTools(ctx, absRoot); err != nil {
 		return smc, err
 	}
 
