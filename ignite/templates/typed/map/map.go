@@ -188,7 +188,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 		if err != nil {
 			return errors.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
 		}
-		typenameUpper, typenameSnake, typenameLower := opts.TypeName.UpperCamel, opts.TypeName.Snake, opts.TypeName.LowerCamel
+		typenameUpper, typenameSnake := opts.TypeName.UpperCamel, opts.TypeName.Snake
 		rpcQueryGet := protoutil.NewRPC(
 			fmt.Sprintf("Get%s", typenameUpper),
 			fmt.Sprintf("QueryGet%sRequest", typenameUpper),
@@ -208,7 +208,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("Queries a %v by index.", typenameUpper))
 
 		rpcQueryAll := protoutil.NewRPC(
-			fmt.Sprintf("List%s", typenameUpper),
+			fmt.Sprintf("Map%s", typenameUpper),
 			fmt.Sprintf("QueryAll%sRequest", typenameUpper),
 			fmt.Sprintf("QueryAll%sResponse", typenameUpper),
 			protoutil.WithRPCOptions(
@@ -250,7 +250,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 		gogoOption := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
 		queryGetResponse := protoutil.NewMessage(
 			fmt.Sprintf("QueryGet%sResponse", typenameUpper),
-			protoutil.WithFields(protoutil.NewField(typenameLower, typenameUpper, 1, protoutil.WithFieldOptions(gogoOption))),
+			protoutil.WithFields(protoutil.NewField(typenameSnake, typenameUpper, 1, protoutil.WithFieldOptions(gogoOption))),
 		)
 		queryAllRequest := protoutil.NewMessage(
 			fmt.Sprintf("QueryAll%sRequest", typenameUpper),
@@ -260,7 +260,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 			fmt.Sprintf("QueryAll%sResponse", typenameUpper),
 			protoutil.WithFields(
 				protoutil.NewField(
-					typenameLower,
+					typenameSnake,
 					typenameUpper,
 					1,
 					protoutil.Repeated(),
@@ -285,7 +285,7 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 		}
 
 		template := `{
-			RpcMethod: "List%[2]v",
+			RpcMethod: "Map%[2]v",
 			Use: "list-%[3]v",
 			Short: "List all %[4]v",
 		},
@@ -339,10 +339,10 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 		seqNumber := protoutil.NextUniqueID(genesisState)
 
 		// Create new option and append to GenesisState message.
-		typenameLower, typenameUpper := opts.TypeName.LowerCamel, opts.TypeName.UpperCamel
+		typenameSnake, typenameUpper := opts.TypeName.Snake, opts.TypeName.UpperCamel
 		gogoOption := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
 		typeListField := protoutil.NewField(
-			typenameLower+"List", typenameUpper, seqNumber, protoutil.Repeated(), protoutil.WithFieldOptions(gogoOption),
+			typenameSnake+"_map", typenameUpper, seqNumber, protoutil.Repeated(), protoutil.WithFieldOptions(gogoOption),
 		)
 		protoutil.Append(genesisState, typeListField)
 
@@ -366,7 +366,7 @@ func genesisTypesModify(opts *typed.Options) genny.RunFn {
 
 		content, err = xast.ModifyFunction(content, "DefaultGenesis", xast.AppendFuncStruct(
 			"GenesisState",
-			fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
+			fmt.Sprintf("%[1]vMap", opts.TypeName.UpperCamel),
 			fmt.Sprintf("[]%[1]v{}", opts.TypeName.UpperCamel),
 			-1,
 		))
@@ -379,7 +379,7 @@ func genesisTypesModify(opts *typed.Options) genny.RunFn {
 		templateTypesValidate := `// Check for duplicated index in %[1]v
 %[1]vIndexMap := make(map[string]struct{})
 
-for _, elem := range gs.%[2]vList {
+for _, elem := range gs.%[2]vMap {
 	index := %[3]v
 	if _, ok := %[1]vIndexMap[index]; ok {
 		return fmt.Errorf("duplicated index for %[1]v")
@@ -415,7 +415,7 @@ func genesisModuleModify(opts *typed.Options) genny.RunFn {
 		}
 
 		templateModuleInit := `// Set all the %[1]v
-for _, elem := range genState.%[2]vList {
+for _, elem := range genState.%[2]vMap {
 	if err := k.%[2]v.Set(ctx, elem.%[3]v, elem); err != nil {
 		return err
 	}
@@ -436,7 +436,7 @@ for _, elem := range genState.%[2]vList {
 		}
 
 		templateModuleExport := `if err := k.%[1]v.Walk(ctx, nil, func(_ %[2]v, val types.%[1]v) (stop bool, err error) {
-		genesis.%[1]vList = append(genesis.%[1]vList, val)
+		genesis.%[1]vMap = append(genesis.%[1]vMap, val)
 		return false, nil
 	}); err != nil {
 		return nil, err
@@ -480,7 +480,7 @@ func genesisTestsModify(opts *typed.Options) genny.RunFn {
 			"TestGenesis",
 			xast.AppendFuncStruct(
 				"GenesisState",
-				fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
+				fmt.Sprintf("%[1]vMap", opts.TypeName.UpperCamel),
 				fmt.Sprintf(
 					"[]types.%[1]v{{ %[2]v }, { %[3]v }}",
 					opts.TypeName.UpperCamel,
@@ -489,7 +489,7 @@ func genesisTestsModify(opts *typed.Options) genny.RunFn {
 				),
 				-1,
 			),
-			xast.AppendFuncCode(fmt.Sprintf("require.ElementsMatch(t, genesisState.%[1]vList, got.%[1]vList)", opts.TypeName.UpperCamel)),
+			xast.AppendFuncCode(fmt.Sprintf("require.ElementsMatch(t, genesisState.%[1]vMap, got.%[1]vMap)", opts.TypeName.UpperCamel)),
 		)
 		if err != nil {
 			return err
@@ -517,7 +517,7 @@ func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 		templateDuplicated := `{
 	desc:     "duplicated %[1]v",
 	genState: &types.GenesisState{
-		%[2]vList: []types.%[2]v{
+		%[2]vMap: []types.%[2]v{
 			{
 				%[3]v},
 			{
@@ -539,7 +539,7 @@ func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 			"TestGenesisState_Validate",
 			xast.AppendFuncStruct(
 				"GenesisState",
-				fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
+				fmt.Sprintf("%[1]vMap", opts.TypeName.UpperCamel),
 				fmt.Sprintf(
 					"[]types.%[1]v{{ %[2]v }, { %[3]v }}",
 					opts.TypeName.UpperCamel,
@@ -626,8 +626,8 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 			return errors.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 
-		creator := protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)
-		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.LowerCamel)
+		creator := protoutil.NewField(opts.MsgSigner.Snake, "string", 1)
+		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.Snake)
 		commonFields := []*proto.NormalField{creator}
 		commonFields = append(commonFields, index)
 
@@ -673,7 +673,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 		var positionalArgs, positionalArgsStr string
 		for _, field := range opts.Fields {
 			positionalArgs += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
-			positionalArgsStr += fmt.Sprintf("[%s] ", field.ProtoFieldName())
+			positionalArgsStr += fmt.Sprintf("[%s] ", field.Name.Kebab)
 		}
 
 		positionalArgs = index + positionalArgs

@@ -29,7 +29,7 @@ func (f Field) DataType() string {
 
 // ProtoFieldName returns the field name used in proto.
 func (f Field) ProtoFieldName() string {
-	return f.Name.LowerCamel
+	return f.Name.Snake
 }
 
 // ProtoType returns the field proto Datatype.
@@ -145,7 +145,7 @@ func (f Field) ToProtoField(index int) *proto.NormalField {
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
-	return dt.ToProtoField(f.Datatype, f.Name.LowerCamel, index)
+	return dt.ToProtoField(f.Datatype, f.Name.Snake, index)
 }
 
 // GoCLIImports returns the Datatype imports for CLI package.

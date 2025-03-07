@@ -36,13 +36,13 @@ func paramsProtoModify(opts ParamsOptions) genny.RunFn {
 			return errors.Errorf("couldn't find message 'Params' in %s: %w", path, err)
 		}
 		for _, paramField := range opts.Params {
-			_, err := protoutil.GetFieldByName(params, paramField.Name.LowerCamel)
+			_, err := protoutil.GetFieldByName(params, paramField.Name.Snake)
 			if err == nil {
-				return errors.Errorf("duplicate field %s in %s", paramField.Name.LowerCamel, params.Name)
+				return errors.Errorf("duplicate field %s in %s", paramField.Name.Snake, params.Name)
 			}
 
 			param := protoutil.NewField(
-				paramField.Name.LowerCamel,
+				paramField.Name.Snake,
 				paramField.DataType(),
 				protoutil.NextUniqueID(params),
 			)
@@ -80,11 +80,11 @@ func paramsTypesModify(opts ParamsOptions) genny.RunFn {
 			// add parameter to the struct into the new method.
 			newParamsModifier = append(
 				newParamsModifier,
-				xast.AppendFuncParams(param.Name.LowerCamel, param.DataType(), -1),
+				xast.AppendFuncParams(param.Name.Snake, param.DataType(), -1),
 				xast.AppendFuncStruct(
 					"Params",
 					param.Name.UpperCamel,
-					param.Name.LowerCamel,
+					param.Name.Snake,
 					-1,
 				),
 			)

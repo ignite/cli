@@ -132,8 +132,8 @@ func protoTxMessageModify(opts *Options) genny.RunFn {
 			return err
 		}
 		// Prepare the fields and create the messages.
-		creator := protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)
-		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.LowerCamel)
+		creator := protoutil.NewField(opts.MsgSigner.Snake, "string", 1)
+		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.Snake)
 		msgFields := []*proto.NormalField{creator}
 		for i, field := range opts.Fields {
 			msgFields = append(msgFields, field.ToProtoField(i+2))

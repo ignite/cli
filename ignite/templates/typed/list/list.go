@@ -143,8 +143,8 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 			return errors.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 		// Messages
-		creator := protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)
-		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.LowerCamel)
+		creator := protoutil.NewField(opts.MsgSigner.Snake, "string", 1)
+		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.Snake)
 		createFields := []*proto.NormalField{creator}
 		for i, field := range opts.Fields {
 			createFields = append(createFields, field.ToProtoField(i+2))
@@ -218,7 +218,7 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 			return errors.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
 		}
 		appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
-		typenameUpper := opts.TypeName.UpperCamel
+		typenameUpper, typenameSnake := opts.TypeName.UpperCamel, opts.TypeName.Snake
 		rpcQueryGet := protoutil.NewRPC(
 			fmt.Sprintf("Get%s", typenameUpper),
 			fmt.Sprintf("QueryGet%sRequest", typenameUpper),
@@ -264,7 +264,7 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 			fmt.Sprintf("QueryGet%sRequest", typenameUpper),
 			protoutil.WithFields(protoutil.NewField("id", "uint64", 1)),
 		)
-		field := protoutil.NewField(typenameUpper, typenameUpper, 1, protoutil.WithFieldOptions(gogoOption))
+		field := protoutil.NewField(typenameSnake, typenameUpper, 1, protoutil.WithFieldOptions(gogoOption))
 		queryGetResponse := protoutil.NewMessage(
 			fmt.Sprintf("QueryGet%sResponse", typenameUpper),
 			protoutil.WithFields(field))
@@ -273,7 +273,7 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 			fmt.Sprintf("QueryAll%sRequest", typenameUpper),
 			protoutil.WithFields(protoutil.NewField(paginationName, paginationType+"Request", 1)),
 		)
-		field = protoutil.NewField(typenameUpper, typenameUpper, 1, protoutil.Repeated(), protoutil.WithFieldOptions(gogoOption))
+		field = protoutil.NewField(typenameSnake, typenameUpper, 1, protoutil.Repeated(), protoutil.WithFieldOptions(gogoOption))
 		queryAllResponse := protoutil.NewMessage(
 			fmt.Sprintf("QueryAll%sResponse", typenameUpper),
 			protoutil.WithFields(field, protoutil.NewField(paginationName, paginationType+"Response", 2)),
@@ -410,7 +410,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 		var positionalArgs, positionalArgsStr string
 		for _, field := range opts.Fields {
 			positionalArgs += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
-			positionalArgsStr += fmt.Sprintf("[%s] ", field.ProtoFieldName())
+			positionalArgsStr += fmt.Sprintf("[%s] ", field.Name.Kebab)
 		}
 
 		template := `{

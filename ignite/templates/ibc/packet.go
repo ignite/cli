@@ -235,8 +235,8 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 			return true
 		})
 		// Add it to Oneof.
-		typenameUpper, typenameLower := opts.PacketName.UpperCamel, opts.PacketName.LowerCamel
-		packetField := protoutil.NewOneofField(typenameLower+"Packet", typenameUpper+"PacketData", maximum+1)
+		typenameUpper, typenameSnake := opts.PacketName.UpperCamel, opts.PacketName.Snake
+		packetField := protoutil.NewOneofField(typenameSnake+"_packet", typenameUpper+"PacketData", maximum+1)
 		protoutil.Append(packet, packetField)
 
 		// Add the message definition for packet and acknowledgment
@@ -331,12 +331,12 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 			sendFields = append(sendFields, field.ToProtoField(i+5))
 		}
 		sendFields = append(sendFields,
-			protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1),
+			protoutil.NewField(opts.MsgSigner.Snake, "string", 1),
 			protoutil.NewField("port", "string", 2),
 			protoutil.NewField("channelID", "string", 3),
 			protoutil.NewField("timeoutTimestamp", "uint64", 4),
 		)
-		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.LowerCamel)
+		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.Snake)
 
 		// Create MsgSend, MsgSendResponse and add to file.
 		msgSend := protoutil.NewMessage(

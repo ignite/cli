@@ -7,5 +7,5 @@ import "<%= importName %>"; <% } %>
 
 message <%= TypeName.UpperCamel %> {<%= for (i, field) in Fields { %>
   <%= field.ProtoType(i+1) %>; <% } %>
-  <%= if (!NoMessage) { %>string <%= MsgSigner.LowerCamel %> = <%= len(Fields)+1 %>;<% } %>
+  <%= if (!NoMessage) { %>string <%= MsgSigner.Snake %> = <%= len(Fields)+1 %>;<% } %>
 }
