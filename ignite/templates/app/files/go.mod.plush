@@ -4,8 +4,7 @@ go 1.24.0
 
 replace (
 	// force go 1.24 sonic support
-	github.com/bytedance/sonic => github.com/bytedance/sonic v1.13.0
-	github.com/bytedance/sonic/loader => github.com/bytedance/sonic/loader v0.2.4-0.20250307071557-8afb40eb476c
+	github.com/bytedance/sonic => github.com/bytedance/sonic v1.13.1
 	// fix upstream GHSA-h395-qcrw-5vmq vulnerability.
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.1
 	// replace broken goleveldb
