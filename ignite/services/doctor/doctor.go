@@ -140,10 +140,10 @@ func (d *Doctor) MigrateChainConfig(configPath string) error {
 	return nil
 }
 
-// MigrateToolsGo ensures that:
-// - go.mod is bumped to go 1.24
-// - removes tools.go file from chain
-// - add all tools to go.mod
+// MigrateToolsGo ensures that.
+// - go.mod is bumped to go 1.24.
+// - removes tools.go file from chain.
+// - add all tools to go.mod.
 func (d *Doctor) MigrateToolsGo(appPath string) error {
 	errf := func(err error) error {
 		return errors.Errorf("doctor migrate tools.go: %w", err)
@@ -196,7 +196,7 @@ func (d *Doctor) MigrateToolsGo(appPath string) error {
 	}
 
 	for _, imp := range imports {
-		goModAst.AddTool(imp)
+		_ = goModAst.AddTool(imp)
 	}
 
 	// remove the tools.go file

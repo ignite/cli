@@ -62,7 +62,6 @@ type (
 
 	// Buf represents the buf application structure.
 	Buf struct {
-		// path  string
 		cache dircache.Cache
 	}
 

@@ -59,6 +59,7 @@ func Scaffold(ctx context.Context, dir, appName string, sharedHost bool) (string
 	if err := gocmd.ModTidy(ctx, finalDir); err != nil {
 		return "", errors.WithStack(err)
 	}
+
 	if err := gocmd.Fmt(ctx, finalDir); err != nil {
 		return "", errors.WithStack(err)
 	}

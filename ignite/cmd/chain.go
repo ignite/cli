@@ -180,8 +180,8 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, app
 	if len(missing) == 0 && len(unused) == 0 {
 		return nil
 	}
-	session.StartSpinner("Migrating tools...")
 
+	session.StartSpinner("Migrating tools...")
 	var buf bytes.Buffer
 	if err := goanalysis.AddOrRemoveTools(f, &buf, missing, unused); err != nil {
 		return err

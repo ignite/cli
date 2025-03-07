@@ -5,6 +5,7 @@ import (
 
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
+	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
 	"github.com/ignite/cli/v29/ignite/services/doctor"
 )
 
@@ -38,7 +39,16 @@ func NewDoctor() *cobra.Command {
 				return err
 			}
 
+			if err := doc.MigrateToolsGo(appPath); err != nil {
+				return err
+			}
+
 			if err := doc.MigratePluginsConfig(); err != nil {
+				return err
+			}
+
+			// we go mod tidy in case new dependencies were added or removed
+			if err := gocmd.ModTidy(cmd.Context(), appPath); err != nil {
 				return err
 			}
 

@@ -230,11 +230,11 @@ func FormatImports(f *ast.File) map[string]string {
 // AddOrRemoveTools helper function to add or remove tools from the go.mod file.
 func AddOrRemoveTools(f *modfile.File, writer io.Writer, importsToAdd, importsToRemove []string) error {
 	for _, imp := range importsToAdd {
-		f.AddTool(imp)
+		_ = f.AddTool(imp)
 	}
 
 	for _, imp := range importsToRemove {
-		f.DropTool(imp)
+		_ = f.DropTool(imp)
 	}
 
 	data, err := f.Format()

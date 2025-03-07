@@ -106,7 +106,9 @@ func PostScaffold(ctx context.Context, cacheStorage cache.Storage, path, protoDi
 		return err
 	}
 
-	_ = gocmd.GoImports(ctx, path) // goimports installation could fail, so ignore the error
+	if err := gocmd.GoImports(ctx, path); err != nil {
+		return err
+	}
 
 	return nil
 }
