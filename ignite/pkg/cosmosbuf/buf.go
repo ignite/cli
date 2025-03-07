@@ -142,7 +142,7 @@ func New(cacheStorage cache.Storage, goModPath string) (Buf, error) {
 }
 
 func cmd() []string {
-	return []string{"go", "tool", "run", "github.com/bufbuild/buf/cmd/buf"}
+	return []string{"go", "tool", "github.com/bufbuild/buf/cmd/buf"}
 }
 
 // String returns the command name.
