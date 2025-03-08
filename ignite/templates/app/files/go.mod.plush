@@ -1,8 +1,10 @@
 module <%= ModulePath %>
 
-go 1.23.6
+go 1.24.0
 
 replace (
+	// force go 1.24 sonic support
+	github.com/bytedance/sonic => github.com/bytedance/sonic v1.13.1
 	// fix upstream GHSA-h395-qcrw-5vmq vulnerability.
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.1
 	// replace broken goleveldb
@@ -47,4 +49,9 @@ require (
 	google.golang.org/grpc v1.68.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.3.0
 	google.golang.org/protobuf v1.36.1
+)
+
+tool (
+	<%= for (depTool) in DepTools { %>
+	"<%= depTool %>"<% } %>
 )

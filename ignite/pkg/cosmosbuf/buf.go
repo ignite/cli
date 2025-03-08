@@ -15,8 +15,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v29/ignite/pkg/dircache"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/goenv"
-	"github.com/ignite/cli/v29/ignite/pkg/xexec"
 	"github.com/ignite/cli/v29/ignite/pkg/xos"
 )
 
@@ -64,7 +62,6 @@ type (
 
 	// Buf represents the buf application structure.
 	Buf struct {
-		path  string
 		cache dircache.Cache
 	}
 
@@ -132,11 +129,6 @@ func FileByFile() GenOption {
 
 // New creates a new Buf based on the installed binary.
 func New(cacheStorage cache.Storage, goModPath string) (Buf, error) {
-	p, err := path()
-	if err != nil {
-		return Buf{}, err
-	}
-
 	bufCacheDir := filepath.Join("buf", goModPath)
 	c, err := dircache.New(cacheStorage, bufCacheDir, specCacheNamespace)
 	if err != nil {
@@ -144,9 +136,12 @@ func New(cacheStorage cache.Storage, goModPath string) (Buf, error) {
 	}
 
 	return Buf{
-		path:  p,
 		cache: c,
 	}, nil
+}
+
+func cmd() []string {
+	return []string{"go", "tool", "github.com/bufbuild/buf/cmd/buf"}
 }
 
 // String returns the command name.
@@ -330,10 +325,10 @@ func (b Buf) command(
 		return nil, errors.Errorf("%w: %s", ErrInvalidCommand, c)
 	}
 
-	command := []string{
-		b.path,
+	command := append(
+		cmd(),
 		c.String(),
-	}
+	)
 	command = append(command, args...)
 
 	for flag, value := range flags {
@@ -344,19 +339,10 @@ func (b Buf) command(
 	return command, nil
 }
 
-func path() (string, error) {
-	return xexec.ResolveAbsPath(filepath.Join(goenv.Bin(), binaryName))
-}
-
 // Version runs the buf Version command.
 func Version(ctx context.Context) (string, error) {
-	p, err := path()
-	if err != nil {
-		return "", err
-	}
-
 	bufOut := &bytes.Buffer{}
-	if err := exec.Exec(ctx, []string{p, "--version"}, exec.StepOption(step.Stdout(bufOut))); err != nil {
+	if err := exec.Exec(ctx, append(cmd(), "--version"), exec.StepOption(step.Stdout(bufOut))); err != nil {
 		return "", err
 	}
 

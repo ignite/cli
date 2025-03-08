@@ -9,6 +9,7 @@ import (
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+	"golang.org/x/mod/modfile"
 
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
@@ -17,10 +18,8 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/goanalysis"
-	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/services/chain"
-	"github.com/ignite/cli/v29/ignite/services/doctor"
 )
 
 const (
@@ -140,14 +139,15 @@ func preRunHandler(cmd *cobra.Command, _ []string) error {
 func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPath string) error {
 	session.StartSpinner("Checking missing tools...")
 
-	toolsFilename := filepath.Join(appPath, doctor.ToolsFile)
-	if _, err := os.Stat(toolsFilename); os.IsNotExist(err) {
-		return errors.New("the dependency tools file is missing, run `ignite doctor` and try again")
+	goModPath := filepath.Join(appPath, "go.mod")
+	data, err := os.ReadFile(goModPath)
+	if err != nil {
+		return errors.Errorf("failed to read go.mod file: %w", err)
 	}
 
-	f, _, err := xast.ParseFile(toolsFilename)
+	f, err := modfile.Parse(goModPath, data, nil)
 	if err != nil {
-		return err
+		return errors.Errorf("failed to parse go.mod file: %w", err)
 	}
 
 	missing := cosmosgen.MissingTools(f)
@@ -158,7 +158,7 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, app
 		if len(missing) > 0 {
 			question := fmt.Sprintf(
 				msgMigrationAddTools,
-				toolsFilename,
+				goModPath,
 				strings.Join(missing, ", "),
 			)
 			if err := session.AskConfirm(question); err != nil {
@@ -169,7 +169,7 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, app
 		if len(unused) > 0 {
 			question := fmt.Sprintf(
 				msgMigrationRemoveTools,
-				toolsFilename,
+				goModPath,
 				strings.Join(unused, ", "),
 			)
 			if err := session.AskConfirm(question); err != nil {
@@ -180,14 +180,14 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, app
 	if len(missing) == 0 && len(unused) == 0 {
 		return nil
 	}
-	session.StartSpinner("Migrating tools...")
 
+	session.StartSpinner("Migrating tools...")
 	var buf bytes.Buffer
-	if err := goanalysis.UpdateInitImports(f, &buf, missing, unused); err != nil {
+	if err := goanalysis.AddOrRemoveTools(f, &buf, missing, unused); err != nil {
 		return err
 	}
 
-	return os.WriteFile(toolsFilename, buf.Bytes(), 0o600)
+	return os.WriteFile(goModPath, buf.Bytes(), 0o600)
 }
 
 func bufMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPath, protoDir string) error {

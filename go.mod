@@ -1,6 +1,6 @@
 module github.com/ignite/cli/v29
 
-go 1.23.6
+go 1.24.0
 
 require (
 	cosmossdk.io/math v1.5.0
@@ -10,7 +10,6 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/blang/semver/v4 v4.0.0
 	github.com/briandowns/spinner v1.23.2
-	github.com/bufbuild/buf v1.50.0
 	github.com/buger/jsonparser v1.1.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/charmbracelet/bubbles v0.20.0
@@ -35,7 +34,6 @@ require (
 	github.com/gobuffalo/plush/v4 v4.1.22
 	github.com/gobwas/glob v0.2.3
 	github.com/goccy/go-yaml v1.15.23
-	github.com/golangci/golangci-lint v1.64.5
 	github.com/google/go-github/v48 v48.2.0
 	github.com/google/go-querystring v1.1.0
 	github.com/gookit/color v1.5.4
@@ -56,19 +54,14 @@ require (
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.6
 	github.com/stretchr/testify v1.10.0
-	github.com/tbruyelle/mdgofmt v0.1.3
-	github.com/vektra/mockery/v2 v2.46.0
 	go.etcd.io/bbolt v1.4.0
-	golang.org/x/mod v0.23.0
+	golang.org/x/mod v0.24.0
 	golang.org/x/sync v0.11.0
 	golang.org/x/term v0.29.0
 	golang.org/x/text v0.22.0
-	golang.org/x/tools v0.30.0
-	golang.org/x/vuln v1.1.4
 	google.golang.org/grpc v1.70.0
 	google.golang.org/protobuf v1.36.4
 	gopkg.in/yaml.v3 v3.0.1
-	mvdan.cc/gofumpt v0.7.0
 	sigs.k8s.io/yaml v1.4.0
 )
 
@@ -133,6 +126,7 @@ require (
 	github.com/bombsimon/wsl/v4 v4.5.0 // indirect
 	github.com/breml/bidichk v0.3.2 // indirect
 	github.com/breml/errchkjson v0.4.0 // indirect
+	github.com/bufbuild/buf v1.50.0 // indirect
 	github.com/bufbuild/protocompile v0.14.1 // indirect
 	github.com/bufbuild/protoplugin v0.0.0-20250106231243-3a819552c9d9 // indirect
 	github.com/bufbuild/protovalidate-go v0.8.2 // indirect
@@ -258,6 +252,7 @@ require (
 	github.com/golangci/dupl v0.0.0-20180902072040-3e9179ac440a // indirect
 	github.com/golangci/go-printf-func-name v0.1.0 // indirect
 	github.com/golangci/gofmt v0.0.0-20250106114630-d62b90e6713d // indirect
+	github.com/golangci/golangci-lint v1.64.5 // indirect
 	github.com/golangci/misspell v0.6.0 // indirect
 	github.com/golangci/plugin-module-register v0.1.1 // indirect
 	github.com/golangci/revgrep v0.8.0 // indirect
@@ -433,6 +428,7 @@ require (
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
+	github.com/tbruyelle/mdgofmt v0.1.3 // indirect
 	github.com/tdakkota/asciicheck v0.4.0 // indirect
 	github.com/tendermint/go-amino v0.16.0 // indirect
 	github.com/tetafro/godot v1.4.20 // indirect
@@ -447,6 +443,7 @@ require (
 	github.com/uudashr/gocognit v1.2.0 // indirect
 	github.com/uudashr/iface v1.3.1 // indirect
 	github.com/vbatts/tar-split v0.11.6 // indirect
+	github.com/vektra/mockery/v2 v2.46.0 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	github.com/xen0n/gosmopolitan v1.2.2 // indirect
 	github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778 // indirect
@@ -478,12 +475,14 @@ require (
 	go.uber.org/zap v1.27.0 // indirect
 	go.uber.org/zap/exp v0.3.0 // indirect
 	golang.org/x/arch v0.11.0 // indirect
-	golang.org/x/crypto v0.33.0 // indirect
+	golang.org/x/crypto v0.35.0 // indirect
 	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20250210185358-939b2ce775ac // indirect
 	golang.org/x/net v0.35.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/telemetry v0.0.0-20241106142447-58a1122356f5 // indirect
+	golang.org/x/tools v0.30.0 // indirect
+	golang.org/x/vuln v1.1.4 // indirect
 	google.golang.org/genproto v0.0.0-20241118233622-e639e219e697 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250106144421-5f5ef82da422 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250127172529-29210b9bc287 // indirect
@@ -492,10 +491,21 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gotest.tools/v3 v3.5.1 // indirect
 	honnef.co/go/tools v0.6.0 // indirect
+	mvdan.cc/gofumpt v0.7.0 // indirect
 	mvdan.cc/unparam v0.0.0-20240528143540-8a5130ca722f // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
 	pgregory.net/rapid v1.1.0 // indirect
 	pluginrpc.com/pluginrpc v0.5.0 // indirect
+)
+
+tool (
+	github.com/bufbuild/buf/cmd/buf
+	github.com/golangci/golangci-lint/cmd/golangci-lint
+	github.com/tbruyelle/mdgofmt/cmd/mdgofmt
+	github.com/vektra/mockery/v2
+	golang.org/x/tools/cmd/goimports
+	golang.org/x/vuln/cmd/govulncheck
+	mvdan.cc/gofumpt
 )
 
 replace (
