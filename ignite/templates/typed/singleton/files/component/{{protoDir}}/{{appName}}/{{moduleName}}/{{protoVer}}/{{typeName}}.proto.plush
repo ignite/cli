@@ -5,6 +5,7 @@ option go_package = "<%= ModulePath %>/x/<%= ModuleName %>/types";<%= for (impor
 import "<%= appName %>/<%= moduleName %>/<%= ProtoVer %>/<%= importName %>.proto"; <% } %><%= for (importName) in mergeProtoImports(Fields) { %>
 import "<%= importName %>"; <% } %>
 
+// <%= TypeName.UpperCamel %> defines the <%= TypeName.UpperCamel %> message.
 message <%= TypeName.UpperCamel %> {<%= for (i, field) in Fields { %>
   <%= field.ProtoType(i+1) %>; <% } %>
   <%= if (!NoMessage) { %>string <%= MsgSigner.Snake %> = <%= len(Fields)+1 %>;<% } %>
