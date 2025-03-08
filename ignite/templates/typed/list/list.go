@@ -410,7 +410,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 		var positionalArgs, positionalArgsStr string
 		for _, field := range opts.Fields {
 			positionalArgs += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
-			positionalArgsStr += fmt.Sprintf("[%s] ", field.Name.Kebab)
+			positionalArgsStr += fmt.Sprintf("[%s] ", field.CLIUsage())
 		}
 
 		template := `{

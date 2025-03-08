@@ -231,7 +231,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn
 			template,
 			typed.PlaceholderAutoCLITx,
 			opts.MsgName.UpperCamel,
-			strings.TrimSpace(fmt.Sprintf("%s%s", opts.MsgName.Kebab, opts.Fields.String())),
+			fmt.Sprintf("%s %s", opts.MsgName.Kebab, opts.Fields.CLIUsage()),
 			opts.MsgName.Original,
 			strings.TrimSpace(positionalArgs),
 		)
