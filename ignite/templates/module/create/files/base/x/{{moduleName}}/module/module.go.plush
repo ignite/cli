@@ -6,12 +6,13 @@ import (
 	"fmt"
 
 	"cosmossdk.io/core/appmodule"
-	"cosmossdk.io/core/registry"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
-	<%= if (isIBC) { %>porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
+	<%= if (isIBC) { %>porttypes "github.com/cosmos/ibc-go/v10/modules/core/05-port/types"
 	"github.com/spf13/cobra"<% } %>
 
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
@@ -20,10 +21,10 @@ import (
 )
 
 var (
+	_ module.AppModuleBasic = (*AppModule)(nil)
+	_ module.AppModule      = (*AppModule)(nil)
+
 	_ appmodule.AppModule       = (*AppModule)(nil)
-	_ appmodule.HasGenesis          = (*AppModule)(nil)
-	_ appmodule.HasConsensusVersion = (*AppModule)(nil)
-	_ appmodule.HasRegisterInterfaces            = AppModule{}
 	_ appmodule.HasBeginBlocker = (*AppModule)(nil)
 	_ appmodule.HasEndBlocker   = (*AppModule)(nil)
 	<%= if (isIBC) { %>_ porttypes.IBCModule   = (*IBCModule)(nil)<% } %>
@@ -33,15 +34,21 @@ var (
 type AppModule struct {
 	cdc           codec.Codec
 	keeper        keeper.Keeper
+	authKeeper    types.AuthKeeper
+	bankKeeper    types.BankKeeper
 }
 
 func NewAppModule(
 	cdc codec.Codec,
 	keeper keeper.Keeper,
+	authKeeper types.AuthKeeper,
+	bankKeeper types.BankKeeper,
 ) AppModule {
 	return AppModule{
 		cdc:           cdc,
 		keeper:        keeper,
+		authKeeper:    authKeeper,
+		bankKeeper:    bankKeeper,
 	}
 }
 
@@ -53,6 +60,9 @@ func (AppModule) Name() string {
 	return types.ModuleName
 }
 
+// RegisterLegacyAminoCodec registers the amino codec
+func (AppModule) RegisterLegacyAminoCodec(*codec.LegacyAmino) {}
+
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
 func (AppModule) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
 	if err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)); err != nil {
@@ -61,7 +71,7 @@ func (AppModule) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtim
 }
 
 // RegisterInterfaces registers a module's interface types and their concrete implementations as proto.Message.
-func (AppModule) RegisterInterfaces(registrar registry.InterfaceRegistrar) {
+func (AppModule) RegisterInterfaces(registrar codectypes.InterfaceRegistry) {
 	types.RegisterInterfaces(registrar)
 }
 

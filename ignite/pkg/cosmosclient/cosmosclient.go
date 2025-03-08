@@ -18,15 +18,10 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 	prototypes "github.com/cosmos/gogoproto/types"
 
-	"cosmossdk.io/core/transaction"
-	banktypes "cosmossdk.io/x/bank/types"
-	staking "cosmossdk.io/x/staking/types"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/codec"
-	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
@@ -34,6 +29,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
@@ -85,14 +82,14 @@ type FaucetClient interface {
 //
 //go:generate mockery --srcpkg . --name Gasometer --filename gasometer.go --with-expecter
 type Gasometer interface {
-	CalculateGas(clientCtx gogogrpc.ClientConn, txf tx.Factory, msgs ...transaction.Msg) (*txtypes.SimulateResponse, uint64, error)
+	CalculateGas(clientCtx gogogrpc.ClientConn, txf tx.Factory, msgs ...sdktypes.Msg) (*txtypes.SimulateResponse, uint64, error)
 }
 
 // Signer allows to mock the tx.Sign func.
 //
 //go:generate mockery --srcpkg . --name Signer --filename signer.go --with-expecter
 type Signer interface {
-	Sign(ctx client.Context, txf tx.Factory, name string, txBuilder client.TxBuilder, overwriteSig bool) error
+	Sign(ctx context.Context, txf tx.Factory, name string, txBuilder client.TxBuilder, overwriteSig bool) error
 }
 
 // Client is a client to access your chain by querying and broadcasting transactions.
@@ -308,7 +305,7 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 	}
 
 	if c.RPC == nil {
-		if c.RPC, err = rpchttp.New(c.nodeAddress); err != nil {
+		if c.RPC, err = rpchttp.New(c.nodeAddress, "/websocket"); err != nil {
 			return Client{}, err
 		}
 	}
@@ -364,6 +361,8 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 	if c.signer == nil {
 		c.signer = signer{}
 	}
+	// set address prefix in SDK global config
+	c.SetConfigAddressPrefix()
 
 	return c, nil
 }
@@ -466,6 +465,16 @@ func (c Client) Context() client.Context {
 	return c.context
 }
 
+// SetConfigAddressPrefix sets the account prefix in the SDK global config.
+func (c Client) SetConfigAddressPrefix() {
+	// TODO find a better way if possible.
+	// https://github.com/ignite/cli/issues/2744
+	mconf.Lock()
+	defer mconf.Unlock()
+	config := sdktypes.GetConfig()
+	config.SetBech32PrefixForAccount(c.addressPrefix, c.addressPrefix+"pub")
+}
+
 // Response of your broadcasted transaction.
 type Response struct {
 	Codec codec.Codec
@@ -533,7 +542,7 @@ func (c Client) lockBech32Prefix() (unlockFn func()) {
 	return mconf.Unlock
 }
 
-func (c Client) BroadcastTx(ctx context.Context, account cosmosaccount.Account, msgs ...transaction.Msg) (Response, error) {
+func (c Client) BroadcastTx(ctx context.Context, account cosmosaccount.Account, msgs ...sdktypes.Msg) (Response, error) {
 	txService, err := c.CreateTx(ctx, account, msgs...)
 	if err != nil {
 		return Response{}, err
@@ -544,7 +553,7 @@ func (c Client) BroadcastTx(ctx context.Context, account cosmosaccount.Account, 
 
 // CreateTxWithOptions creates a transaction with the given options.
 // Options override global client options.
-func (c Client) CreateTxWithOptions(ctx context.Context, account cosmosaccount.Account, options TxOptions, msgs ...transaction.Msg) (TxService, error) {
+func (c Client) CreateTxWithOptions(ctx context.Context, account cosmosaccount.Account, options TxOptions, msgs ...sdktypes.Msg) (TxService, error) {
 	defer c.lockBech32Prefix()()
 
 	if c.useFaucet && !c.generateOnly {
@@ -625,7 +634,7 @@ func (c Client) CreateTxWithOptions(ctx context.Context, account cosmosaccount.A
 	}, nil
 }
 
-func (c Client) CreateTx(ctx context.Context, account cosmosaccount.Account, msgs ...transaction.Msg) (TxService, error) {
+func (c Client) CreateTx(ctx context.Context, account cosmosaccount.Account, msgs ...sdktypes.Msg) (TxService, error) {
 	return c.CreateTxWithOptions(ctx, account, TxOptions{}, msgs...)
 }
 
@@ -802,15 +811,11 @@ func (c *Client) prepareFactory(clientCtx client.Context) (tx.Factory, error) {
 }
 
 func (c Client) newContext() client.Context {
-	addressCodec := addresscodec.NewBech32Codec(c.addressPrefix)
-	validatorAddressCodec := addresscodec.NewBech32Codec(c.addressPrefix + "val")
-	consensusAddressCodec := addresscodec.NewBech32Codec(c.addressPrefix + "cons")
-
 	var (
 		amino             = codec.NewLegacyAmino()
 		interfaceRegistry = codectypes.NewInterfaceRegistry()
 		marshaler         = codec.NewProtoCodec(interfaceRegistry)
-		txConfig          = authtx.NewTxConfig(marshaler, addressCodec, validatorAddressCodec, authtx.DefaultSignModes)
+		txConfig          = authtx.NewTxConfig(marshaler, authtx.DefaultSignModes)
 	)
 
 	authtypes.RegisterInterfaces(interfaceRegistry)
@@ -834,11 +839,7 @@ func (c Client) newContext() client.Context {
 		WithClient(c.RPC).
 		WithSkipConfirmation(true).
 		WithKeyring(c.AccountRegistry.Keyring).
-		WithGenerateOnly(c.generateOnly).
-		WithAddressCodec(addressCodec).
-		WithValidatorAddressCodec(validatorAddressCodec).
-		WithConsensusAddressCodec(consensusAddressCodec).
-		WithAddressPrefix(c.addressPrefix)
+		WithGenerateOnly(c.generateOnly)
 }
 
 func newFactory(clientCtx client.Context) tx.Factory {

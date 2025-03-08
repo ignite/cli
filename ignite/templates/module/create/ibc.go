@@ -63,29 +63,12 @@ func genesisModify(opts *CreateOptions) genny.RunFn {
 			return err
 		}
 
-		// Import
-		content, err := xast.AppendImports(
-			f.String(),
-			xast.WithLastImport("cosmossdk.io/errors"),
-		)
-		if err != nil {
-			return err
-		}
-
 		// Genesis init
-		replacementModuleInit := `k.SetPort(ctx, genState.PortId)
-// Only try to bind to port if it is not already bound, since we may already own
-// port capability from capability InitGenesis
-if k.ShouldBound(ctx, genState.PortId) {
-	// module binds to the port on InitChain
-	// and claims the returned capability
-	err := k.BindPort(ctx, genState.PortId)
-	if err != nil {
-		return errors.Wrap(err, "could not claim port capability")
-	}
-}`
-		content, err = xast.ModifyFunction(
-			content,
+		replacementModuleInit := `if err := k.Port.Set(ctx, genState.PortId); err != nil {
+		return err
+	}`
+		content, err := xast.ModifyFunction(
+			f.String(),
 			"InitGenesis",
 			xast.AppendFuncCode(replacementModuleInit),
 		)
@@ -94,7 +77,10 @@ if k.ShouldBound(ctx, genState.PortId) {
 		}
 
 		// Genesis export
-		replacementModuleExport := "genesis.PortId = k.GetPort(ctx)"
+		replacementModuleExport := `genesis.PortId, err = k.Port.Get(ctx)
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
+		return nil, err
+	}`
 		content, err = xast.ModifyFunction(
 			content,
 			"ExportGenesis",
@@ -120,7 +106,7 @@ func genesisTypesModify(opts *CreateOptions) genny.RunFn {
 		// Import
 		content, err := xast.AppendImports(
 			f.String(),
-			xast.WithLastNamedImport("host", "github.com/cosmos/ibc-go/v8/modules/core/24-host"),
+			xast.WithLastNamedImport("host", "github.com/cosmos/ibc-go/v10/modules/core/24-host"),
 		)
 		if err != nil {
 			return err
@@ -240,8 +226,8 @@ func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunF
 		}
 
 		// create IBC module
-		templateIBCModule := `%[2]vIBCModule := ibcfee.NewIBCMiddleware(%[2]vmodule.NewIBCModule(app.%[3]vKeeper), app.IBCFeeKeeper)
-ibcRouter.AddRoute(%[2]vmoduletypes.ModuleName, %[2]vIBCModule)
+		templateIBCModule := `%[2]vIBCModule := %[2]vmodule.NewIBCModule(app.appCodec, app.%[3]vKeeper)
+		ibcRouter.AddRoute(%[2]vmoduletypes.ModuleName, %[2]vIBCModule)
 %[1]v`
 		replacementIBCModule := fmt.Sprintf(
 			templateIBCModule,

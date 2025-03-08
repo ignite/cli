@@ -112,7 +112,7 @@ func testnetMultiNode(cmd *cobra.Command, session *cliui.Session) error {
 		return err
 	}
 
-	ports, err := availableport.Find(uint(numVal))
+	ports, err := availableport.Find(uint(numVal)) //nolint:gosec,nolintlint // conversion is fine
 	if err != nil {
 		return err
 	}

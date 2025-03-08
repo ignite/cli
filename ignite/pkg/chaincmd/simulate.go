@@ -107,7 +107,7 @@ func SimappWithSeed(seed int64) SimappOption {
 // SimappWithInitialBlockHeight provides initialBlockHeight option for the simapp command.
 func SimappWithInitialBlockHeight(initialBlockHeight int) SimappOption {
 	return func(command []string) []string {
-		return append(command, optionSimappInitialBlockHeight, strconv.Itoa(initialBlockHeight))
+		return append(command, optionSimappBlockSize, strconv.Itoa(initialBlockHeight))
 	}
 }
 

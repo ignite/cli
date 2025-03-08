@@ -126,19 +126,23 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 		ack = channeltypes.NewErrorAcknowledgement(err)
 	} else {
 		// Encode packet acknowledgment
-		packetAckBytes, err := types.ModuleCdc.MarshalJSON(&packetAck)
+		packetAckBytes, err := im.cdc.MarshalJSON(&packetAck)
 		if err != nil {
 			return channeltypes.NewErrorAcknowledgement(errorsmod.Wrap(sdkerrors.ErrJSONMarshal, err.Error()))
 		}
 		ack = channeltypes.NewResultAcknowledgement(packetAckBytes)
 	}
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
+
+
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+    sdkCtx.EventManager().EmitEvent(
+        sdk.NewEvent(
 			types.EventType%[3]vPacket,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
 			sdk.NewAttribute(types.AttributeKeyAckSuccess, fmt.Sprintf("%%t", err != nil)),
-		),
-	)
+        ),
+    )
+
 %[1]v`
 		replacementRecv := fmt.Sprintf(
 			templateRecv,
@@ -221,18 +225,18 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 			return errors.Errorf("could not find 'oneof packet' in message '%s' of file %s", name, path)
 		}
 		// Count fields of oneof:
-		max := 1
+		maximum := 1
 		protoutil.Apply(packet, nil, func(c *protoutil.Cursor) bool {
 			if o, ok := c.Node().(*proto.OneOfField); ok {
-				if o.Sequence > max {
-					max = o.Sequence
+				if o.Sequence > maximum {
+					maximum = o.Sequence
 				}
 			}
 			return true
 		})
 		// Add it to Oneof.
 		typenameUpper, typenameLower := opts.PacketName.UpperCamel, opts.PacketName.LowerCamel
-		packetField := protoutil.NewOneofField(typenameLower+"Packet", typenameUpper+"PacketData", max+1)
+		packetField := protoutil.NewOneofField(typenameLower+"Packet", typenameUpper+"PacketData", maximum+1)
 		protoutil.Append(packet, packetField)
 
 		// Add the message definition for packet and acknowledgment

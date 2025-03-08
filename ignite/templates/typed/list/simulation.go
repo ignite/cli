@@ -48,6 +48,8 @@ func moduleSimulationModify(opts *typed.Options) genny.RunFn {
 
 		content, err = typed.ModuleSimulationMsgModify(
 			content,
+			opts.ModulePath,
+			opts.ModuleName,
 			opts.TypeName,
 			opts.MsgSigner,
 			"Create", "Update", "Delete",

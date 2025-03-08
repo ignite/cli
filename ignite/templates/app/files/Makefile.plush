@@ -2,10 +2,10 @@ BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT := $(shell git log -1 --format='%H')
 APPNAME := <%= AppName %>
 
-# don't override user values
+# do not override user values
 ifeq (,$(VERSION))
   VERSION := $(shell git describe --exact-match 2>/dev/null)
-  # if VERSION is empty, then populate it with branch's name and raw commit hash
+  # if VERSION is empty, then populate it with branch name and raw commit hash
   ifeq (,$(VERSION))
     VERSION := $(BRANCH)-$(COMMIT)
   endif
@@ -63,10 +63,11 @@ install:
 ###  Protobuf  ###
 ##################
 
-# Use this proto-image if you do not want to use Ignite for generating proto files
-protoVer=0.15.1
-protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
-protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(protoImageName)
+# Use this target if you do not want to use Ignite for generating proto files
+
+proto-deps:
+	@echo "Installing proto deps"
+	@echo "Proto deps present, run 'go tool' to see them"
 
 proto-gen:
 	@echo "Generating protobuf files..."
@@ -78,18 +79,13 @@ proto-gen:
 ###  Linting  ###
 #################
 
-golangci_lint_cmd=golangci-lint
-golangci_version=v1.61.0
-
 lint:
 	@echo "--> Running linter"
-	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(golangci_version)
-	@$(golangci_lint_cmd) run ./... --timeout 15m
+	@go tool github.com/golangci/golangci-lint/cmd/golangci-lint run ./... --timeout 15m
 
 lint-fix:
 	@echo "--> Running linter and fixing issues"
-	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(golangci_version)
-	@$(golangci_lint_cmd) run ./... --fix --timeout 15m
+	@go tool github.com/golangci/golangci-lint/cmd/golangci-lint run ./... --fix --timeout 15m
 
 .PHONY: lint lint-fix
 
@@ -103,7 +99,7 @@ govet:
 
 govulncheck:
 	@echo Running govulncheck...
-	@go install golang.org/x/vuln/cmd/govulncheck@latest
+	@go tool golang.org/x/vuln/cmd/govulncheck@latest
 	@govulncheck ./...
 
 .PHONY: govet govulncheck
