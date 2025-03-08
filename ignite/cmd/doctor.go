@@ -38,11 +38,15 @@ func NewDoctor() *cobra.Command {
 				return err
 			}
 
+			if err := doc.MigrateToolsGo(appPath); err != nil {
+				return err
+			}
+
 			if err := doc.MigratePluginsConfig(); err != nil {
 				return err
 			}
 
-			return doc.FixDependencyTools(cmd.Context())
+			return nil
 		},
 	}
 

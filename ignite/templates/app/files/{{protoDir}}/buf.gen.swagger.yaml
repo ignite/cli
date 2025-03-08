@@ -5,7 +5,12 @@
 #
 version: v2
 plugins:
-  - local: protoc-gen-openapiv2
+  - local:
+      [
+        "go",
+        "tool",
+        "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2",
+      ]
     out: .
     opt:
       - logtostderr=true

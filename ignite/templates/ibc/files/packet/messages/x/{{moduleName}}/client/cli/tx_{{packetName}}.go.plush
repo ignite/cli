@@ -63,7 +63,7 @@ clientRes, err := channelutils.QueryChannelClientState(clientCtx, srcPort, srcCh
 			}
 
             if timeoutTimestamp != 0 {
-				timeoutTimestamp = consensusState.GetTimestamp() + timeoutTimestamp //nolint:staticcheck: we are client side
+				timeoutTimestamp = consensusState.GetTimestamp() + timeoutTimestamp //nolint:staticcheck // client side
             }
 
 			msg := types.NewMsgSend<%= packetName.UpperCamel %>(<%= MsgSigner.LowerCamel %>, srcPort, srcChannel, timeoutTimestamp<%= for (i, field) in fields { %>, arg<%= field.Name.UpperCamel %><% } %>)

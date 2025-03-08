@@ -2,10 +2,10 @@ BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT := $(shell git log -1 --format='%H')
 APPNAME := <%= AppName %>
 
-# don't override user values
+# do not override user values
 ifeq (,$(VERSION))
   VERSION := $(shell git describe --exact-match 2>/dev/null)
-  # if VERSION is empty, then populate it with branch's name and raw commit hash
+  # if VERSION is empty, then populate it with branch name and raw commit hash
   ifeq (,$(VERSION))
     VERSION := $(BRANCH)-$(COMMIT)
   endif
@@ -64,42 +64,28 @@ install:
 ##################
 
 # Use this target if you do not want to use Ignite for generating proto files
-GOLANG_PROTOBUF_VERSION=1.28.1
-GRPC_GATEWAY_VERSION=1.16.0
-GRPC_GATEWAY_PROTOC_GEN_OPENAPIV2_VERSION=2.20.0
 
 proto-deps:
 	@echo "Installing proto deps"
-	@go install github.com/bufbuild/buf/cmd/buf@v1.50.0
-	@go install github.com/cosmos/gogoproto/protoc-gen-gogo@latest
-	@go install github.com/cosmos/cosmos-proto/cmd/protoc-gen-go-pulsar@latest
-	@go install google.golang.org/protobuf/cmd/protoc-gen-go@v$(GOLANG_PROTOBUF_VERSION)
-	@go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway@v$(GRPC_GATEWAY_VERSION)
-	@go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v$(GRPC_GATEWAY_PROTOC_GEN_OPENAPIV2_VERSION)
-	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+	@echo "Proto deps present, run 'go tool' to see them"
 
 proto-gen:
 	@echo "Generating protobuf files..."
 	@ignite generate proto-go --yes
 
-.PHONY: proto-deps proto-gen
+.PHONY: proto-gen
 
 #################
 ###  Linting  ###
 #################
 
-golangci_lint_cmd=golangci-lint
-golangci_version=v1.61.0
-
 lint:
 	@echo "--> Running linter"
-	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(golangci_version)
-	@$(golangci_lint_cmd) run ./... --timeout 15m
+	@go tool github.com/golangci/golangci-lint/cmd/golangci-lint run ./... --timeout 15m
 
 lint-fix:
 	@echo "--> Running linter and fixing issues"
-	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(golangci_version)
-	@$(golangci_lint_cmd) run ./... --fix --timeout 15m
+	@go tool github.com/golangci/golangci-lint/cmd/golangci-lint run ./... --fix --timeout 15m
 
 .PHONY: lint lint-fix
 
@@ -113,7 +99,7 @@ govet:
 
 govulncheck:
 	@echo Running govulncheck...
-	@go install golang.org/x/vuln/cmd/govulncheck@latest
+	@go tool golang.org/x/vuln/cmd/govulncheck@latest
 	@govulncheck ./...
 
 .PHONY: govet govulncheck
