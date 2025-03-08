@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"math/big"
 	"path/filepath"
-	"strings"
 
 	"github.com/emicklei/proto"
 	"github.com/gobuffalo/genny/v2"
@@ -531,12 +530,6 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 			return err
 		}
 
-		var positionalArgs, positionalArgsStr string
-		for _, field := range opts.Fields {
-			positionalArgs += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
-			positionalArgsStr += fmt.Sprintf("[%s] ", field.CLIUsage())
-		}
-
 		template := `{
 			RpcMethod: "Create%[2]v",
 			Use: "create-%[3]v %[6]s",
@@ -562,8 +555,8 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 			opts.TypeName.UpperCamel,
 			opts.TypeName.Kebab,
 			opts.TypeName.Original,
-			strings.TrimSpace(positionalArgs),
-			strings.TrimSpace(positionalArgsStr),
+			opts.Fields.ProtoFieldName(),
+			opts.Fields.CLIUsage(),
 		)
 
 		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLITx, replacement)

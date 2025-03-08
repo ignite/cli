@@ -3,7 +3,7 @@ package field
 import (
 	"fmt"
 	"strings"
-	
+
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
 )
@@ -41,6 +41,16 @@ func (f Fields) ProtoImports() []string {
 		}
 	}
 	return allImports
+}
+
+// ProtoFieldName returns  all inline fields args for name used in proto.
+func (f Fields) ProtoFieldName() string {
+	args := ""
+	for _, field := range f {
+		args += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
+	}
+	args = strings.TrimSpace(args)
+	return strings.Trim(args, ",")
 }
 
 // CLIUsage returns all inline fields args for CLI command usage.
