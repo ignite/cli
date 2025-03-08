@@ -10,5 +10,6 @@ message <%= title(moduleName) %>PacketData {
     }
 }
 
+// NoData defines an empty data packet.
 message NoData {
 }
