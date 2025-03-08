@@ -6,7 +6,7 @@ import "<%= appName %>/<%= moduleName %>/<%= ProtoVer %>/<%= importName %>.proto
 import "<%= importName %>"; <% } %>
 
 // <%= TypeName.UpperCamel %> defines the <%= TypeName.UpperCamel %> message.
-message <%= TypeName.UpmperCamel %> {<%= for (i, field) in Fields { %>
+message <%= TypeName.UpperCamel %> {<%= for (i, field) in Fields { %>
   <%= field.ProtoType(i+1) %>; <% } %>
   <%= if (!NoMessage) { %>string <%= MsgSigner.Snake %> = <%= len(Fields)+1 %>;<% } %>
 }
