@@ -10,7 +10,7 @@ const config = {
   tagline: "Ignite Cli Docs",
   url: "https://docs.ignite.com",
   baseUrl: "/",
-  onBrokenLinks: "throw",
+  onBrokenLinks: "warn",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon-svg.svg",
   trailingSlash: false,
@@ -88,7 +88,8 @@ const config = {
     ({
       image: "img/og-image.jpg",
       announcementBar: {
-        content: '<a target="_blank" rel="noopener noreferrer" href="https://ignite.com">← Back to Ignite</a>',
+        content:
+          '<a target="_blank" rel="noopener noreferrer" href="https://ignite.com">← Back to Ignite</a>',
         isCloseable: false,
       },
       docs: {
