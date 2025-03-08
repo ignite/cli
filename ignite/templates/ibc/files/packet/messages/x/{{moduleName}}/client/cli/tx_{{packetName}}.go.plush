@@ -20,7 +20,7 @@ func CmdSend<%= packetName.UpperCamel %>() *cobra.Command {
 	flagPacketTimeoutTimestamp := "packet-timeout-timestamp"
 
 	cmd := &cobra.Command{
-		Use:   "send-<%= packetName.Kebab %> [src-port] [src-channel]<%= fields.String() %>",
+		Use:   "send-<%= packetName.Kebab %> [src-port] [src-channel] <%= fields.CLIUsage() %>",
 		Short: "Send a <%= packetName.Original %> over IBC",
 		Args:  cobra.ExactArgs(<%= len(fields) + 2 %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
