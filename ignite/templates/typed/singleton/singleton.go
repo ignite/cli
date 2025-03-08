@@ -444,10 +444,6 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 			return err
 		}
 
-		// Add initial import for the new type:
-		if err = protoutil.AddImports(protoFile, true, opts.ProtoTypeImport()); err != nil {
-			return errors.Errorf("failed while adding imports to %s: %w", path, err)
-		}
 		// Add the RPC service.
 		serviceMsg, err := protoutil.GetServiceByName(protoFile, "Msg")
 		if err != nil {

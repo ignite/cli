@@ -99,10 +99,6 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		// Import
-		if err = protoutil.AddImports(protoFile, true, opts.ProtoTypeImport()); err != nil {
-			return errors.Errorf("failed while adding imports to %s: %w", path, err)
-		}
 
 		// RPC service
 		serviceMsg, err := protoutil.GetServiceByName(protoFile, "Msg")
