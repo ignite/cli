@@ -661,7 +661,7 @@ func isString(s string) bool {
 
 // defaultComment creates a new default proto comment  with name and type.
 func defaultComment(name, protoType string) *proto.Comment {
-	return newComment(fmt.Sprintf("// %[1]v defines the %[1]v %[2]v.", name, protoType))
+	return newComment(fmt.Sprintf(" %[1]v defines the %[1]v %[2]v.", name, protoType))
 }
 
 // newComment creates a new proto comment.
