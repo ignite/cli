@@ -241,14 +241,14 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 
 		// Add the message definition for packet and acknowledgment
 		var packetFields []*proto.NormalField
-		for i, field := range opts.Fields {
-			packetFields = append(packetFields, field.ToProtoField(i+1))
+		for i, f := range opts.Fields {
+			packetFields = append(packetFields, f.ToProtoField(i+1))
 		}
 		packetData := protoutil.NewMessage(typenameUpper+"PacketData", protoutil.WithFields(packetFields...))
 		protoutil.AttachComment(packetData, typenameUpper+"PacketData defines a struct for the packet payload")
 		var ackFields []*proto.NormalField
-		for i, field := range opts.AckFields {
-			ackFields = append(ackFields, field.ToProtoField(i+1))
+		for i, f := range opts.AckFields {
+			ackFields = append(ackFields, f.ToProtoField(i+1))
 		}
 		packetAck := protoutil.NewMessage(typenameUpper+"PacketAck", protoutil.WithFields(ackFields...))
 		protoutil.AttachComment(packetAck, typenameUpper+"PacketAck defines a struct for the packet acknowledgment")

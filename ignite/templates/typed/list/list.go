@@ -231,7 +231,7 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 				),
 			),
 		)
-		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("Queries a %v by id.", typenameUpper))
+		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("Get%[1]v Queries a %[1]v by id.", typenameUpper))
 
 		rpcQueryAll := protoutil.NewRPC(
 			fmt.Sprintf("List%s", typenameUpper),
@@ -249,7 +249,7 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 				),
 			),
 		)
-		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("Queries a list of %v items.", typenameUpper))
+		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("List%[1]v Queries a list of %[1]v items.", typenameUpper))
 		protoutil.Append(serviceQuery, rpcQueryGet, rpcQueryAll)
 
 		// Add messages

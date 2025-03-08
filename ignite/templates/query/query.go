@@ -108,7 +108,7 @@ func protoQueryModify(opts *Options) genny.RunFn {
 				),
 			),
 		)
-		protoutil.AttachComment(rpcSingle, fmt.Sprintf("Queries a list of %v items.", typenameUpper))
+		protoutil.AttachComment(rpcSingle, fmt.Sprintf("%[1]v Queries a list of %[1]v items.", typenameUpper))
 		protoutil.Append(serviceQuery, rpcSingle)
 
 		// Fields for request

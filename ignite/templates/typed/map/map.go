@@ -205,10 +205,10 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 				),
 			),
 		)
-		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("Queries a %v by index.", typenameUpper))
+		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("Get%[1]v queries a %[1]v by index.", typenameUpper))
 
 		rpcQueryAll := protoutil.NewRPC(
-			fmt.Sprintf("Map%s", typenameUpper),
+			fmt.Sprintf("List%s", typenameUpper),
 			fmt.Sprintf("QueryAll%sRequest", typenameUpper),
 			fmt.Sprintf("QueryAll%sResponse", typenameUpper),
 			protoutil.WithRPCOptions(
@@ -223,7 +223,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 				),
 			),
 		)
-		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("Queries a list of %v items.", typenameUpper))
+		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("List%[1]v Queries a list of %[1]v items.", typenameUpper))
 		protoutil.Append(serviceQuery, rpcQueryGet, rpcQueryAll)
 
 		//  Ensure custom types are imported
@@ -285,7 +285,7 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 		}
 
 		template := `{
-			RpcMethod: "Map%[2]v",
+			RpcMethod: "List%[2]v",
 			Use: "list-%[3]v",
 			Short: "List all %[4]v",
 		},
