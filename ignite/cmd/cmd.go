@@ -42,7 +42,10 @@ const (
 	cacheFileName       = "ignite_cache.db"
 
 	statusGenerating = "Generating..."
-	statusQuerying   = "Querying..."
+	statusImporting  = "Importing..."
+	statusExporting  = "Exporting..."
+	statusCreating   = "Creating..."
+	statusDeleting   = "Deleting..."
 )
 
 // List of CLI level one commands that should not load Ignite app instances.
