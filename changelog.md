@@ -58,6 +58,7 @@
 - [#4463](https://github.com/ignite/cli/pull/4463) Run `chain simulation` with any simulation test case
 - [#4533](https://github.com/ignite/cli/pull/4533) Promote GitHub codespace instead of Gitpod
 - [#4549](https://github.com/ignite/cli/pull/4549) Remove unused placeholder vars
+- [#4557](https://github.com/ignite/cli/pull/4557) Remove github.com/gookit/color
 
 ### Fixes
 

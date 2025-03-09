@@ -8,13 +8,14 @@ import (
 	"time"
 
 	"github.com/briandowns/spinner"
-	"github.com/gookit/color"
+
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
 )
 
 var (
 	simpleCharset     = spinner.CharSets[4]
 	simpleRefreshRate = time.Millisecond * 300
-	simpleColor       = color.Blue
+	simpleColor       = colors.Spinner
 )
 
 type SimpleSpinner struct {
@@ -115,7 +116,7 @@ func (s *SimpleSpinner) Start() Spinner {
 			case <-ticker.C: // Update the spinner on each tick
 				s.mu.Lock()
 				frame := charset[index]
-				str := fmt.Sprintf("\r%s%s %s", prefix, simpleColor.Sprint(frame), text)
+				str := fmt.Sprintf("\r%s%s %s", prefix, simpleColor(frame), text)
 				_, _ = fmt.Fprint(writer, str) // Update the spinner in the same line
 				index++
 				if index >= len(charset) {
