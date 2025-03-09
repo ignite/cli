@@ -3,6 +3,7 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
@@ -19,7 +20,11 @@ func NewAccountCreate() *cobra.Command {
 }
 
 func accountCreateHandler(cmd *cobra.Command, args []string) error {
-	name := args[0]
+	var (
+		name    = args[0]
+		session = cliui.New(cliui.StartSpinnerWithText(statusCreating))
+	)
+	defer session.End()
 
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
@@ -34,6 +39,5 @@ func accountCreateHandler(cmd *cobra.Command, args []string) error {
 		return errors.Errorf("unable to create account: %w", err)
 	}
 
-	cmd.Printf("Account %q created, keep your mnemonic in a secret place:\n\n%s\n", name, mnemonic)
-	return nil
+	return session.Printf("Account %q created, keep your mnemonic in a secret place:\n\n%s\n", name, mnemonic)
 }

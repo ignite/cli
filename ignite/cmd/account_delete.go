@@ -3,6 +3,7 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosaccount"
 )
 
@@ -18,7 +19,11 @@ func NewAccountDelete() *cobra.Command {
 }
 
 func accountDeleteHandler(cmd *cobra.Command, args []string) error {
-	name := args[0]
+	var (
+		name    = args[0]
+		session = cliui.New(cliui.StartSpinnerWithText(statusDeleting))
+	)
+	defer session.End()
 
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
@@ -32,6 +37,5 @@ func accountDeleteHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	cmd.Printf("Account %s deleted.\n", name)
-	return nil
+	return session.Printf("Account %s deleted.\n", name)
 }

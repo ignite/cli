@@ -6,6 +6,7 @@ import (
 	"github.com/cosmos/go-bip39"
 	"github.com/spf13/cobra"
 
+	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
@@ -31,7 +32,9 @@ func accountImportHandler(cmd *cobra.Command, args []string) error {
 	var (
 		name      = args[0]
 		secret, _ = cmd.Flags().GetString(flagSecret)
+		session   = cliui.New(cliui.StartSpinnerWithText(statusImporting))
 	)
+	defer session.End()
 
 	if secret == "" {
 		if err := cliquiz.Ask(
@@ -70,6 +73,5 @@ func accountImportHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	cmd.Printf("Account %q imported.\n", name)
-	return nil
+	return session.Printf("Account %q imported.\n", name)
 }
