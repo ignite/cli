@@ -206,6 +206,7 @@ func NewRPC(name, inputType, outputType string, opts ...RPCSpecOptions) *proto.R
 
 	rpc := &proto.RPC{
 		Name:           r.name,
+		Comment:        defaultComment(r.name, "RPC"),
 		RequestType:    r.inputType,
 		ReturnsType:    r.outputType,
 		StreamsRequest: r.streamsReq,
@@ -266,7 +267,8 @@ func NewService(name string, opts ...ServiceSpecOptions) *proto.Service {
 		opt(&s)
 	}
 	service := &proto.Service{
-		Name: s.name,
+		Name:    s.name,
+		Comment: defaultComment(s.name, "service"),
 	}
 	for _, opt := range s.opts {
 		service.Elements = append(service.Elements, opt)
@@ -415,6 +417,7 @@ func NewMessage(name string, opts ...MessageSpecOptions) *proto.Message {
 	}
 	message := &proto.Message{
 		Name:     m.name,
+		Comment:  defaultComment(name, "message"),
 		IsExtend: m.isExtend,
 	}
 	for _, opt := range m.options {
@@ -521,7 +524,8 @@ func NewEnum(name string, opts ...EnumSpecOpts) *proto.Enum {
 		opt(&e)
 	}
 	enum := &proto.Enum{
-		Name: e.name,
+		Name:    e.name,
+		Comment: defaultComment(name, "enum"),
 	}
 	for _, opt := range e.options {
 		enum.Elements = append(enum.Elements, opt)
@@ -653,4 +657,14 @@ func isString(s string) bool {
 		return false
 	}
 	return true
+}
+
+// defaultComment creates a new default proto comment  with name and type.
+func defaultComment(name, protoType string) *proto.Comment {
+	return newComment(fmt.Sprintf(" %[1]v defines the %[1]v %[2]v.", name, protoType))
+}
+
+// newComment creates a new proto comment.
+func newComment(text string) *proto.Comment {
+	return &proto.Comment{Lines: []string{text}}
 }

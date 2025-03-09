@@ -46,18 +46,18 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 			return errors.Errorf("failed while looking up message '%s' in %s: %w", typed.ProtoGenesisStateMessage, path, err)
 		}
 		seqNumber := protoutil.NextUniqueID(genesisState)
-		typenameLower, typenameUpper := opts.TypeName.LowerCamel, opts.TypeName.UpperCamel
+		typenameSnake, typenameUpper := opts.TypeName.Snake, opts.TypeName.UpperCamel
 		// Create option and List field.
 		gogoOption := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
 		typeList := protoutil.NewField(
-			typenameLower+"List",
+			typenameSnake+"_list",
 			typenameUpper,
 			seqNumber,
 			protoutil.Repeated(),
 			protoutil.WithFieldOptions(gogoOption),
 		)
 		// Create count field.
-		countFIeld := protoutil.NewField(typenameLower+"Count", "uint64", seqNumber+1)
+		countFIeld := protoutil.NewField(typenameSnake+"_count", "uint64", seqNumber+1)
 		protoutil.Append(genesisState, typeList, countFIeld)
 
 		newFile := genny.NewFileS(path, protoutil.Print(protoFile))

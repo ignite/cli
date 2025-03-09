@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"math/big"
 	"path/filepath"
-	"strings"
 
 	"github.com/emicklei/proto"
 	"github.com/gobuffalo/genny/v2"
@@ -176,7 +175,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 			return errors.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
 		}
 		appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
-		typenameUpper := opts.TypeName.UpperCamel
+		typenameUpper, typenameSnake := opts.TypeName.UpperCamel, opts.TypeName.Snake
 		rpcQueryGet := protoutil.NewRPC(
 			fmt.Sprintf("Get%s", typenameUpper),
 			fmt.Sprintf("QueryGet%sRequest", typenameUpper),
@@ -198,7 +197,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 
 		// Add the service messages
 		queryGetRequest := protoutil.NewMessage("QueryGet" + typenameUpper + "Request")
-		field := protoutil.NewField(typenameUpper, typenameUpper, 1,
+		field := protoutil.NewField(typenameSnake, typenameUpper, 1,
 			protoutil.WithFieldOptions(protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())),
 		)
 		queryGetResponse := protoutil.NewMessage(fmt.Sprintf("QueryGet%sResponse", typenameUpper), protoutil.WithFields(field))
@@ -265,7 +264,7 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 		}
 		seqNumber := protoutil.NextUniqueID(genesisState)
 		field := protoutil.NewField(
-			opts.TypeName.LowerCamel,
+			opts.TypeName.Snake,
 			opts.TypeName.UpperCamel,
 			seqNumber,
 		)
@@ -445,10 +444,6 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 			return err
 		}
 
-		// Add initial import for the new type:
-		if err = protoutil.AddImports(protoFile, true, opts.ProtoTypeImport()); err != nil {
-			return errors.Errorf("failed while adding imports to %s: %w", path, err)
-		}
 		// Add the RPC service.
 		serviceMsg, err := protoutil.GetServiceByName(protoFile, "Msg")
 		if err != nil {
@@ -490,8 +485,8 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		}
 
 		// Add the messages
-		creator := protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)
-		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.LowerCamel)
+		creator := protoutil.NewField(opts.MsgSigner.Snake, "string", 1)
+		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.Snake)
 		fields := []*proto.NormalField{creator}
 		for i, field := range opts.Fields {
 			fields = append(fields, field.ToProtoField(i+3))
@@ -531,12 +526,6 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 			return err
 		}
 
-		var positionalArgs, positionalArgsStr string
-		for _, field := range opts.Fields {
-			positionalArgs += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
-			positionalArgsStr += fmt.Sprintf("[%s] ", field.ProtoFieldName())
-		}
-
 		template := `{
 			RpcMethod: "Create%[2]v",
 			Use: "create-%[3]v %[6]s",
@@ -562,8 +551,8 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 			opts.TypeName.UpperCamel,
 			opts.TypeName.Kebab,
 			opts.TypeName.Original,
-			strings.TrimSpace(positionalArgs),
-			strings.TrimSpace(positionalArgsStr),
+			opts.Fields.ProtoFieldName(),
+			opts.Fields.CLIUsage(),
 		)
 
 		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLITx, replacement)

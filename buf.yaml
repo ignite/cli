@@ -8,12 +8,9 @@ lint:
     - FILE_LOWER_SNAKE_CASE
   except:
     - COMMENT_FIELD
-    - FIELD_NOT_REQUIRED
-    - PACKAGE_NO_IMPORT_CYCLE
-    - PACKAGE_VERSION_SUFFIX
     - RPC_REQUEST_STANDARD_NAME
+    - RPC_RESPONSE_STANDARD_NAME
     - SERVICE_SUFFIX
-    - UNARY_RPC
   disallow_comment_ignores: true
 breaking:
   use:

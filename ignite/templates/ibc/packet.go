@@ -235,20 +235,20 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 			return true
 		})
 		// Add it to Oneof.
-		typenameUpper, typenameLower := opts.PacketName.UpperCamel, opts.PacketName.LowerCamel
-		packetField := protoutil.NewOneofField(typenameLower+"Packet", typenameUpper+"PacketData", maximum+1)
+		typenameUpper, typenameSnake := opts.PacketName.UpperCamel, opts.PacketName.Snake
+		packetField := protoutil.NewOneofField(typenameSnake+"_packet", typenameUpper+"PacketData", maximum+1)
 		protoutil.Append(packet, packetField)
 
 		// Add the message definition for packet and acknowledgment
 		var packetFields []*proto.NormalField
-		for i, field := range opts.Fields {
-			packetFields = append(packetFields, field.ToProtoField(i+1))
+		for i, f := range opts.Fields {
+			packetFields = append(packetFields, f.ToProtoField(i+1))
 		}
 		packetData := protoutil.NewMessage(typenameUpper+"PacketData", protoutil.WithFields(packetFields...))
 		protoutil.AttachComment(packetData, typenameUpper+"PacketData defines a struct for the packet payload")
 		var ackFields []*proto.NormalField
-		for i, field := range opts.AckFields {
-			ackFields = append(ackFields, field.ToProtoField(i+1))
+		for i, f := range opts.AckFields {
+			ackFields = append(ackFields, f.ToProtoField(i+1))
 		}
 		packetAck := protoutil.NewMessage(typenameUpper+"PacketAck", protoutil.WithFields(ackFields...))
 		protoutil.AttachComment(packetAck, typenameUpper+"PacketAck defines a struct for the packet acknowledgment")
@@ -331,12 +331,12 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 			sendFields = append(sendFields, field.ToProtoField(i+5))
 		}
 		sendFields = append(sendFields,
-			protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1),
+			protoutil.NewField(opts.MsgSigner.Snake, "string", 1),
 			protoutil.NewField("port", "string", 2),
 			protoutil.NewField("channelID", "string", 3),
 			protoutil.NewField("timeoutTimestamp", "uint64", 4),
 		)
-		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.LowerCamel)
+		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.Snake)
 
 		// Create MsgSend, MsgSendResponse and add to file.
 		msgSend := protoutil.NewMessage(

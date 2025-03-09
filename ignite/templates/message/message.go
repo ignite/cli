@@ -132,8 +132,8 @@ func protoTxMessageModify(opts *Options) genny.RunFn {
 			return err
 		}
 		// Prepare the fields and create the messages.
-		creator := protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)
-		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.LowerCamel)
+		creator := protoutil.NewField(opts.MsgSigner.Snake, "string", 1)
+		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.Snake)
 		msgFields := []*proto.NormalField{creator}
 		for i, field := range opts.Fields {
 			msgFields = append(msgFields, field.ToProtoField(i+2))
@@ -231,7 +231,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn
 			template,
 			typed.PlaceholderAutoCLITx,
 			opts.MsgName.UpperCamel,
-			strings.TrimSpace(fmt.Sprintf("%s%s", opts.MsgName.Kebab, opts.Fields.String())),
+			fmt.Sprintf("%s %s", opts.MsgName.Kebab, opts.Fields.CLIUsage()),
 			opts.MsgName.Original,
 			strings.TrimSpace(positionalArgs),
 		)

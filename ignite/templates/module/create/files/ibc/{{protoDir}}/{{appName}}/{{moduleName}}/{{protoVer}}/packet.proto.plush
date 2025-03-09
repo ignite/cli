@@ -3,11 +3,13 @@ package <%= protoPkgName %>;
 
 option go_package = "<%= modulePath %>/x/<%= moduleName %>/types";
 
+// <%= title(moduleName) %>PacketData defines the <%= title(moduleName) %> data packet.
 message <%= title(moduleName) %>PacketData {
     oneof packet {
         NoData noData = 1;
     }
 }
 
+// NoData defines an empty data packet.
 message NoData {
 }

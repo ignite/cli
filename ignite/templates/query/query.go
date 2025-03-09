@@ -108,7 +108,7 @@ func protoQueryModify(opts *Options) genny.RunFn {
 				),
 			),
 		)
-		protoutil.AttachComment(rpcSingle, fmt.Sprintf("Queries a list of %v items.", typenameUpper))
+		protoutil.AttachComment(rpcSingle, fmt.Sprintf("%[1]v Queries a list of %[1]v items.", typenameUpper))
 		protoutil.Append(serviceQuery, rpcSingle)
 
 		// Fields for request
@@ -176,7 +176,7 @@ func cliQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 			template,
 			PlaceholderAutoCLIQuery,
 			opts.QueryName.UpperCamel,
-			strings.TrimSpace(fmt.Sprintf("%s%s", opts.QueryName.Kebab, opts.ReqFields.String())),
+			fmt.Sprintf("%s %s", opts.QueryName.Kebab, opts.ReqFields.CLIUsage()),
 			opts.Description,
 			strings.TrimSpace(positionalArgs),
 		)
