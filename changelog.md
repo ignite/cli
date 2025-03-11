@@ -29,7 +29,7 @@
 - [#4437](https://github.com/ignite/cli/pull/4437) Remove module placeholders
 - [#4289](https://github.com/ignite/cli/pull/4289), [#4423](https://github.com/ignite/cli/pull/4423), [#4432](https://github.com/ignite/cli/pull/4432), [#4507](https://github.com/ignite/cli/pull/4507), [#4524](https://github.com/ignite/cli/pull/4524) Cosmos SDK v0.52 support and downgrade back to 0.50, while keeping latest improvements.
 - [#4480](https://github.com/ignite/cli/pull/4480) Add field max length
-- [#4477](https://github.com/ignite/cli/pull/4477) IBC v10 support
+- [#4477](https://github.com/ignite/cli/pull/4477), [#4559](https://github.com/ignite/cli/pull/4559) IBC v10 support
 - [#4166](https://github.com/ignite/cli/issues/4166) Migrate buf config files to v2
 - [#4494](https://github.com/ignite/cli/pull/4494) Automatic migrate the buf configs to v2
 
