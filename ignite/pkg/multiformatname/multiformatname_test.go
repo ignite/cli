@@ -1,7 +1,6 @@
 package multiformatname_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -10,59 +9,167 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
 )
 
-func TestNewMultiFormatName(t *testing.T) {
-	// [valueToTest, lowerCamel, upperCamel, kebabCase]
-	cases := [][6]string{
-		{"foo", "foo", "Foo", "foo", "foo", "foo"},
-		{"fooBar", "fooBar", "FooBar", "foo-bar", "foo_bar", "foobar"},
-		{"foo-bar", "fooBar", "FooBar", "foo-bar", "foo_bar", "foobar"},
-		{"foo_bar", "fooBar", "FooBar", "foo-bar", "foo_bar", "foobar"},
-		{"foo_barFoobar", "fooBarFoobar", "FooBarFoobar", "foo-bar-foobar", "foo_bar_foobar", "foobarfoobar"},
-		{"foo_-_bar", "fooBar", "FooBar", "foo---bar", "foo___bar", "foobar"},
-		{"foo_-_Bar", "fooBar", "FooBar", "foo---bar", "foo___bar", "foobar"},
-		{"fooBAR", "fooBar", "FooBar", "foo-bar", "foo_bar", "foobar"},
-		{"fooBar123", "fooBar123", "FooBar123", "foo-bar-123", "foo_bar_123", "foobar123"},
+func TestNewName(t *testing.T) {
+	tests := []struct {
+		name string
+		arg  string
+		want multiformatname.Name
+		err  error
+	}{
+		{
+			name: "simple lowercase name",
+			arg:  "foo",
+			want: multiformatname.Name{
+				Original:   "foo",
+				LowerCamel: "foo",
+				UpperCamel: "Foo",
+				LowerCase:  "foo",
+				UpperCase:  "FOO",
+				Kebab:      "foo",
+				Snake:      "foo",
+			},
+		},
+		{
+			name: "camelCase name",
+			arg:  "fooBar",
+			want: multiformatname.Name{
+				Original:   "fooBar",
+				LowerCamel: "fooBar",
+				UpperCamel: "FooBar",
+				LowerCase:  "foobar",
+				UpperCase:  "FOOBAR",
+				Kebab:      "foo-bar",
+				Snake:      "foo_bar",
+			},
+		},
+		{
+			name: "kebab-case name",
+			arg:  "foo-bar",
+			want: multiformatname.Name{
+				Original:   "foo-bar",
+				LowerCamel: "fooBar",
+				UpperCamel: "FooBar",
+				LowerCase:  "foobar",
+				UpperCase:  "FOOBAR",
+				Kebab:      "foo-bar",
+				Snake:      "foo_bar",
+			},
+		},
+		{
+			name: "snake_case name",
+			arg:  "foo_bar",
+			want: multiformatname.Name{
+				Original:   "foo_bar",
+				LowerCamel: "fooBar",
+				UpperCamel: "FooBar",
+				LowerCase:  "foobar",
+				UpperCase:  "FOOBAR",
+				Kebab:      "foo-bar",
+				Snake:      "foo_bar",
+			},
+		},
+		{
+			name: "mixed snake_case and camelCase name",
+			arg:  "foo_barFoobar",
+			want: multiformatname.Name{
+				Original:   "foo_barFoobar",
+				LowerCamel: "fooBarFoobar",
+				UpperCamel: "FooBarFoobar",
+				LowerCase:  "foobarfoobar",
+				UpperCase:  "FOOBARFOOBAR",
+				Kebab:      "foo-bar-foobar",
+				Snake:      "foo_bar_foobar",
+			},
+		},
+		{
+			name: "mixed underscores and dashes",
+			arg:  "foo_-_bar",
+			want: multiformatname.Name{
+				Original:   "foo_-_bar",
+				LowerCamel: "fooBar",
+				UpperCamel: "Foo__Bar",
+				LowerCase:  "foobar",
+				UpperCase:  "FOOBAR",
+				Kebab:      "foo---bar",
+				Snake:      "foo___bar",
+			},
+		},
+		{
+			name: "mixed underscores, dashes, and numbers",
+			arg:  "foo_-_Bar1",
+			want: multiformatname.Name{
+				Original:   "foo_-_Bar1",
+				LowerCamel: "fooBar1",
+				UpperCamel: "Foo__Bar_1",
+				LowerCase:  "foobar1",
+				UpperCase:  "FOOBAR1",
+				Kebab:      "foo---bar-1",
+				Snake:      "foo___bar_1",
+			},
+		},
+		{
+			name: "uppercase variant in simple name",
+			arg:  "fooBAR",
+			want: multiformatname.Name{
+				Original:   "fooBAR",
+				LowerCamel: "fooBar",
+				UpperCamel: "FooBar",
+				LowerCase:  "foobar",
+				UpperCase:  "FOOBAR",
+				Kebab:      "foo-bar",
+				Snake:      "foo_bar",
+			},
+		},
+		{
+			name: "uppercase variant with starting capital",
+			arg:  "FooBAR",
+			want: multiformatname.Name{
+				Original:   "FooBAR",
+				LowerCamel: "fooBar",
+				UpperCamel: "FooBar",
+				LowerCase:  "foobar",
+				UpperCase:  "FOOBAR",
+				Kebab:      "foo-bar",
+				Snake:      "foo_bar",
+			},
+		},
+		{
+			name: "camelCase name with numbers",
+			arg:  "fooBar123",
+			want: multiformatname.Name{
+				Original:   "fooBar123",
+				LowerCamel: "fooBar123",
+				UpperCamel: "FooBar123",
+				LowerCase:  "foobar123",
+				UpperCase:  "FOOBAR123",
+				Kebab:      "foo-bar-123",
+				Snake:      "foo_bar_123",
+			},
+		},
+		{
+			name: "test",
+			arg:  "para_2_m_s_43_tr_1",
+			want: multiformatname.Name{
+				Original:   "para_2_m_s_43_tr_1",
+				LowerCamel: "para2MS43Tr1",
+				UpperCamel: "Para_2MS_43Tr_1",
+				LowerCase:  "para2ms43tr1",
+				UpperCase:  "PARA2MS43TR1",
+				Kebab:      "para-2-m-s-43-tr-1",
+				Snake:      "para_2_m_s_43_tr_1",
+			},
+		},
 	}
-
-	// test cases
-	for _, testCase := range cases {
-		name, err := multiformatname.NewName(testCase[0])
-		require.NoError(t, err)
-		require.Equal(
-			t,
-			testCase[0],
-			name.Original,
-		)
-		require.Equal(
-			t,
-			testCase[1],
-			name.LowerCamel,
-			fmt.Sprintf("%s should be converted to the correct lower camel format", testCase[0]),
-		)
-		require.Equal(
-			t,
-			testCase[2],
-			name.UpperCamel,
-			fmt.Sprintf("%s should be converted the correct upper camel format", testCase[0]),
-		)
-		require.Equal(
-			t,
-			testCase[3],
-			name.Kebab,
-			fmt.Sprintf("%s should be converted the correct kebab format", testCase[0]),
-		)
-		require.Equal(
-			t,
-			testCase[4],
-			name.Snake,
-			fmt.Sprintf("%s should be converted the correct snake format", testCase[0]),
-		)
-		require.Equal(
-			t,
-			testCase[5],
-			name.LowerCase,
-			fmt.Sprintf("%s should be converted the correct lowercase format", testCase[0]),
-		)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := multiformatname.NewName(tt.arg)
+			if tt.err != nil {
+				require.ErrorIs(t, err, tt.err)
+				return
+			}
+			require.NoError(t, err)
+			require.EqualValues(t, tt.want, got)
+		})
 	}
 }
 

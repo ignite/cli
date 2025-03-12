@@ -2,12 +2,10 @@
 package multiformatname
 
 import (
-	"strings"
-
 	"github.com/iancoleman/strcase"
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/xstrings"
+	"github.com/ignite/cli/v29/ignite/pkg/xstrcase"
 )
 
 // Name represents a name with multiple naming convention representations.
@@ -37,11 +35,11 @@ func NewName(name string, additionalChecks ...Checker) (Name, error) {
 	return Name{
 		Original:   name,
 		LowerCamel: strcase.ToLowerCamel(name),
-		UpperCamel: strcase.ToCamel(name),
-		UpperCase:  strings.ToUpper(name),
+		UpperCamel: xstrcase.UpperCamel(name),
+		LowerCase:  xstrcase.Lowercase(name),
+		UpperCase:  xstrcase.Uppercase(name),
 		Kebab:      strcase.ToKebab(name),
 		Snake:      strcase.ToSnake(name),
-		LowerCase:  lowercase(name),
 	}, nil
 }
 
@@ -78,15 +76,4 @@ func basicCheckName(name string) error {
 	}
 
 	return nil
-}
-
-// lowercase returns the name with lower case and no special character.
-func lowercase(name string) string {
-	return strings.ToLower(
-		strings.ReplaceAll(
-			xstrings.NoDash(name),
-			"_",
-			"",
-		),
-	)
 }
