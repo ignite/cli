@@ -11,8 +11,7 @@ import (
 
 // UpperCamel returns the name with upper camel and no special character.
 func UpperCamel(name string) string {
-	uc := strcase.ToSnake(name)
-	return protogenerator.CamelCase(uc)
+	return protogenerator.CamelCase(strcase.ToSnake(name))
 }
 
 // Lowercase returns the name with lower case and no special character.

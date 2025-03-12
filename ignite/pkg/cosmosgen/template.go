@@ -7,10 +7,11 @@ import (
 	"strings"
 	"text/template"
 
-	protogenerator "github.com/cosmos/gogoproto/protoc-gen-gogo/generator"
 	"github.com/iancoleman/strcase"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+
+	"github.com/ignite/cli/v29/ignite/pkg/xstrcase"
 )
 
 var (
@@ -53,7 +54,7 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 		"camelCase": strcase.ToLowerCamel,
 		"capitalCase": func(word string) string {
 			replacer := strings.NewReplacer("-", "_", ".", "_")
-			word = protogenerator.CamelCase(replacer.Replace(word))
+			word = xstrcase.UpperCamel(replacer.Replace(word))
 
 			return cases.Title(language.English).String(word)
 		},
@@ -65,7 +66,7 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 		"camelCaseUpperSta": func(word string) string {
 			replacer := strings.NewReplacer("-", "_", ".", "_")
 
-			return protogenerator.CamelCase(replacer.Replace(word))
+			return xstrcase.UpperCamel(replacer.Replace(word))
 		},
 		"resolveFile": func(fullPath string) string { // TODO to check
 			rel, _ := filepath.Rel(protoPath, fullPath)
