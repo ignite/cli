@@ -106,22 +106,22 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 			return errors.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
 		}
 		// Create, update, delete rpcs. Better to append them altogether, single traversal.
-		typenameUpper := opts.TypeName.UpperCamel
+		typenamePascal := opts.TypeName.PascalCase
 		protoutil.Append(serviceMsg,
 			protoutil.NewRPC(
-				fmt.Sprintf("Create%s", typenameUpper),
-				fmt.Sprintf("MsgCreate%s", typenameUpper),
-				fmt.Sprintf("MsgCreate%sResponse", typenameUpper),
+				fmt.Sprintf("Create%s", typenamePascal),
+				fmt.Sprintf("MsgCreate%s", typenamePascal),
+				fmt.Sprintf("MsgCreate%sResponse", typenamePascal),
 			),
 			protoutil.NewRPC(
-				fmt.Sprintf("Update%s", typenameUpper),
-				fmt.Sprintf("MsgUpdate%s", typenameUpper),
-				fmt.Sprintf("MsgUpdate%sResponse", typenameUpper),
+				fmt.Sprintf("Update%s", typenamePascal),
+				fmt.Sprintf("MsgUpdate%s", typenamePascal),
+				fmt.Sprintf("MsgUpdate%sResponse", typenamePascal),
 			),
 			protoutil.NewRPC(
-				fmt.Sprintf("Delete%s", typenameUpper),
-				fmt.Sprintf("MsgDelete%s", typenameUpper),
-				fmt.Sprintf("MsgDelete%sResponse", typenameUpper),
+				fmt.Sprintf("Delete%s", typenamePascal),
+				fmt.Sprintf("MsgDelete%s", typenamePascal),
+				fmt.Sprintf("MsgDelete%sResponse", typenamePascal),
 			),
 		)
 
@@ -152,26 +152,26 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		}
 
 		msgCreate := protoutil.NewMessage(
-			fmt.Sprintf("MsgCreate%s", typenameUpper),
+			fmt.Sprintf("MsgCreate%s", typenamePascal),
 			protoutil.WithFields(createFields...),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
 		msgCreateResponse := protoutil.NewMessage(
-			fmt.Sprintf("MsgCreate%sResponse", typenameUpper),
+			fmt.Sprintf("MsgCreate%sResponse", typenamePascal),
 			protoutil.WithFields(protoutil.NewField("id", "uint64", 1)),
 		)
 		msgUpdate := protoutil.NewMessage(
-			fmt.Sprintf("MsgUpdate%s", typenameUpper),
+			fmt.Sprintf("MsgUpdate%s", typenamePascal),
 			protoutil.WithFields(updateFields...),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
-		msgUpdateResponse := protoutil.NewMessage(fmt.Sprintf("MsgUpdate%sResponse", typenameUpper))
+		msgUpdateResponse := protoutil.NewMessage(fmt.Sprintf("MsgUpdate%sResponse", typenamePascal))
 		msgDelete := protoutil.NewMessage(
-			fmt.Sprintf("MsgDelete%s", typenameUpper),
+			fmt.Sprintf("MsgDelete%s", typenamePascal),
 			protoutil.WithFields(udfields...),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
-		msgDeleteResponse := protoutil.NewMessage(fmt.Sprintf("MsgDelete%sResponse", typenameUpper))
+		msgDeleteResponse := protoutil.NewMessage(fmt.Sprintf("MsgDelete%sResponse", typenamePascal))
 		protoutil.Append(
 			protoFile,
 			msgCreate,
@@ -214,11 +214,11 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 			return errors.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
 		}
 		appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
-		typenameUpper, typenameSnake := opts.TypeName.UpperCamel, opts.TypeName.Snake
+		typenamePascal, typenameSnake := opts.TypeName.PascalCase, opts.TypeName.Snake
 		rpcQueryGet := protoutil.NewRPC(
-			fmt.Sprintf("Get%s", typenameUpper),
-			fmt.Sprintf("QueryGet%sRequest", typenameUpper),
-			fmt.Sprintf("QueryGet%sResponse", typenameUpper),
+			fmt.Sprintf("Get%s", typenamePascal),
+			fmt.Sprintf("QueryGet%sRequest", typenamePascal),
+			fmt.Sprintf("QueryGet%sResponse", typenamePascal),
 			protoutil.WithRPCOptions(
 				protoutil.NewOption(
 					"google.api.http",
@@ -231,12 +231,12 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 				),
 			),
 		)
-		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("Get%[1]v Queries a %[1]v by id.", typenameUpper))
+		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("Get%[1]v Queries a %[1]v by id.", typenamePascal))
 
 		rpcQueryAll := protoutil.NewRPC(
-			fmt.Sprintf("List%s", typenameUpper),
-			fmt.Sprintf("QueryAll%sRequest", typenameUpper),
-			fmt.Sprintf("QueryAll%sResponse", typenameUpper),
+			fmt.Sprintf("List%s", typenamePascal),
+			fmt.Sprintf("QueryAll%sRequest", typenamePascal),
+			fmt.Sprintf("QueryAll%sResponse", typenamePascal),
 			protoutil.WithRPCOptions(
 				protoutil.NewOption(
 					"google.api.http",
@@ -249,7 +249,7 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 				),
 			),
 		)
-		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("List%[1]v Queries a list of %[1]v items.", typenameUpper))
+		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("List%[1]v Queries a list of %[1]v items.", typenamePascal))
 		protoutil.Append(serviceQuery, rpcQueryGet, rpcQueryAll)
 
 		// Add messages
@@ -257,21 +257,21 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 		gogoOption := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
 
 		queryGetRequest := protoutil.NewMessage(
-			fmt.Sprintf("QueryGet%sRequest", typenameUpper),
+			fmt.Sprintf("QueryGet%sRequest", typenamePascal),
 			protoutil.WithFields(protoutil.NewField("id", "uint64", 1)),
 		)
-		field := protoutil.NewField(typenameSnake, typenameUpper, 1, protoutil.WithFieldOptions(gogoOption))
+		field := protoutil.NewField(typenameSnake, typenamePascal, 1, protoutil.WithFieldOptions(gogoOption))
 		queryGetResponse := protoutil.NewMessage(
-			fmt.Sprintf("QueryGet%sResponse", typenameUpper),
+			fmt.Sprintf("QueryGet%sResponse", typenamePascal),
 			protoutil.WithFields(field))
 
 		queryAllRequest := protoutil.NewMessage(
-			fmt.Sprintf("QueryAll%sRequest", typenameUpper),
+			fmt.Sprintf("QueryAll%sRequest", typenamePascal),
 			protoutil.WithFields(protoutil.NewField(paginationName, paginationType+"Request", 1)),
 		)
-		field = protoutil.NewField(typenameSnake, typenameUpper, 1, protoutil.Repeated(), protoutil.WithFieldOptions(gogoOption))
+		field = protoutil.NewField(typenameSnake, typenamePascal, 1, protoutil.Repeated(), protoutil.WithFieldOptions(gogoOption))
 		queryAllResponse := protoutil.NewMessage(
-			fmt.Sprintf("QueryAll%sResponse", typenameUpper),
+			fmt.Sprintf("QueryAll%sResponse", typenamePascal),
 			protoutil.WithFields(field, protoutil.NewField(paginationName, paginationType+"Response", 2)),
 		)
 		protoutil.Append(protoFile, queryGetRequest, queryGetResponse, queryAllRequest, queryAllResponse)

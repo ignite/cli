@@ -105,13 +105,13 @@ func protoTxRPCModify(opts *Options) genny.RunFn {
 		if err != nil {
 			return errors.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
 		}
-		typenameUpper := opts.MsgName.UpperCamel
+		typenamePascal := opts.MsgName.PascalCase
 		protoutil.Append(
 			serviceMsg,
 			protoutil.NewRPC(
-				typenameUpper,
-				fmt.Sprintf("Msg%s", typenameUpper),
-				fmt.Sprintf("Msg%sResponse", typenameUpper),
+				typenamePascal,
+				fmt.Sprintf("Msg%s", typenamePascal),
+				fmt.Sprintf("Msg%sResponse", typenamePascal),
 			),
 		)
 

@@ -235,8 +235,8 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 			return true
 		})
 		// Add it to Oneof.
-		typenameUpper, typenameSnake := opts.PacketName.UpperCamel, opts.PacketName.Snake
-		packetField := protoutil.NewOneofField(typenameSnake+"_packet", typenameUpper+"PacketData", maximum+1)
+		typenamePascal, typenameSnake := opts.PacketName.PascalCase, opts.PacketName.Snake
+		packetField := protoutil.NewOneofField(typenameSnake+"_packet", typenamePascal+"PacketData", maximum+1)
 		protoutil.Append(packet, packetField)
 
 		// Add the message definition for packet and acknowledgment
@@ -244,14 +244,14 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 		for i, f := range opts.Fields {
 			packetFields = append(packetFields, f.ToProtoField(i+1))
 		}
-		packetData := protoutil.NewMessage(typenameUpper+"PacketData", protoutil.WithFields(packetFields...))
-		protoutil.AttachComment(packetData, typenameUpper+"PacketData defines a struct for the packet payload")
+		packetData := protoutil.NewMessage(typenamePascal+"PacketData", protoutil.WithFields(packetFields...))
+		protoutil.AttachComment(packetData, typenamePascal+"PacketData defines a struct for the packet payload")
 		var ackFields []*proto.NormalField
 		for i, f := range opts.AckFields {
 			ackFields = append(ackFields, f.ToProtoField(i+1))
 		}
-		packetAck := protoutil.NewMessage(typenameUpper+"PacketAck", protoutil.WithFields(ackFields...))
-		protoutil.AttachComment(packetAck, typenameUpper+"PacketAck defines a struct for the packet acknowledgment")
+		packetAck := protoutil.NewMessage(typenamePascal+"PacketAck", protoutil.WithFields(ackFields...))
+		protoutil.AttachComment(packetAck, typenamePascal+"PacketAck defines a struct for the packet acknowledgment")
 		protoutil.Append(protoFile, packetData, packetAck)
 
 		// Add any custom imports.
@@ -317,11 +317,11 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 		if err != nil {
 			return errors.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
 		}
-		typenameUpper := opts.PacketName.UpperCamel
+		typenamePascal := opts.PacketName.PascalCase
 		send := protoutil.NewRPC(
-			fmt.Sprintf("Send%s", typenameUpper),
-			fmt.Sprintf("MsgSend%s", typenameUpper),
-			fmt.Sprintf("MsgSend%sResponse", typenameUpper),
+			fmt.Sprintf("Send%s", typenamePascal),
+			fmt.Sprintf("MsgSend%s", typenamePascal),
+			fmt.Sprintf("MsgSend%sResponse", typenamePascal),
 		)
 		protoutil.Append(serviceMsg, send)
 
@@ -340,11 +340,11 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 
 		// Create MsgSend, MsgSendResponse and add to file.
 		msgSend := protoutil.NewMessage(
-			"MsgSend"+typenameUpper,
+			"MsgSend"+typenamePascal,
 			protoutil.WithFields(sendFields...),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
-		msgSendResponse := protoutil.NewMessage("MsgSend" + typenameUpper + "Response")
+		msgSendResponse := protoutil.NewMessage("MsgSend" + typenamePascal + "Response")
 		protoutil.Append(protoFile, msgSend, msgSendResponse)
 
 		// Ensure custom types are imported

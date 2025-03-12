@@ -188,11 +188,11 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 		if err != nil {
 			return errors.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
 		}
-		typenameUpper, typenameSnake := opts.TypeName.UpperCamel, opts.TypeName.Snake
+		typenamePascal, typenameSnake := opts.TypeName.PascalCase, opts.TypeName.Snake
 		rpcQueryGet := protoutil.NewRPC(
-			fmt.Sprintf("Get%s", typenameUpper),
-			fmt.Sprintf("QueryGet%sRequest", typenameUpper),
-			fmt.Sprintf("QueryGet%sResponse", typenameUpper),
+			fmt.Sprintf("Get%s", typenamePascal),
+			fmt.Sprintf("QueryGet%sRequest", typenamePascal),
+			fmt.Sprintf("QueryGet%sResponse", typenamePascal),
 			protoutil.WithRPCOptions(
 				protoutil.NewOption(
 					"google.api.http",
@@ -205,12 +205,12 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 				),
 			),
 		)
-		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("Get%[1]v queries a %[1]v by index.", typenameUpper))
+		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("Get%[1]v queries a %[1]v by index.", typenamePascal))
 
 		rpcQueryAll := protoutil.NewRPC(
-			fmt.Sprintf("List%s", typenameUpper),
-			fmt.Sprintf("QueryAll%sRequest", typenameUpper),
-			fmt.Sprintf("QueryAll%sResponse", typenameUpper),
+			fmt.Sprintf("List%s", typenamePascal),
+			fmt.Sprintf("QueryAll%sRequest", typenamePascal),
+			fmt.Sprintf("QueryAll%sResponse", typenamePascal),
 			protoutil.WithRPCOptions(
 				protoutil.NewOption(
 					"google.api.http",
@@ -223,7 +223,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 				),
 			),
 		)
-		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("List%[1]v Queries a list of %[1]v items.", typenameUpper))
+		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("List%[1]v Queries a list of %[1]v items.", typenamePascal))
 		protoutil.Append(serviceQuery, rpcQueryGet, rpcQueryAll)
 
 		//  Ensure custom types are imported
@@ -244,24 +244,24 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 		// Add the messages.
 		paginationType, paginationName := "cosmos.base.query.v1beta1.Page", "pagination"
 		queryGetRequest := protoutil.NewMessage(
-			fmt.Sprintf("QueryGet%sRequest", typenameUpper),
+			fmt.Sprintf("QueryGet%sRequest", typenamePascal),
 			protoutil.WithFields(opts.Index.ToProtoField(1)),
 		)
 		gogoOption := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
 		queryGetResponse := protoutil.NewMessage(
-			fmt.Sprintf("QueryGet%sResponse", typenameUpper),
-			protoutil.WithFields(protoutil.NewField(typenameSnake, typenameUpper, 1, protoutil.WithFieldOptions(gogoOption))),
+			fmt.Sprintf("QueryGet%sResponse", typenamePascal),
+			protoutil.WithFields(protoutil.NewField(typenameSnake, typenamePascal, 1, protoutil.WithFieldOptions(gogoOption))),
 		)
 		queryAllRequest := protoutil.NewMessage(
-			fmt.Sprintf("QueryAll%sRequest", typenameUpper),
+			fmt.Sprintf("QueryAll%sRequest", typenamePascal),
 			protoutil.WithFields(protoutil.NewField(paginationName, paginationType+"Request", 1)),
 		)
 		queryAllResponse := protoutil.NewMessage(
-			fmt.Sprintf("QueryAll%sResponse", typenameUpper),
+			fmt.Sprintf("QueryAll%sResponse", typenamePascal),
 			protoutil.WithFields(
 				protoutil.NewField(
 					typenameSnake,
-					typenameUpper,
+					typenamePascal,
 					1,
 					protoutil.Repeated(),
 					protoutil.WithFieldOptions(gogoOption),
@@ -582,22 +582,22 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 			return errors.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
 		}
 		// better to append them altogether, single traversal.
-		typenameUpper := opts.TypeName.UpperCamel
+		typenamePascal := opts.TypeName.PascalCase
 		protoutil.Append(serviceMsg,
 			protoutil.NewRPC(
-				fmt.Sprintf("Create%s", typenameUpper),
-				fmt.Sprintf("MsgCreate%s", typenameUpper),
-				fmt.Sprintf("MsgCreate%sResponse", typenameUpper),
+				fmt.Sprintf("Create%s", typenamePascal),
+				fmt.Sprintf("MsgCreate%s", typenamePascal),
+				fmt.Sprintf("MsgCreate%sResponse", typenamePascal),
 			),
 			protoutil.NewRPC(
-				fmt.Sprintf("Update%s", typenameUpper),
-				fmt.Sprintf("MsgUpdate%s", typenameUpper),
-				fmt.Sprintf("MsgUpdate%sResponse", typenameUpper),
+				fmt.Sprintf("Update%s", typenamePascal),
+				fmt.Sprintf("MsgUpdate%s", typenamePascal),
+				fmt.Sprintf("MsgUpdate%sResponse", typenamePascal),
 			),
 			protoutil.NewRPC(
-				fmt.Sprintf("Delete%s", typenameUpper),
-				fmt.Sprintf("MsgDelete%s", typenameUpper),
-				fmt.Sprintf("MsgDelete%sResponse", typenameUpper),
+				fmt.Sprintf("Delete%s", typenamePascal),
+				fmt.Sprintf("MsgDelete%s", typenamePascal),
+				fmt.Sprintf("MsgDelete%sResponse", typenamePascal),
 			),
 		)
 
@@ -628,25 +628,25 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		commonFields = append(commonFields, index)
 
 		msgCreate := protoutil.NewMessage(
-			"MsgCreate"+typenameUpper,
+			"MsgCreate"+typenamePascal,
 			protoutil.WithFields(append(commonFields, fields...)...),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
-		msgCreateResponse := protoutil.NewMessage(fmt.Sprintf("MsgCreate%sResponse", typenameUpper))
+		msgCreateResponse := protoutil.NewMessage(fmt.Sprintf("MsgCreate%sResponse", typenamePascal))
 
 		msgUpdate := protoutil.NewMessage(
-			"MsgUpdate"+typenameUpper,
+			"MsgUpdate"+typenamePascal,
 			protoutil.WithFields(append(commonFields, fields...)...),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
-		msgUpdateResponse := protoutil.NewMessage(fmt.Sprintf("MsgUpdate%sResponse", typenameUpper))
+		msgUpdateResponse := protoutil.NewMessage(fmt.Sprintf("MsgUpdate%sResponse", typenamePascal))
 
 		msgDelete := protoutil.NewMessage(
-			"MsgDelete"+typenameUpper,
+			"MsgDelete"+typenamePascal,
 			protoutil.WithFields(commonFields...),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
-		msgDeleteResponse := protoutil.NewMessage(fmt.Sprintf("MsgDelete%sResponse", typenameUpper))
+		msgDeleteResponse := protoutil.NewMessage(fmt.Sprintf("MsgDelete%sResponse", typenamePascal))
 		protoutil.Append(protoFile,
 			msgCreate, msgCreateResponse, msgUpdate, msgUpdateResponse, msgDelete, msgDeleteResponse,
 		)

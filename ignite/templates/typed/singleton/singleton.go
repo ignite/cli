@@ -175,11 +175,11 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 			return errors.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
 		}
 		appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
-		typenameUpper, typenameSnake := opts.TypeName.UpperCamel, opts.TypeName.Snake
+		typenamePascal, typenameSnake := opts.TypeName.PascalCase, opts.TypeName.Snake
 		rpcQueryGet := protoutil.NewRPC(
-			fmt.Sprintf("Get%s", typenameUpper),
-			fmt.Sprintf("QueryGet%sRequest", typenameUpper),
-			fmt.Sprintf("QueryGet%sResponse", typenameUpper),
+			fmt.Sprintf("Get%s", typenamePascal),
+			fmt.Sprintf("QueryGet%sRequest", typenamePascal),
+			fmt.Sprintf("QueryGet%sResponse", typenamePascal),
 			protoutil.WithRPCOptions(
 				protoutil.NewOption(
 					"google.api.http",
@@ -192,15 +192,15 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 				),
 			),
 		)
-		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("Queries a %v by index.", typenameUpper))
+		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("Queries a %v by index.", typenamePascal))
 		protoutil.Append(serviceQuery, rpcQueryGet)
 
 		// Add the service messages
-		queryGetRequest := protoutil.NewMessage("QueryGet" + typenameUpper + "Request")
-		field := protoutil.NewField(typenameSnake, typenameUpper, 1,
+		queryGetRequest := protoutil.NewMessage("QueryGet" + typenamePascal + "Request")
+		field := protoutil.NewField(typenameSnake, typenamePascal, 1,
 			protoutil.WithFieldOptions(protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())),
 		)
-		queryGetResponse := protoutil.NewMessage(fmt.Sprintf("QueryGet%sResponse", typenameUpper), protoutil.WithFields(field))
+		queryGetResponse := protoutil.NewMessage(fmt.Sprintf("QueryGet%sResponse", typenamePascal), protoutil.WithFields(field))
 		protoutil.Append(protoFile, queryGetRequest, queryGetResponse)
 
 		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
@@ -450,22 +450,22 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 			return errors.Errorf("failed while looking up a message 'Msg' in %s: %w", path, err)
 		}
 		// Append create, update, delete rpcs. Better to append them altogether, single traversal.
-		name := opts.TypeName.UpperCamel
+		typenamePascal := opts.TypeName.PascalCase
 		protoutil.Append(serviceMsg,
 			protoutil.NewRPC(
-				fmt.Sprintf("Create%s", name),
-				fmt.Sprintf("MsgCreate%s", name),
-				fmt.Sprintf("MsgCreate%sResponse", name),
+				fmt.Sprintf("Create%s", typenamePascal),
+				fmt.Sprintf("MsgCreate%s", typenamePascal),
+				fmt.Sprintf("MsgCreate%sResponse", typenamePascal),
 			),
 			protoutil.NewRPC(
-				fmt.Sprintf("Update%s", name),
-				fmt.Sprintf("MsgUpdate%s", name),
-				fmt.Sprintf("MsgUpdate%sResponse", name),
+				fmt.Sprintf("Update%s", typenamePascal),
+				fmt.Sprintf("MsgUpdate%s", typenamePascal),
+				fmt.Sprintf("MsgUpdate%sResponse", typenamePascal),
 			),
 			protoutil.NewRPC(
-				fmt.Sprintf("Delete%s", name),
-				fmt.Sprintf("MsgDelete%s", name),
-				fmt.Sprintf("MsgDelete%sResponse", name),
+				fmt.Sprintf("Delete%s", typenamePascal),
+				fmt.Sprintf("MsgDelete%s", typenamePascal),
+				fmt.Sprintf("MsgDelete%sResponse", typenamePascal),
 			),
 		)
 
@@ -492,23 +492,23 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 			fields = append(fields, field.ToProtoField(i+3))
 		}
 		msgCreate := protoutil.NewMessage(
-			"MsgCreate"+name,
+			"MsgCreate"+typenamePascal,
 			protoutil.WithFields(fields...),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
-		msgCreateResponse := protoutil.NewMessage(fmt.Sprintf("MsgCreate%sResponse", name))
+		msgCreateResponse := protoutil.NewMessage(fmt.Sprintf("MsgCreate%sResponse", typenamePascal))
 		msgUpdate := protoutil.NewMessage(
-			"MsgUpdate"+name,
+			"MsgUpdate"+typenamePascal,
 			protoutil.WithFields(fields...),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
-		msgUpdateResponse := protoutil.NewMessage(fmt.Sprintf("MsgUpdate%sResponse", name))
+		msgUpdateResponse := protoutil.NewMessage(fmt.Sprintf("MsgUpdate%sResponse", typenamePascal))
 		msgDelete := protoutil.NewMessage(
-			"MsgDelete"+name,
+			"MsgDelete"+typenamePascal,
 			protoutil.WithFields(creator),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
-		msgDeleteResponse := protoutil.NewMessage(fmt.Sprintf("MsgDelete%sResponse", name))
+		msgDeleteResponse := protoutil.NewMessage(fmt.Sprintf("MsgDelete%sResponse", typenamePascal))
 		protoutil.Append(protoFile,
 			msgCreate, msgCreateResponse, msgUpdate, msgUpdateResponse, msgDelete, msgDeleteResponse,
 		)
