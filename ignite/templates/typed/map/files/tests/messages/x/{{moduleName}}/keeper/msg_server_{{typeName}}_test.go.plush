@@ -10,17 +10,17 @@ import (
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
-func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
+func Test<%= TypeName.PascalCase %>MsgServerCreate(t *testing.T) {
 	f := initFixture(t)
 	srv := keeper.NewMsgServerImpl(f.keeper)
 	<%= MsgSigner.LowerCamel %>, err := f.addressCodec.BytesToString([]byte("signerAddr__________________"))
 	require.NoError(t, err)
 
 	for i := 0; i < 5; i++ {
-		expected := &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
+		expected := &types.MsgCreate<%= TypeName.PascalCase %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
 		   <%= Index.Name.UpperCamel %>: <%= Index.ValueLoop() %>,
 		}
-		_, err := srv.Create<%= TypeName.UpperCamel %>(f.ctx, expected)
+		_, err := srv.Create<%= TypeName.PascalCase %>(f.ctx, expected)
 		require.NoError(t, err)
 		rst, err := f.keeper.<%= TypeName.UpperCamel %>.Get(f.ctx, expected.<%= Index.Name.UpperCamel %>)
 		require.NoError(t, err)
@@ -28,7 +28,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
 	}
 }
 
-func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
+func Test<%= TypeName.PascalCase %>MsgServerUpdate(t *testing.T) {
 	f := initFixture(t)
 	srv := keeper.NewMsgServerImpl(f.keeper)
 
@@ -38,48 +38,48 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 	unauthorizedAddr, err := f.addressCodec.BytesToString([]byte("unauthorizedAddr___________"))
 	require.NoError(t, err)
 
-	expected := &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
+	expected := &types.MsgCreate<%= TypeName.PascalCase %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
 	    <%= Index.Name.UpperCamel %>: <%= Index.ValueIndex() %>,
 	}
-	_, err = srv.Create<%= TypeName.UpperCamel %>(f.ctx, expected)
+	_, err = srv.Create<%= TypeName.PascalCase %>(f.ctx, expected)
 	require.NoError(t, err)
 
 	tests := []struct {
 		desc    string
-		request *types.MsgUpdate<%= TypeName.UpperCamel %>
+		request *types.MsgUpdate<%= TypeName.PascalCase %>
 		err     error
 	}{
 		{
 			desc:    "invalid address",
-			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: "invalid",
+			request: &types.MsgUpdate<%= TypeName.PascalCase %>{<%= MsgSigner.UpperCamel %>: "invalid",
 			    <%= Index.Name.UpperCamel %>: <%= Index.ValueIndex() %>,
 			},
 			err:     sdkerrors.ErrInvalidAddress,
 		},
 		{
 			desc:    "unauthorized",
-			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: unauthorizedAddr,
+			request: &types.MsgUpdate<%= TypeName.PascalCase %>{<%= MsgSigner.UpperCamel %>: unauthorizedAddr,
 			    <%= Index.Name.UpperCamel %>: <%= Index.ValueIndex() %>,
 			},
 			err:     sdkerrors.ErrUnauthorized,
 		},
 		{
 			desc:    "key not found",
-			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
+			request: &types.MsgUpdate<%= TypeName.PascalCase %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
 			    <%= Index.Name.UpperCamel %>: <%= Index.ValueInvalidIndex() %>,
 			},
 			err:     sdkerrors.ErrKeyNotFound,
 		},
 		{
 			desc:    "completed",
-			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
+			request: &types.MsgUpdate<%= TypeName.PascalCase %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
 			    <%= Index.Name.UpperCamel %>: <%= Index.ValueIndex() %>,
 			},
 		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
-			_, err = srv.Update<%= TypeName.UpperCamel %>(f.ctx, tc.request)
+			_, err = srv.Update<%= TypeName.PascalCase %>(f.ctx, tc.request)
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)
 			} else {
@@ -92,7 +92,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 	}
 }
 
-func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
+func Test<%= TypeName.PascalCase %>MsgServerDelete(t *testing.T) {
 	f := initFixture(t)
 	srv := keeper.NewMsgServerImpl(f.keeper)
 
@@ -102,47 +102,47 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 	unauthorizedAddr, err := f.addressCodec.BytesToString([]byte("unauthorizedAddr___________"))
 	require.NoError(t, err)
 
-	_, err = srv.Create<%= TypeName.UpperCamel %>(f.ctx, &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
+	_, err = srv.Create<%= TypeName.PascalCase %>(f.ctx, &types.MsgCreate<%= TypeName.PascalCase %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
 	    <%= Index.Name.UpperCamel %>: <%= Index.ValueIndex() %>,
 	})
 	require.NoError(t, err)
 
 	tests := []struct {
 		desc    string
-		request *types.MsgDelete<%= TypeName.UpperCamel %>
+		request *types.MsgDelete<%= TypeName.PascalCase %>
 		err     error
 	}{
 		{
 			desc:    "invalid address",
-			request: &types.MsgDelete<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: "invalid",
-			    <%= Index.Name.UpperCamel %>: <%= Index.ValueIndex() %>,
+			request: &types.MsgDelete<%= TypeName.PascalCase %>{<%= MsgSigner.UpperCamel %>: "invalid",
+			    <%= Index.Name.PascalCase %>: <%= Index.ValueIndex() %>,
 			},
 			err:     sdkerrors.ErrInvalidAddress,
 		},
 		{
 			desc:    "unauthorized",
-			request: &types.MsgDelete<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: unauthorizedAddr,
+			request: &types.MsgDelete<%= TypeName.PascalCase %>{<%= MsgSigner.UpperCamel %>: unauthorizedAddr,
 			    <%= Index.Name.UpperCamel %>: <%= Index.ValueIndex() %>,
 			},
 			err:     sdkerrors.ErrUnauthorized,
 		},
 		{
 			desc:    "key not found",
-			request: &types.MsgDelete<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
+			request: &types.MsgDelete<%= TypeName.PascalCase %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
 			    <%= Index.Name.UpperCamel %>: <%= Index.ValueInvalidIndex() %>,
 			},
 			err:     sdkerrors.ErrKeyNotFound,
 		},
 		{
 			desc:    "completed",
-			request: &types.MsgDelete<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
+			request: &types.MsgDelete<%= TypeName.PascalCase %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
 			    <%= Index.Name.UpperCamel %>: <%= Index.ValueIndex() %>,
 			},
 		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
-			_, err = srv.Delete<%= TypeName.UpperCamel %>(f.ctx, tc.request)
+			_, err = srv.Delete<%= TypeName.PascalCase %>(f.ctx, tc.request)
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)
 			} else {

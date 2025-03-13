@@ -189,7 +189,7 @@ func typesCodecModify(opts *Options) genny.RunFn {
 )`
 		replacementRegisterImplementations := fmt.Sprintf(
 			templateRegisterImplementations,
-			opts.MsgName.UpperCamel,
+			opts.MsgName.PascalCase,
 		)
 
 		content, err = xast.ModifyFunction(
@@ -230,7 +230,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn
 		replacement := fmt.Sprintf(
 			template,
 			typed.PlaceholderAutoCLITx,
-			opts.MsgName.UpperCamel,
+			opts.MsgName.PascalCase,
 			fmt.Sprintf("%s %s", opts.MsgName.Kebab, opts.Fields.CLIUsage()),
 			opts.MsgName.Original,
 			strings.TrimSpace(positionalArgs),

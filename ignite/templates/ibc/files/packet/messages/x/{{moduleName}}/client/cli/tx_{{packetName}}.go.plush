@@ -14,9 +14,9 @@ import (
 	"<%= ModulePath %>/x/<%= moduleName %>/types"
 )
 
-// CmdSend<%= packetName.UpperCamel %>() returns the <%= packetName.UpperCamel %> send packet command.
+// CmdSend<%= packetName.PascalCase %>() returns the <%= packetName.PascalCase %> send packet command.
 // This command does not use AutoCLI because it gives a better UX to do not.
-func CmdSend<%= packetName.UpperCamel %>() *cobra.Command {
+func CmdSend<%= packetName.PascalCase %>() *cobra.Command {
 	flagPacketTimeoutTimestamp := "packet-timeout-timestamp"
 
 	cmd := &cobra.Command{
@@ -66,7 +66,7 @@ clientRes, err := channelutils.QueryChannelClientState(clientCtx, srcPort, srcCh
 				timeoutTimestamp = consensusState.GetTimestamp() + timeoutTimestamp //nolint:staticcheck // client side
             }
 
-			msg := types.NewMsgSend<%= packetName.UpperCamel %>(<%= MsgSigner.LowerCamel %>, srcPort, srcChannel, timeoutTimestamp<%= for (i, field) in fields { %>, arg<%= field.Name.UpperCamel %><% } %>)
+			msg := types.NewMsgSend<%= packetName.PascalCase %>(<%= MsgSigner.LowerCamel %>, srcPort, srcChannel, timeoutTimestamp<%= for (i, field) in fields { %>, arg<%= field.Name.PascalCase %><% } %>)
 			
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},

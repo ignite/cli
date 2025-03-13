@@ -295,7 +295,7 @@ var (
 	%[1]vCountKey= collections.NewPrefix("%[2]v/count/")
 )
 `,
-			opts.TypeName.UpperCamel,
+			opts.TypeName.PascalCase,
 			opts.TypeName.LowerCase,
 		)
 		newFile := genny.NewFileS(path, content)
@@ -321,7 +321,7 @@ func keeperModify(opts *typed.Options) genny.RunFn {
 			),
 			xast.AppendStructValue(
 				opts.TypeName.UpperCamel,
-				fmt.Sprintf("collections.Map[uint64, types.%[1]v]", opts.TypeName.UpperCamel),
+				fmt.Sprintf("collections.Map[uint64, types.%[1]v]", opts.TypeName.PascalCase),
 			),
 		)
 		if err != nil {
@@ -335,8 +335,9 @@ func keeperModify(opts *typed.Options) genny.RunFn {
 			xast.AppendFuncStruct(
 				"Keeper",
 				fmt.Sprintf("%[1]vSeq", opts.TypeName.UpperCamel),
-				fmt.Sprintf(`collections.NewSequence(sb, types.%[1]vCountKey, "%[2]v_seq")`,
+				fmt.Sprintf(`collections.NewSequence(sb, types.%[2]vCountKey, "%[3]v_seq")`,
 					opts.TypeName.UpperCamel,
+					opts.TypeName.PascalCase,
 					opts.TypeName.LowerCamel,
 				),
 				-1,
@@ -345,7 +346,7 @@ func keeperModify(opts *typed.Options) genny.RunFn {
 				"Keeper",
 				opts.TypeName.UpperCamel,
 				fmt.Sprintf(`collections.NewMap(sb, types.%[1]vKey, "%[2]v", collections.Uint64Key, codec.CollValue[types.%[1]v](cdc))`,
-					opts.TypeName.UpperCamel,
+					opts.TypeName.PascalCase,
 					opts.TypeName.LowerCamel,
 				),
 				-1,
@@ -380,7 +381,7 @@ func typesCodecModify(opts *typed.Options) genny.RunFn {
 	&MsgUpdate%[1]v{},
 	&MsgDelete%[1]v{},
 )`
-		replacementInterface := fmt.Sprintf(templateInterface, opts.TypeName.UpperCamel)
+		replacementInterface := fmt.Sprintf(templateInterface, opts.TypeName.PascalCase)
 		content, err = xast.ModifyFunction(
 			content,
 			"RegisterInterfaces",
@@ -426,7 +427,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 		replacement := fmt.Sprintf(
 			template,
 			typed.PlaceholderAutoCLITx,
-			opts.TypeName.UpperCamel,
+			opts.TypeName.PascalCase,
 			opts.TypeName.Kebab,
 			opts.TypeName.Original,
 			opts.Fields.ProtoFieldName(),
@@ -463,7 +464,7 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 		replacement := fmt.Sprintf(
 			template,
 			typed.PlaceholderAutoCLIQuery,
-			opts.TypeName.UpperCamel,
+			opts.TypeName.PascalCase,
 			opts.TypeName.Kebab,
 			opts.TypeName.Original,
 		)

@@ -34,7 +34,7 @@ func moduleSimulationModify(opts *typed.Options) genny.RunFn {
 				fmt.Sprintf("%[1]vMap", opts.TypeName.UpperCamel),
 				fmt.Sprintf(
 					"[]types.%[1]v{{ %[2]v }, { %[3]v }}",
-					opts.TypeName.UpperCamel,
+					opts.TypeName.PascalCase,
 					sampleIndexes[0],
 					sampleIndexes[1],
 				),

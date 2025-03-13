@@ -1,14 +1,12 @@
 package types
 
-import sdk "github.com/cosmos/cosmos-sdk/types"
-
-func NewMsgCreate<%= TypeName.UpperCamel %>(
+func NewMsgCreate<%= TypeName.PascalCase %>(
     <%= MsgSigner.LowerCamel %> string,
     <%= Index.Name.LowerCamel %> <%= Index.DataType() %>,
     <%= for (field) in Fields { %><%= field.Name.LowerCamel %> <%= field.DataType() %>,
     <% } %>
-) *MsgCreate<%= TypeName.UpperCamel %> {
-  return &MsgCreate<%= TypeName.UpperCamel %>{
+) *MsgCreate<%= TypeName.PascalCase %> {
+  return &MsgCreate<%= TypeName.PascalCase %>{
 		<%= MsgSigner.UpperCamel %> : <%= MsgSigner.LowerCamel %>,
 		<%= Index.Name.UpperCamel %>: <%= Index.Name.LowerCamel %>,
 		<%= for (field) in Fields { %><%= field.Name.UpperCamel %>: <%= field.Name.LowerCamel %>,
@@ -16,13 +14,13 @@ func NewMsgCreate<%= TypeName.UpperCamel %>(
 	}
 }
 
-func NewMsgUpdate<%= TypeName.UpperCamel %>(
+func NewMsgUpdate<%= TypeName.PascalCase %>(
     <%= MsgSigner.LowerCamel %> string,
     <%= Index.Name.LowerCamel %> <%= Index.DataType() %>,
     <%= for (field) in Fields { %><%= field.Name.LowerCamel %> <%= field.DataType() %>,
     <% } %>
-) *MsgUpdate<%= TypeName.UpperCamel %> {
-  return &MsgUpdate<%= TypeName.UpperCamel %>{
+) *MsgUpdate<%= TypeName.PascalCase %> {
+  return &MsgUpdate<%= TypeName.PascalCase %>{
 		<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
         <%= Index.Name.UpperCamel %>: <%= Index.Name.LowerCamel %>,
         <%= for (field) in Fields { %><%= field.Name.UpperCamel %>: <%= field.Name.LowerCamel %>,
@@ -30,12 +28,12 @@ func NewMsgUpdate<%= TypeName.UpperCamel %>(
 	}
 }
 
-func NewMsgDelete<%= TypeName.UpperCamel %>(
+func NewMsgDelete<%= TypeName.PascalCase %>(
     <%= MsgSigner.LowerCamel %> string,
     <%= Index.Name.LowerCamel %> <%= Index.DataType() %>,
     <% } %>
-) *MsgDelete<%= TypeName.UpperCamel %> {
-  return &MsgDelete<%= TypeName.UpperCamel %>{
+) *MsgDelete<%= TypeName.PascalCase %> {
+  return &MsgDelete<%= TypeName.PascalCase %>{
 		<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
 		<%= Index.Name.UpperCamel %>: <%= Index.Name.LowerCamel %>,
 	}

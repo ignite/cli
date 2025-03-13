@@ -96,7 +96,7 @@ var (
 	%[1]vKey= collections.NewPrefix("%[2]v/value/")
 )
 `,
-			opts.TypeName.UpperCamel,
+			opts.TypeName.PascalCase,
 			opts.TypeName.LowerCamel,
 		)
 		newFile := genny.NewFileS(path, content)
@@ -118,7 +118,7 @@ func keeperModify(opts *typed.Options) genny.RunFn {
 			"Keeper",
 			xast.AppendStructValue(
 				opts.TypeName.UpperCamel,
-				fmt.Sprintf("collections.Item[types.%[1]v]", opts.TypeName.UpperCamel),
+				fmt.Sprintf("collections.Item[types.%[1]v]", opts.TypeName.PascalCase),
 			),
 		)
 		if err != nil {
@@ -133,7 +133,7 @@ func keeperModify(opts *typed.Options) genny.RunFn {
 				"Keeper",
 				opts.TypeName.UpperCamel,
 				fmt.Sprintf(`collections.NewItem(sb, types.%[1]vKey, "%[2]v", codec.CollValue[types.%[1]v](cdc))`,
-					opts.TypeName.UpperCamel,
+					opts.TypeName.PascalCase,
 					opts.TypeName.LowerCamel,
 				),
 				-1,
@@ -226,7 +226,7 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 		replacement := fmt.Sprintf(
 			template,
 			typed.PlaceholderAutoCLIQuery,
-			opts.TypeName.UpperCamel,
+			opts.TypeName.PascalCase,
 			opts.TypeName.Kebab,
 			opts.TypeName.Original,
 		)
@@ -265,7 +265,7 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 		seqNumber := protoutil.NextUniqueID(genesisState)
 		field := protoutil.NewField(
 			opts.TypeName.Snake,
-			opts.TypeName.UpperCamel,
+			opts.TypeName.PascalCase,
 			seqNumber,
 		)
 		protoutil.Append(genesisState, field)
@@ -322,7 +322,7 @@ func genesisTestsModify(opts *typed.Options) genny.RunFn {
 			xast.AppendFuncStruct(
 				"GenesisState",
 				opts.TypeName.UpperCamel,
-				fmt.Sprintf("&types.%[1]v{ %[2]v }", opts.TypeName.UpperCamel, sampleFields),
+				fmt.Sprintf("&types.%[1]v{ %[2]v }", opts.TypeName.PascalCase, sampleFields),
 				-1,
 			),
 			xast.AppendFuncCode(
@@ -363,7 +363,7 @@ func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 			xast.AppendFuncStruct(
 				"GenesisState",
 				opts.TypeName.UpperCamel,
-				fmt.Sprintf("&types.%[1]v{ %[2]v }", opts.TypeName.UpperCamel, sampleFields),
+				fmt.Sprintf("&types.%[1]v{ %[2]v }", opts.TypeName.PascalCase, sampleFields),
 				-1,
 			),
 		)
@@ -548,7 +548,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 		replacement := fmt.Sprintf(
 			template,
 			typed.PlaceholderAutoCLITx,
-			opts.TypeName.UpperCamel,
+			opts.TypeName.PascalCase,
 			opts.TypeName.Kebab,
 			opts.TypeName.Original,
 			opts.Fields.ProtoFieldName(),
@@ -583,7 +583,7 @@ func typesCodecModify(opts *typed.Options) genny.RunFn {
 )`
 		replacementInterface := fmt.Sprintf(
 			templateInterface,
-			opts.TypeName.UpperCamel,
+			opts.TypeName.PascalCase,
 		)
 		content, err = xast.ModifyFunction(
 			content,

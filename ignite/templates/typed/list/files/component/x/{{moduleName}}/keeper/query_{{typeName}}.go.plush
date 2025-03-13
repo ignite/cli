@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (q queryServer) List<%= TypeName.UpperCamel %>(ctx context.Context, req *types.QueryAll<%= TypeName.UpperCamel %>Request) (*types.QueryAll<%= TypeName.UpperCamel %>Response, error) {
+func (q queryServer) List<%= TypeName.PascalCase %>(ctx context.Context, req *types.QueryAll<%= TypeName.PascalCase %>Request) (*types.QueryAll<%= TypeName.PascalCase %>Response, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
@@ -20,7 +20,7 @@ func (q queryServer) List<%= TypeName.UpperCamel %>(ctx context.Context, req *ty
 		ctx,
 		q.k.<%= TypeName.UpperCamel %>,
 		req.Pagination,
-		func(_ uint64, value types.<%= TypeName.UpperCamel %>) (types.<%= TypeName.UpperCamel %>, error){
+		func(_ uint64, value types.<%= TypeName.PascalCase %>) (types.<%= TypeName.PascalCase %>, error){
 			return value, nil
 		},
 	)
@@ -29,10 +29,10 @@ func (q queryServer) List<%= TypeName.UpperCamel %>(ctx context.Context, req *ty
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &types.QueryAll<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: <%= TypeName.LowerCamel %>s, Pagination: pageRes}, nil
+	return &types.QueryAll<%= TypeName.PascalCase %>Response{<%= TypeName.UpperCamel %>: <%= TypeName.LowerCamel %>s, Pagination: pageRes}, nil
 }
 
-func (q queryServer) Get<%= TypeName.UpperCamel %>(ctx context.Context, req *types.QueryGet<%= TypeName.UpperCamel %>Request) (*types.QueryGet<%= TypeName.UpperCamel %>Response, error) {
+func (q queryServer) Get<%= TypeName.PascalCase %>(ctx context.Context, req *types.QueryGet<%= TypeName.PascalCase %>Request) (*types.QueryGet<%= TypeName.PascalCase %>Response, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
@@ -46,5 +46,5 @@ func (q queryServer) Get<%= TypeName.UpperCamel %>(ctx context.Context, req *typ
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
-	return &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: <%= TypeName.LowerCamel %>}, nil
+	return &types.QueryGet<%= TypeName.PascalCase %>Response{<%= TypeName.UpperCamel %>: <%= TypeName.LowerCamel %>}, nil
 }

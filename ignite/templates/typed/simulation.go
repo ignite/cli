@@ -51,7 +51,7 @@ func ModuleSimulationMsgModify(
 		%[3]vsimulation.SimulateMsg%[1]v%[2]v(am.authKeeper, am.bankKeeper, am.keeper, simState.TxConfig),
 	))
 
-`, msg, typeName.UpperCamel, moduleName)
+`, msg, typeName.PascalCase, moduleName)
 
 		content, err = xast.ModifyFunction(content, "WeightedOperations", xast.AppendFuncCode(replacementOp))
 		if err != nil {
@@ -67,7 +67,7 @@ func ModuleSimulationMsgModify(
 		%[3]vsimulation.SimulateMsg%[1]v%[2]v(am.authKeeper, am.bankKeeper, am.keeper)
 		return nil
 	},
-),`, msg, typeName.UpperCamel, moduleName)
+),`, msg, typeName.PascalCase, moduleName)
 			content, err = xast.ModifyFunction(content, "ProposalMsgs", xast.AppendFuncCode(replacementOpMsg))
 			if err != nil {
 				return "", err

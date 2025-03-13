@@ -406,7 +406,7 @@ func codecModify(opts *PacketOptions) genny.RunFn {
 		templateInterface := `registrar.RegisterImplementations((*sdk.Msg)(nil),
 	&MsgSend%[1]v{},
 )`
-		replacementInterface := fmt.Sprintf(templateInterface, opts.PacketName.UpperCamel)
+		replacementInterface := fmt.Sprintf(templateInterface, opts.PacketName.PascalCase)
 		content, err = xast.ModifyFunction(
 			content,
 			"RegisterInterfaces",

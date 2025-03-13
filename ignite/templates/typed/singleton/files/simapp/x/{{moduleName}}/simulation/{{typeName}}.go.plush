@@ -14,7 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 )
 
-func SimulateMsgCreate<%= TypeName.UpperCamel %>(
+func SimulateMsgCreate<%= TypeName.PascalCase %>(
 	ak types.AuthKeeper,
 	bk types.BankKeeper,
 	k keeper.Keeper,
@@ -24,13 +24,13 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		simAccount, _ := simtypes.RandomAcc(r, accs)
 
-		msg := &types.MsgCreate<%= TypeName.UpperCamel %>{
+		msg := &types.MsgCreate<%= TypeName.PascalCase %>{
 			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),
 		}
 
 		found, err := k.<%= TypeName.UpperCamel %>.Has(ctx)
 		if err == nil && found {
-			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.UpperCamel %> already exist"), nil, nil
+			return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= TypeName.PascalCase %> already exist"), nil, nil
 		}
 
 		txCtx := simulation.OperationInput{
@@ -50,7 +50,7 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(
 	}
 }
 
-func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
+func SimulateMsgUpdate<%= TypeName.PascalCase %>(
 	ak types.AuthKeeper,
 	bk types.BankKeeper,
 	k keeper.Keeper,
@@ -60,7 +60,7 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		var (
 			simAccount = simtypes.Account{}
-			msg = &types.MsgUpdate<%= TypeName.UpperCamel %>{}
+			msg = &types.MsgUpdate<%= TypeName.PascalCase %>{}
 		)
 
 		<%= TypeName.LowerCamel %>, err := k.<%= TypeName.UpperCamel %>.Get(ctx)
@@ -97,7 +97,7 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 	}
 }
 
-func SimulateMsgDelete<%= TypeName.UpperCamel %>(
+func SimulateMsgDelete<%= TypeName.PascalCase %>(
 	ak types.AuthKeeper,
 	bk types.BankKeeper,
 	k keeper.Keeper,
@@ -107,7 +107,7 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		var (
 			simAccount = simtypes.Account{}
-			msg = &types.MsgUpdate<%= TypeName.UpperCamel %>{}
+			msg = &types.MsgUpdate<%= TypeName.PascalCase %>{}
 		)
 
 		<%= TypeName.LowerCamel %>, err := k.<%= TypeName.UpperCamel %>.Get(ctx)

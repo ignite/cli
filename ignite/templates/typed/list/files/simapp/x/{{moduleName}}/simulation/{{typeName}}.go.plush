@@ -13,7 +13,7 @@ import (
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
-func SimulateMsgCreate<%= TypeName.UpperCamel %>(
+func SimulateMsgCreate<%= TypeName.PascalCase %>(
 	ak types.AuthKeeper,
 	bk types.BankKeeper,
 	k keeper.Keeper,
@@ -23,7 +23,7 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		simAccount, _ := simtypes.RandomAcc(r, accs)
 
-		msg := &types.MsgCreate<%= TypeName.UpperCamel %>{
+		msg := &types.MsgCreate<%= TypeName.PascalCase %>{
 			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),
 		}
 
@@ -44,7 +44,7 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(
 	}
 }
 
-func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
+func SimulateMsgUpdate<%= TypeName.PascalCase %>(
 	ak types.AuthKeeper,
 	bk types.BankKeeper,
 	k keeper.Keeper,
@@ -54,21 +54,21 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		var (
 			simAccount = simtypes.Account{}
-			<%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{}
-			msg = &types.MsgUpdate<%= TypeName.UpperCamel %>{}
+			<%= TypeName.LowerCamel %> = types.<%= TypeName.PascalCase %>{}
+			msg = &types.MsgUpdate<%= TypeName.PascalCase %>{}
 			found = false
 		)
 
-		var all<%= TypeName.UpperCamel %> []types.<%= TypeName.UpperCamel %>
-		err := k.<%= TypeName.UpperCamel %>.Walk(ctx, nil, func(key uint64, value types.<%= TypeName.UpperCamel %>) (stop bool, err error) {
-			all<%= TypeName.UpperCamel %> = append(all<%= TypeName.UpperCamel %>, value)
+		var all<%= TypeName.PascalCase %> []types.<%= TypeName.PascalCase %>
+		err := k.<%= TypeName.UpperCamel %>.Walk(ctx, nil, func(key uint64, value types.<%= TypeName.PascalCase %>) (stop bool, err error) {
+			all<%= TypeName.PascalCase %> = append(all<%= TypeName.PascalCase %>, value)
 			return false, nil
 		})
 		if err != nil {
 			panic(err)
 		}
 		
-		for _, obj := range all<%= TypeName.UpperCamel %> {
+		for _, obj := range all<%= TypeName.PascalCase %> {
 			acc, err := ak.AddressCodec().StringToBytes(obj.<%= MsgSigner.UpperCamel %>)
 			if err != nil {
 				return simtypes.OperationMsg{}, nil, err
@@ -103,7 +103,7 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 	}
 }
 
-func SimulateMsgDelete<%= TypeName.UpperCamel %>(
+func SimulateMsgDelete<%= TypeName.PascalCase %>(
 	ak types.AuthKeeper,
 	bk types.BankKeeper,
 	k keeper.Keeper,
@@ -113,21 +113,21 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		var (
 			simAccount = simtypes.Account{}
-			<%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{}
-			msg = &types.MsgDelete<%= TypeName.UpperCamel %>{}
+			<%= TypeName.LowerCamel %> = types.<%= TypeName.PascalCase %>{}
+			msg = &types.MsgDelete<%= TypeName.PascalCase %>{}
 			found = false
 		)
 
-		var all<%= TypeName.UpperCamel %> []types.<%= TypeName.UpperCamel %>
-		err := k.<%= TypeName.UpperCamel %>.Walk(ctx, nil, func(key uint64, value types.<%= TypeName.UpperCamel %>) (stop bool, err error) {
-			all<%= TypeName.UpperCamel %> = append(all<%= TypeName.UpperCamel %>, value)
+		var all<%= TypeName.PascalCase %> []types.<%= TypeName.PascalCase %>
+		err := k.<%= TypeName.UpperCamel %>.Walk(ctx, nil, func(key uint64, value types.<%= TypeName.PascalCase %>) (stop bool, err error) {
+			all<%= TypeName.PascalCase %> = append(all<%= TypeName.PascalCase %>, value)
 			return false, nil
 		})
 		if err != nil {
 			panic(err)
 		}
 
-		for _, obj := range all<%= TypeName.UpperCamel %> {
+		for _, obj := range all<%= TypeName.PascalCase %> {
 			acc, err := ak.AddressCodec().StringToBytes(obj.<%= MsgSigner.UpperCamel %>)
 			if err != nil {
 				return simtypes.OperationMsg{}, nil, err

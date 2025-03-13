@@ -46,12 +46,12 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 			return errors.Errorf("failed while looking up message '%s' in %s: %w", typed.ProtoGenesisStateMessage, path, err)
 		}
 		seqNumber := protoutil.NextUniqueID(genesisState)
-		typenameSnake, typenameUpper := opts.TypeName.Snake, opts.TypeName.UpperCamel
+		typenameSnake, typenamePascal := opts.TypeName.Snake, opts.TypeName.PascalCase
 		// Create option and List field.
 		gogoOption := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
 		typeList := protoutil.NewField(
 			typenameSnake+"_list",
-			typenameUpper,
+			typenamePascal,
 			seqNumber,
 			protoutil.Repeated(),
 			protoutil.WithFieldOptions(gogoOption),
@@ -82,7 +82,7 @@ func genesisTypesModify(opts *typed.Options) genny.RunFn {
 		content, err = xast.ModifyFunction(content, "DefaultGenesis", xast.AppendFuncStruct(
 			"GenesisState",
 			fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
-			fmt.Sprintf("[]%[1]v{}", opts.TypeName.UpperCamel),
+			fmt.Sprintf("[]%[1]v{}", opts.TypeName.PascalCase),
 			-1,
 		))
 		if err != nil {
@@ -154,7 +154,7 @@ if err := k.%[2]vSeq.Set(ctx, genState.%[2]vCount); err != nil {
 		}
 
 		templateModuleExport := `
-err = k.%[1]v.Walk(ctx, nil, func(key uint64, elem types.%[1]v) (bool, error) {
+err = k.%[1]v.Walk(ctx, nil, func(key uint64, elem types.%[2]v) (bool, error) {
 		genesis.%[1]vList = append(genesis.%[1]vList, elem)
 		return false, nil
 })
@@ -169,6 +169,7 @@ if err != nil {
 		replacementModuleExport := fmt.Sprintf(
 			templateModuleExport,
 			opts.TypeName.UpperCamel,
+			opts.TypeName.PascalCase,
 		)
 		content, err = xast.ModifyFunction(
 			content,
@@ -202,7 +203,7 @@ require.Equal(t, genesisState.%[1]vCount, got.%[1]vCount)`, opts.TypeName.UpperC
 			xast.AppendFuncStruct(
 				"GenesisState",
 				fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
-				fmt.Sprintf("[]types.%[1]v{{ Id: 0 }, { Id: 1 }}", opts.TypeName.UpperCamel),
+				fmt.Sprintf("[]types.%[1]v{{ Id: 0 }, { Id: 1 }}", opts.TypeName.PascalCase),
 				-1,
 			),
 			xast.AppendFuncStruct(
@@ -233,7 +234,7 @@ func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 		templateTestDuplicated := `{
 	desc:     "duplicated %[1]v",
 	genState: &types.GenesisState{
-		%[2]vList: []types.%[2]v{
+		%[2]vList: []types.%[3]v{
 			{
 				Id: 0,
 			},
@@ -248,12 +249,13 @@ func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 			templateTestDuplicated,
 			opts.TypeName.LowerCamel,
 			opts.TypeName.UpperCamel,
+			opts.TypeName.PascalCase,
 		)
 
 		templateTestInvalidCount := `{
 	desc:     "invalid %[1]v count",
 	genState: &types.GenesisState{
-		%[2]vList: []types.%[2]v{
+		%[2]vList: []types.%[3]v{
 			{
 				Id: 1,
 			},
@@ -266,6 +268,7 @@ func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 			templateTestInvalidCount,
 			opts.TypeName.LowerCamel,
 			opts.TypeName.UpperCamel,
+			opts.TypeName.PascalCase,
 		)
 
 		// add parameter to the struct into the new method.
@@ -275,7 +278,7 @@ func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 			xast.AppendFuncStruct(
 				"GenesisState",
 				fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
-				fmt.Sprintf("[]types.%[1]v{{ Id: 0 }, { Id: 1 }}", opts.TypeName.UpperCamel),
+				fmt.Sprintf("[]types.%[1]v{{ Id: 0 }, { Id: 1 }}", opts.TypeName.PascalCase),
 				-1,
 			),
 			xast.AppendFuncStruct(

@@ -175,7 +175,7 @@ func cliQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 		replacement := fmt.Sprintf(
 			template,
 			PlaceholderAutoCLIQuery,
-			opts.QueryName.UpperCamel,
+			opts.QueryName.PascalCase,
 			fmt.Sprintf("%s %s", opts.QueryName.Kebab, opts.ReqFields.CLIUsage()),
 			opts.Description,
 			strings.TrimSpace(positionalArgs),
