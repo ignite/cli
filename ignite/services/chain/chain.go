@@ -463,34 +463,11 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 
 // Bech32Prefix returns the bech32 prefix of the chain.
 func (c *Chain) Bech32Prefix() (string, error) {
-	// cfg, err := c.Config()
-	// if err != nil {
-	// 	return "", err
-	// }
-
-	//  cosmosutil.GetAddressPrefix
-
-	// 	validator, _ := chainconfig.FirstValidator(cfg)
-	// 	if validator.AddressPrefix != "" {
-	// 		return validator.AddressPrefix, nilc
-	// 	}
-
-	// 	return c.app.Bech32Prefix(), nil
-
 	return cosmosaccount.AccountPrefixCosmos, nil
 }
 
+// CoinType returns the coin type of the chain.
 func (c *Chain) CoinType() (uint32, error) {
-	// cfg, err := c.Config()
-	// if err != nil {
-	// 	return 0, err
-	// }
-
-	//  validator, _ := chainconfig.FirstValidator(cfg)
-	//  if validator.CoinType != 0 {
-	// 	 return validator.CoinType, nil
-	//  }
-
 	return cosmosaccount.CoinTypeCosmos, nil
 }
 

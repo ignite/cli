@@ -21,8 +21,8 @@ const (
 	assetListFilename = "assetlist.json"
 )
 
-// AddChainRegistryFiles generates the chain registry files in the scaffolded chains.
-func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.Config) error {
+// CreateChainRegistryFiles generates the chain registry files in the scaffolded chains.
+func (s Scaffolder) CreateChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.Config) error {
 	binaryName, err := chain.Binary()
 	if err != nil {
 		return errors.Wrap(err, "failed to get binary name")
