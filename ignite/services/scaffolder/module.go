@@ -46,7 +46,6 @@ var (
 		"slashing":           {},
 		"gov":                {},
 		"mint":               {},
-		"crisis":             {},
 		"ibc":                {},
 		"genutil":            {},
 		"evidence":           {},
@@ -62,6 +61,8 @@ var (
 		"nft":                {},
 		"group":              {},
 		"consensus":          {},
+		"epochs":             {},
+		"protocolpool":       {},
 	}
 
 	// defaultStoreKeys are the names of the default store keys defined in a Cosmos-SDK app.
@@ -75,7 +76,6 @@ var (
 		"slashing",
 		"gov",
 		"mint",
-		"crisis",
 		"ibc",
 		"transfer", // IBC transfer
 		"feeibc",

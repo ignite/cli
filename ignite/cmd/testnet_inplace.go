@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/cosmos/cosmos-sdk/codec/address"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
@@ -91,6 +92,10 @@ func testnetInplace(cmd *cobra.Command, session *cliui.Session) error {
 		accounts        string
 		accErr          *cosmosaccount.AccountDoesNotExistError
 	)
+
+	prefix := getAddressPrefix(cmd)
+	addressCodec := address.NewBech32Codec(prefix)
+	valAddressCodec := address.NewBech32Codec(prefix + "valoper")
 	for _, acc := range cfg.Accounts {
 		sdkAcc, err := ca.GetByName(acc.Name)
 		if errors.As(err, &accErr) {
@@ -100,19 +105,20 @@ func testnetInplace(cmd *cobra.Command, session *cliui.Session) error {
 			return err
 		}
 
-		sdkAddr, err := sdkAcc.Address(getAddressPrefix(cmd))
+		sdkAddr, err := sdkAcc.Address(prefix)
 		if err != nil {
 			return err
 		}
 		if len(cfg.Validators) == 0 {
 			return errors.Errorf("no validators found for account %s", sdkAcc.Name)
 		}
+
 		if cfg.Validators[0].Name == acc.Name {
-			accAddr, err := sdk.AccAddressFromBech32(sdkAddr)
+			accAddr, err := addressCodec.StringToBytes(sdkAddr)
 			if err != nil {
 				return err
 			}
-			operatorAddress = sdk.ValAddress(accAddr)
+			operatorAddress = accAddr
 		}
 		accounts = accounts + "," + sdkAddr
 	}
@@ -122,9 +128,14 @@ func testnetInplace(cmd *cobra.Command, session *cliui.Session) error {
 		return err
 	}
 
+	operatorAddressStr, err := valAddressCodec.BytesToString(operatorAddress)
+	if err != nil {
+		return err
+	}
+
 	args := chain.InPlaceArgs{
 		NewChainID:         fmt.Sprintf("local%s", chainID),
-		NewOperatorAddress: operatorAddress.String(),
+		NewOperatorAddress: operatorAddressStr,
 		AccountsToFund:     accounts,
 	}
 	return c.TestnetInPlace(cmd.Context(), args)

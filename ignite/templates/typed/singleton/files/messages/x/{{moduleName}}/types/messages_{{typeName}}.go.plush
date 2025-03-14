@@ -1,21 +1,21 @@
 package types
 
-func NewMsgCreate<%= TypeName.UpperCamel %>(<%= MsgSigner.LowerCamel %> string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.DataType() %><% } %>) *MsgCreate<%= TypeName.UpperCamel %> {
-  return &MsgCreate<%= TypeName.UpperCamel %>{
+func NewMsgCreate<%= TypeName.PascalCase %>(<%= MsgSigner.LowerCamel %> string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.DataType() %><% } %>) *MsgCreate<%= TypeName.PascalCase %> {
+  return &MsgCreate<%= TypeName.PascalCase %>{
 		<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,<%= for (field) in Fields { %>
     <%= field.Name.UpperCamel %>: <%= field.Name.LowerCamel %>,<% } %>
 	}
 }
 
-func NewMsgUpdate<%= TypeName.UpperCamel %>(<%= MsgSigner.LowerCamel %> string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.DataType() %><% } %>) *MsgUpdate<%= TypeName.UpperCamel %> {
-  return &MsgUpdate<%= TypeName.UpperCamel %>{
+func NewMsgUpdate<%= TypeName.PascalCase %>(<%= MsgSigner.LowerCamel %> string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.DataType() %><% } %>) *MsgUpdate<%= TypeName.PascalCase %> {
+  return &MsgUpdate<%= TypeName.PascalCase %>{
 		<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,<%= for (field) in Fields { %>
     <%= field.Name.UpperCamel %>: <%= field.Name.LowerCamel %>,<% } %>
 	}
 }
 
-func NewMsgDelete<%= TypeName.UpperCamel %>(<%= MsgSigner.LowerCamel %> string) *MsgDelete<%= TypeName.UpperCamel %> {
-  return &MsgDelete<%= TypeName.UpperCamel %>{
+func NewMsgDelete<%= TypeName.PascalCase %>(<%= MsgSigner.LowerCamel %> string) *MsgDelete<%= TypeName.PascalCase %> {
+  return &MsgDelete<%= TypeName.PascalCase %>{
 		<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
 	}
 }

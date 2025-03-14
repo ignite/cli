@@ -31,7 +31,7 @@ type sessionOptions struct {
 type Session struct {
 	options sessionOptions
 	ev      events.Bus
-	spinner *clispinner.Spinner
+	spinner clispinner.Spinner
 	out     uilog.Output
 	wg      *sync.WaitGroup
 	ended   bool
@@ -161,6 +161,12 @@ func (s Session) NewOutput(label, color string) uilog.Output {
 	}
 
 	return uilog.NewOutput(options...)
+}
+
+// SpinnerMessage change the spinner message.
+func (s *Session) SpinnerMessage(text string) {
+	s.StopSpinner()
+	s.StartSpinner(text)
 }
 
 // StartSpinner starts the spinner.

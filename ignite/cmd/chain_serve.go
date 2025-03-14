@@ -6,7 +6,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 
-	cmdmodel "github.com/ignite/cli/v29/ignite/cmd/model"
+	cmdmodel "github.com/ignite/cli/v29/ignite/cmd/bubblemodel"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	uilog "github.com/ignite/cli/v29/ignite/pkg/cliui/log"
 	cliuimodel "github.com/ignite/cli/v29/ignite/pkg/cliui/model"
@@ -71,6 +71,7 @@ production, you may want to run "appd start" manually.
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetCheckDependencies())
 	c.Flags().AddFlagSet(flagSetSkipProto())
+	c.Flags().AddFlagSet(flagSetSkipBuild())
 	c.Flags().AddFlagSet(flagSetVerbose())
 	c.Flags().BoolP(flagForceReset, "f", false, "force reset of the app state on start and every source change")
 	c.Flags().BoolP(flagResetOnce, "r", false, "reset the app state once on init")
@@ -106,7 +107,7 @@ func chainServeHandler(cmd *cobra.Command, _ []string) error {
 
 		// Render UI
 		m := cmdmodel.NewChainServe(cmd, bus, chainServeCmd(cmd, session))
-		_, err := tea.NewProgram(m).Run()
+		_, err := tea.NewProgram(m, tea.WithInput(cmd.InOrStdin())).Run()
 		return err
 	}
 
@@ -181,6 +182,10 @@ func chainServe(cmd *cobra.Command, session *cliui.Session) error {
 
 	if flagGetSkipProto(cmd) {
 		serveOptions = append(serveOptions, chain.ServeSkipProto())
+	}
+
+	if flagGetSkipBuild(cmd) {
+		serveOptions = append(serveOptions, chain.ServeSkipBuild())
 	}
 
 	if quitOnFail {

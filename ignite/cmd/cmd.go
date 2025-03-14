@@ -18,7 +18,6 @@ import (
 	uilog "github.com/ignite/cli/v29/ignite/pkg/cliui/log"
 	"github.com/ignite/cli/v29/ignite/pkg/dircache"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/gitpod"
 	"github.com/ignite/cli/v29/ignite/pkg/goenv"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/version"
@@ -37,12 +36,16 @@ const (
 	flagYes        = "yes"
 	flagClearCache = "clear-cache"
 	flagSkipProto  = "skip-proto"
+	flagSkipBuild  = "skip-build"
 
 	checkVersionTimeout = time.Millisecond * 600
 	cacheFileName       = "ignite_cache.db"
 
 	statusGenerating = "Generating..."
-	statusQuerying   = "Querying..."
+	statusImporting  = "Importing..."
+	statusExporting  = "Exporting..."
+	statusCreating   = "Creating..."
+	statusDeleting   = "Deleting..."
 )
 
 // List of CLI level one commands that should not load Ignite app instances.
@@ -216,6 +219,17 @@ func flagGetSkipProto(cmd *cobra.Command) bool {
 	return skip
 }
 
+func flagSetSkipBuild() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.Bool(flagSkipBuild, false, "skip initial build of the app (uses local binary)")
+	return fs
+}
+
+func flagGetSkipBuild(cmd *cobra.Command) bool {
+	skip, _ := cmd.Flags().GetBool(flagSkipBuild)
+	return skip
+}
+
 func flagSetClearCache(cmd *cobra.Command) {
 	cmd.PersistentFlags().Bool(flagClearCache, false, "clear the build cache (advanced)")
 }
@@ -247,10 +261,6 @@ func deprecated() []*cobra.Command {
 }
 
 func checkNewVersion(cmd *cobra.Command) {
-	if gitpod.IsOnGitpod() {
-		return
-	}
-
 	ctx, cancel := context.WithTimeout(cmd.Context(), checkVersionTimeout)
 	defer cancel()
 

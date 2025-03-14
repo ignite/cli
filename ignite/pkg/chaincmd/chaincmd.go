@@ -2,6 +2,7 @@ package chaincmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -20,14 +21,15 @@ const (
 	commandGentx             = "gentx"
 	commandCollectGentxs     = "collect-gentxs"
 	commandValidateGenesis   = "validate"
+	commandExportGenssis     = "export"
 	commandShowNodeID        = "show-node-id"
 	commandStatus            = "status"
 	commandTx                = "tx"
 	commandQuery             = "query"
 	commandUnsafeReset       = "unsafe-reset-all"
-	commandExport            = "export"
 	commandTendermint        = "tendermint"
 	commandTestnetInPlace    = "in-place-testnet"
+	commandTestnetMultiNode  = "multi-node"
 
 	optionHome                             = "--home"
 	optionNode                             = "--node"
@@ -59,6 +61,11 @@ const (
 	optionValidatorPrivateKey              = "--validator-privkey"
 	optionAccountToFund                    = "--accounts-to-fund"
 	optionSkipConfirmation                 = "--skip-confirmation"
+	optionAmountStakes                     = "--validators-stake-amount"
+	optionOutPutDir                        = "--output-dir"
+	optionNumValidator                     = "--v"
+	optionNodeDirPrefix                    = "--node-dir-prefix"
+	optionPorts                            = "--list-ports"
 
 	constTendermint = "tendermint"
 	constJSON       = "json"
@@ -492,7 +499,7 @@ func (c ChainCmd) UnsafeResetCommand() step.Option {
 // ExportCommand returns the command to export the state of the blockchain into a genesis file.
 func (c ChainCmd) ExportCommand() step.Option {
 	command := []string{
-		commandExport,
+		commandExportGenssis,
 	}
 	return c.daemonCommand(command)
 }
@@ -521,7 +528,9 @@ func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string, options
 		"send",
 		fromAddress,
 		toAddress,
-		amount,
+	)
+	command = append(command, strings.Split(amount, ",")...)
+	command = append(command,
 		optionBroadcastMode, flags.BroadcastSync,
 		optionYes,
 	)

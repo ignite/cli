@@ -35,13 +35,13 @@ func configsProtoModify(opts ConfigsOptions) genny.RunFn {
 		}
 
 		for _, paramField := range opts.Configs {
-			_, err := protoutil.GetFieldByName(params, paramField.Name.LowerCamel)
+			_, err := protoutil.GetFieldByName(params, paramField.ProtoFieldName())
 			if err == nil {
-				return errors.Errorf("duplicate field %s in %s", paramField.Name.LowerCamel, params.Name)
+				return errors.Errorf("duplicate field %s in %s", paramField.ProtoFieldName(), params.Name)
 			}
 
 			param := protoutil.NewField(
-				paramField.Name.LowerCamel,
+				paramField.ProtoFieldName(),
 				paramField.DataType(),
 				protoutil.NextUniqueID(params),
 			)

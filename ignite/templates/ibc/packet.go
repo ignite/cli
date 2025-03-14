@@ -13,11 +13,11 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/pkg/xstrings"
 	"github.com/ignite/cli/v29/ignite/templates/field"
 	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"
-	"github.com/ignite/cli/v29/ignite/templates/module"
 	"github.com/ignite/cli/v29/ignite/templates/testutil"
 	"github.com/ignite/cli/v29/ignite/templates/typed"
 )
@@ -78,8 +78,8 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	// Add the send message
 	if !opts.NoMessage {
 		g.RunFn(protoTxModify(opts))
-		g.RunFn(clientCliTxModify(replacer, opts))
-		g.RunFn(codecModify(replacer, opts))
+		g.RunFn(clientCliTxModify(opts))
+		g.RunFn(codecModify(opts))
 		if err := g.Box(messagesTemplate); err != nil {
 			return g, err
 		}
@@ -126,19 +126,23 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 		ack = channeltypes.NewErrorAcknowledgement(err)
 	} else {
 		// Encode packet acknowledgment
-		packetAckBytes, err := types.ModuleCdc.MarshalJSON(&packetAck)
+		packetAckBytes, err := im.cdc.MarshalJSON(&packetAck)
 		if err != nil {
 			return channeltypes.NewErrorAcknowledgement(errorsmod.Wrap(sdkerrors.ErrJSONMarshal, err.Error()))
 		}
 		ack = channeltypes.NewResultAcknowledgement(packetAckBytes)
 	}
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
+
+
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+    sdkCtx.EventManager().EmitEvent(
+        sdk.NewEvent(
 			types.EventType%[3]vPacket,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
 			sdk.NewAttribute(types.AttributeKeyAckSuccess, fmt.Sprintf("%%t", err != nil)),
-		),
-	)
+        ),
+    )
+
 %[1]v`
 		replacementRecv := fmt.Sprintf(
 			templateRecv,
@@ -221,33 +225,33 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 			return errors.Errorf("could not find 'oneof packet' in message '%s' of file %s", name, path)
 		}
 		// Count fields of oneof:
-		max := 1
+		maximum := 1
 		protoutil.Apply(packet, nil, func(c *protoutil.Cursor) bool {
 			if o, ok := c.Node().(*proto.OneOfField); ok {
-				if o.Sequence > max {
-					max = o.Sequence
+				if o.Sequence > maximum {
+					maximum = o.Sequence
 				}
 			}
 			return true
 		})
 		// Add it to Oneof.
-		typenameUpper, typenameLower := opts.PacketName.UpperCamel, opts.PacketName.LowerCamel
-		packetField := protoutil.NewOneofField(typenameLower+"Packet", typenameUpper+"PacketData", max+1)
+		typenamePascal, typenameSnake := opts.PacketName.PascalCase, opts.PacketName.Snake
+		packetField := protoutil.NewOneofField(typenameSnake+"_packet", typenamePascal+"PacketData", maximum+1)
 		protoutil.Append(packet, packetField)
 
 		// Add the message definition for packet and acknowledgment
 		var packetFields []*proto.NormalField
-		for i, field := range opts.Fields {
-			packetFields = append(packetFields, field.ToProtoField(i+1))
+		for i, f := range opts.Fields {
+			packetFields = append(packetFields, f.ToProtoField(i+1))
 		}
-		packetData := protoutil.NewMessage(typenameUpper+"PacketData", protoutil.WithFields(packetFields...))
-		protoutil.AttachComment(packetData, typenameUpper+"PacketData defines a struct for the packet payload")
+		packetData := protoutil.NewMessage(typenamePascal+"PacketData", protoutil.WithFields(packetFields...))
+		protoutil.AttachComment(packetData, typenamePascal+"PacketData defines a struct for the packet payload")
 		var ackFields []*proto.NormalField
-		for i, field := range opts.AckFields {
-			ackFields = append(ackFields, field.ToProtoField(i+1))
+		for i, f := range opts.AckFields {
+			ackFields = append(ackFields, f.ToProtoField(i+1))
 		}
-		packetAck := protoutil.NewMessage(typenameUpper+"PacketAck", protoutil.WithFields(ackFields...))
-		protoutil.AttachComment(packetAck, typenameUpper+"PacketAck defines a struct for the packet acknowledgment")
+		packetAck := protoutil.NewMessage(typenamePascal+"PacketAck", protoutil.WithFields(ackFields...))
+		protoutil.AttachComment(packetAck, typenamePascal+"PacketAck defines a struct for the packet acknowledgment")
 		protoutil.Append(protoFile, packetData, packetAck)
 
 		// Add any custom imports.
@@ -313,11 +317,11 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 		if err != nil {
 			return errors.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
 		}
-		typenameUpper := opts.PacketName.UpperCamel
+		typenamePascal := opts.PacketName.PascalCase
 		send := protoutil.NewRPC(
-			fmt.Sprintf("Send%s", typenameUpper),
-			fmt.Sprintf("MsgSend%s", typenameUpper),
-			fmt.Sprintf("MsgSend%sResponse", typenameUpper),
+			fmt.Sprintf("Send%s", typenamePascal),
+			fmt.Sprintf("MsgSend%s", typenamePascal),
+			fmt.Sprintf("MsgSend%sResponse", typenamePascal),
 		)
 		protoutil.Append(serviceMsg, send)
 
@@ -327,20 +331,20 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 			sendFields = append(sendFields, field.ToProtoField(i+5))
 		}
 		sendFields = append(sendFields,
-			protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1),
+			protoutil.NewField(opts.MsgSigner.Snake, "string", 1),
 			protoutil.NewField("port", "string", 2),
 			protoutil.NewField("channelID", "string", 3),
 			protoutil.NewField("timeoutTimestamp", "uint64", 4),
 		)
-		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.LowerCamel)
+		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.Snake)
 
 		// Create MsgSend, MsgSendResponse and add to file.
 		msgSend := protoutil.NewMessage(
-			"MsgSend"+typenameUpper,
+			"MsgSend"+typenamePascal,
 			protoutil.WithFields(sendFields...),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
-		msgSendResponse := protoutil.NewMessage("MsgSend" + typenameUpper + "Response")
+		msgSendResponse := protoutil.NewMessage("MsgSend" + typenamePascal + "Response")
 		protoutil.Append(protoFile, msgSend, msgSendResponse)
 
 		// Ensure custom types are imported
@@ -362,23 +366,29 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 }
 
 // clientCliTxModify does not use AutoCLI here, because it as a better UX as it is.
-func clientCliTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
+func clientCliTxModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		filePath := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/tx.go")
 		f, err := r.Disk.Find(filePath)
 		if err != nil {
 			return err
 		}
-		template := `cmd.AddCommand(CmdSend%[2]v())
-%[1]v`
-		replacement := fmt.Sprintf(template, Placeholder, opts.PacketName.UpperCamel)
-		content := replacer.Replace(f.String(), Placeholder, replacement)
+		replacement := fmt.Sprintf("cmd.AddCommand(CmdSend%[1]v())", opts.PacketName.UpperCamel)
+		content, err := xast.ModifyFunction(
+			f.String(),
+			"GetTxCmd",
+			xast.AppendFuncCode(replacement),
+		)
+		if err != nil {
+			return err
+		}
+
 		newFile := genny.NewFileS(filePath, content)
 		return r.File(newFile)
 	}
 }
 
-func codecModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
+func codecModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/codec.go")
 		f, err := r.Disk.Find(path)
@@ -387,16 +397,24 @@ func codecModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 		}
 
 		// Set import if not set yet
-		replacement := `sdk "github.com/cosmos/cosmos-sdk/types"`
-		content := replacer.ReplaceOnce(f.String(), module.Placeholder, replacement)
+		content, err := xast.AppendImports(f.String(), xast.WithLastNamedImport("sdk", "github.com/cosmos/cosmos-sdk/types"))
+		if err != nil {
+			return err
+		}
 
 		// Register the module packet interface
-		templateInterface := `registry.RegisterImplementations((*sdk.Msg)(nil),
-	&MsgSend%[2]v{},
-)
-%[1]v`
-		replacementInterface := fmt.Sprintf(templateInterface, module.Placeholder3, opts.PacketName.UpperCamel)
-		content = replacer.Replace(content, module.Placeholder3, replacementInterface)
+		templateInterface := `registrar.RegisterImplementations((*sdk.Msg)(nil),
+	&MsgSend%[1]v{},
+)`
+		replacementInterface := fmt.Sprintf(templateInterface, opts.PacketName.PascalCase)
+		content, err = xast.ModifyFunction(
+			content,
+			"RegisterInterfaces",
+			xast.AppendFuncAtLine(replacementInterface, 0),
+		)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

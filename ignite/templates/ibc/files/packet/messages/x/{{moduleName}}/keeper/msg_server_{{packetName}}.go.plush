@@ -8,13 +8,13 @@ import (
     "<%= ModulePath %>/x/<%= moduleName %>/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	clienttypes "github.com/cosmos/ibc-go/v10/modules/core/02-client/types"
 )
 
 
-func (k msgServer) Send<%= packetName.UpperCamel %>(goCtx context.Context,  msg *types.MsgSend<%= packetName.UpperCamel %>) (*types.MsgSend<%= packetName.UpperCamel %>Response, error) {
+func (k msgServer) Send<%= packetName.PascalCase %>(ctx context.Context,  msg *types.MsgSend<%= packetName.PascalCase %>) (*types.MsgSend<%= packetName.PascalCase %>Response, error) {
     // validate incoming message
-    if _, err := k.addressCodec.StringToBytes(msg.<%= MsgSigner.UpperCamel %>); err != nil {
+    if _, err := k.addressCodec.StringToBytes(msg.<%= MsgSigner.PascalCase %>); err != nil {
         return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", err))
     }
 
@@ -33,13 +33,12 @@ func (k msgServer) Send<%= packetName.UpperCamel %>(goCtx context.Context,  msg 
     // TODO: logic before transmitting the packet
 
     // Construct the packet
-    var packet types.<%= packetName.UpperCamel %>PacketData
+    var packet types.<%= packetName.PascalCase %>PacketData
     <%= for (field) in fields { %>
     packet.<%= field.Name.UpperCamel %> = msg.<%= field.Name.UpperCamel %><% } %>
 
     // Transmit the packet
-	ctx := sdk.UnwrapSDKContext(goCtx)
-    _, err := k.Transmit<%= packetName.UpperCamel %>Packet(
+    _, err := k.Transmit<%= packetName.PascalCase %>Packet(
         ctx,
         packet,
         msg.Port,
@@ -51,5 +50,5 @@ func (k msgServer) Send<%= packetName.UpperCamel %>(goCtx context.Context,  msg 
         return nil, err
     }
 
-	return &types.MsgSend<%= packetName.UpperCamel %>Response{}, nil
+	return &types.MsgSend<%= packetName.PascalCase %>Response{}, nil
 }

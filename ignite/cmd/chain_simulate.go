@@ -11,22 +11,19 @@ import (
 )
 
 const (
-	flagSimappGenesis                = "genesis"
-	flagSimappParams                 = "params"
-	flagSimappExportParamsPath       = "exportParamsPath"
-	flagSimappExportParamsHeight     = "exportParamsHeight"
-	flagSimappExportStatePath        = "exportStatePath"
-	flagSimappExportStatsPath        = "exportStatsPath"
-	flagSimappSeed                   = "seed"
-	flagSimappInitialBlockHeight     = "initialBlockHeight"
-	flagSimappNumBlocks              = "numBlocks"
-	flagSimappBlockSize              = "blockSize"
-	flagSimappLean                   = "lean"
-	flagSimappSimulateEveryOperation = "simulateEveryOperation"
-	flagSimappPrintAllInvariants     = "printAllInvariants"
-	flagSimappVerbose                = "verbose"
-	flagSimappPeriod                 = "period"
-	flagSimappGenesisTime            = "genesisTime"
+	flagSimappGenesis            = "genesis"
+	flagSimappParams             = "params"
+	flagSimappExportParamsPath   = "exportParamsPath"
+	flagSimappExportParamsHeight = "exportParamsHeight"
+	flagSimappExportStatePath    = "exportStatePath"
+	flagSimappExportStatsPath    = "exportStatsPath"
+	flagSimappSeed               = "seed"
+	flagSimappInitialBlockHeight = "initialBlockHeight"
+	flagSimappNumBlocks          = "numBlocks"
+	flagSimappBlockSize          = "blockSize"
+	flagSimappLean               = "lean"
+	flagSimappGenesisTime        = "genesisTime"
+	flagSimName                  = "simName"
 )
 
 // NewChainSimulate creates a new simulation command to run the blockchain simulation.
@@ -34,7 +31,7 @@ func NewChainSimulate() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "simulate",
 		Short: "Run simulation testing for the blockchain",
-		Long:  "Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node and checks if invariants break",
+		Long:  "Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node.",
 		Args:  cobra.NoArgs,
 		RunE:  chainSimulationHandler,
 	}
@@ -44,9 +41,8 @@ func NewChainSimulate() *cobra.Command {
 
 func chainSimulationHandler(cmd *cobra.Command, _ []string) error {
 	var (
-		verbose, _     = cmd.Flags().GetBool(flagSimappVerbose)
-		period, _      = cmd.Flags().GetUint(flagSimappPeriod)
 		genesisTime, _ = cmd.Flags().GetInt64(flagSimappGenesisTime)
+		simName, _     = cmd.Flags().GetString(flagSimName)
 		config         = newConfigFromFlags(cmd)
 		appPath        = flagGetPath(cmd)
 	)
@@ -66,8 +62,7 @@ func chainSimulationHandler(cmd *cobra.Command, _ []string) error {
 	}
 
 	return c.Simulate(cmd.Context(),
-		chain.SimappWithVerbose(verbose),
-		chain.SimappWithPeriod(period),
+		chain.SimappWithSimulationTestName(simName),
 		chain.SimappWithGenesisTime(genesisTime),
 		chain.SimappWithConfig(config),
 	)
@@ -76,19 +71,17 @@ func chainSimulationHandler(cmd *cobra.Command, _ []string) error {
 // newConfigFromFlags creates a simulation from the retrieved values of the flags.
 func newConfigFromFlags(cmd *cobra.Command) simulation.Config {
 	var (
-		genesis, _                = cmd.Flags().GetString(flagSimappGenesis)
-		params, _                 = cmd.Flags().GetString(flagSimappParams)
-		exportParamsPath, _       = cmd.Flags().GetString(flagSimappExportParamsPath)
-		exportParamsHeight, _     = cmd.Flags().GetInt(flagSimappExportParamsHeight)
-		exportStatePath, _        = cmd.Flags().GetString(flagSimappExportStatePath)
-		exportStatsPath, _        = cmd.Flags().GetString(flagSimappExportStatsPath)
-		seed, _                   = cmd.Flags().GetInt64(flagSimappSeed)
-		initialBlockHeight, _     = cmd.Flags().GetInt(flagSimappInitialBlockHeight)
-		numBlocks, _              = cmd.Flags().GetInt(flagSimappNumBlocks)
-		blockSize, _              = cmd.Flags().GetInt(flagSimappBlockSize)
-		lean, _                   = cmd.Flags().GetBool(flagSimappLean)
-		simulateEveryOperation, _ = cmd.Flags().GetBool(flagSimappSimulateEveryOperation)
-		printAllInvariants, _     = cmd.Flags().GetBool(flagSimappPrintAllInvariants)
+		genesis, _            = cmd.Flags().GetString(flagSimappGenesis)
+		params, _             = cmd.Flags().GetString(flagSimappParams)
+		exportParamsPath, _   = cmd.Flags().GetString(flagSimappExportParamsPath)
+		exportParamsHeight, _ = cmd.Flags().GetInt(flagSimappExportParamsHeight)
+		exportStatePath, _    = cmd.Flags().GetString(flagSimappExportStatePath)
+		exportStatsPath, _    = cmd.Flags().GetString(flagSimappExportStatsPath)
+		seed, _               = cmd.Flags().GetInt64(flagSimappSeed)
+		initialBlockHeight, _ = cmd.Flags().GetInt(flagSimappInitialBlockHeight)
+		numBlocks, _          = cmd.Flags().GetInt(flagSimappNumBlocks)
+		blockSize, _          = cmd.Flags().GetInt(flagSimappBlockSize)
+		lean, _               = cmd.Flags().GetBool(flagSimappLean)
 	)
 	return simulation.Config{
 		Commit:             true,
@@ -103,8 +96,6 @@ func newConfigFromFlags(cmd *cobra.Command) simulation.Config {
 		NumBlocks:          numBlocks,
 		BlockSize:          blockSize,
 		Lean:               lean,
-		OnOperation:        simulateEveryOperation,
-		AllInvariants:      printAllInvariants,
 	}
 }
 
@@ -121,11 +112,8 @@ func simappFlags(c *cobra.Command) {
 	c.Flags().Int(flagSimappNumBlocks, 200, "number of new blocks to simulate from the initial block height")
 	c.Flags().Int(flagSimappBlockSize, 30, "operations per block")
 	c.Flags().Bool(flagSimappLean, false, "lean simulation log output")
-	c.Flags().Bool(flagSimappSimulateEveryOperation, false, "run slow invariants every operation")
-	c.Flags().Bool(flagSimappPrintAllInvariants, false, "print all invariants if a broken invariant is found")
 
 	// simulation flags
-	c.Flags().BoolP(flagSimappVerbose, "v", false, "verbose log output")
-	c.Flags().Uint(flagSimappPeriod, 0, "run slow invariants only once every period assertions")
+	c.Flags().String(flagSimName, "TestFullAppSimulation", "name of the simulation to run")
 	c.Flags().Int64(flagSimappGenesisTime, 0, "override genesis UNIX time instead of using a random UNIX time")
 }

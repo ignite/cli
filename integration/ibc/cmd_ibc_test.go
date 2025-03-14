@@ -96,7 +96,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 				"with_dep",
 				"--ibc",
 				"--dep",
-				"account,bank,staking,slashing",
+				"auth,bank,staking,slashing",
 				"--require-registration",
 			),
 			step.Workdir(app.SourcePath()),

@@ -2,5 +2,5 @@ package types
 
 import "cosmossdk.io/collections"
 
-// <%= TypeName.UpperCamel %>Key is the prefix to retrieve all <%= TypeName.UpperCamel %>
-var <%= TypeName.UpperCamel %>Key = collections.NewPrefix("<%= TypeName.UpperCamel %>/value/")
+// <%= TypeName.PascalCase %>Key is the prefix to retrieve all <%= TypeName.PascalCase %>
+var <%= TypeName.PascalCase %>Key = collections.NewPrefix("<%= TypeName.LowerCamel %>/value/")

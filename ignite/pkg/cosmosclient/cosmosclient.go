@@ -624,7 +624,7 @@ func (c Client) CreateTxWithOptions(ctx context.Context, account cosmosaccount.A
 		return TxService{}, errors.WithStack(err)
 	}
 
-	txUnsigned.SetFeeGranter(clientCtx.GetFeeGranterAddress())
+	txUnsigned.SetFeeGranter(clientCtx.FeeGranter)
 
 	return TxService{
 		client:        c,

@@ -26,7 +26,7 @@ jobs:
 
       - uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.60.3
+          version: v1.64.5
           install-mode: goinstall
           args: --timeout 10m
           github-token: ${{ secrets.github_token }}

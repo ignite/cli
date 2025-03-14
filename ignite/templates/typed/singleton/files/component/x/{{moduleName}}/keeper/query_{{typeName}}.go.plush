@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (q queryServer) Get<%= TypeName.UpperCamel %>(ctx context.Context, req *types.QueryGet<%= TypeName.UpperCamel %>Request) (*types.QueryGet<%= TypeName.UpperCamel %>Response, error) {
+func (q queryServer) Get<%= TypeName.PascalCase %>(ctx context.Context, req *types.QueryGet<%= TypeName.PascalCase %>Request) (*types.QueryGet<%= TypeName.PascalCase %>Response, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
@@ -25,5 +25,5 @@ func (q queryServer) Get<%= TypeName.UpperCamel %>(ctx context.Context, req *typ
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
-	return &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: val}, nil
+	return &types.QueryGet<%= TypeName.PascalCase %>Response{<%= TypeName.UpperCamel %>: val}, nil
 }

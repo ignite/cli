@@ -139,10 +139,6 @@ func (c *Chain) Generate(
 		return err
 	}
 
-	if err := cosmosgen.InstallDepTools(ctx, c.app.Path); err != nil {
-		return err
-	}
-
 	c.ev.Send("Building proto...", events.ProgressUpdate())
 
 	options := []cosmosgen.Option{cosmosgen.CollectEvents(c.ev)}

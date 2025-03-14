@@ -26,15 +26,13 @@ func View(path string) error {
 func config(path string) (ui.Config, error) {
 	var width uint
 
-	fd := safeconverter.ToInt[uintptr](os.Stdout.Fd())
+	fd := safeconverter.ToInt(os.Stdout.Fd())
 	w, _, err := term.GetSize(fd)
 	if err != nil {
 		return ui.Config{}, err
 	}
-	width = uint(w)
-	if width > 120 {
-		width = 120
-	}
+
+	width = min(uint(w), 120) //nolint:gosec,nolintlint // conversion is fine
 
 	docTypes := ui.NewDocTypeSet()
 	docTypes.Add(ui.LocalDoc)

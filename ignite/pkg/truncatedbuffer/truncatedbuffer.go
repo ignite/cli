@@ -14,10 +14,10 @@ type TruncatedBuffer struct {
 
 // NewTruncatedBuffer returns a new TruncatedBuffer.
 // If the provided cap is 0, the truncated buffer has no limit for truncating.
-func NewTruncatedBuffer(cap int) *TruncatedBuffer {
+func NewTruncatedBuffer(c int) *TruncatedBuffer {
 	return &TruncatedBuffer{
 		buf: &bytes.Buffer{},
-		cap: cap,
+		cap: c,
 	}
 }
 

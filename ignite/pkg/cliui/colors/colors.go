@@ -14,6 +14,7 @@ const (
 	Cyan    = "#34e2e2"
 	White   = "#FFFFFF"
 	HiBlue  = "#729FCF"
+	Blue    = "#0a2fc4"
 )
 
 var (
@@ -24,6 +25,7 @@ var (
 	modified = lipgloss.NewStyle().Foreground(lipgloss.Color(Magenta))
 	name     = lipgloss.NewStyle().Bold(true)
 	mnemonic = lipgloss.NewStyle().Foreground(lipgloss.Color(HiBlue))
+	spinner  = lipgloss.NewStyle().Foreground(lipgloss.Color(Blue))
 	faint    = lipgloss.NewStyle().Faint(true)
 )
 
@@ -63,6 +65,10 @@ func Name(i ...interface{}) string {
 
 func Mnemonic(i ...interface{}) string {
 	return mnemonic.Render(fmt.Sprint(i...))
+}
+
+func Spinner(i ...interface{}) string {
+	return spinner.Render(fmt.Sprint(i...))
 }
 
 // Faint styles the text using a dimmer shade for the foreground color.

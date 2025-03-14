@@ -129,7 +129,7 @@ var (
 
 	nameOnRecvIbcPostPacket = "OnRecvIbcPostPacket"
 	funcOnRecvIbcPostPacket = `package keeper
-func (k Keeper) OnRecvIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData) (packetAck types.IbcPostPacketAck, err error) {
+func (k Keeper) OnRecvIbcPostPacket(ctx context.Context, packet channeltypes.Packet, data types.IbcPostPacketData) (packetAck types.IbcPostPacketAck, err error) {
 	packetAck.PostId, err = k.PostSeq.Next(ctx)
 	if err != nil {
 		return packetAck, err
@@ -139,7 +139,7 @@ func (k Keeper) OnRecvIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet,
 
 	nameOnAcknowledgementIbcPostPacket = "OnAcknowledgementIbcPostPacket"
 	funcOnAcknowledgementIbcPostPacket = `package keeper
-func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData, ack channeltypes.Acknowledgement) error {
+func (k Keeper) OnAcknowledgementIbcPostPacket(ctx context.Context, packet channeltypes.Packet, data types.IbcPostPacketData, ack channeltypes.Acknowledgement) error {
     switch dispatchedAck := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
 		// We will not treat acknowledgment error in this tutorial
@@ -147,7 +147,7 @@ func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channelty
 	case *channeltypes.Acknowledgement_Result:
 		// Decode the packet acknowledgment
 		var packetAck types.IbcPostPacketAck
-		if err := types.ModuleCdc.UnmarshalJSON(dispatchedAck.Result, &packetAck); err != nil {
+		if err := k.cdc.UnmarshalJSON(dispatchedAck.Result, &packetAck); err != nil {
 			// The counter-party module doesn't implement the correct acknowledgment format
 			return errors.New("cannot unmarshal acknowledgment")
 		}
@@ -171,7 +171,7 @@ func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channelty
 
 	nameOnTimeoutIbcPostPacket = "OnTimeoutIbcPostPacket"
 	funcOnTimeoutIbcPostPacket = `package keeper
-func (k Keeper) OnTimeoutIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData) error {
+func (k Keeper) OnTimeoutIbcPostPacket(ctx context.Context, packet channeltypes.Packet, data types.IbcPostPacketData) error {
 	seq, err := k.TimeoutPostSeq.Next(ctx)
 	if err != nil {
 		return err

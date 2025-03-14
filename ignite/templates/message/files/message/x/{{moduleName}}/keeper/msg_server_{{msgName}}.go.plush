@@ -8,12 +8,12 @@ import (
 )
 
 
-func (k msgServer) <%= MsgName.UpperCamel %>(ctx context.Context,  msg *types.Msg<%= MsgName.UpperCamel %>) (*types.Msg<%= MsgName.UpperCamel %>Response, error) {
-	if _, err := k.addressCodec.StringToBytes(msg.<%= MsgSigner.UpperCamel %>); err != nil {
+func (k msgServer) <%= MsgName.PascalCase %>(ctx context.Context,  msg *types.Msg<%= MsgName.PascalCase %>) (*types.Msg<%= MsgName.PascalCase %>Response, error) {
+	if _, err := k.addressCodec.StringToBytes(msg.<%= MsgSigner.PascalCase %>); err != nil {
 		return nil, errorsmod.Wrap(err, "invalid authority address")
 	}
 
     // TODO: Handle the message
 
-	return &types.Msg<%= MsgName.UpperCamel %>Response{}, nil
+	return &types.Msg<%= MsgName.PascalCase %>Response{}, nil
 }

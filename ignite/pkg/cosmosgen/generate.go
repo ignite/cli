@@ -280,10 +280,18 @@ func (g *generator) resolveIncludes(ctx context.Context, path, protoDir string) 
 	includes.Paths = append(includes.Paths, protoPath)
 	includes.ProtoPath = protoPath
 
-	// Check if a Buf config file is present
+	// Check if the Buf v1 config file is present into the proto path.
+	// We can remove it after the Cosmos-SDK migrate to the buf v2.
 	includes.BufPath, err = g.findBufPath(protoPath)
 	if err != nil {
 		return includes, false, err
+	}
+	// If it was not found, try to find it in the new Buf v2 project structure at the root of the project.
+	if includes.BufPath == "" {
+		includes.BufPath, err = g.findBufPath(path)
+		if err != nil {
+			return includes, false, err
+		}
 	}
 
 	if includes.BufPath != "" {

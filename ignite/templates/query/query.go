@@ -91,11 +91,11 @@ func protoQueryModify(opts *Options) genny.RunFn {
 			return errors.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
 		}
 
-		typenameUpper, appModulePath := opts.QueryName.UpperCamel, gomodulepath.ExtractAppPath(opts.ModulePath)
+		typenamePascal, appModulePath := opts.QueryName.PascalCase, gomodulepath.ExtractAppPath(opts.ModulePath)
 		rpcSingle := protoutil.NewRPC(
-			typenameUpper,
-			fmt.Sprintf("Query%sRequest", typenameUpper),
-			fmt.Sprintf("Query%sResponse", typenameUpper),
+			typenamePascal,
+			fmt.Sprintf("Query%sRequest", typenamePascal),
+			fmt.Sprintf("Query%sResponse", typenamePascal),
 			protoutil.WithRPCOptions(
 				protoutil.NewOption(
 					"google.api.http",
@@ -108,7 +108,7 @@ func protoQueryModify(opts *Options) genny.RunFn {
 				),
 			),
 		)
-		protoutil.AttachComment(rpcSingle, fmt.Sprintf("Queries a list of %v items.", typenameUpper))
+		protoutil.AttachComment(rpcSingle, fmt.Sprintf("%[1]v Queries a list of %[1]v items.", typenamePascal))
 		protoutil.Append(serviceQuery, rpcSingle)
 
 		// Fields for request
@@ -120,7 +120,7 @@ func protoQueryModify(opts *Options) genny.RunFn {
 		if opts.Paginated {
 			reqFields = append(reqFields, protoutil.NewField(paginationName, paginationType+"Request", len(opts.ReqFields)+1))
 		}
-		requestMessage := protoutil.NewMessage("Query"+typenameUpper+"Request", protoutil.WithFields(reqFields...))
+		requestMessage := protoutil.NewMessage("Query"+typenamePascal+"Request", protoutil.WithFields(reqFields...))
 
 		// Fields for response
 		var resFields []*proto.NormalField
@@ -130,7 +130,7 @@ func protoQueryModify(opts *Options) genny.RunFn {
 		if opts.Paginated {
 			resFields = append(resFields, protoutil.NewField(paginationName, paginationType+"Response", len(opts.ResFields)+1))
 		}
-		responseMessage := protoutil.NewMessage("Query"+typenameUpper+"Response", protoutil.WithFields(resFields...))
+		responseMessage := protoutil.NewMessage("Query"+typenamePascal+"Response", protoutil.WithFields(resFields...))
 		protoutil.Append(protoFile, requestMessage, responseMessage)
 
 		// Ensure custom types are imported
@@ -175,8 +175,8 @@ func cliQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 		replacement := fmt.Sprintf(
 			template,
 			PlaceholderAutoCLIQuery,
-			opts.QueryName.UpperCamel,
-			strings.TrimSpace(fmt.Sprintf("%s%s", opts.QueryName.Kebab, opts.ReqFields.String())),
+			opts.QueryName.PascalCase,
+			fmt.Sprintf("%s %s", opts.QueryName.Kebab, opts.ReqFields.CLIUsage()),
 			opts.Description,
 			strings.TrimSpace(positionalArgs),
 		)

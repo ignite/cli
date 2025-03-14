@@ -1,6 +1,7 @@
 package xast
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"testing"
@@ -26,6 +27,28 @@ func anotherFunction() bool {
 	p := bla.NewParam()
 	p.CallSomething("Another call")
 	return true
+}
+
+func TestValidate(t *testing.T) {
+	tests := []struct {
+		desc     string
+		genState types.GenesisState
+	}{
+		{
+			desc:     "default is valid",
+			genState: types.DefaultGenesis(),
+		},
+		{
+			desc:     "valid genesis state",
+			genState: types.GenesisState{},
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.desc, func(t *testing.T) {
+			err := tc.genState.Validate()
+			require.NoError(t, err)
+		})
+	}
 }`
 
 	type args struct {
@@ -55,7 +78,11 @@ func anotherFunction() bool {
 					AppendInsideFuncCall("SimpleCall", "baz", 0),
 					AppendInsideFuncCall("SimpleCall", "bla", -1),
 					AppendInsideFuncCall("Println", strconv.Quote("test"), -1),
-					AppendInsideFuncStruct("Param", "Bar", strconv.Quote("bar"), -1),
+					AppendFuncStruct("Param", "Bar", strconv.Quote("bar"), -1),
+					AppendFuncTestCase(`{
+								desc:     "valid first genesis state",
+								genState: GenesisState{},
+					}`),
 				},
 			},
 			want: `package main
@@ -75,6 +102,28 @@ func anotherFunction(param1 string) bool {
 	fmt.Println("Appended code.", "test")
 	Param{Baz: baz, Foo: foo, Bar: "bar"}
 	return 1
+}
+
+func TestValidate(t *testing.T) {
+	tests := []struct {
+		desc     string
+		genState types.GenesisState
+	}{
+		{
+			desc:     "default is valid",
+			genState: types.DefaultGenesis(),
+		},
+		{
+			desc:     "valid genesis state",
+			genState: types.GenesisState{},
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.desc, func(t *testing.T) {
+			err := tc.genState.Validate()
+			require.NoError(t, err)
+		})
+	}
 }
 `,
 		},
@@ -97,6 +146,150 @@ func main() {
 }
 
 func anotherFunction() bool { return false }
+
+func TestValidate(t *testing.T) {
+	tests := []struct {
+		desc     string
+		genState types.GenesisState
+	}{
+		{
+			desc:     "default is valid",
+			genState: types.DefaultGenesis(),
+		},
+		{
+			desc:     "valid genesis state",
+			genState: types.GenesisState{},
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.desc, func(t *testing.T) {
+			err := tc.genState.Validate()
+			require.NoError(t, err)
+		})
+	}
+}
+`,
+		},
+		{
+			name: "add a new test case",
+			args: args{
+				fileContent:  existingContent,
+				functionName: "TestValidate",
+				functions: []FunctionOptions{
+					AppendFuncTestCase(`{
+								desc:     "valid genesis state",
+								genState: GenesisState{},
+					}`),
+				},
+			},
+			want: `package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	fmt.Println("Hello, world!")
+	New(param1, param2)
+}
+
+func anotherFunction() bool {
+	p := bla.NewParam()
+	p.CallSomething("Another call")
+	return true
+}
+
+func TestValidate(t *testing.T) {
+	tests := []struct {
+		desc     string
+		genState types.GenesisState
+	}{
+		{
+			desc:     "default is valid",
+			genState: types.DefaultGenesis(),
+		},
+		{
+			desc:     "valid genesis state",
+			genState: types.GenesisState{},
+		}, {
+
+			desc: "valid genesis state",
+
+			genState: GenesisState{}},
+	}
+	for _, tc := range tests {
+		t.Run(tc.desc, func(t *testing.T) {
+			err := tc.genState.Validate()
+			require.NoError(t, err)
+		})
+	}
+}
+`,
+		},
+		{
+			name: "add two test cases",
+			args: args{
+				fileContent:  existingContent,
+				functionName: "TestValidate",
+				functions: []FunctionOptions{
+					AppendFuncTestCase(`{
+								desc:     "valid first genesis state",
+								genState: GenesisState{},
+					}`),
+					AppendFuncTestCase(`{
+								desc:     "valid second genesis state",
+								genState: GenesisState{},
+					}`),
+				},
+			},
+			want: `package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	fmt.Println("Hello, world!")
+	New(param1, param2)
+}
+
+func anotherFunction() bool {
+	p := bla.NewParam()
+	p.CallSomething("Another call")
+	return true
+}
+
+func TestValidate(t *testing.T) {
+	tests := []struct {
+		desc     string
+		genState types.GenesisState
+	}{
+		{
+			desc:     "default is valid",
+			genState: types.DefaultGenesis(),
+		},
+		{
+			desc:     "valid genesis state",
+			genState: types.GenesisState{},
+		}, {
+
+			desc: "valid first genesis state",
+
+			genState: GenesisState{},
+		}, {
+
+			desc: "valid second genesis state",
+
+			genState: GenesisState{},
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.desc, func(t *testing.T) {
+			err := tc.genState.Validate()
+			require.NoError(t, err)
+		})
+	}
+}
 `,
 		},
 		{
@@ -130,6 +323,28 @@ func anotherFunction() bool {
 	fmt.Println("Appended code.")
 
 	return true
+}
+
+func TestValidate(t *testing.T) {
+	tests := []struct {
+		desc     string
+		genState types.GenesisState
+	}{
+		{
+			desc:     "default is valid",
+			genState: types.DefaultGenesis(),
+		},
+		{
+			desc:     "valid genesis state",
+			genState: types.GenesisState{},
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.desc, func(t *testing.T) {
+			err := tc.genState.Validate()
+			require.NoError(t, err)
+		})
+	}
 }
 `,
 		},
@@ -170,6 +385,28 @@ func anotherFunction() bool {
 	p.CallSomething("test2", "Another call", "test1")
 	return true
 }
+
+func TestValidate(t *testing.T) {
+	tests := []struct {
+		desc     string
+		genState types.GenesisState
+	}{
+		{
+			desc:     "default is valid",
+			genState: types.DefaultGenesis(),
+		},
+		{
+			desc:     "valid genesis state",
+			genState: types.GenesisState{},
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.desc, func(t *testing.T) {
+			err := tc.genState.Validate()
+			require.NoError(t, err)
+		})
+	}
+}
 `,
 		},
 		{
@@ -185,12 +422,35 @@ func anotherFunction() bool {
 	Param{Baz: baz, Foo: foo}
 	Client{baz, foo}
 	return true
-}`,
+}
+
+func TestValidate(t *testing.T) {
+	tests := []struct {
+		desc     string
+		genState types.GenesisState
+	}{
+		{
+			desc:     "default is valid",
+			genState: types.DefaultGenesis(),
+		},
+		{
+			desc:     "valid genesis state",
+			genState: types.GenesisState{},
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.desc, func(t *testing.T) {
+			err := tc.genState.Validate()
+			require.NoError(t, err)
+		})
+	}
+}
+`,
 				functionName: "anotherFunction",
 				functions: []FunctionOptions{
-					AppendInsideFuncStruct("Param", "Bar", "bar", -1),
-					AppendInsideFuncStruct("Param", "Bla", "bla", 1),
-					AppendInsideFuncStruct("Client", "", "bar", 0),
+					AppendFuncStruct("Param", "Bar", "bar", -1),
+					AppendFuncStruct("Param", "Bla", "bla", 1),
+					AppendFuncStruct("Client", "", "bar", 0),
 				},
 			},
 			want: `package main
@@ -204,7 +464,43 @@ func anotherFunction() bool {
 	Client{bar, baz, foo}
 	return true
 }
+
+func TestValidate(t *testing.T) {
+	tests := []struct {
+		desc     string
+		genState types.GenesisState
+	}{
+		{
+			desc:     "default is valid",
+			genState: types.DefaultGenesis(),
+		},
+		{
+			desc:     "valid genesis state",
+			genState: types.GenesisState{},
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.desc, func(t *testing.T) {
+			err := tc.genState.Validate()
+			require.NoError(t, err)
+		})
+	}
+}
 `,
+		},
+		{
+			name: "function without test case assertion",
+			args: args{
+				fileContent:  existingContent,
+				functionName: "anotherFunction",
+				functions: []FunctionOptions{
+					AppendFuncTestCase(`{
+								desc:     "valid second genesis state",
+								genState: GenesisState{},
+					}`),
+				},
+			},
+			want: fmt.Sprintln(existingContent),
 		},
 		{
 			name: "params out of range",
@@ -285,7 +581,7 @@ func anotherFunction() bool {
 				functionName: "anotherFunction",
 				functions:    []FunctionOptions{AppendInsideFuncCall("NewParam", "9#.(c", 0)},
 			},
-			err: errors.New("format.Node internal error (13:21: illegal character U+0023 '#' (and 2 more errors))"),
+			err: errors.New("format.Node internal error (13:21: illegal character U+0023 '#' (and 4 more errors))"),
 		},
 		{
 			name: "call params out of range",

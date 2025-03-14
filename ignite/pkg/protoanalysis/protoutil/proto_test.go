@@ -176,7 +176,7 @@ func TestAddEmptyList_genesis(t *testing.T) {
 	Apply(f, nil, func(c *Cursor) bool {
 		if m, ok := c.Node().(*proto.Message); ok {
 			if m.Name == "GenesisState" {
-				lst := NewField(typename+"List", typename, 2,
+				lst := NewField(typename+"_list", typename, 2,
 					WithFieldOptions(NewOption("gogoproto.nullable", "false", Custom())),
 					Repeated(),
 				)

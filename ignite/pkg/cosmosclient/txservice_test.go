@@ -1,7 +1,6 @@
 package cosmosclient_test
 
 import (
-	"context"
 	"encoding/hex"
 	"testing"
 
@@ -21,7 +20,6 @@ import (
 
 func TestTxServiceBroadcast(t *testing.T) {
 	var (
-		goCtx       = context.Background()
 		accountName = "bob"
 		passphrase  = "passphrase"
 		txHash      = []byte{1, 2, 3}
@@ -59,7 +57,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 			setup: func(s suite) {
 				s.expectPrepareFactory(sdkaddr)
 				s.signer.EXPECT().
-					Sign(goCtx, mock.Anything, "bob", mock.Anything, true).
+					Sign(mock.Anything, mock.Anything, "bob", mock.Anything, true).
 					Return(nil)
 				s.rpcClient.EXPECT().
 					BroadcastTxSync(mock.Anything, mock.Anything).
@@ -74,7 +72,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 			setup: func(s suite) {
 				s.expectPrepareFactory(sdkaddr)
 				s.signer.EXPECT().
-					Sign(goCtx, mock.Anything, "bob", mock.Anything, true).
+					Sign(mock.Anything, mock.Anything, "bob", mock.Anything, true).
 					Return(nil)
 				s.rpcClient.EXPECT().
 					BroadcastTxSync(mock.Anything, mock.Anything).
@@ -95,7 +93,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 			setup: func(s suite) {
 				s.expectPrepareFactory(sdkaddr)
 				s.signer.EXPECT().
-					Sign(goCtx, mock.Anything, "bob", mock.Anything, true).
+					Sign(mock.Anything, mock.Anything, "bob", mock.Anything, true).
 					Return(nil)
 				s.rpcClient.EXPECT().
 					BroadcastTxSync(mock.Anything, mock.Anything).
@@ -104,7 +102,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 					}, nil)
 
 				// Tx is broadcasted, now check for confirmation
-				s.rpcClient.EXPECT().Tx(goCtx, txHash, false).
+				s.rpcClient.EXPECT().Tx(mock.Anything, txHash, false).
 					Return(&ctypes.ResultTx{
 						Hash: txHash,
 						TxResult: abci.ExecTxResult{
@@ -121,7 +119,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 			setup: func(s suite) {
 				s.expectPrepareFactory(sdkaddr)
 				s.signer.EXPECT().
-					Sign(goCtx, mock.Anything, "bob", mock.Anything, true).
+					Sign(mock.Anything, mock.Anything, "bob", mock.Anything, true).
 					Return(nil)
 				s.rpcClient.EXPECT().
 					BroadcastTxSync(mock.Anything, mock.Anything).
@@ -130,7 +128,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 					}, nil)
 
 				// Tx is broadcasted, now check for confirmation
-				s.rpcClient.EXPECT().Tx(goCtx, txHash, false).
+				s.rpcClient.EXPECT().Tx(mock.Anything, txHash, false).
 					Return(&ctypes.ResultTx{
 						Hash: txHash,
 						TxResult: abci.ExecTxResult{
@@ -150,7 +148,7 @@ func TestTxServiceBroadcast(t *testing.T) {
 			setup: func(s suite) {
 				s.expectPrepareFactory(sdkaddr)
 				s.signer.EXPECT().
-					Sign(goCtx, mock.Anything, "bob", mock.Anything, true).
+					Sign(mock.Anything, mock.Anything, "bob", mock.Anything, true).
 					Return(nil)
 				s.rpcClient.EXPECT().
 					BroadcastTxSync(mock.Anything, mock.Anything).
@@ -160,19 +158,19 @@ func TestTxServiceBroadcast(t *testing.T) {
 
 				// Tx is broadcasted, now check for confirmation
 				// First time the tx is not found (not confirmed yet)
-				s.rpcClient.EXPECT().Tx(goCtx, txHash, false).
+				s.rpcClient.EXPECT().Tx(mock.Anything, txHash, false).
 					Return(nil, errors.New("not found")).Once()
 				// Wait for 1 block
-				s.rpcClient.EXPECT().Status(goCtx).
+				s.rpcClient.EXPECT().Status(mock.Anything).
 					Return(&ctypes.ResultStatus{
 						SyncInfo: ctypes.SyncInfo{LatestBlockHeight: 1},
 					}, nil).Once()
-				s.rpcClient.EXPECT().Status(goCtx).
+				s.rpcClient.EXPECT().Status(mock.Anything).
 					Return(&ctypes.ResultStatus{
 						SyncInfo: ctypes.SyncInfo{LatestBlockHeight: 2},
 					}, nil).Once()
 				// Then try gain to fetch the tx, this time it is confirmed
-				s.rpcClient.EXPECT().Tx(goCtx, txHash, false).
+				s.rpcClient.EXPECT().Tx(mock.Anything, txHash, false).
 					Return(&ctypes.ResultTx{
 						Hash: txHash,
 					}, nil)
@@ -187,11 +185,10 @@ func TestTxServiceBroadcast(t *testing.T) {
 			ctx := c.Context().
 				WithFromName(accountName).
 				WithFromAddress(sdkaddr)
-			txService, err := c.CreateTx(goCtx, account, tt.msg)
+			txService, err := c.CreateTx(ctx.CmdContext, account, tt.msg)
 			require.NoError(t, err)
 
-			res, err := txService.Broadcast(goCtx)
-
+			res, err := txService.Broadcast(ctx.CmdContext)
 			if tt.expectedError != "" {
 				require.EqualError(t, err, tt.expectedError)
 				return

@@ -335,12 +335,6 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd *plugin.C
 	}
 	cmd.AddCommand(newCmd)
 
-	// NOTE(tb) we could probably simplify by removing this condition and call the
-	// plugin even if the invoked command isn't runnable. If we do so, the plugin
-	// will be responsible for outputing the standard cobra output, which implies
-	// it must use cobra too. This is how cli-plugin-network works, but to make
-	// it for all, we need to change the `plugin scaffold` output (so it outputs
-	// something similar than the cli-plugin-network) and update the docs.
 	if len(pluginCmd.Commands) == 0 {
 		// pluginCmd has no sub commands, so it's runnable
 		newCmd.RunE = func(cmd *cobra.Command, args []string) error {
@@ -362,10 +356,6 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd *plugin.C
 				execCmd.ImportFlags(cmd)
 				err = p.Interface.Execute(ctx, execCmd, api)
 
-				// NOTE(tb): This pause gives enough time for go-plugin to sync the
-				// output from stdout/stderr of the plugin. Without that pause, this
-				// output can be discarded and not printed in the user console.
-				time.Sleep(100 * time.Millisecond)
 				return err
 			})
 		}
@@ -512,7 +502,11 @@ Respects key value pairs declared after the app path to be added to the generate
 			}
 			defer plugins[0].KillClient()
 
-			if plugins[0].Error != nil {
+			if err := plugins[0].Error; err != nil {
+				if strings.Contains(err.Error(), "go.mod file not found in current directory") {
+					return errors.Errorf("unable to find an App at the root of this repository (%s). Please ensure your repository URL is correct. If you're trying to install an App under a subfolder, include the path at the end of your repository URL, e.g., github.com/ignite/apps/appregistry", args[0])
+				}
+
 				return errors.Errorf("error while loading app %q: %w", args[0], plugins[0].Error)
 			}
 			session.Println(icons.OK, "Done loading apps")

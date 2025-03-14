@@ -4,6 +4,16 @@
 
 ### Features
 
+- [#4509](https://github.com/ignite/cli/pull/4509) Upgrade to Go 1.24. Running `ignite doctor` migrates the scaffolded `tools.go` to the tool directive in the go.mod
+
+### Bug Fixes
+
+- [#4347](https://github.com/ignite/cli/pull/4347) Fix `ts-client` generation
+
+## [`v29.0.0-beta.1`](https://github.com/ignite/cli/releases/tag/v29.0.0-beta.1)
+
+### Features
+
 - [#3707](https://github.com/ignite/cli/pull/3707) and [#4094](https://github.com/ignite/cli/pull/4094) Add collections support.
 - [#3977](https://github.com/ignite/cli/pull/3977) Add `chain lint` command to lint the chain's codebase using `golangci-lint`
 - [#3770](https://github.com/ignite/cli/pull/3770) Add `scaffold configs` and `scaffold params` commands
@@ -18,8 +28,14 @@
 - [#4131](https://github.com/ignite/cli/pull/4131) Support `bytes` as data type in the `scaffold` commands
 - [#4300](https://github.com/ignite/cli/pull/4300) Only panics the module in the most top function level
 - [#4327](https://github.com/ignite/cli/pull/4327) Use the TxConfig from simState instead create a new one
-- [#4326](https://github.com/ignite/cli/pull/4326) fAdd `buf.build` version to `ignite version` command
-- [#4362](https://github.com/ignite/cli/pull/4362) Scaffold `Makefile`
+- [#4326](https://github.com/ignite/cli/pull/4326) Add `buf.build` version to `ignite version` command
+- [#4436](https://github.com/ignite/cli/pull/4436) Return tx hash to the faucet API
+- [#4437](https://github.com/ignite/cli/pull/4437) Remove module placeholders
+- [#4289](https://github.com/ignite/cli/pull/4289), [#4423](https://github.com/ignite/cli/pull/4423), [#4432](https://github.com/ignite/cli/pull/4432), [#4507](https://github.com/ignite/cli/pull/4507), [#4524](https://github.com/ignite/cli/pull/4524) Cosmos SDK v0.52 support and downgrade back to 0.50, while keeping latest improvements.
+- [#4480](https://github.com/ignite/cli/pull/4480) Add field max length
+- [#4477](https://github.com/ignite/cli/pull/4477), [#4559](https://github.com/ignite/cli/pull/4559) IBC v10 support
+- [#4166](https://github.com/ignite/cli/issues/4166) Migrate buf config files to v2
+- [#4494](https://github.com/ignite/cli/pull/4494) Automatic migrate the buf configs to v2
 
 ### Changes
 
@@ -42,14 +58,75 @@
 - [#4295](https://github.com/ignite/cli/pull/4295) Stop scaffolding `pulsar` files
 - [#4317](https://github.com/ignite/cli/pull/4317) Remove xchisel dependency
 - [#4361](https://github.com/ignite/cli/pull/4361) Remove unused `KeyPrefix` method
-- [#4376](https://github.com/ignite/cli/pull/4376) Set different chain-id for in place testnet
+- [#4384](https://github.com/ignite/cli/pull/4384) Compare genesis params into chain genesis tests
+- [#4463](https://github.com/ignite/cli/pull/4463) Run `chain simulation` with any simulation test case
+- [#4533](https://github.com/ignite/cli/pull/4533) Promote GitHub codespace instead of Gitpod
+- [#4549](https://github.com/ignite/cli/pull/4549) Remove unused placeholder vars
+- [#4557](https://github.com/ignite/cli/pull/4557) Remove github.com/gookit/color
 
 ### Fixes
 
 - [#4000](https://github.com/ignite/cli/pull/4000) Run all dry runners before the wet run in the `xgenny` pkg
 - [#4091](https://github.com/ignite/cli/pull/4091) Fix race conditions in the plugin logic
 - [#4128](https://github.com/ignite/cli/pull/4128) Check for duplicate proto fields in config
-- [#4347](https://github.com/ignite/cli/pull/4347) Fix `ts-client` generation
+- [#4402](https://github.com/ignite/cli/pull/4402) Fix gentx parser into the cosmosutil package
+- [#4552](https://github.com/ignite/cli/pull/4552) Avoid direct access to proto field `perms.Account` and `perms.Permissions`
+- [#4555](https://github.com/ignite/cli/pull/4555) Fix buf lint issues into the chain code
+
+## [`v28.8.1`](https://github.com/ignite/cli/releases/tag/v28.8.1)
+
+### Bug Fixes
+
+- [#4532](https://github.com/ignite/cli/pull/4532) Fix non working _shortcuts_ in validator home config
+- [#4538](https://github.com/ignite/cli/pull/4538) Create a simple spinner for non-terminal interactions
+- [#4540](https://github.com/ignite/cli/pull/4540), [#4543](https://github.com/ignite/cli/pull/4543) Skip logs / gibberish when parsing commands outputs
+
+## [`v28.8.0`](https://github.com/ignite/cli/releases/tag/v28.8.0)
+
+### Features
+
+- [#4513](https://github.com/ignite/cli/pull/4513) Allow to pass tx fees to faucet server
+
+### Changes
+
+- [#4439](https://github.com/ignite/cli/pull/4439) Simplify Ignite CLI dependencies by removing `moby` and `gorilla` dependencies.
+- [#4471](https://github.com/ignite/cli/pull/4471) Bump CometBFT to v0.38.15.
+- [#4471](https://github.com/ignite/cli/pull/4471) Bump Ignite & chain minimum Go version to 1.23.
+- [#4529](https://github.com/ignite/cli/pull/4531) Bump Cosmos SDK to v0.50.12.
+
+### Bug Fixes
+
+- [#4474](https://github.com/ignite/cli/pull/4474) Fix issue in `build --release` command
+- [#4479](https://github.com/ignite/cli/pull/4479) Scaffold an `uint64 type crashs Ignite
+- [#4483](https://github.com/ignite/cli/pull/4483) Fix default flag parser for apps
+
+## [`v28.7.0`](https://github.com/ignite/cli/releases/tag/v28.7.0)
+
+### Features
+
+- [#4457](https://github.com/ignite/cli/pull/4457) Add `skip-build` flag to `chain serve` command to avoid (re)building the chain
+- [#4413](https://github.com/ignite/cli/pull/4413) Add `ignite s chain-registry` command
+
+## [`v28.6.1`](https://github.com/ignite/cli/releases/tag/v28.6.1)
+
+### Changes
+
+- [#4449](https://github.com/ignite/cli/pull/4449) Bump scaffolded chain to Cosmos SDK `v0.50.11`. Previous version have a high security vulnerability.
+
+## [`v28.6.0`](https://github.com/ignite/cli/releases/tag/v28.6.0)
+
+### Features
+
+- [#4377](https://github.com/ignite/cli/pull/4377) Add multi node (validator) testnet
+- [#4362](https://github.com/ignite/cli/pull/4362) Scaffold `Makefile`
+
+### Changes
+
+- [#4376](https://github.com/ignite/cli/pull/4376) Set different chain-id for in place testnet
+
+### Bug Fixes
+
+- [#4421](https://github.com/ignite/cli/pull/4422) Fix typo in simulation template
 
 ## [`v28.5.3`](https://github.com/ignite/cli/releases/tag/v28.5.3)
 

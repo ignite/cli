@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
@@ -11,6 +12,7 @@ import (
 
 // ErrTransferRequest is an error that occurs when a transfer request fails.
 type ErrTransferRequest struct {
+	Body       string
 	StatusCode int
 }
 
@@ -48,12 +50,16 @@ func (c HTTPClient) Transfer(ctx context.Context, req TransferRequest) (Transfer
 	defer hres.Body.Close()
 
 	if hres.StatusCode != http.StatusOK {
-		return TransferResponse{}, ErrTransferRequest{hres.StatusCode}
+		bodyBytes, _ := io.ReadAll(hres.Body)
+		return TransferResponse{}, ErrTransferRequest{Body: string(bodyBytes), StatusCode: hres.StatusCode}
 	}
 
 	var res TransferResponse
-	err = json.NewDecoder(hres.Body).Decode(&res)
-	return res, err
+	if err = json.NewDecoder(hres.Body).Decode(&res); err != nil {
+		return TransferResponse{}, err
+	}
+
+	return res, nil
 }
 
 // FaucetInfo fetch the faucet info for clients to determine if this is a real faucet and

@@ -8,6 +8,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
 	"github.com/ignite/cli/v29/ignite/pkg/xgit"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
 	"github.com/ignite/cli/v29/ignite/version"
@@ -127,6 +128,7 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 		NewScaffoldPacket(),
 		NewScaffoldVue(),
 		NewScaffoldReact(),
+		NewScaffoldChainRegistry(),
 	)
 
 	return c
@@ -163,7 +165,16 @@ func migrationPreRunHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return bufMigrationPreRunHandler(cmd, session, appPath, cfg.Build.Proto.Path)
+	if err := bufMigrationPreRunHandler(cmd, session, appPath, cfg.Build.Proto.Path); err != nil {
+		return err
+	}
+
+	// we go mod tidy in case new dependencies were added or removed
+	if err := gocmd.ModTidy(cmd.Context(), appPath); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func scaffoldType(

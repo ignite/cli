@@ -11,7 +11,7 @@ import (
 )
 
 
-func (k msgServer) Create<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgCreate<%= TypeName.UpperCamel %>) (*types.MsgCreate<%= TypeName.UpperCamel %>Response, error) {
+func (k msgServer) Create<%= TypeName.PascalCase %>(ctx context.Context,  msg *types.MsgCreate<%= TypeName.PascalCase %>) (*types.MsgCreate<%= TypeName.PascalCase %>Response, error) {
     if _, err := k.addressCodec.StringToBytes(msg.<%= MsgSigner.UpperCamel %>); err != nil {
         return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid address: %s", err))
     }
@@ -24,7 +24,7 @@ func (k msgServer) Create<%= TypeName.UpperCamel %>(ctx context.Context,  msg *t
         return nil, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "index already set")
     }
 
-    var <%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{
+    var <%= TypeName.LowerCamel %> = types.<%= TypeName.PascalCase %>{
         <%= MsgSigner.UpperCamel %>: msg.<%= MsgSigner.UpperCamel %>,
         <%= Index.Name.UpperCamel %>: msg.<%= Index.Name.UpperCamel %>,
         <%= for (field) in Fields { %><%= field.Name.UpperCamel %>: msg.<%= field.Name.UpperCamel %>,
@@ -35,10 +35,10 @@ func (k msgServer) Create<%= TypeName.UpperCamel %>(ctx context.Context,  msg *t
         return nil, errorsmod.Wrap(sdkerrors.ErrLogic, err.Error())
     }
 
-    return &types.MsgCreate<%= TypeName.UpperCamel %>Response{}, nil
+    return &types.MsgCreate<%= TypeName.PascalCase %>Response{}, nil
 }
 
-func (k msgServer) Update<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgUpdate<%= TypeName.UpperCamel %>) (*types.MsgUpdate<%= TypeName.UpperCamel %>Response, error) {
+func (k msgServer) Update<%= TypeName.PascalCase %>(ctx context.Context,  msg *types.MsgUpdate<%= TypeName.PascalCase %>) (*types.MsgUpdate<%= TypeName.PascalCase %>Response, error) {
     if _, err := k.addressCodec.StringToBytes(msg.<%= MsgSigner.UpperCamel %>); err != nil {
         return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid signer address: %s", err))
     }
@@ -58,7 +58,7 @@ func (k msgServer) Update<%= TypeName.UpperCamel %>(ctx context.Context,  msg *t
         return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
     }
 
-    var <%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{
+    var <%= TypeName.LowerCamel %> = types.<%= TypeName.PascalCase %>{
 		<%= MsgSigner.UpperCamel %>: msg.<%= MsgSigner.UpperCamel %>,
 		<%= Index.Name.UpperCamel %>: msg.<%= Index.Name.UpperCamel %>,
         <%= for (field) in Fields { %><%= field.Name.UpperCamel %>: msg.<%= field.Name.UpperCamel %>,
@@ -69,10 +69,10 @@ func (k msgServer) Update<%= TypeName.UpperCamel %>(ctx context.Context,  msg *t
         return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "failed to update <%= TypeName.LowerCamel %>")
     }
 
-	return &types.MsgUpdate<%= TypeName.UpperCamel %>Response{}, nil
+	return &types.MsgUpdate<%= TypeName.PascalCase %>Response{}, nil
 }
 
-func (k msgServer) Delete<%= TypeName.UpperCamel %>(ctx context.Context,  msg *types.MsgDelete<%= TypeName.UpperCamel %>) (*types.MsgDelete<%= TypeName.UpperCamel %>Response, error) {
+func (k msgServer) Delete<%= TypeName.PascalCase %>(ctx context.Context,  msg *types.MsgDelete<%= TypeName.PascalCase %>) (*types.MsgDelete<%= TypeName.PascalCase %>Response, error) {
     if _, err := k.addressCodec.StringToBytes(msg.<%= MsgSigner.UpperCamel %>); err != nil {
         return nil, errorsmod.Wrap(sdkerrors.ErrInvalidAddress, fmt.Sprintf("invalid signer address: %s", err))
     }
@@ -96,5 +96,5 @@ func (k msgServer) Delete<%= TypeName.UpperCamel %>(ctx context.Context,  msg *t
         return nil, errorsmod.Wrap(sdkerrors.ErrLogic, "failed to remove <%= TypeName.LowerCamel %>")
     }
 
-	return &types.MsgDelete<%= TypeName.UpperCamel %>Response{}, nil
+	return &types.MsgDelete<%= TypeName.PascalCase %>Response{}, nil
 }

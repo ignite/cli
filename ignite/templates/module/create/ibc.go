@@ -16,7 +16,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/xstrings"
 	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"
 	"github.com/ignite/cli/v29/ignite/templates/module"
-	"github.com/ignite/cli/v29/ignite/templates/typed"
 )
 
 // NewIBC returns the generator to scaffold the implementation of the IBCModule interface inside a module.
@@ -26,8 +25,8 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 		template = xgenny.NewEmbedWalker(fsIBC, "files/ibc/", opts.AppPath)
 	)
 
-	g.RunFn(genesisModify(replacer, opts))
-	g.RunFn(genesisTypesModify(replacer, opts))
+	g.RunFn(genesisModify(opts))
+	g.RunFn(genesisTypesModify(opts))
 	g.RunFn(genesisProtoModify(opts))
 	g.RunFn(keysModify(replacer, opts))
 
@@ -56,51 +55,47 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 	return g, nil
 }
 
-func genesisModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+func genesisModify(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/genesis.go")
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
-		// Import
-		content, err := xast.AppendImports(
+		// Genesis init
+		replacementModuleInit := `if err := k.Port.Set(ctx, genState.PortId); err != nil {
+		return err
+	}`
+		content, err := xast.ModifyFunction(
 			f.String(),
-			xast.WithLastImport("cosmossdk.io/errors"),
+			"InitGenesis",
+			xast.AppendFuncCode(replacementModuleInit),
 		)
 		if err != nil {
 			return err
 		}
 
-		// Genesis init
-		templateInit := `%s
-k.SetPort(ctx, genState.PortId)
-// Only try to bind to port if it is not already bound, since we may already own
-// port capability from capability InitGenesis
-if k.ShouldBound(ctx, genState.PortId) {
-	// module binds to the port on InitChain
-	// and claims the returned capability
-	err := k.BindPort(ctx, genState.PortId)
-	if err != nil {
-		return errors.Wrap(err, "could not claim port capability")
-	}
-}`
-		replacementInit := fmt.Sprintf(templateInit, typed.PlaceholderGenesisModuleInit)
-		content = replacer.Replace(content, typed.PlaceholderGenesisModuleInit, replacementInit)
-
 		// Genesis export
-		templateExport := `genesis.PortId = k.GetPort(ctx)
-%s`
-		replacementExport := fmt.Sprintf(templateExport, typed.PlaceholderGenesisModuleExport)
-		content = replacer.Replace(content, typed.PlaceholderGenesisModuleExport, replacementExport)
+		replacementModuleExport := `genesis.PortId, err = k.Port.Get(ctx)
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
+		return nil, err
+	}`
+		content, err = xast.ModifyFunction(
+			content,
+			"ExportGenesis",
+			xast.AppendFuncCode(replacementModuleExport),
+		)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func genesisTypesModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+func genesisTypesModify(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis.go")
 		f, err := r.Disk.Find(path)
@@ -111,26 +106,35 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 		// Import
 		content, err := xast.AppendImports(
 			f.String(),
-			xast.WithLastNamedImport("host", "github.com/cosmos/ibc-go/v8/modules/core/24-host"),
+			xast.WithLastNamedImport("host", "github.com/cosmos/ibc-go/v10/modules/core/24-host"),
 		)
 		if err != nil {
 			return err
 		}
 
 		// Default genesis
-		templateDefault := `PortId: PortID,
-%s`
-		replacementDefault := fmt.Sprintf(templateDefault, typed.PlaceholderGenesisTypesDefault)
-		content = replacer.Replace(content, typed.PlaceholderGenesisTypesDefault, replacementDefault)
+		content, err = xast.ModifyFunction(
+			content,
+			"DefaultGenesis",
+			xast.AppendFuncStruct("GenesisState", "PortId", "PortID", -1),
+		)
+		if err != nil {
+			return err
+		}
 
 		// Validate genesis
 		// PlaceholderIBCGenesisTypeValidate
-		templateValidate := `if err := host.PortIdentifierValidator(gs.PortId); err != nil {
+		replacementTypesValidate := `if err := host.PortIdentifierValidator(gs.PortId); err != nil {
 	return err
-}
-%s`
-		replacementValidate := fmt.Sprintf(templateValidate, typed.PlaceholderGenesisTypesValidate)
-		content = replacer.Replace(content, typed.PlaceholderGenesisTypesValidate, replacementValidate)
+}`
+		content, err = xast.ModifyFunction(
+			content,
+			"Validate",
+			xast.AppendFuncCode(replacementTypesValidate),
+		)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -222,8 +226,8 @@ func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunF
 		}
 
 		// create IBC module
-		templateIBCModule := `%[2]vIBCModule := ibcfee.NewIBCMiddleware(%[2]vmodule.NewIBCModule(app.%[3]vKeeper), app.IBCFeeKeeper)
-ibcRouter.AddRoute(%[2]vmoduletypes.ModuleName, %[2]vIBCModule)
+		templateIBCModule := `%[2]vIBCModule := %[2]vmodule.NewIBCModule(app.appCodec, app.%[3]vKeeper)
+		ibcRouter.AddRoute(%[2]vmoduletypes.ModuleName, %[2]vIBCModule)
 %[1]v`
 		replacementIBCModule := fmt.Sprintf(
 			templateIBCModule,

@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v29/ignite/pkg/randstr"
 	"github.com/ignite/cli/v29/ignite/templates/field"
 	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
 )
@@ -43,6 +44,7 @@ func TestParseTypeFields(t *testing.T) {
 						Original:   "foo",
 						LowerCamel: "foo",
 						UpperCamel: "Foo",
+						PascalCase: "Foo",
 						LowerCase:  "foo",
 						UpperCase:  "FOO",
 						Kebab:      "foo",
@@ -56,6 +58,7 @@ func TestParseTypeFields(t *testing.T) {
 						Original:   "bar",
 						LowerCamel: "bar",
 						UpperCamel: "Bar",
+						PascalCase: "Bar",
 						LowerCase:  "bar",
 						UpperCase:  "BAR",
 						Kebab:      "bar",
@@ -117,6 +120,7 @@ func TestParseTypeFields(t *testing.T) {
 						Original:   "FieldFoo",
 						LowerCamel: "fieldFoo",
 						UpperCamel: "FieldFoo",
+						PascalCase: "FieldFoo",
 						LowerCase:  "fieldfoo",
 						UpperCase:  "FIELDFOO",
 						Kebab:      "field-foo",
@@ -216,5 +220,36 @@ func TestCheckForbiddenTypeIndexField(t *testing.T) {
 	}
 }
 
-func TestAddType(_ *testing.T) {
+func Test_checkMaxLength(t *testing.T) {
+	tests := []struct {
+		desc        string
+		name        string
+		shouldError bool
+	}{
+		{
+			desc:        "should pass with valid name",
+			name:        "validName",
+			shouldError: false,
+		},
+		{
+			desc:        "should fail with name exceeding max length",
+			name:        randstr.Runes(maxLength + 1),
+			shouldError: true,
+		},
+		{
+			desc:        "should pass with name at max length",
+			name:        randstr.Runes(maxLength),
+			shouldError: false,
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.desc, func(t *testing.T) {
+			err := checkMaxLength(tc.name)
+			if tc.shouldError {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+		})
+	}
 }

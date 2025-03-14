@@ -6,16 +6,16 @@ import (
 	"time"
 
 	"github.com/cometbft/cometbft/libs/bytes"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 )
 
 // ConsensusInfo is the validator consensus info.
 type ConsensusInfo struct {
-	Timestamp          string                `json:"Timestamp"`
-	Root               string                `json:"Root"`
-	NextValidatorsHash string                `json:"NextValidatorsHash"`
-	ValidatorSet       *tmproto.ValidatorSet `json:"ValidatorSet"`
+	Timestamp          string                 `json:"Timestamp"`
+	Root               string                 `json:"Root"`
+	NextValidatorsHash string                 `json:"NextValidatorsHash"`
+	ValidatorSet       *cmtproto.ValidatorSet `json:"ValidatorSet"`
 }
 
 // ConsensusInfo returns the appropriate tendermint consensus state by given height

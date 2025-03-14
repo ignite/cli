@@ -3,15 +3,16 @@ package simulation
 import (
 	"math/rand"
 
-	"<%= ModulePath %>/x/<%= ModuleName %>/keeper"
-	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
+
+	"<%= ModulePath %>/x/<%= ModuleName %>/keeper"
+	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
 func SimulateMsg<%= MsgName.UpperCamel %>(
-	ak types.AccountKeeper,
+	ak types.AuthKeeper,
 	bk types.BankKeeper,
 	k keeper.Keeper,
 	txGen client.TxConfig,
@@ -23,7 +24,7 @@ func SimulateMsg<%= MsgName.UpperCamel %>(
 			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),
 		}
 
-		// TODO: Handling the <%= MsgName.UpperCamel %> simulation
+		// TODO: Handle the <%= MsgName.UpperCamel %> simulation
 
 		return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= MsgName.UpperCamel %> simulation not implemented"), nil, nil
 	}

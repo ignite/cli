@@ -7,11 +7,10 @@ import (
 )
 
 type simappOptions struct {
-	enabled     bool
-	verbose     bool
-	config      simulation.Config
-	period      uint
-	genesisTime int64
+	simulationTestName string
+	enabled            bool
+	config             simulation.Config
+	genesisTime        int64
 }
 
 func newSimappOptions() simappOptions {
@@ -20,28 +19,12 @@ func newSimappOptions() simappOptions {
 			Commit: true,
 		},
 		enabled:     true,
-		verbose:     false,
-		period:      0,
 		genesisTime: 0,
 	}
 }
 
 // SimappOption provides options for the simapp command.
 type SimappOption func(*simappOptions)
-
-// SimappWithVerbose enable the verbose mode.
-func SimappWithVerbose(verbose bool) SimappOption {
-	return func(c *simappOptions) {
-		c.verbose = verbose
-	}
-}
-
-// SimappWithPeriod allows running slow invariants only once every period assertions.
-func SimappWithPeriod(period uint) SimappOption {
-	return func(c *simappOptions) {
-		c.period = period
-	}
-}
 
 // SimappWithGenesisTime allows overriding genesis UNIX time instead of using a random UNIX time.
 func SimappWithGenesisTime(genesisTime int64) SimappOption {
@@ -54,6 +37,13 @@ func SimappWithGenesisTime(genesisTime int64) SimappOption {
 func SimappWithConfig(config simulation.Config) SimappOption {
 	return func(c *simappOptions) {
 		c.config = config
+	}
+}
+
+// SimappWithSimulationTestName allows to set the simulation test name.
+func SimappWithSimulationTestName(name string) SimappOption {
+	return func(c *simappOptions) {
+		c.simulationTestName = name
 	}
 }
 
@@ -71,10 +61,9 @@ func (c *Chain) Simulate(ctx context.Context, options ...SimappOption) error {
 	}
 	return commands.Simulation(ctx,
 		c.app.Path,
+		simappOptions.simulationTestName,
 		simappOptions.enabled,
-		simappOptions.verbose,
 		simappOptions.config,
-		simappOptions.period,
 		simappOptions.genesisTime,
 	)
 }

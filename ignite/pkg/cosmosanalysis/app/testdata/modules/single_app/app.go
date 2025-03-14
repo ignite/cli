@@ -13,6 +13,7 @@ import (
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	"github.com/gogo/protobuf/codec"
 	abci "github.com/tendermint/tendermint/abci/types"
 	fookeeper "github.com/username/test/x/foo/keeper"
@@ -24,6 +25,7 @@ type Foo struct {
 	StakingKeeper stakingkeeper.Keeper
 	GovKeeper     govkeeper.Keeper
 	FooKeeper     fookeeper.Keeper
+	ibckeeper     ibckeeper.Keeper
 }
 
 func (Foo) Name() string {

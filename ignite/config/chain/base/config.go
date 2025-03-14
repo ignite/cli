@@ -1,7 +1,7 @@
 package base
 
 import (
-	"github.com/imdario/mergo"
+	"dario.cat/mergo"
 
 	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/config/chain/version"
@@ -90,6 +90,9 @@ type Faucet struct {
 
 	// Port number for faucet server to listen at.
 	Port uint `yaml:"port,omitempty" doc:"Port number for the faucet server."`
+
+	// TxFee is the tx fee the faucet needs to pay for each transaction.
+	TxFee string `yaml:"tx_fee,omitempty" doc:"Tx fee the faucet needs to pay for each transaction."`
 }
 
 // Init overwrites sdk configurations with given values.
