@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"math/big"
 	"path/filepath"
-	"strings"
 
 	"github.com/emicklei/proto"
 	"github.com/gobuffalo/genny/v2"
@@ -97,7 +96,7 @@ var (
 	%[1]vKey= collections.NewPrefix("%[2]v/value/")
 )
 `,
-			opts.TypeName.UpperCamel,
+			opts.TypeName.PascalCase,
 			opts.TypeName.LowerCamel,
 		)
 		newFile := genny.NewFileS(path, content)
@@ -119,7 +118,7 @@ func keeperModify(opts *typed.Options) genny.RunFn {
 			"Keeper",
 			xast.AppendStructValue(
 				opts.TypeName.UpperCamel,
-				fmt.Sprintf("collections.Item[types.%[1]v]", opts.TypeName.UpperCamel),
+				fmt.Sprintf("collections.Item[types.%[1]v]", opts.TypeName.PascalCase),
 			),
 		)
 		if err != nil {
@@ -134,7 +133,7 @@ func keeperModify(opts *typed.Options) genny.RunFn {
 				"Keeper",
 				opts.TypeName.UpperCamel,
 				fmt.Sprintf(`collections.NewItem(sb, types.%[1]vKey, "%[2]v", codec.CollValue[types.%[1]v](cdc))`,
-					opts.TypeName.UpperCamel,
+					opts.TypeName.PascalCase,
 					opts.TypeName.LowerCamel,
 				),
 				-1,
@@ -176,11 +175,11 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 			return errors.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
 		}
 		appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
-		typenameUpper := opts.TypeName.UpperCamel
+		typenamePascal, typenameSnake := opts.TypeName.PascalCase, opts.TypeName.Snake
 		rpcQueryGet := protoutil.NewRPC(
-			fmt.Sprintf("Get%s", typenameUpper),
-			fmt.Sprintf("QueryGet%sRequest", typenameUpper),
-			fmt.Sprintf("QueryGet%sResponse", typenameUpper),
+			fmt.Sprintf("Get%s", typenamePascal),
+			fmt.Sprintf("QueryGet%sRequest", typenamePascal),
+			fmt.Sprintf("QueryGet%sResponse", typenamePascal),
 			protoutil.WithRPCOptions(
 				protoutil.NewOption(
 					"google.api.http",
@@ -193,15 +192,15 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 				),
 			),
 		)
-		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("Queries a %v by index.", typenameUpper))
+		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("Queries a %v by index.", typenamePascal))
 		protoutil.Append(serviceQuery, rpcQueryGet)
 
 		// Add the service messages
-		queryGetRequest := protoutil.NewMessage("QueryGet" + typenameUpper + "Request")
-		field := protoutil.NewField(typenameUpper, typenameUpper, 1,
+		queryGetRequest := protoutil.NewMessage("QueryGet" + typenamePascal + "Request")
+		field := protoutil.NewField(typenameSnake, typenamePascal, 1,
 			protoutil.WithFieldOptions(protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())),
 		)
-		queryGetResponse := protoutil.NewMessage(fmt.Sprintf("QueryGet%sResponse", typenameUpper), protoutil.WithFields(field))
+		queryGetResponse := protoutil.NewMessage(fmt.Sprintf("QueryGet%sResponse", typenamePascal), protoutil.WithFields(field))
 		protoutil.Append(protoFile, queryGetRequest, queryGetResponse)
 
 		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
@@ -227,7 +226,7 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 		replacement := fmt.Sprintf(
 			template,
 			typed.PlaceholderAutoCLIQuery,
-			opts.TypeName.UpperCamel,
+			opts.TypeName.PascalCase,
 			opts.TypeName.Kebab,
 			opts.TypeName.Original,
 		)
@@ -265,8 +264,8 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 		}
 		seqNumber := protoutil.NextUniqueID(genesisState)
 		field := protoutil.NewField(
-			opts.TypeName.LowerCamel,
-			opts.TypeName.UpperCamel,
+			opts.TypeName.Snake,
+			opts.TypeName.PascalCase,
 			seqNumber,
 		)
 		protoutil.Append(genesisState, field)
@@ -323,7 +322,7 @@ func genesisTestsModify(opts *typed.Options) genny.RunFn {
 			xast.AppendFuncStruct(
 				"GenesisState",
 				opts.TypeName.UpperCamel,
-				fmt.Sprintf("&types.%[1]v{ %[2]v }", opts.TypeName.UpperCamel, sampleFields),
+				fmt.Sprintf("&types.%[1]v{ %[2]v }", opts.TypeName.PascalCase, sampleFields),
 				-1,
 			),
 			xast.AppendFuncCode(
@@ -364,7 +363,7 @@ func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 			xast.AppendFuncStruct(
 				"GenesisState",
 				opts.TypeName.UpperCamel,
-				fmt.Sprintf("&types.%[1]v{ %[2]v }", opts.TypeName.UpperCamel, sampleFields),
+				fmt.Sprintf("&types.%[1]v{ %[2]v }", opts.TypeName.PascalCase, sampleFields),
 				-1,
 			),
 		)
@@ -445,32 +444,28 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 			return err
 		}
 
-		// Add initial import for the new type:
-		if err = protoutil.AddImports(protoFile, true, opts.ProtoTypeImport()); err != nil {
-			return errors.Errorf("failed while adding imports to %s: %w", path, err)
-		}
 		// Add the RPC service.
 		serviceMsg, err := protoutil.GetServiceByName(protoFile, "Msg")
 		if err != nil {
 			return errors.Errorf("failed while looking up a message 'Msg' in %s: %w", path, err)
 		}
 		// Append create, update, delete rpcs. Better to append them altogether, single traversal.
-		name := opts.TypeName.UpperCamel
+		typenamePascal := opts.TypeName.PascalCase
 		protoutil.Append(serviceMsg,
 			protoutil.NewRPC(
-				fmt.Sprintf("Create%s", name),
-				fmt.Sprintf("MsgCreate%s", name),
-				fmt.Sprintf("MsgCreate%sResponse", name),
+				fmt.Sprintf("Create%s", typenamePascal),
+				fmt.Sprintf("MsgCreate%s", typenamePascal),
+				fmt.Sprintf("MsgCreate%sResponse", typenamePascal),
 			),
 			protoutil.NewRPC(
-				fmt.Sprintf("Update%s", name),
-				fmt.Sprintf("MsgUpdate%s", name),
-				fmt.Sprintf("MsgUpdate%sResponse", name),
+				fmt.Sprintf("Update%s", typenamePascal),
+				fmt.Sprintf("MsgUpdate%s", typenamePascal),
+				fmt.Sprintf("MsgUpdate%sResponse", typenamePascal),
 			),
 			protoutil.NewRPC(
-				fmt.Sprintf("Delete%s", name),
-				fmt.Sprintf("MsgDelete%s", name),
-				fmt.Sprintf("MsgDelete%sResponse", name),
+				fmt.Sprintf("Delete%s", typenamePascal),
+				fmt.Sprintf("MsgDelete%s", typenamePascal),
+				fmt.Sprintf("MsgDelete%sResponse", typenamePascal),
 			),
 		)
 
@@ -490,30 +485,30 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		}
 
 		// Add the messages
-		creator := protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)
-		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.LowerCamel)
+		creator := protoutil.NewField(opts.MsgSigner.Snake, "string", 1)
+		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.Snake)
 		fields := []*proto.NormalField{creator}
 		for i, field := range opts.Fields {
 			fields = append(fields, field.ToProtoField(i+3))
 		}
 		msgCreate := protoutil.NewMessage(
-			"MsgCreate"+name,
+			"MsgCreate"+typenamePascal,
 			protoutil.WithFields(fields...),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
-		msgCreateResponse := protoutil.NewMessage(fmt.Sprintf("MsgCreate%sResponse", name))
+		msgCreateResponse := protoutil.NewMessage(fmt.Sprintf("MsgCreate%sResponse", typenamePascal))
 		msgUpdate := protoutil.NewMessage(
-			"MsgUpdate"+name,
+			"MsgUpdate"+typenamePascal,
 			protoutil.WithFields(fields...),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
-		msgUpdateResponse := protoutil.NewMessage(fmt.Sprintf("MsgUpdate%sResponse", name))
+		msgUpdateResponse := protoutil.NewMessage(fmt.Sprintf("MsgUpdate%sResponse", typenamePascal))
 		msgDelete := protoutil.NewMessage(
-			"MsgDelete"+name,
+			"MsgDelete"+typenamePascal,
 			protoutil.WithFields(creator),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
-		msgDeleteResponse := protoutil.NewMessage(fmt.Sprintf("MsgDelete%sResponse", name))
+		msgDeleteResponse := protoutil.NewMessage(fmt.Sprintf("MsgDelete%sResponse", typenamePascal))
 		protoutil.Append(protoFile,
 			msgCreate, msgCreateResponse, msgUpdate, msgUpdateResponse, msgDelete, msgDeleteResponse,
 		)
@@ -529,12 +524,6 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
-		}
-
-		var positionalArgs, positionalArgsStr string
-		for _, field := range opts.Fields {
-			positionalArgs += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
-			positionalArgsStr += fmt.Sprintf("[%s] ", field.ProtoFieldName())
 		}
 
 		template := `{
@@ -559,11 +548,11 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 		replacement := fmt.Sprintf(
 			template,
 			typed.PlaceholderAutoCLITx,
-			opts.TypeName.UpperCamel,
+			opts.TypeName.PascalCase,
 			opts.TypeName.Kebab,
 			opts.TypeName.Original,
-			strings.TrimSpace(positionalArgs),
-			strings.TrimSpace(positionalArgsStr),
+			opts.Fields.ProtoFieldName(),
+			opts.Fields.CLIUsage(),
 		)
 
 		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLITx, replacement)
@@ -594,7 +583,7 @@ func typesCodecModify(opts *typed.Options) genny.RunFn {
 )`
 		replacementInterface := fmt.Sprintf(
 			templateInterface,
-			opts.TypeName.UpperCamel,
+			opts.TypeName.PascalCase,
 		)
 		content, err = xast.ModifyFunction(
 			content,

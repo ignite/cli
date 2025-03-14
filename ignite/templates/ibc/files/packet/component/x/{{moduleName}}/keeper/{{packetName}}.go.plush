@@ -12,10 +12,10 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v10/modules/core/04-channel/types"
 )
 
-// Transmit<%= packetName.UpperCamel %>Packet transmits the packet over IBC with the specified source port and source channel
-func (k Keeper) Transmit<%= packetName.UpperCamel %>Packet(
+// Transmit<%= packetName.PascalCase %>Packet transmits the packet over IBC with the specified source port and source channel
+func (k Keeper) Transmit<%= packetName.PascalCase %>Packet(
     ctx context.Context,
-    packetData types.<%= packetName.UpperCamel %>PacketData,
+    packetData types.<%= packetName.PascalCase %>PacketData,
 	sourcePort,
 	sourceChannel string,
 	timeoutHeight clienttypes.Height,
@@ -30,8 +30,8 @@ func (k Keeper) Transmit<%= packetName.UpperCamel %>Packet(
     return k.ibcKeeperFn().ChannelKeeper.SendPacket(sdkCtx, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, packetBytes)
 }
 
-// OnRecv<%= packetName.UpperCamel %>Packet processes packet reception
-func (k Keeper) OnRecv<%= packetName.UpperCamel %>Packet(ctx context.Context, packet channeltypes.Packet, data types.<%= packetName.UpperCamel %>PacketData) (packetAck types.<%= packetName.UpperCamel %>PacketAck, err error) {
+// OnRecv<%= packetName.PascalCase %>Packet processes packet reception
+func (k Keeper) OnRecv<%= packetName.PascalCase %>Packet(ctx context.Context, packet channeltypes.Packet, data types.<%= packetName.PascalCase %>PacketData) (packetAck types.<%= packetName.PascalCase %>PacketAck, err error) {
 	// validate packet data upon receiving
 
 	// TODO: packet reception logic
@@ -39,9 +39,9 @@ func (k Keeper) OnRecv<%= packetName.UpperCamel %>Packet(ctx context.Context, pa
 	return packetAck, nil
 }
 
-// OnAcknowledgement<%= packetName.UpperCamel %>Packet responds to the success or failure of a packet
+// OnAcknowledgement<%= packetName.PascalCase %>Packet responds to the success or failure of a packet
 // acknowledgement written on the receiving chain.
-func (k Keeper) OnAcknowledgement<%= packetName.UpperCamel %>Packet(ctx context.Context, packet channeltypes.Packet, data types.<%= packetName.UpperCamel %>PacketData, ack channeltypes.Acknowledgement) error {
+func (k Keeper) OnAcknowledgement<%= packetName.PascalCase %>Packet(ctx context.Context, packet channeltypes.Packet, data types.<%= packetName.PascalCase %>PacketData, ack channeltypes.Acknowledgement) error {
 	switch dispatchedAck := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
 
@@ -51,7 +51,7 @@ func (k Keeper) OnAcknowledgement<%= packetName.UpperCamel %>Packet(ctx context.
 		return nil
 	case *channeltypes.Acknowledgement_Result:
         // Decode the packet acknowledgment
-        var packetAck types.<%= packetName.UpperCamel %>PacketAck
+        var packetAck types.<%= packetName.PascalCase %>PacketAck
 
         if err := k.cdc.UnmarshalJSON(dispatchedAck.Result, &packetAck); err != nil {
             // The counter-party module doesn't implement the correct acknowledgment format
@@ -67,8 +67,8 @@ func (k Keeper) OnAcknowledgement<%= packetName.UpperCamel %>Packet(ctx context.
 	}
 }
 
-// OnTimeout<%= packetName.UpperCamel %>Packet responds to the case where a packet has not been transmitted because of a timeout
-func (k Keeper) OnTimeout<%= packetName.UpperCamel %>Packet(ctx context.Context, packet channeltypes.Packet, data types.<%= packetName.UpperCamel %>PacketData) error {
+// OnTimeout<%= packetName.PascalCase %>Packet responds to the case where a packet has not been transmitted because of a timeout
+func (k Keeper) OnTimeout<%= packetName.PascalCase %>Packet(ctx context.Context, packet channeltypes.Packet, data types.<%= packetName.UpperCamel %>PacketData) error {
 
     // TODO: packet timeout logic
 

@@ -129,7 +129,7 @@ func keeperModify(opts *typed.Options) genny.RunFn {
 			"Keeper",
 			xast.AppendStructValue(
 				opts.TypeName.UpperCamel,
-				fmt.Sprintf("collections.Map[%[1]v, types.%[2]v]", opts.Index.DataType(), opts.TypeName.UpperCamel),
+				fmt.Sprintf("collections.Map[%[1]v, types.%[2]v]", opts.Index.DataType(), opts.TypeName.PascalCase),
 			),
 		)
 		if err != nil {
@@ -144,7 +144,7 @@ func keeperModify(opts *typed.Options) genny.RunFn {
 				"Keeper",
 				opts.TypeName.UpperCamel,
 				fmt.Sprintf(`collections.NewMap(sb, types.%[1]vKey, "%[2]v", %[3]v, codec.CollValue[types.%[1]v](cdc))`,
-					opts.TypeName.UpperCamel,
+					opts.TypeName.PascalCase,
 					opts.TypeName.LowerCamel,
 					opts.Index.CollectionsKeyValueType(),
 				),
@@ -188,11 +188,11 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 		if err != nil {
 			return errors.Errorf("failed while looking up service 'Query' in %s: %w", path, err)
 		}
-		typenameUpper, typenameSnake, typenameLower := opts.TypeName.UpperCamel, opts.TypeName.Snake, opts.TypeName.LowerCamel
+		typenamePascal, typenameSnake := opts.TypeName.PascalCase, opts.TypeName.Snake
 		rpcQueryGet := protoutil.NewRPC(
-			fmt.Sprintf("Get%s", typenameUpper),
-			fmt.Sprintf("QueryGet%sRequest", typenameUpper),
-			fmt.Sprintf("QueryGet%sResponse", typenameUpper),
+			fmt.Sprintf("Get%s", typenamePascal),
+			fmt.Sprintf("QueryGet%sRequest", typenamePascal),
+			fmt.Sprintf("QueryGet%sResponse", typenamePascal),
 			protoutil.WithRPCOptions(
 				protoutil.NewOption(
 					"google.api.http",
@@ -205,12 +205,12 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 				),
 			),
 		)
-		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("Queries a %v by index.", typenameUpper))
+		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("Get%[1]v queries a %[1]v by index.", typenamePascal))
 
 		rpcQueryAll := protoutil.NewRPC(
-			fmt.Sprintf("List%s", typenameUpper),
-			fmt.Sprintf("QueryAll%sRequest", typenameUpper),
-			fmt.Sprintf("QueryAll%sResponse", typenameUpper),
+			fmt.Sprintf("List%s", typenamePascal),
+			fmt.Sprintf("QueryAll%sRequest", typenamePascal),
+			fmt.Sprintf("QueryAll%sResponse", typenamePascal),
 			protoutil.WithRPCOptions(
 				protoutil.NewOption(
 					"google.api.http",
@@ -223,7 +223,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 				),
 			),
 		)
-		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("Queries a list of %v items.", typenameUpper))
+		protoutil.AttachComment(rpcQueryGet, fmt.Sprintf("List%[1]v Queries a list of %[1]v items.", typenamePascal))
 		protoutil.Append(serviceQuery, rpcQueryGet, rpcQueryAll)
 
 		//  Ensure custom types are imported
@@ -244,24 +244,24 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 		// Add the messages.
 		paginationType, paginationName := "cosmos.base.query.v1beta1.Page", "pagination"
 		queryGetRequest := protoutil.NewMessage(
-			fmt.Sprintf("QueryGet%sRequest", typenameUpper),
+			fmt.Sprintf("QueryGet%sRequest", typenamePascal),
 			protoutil.WithFields(opts.Index.ToProtoField(1)),
 		)
 		gogoOption := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
 		queryGetResponse := protoutil.NewMessage(
-			fmt.Sprintf("QueryGet%sResponse", typenameUpper),
-			protoutil.WithFields(protoutil.NewField(typenameLower, typenameUpper, 1, protoutil.WithFieldOptions(gogoOption))),
+			fmt.Sprintf("QueryGet%sResponse", typenamePascal),
+			protoutil.WithFields(protoutil.NewField(typenameSnake, typenamePascal, 1, protoutil.WithFieldOptions(gogoOption))),
 		)
 		queryAllRequest := protoutil.NewMessage(
-			fmt.Sprintf("QueryAll%sRequest", typenameUpper),
+			fmt.Sprintf("QueryAll%sRequest", typenamePascal),
 			protoutil.WithFields(protoutil.NewField(paginationName, paginationType+"Request", 1)),
 		)
 		queryAllResponse := protoutil.NewMessage(
-			fmt.Sprintf("QueryAll%sResponse", typenameUpper),
+			fmt.Sprintf("QueryAll%sResponse", typenamePascal),
 			protoutil.WithFields(
 				protoutil.NewField(
-					typenameLower,
-					typenameUpper,
+					typenameSnake,
+					typenamePascal,
 					1,
 					protoutil.Repeated(),
 					protoutil.WithFieldOptions(gogoOption),
@@ -300,7 +300,7 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 		replacement := fmt.Sprintf(
 			template,
 			typed.PlaceholderAutoCLIQuery,
-			opts.TypeName.UpperCamel,
+			opts.TypeName.PascalCase,
 			opts.TypeName.Kebab,
 			opts.TypeName.Original,
 			opts.Index.ProtoFieldName(),
@@ -339,10 +339,10 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 		seqNumber := protoutil.NextUniqueID(genesisState)
 
 		// Create new option and append to GenesisState message.
-		typenameLower, typenameUpper := opts.TypeName.LowerCamel, opts.TypeName.UpperCamel
+		typenameSnake, typenamePascal := opts.TypeName.Snake, opts.TypeName.PascalCase
 		gogoOption := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
 		typeListField := protoutil.NewField(
-			typenameLower+"List", typenameUpper, seqNumber, protoutil.Repeated(), protoutil.WithFieldOptions(gogoOption),
+			typenameSnake+"_map", typenamePascal, seqNumber, protoutil.Repeated(), protoutil.WithFieldOptions(gogoOption),
 		)
 		protoutil.Append(genesisState, typeListField)
 
@@ -366,8 +366,8 @@ func genesisTypesModify(opts *typed.Options) genny.RunFn {
 
 		content, err = xast.ModifyFunction(content, "DefaultGenesis", xast.AppendFuncStruct(
 			"GenesisState",
-			fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
-			fmt.Sprintf("[]%[1]v{}", opts.TypeName.UpperCamel),
+			fmt.Sprintf("%[1]vMap", opts.TypeName.UpperCamel),
+			fmt.Sprintf("[]%[1]v{}", opts.TypeName.PascalCase),
 			-1,
 		))
 		if err != nil {
@@ -379,7 +379,7 @@ func genesisTypesModify(opts *typed.Options) genny.RunFn {
 		templateTypesValidate := `// Check for duplicated index in %[1]v
 %[1]vIndexMap := make(map[string]struct{})
 
-for _, elem := range gs.%[2]vList {
+for _, elem := range gs.%[2]vMap {
 	index := %[3]v
 	if _, ok := %[1]vIndexMap[index]; ok {
 		return fmt.Errorf("duplicated index for %[1]v")
@@ -415,7 +415,7 @@ func genesisModuleModify(opts *typed.Options) genny.RunFn {
 		}
 
 		templateModuleInit := `// Set all the %[1]v
-for _, elem := range genState.%[2]vList {
+for _, elem := range genState.%[2]vMap {
 	if err := k.%[2]v.Set(ctx, elem.%[3]v, elem); err != nil {
 		return err
 	}
@@ -435,8 +435,8 @@ for _, elem := range genState.%[2]vList {
 			return err
 		}
 
-		templateModuleExport := `if err := k.%[1]v.Walk(ctx, nil, func(_ %[2]v, val types.%[1]v) (stop bool, err error) {
-		genesis.%[1]vList = append(genesis.%[1]vList, val)
+		templateModuleExport := `if err := k.%[1]v.Walk(ctx, nil, func(_ %[2]v, val types.%[3]v) (stop bool, err error) {
+		genesis.%[1]vMap = append(genesis.%[1]vMap, val)
 		return false, nil
 	}); err != nil {
 		return nil, err
@@ -445,6 +445,7 @@ for _, elem := range genState.%[2]vList {
 			templateModuleExport,
 			opts.TypeName.UpperCamel,
 			opts.Index.DataType(),
+			opts.TypeName.PascalCase,
 		)
 		content, err = xast.ModifyFunction(
 			content,
@@ -480,16 +481,16 @@ func genesisTestsModify(opts *typed.Options) genny.RunFn {
 			"TestGenesis",
 			xast.AppendFuncStruct(
 				"GenesisState",
-				fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
+				fmt.Sprintf("%[1]vMap", opts.TypeName.UpperCamel),
 				fmt.Sprintf(
 					"[]types.%[1]v{{ %[2]v }, { %[3]v }}",
-					opts.TypeName.UpperCamel,
+					opts.TypeName.PascalCase,
 					sampleIndexes[0],
 					sampleIndexes[1],
 				),
 				-1,
 			),
-			xast.AppendFuncCode(fmt.Sprintf("require.ElementsMatch(t, genesisState.%[1]vList, got.%[1]vList)", opts.TypeName.UpperCamel)),
+			xast.AppendFuncCode(fmt.Sprintf("require.ElementsMatch(t, genesisState.%[1]vMap, got.%[1]vMap)", opts.TypeName.UpperCamel)),
 		)
 		if err != nil {
 			return err
@@ -517,11 +518,11 @@ func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 		templateDuplicated := `{
 	desc:     "duplicated %[1]v",
 	genState: &types.GenesisState{
-		%[2]vList: []types.%[2]v{
+		%[2]vMap: []types.%[3]v{
 			{
-				%[3]v},
+				%[4]v},
 			{
-				%[3]v},
+				%[4]v},
 		},
 	},
 	valid:    false,
@@ -530,6 +531,7 @@ func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 			templateDuplicated,
 			opts.TypeName.LowerCamel,
 			opts.TypeName.UpperCamel,
+			opts.TypeName.PascalCase,
 			sampleIndexes[0],
 		)
 
@@ -539,10 +541,10 @@ func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 			"TestGenesisState_Validate",
 			xast.AppendFuncStruct(
 				"GenesisState",
-				fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
+				fmt.Sprintf("%[1]vMap", opts.TypeName.UpperCamel),
 				fmt.Sprintf(
 					"[]types.%[1]v{{ %[2]v }, { %[3]v }}",
-					opts.TypeName.UpperCamel,
+					opts.TypeName.PascalCase,
 					sampleIndexes[0],
 					sampleIndexes[1],
 				),
@@ -575,10 +577,6 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		// Add initial import for the new type
-		if err = protoutil.AddImports(protoFile, true, opts.ProtoTypeImport()); err != nil {
-			return errors.Errorf("failed while adding imports in %s: %w", path, err)
-		}
 
 		// RPC service
 		serviceMsg, err := protoutil.GetServiceByName(protoFile, "Msg")
@@ -586,22 +584,22 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 			return errors.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
 		}
 		// better to append them altogether, single traversal.
-		typenameUpper := opts.TypeName.UpperCamel
+		typenamePascal := opts.TypeName.PascalCase
 		protoutil.Append(serviceMsg,
 			protoutil.NewRPC(
-				fmt.Sprintf("Create%s", typenameUpper),
-				fmt.Sprintf("MsgCreate%s", typenameUpper),
-				fmt.Sprintf("MsgCreate%sResponse", typenameUpper),
+				fmt.Sprintf("Create%s", typenamePascal),
+				fmt.Sprintf("MsgCreate%s", typenamePascal),
+				fmt.Sprintf("MsgCreate%sResponse", typenamePascal),
 			),
 			protoutil.NewRPC(
-				fmt.Sprintf("Update%s", typenameUpper),
-				fmt.Sprintf("MsgUpdate%s", typenameUpper),
-				fmt.Sprintf("MsgUpdate%sResponse", typenameUpper),
+				fmt.Sprintf("Update%s", typenamePascal),
+				fmt.Sprintf("MsgUpdate%s", typenamePascal),
+				fmt.Sprintf("MsgUpdate%sResponse", typenamePascal),
 			),
 			protoutil.NewRPC(
-				fmt.Sprintf("Delete%s", typenameUpper),
-				fmt.Sprintf("MsgDelete%s", typenameUpper),
-				fmt.Sprintf("MsgDelete%sResponse", typenameUpper),
+				fmt.Sprintf("Delete%s", typenamePascal),
+				fmt.Sprintf("MsgDelete%s", typenamePascal),
+				fmt.Sprintf("MsgDelete%sResponse", typenamePascal),
 			),
 		)
 
@@ -626,31 +624,31 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 			return errors.Errorf("failed while adding imports in %s: %w", path, err)
 		}
 
-		creator := protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)
-		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.LowerCamel)
+		creator := protoutil.NewField(opts.MsgSigner.Snake, "string", 1)
+		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.Snake)
 		commonFields := []*proto.NormalField{creator}
 		commonFields = append(commonFields, index)
 
 		msgCreate := protoutil.NewMessage(
-			"MsgCreate"+typenameUpper,
+			"MsgCreate"+typenamePascal,
 			protoutil.WithFields(append(commonFields, fields...)...),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
-		msgCreateResponse := protoutil.NewMessage(fmt.Sprintf("MsgCreate%sResponse", typenameUpper))
+		msgCreateResponse := protoutil.NewMessage(fmt.Sprintf("MsgCreate%sResponse", typenamePascal))
 
 		msgUpdate := protoutil.NewMessage(
-			"MsgUpdate"+typenameUpper,
+			"MsgUpdate"+typenamePascal,
 			protoutil.WithFields(append(commonFields, fields...)...),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
-		msgUpdateResponse := protoutil.NewMessage(fmt.Sprintf("MsgUpdate%sResponse", typenameUpper))
+		msgUpdateResponse := protoutil.NewMessage(fmt.Sprintf("MsgUpdate%sResponse", typenamePascal))
 
 		msgDelete := protoutil.NewMessage(
-			"MsgDelete"+typenameUpper,
+			"MsgDelete"+typenamePascal,
 			protoutil.WithFields(commonFields...),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
-		msgDeleteResponse := protoutil.NewMessage(fmt.Sprintf("MsgDelete%sResponse", typenameUpper))
+		msgDeleteResponse := protoutil.NewMessage(fmt.Sprintf("MsgDelete%sResponse", typenamePascal))
 		protoutil.Append(protoFile,
 			msgCreate, msgCreateResponse, msgUpdate, msgUpdateResponse, msgDelete, msgDeleteResponse,
 		)
@@ -670,14 +668,8 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 
 		index := fmt.Sprintf(`{ProtoField: "%s"}, `, opts.Index.ProtoFieldName())
 		indexStr := fmt.Sprintf("[%s] ", opts.Index.ProtoFieldName())
-		var positionalArgs, positionalArgsStr string
-		for _, field := range opts.Fields {
-			positionalArgs += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
-			positionalArgsStr += fmt.Sprintf("[%s] ", field.ProtoFieldName())
-		}
-
-		positionalArgs = index + positionalArgs
-		positionalArgsStr = indexStr + positionalArgsStr
+		positionalArgs := index + opts.Fields.ProtoFieldName()
+		positionalArgsStr := indexStr + opts.Fields.CLIUsage()
 
 		template := `{
 			RpcMethod: "Create%[2]v",
@@ -702,7 +694,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 		replacement := fmt.Sprintf(
 			template,
 			typed.PlaceholderAutoCLITx,
-			opts.TypeName.UpperCamel,
+			opts.TypeName.PascalCase,
 			opts.TypeName.Kebab,
 			opts.TypeName.Original,
 			strings.TrimSpace(positionalArgs),
@@ -739,7 +731,7 @@ func typesCodecModify(opts *typed.Options) genny.RunFn {
 )`
 		replacementInterface := fmt.Sprintf(
 			templateInterface,
-			opts.TypeName.UpperCamel,
+			opts.TypeName.PascalCase,
 		)
 		content, err = xast.ModifyFunction(
 			content,

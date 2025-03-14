@@ -105,13 +105,13 @@ func protoTxRPCModify(opts *Options) genny.RunFn {
 		if err != nil {
 			return errors.Errorf("failed while looking up service 'Msg' in %s: %w", path, err)
 		}
-		typenameUpper := opts.MsgName.UpperCamel
+		typenamePascal := opts.MsgName.PascalCase
 		protoutil.Append(
 			serviceMsg,
 			protoutil.NewRPC(
-				typenameUpper,
-				fmt.Sprintf("Msg%s", typenameUpper),
-				fmt.Sprintf("Msg%sResponse", typenameUpper),
+				typenamePascal,
+				fmt.Sprintf("Msg%s", typenamePascal),
+				fmt.Sprintf("Msg%sResponse", typenamePascal),
 			),
 		)
 
@@ -132,8 +132,8 @@ func protoTxMessageModify(opts *Options) genny.RunFn {
 			return err
 		}
 		// Prepare the fields and create the messages.
-		creator := protoutil.NewField(opts.MsgSigner.LowerCamel, "string", 1)
-		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.LowerCamel)
+		creator := protoutil.NewField(opts.MsgSigner.Snake, "string", 1)
+		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.Snake)
 		msgFields := []*proto.NormalField{creator}
 		for i, field := range opts.Fields {
 			msgFields = append(msgFields, field.ToProtoField(i+2))
@@ -189,7 +189,7 @@ func typesCodecModify(opts *Options) genny.RunFn {
 )`
 		replacementRegisterImplementations := fmt.Sprintf(
 			templateRegisterImplementations,
-			opts.MsgName.UpperCamel,
+			opts.MsgName.PascalCase,
 		)
 
 		content, err = xast.ModifyFunction(
@@ -230,8 +230,8 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn
 		replacement := fmt.Sprintf(
 			template,
 			typed.PlaceholderAutoCLITx,
-			opts.MsgName.UpperCamel,
-			strings.TrimSpace(fmt.Sprintf("%s%s", opts.MsgName.Kebab, opts.Fields.String())),
+			opts.MsgName.PascalCase,
+			fmt.Sprintf("%s %s", opts.MsgName.Kebab, opts.Fields.CLIUsage()),
 			opts.MsgName.Original,
 			strings.TrimSpace(positionalArgs),
 		)

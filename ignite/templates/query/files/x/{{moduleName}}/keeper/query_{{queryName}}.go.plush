@@ -8,12 +8,12 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (q queryServer) <%= QueryName.UpperCamel %>(ctx context.Context,  req *types.Query<%= QueryName.UpperCamel %>Request) (*types.Query<%= QueryName.UpperCamel %>Response, error) {
+func (q queryServer) <%= QueryName.PascalCase %>(ctx context.Context,  req *types.Query<%= QueryName.PascalCase %>Request) (*types.Query<%= QueryName.PascalCase %>Response, error) {
 	if req == nil {
         return nil, status.Error(codes.InvalidArgument, "invalid request")
     }
 
     // TODO: Process the query
 
-	return &types.Query<%= QueryName.UpperCamel %>Response{}, nil
+	return &types.Query<%= QueryName.PascalCase %>Response{}, nil
 }

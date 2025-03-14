@@ -29,8 +29,9 @@ func moduleSimulationModify(opts *typed.Options) genny.RunFn {
 				"GenesisState",
 				fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
 				fmt.Sprintf(
-					"[]types.%[1]v{{ Id: 0, %[2]v }, { Id: 1, %[2]v }}",
+					"[]types.%[2]v{{ Id: 0, %[3]v }, { Id: 1, %[3]v }}",
 					opts.TypeName.UpperCamel,
+					opts.TypeName.PascalCase,
 					msgField,
 				),
 				-1,

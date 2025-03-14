@@ -3,7 +3,7 @@ package types
 <%= for (param) in params { %>
 	// Default<%= param.Name.UpperCamel %> represents the <%= param.Name.UpperCamel %> default value.
 	// TODO: Determine the default value.
-	var Default<%= param.Name.UpperCamel %> <%= param.DataType() %> = <%= if (param.DataType() == "string") { %>"<%= param.Name.Snake %>"<% } else { %><%= param.ValueIndex() %><% } %>
+	var Default<%= param.Name.UpperCamel %> <%= param.DataType() %> = <%= if (param.DataType() == "string") { %>"<%= param.ProtoFieldName() %>"<% } else { %><%= param.ValueIndex() %><% } %>
 <% } %>
 
 // NewParams creates a new Params instance.
