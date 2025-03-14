@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/go-bip39"
 
 	addresscodec "cosmossdk.io/core/address"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/codec/types"
