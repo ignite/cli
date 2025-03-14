@@ -55,7 +55,7 @@ func scaffoldChainRegistryFiles(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	if err = sc.AddChainRegistryFiles(c, cfg); err != nil {
+	if err = sc.CreateChainRegistryFiles(c, cfg); err != nil {
 		return err
 	}
 

@@ -112,7 +112,7 @@ type Client struct {
 	gasometer        Gasometer
 	signer           Signer
 
-	addressPrefix string
+	bech32Prefix string
 
 	nodeAddress string
 	out         io.Writer
@@ -179,10 +179,13 @@ func WithNodeAddress(addr string) Option {
 	}
 }
 
-// WithAddressPrefix sets the address prefix on the client.
-func WithAddressPrefix(prefix string) Option {
+// Deprecated: use WithBech32Prefix instead.
+var WithAddressPrefix = WithBech32Prefix
+
+// WithBech32Prefix sets the address prefix on the client.
+func WithBech32Prefix(prefix string) Option {
 	return func(c *Client) {
-		c.addressPrefix = prefix
+		c.bech32Prefix = prefix
 	}
 }
 
@@ -290,7 +293,7 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 	c := Client{
 		nodeAddress:     defaultNodeAddress,
 		keyringBackend:  cosmosaccount.KeyringTest,
-		addressPrefix:   "cosmos",
+		bech32Prefix:    cosmosaccount.AccountPrefixCosmos,
 		faucetAddress:   defaultFaucetAddress,
 		faucetDenom:     defaultFaucetDenom,
 		faucetMinAmount: defaultFaucetMinAmount,
@@ -338,6 +341,7 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 		cosmosaccount.WithKeyringServiceName(c.keyringServiceName),
 		cosmosaccount.WithKeyringBackend(c.keyringBackend),
 		cosmosaccount.WithHome(c.keyringDir),
+		cosmosaccount.WithBech32Prefix(c.bech32Prefix),
 	)
 	if err != nil {
 		return Client{}, err
@@ -457,7 +461,7 @@ func (c Client) Address(accountName string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return a.Address(c.addressPrefix)
+	return a.Address(c.bech32Prefix)
 }
 
 // Context returns client context.
@@ -472,7 +476,7 @@ func (c Client) SetConfigAddressPrefix() {
 	mconf.Lock()
 	defer mconf.Unlock()
 	config := sdktypes.GetConfig()
-	config.SetBech32PrefixForAccount(c.addressPrefix, c.addressPrefix+"pub")
+	config.SetBech32PrefixForAccount(c.bech32Prefix, c.bech32Prefix+"pub")
 }
 
 // Response of your broadcasted transaction.
@@ -538,7 +542,7 @@ var mconf sync.Mutex
 func (c Client) lockBech32Prefix() (unlockFn func()) {
 	mconf.Lock()
 	config := sdktypes.GetConfig()
-	config.SetBech32PrefixForAccount(c.addressPrefix, c.addressPrefix+"pub")
+	config.SetBech32PrefixForAccount(c.bech32Prefix, c.bech32Prefix+"pub")
 	return mconf.Unlock
 }
 
@@ -557,7 +561,7 @@ func (c Client) CreateTxWithOptions(ctx context.Context, account cosmosaccount.A
 	defer c.lockBech32Prefix()()
 
 	if c.useFaucet && !c.generateOnly {
-		addr, err := account.Address(c.addressPrefix)
+		addr, err := account.Address(c.bech32Prefix)
 		if err != nil {
 			return TxService{}, errors.WithStack(err)
 		}

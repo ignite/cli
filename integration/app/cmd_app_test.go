@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v29/ignite/services/chain"
 	envtest "github.com/ignite/cli/v29/integration"
 )
 
@@ -200,6 +201,30 @@ func TestGenerateAppWithEmptyModule(t *testing.T) {
 		)),
 		envtest.ExecShouldError(),
 	))
+
+	app.EnsureSteady()
+}
+
+func TestGenerateAnAppWithAddressPrefix(t *testing.T) {
+	var (
+		env = envtest.New(t)
+		app = env.Scaffold("github.com/test/blog", "--address-prefix=gm", "--coin-type=60")
+	)
+
+	_, statErr := os.Stat(filepath.Join(app.SourcePath(), "x", "blog"))
+	require.False(t, os.IsNotExist(statErr), "the default module should be scaffolded")
+
+	c, err := chain.New(app.SourcePath())
+	require.NoError(t, err, "failed to get new chain")
+
+	bech32Prefix, err := c.Bech32Prefix()
+	require.NoError(t, err)
+
+	require.Equal(t, bech32Prefix, "gm")
+
+	coinType, err := c.CoinType()
+	require.NoError(t, err, "failed to get coin type")
+	require.Equal(t, coinType, uint32(60))
 
 	app.EnsureSteady()
 }

@@ -13,6 +13,7 @@ import (
 
 const (
 	flagAddressPrefix  = "address-prefix"
+	flagCoinType       = "coin-type"
 	flagPassphrase     = "passphrase"
 	flagNonInteractive = "non-interactive"
 	flagKeyringBackend = "keyring-backend"
@@ -100,6 +101,17 @@ func flagSetAccountPrefixes() *flag.FlagSet {
 func getAddressPrefix(cmd *cobra.Command) string {
 	prefix, _ := cmd.Flags().GetString(flagAddressPrefix)
 	return prefix
+}
+
+func flagSetCoinType() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.Uint32(flagCoinType, cosmosaccount.CoinTypeCosmos, "coin type to use for the account")
+	return fs
+}
+
+func getCoinType(cmd *cobra.Command) uint32 {
+	coinType, _ := cmd.Flags().GetUint32(flagCoinType)
+	return coinType
 }
 
 func flagSetAccountImport() *flag.FlagSet {
