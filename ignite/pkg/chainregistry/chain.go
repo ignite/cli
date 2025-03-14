@@ -19,7 +19,7 @@ type Chain struct {
 	DaemonName   string      `json:"daemon_name"`
 	NodeHome     string      `json:"node_home"`
 	KeyAlgos     []KeyAlgos  `json:"key_algos"`
-	Slip44       int         `json:"slip44"`
+	Slip44       uint32      `json:"slip44"`
 	Fees         Fees        `json:"fees"`
 	Staking      Staking     `json:"staking"`
 	Codebase     Codebase    `json:"codebase"`

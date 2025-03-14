@@ -80,19 +80,29 @@ func (s Scaffolder) AddChainRegistryFiles(chain *chain.Chain, cfg *chainconfig.C
 		}
 	}
 
+	bech32Prefix, err := chain.Bech32Prefix()
+	if err != nil {
+		return errors.Wrap(err, "failed to get bech32 prefix")
+	}
+
+	coinType, err := chain.CoinType()
+	if err != nil {
+		return errors.Wrap(err, "failed to get coin type")
+	}
+
 	chainData := chainregistry.Chain{
 		ChainName:    chain.Name(),
 		PrettyName:   chain.Name(),
 		ChainType:    chainregistry.ChainTypeCosmos,
 		Status:       chainregistry.ChainStatusUpcoming,
 		NetworkType:  chainregistry.NetworkTypeDevnet,
-		Website:      "https://example.com",
+		Website:      fmt.Sprintf("https://%s.zone", chain.Name()),
 		ChainID:      chainID,
-		Bech32Prefix: "cosmos",
+		Bech32Prefix: bech32Prefix,
 		DaemonName:   binaryName,
 		NodeHome:     chainHome,
 		KeyAlgos:     []chainregistry.KeyAlgos{chainregistry.KeyAlgoSecp256k1},
-		Slip44:       118,
+		Slip44:       coinType,
 		Fees: chainregistry.Fees{
 			FeeTokens: []chainregistry.FeeToken{
 				{
