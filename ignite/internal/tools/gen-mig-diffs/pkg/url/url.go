@@ -50,7 +50,7 @@ func (u URL) String() string {
 	return fmt.Sprintf("%s://%s/%s.git", u.Protocol, u.Host, u.Path)
 }
 
-// parseURL returns an URL object from SCP git URL.
+// parseSCPLike returns an URL object from SCP git URL.
 func parseSCPLike(endpoint string) (URL, bool) {
 	if matchesScheme(endpoint) || !matchesScpLike(endpoint) {
 		return URL{}, false
