@@ -178,7 +178,7 @@ func getGenDeclNames(genDecl *ast.GenDecl) ([]string, error) {
 	return decls, nil
 }
 
-// getGenDeclNames returns the method declaration inside the ast.Expr.
+// getCallExprName returns the method declaration inside the ast.Expr.
 func getCallExprName(expr ast.Expr) (string, error) {
 	call, ok := expr.(*ast.CallExpr)
 	if !ok {
