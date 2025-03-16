@@ -87,7 +87,8 @@ ignite account create [name] [flags]
 **Options**
 
 ```
-  -h, --help   help for create
+      --coin-type uint32   coin type to use for the account (default 118)
+  -h, --help               help for create
 ```
 
 **Options inherited from parent commands**
@@ -168,6 +169,7 @@ ignite account import [name] [flags]
 **Options**
 
 ```
+      --coin-type uint32    coin type to use for the account (default 118)
   -h, --help                help for import
       --non-interactive     do not enter into interactive mode
       --passphrase string   passphrase to decrypt the imported key (ignored when secret is a mnemonic)
@@ -2669,6 +2671,7 @@ ignite scaffold chain [name] [flags]
 ```
       --address-prefix string    account address prefix (default "cosmos")
       --clear-cache              clear the build cache (advanced)
+      --coin-type uint32         coin type to use for the account (default 118)
   -h, --help                     help for chain
       --minimal                  create a minimal blockchain (with the minimum required Cosmos SDK modules)
       --module-configs strings   add module configs
@@ -3335,14 +3338,16 @@ ignite testnet in-place [flags]
 **Options**
 
 ```
-      --check-dependencies   verify that cached dependencies have not been modified since they were downloaded
-      --clear-cache          clear the build cache (advanced)
-  -h, --help                 help for in-place
-      --home string          directory where the blockchain node is initialized
-  -p, --path string          path of the app (default ".")
-      --quit-on-fail         quit program if the app fails to start
-      --skip-proto           skip file generation from proto
-  -v, --verbose              verbose output
+      --address-prefix string   account address prefix (default "cosmos")
+      --check-dependencies      verify that cached dependencies have not been modified since they were downloaded
+      --clear-cache             clear the build cache (advanced)
+      --coin-type uint32        coin type to use for the account (default 118)
+  -h, --help                    help for in-place
+      --home string             directory where the blockchain node is initialized
+  -p, --path string             path of the app (default ".")
+      --quit-on-fail            quit program if the app fails to start
+      --skip-proto              skip file generation from proto
+  -v, --verbose                 verbose output
 ```
 
 **SEE ALSO**
