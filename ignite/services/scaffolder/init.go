@@ -19,7 +19,9 @@ import (
 func Init(
 	ctx context.Context,
 	runner *xgenny.Runner,
-	root, name, addressPrefix, protoDir string,
+	root, name, addressPrefix string,
+	coinType uint32,
+	protoDir string,
 	noDefaultModule, minimal bool,
 	params, moduleConfigs []string,
 ) (string, string, error) {
@@ -55,6 +57,7 @@ func Init(
 		runner,
 		pathInfo,
 		addressPrefix,
+		coinType,
 		protoDir,
 		path,
 		noDefaultModule,
@@ -70,7 +73,8 @@ func generate(
 	_ context.Context,
 	runner *xgenny.Runner,
 	pathInfo gomodulepath.Path,
-	addressPrefix,
+	addressPrefix string,
+	coinType uint32,
 	protoDir,
 	absRoot string,
 	noDefaultModule, minimal bool,
@@ -103,6 +107,7 @@ func generate(
 		GitHubPath:       githubPath,
 		BinaryNamePrefix: pathInfo.Root,
 		AddressPrefix:    addressPrefix,
+		CoinType:         coinType,
 		IsChainMinimal:   minimal,
 	})
 	if err != nil {

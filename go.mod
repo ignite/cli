@@ -3,6 +3,7 @@ module github.com/ignite/cli/v29
 go 1.24.0
 
 require (
+	cosmossdk.io/core v0.11.2
 	cosmossdk.io/math v1.5.0
 	dario.cat/mergo v1.0.1
 	github.com/99designs/keyring v1.2.2
@@ -80,7 +81,6 @@ require (
 	connectrpc.com/otelconnect v0.7.1 // indirect
 	cosmossdk.io/api v0.7.6 // indirect
 	cosmossdk.io/collections v0.4.0 // indirect
-	cosmossdk.io/core v0.11.2 // indirect
 	cosmossdk.io/depinject v1.1.0 // indirect
 	cosmossdk.io/errors v1.0.1 // indirect
 	cosmossdk.io/log v1.4.1 // indirect
