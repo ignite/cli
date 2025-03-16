@@ -98,17 +98,10 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 	defer session.End()
 
 	var (
-<<<<<<< HEAD
 		name               = args[0]
 		addressPrefix      = getAddressPrefix(cmd)
+		coinType           = getCoinType(cmd)
 		appPath            = flagGetPath(cmd)
-=======
-		name          = args[0]
-		addressPrefix = getAddressPrefix(cmd)
-		coinType      = getCoinType(cmd)
-		appPath       = flagGetPath(cmd)
-
->>>>>>> 2b45eaa2 (feat: wire custom coin type and get bech32 prefix (#4569))
 		noDefaultModule, _ = cmd.Flags().GetBool(flagNoDefaultModule)
 		skipGit, _         = cmd.Flags().GetBool(flagSkipGit)
 		minimal, _         = cmd.Flags().GetBool(flagMinimal)
@@ -133,11 +126,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		appPath,
 		name,
 		addressPrefix,
-<<<<<<< HEAD
-=======
 		coinType,
-		protoDir,
->>>>>>> 2b45eaa2 (feat: wire custom coin type and get bech32 prefix (#4569))
 		noDefaultModule,
 		skipGit,
 		skipProto,

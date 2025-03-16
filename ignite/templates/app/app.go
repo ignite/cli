@@ -74,11 +74,8 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 	ctx.Set("GitHubPath", opts.GitHubPath)
 	ctx.Set("BinaryNamePrefix", opts.BinaryNamePrefix)
 	ctx.Set("AddressPrefix", opts.AddressPrefix)
-<<<<<<< HEAD
 	ctx.Set("IsConsumerChain", opts.IsConsumerChain)
-=======
 	ctx.Set("CoinType", opts.CoinType)
->>>>>>> 2b45eaa2 (feat: wire custom coin type and get bech32 prefix (#4569))
 	ctx.Set("DepTools", cosmosgen.DepTools())
 	ctx.Set("IsChainMinimal", opts.IsChainMinimal)
 

@@ -10,7 +10,6 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/spf13/cobra"
 
-<<<<<<< HEAD
 	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
 	chainconfigv1 "github.com/ignite/cli/v28/ignite/config/chain/v1"
 	"github.com/ignite/cli/v28/ignite/pkg/chaincmd"
@@ -18,6 +17,8 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
 	uilog "github.com/ignite/cli/v28/ignite/pkg/cliui/log"
 	"github.com/ignite/cli/v28/ignite/pkg/confile"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/events"
@@ -25,24 +26,6 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/xexec"
 	"github.com/ignite/cli/v28/ignite/pkg/xurl"
 	igniteversion "github.com/ignite/cli/v28/ignite/version"
-=======
-	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
-	chainconfigv1 "github.com/ignite/cli/v29/ignite/config/chain/v1"
-	"github.com/ignite/cli/v29/ignite/pkg/chaincmd"
-	chaincmdrunner "github.com/ignite/cli/v29/ignite/pkg/chaincmd/runner"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
-	uilog "github.com/ignite/cli/v29/ignite/pkg/cliui/log"
-	"github.com/ignite/cli/v29/ignite/pkg/confile"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosaccount"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/events"
-	"github.com/ignite/cli/v29/ignite/pkg/repoversion"
-	"github.com/ignite/cli/v29/ignite/pkg/xexec"
-	"github.com/ignite/cli/v29/ignite/pkg/xurl"
-	igniteversion "github.com/ignite/cli/v29/ignite/version"
->>>>>>> 2b45eaa2 (feat: wire custom coin type and get bech32 prefix (#4569))
 )
 
 const (

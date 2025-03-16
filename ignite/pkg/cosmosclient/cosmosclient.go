@@ -177,7 +177,7 @@ func WithNodeAddress(addr string) Option {
 	}
 }
 
-// Deprecated: use WithBech32Prefix instead.
+// WithAddressPrefix sets the address prefix on the client.
 var WithAddressPrefix = WithBech32Prefix
 
 // WithBech32Prefix sets the address prefix on the client.

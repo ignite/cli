@@ -6,14 +6,9 @@ import (
 	"fmt"
 	"os"
 
-	dkeyring "github.com/99designs/keyring"
-<<<<<<< HEAD
-=======
-	"github.com/cosmos/go-bip39"
-
 	addresscodec "cosmossdk.io/core/address"
+	dkeyring "github.com/99designs/keyring"
 
->>>>>>> 2b45eaa2 (feat: wire custom coin type and get bech32 prefix (#4569))
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/codec/types"
@@ -356,11 +351,7 @@ func (r Registry) DeleteByName(name string) error {
 }
 
 func (r Registry) hdPath() string {
-<<<<<<< HEAD
-	return hd.CreateHDPath(sdktypes.GetConfig().GetCoinType(), 0, 0).String()
-=======
 	return hd.CreateHDPath(r.coinType, 0, 0).String()
->>>>>>> 2b45eaa2 (feat: wire custom coin type and get bech32 prefix (#4569))
 }
 
 func (r Registry) algo() (keyring.SignatureAlgo, error) {

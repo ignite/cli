@@ -10,14 +10,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-<<<<<<< HEAD
 	"github.com/ignite/cli/v28/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v28/ignite/services/chain"
 	envtest "github.com/ignite/cli/v28/integration"
-=======
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/v29/ignite/services/chain"
-	envtest "github.com/ignite/cli/v29/integration"
->>>>>>> 2b45eaa2 (feat: wire custom coin type and get bech32 prefix (#4569))
 )
 
 // TestGenerateAnApp tests scaffolding a new chain.
@@ -236,24 +231,27 @@ func TestGenerateAppWithEmptyModule(t *testing.T) {
 	app.EnsureSteady()
 }
 
-<<<<<<< HEAD
 func TestGenerateAConsumerApp(t *testing.T) {
 	var (
 		env = envtest.New(t)
 		app = env.Scaffold("github.com/test/blog", "--consumer")
-=======
-func TestGenerateAnAppWithAddressPrefix(t *testing.T) {
-	var (
-		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/blog", "--address-prefix=gm", "--coin-type=60")
->>>>>>> 2b45eaa2 (feat: wire custom coin type and get bech32 prefix (#4569))
 	)
 
 	_, statErr := os.Stat(filepath.Join(app.SourcePath(), "x", "blog"))
 	require.False(t, os.IsNotExist(statErr), "the default module should be scaffolded")
 
-<<<<<<< HEAD
-=======
+	app.EnsureSteady()
+}
+
+func TestGenerateAnAppWithAddressPrefix(t *testing.T) {
+	var (
+		env = envtest.New(t)
+		app = env.Scaffold("github.com/test/blog", "--address-prefix=gm", "--coin-type=60")
+	)
+
+	_, statErr := os.Stat(filepath.Join(app.SourcePath(), "x", "blog"))
+	require.False(t, os.IsNotExist(statErr), "the default module should be scaffolded")
+
 	c, err := chain.New(app.SourcePath())
 	require.NoError(t, err, "failed to get new chain")
 
@@ -266,6 +264,5 @@ func TestGenerateAnAppWithAddressPrefix(t *testing.T) {
 	require.NoError(t, err, "failed to get coin type")
 	require.Equal(t, coinType, uint32(60))
 
->>>>>>> 2b45eaa2 (feat: wire custom coin type and get bech32 prefix (#4569))
 	app.EnsureSteady()
 }

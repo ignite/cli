@@ -84,8 +84,6 @@ func testnetInplace(cmd *cobra.Command, session *cliui.Session) error {
 	}
 
 	prefix := getAddressPrefix(cmd)
-	addressCodec := address.NewBech32Codec(prefix)
-	valAddressCodec := address.NewBech32Codec(prefix + "valoper")
 	coinType := getCoinType(cmd)
 
 	ca, err := cosmosaccount.New(
@@ -103,10 +101,7 @@ func testnetInplace(cmd *cobra.Command, session *cliui.Session) error {
 		accounts        string
 		accErr          *cosmosaccount.AccountDoesNotExistError
 	)
-<<<<<<< HEAD
-=======
 
->>>>>>> 2b45eaa2 (feat: wire custom coin type and get bech32 prefix (#4569))
 	for _, acc := range cfg.Accounts {
 		sdkAcc, err := ca.GetByName(acc.Name)
 		if errors.As(err, &accErr) {
