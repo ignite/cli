@@ -42,8 +42,12 @@ import (
 )
 
 const (
-	AccountAddressPrefix = "<%= AddressPrefix %>"
+	// Name is the name of the application.
 	Name                 = "<%= BinaryNamePrefix %>"
+	// AccountAddressPrefix is the prefix for accounts addresses.
+	AccountAddressPrefix = "<%= AddressPrefix %>"
+	// ChainCoinType is the coin type of the chain.
+	ChainCoinType        = <%= CoinType %>
 )
 
 var (

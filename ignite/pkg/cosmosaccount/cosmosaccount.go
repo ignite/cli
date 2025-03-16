@@ -7,13 +7,20 @@ import (
 	"os"
 
 	dkeyring "github.com/99designs/keyring"
+<<<<<<< HEAD
+=======
+	"github.com/cosmos/go-bip39"
+
+	addresscodec "cosmossdk.io/core/address"
+
+>>>>>>> 2b45eaa2 (feat: wire custom coin type and get bech32 prefix (#4569))
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/bech32"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/go-bip39"
 
@@ -22,7 +29,7 @@ import (
 
 const (
 	// KeyringServiceName used for the name of keyring in OS backend.
-	KeyringServiceName = "starport"
+	KeyringServiceName = "ignite"
 
 	// DefaultAccount is the name of the default account.
 	DefaultAccount = "default"
@@ -34,6 +41,7 @@ var KeyringHome = os.ExpandEnv("$HOME/.ignite/accounts")
 var ErrAccountExists = errors.New("account already exists")
 
 const (
+	CoinTypeCosmos      = sdktypes.CoinType
 	AccountPrefixCosmos = "cosmos"
 )
 
@@ -58,6 +66,8 @@ type Registry struct {
 	homePath           string
 	keyringServiceName string
 	keyringBackend     KeyringBackend
+	addressCodec       addresscodec.Codec
+	coinType           uint32
 
 	Keyring keyring.Keyring
 }
@@ -83,12 +93,26 @@ func WithKeyringBackend(backend KeyringBackend) Option {
 	}
 }
 
+func WithBech32Prefix(prefix string) Option {
+	return func(c *Registry) {
+		c.addressCodec = address.NewBech32Codec(prefix)
+	}
+}
+
+func WithCoinType(coinType uint32) Option {
+	return func(c *Registry) {
+		c.coinType = coinType
+	}
+}
+
 // New creates a new registry to manage accounts.
 func New(options ...Option) (Registry, error) {
 	r := Registry{
 		keyringServiceName: sdktypes.KeyringServiceName(),
 		keyringBackend:     KeyringTest,
 		homePath:           KeyringHome,
+		addressCodec:       address.NewBech32Codec(AccountPrefixCosmos),
+		coinType:           CoinTypeCosmos,
 	}
 
 	for _, apply := range options {
@@ -145,7 +169,13 @@ func (a Account) Address(accPrefix string) (string, error) {
 		return "", err
 	}
 
-	return toBech32(accPrefix, pk.Address())
+	addressCodec := address.NewBech32Codec(accPrefix)
+	addr, err := addressCodec.BytesToString(pk.Address())
+	if err != nil {
+		return "", err
+	}
+
+	return addr, nil
 }
 
 // PubKey returns a public key for account.
@@ -156,14 +186,6 @@ func (a Account) PubKey() (string, error) {
 	}
 
 	return pk.String(), nil
-}
-
-func toBech32(prefix string, addr []byte) (string, error) {
-	bech32Addr, err := bech32.ConvertAndEncode(prefix, addr)
-	if err != nil {
-		return "", err
-	}
-	return bech32Addr, nil
 }
 
 // EnsureDefaultAccount ensures that default account exists.
@@ -288,11 +310,11 @@ func (r Registry) GetByName(name string) (Account, error) {
 
 // GetByAddress returns an account by its address.
 func (r Registry) GetByAddress(address string) (Account, error) {
-	sdkAddr, err := sdktypes.AccAddressFromBech32(address)
+	sdkAddr, err := r.addressCodec.StringToBytes(address)
 	if err != nil {
 		return Account{}, err
 	}
-	record, err := r.Keyring.KeyByAddress(sdkAddr)
+	record, err := r.Keyring.KeyByAddress(sdktypes.AccAddress(sdkAddr))
 	if errors.Is(err, dkeyring.ErrKeyNotFound) || errors.Is(err, sdkerrors.ErrKeyNotFound) {
 		return Account{}, &AccountDoesNotExistError{address}
 	}
@@ -334,7 +356,11 @@ func (r Registry) DeleteByName(name string) error {
 }
 
 func (r Registry) hdPath() string {
+<<<<<<< HEAD
 	return hd.CreateHDPath(sdktypes.GetConfig().GetCoinType(), 0, 0).String()
+=======
+	return hd.CreateHDPath(r.coinType, 0, 0).String()
+>>>>>>> 2b45eaa2 (feat: wire custom coin type and get bech32 prefix (#4569))
 }
 
 func (r Registry) algo() (keyring.SignatureAlgo, error) {

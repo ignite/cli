@@ -23,12 +23,22 @@ import (
 // Init initializes a new app with name and given options.
 func Init(
 	ctx context.Context,
+<<<<<<< HEAD
 	cacheStorage cache.Storage,
 	tracer *placeholder.Tracer,
 	root, name, addressPrefix string,
 	noDefaultModule, skipGit, skipProto, minimal, isConsumerChain bool,
 	params []string,
 ) (path string, err error) {
+=======
+	runner *xgenny.Runner,
+	root, name, addressPrefix string,
+	coinType uint32,
+	protoDir string,
+	noDefaultModule, minimal bool,
+	params, moduleConfigs []string,
+) (string, string, error) {
+>>>>>>> 2b45eaa2 (feat: wire custom coin type and get bech32 prefix (#4569))
 	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
 		return "", err
@@ -59,6 +69,11 @@ func Init(
 		tracer,
 		pathInfo,
 		addressPrefix,
+<<<<<<< HEAD
+=======
+		coinType,
+		protoDir,
+>>>>>>> 2b45eaa2 (feat: wire custom coin type and get bech32 prefix (#4569))
 		path,
 		noDefaultModule,
 		minimal,
@@ -87,7 +102,13 @@ func generate(
 	ctx context.Context,
 	tracer *placeholder.Tracer,
 	pathInfo gomodulepath.Path,
+<<<<<<< HEAD
 	addressPrefix,
+=======
+	addressPrefix string,
+	coinType uint32,
+	protoDir,
+>>>>>>> 2b45eaa2 (feat: wire custom coin type and get bech32 prefix (#4569))
 	absRoot string,
 	noDefaultModule, minimal, isConsumerChain bool,
 	params []string,
@@ -112,6 +133,7 @@ func generate(
 		GitHubPath:       githubPath,
 		BinaryNamePrefix: pathInfo.Root,
 		AddressPrefix:    addressPrefix,
+		CoinType:         coinType,
 		IsChainMinimal:   minimal,
 		IsConsumerChain:  isConsumerChain,
 	})

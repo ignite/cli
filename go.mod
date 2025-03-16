@@ -13,7 +13,13 @@ replace (
 )
 
 require (
+<<<<<<< HEAD
 	cosmossdk.io/math v1.4.0
+=======
+	cosmossdk.io/core v0.11.2
+	cosmossdk.io/math v1.5.0
+	dario.cat/mergo v1.0.1
+>>>>>>> 2b45eaa2 (feat: wire custom coin type and get bech32 prefix (#4569))
 	github.com/99designs/keyring v1.2.2
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/DATA-DOG/go-sqlmock v1.5.2
@@ -97,7 +103,10 @@ require (
 	connectrpc.com/otelconnect v0.7.0 // indirect
 	cosmossdk.io/api v0.7.6 // indirect
 	cosmossdk.io/collections v0.4.0 // indirect
+<<<<<<< HEAD
 	cosmossdk.io/core v0.11.1 // indirect
+=======
+>>>>>>> 2b45eaa2 (feat: wire custom coin type and get bech32 prefix (#4569))
 	cosmossdk.io/depinject v1.1.0 // indirect
 	cosmossdk.io/errors v1.0.1 // indirect
 	cosmossdk.io/log v1.4.1 // indirect

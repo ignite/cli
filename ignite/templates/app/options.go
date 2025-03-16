@@ -8,6 +8,7 @@ type Options struct {
 	BinaryNamePrefix string
 	ModulePath       string
 	AddressPrefix    string
+	CoinType         uint32
 	// IncludePrefixes is used to filter the files to include from the generator
 	IncludePrefixes []string
 	IsChainMinimal  bool

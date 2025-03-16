@@ -15,6 +15,8 @@ func NewAccountCreate() *cobra.Command {
 		RunE:  accountCreateHandler,
 	}
 
+	c.Flags().AddFlagSet(flagSetCoinType())
+
 	return c
 }
 
@@ -24,6 +26,7 @@ func accountCreateHandler(cmd *cobra.Command, args []string) error {
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
 		cosmosaccount.WithHome(getKeyringDir(cmd)),
+		cosmosaccount.WithCoinType(getCoinType(cmd)),
 	)
 	if err != nil {
 		return errors.Errorf("unable to create registry: %w", err)
