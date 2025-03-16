@@ -26,6 +26,7 @@ func Init(
 	cacheStorage cache.Storage,
 	tracer *placeholder.Tracer,
 	root, name, addressPrefix string,
+	coinType uint32,
 	noDefaultModule, skipGit, skipProto, minimal, isConsumerChain bool,
 	params []string,
 ) (path string, err error) {
@@ -59,6 +60,7 @@ func Init(
 		tracer,
 		pathInfo,
 		addressPrefix,
+		coinType,
 		path,
 		noDefaultModule,
 		minimal,
@@ -87,7 +89,8 @@ func generate(
 	ctx context.Context,
 	tracer *placeholder.Tracer,
 	pathInfo gomodulepath.Path,
-	addressPrefix,
+	addressPrefix string,
+	coinType uint32,
 	absRoot string,
 	noDefaultModule, minimal, isConsumerChain bool,
 	params []string,
@@ -112,6 +115,7 @@ func generate(
 		GitHubPath:       githubPath,
 		BinaryNamePrefix: pathInfo.Root,
 		AddressPrefix:    addressPrefix,
+		CoinType:         coinType,
 		IsChainMinimal:   minimal,
 		IsConsumerChain:  isConsumerChain,
 	})

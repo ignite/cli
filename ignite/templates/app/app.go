@@ -41,6 +41,7 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 		excludePrefix []string
 		overridesFS   = make(map[string]embed.FS)
 	)
+
 	if opts.IsChainMinimal {
 		// minimal chain does not have ibc
 		excludePrefix = append(excludePrefix, ibcConfig)
@@ -74,6 +75,7 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 	ctx.Set("BinaryNamePrefix", opts.BinaryNamePrefix)
 	ctx.Set("AddressPrefix", opts.AddressPrefix)
 	ctx.Set("IsConsumerChain", opts.IsConsumerChain)
+	ctx.Set("CoinType", opts.CoinType)
 	ctx.Set("DepTools", cosmosgen.DepTools())
 	ctx.Set("IsChainMinimal", opts.IsChainMinimal)
 

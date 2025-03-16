@@ -2,6 +2,7 @@ package chain
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -16,6 +17,8 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
 	uilog "github.com/ignite/cli/v28/ignite/pkg/cliui/log"
 	"github.com/ignite/cli/v28/ignite/pkg/confile"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/events"
@@ -549,4 +552,119 @@ func expandHome(path string) (string, error) {
 		path = home + strings.TrimPrefix(path, "~")
 	}
 	return os.ExpandEnv(path), nil
+}
+
+// Bech32Prefix returns the bech32 prefix of the chain.
+func (c *Chain) Bech32Prefix() (string, error) {
+	prefix, err := c.parseAddressPrefix()
+	if err != nil || prefix == "" {
+		return cosmosaccount.AccountPrefixCosmos, err
+	}
+
+	return prefix, nil
+}
+
+// CoinType returns the coin type of the chain.
+func (c *Chain) CoinType() (uint32, error) {
+	coinType, err := c.parseCoinType()
+	if err != nil || coinType == 0 {
+		return cosmosaccount.CoinTypeCosmos, err
+	}
+
+	return coinType, nil
+}
+
+// parseAddressPrefix parses the address prefix from the app code.
+func (c *Chain) parseAddressPrefix() (string, error) {
+	appGoPath, err := c.findAppGoFile()
+	if err != nil {
+		return "", err
+	}
+
+	content, err := os.ReadFile(appGoPath)
+	if err != nil {
+		return "", err
+	}
+
+	// try to find the AccountAddressPrefix constant
+	lines := strings.Split(string(content), "\n")
+	for _, line := range lines {
+		// match both formats:
+		// AccountAddressPrefix = "cosmos"
+		// AccountAddressPrefix string = "cosmos"
+		if strings.Contains(line, "AccountAddressPrefix") && strings.Contains(line, "=") {
+			parts := strings.Split(line, "=")
+			if len(parts) < 2 {
+				continue
+			}
+
+			// extract the value within quotes
+			value := strings.TrimSpace(parts[1])
+			// remove comments if any
+			if idx := strings.Index(value, "//"); idx >= 0 {
+				value = value[:idx]
+			}
+			value = strings.TrimSpace(value)
+
+			// extract string between quotes
+			if start := strings.Index(value, "\""); start >= 0 {
+				if end := strings.Index(value[start+1:], "\""); end >= 0 {
+					return value[start+1 : start+1+end], nil
+				}
+			}
+		}
+	}
+
+	return "", nil
+}
+
+// parseCoinType parses the coin type from the app code.
+func (c *Chain) parseCoinType() (uint32, error) {
+	appGoPath, err := c.findAppGoFile()
+	if err != nil {
+		return 0, err
+	}
+
+	content, err := os.ReadFile(appGoPath)
+	if err != nil {
+		return 0, err
+	}
+
+	// try to find the ChainCoinType constant
+	lines := strings.Split(string(content), "\n")
+	for _, line := range lines {
+		if strings.Contains(line, "ChainCoinType") && strings.Contains(line, "=") {
+			parts := strings.Split(line, "=")
+			if len(parts) < 2 {
+				continue
+			}
+
+			// extract the numeric value
+			value := strings.TrimSpace(parts[1])
+			// remove comments if any
+			if idx := strings.Index(value, "//"); idx >= 0 {
+				value = value[:idx]
+			}
+			value = strings.TrimSpace(value)
+
+			// parse the value as uint32
+			var coinType uint32
+			if _, err := fmt.Sscanf(value, "%d", &coinType); err == nil {
+				return coinType, nil
+			}
+		}
+	}
+
+	return 0, nil
+}
+
+// findAppGoFile attempts to find the app.go file in the project.
+func (c *Chain) findAppGoFile() (string, error) {
+	// Look for the app.go file in common locations
+	commonPath := filepath.Join(c.app.Path, "app", "app.go")
+	if _, err := os.Stat(commonPath); err == nil {
+		return commonPath, nil
+	}
+
+	return cosmosanalysis.FindAppFilePath(c.app.Path)
 }

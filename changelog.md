@@ -2,9 +2,12 @@
 
 ## Unreleased
 
+## [`v28.8.2`](https://github.com/ignite/cli/releases/tag/v28.8.2)
+
 ### Changes
 
 - [#4568](https://github.com/ignite/cli/pull/4568) Bump Cosmos SDK to v0.50.13.
+- [#4569](https://github.com/ignite/cli/pull/4569) Add flags to set coin type on commands. Add getters for bech32 prefix and coin type.
 
 ## [`v28.8.1`](https://github.com/ignite/cli/releases/tag/v28.8.1)
 

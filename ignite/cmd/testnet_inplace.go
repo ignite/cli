@@ -29,6 +29,8 @@ We can create a testnet from the local network state and mint additional coins f
 	c.Flags().AddFlagSet(flagSetCheckDependencies())
 	c.Flags().AddFlagSet(flagSetSkipProto())
 	c.Flags().AddFlagSet(flagSetVerbose())
+	c.Flags().AddFlagSet(flagSetAccountPrefixes())
+	c.Flags().AddFlagSet(flagSetCoinType())
 
 	c.Flags().Bool(flagQuitOnFail, false, "quit program if the app fails to start")
 	return c
@@ -70,17 +72,25 @@ func testnetInplace(cmd *cobra.Command, session *cliui.Session) error {
 	if err != nil {
 		return err
 	}
+
 	home, err := c.Home()
 	if err != nil {
 		return err
 	}
+
 	keyringBackend, err := c.KeyringBackend()
 	if err != nil {
 		return err
 	}
+
+	prefix := getAddressPrefix(cmd)
+	coinType := getCoinType(cmd)
+
 	ca, err := cosmosaccount.New(
 		cosmosaccount.WithKeyringBackend(cosmosaccount.KeyringBackend(keyringBackend)),
 		cosmosaccount.WithHome(home),
+		cosmosaccount.WithBech32Prefix(prefix),
+		cosmosaccount.WithCoinType(coinType),
 	)
 	if err != nil {
 		return err
@@ -91,6 +101,7 @@ func testnetInplace(cmd *cobra.Command, session *cliui.Session) error {
 		accounts        string
 		accErr          *cosmosaccount.AccountDoesNotExistError
 	)
+
 	for _, acc := range cfg.Accounts {
 		sdkAcc, err := ca.GetByName(acc.Name)
 		if errors.As(err, &accErr) {
@@ -127,5 +138,6 @@ func testnetInplace(cmd *cobra.Command, session *cliui.Session) error {
 		NewOperatorAddress: operatorAddress.String(),
 		AccountsToFund:     accounts,
 	}
+
 	return c.TestnetInPlace(cmd.Context(), args)
 }
