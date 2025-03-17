@@ -3,20 +3,23 @@ package cmd
 import (
 	"os"
 
-	"github.com/spf13/cobra"
-
 	"cosmossdk.io/client/v2/autocli"
+	"cosmossdk.io/core/address"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
+	"cosmossdk.io/x/tx/signing"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtxconfig "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/cosmos/gogoproto/proto"
+	"github.com/spf13/cobra"
 
 	"<%= ModulePath %>/app"
 )
@@ -33,6 +36,7 @@ func NewRootCmd() *cobra.Command {
 		depinject.Configs(app.AppConfig(),
 			depinject.Supply(log.NewNopLogger()),
 			depinject.Provide(
+				ProvideInterfaceRegistry,
 				ProvideClientContext,
 			),
 		),
@@ -93,9 +97,11 @@ func NewRootCmd() *cobra.Command {
 	return rootCmd
 }
 
+// ProvideClientContext creates and provides a fully initialized client.Context,
+// allowing it to be used for dependency injection and CLI operations.
 func ProvideClientContext(
 	appCodec codec.Codec,
-	interfaceRegistry codectypes.InterfaceRegistry,
+	interfaceRegistry InterfaceRegistry,
 	txConfigOpts tx.ConfigOptions,
 	legacyAmino *codec.LegacyAmino,
 ) client.Context {
@@ -120,4 +126,43 @@ func ProvideClientContext(
 	clientCtx = clientCtx.WithTxConfig(txConfig)
 
 	return clientCtx
+}
+
+// InterfaceRegistry represents the codectypes.InterfaceRegistry wrapper.
+type InterfaceRegistry codectypes.InterfaceRegistry
+
+// ProvideInterfaceRegistry resolves an issue with the proto.HybridResolver not
+// properly fetching the chain module messages into the interface registry.
+// This implementation ensures the proto.MergedRegistry() is called to correctly
+// initialize all proto message descriptors. Without this, the chain CLI query commands
+// return empty or incomplete data.
+// TODO consider removing this workaround once the SDK or Ignite resolves the issue.
+func ProvideInterfaceRegistry(addressCodec address.Codec, validatorAddressCodec runtime.ValidatorAddressCodec, customGetSigners []signing.CustomGetSigner) (InterfaceRegistry, error) {
+	signingOptions := signing.Options{
+		AddressCodec:          addressCodec,
+		ValidatorAddressCodec: validatorAddressCodec,
+	}
+
+	for _, signer := range customGetSigners {
+		signingOptions.DefineCustomGetSigners(signer.MsgType, signer.Fn)
+	}
+
+	mergedFiles, err := proto.MergedRegistry()
+	if err != nil {
+		return nil, err
+	}
+
+	interfaceRegistry, err := codectypes.NewInterfaceRegistryWithOptions(codectypes.InterfaceRegistryOptions{
+		ProtoFiles:     mergedFiles,
+		SigningOptions: signingOptions,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if err := interfaceRegistry.SigningContext().Validate(); err != nil {
+		return nil, err
+	}
+
+	return interfaceRegistry, nil
 }
