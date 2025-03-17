@@ -10,6 +10,10 @@
 
 - [#4569](https://github.com/ignite/cli/pull/4569) Add flags to set coin type on commands. Add getters for bech32 prefix and coin type.
 
+### Fixes
+
+- [#4565](https://github.com/ignite/cli/issues/4565) Fix missing proto messages for the interface registry.
+
 ## [`v29.0.0-beta.1`](https://github.com/ignite/cli/releases/tag/v29.0.0-beta.1)
 
 ### Features
