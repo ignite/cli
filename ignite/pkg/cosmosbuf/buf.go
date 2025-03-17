@@ -169,19 +169,15 @@ func (b Buf) Update(ctx context.Context, modDir string) error {
 
 // Migrate runs the buf Migrate command for the files in the app directory.
 func (b Buf) Migrate(ctx context.Context, protoDir string) error {
-	yamlFiles, err := xos.FindFiles(protoDir, xos.WithExtension(xos.YAMLFile), xos.WithPrefix(bufGenPrefix))
+	yamlFiles, err := xos.FindFiles(protoDir, xos.WithExtension(xos.YMLFile), xos.WithExtension(xos.YAMLFile), xos.WithPrefix(bufGenPrefix))
 	if err != nil {
 		return err
 	}
-	ymlfiles, err := xos.FindFiles(protoDir, xos.WithExtension(xos.YMLFile), xos.WithPrefix(bufGenPrefix))
-	if err != nil {
-		return err
-	}
-	yamlFiles = append(yamlFiles, ymlfiles...)
 
 	flags := map[string]string{
 		flagWorkspace: ".",
 	}
+
 	if len(yamlFiles) > 0 {
 		flags[flagBufGenYaml] = strings.Join(yamlFiles, ",")
 	}
@@ -190,6 +186,7 @@ func (b Buf) Migrate(ctx context.Context, protoDir string) error {
 	if err != nil {
 		return err
 	}
+
 	return b.runCommand(ctx, cmd...)
 }
 
