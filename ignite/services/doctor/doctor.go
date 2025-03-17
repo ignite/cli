@@ -83,6 +83,12 @@ func (d *Doctor) MigrateBufConfig(ctx context.Context, cacheStorage cache.Storag
 	}
 
 	d.ev.Send(
+		"Important: Update the local field of buf files to use `go tool`",
+		events.Icon(icons.Announcement),
+		events.Indent(1),
+	)
+
+	d.ev.Send(
 		"buf config files migrated",
 		events.Icon(icons.OK),
 		events.Indent(1),

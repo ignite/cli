@@ -25,6 +25,10 @@ func NewDoctor() *cobra.Command {
 				return err
 			}
 
+			if err := doc.MigrateToolsGo(appPath); err != nil {
+				return err
+			}
+
 			configPath, err := chainconfig.LocateDefault(appPath)
 			if err != nil {
 				return err
@@ -35,10 +39,6 @@ func NewDoctor() *cobra.Command {
 			}
 
 			if err := doc.MigrateBufConfig(cmd.Context(), cacheStorage, appPath, configPath); err != nil {
-				return err
-			}
-
-			if err := doc.MigrateToolsGo(appPath); err != nil {
 				return err
 			}
 
