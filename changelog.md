@@ -10,6 +10,10 @@
 
 - [#4569](https://github.com/ignite/cli/pull/4569) Add flags to set coin type on commands. Add getters for bech32 prefix and coin type.
 
+### Fixes
+
+- [#4577](https://github.com/ignite/cli/pull/4577) Add proto version to query path
+
 ## [`v29.0.0-beta.1`](https://github.com/ignite/cli/releases/tag/v29.0.0-beta.1)
 
 ### Features
@@ -72,7 +76,6 @@
 - [#4402](https://github.com/ignite/cli/pull/4402) Fix gentx parser into the cosmosutil package
 - [#4552](https://github.com/ignite/cli/pull/4552) Avoid direct access to proto field `perms.Account` and `perms.Permissions`
 - [#4555](https://github.com/ignite/cli/pull/4555) Fix buf lint issues into the chain code
-- [#4577](https://github.com/ignite/cli/pull/4577) Add proto version to query path
 
 ## [`v28.8.1`](https://github.com/ignite/cli/releases/tag/v28.8.1)
 
