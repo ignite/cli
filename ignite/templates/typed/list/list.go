@@ -335,7 +335,7 @@ func keeperModify(opts *typed.Options) genny.RunFn {
 			xast.AppendFuncStruct(
 				"Keeper",
 				fmt.Sprintf("%[1]vSeq", opts.TypeName.UpperCamel),
-				fmt.Sprintf(`collections.NewSequence(sb, types.%[2]vCountKey, "%[3]v_seq")`,
+				fmt.Sprintf(`collections.NewSequence(sb, types.%[2]vCountKey, "%[3]vSequence")`,
 					opts.TypeName.UpperCamel,
 					opts.TypeName.PascalCase,
 					opts.TypeName.LowerCamel,
