@@ -223,8 +223,8 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 				protoutil.NewOption(
 					"google.api.http",
 					fmt.Sprintf(
-						"/%s/%s/%s/{id}",
-						appModulePath, opts.ModuleName, opts.TypeName.Snake,
+						"/%s/%s/%s/%s/{id}",
+						appModulePath, opts.ModuleName, opts.ProtoVer, opts.TypeName.Snake,
 					),
 					protoutil.Custom(),
 					protoutil.SetField("get"),
@@ -241,8 +241,8 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 				protoutil.NewOption(
 					"google.api.http",
 					fmt.Sprintf(
-						"/%s/%s/%s",
-						appModulePath, opts.ModuleName, opts.TypeName.Snake,
+						"/%s/%s/%s/%s",
+						appModulePath, opts.ModuleName, opts.ProtoVer, opts.TypeName.Snake,
 					),
 					protoutil.Custom(),
 					protoutil.SetField("get"),
@@ -335,7 +335,7 @@ func keeperModify(opts *typed.Options) genny.RunFn {
 			xast.AppendFuncStruct(
 				"Keeper",
 				fmt.Sprintf("%[1]vSeq", opts.TypeName.UpperCamel),
-				fmt.Sprintf(`collections.NewSequence(sb, types.%[2]vCountKey, "%[3]v_seq")`,
+				fmt.Sprintf(`collections.NewSequence(sb, types.%[2]vCountKey, "%[3]vSequence")`,
 					opts.TypeName.UpperCamel,
 					opts.TypeName.PascalCase,
 					opts.TypeName.LowerCamel,
