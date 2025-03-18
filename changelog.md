@@ -12,7 +12,8 @@
 
 ### Fixes
 
-- [#4577](https://github.com/ignite/cli/pull/4577) Add proto version to query path
+- [#4579](https://github.com/ignite/cli/pull/4579) Fix empty params response.
+- [#4577](https://github.com/ignite/cli/pull/4577) Add proto version to query path.
 
 ## [`v29.0.0-beta.1`](https://github.com/ignite/cli/releases/tag/v29.0.0-beta.1)
 
