@@ -197,8 +197,8 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 				protoutil.NewOption(
 					"google.api.http",
 					fmt.Sprintf(
-						"/%s/%s/%s/%s",
-						appModulePath, opts.ModuleName, typenameSnake, protoIndex,
+						"/%s/%s/%s/%s/%s",
+						appModulePath, opts.ModuleName, opts.ProtoVer, typenameSnake, protoIndex,
 					),
 					protoutil.Custom(),
 					protoutil.SetField("get"),
@@ -215,8 +215,8 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 				protoutil.NewOption(
 					"google.api.http",
 					fmt.Sprintf(
-						"/%s/%s/%s",
-						appModulePath, opts.ModuleName, typenameSnake,
+						"/%s/%s/%s/%s",
+						appModulePath, opts.ModuleName, opts.ProtoVer, typenameSnake,
 					),
 					protoutil.Custom(),
 					protoutil.SetField("get"),
