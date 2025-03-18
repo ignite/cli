@@ -1,7 +1,7 @@
 name: Docusaurus add version
 on:
   release:
-    types: [ published ]
+    types: [published]
 
 jobs:
   gen-docs-version:
@@ -26,6 +26,15 @@ jobs:
       - name: Install Dependencies
         run: yarn install
         working-directory: ./docs
+
+      - name: Skip beta versions
+        continue-on-error: false
+        run: |
+          VERSION=${{ github.ref_name }}
+          if [[ $VERSION == *beta* ]]; then
+            echo "Skipping beta version"
+            exit 1
+          fi
 
       - name: Generate docusaurus docs for major version
         run: |
