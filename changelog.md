@@ -9,6 +9,7 @@
 ### Changes
 
 - [#4569](https://github.com/ignite/cli/pull/4569) Add flags to set coin type on commands. Add getters for bech32 prefix and coin type.
+- [#4586](https://github.com/ignite/cli/pull/4586) Remove network as default plugin.
 
 ### Fixes
 
