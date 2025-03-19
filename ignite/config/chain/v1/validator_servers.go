@@ -53,12 +53,12 @@ func (v Validator) GetServers() (Servers, error) {
 	// Initialize servers with default addresses
 	s := DefaultServers()
 
-	// Ovewrite the default Cosmos SDK addresses with the configured ones
+	// Overwrite the default Cosmos SDK addresses with the configured ones
 	if err := mapstructure.Decode(v.App, &s); err != nil {
 		return Servers{}, errors.Errorf("error reading validator app servers: %w", err)
 	}
 
-	// Ovewrite the default Tendermint addresses with the configured ones
+	// Overwrite the default Tendermint addresses with the configured ones
 	if err := mapstructure.Decode(v.Config, &s); err != nil {
 		return Servers{}, errors.Errorf("error reading tendermint validator config servers: %w", err)
 	}
@@ -142,7 +142,7 @@ func mergeMaps(src, dst map[string]interface{}) map[string]interface{} {
 			}
 		}
 
-		// By default ovewrite the destination map with the source value
+		// By default overwrite the destination map with the source value
 		dst[k] = v
 	}
 
