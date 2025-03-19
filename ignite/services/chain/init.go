@@ -98,7 +98,7 @@ func (c *Chain) InitChain(ctx context.Context, initConfiguration, initGenesis bo
 		}
 	}
 
-	// ovewrite app config files with the values defined in Ignite's config file
+	// overwrite app config files with the values defined in Ignite's config file
 	if initConfiguration {
 		if err := c.Configure(home, chainID, conf); err != nil {
 			return err
