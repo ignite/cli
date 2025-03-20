@@ -11,7 +11,7 @@ In this tutorial, you will build a blockchain for a scavenger hunt game and lear
 * Implement custom logic in the CLI commands
 * Use an escrow account to store tokens
 
-This tutorial was first presented as a workshop at GODays 2020 Berlin by [Billy Rennekamp](https://twitter.com/billyrennekamp).
+This tutorial was first presented as a workshop at GODays 2020 Berlin by [Billy Rennekamp](https://x.com/billyrennekamp).
 
 This session aims to get you thinking about what is possible when developing applications that have access to **digital scarcity as a primitive**. The easiest way to think of scarcity is as money; If money grew on trees it would stop being _scarce_ and stop having value. 
 
