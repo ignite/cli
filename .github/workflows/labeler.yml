@@ -13,4 +13,4 @@ jobs:
       pull-requests: write
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/labeler@v5
+      - uses: actions/labeler@v4 # keep v4 due to unwanted behavior changes in later versions.
