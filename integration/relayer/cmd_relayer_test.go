@@ -231,76 +231,6 @@ func TestBlogIBC(t *testing.T) {
 		)),
 	))
 
-	env.Must(env.Exec("create a post type list in an IBC module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
-				"s",
-				"list",
-				"post",
-				"title",
-				"content",
-				"--no-message",
-				"--module",
-				"blog",
-				"--yes",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
-
-	env.Must(env.Exec("create a sentPost type list in an IBC module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
-				"s",
-				"list",
-				"sentPost",
-				"postID:uint",
-				"title",
-				"chain",
-				"--no-message",
-				"--module",
-				"blog",
-				"--yes",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
-
-	env.Must(env.Exec("create a timeoutPost type list in an IBC module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
-				"s",
-				"list",
-				"timeoutPost",
-				"title",
-				"chain",
-				"--no-message",
-				"--module",
-				"blog",
-				"--yes",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
-
-	env.Must(env.Exec("create a ibcPost package in an IBC module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
-				"s",
-				"packet",
-				"ibcPost",
-				"title",
-				"content",
-				"--ack",
-				"postID:uint",
-				"--module",
-				"blog",
-				"--yes",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
-
 	// serve both chains.
 	ports, err := availableport.Find(
 		14,
@@ -341,7 +271,7 @@ func TestBlogIBC(t *testing.T) {
 				"install",
 				"-g",
 				// filepath.Join(goenv.GoPath(), "src/github.com/ignite/apps/hermes"), // Local path for test proposals
-				"github.com/ignite/apps/hermes@hermes/v0.2.2",
+				"github.com/ignite/apps/hermes@hermes/v0.2.7",
 			),
 		)),
 	))
