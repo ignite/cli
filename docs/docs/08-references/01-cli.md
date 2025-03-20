@@ -2696,7 +2696,7 @@ Configs for the chain registry
 
 Scaffold the chain registry chain.json and assets.json files.
 
-The chain registry is a GitHub repo, hosted at https://github.com/cosmos/cosmos-registry, that
+The chain registry is a GitHub repo, hosted at https://github.com/cosmos/chain-registry, that
 contains the chain.json and assets.json files of most of chains in the Cosmos ecosystem.
 It is good practices, when creating a new chain, and about to launch a testnet or mainnet, to
 publish the chain's metadata in the chain registry.
