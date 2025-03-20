@@ -1,4 +1,4 @@
-name: Check Markdown links
+name: Check links
 on:
   pull_request:
   push:
@@ -15,8 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: gaurav-nelson/github-action-markdown-link-check@1.0.13
+      - uses: gaurav-nelson/github-action-markdown-link-check@1.0.16
         with:
           folder-path: "."
           use-verbose-mode: "yes"
-          config-file: ".github/workflows/md-link-checker-config.json"
+          config-file: ".github/workflows/link-checker-config.json"
