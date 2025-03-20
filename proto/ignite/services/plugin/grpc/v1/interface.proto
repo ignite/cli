@@ -23,6 +23,9 @@ message ExecutedCommand {
 
   // Flags holds the list of command flags.
   repeated Flag flags = 6;
+
+  // Aliases is an array of aliases that can be used instead of the first word in Use.
+  repeated string aliases = 7;
 }
 
 // ExecutedHook represents a plugin hook under execution.

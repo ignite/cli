@@ -33,11 +33,8 @@ var plugins []*plugin.Plugin
 // LoadPlugins tries to load all the plugins found in configurations.
 // If no configurations found, it returns w/o error.
 func LoadPlugins(ctx context.Context, cmd *cobra.Command, session *cliui.Session) error {
-	var (
-		rootCmd        = cmd.Root()
-		pluginsConfigs []pluginsconfig.Plugin
-	)
-	localCfg, err := parseLocalPlugins(rootCmd)
+	var pluginsConfigs []pluginsconfig.Plugin
+	localCfg, err := parseLocalPlugins()
 	if err != nil && !errors.As(err, &cosmosanalysis.ErrPathNotChain{}) {
 		return err
 	} else if err == nil {
@@ -63,23 +60,19 @@ func LoadPlugins(ctx context.Context, cmd *cobra.Command, session *cliui.Session
 		return nil
 	}
 
-	return linkPlugins(ctx, rootCmd, plugins)
+	return linkPlugins(ctx, cmd.Root(), plugins)
 }
 
-func parseLocalPlugins(cmd *cobra.Command) (*pluginsconfig.Config, error) {
-	// FIXME(tb): like other commands that works on a chain directory,
-	// parseLocalPlugins should rely on `-p` flag to guess that chain directory.
-	// Unfortunately parseLocalPlugins is invoked before flags are parsed, so
-	// we cannot rely on `-p` flag. As a workaround, we use the working dir.
-	// The drawback is we cannot load chain's plugin when using `-p`.
-	_ = cmd
+func parseLocalPlugins() (*pluginsconfig.Config, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return nil, errors.Errorf("parse local apps: %w", err)
 	}
+
 	if err := cosmosanalysis.IsChainPath(wd); err != nil {
 		return nil, err
 	}
+
 	return pluginsconfig.ParseDir(wd)
 }
 
@@ -347,11 +340,12 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd *plugin.C
 
 				// Call the plugin Execute
 				execCmd := &plugin.ExecutedCommand{
-					Use:    cmd.Use,
-					Path:   cmd.CommandPath(),
-					Args:   args,
-					OsArgs: os.Args,
-					With:   p.With,
+					Use:     cmd.Use,
+					Aliases: pluginCmd.Aliases,
+					Path:    cmd.CommandPath(),
+					Args:    args,
+					OsArgs:  os.Args,
+					With:    p.With,
 				}
 				execCmd.ImportFlags(cmd)
 				err = p.Interface.Execute(ctx, execCmd, api)
@@ -461,7 +455,7 @@ Respects key value pairs declared after the app path to be added to the generate
 			if global {
 				conf, err = parseGlobalPlugins()
 			} else {
-				conf, err = parseLocalPlugins(cmd)
+				conf, err = parseLocalPlugins()
 			}
 			if err != nil {
 				return err
@@ -546,7 +540,7 @@ func NewAppUninstall() *cobra.Command {
 			if global {
 				conf, err = parseGlobalPlugins()
 			} else {
-				conf, err = parseLocalPlugins(cmd)
+				conf, err = parseLocalPlugins()
 			}
 			if err != nil {
 				return err
