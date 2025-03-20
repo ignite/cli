@@ -43,6 +43,7 @@
 - [#4477](https://github.com/ignite/cli/pull/4477), [#4559](https://github.com/ignite/cli/pull/4559) IBC v10 support
 - [#4166](https://github.com/ignite/cli/issues/4166) Migrate buf config files to v2
 - [#4494](https://github.com/ignite/cli/pull/4494) Automatic migrate the buf configs to v2
+- [#4588](https://github.com/ignite/cli/pull/4588) Run `buf format after scaffold proto files.
 
 ### Changes
 
