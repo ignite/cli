@@ -354,7 +354,7 @@ Normally, Keplr provides a wallet object implementing the `OfflineSigner`
 interface, so you can simply replace the `wallet` argument in client
 instantiation with `window.keplr.getOfflineSigner(chainId)`. However, Keplr
 requires information about your chain, like chain ID, denoms, fees, etc.
-[`experimentalSuggestChain()`](https://docs.keplr.app/api/suggest-chain.html) is
+[`experimentalSuggestChain()`](https://docs.keplr.app/api/guide/suggest-chain) is
 a method Keplr provides to pass this information to the Keplr extension.
 
 The generated client makes this easier by offering a `useKeplr()` method that
