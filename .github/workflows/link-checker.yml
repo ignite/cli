@@ -1,4 +1,4 @@
-name: Check Markdown links
+name: Check links
 on:
   pull_request:
   push:
@@ -19,4 +19,4 @@ jobs:
         with:
           folder-path: "."
           use-verbose-mode: "yes"
-          config-file: ".github/workflows/md-link-checker-config.json"
+          config-file: ".github/workflows/link-checker-config.json"
