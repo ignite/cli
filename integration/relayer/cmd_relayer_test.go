@@ -25,7 +25,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
 	envtest "github.com/ignite/cli/v29/integration"
 )
@@ -126,64 +125,6 @@ var (
 			},
 		},
 	}
-
-	nameOnRecvIbcPostPacket = "OnRecvIbcPostPacket"
-	funcOnRecvIbcPostPacket = `package keeper
-func (k Keeper) OnRecvIbcPostPacket(ctx context.Context, packet channeltypes.Packet, data types.IbcPostPacketData) (packetAck types.IbcPostPacketAck, err error) {
-	packetAck.PostId, err = k.PostSeq.Next(ctx)
-	if err != nil {
-		return packetAck, err
-	}
-	return packetAck, k.Post.Set(ctx, packetAck.PostId, types.Post{Title: data.Title, Content: data.Content})
-}`
-
-	nameOnAcknowledgementIbcPostPacket = "OnAcknowledgementIbcPostPacket"
-	funcOnAcknowledgementIbcPostPacket = `package keeper
-func (k Keeper) OnAcknowledgementIbcPostPacket(ctx context.Context, packet channeltypes.Packet, data types.IbcPostPacketData, ack channeltypes.Acknowledgement) error {
-    switch dispatchedAck := ack.Response.(type) {
-	case *channeltypes.Acknowledgement_Error:
-		// We will not treat acknowledgment error in this tutorial
-		return nil
-	case *channeltypes.Acknowledgement_Result:
-		// Decode the packet acknowledgment
-		var packetAck types.IbcPostPacketAck
-		if err := k.cdc.UnmarshalJSON(dispatchedAck.Result, &packetAck); err != nil {
-			// The counter-party module doesn't implement the correct acknowledgment format
-			return errors.New("cannot unmarshal acknowledgment")
-		}
-
-		seq, err := k.SentPostSeq.Next(ctx)
-		if err != nil {
-			return err
-		}
-
-		return k.SentPost.Set(ctx, seq,
-			types.SentPost{
-				PostId: packetAck.PostId,
-				Title:  data.Title,
-				Chain:  packet.DestinationPort + "-" + packet.DestinationChannel,
-			},
-		)
-	default:
-		return errors.New("the counter-party module does not implement the correct acknowledgment format")
-	}
-}`
-
-	nameOnTimeoutIbcPostPacket = "OnTimeoutIbcPostPacket"
-	funcOnTimeoutIbcPostPacket = `package keeper
-func (k Keeper) OnTimeoutIbcPostPacket(ctx context.Context, packet channeltypes.Packet, data types.IbcPostPacketData) error {
-	seq, err := k.TimeoutPostSeq.Next(ctx)
-	if err != nil {
-		return err
-	}
-
-	return k.TimeoutPost.Set(ctx, seq,
-		types.TimeoutPost{
-			Title: data.Title,
-			Chain: packet.DestinationPort + "-" + packet.DestinationChannel,
-		},
-	)
-}`
 )
 
 type (
@@ -358,23 +299,6 @@ func TestBlogIBC(t *testing.T) {
 			),
 			step.Workdir(app.SourcePath()),
 		)),
-	))
-
-	blogKeeperPath := filepath.Join(app.SourcePath(), "x/blog/keeper")
-	require.NoError(t, goanalysis.ReplaceCode(
-		blogKeeperPath,
-		nameOnRecvIbcPostPacket,
-		funcOnRecvIbcPostPacket,
-	))
-	require.NoError(t, goanalysis.ReplaceCode(
-		blogKeeperPath,
-		nameOnAcknowledgementIbcPostPacket,
-		funcOnAcknowledgementIbcPostPacket,
-	))
-	require.NoError(t, goanalysis.ReplaceCode(
-		blogKeeperPath,
-		nameOnTimeoutIbcPostPacket,
-		funcOnTimeoutIbcPostPacket,
 	))
 
 	// serve both chains.
@@ -604,9 +528,4 @@ func TestBlogIBC(t *testing.T) {
 		),
 	)
 	env.Must(env.Exec("check ibc balance", steps, envtest.ExecRetry()))
-
-	// TODO test ibc using the blog post methods:
-	// step.Exec(app.Binary(), "tx", "blog", "send-ibc-post", "transfer", "channel-0", "Hello", "Hello_Mars-Alice_from_Earth", "--chain-id", earthChainID, "--from", "alice", "--node", earthGRPC, "--output", "json", "--log_format", "json", "--yes")
-	// TODO test ibc using the hermes ft-transfer:
-	// step.Exec(envtest.IgniteApp, "hermes", "exec", "--", "--config", earthConfig, "tx", "ft-transfer", "--timeout-seconds", "1000", "--dst-chain", earthChainID, "--src-chain", marsChainID, "--src-port", "transfer", "--src-channel", "channel-0", "--amount", "100000", "--denom", "stake", "--output", "json", "--log_format", "json", "--yes")
 }
