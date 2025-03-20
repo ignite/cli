@@ -105,14 +105,19 @@ func PostScaffold(ctx context.Context, cacheStorage cache.Storage, path, protoDi
 		return errors.Errorf("failed to change directory to %s: %w", path, err)
 	}
 
-	if err := gocmd.ModTidy(ctx, path); err != nil {
-		return err
-	}
-
 	if !skipProto {
+		// go mod tidy prior and after the proto generation is required.
+		if err := gocmd.ModTidy(ctx, path); err != nil {
+			return err
+		}
+
 		if err := protoc(ctx, cacheStorage, path, protoDir, goModPath); err != nil {
 			return err
 		}
+	}
+
+	if err := gocmd.ModTidy(ctx, path); err != nil {
+		return err
 	}
 
 	if err := gocmd.Fmt(ctx, path); err != nil {
