@@ -340,12 +340,11 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd *plugin.C
 
 				// Call the plugin Execute
 				execCmd := &plugin.ExecutedCommand{
-					Use:     cmd.Use,
-					Aliases: pluginCmd.Aliases,
-					Path:    cmd.CommandPath(),
-					Args:    args,
-					OsArgs:  os.Args,
-					With:    p.With,
+					Use:    cmd.Use,
+					Path:   cmd.CommandPath(),
+					Args:   args,
+					OsArgs: os.Args,
+					With:   p.With,
 				}
 				execCmd.ImportFlags(cmd)
 				err = p.Interface.Execute(ctx, execCmd, api)
