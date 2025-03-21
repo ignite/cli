@@ -446,13 +446,13 @@ func TestBlogIBC(t *testing.T) {
 	go func() {
 		env.Must(env.Exec("run the hermes relayer",
 			step.NewSteps(step.New(
-				step.Exec(envtest.IgniteApp, "relayer", "hermes", "start", hostChainChainID, refChainChainID),
-				step.PostExec(func(execErr error) error {
-					if execErr != nil {
-						return execErr
-					}
-					return nil
-				}),
+				step.Exec(envtest.IgniteApp,
+					"relayer",
+					"hermes",
+					"start",
+					hostChainChainID,
+					refChainChainID,
+				),
 			)),
 			envtest.ExecCtx(ctx),
 		))
@@ -542,11 +542,11 @@ func TestBlogIBC(t *testing.T) {
 						txResponse.TxHash,
 						"--node", hostChainRPC,
 						"--home", hostChainHome,
-						"--chain-id", hostChainChainID,
 						"--output", "json",
 						"--log_format", "json",
 					),
 					step.Stdout(txOutput),
+					step.Stderr(txOutput),
 					step.PreExec(func() error {
 						txOutput.Reset()
 						return nil
