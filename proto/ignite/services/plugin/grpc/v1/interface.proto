@@ -78,6 +78,7 @@ message Command {
   string use = 1;
 
   // Aliases is an array of aliases that can be used instead of the first word in Use.
+  // Note: Aliases have no effect on runnable commands.
   repeated string aliases = 2;
 
   // Short is the short description shown in the 'help' output.
