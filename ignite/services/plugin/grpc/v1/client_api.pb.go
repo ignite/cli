@@ -11,10 +11,7 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
-<<<<<<< HEAD
-=======
 	unsafe "unsafe"
->>>>>>> 29b44429 (docs(plugin): disclaimer plugin aliases (#4592))
 )
 
 const (
