@@ -448,6 +448,8 @@ func TestBlogIBC(t *testing.T) {
 	go func() {
 		env.Must(env.Exec("run the hermes relayer",
 			step.NewSteps(step.New(
+				step.Stdout(os.Stdout),
+				step.Stderr(os.Stderr),
 				step.Exec(envtest.IgniteApp,
 					"relayer",
 					"hermes",
@@ -468,6 +470,7 @@ func TestBlogIBC(t *testing.T) {
 	env.Must(env.Exec("verify if the channel was created", step.NewSteps(
 		step.New(
 			step.Stdout(queryOutput),
+			step.Stderr(queryOutput),
 			step.Exec(
 				app.Binary(),
 				"q",
@@ -511,6 +514,7 @@ func TestBlogIBC(t *testing.T) {
 	stepsTx := step.NewSteps(
 		step.New(
 			step.Stdout(txOutput),
+			step.Stderr(txOutput),
 			step.Exec(
 				app.Binary(),
 				"tx",
@@ -579,6 +583,7 @@ func TestBlogIBC(t *testing.T) {
 	steps := step.NewSteps(
 		step.New(
 			step.Stdout(balanceOutput),
+			step.Stderr(balanceOutput),
 			step.Exec(
 				app.Binary(),
 				"q",
