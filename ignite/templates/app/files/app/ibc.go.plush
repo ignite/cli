@@ -115,9 +115,14 @@ func (app *App) registerIBCModules(appOpts servertypes.AppOptions) error {
 
 	app.IBCKeeper.SetRouter(ibcRouter)
 
-	storeProvider := app.IBCKeeper.ClientKeeper.GetStoreProvider()
+	clientKeeper := app.IBCKeeper.ClientKeeper
+	storeProvider := clientKeeper.GetStoreProvider()
+
 	tmLightClientModule := ibctm.NewLightClientModule(app.appCodec, storeProvider)
+	clientKeeper.AddRoute(ibctm.ModuleName, &tmLightClientModule)
+
 	soloLightClientModule := solomachine.NewLightClientModule(app.appCodec, storeProvider)
+	clientKeeper.AddRoute(solomachine.ModuleName, &soloLightClientModule)
 
 	// register IBC modules
 	if err := app.RegisterModules(
