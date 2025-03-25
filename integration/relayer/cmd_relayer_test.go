@@ -425,6 +425,8 @@ func TestBlogIBC(t *testing.T) {
 
 	env.Must(env.Exec("configure the hermes relayer app",
 		step.NewSteps(step.New(
+			step.Stdout(os.Stdout),
+			step.Stderr(os.Stderr),
 			step.Exec(envtest.IgniteApp,
 				"relayer",
 				"hermes",
