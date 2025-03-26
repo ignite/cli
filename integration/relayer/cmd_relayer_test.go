@@ -425,6 +425,8 @@ func TestBlogIBC(t *testing.T) {
 
 	env.Must(env.Exec("configure the hermes relayer app",
 		step.NewSteps(step.New(
+			step.Stdout(os.Stdout),
+			step.Stderr(os.Stderr),
 			step.Exec(envtest.IgniteApp,
 				"relayer",
 				"hermes",
@@ -446,18 +448,20 @@ func TestBlogIBC(t *testing.T) {
 	go func() {
 		env.Must(env.Exec("run the hermes relayer",
 			step.NewSteps(step.New(
-				step.Exec(envtest.IgniteApp, "relayer", "hermes", "start", hostChainChainID, refChainChainID),
-				step.PostExec(func(execErr error) error {
-					if execErr != nil {
-						return execErr
-					}
-					return nil
-				}),
+				step.Stdout(os.Stdout),
+				step.Stderr(os.Stderr),
+				step.Exec(envtest.IgniteApp,
+					"relayer",
+					"hermes",
+					"start",
+					hostChainChainID,
+					refChainChainID,
+				),
 			)),
 			envtest.ExecCtx(ctx),
 		))
 	}()
-	time.Sleep(3 * time.Second)
+	time.Sleep(4 * time.Second)
 
 	var (
 		queryOutput   = &bytes.Buffer{}
@@ -466,6 +470,7 @@ func TestBlogIBC(t *testing.T) {
 	env.Must(env.Exec("verify if the channel was created", step.NewSteps(
 		step.New(
 			step.Stdout(queryOutput),
+			step.Stderr(queryOutput),
 			step.Exec(
 				app.Binary(),
 				"q",
@@ -509,6 +514,11 @@ func TestBlogIBC(t *testing.T) {
 	stepsTx := step.NewSteps(
 		step.New(
 			step.Stdout(txOutput),
+			step.Stderr(txOutput),
+			step.PreExec(func() error {
+				txOutput.Reset()
+				return nil
+			}),
 			step.Exec(
 				app.Binary(),
 				"tx",
@@ -531,9 +541,13 @@ func TestBlogIBC(t *testing.T) {
 				if execErr != nil {
 					return execErr
 				}
+				output := txOutput.Bytes()
 				if err := json.Unmarshal(txOutput.Bytes(), &txResponse); err != nil {
-					return errors.Errorf("unmarshling tx response: %w", err)
+					return errors.Errorf("unmarshalling tx response error: %w, response: %s", err, string(output))
 				}
+
+				time.Sleep(4 * time.Second)
+
 				return cmdrunner.New().Run(ctx, step.New(
 					step.Exec(
 						app.Binary(),
@@ -542,11 +556,11 @@ func TestBlogIBC(t *testing.T) {
 						txResponse.TxHash,
 						"--node", hostChainRPC,
 						"--home", hostChainHome,
-						"--chain-id", hostChainChainID,
 						"--output", "json",
 						"--log_format", "json",
 					),
 					step.Stdout(txOutput),
+					step.Stderr(txOutput),
 					step.PreExec(func() error {
 						txOutput.Reset()
 						return nil
@@ -555,8 +569,9 @@ func TestBlogIBC(t *testing.T) {
 						if execErr != nil {
 							return execErr
 						}
-						if err := json.Unmarshal(txOutput.Bytes(), &txResponse); err != nil {
-							return err
+						output := txOutput.Bytes()
+						if err := json.Unmarshal(output, &txResponse); err != nil {
+							return errors.Errorf("unmarshalling tx response error: %w, response: %s", err, string(output))
 						}
 						return nil
 					}),
@@ -577,6 +592,7 @@ func TestBlogIBC(t *testing.T) {
 	steps := step.NewSteps(
 		step.New(
 			step.Stdout(balanceOutput),
+			step.Stderr(balanceOutput),
 			step.Exec(
 				app.Binary(),
 				"q",
@@ -585,17 +601,19 @@ func TestBlogIBC(t *testing.T) {
 				receiverAddr,
 				"--node", refChainRPC,
 				"--home", refChainHome,
-				"--chain-id", refChainChainID,
 				"--log_format", "json",
 				"--output", "json",
 			),
+			step.PreExec(func() error {
+				balanceOutput.Reset()
+				return nil
+			}),
 			step.PostExec(func(execErr error) error {
 				if execErr != nil {
 					return execErr
 				}
 
 				output := balanceOutput.Bytes()
-				defer balanceOutput.Reset()
 				if err := json.Unmarshal(output, &balanceResponse); err != nil {
 					return errors.Errorf("unmarshalling query response error: %w, response: %s", err, string(output))
 				}
