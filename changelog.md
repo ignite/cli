@@ -10,6 +10,8 @@
 ### Changes
 
 - [#4569](https://github.com/ignite/cli/pull/4569) Add flags to set coin type on commands. Add getters for bech32 prefix and coin type.
+- [#4586](https://github.com/ignite/cli/pull/4586) Remove network as default plugin.
+- [#4589](https://github.com/ignite/cli/pull/4589) Fix broken links
 - [#4589](https://github.com/ignite/cli/pull/4589) Resolve broken links.
 - [#4596](https://github.com/ignite/cli/pull/4596) Add default `openapi.yml` when skipping proto gen.
 

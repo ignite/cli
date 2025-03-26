@@ -14,7 +14,6 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/stretchr/testify/require"
 
-	ignitecmd "github.com/ignite/cli/v29/ignite/cmd"
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodule"
@@ -26,7 +25,9 @@ const (
 	spnModule            = "github.com/tendermint/spn"
 	spnRepoURL           = "https://" + spnModule
 	spnConfigFile        = "config_2.yml"
-	pluginNetworkRepoURL = "https://" + ignitecmd.PluginNetworkPath
+	PluginNetworkVersion = "v0.2.2"
+	PluginNetworkPath    = "github.com/ignite/cli-plugin-network@" + PluginNetworkVersion
+	pluginNetworkRepoURL = "https://" + PluginNetworkPath
 )
 
 // setupSPN executes the following tasks:
@@ -46,7 +47,7 @@ func setupSPN(env envtest.Env) string {
 	// Clone the cli-plugin-network with the expected version
 	err := xgit.Clone(context.Background(), pluginNetworkRepoURL, pluginPath)
 	require.NoError(err)
-	t.Logf("Checkout cli-plugin-revision to ref %q", ignitecmd.PluginNetworkPath)
+	t.Logf("Checkout cli-plugin-revision to ref %q", PluginNetworkPath)
 	// Add plugin to config
 	env.Must(env.Exec("add plugin network",
 		step.NewSteps(step.New(
