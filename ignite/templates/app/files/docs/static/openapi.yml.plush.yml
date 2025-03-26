@@ -3,7 +3,7 @@ swagger: "2.0"
 info:
   description: "Faucet API doc and explorer.\n\nSend coins from the faucet account configured in `config.yml` to the receiver account."
   version: "1.0.0"
-  title: "Faucet for Cosmos-SDK chain"
+  title: "Faucet for <%= ModulePath %>"
 
 servers:
   - url: /
