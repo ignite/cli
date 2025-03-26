@@ -185,5 +185,10 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, protoD
 		return err
 	}
 
-	return buf.Format(ctx, projectPath)
+	err = buf.Format(ctx, projectPath)
+	if err != nil && !errors.Is(err, cosmosbuf.ErrProtoFilesNotFound) {
+		return err
+	}
+
+	return nil
 }

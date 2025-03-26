@@ -215,6 +215,14 @@ func (b Buf) Export(ctx context.Context, protoDir, output string) error {
 
 // Format runs the buf Format command for the files in the provided path.
 func (b Buf) Format(ctx context.Context, path string) error {
+	files, err := xos.FindFiles(path, xos.WithExtension(xos.ProtoFile))
+	if err != nil {
+		return err
+	}
+	if len(files) == 0 {
+		return errors.Errorf("%w: %s", ErrProtoFilesNotFound, path)
+	}
+
 	flags := map[string]string{
 		flagWrite: "true",
 	}
