@@ -5,11 +5,13 @@
 ### Features
 
 - [#4509](https://github.com/ignite/cli/pull/4509) Upgrade to Go 1.24. Running `ignite doctor` migrates the scaffolded `tools.go` to the tool directive in the go.mod
+- [#4588](https://github.com/ignite/cli/pull/4588) Run `buf format after scaffold proto files.
 
 ### Changes
 
 - [#4569](https://github.com/ignite/cli/pull/4569) Add flags to set coin type on commands. Add getters for bech32 prefix and coin type.
-- [#4589](https://github.com/ignite/cli/pull/4589) Fix broken links
+- [#4589](https://github.com/ignite/cli/pull/4589) Resolve broken links.
+- [#4596](https://github.com/ignite/cli/pull/4596) Add default `openapi.yml` when skipping proto gen.
 
 ### Fixes
 
@@ -18,7 +20,7 @@
 - [#4579](https://github.com/ignite/cli/pull/4579) Fix empty params response.
 - [#4585](https://github.com/ignite/cli/pull/4585) Fix faucet cmd issue.
 - [#4587](https://github.com/ignite/cli/pull/4587) Add missing light clients routes to IBC client keeper.
-- [#4595](https://github.com/ignite/cli/pull/4595) fix wrong InterfaceRegistry for IBC modules.
+- [#4595](https://github.com/ignite/cli/pull/4595) Fix wrong InterfaceRegistry for IBC modules.
 
 ## [`v29.0.0-beta.1`](https://github.com/ignite/cli/releases/tag/v29.0.0-beta.1)
 

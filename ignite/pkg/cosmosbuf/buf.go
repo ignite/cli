@@ -19,7 +19,6 @@ import (
 )
 
 const (
-	binaryName                = "buf"
 	flagTemplate              = "template"
 	flagOutput                = "output"
 	flagErrorFormat           = "error-format"
@@ -28,6 +27,7 @@ const (
 	flagBufGenYaml            = "buf-gen-yaml"
 	flagIncludeImports        = "include-imports"
 	flagIncludeWellKnownTypes = "include-wkt"
+	flagWrite                 = "write"
 	flagPath                  = "path"
 	fmtJSON                   = "json"
 	bufGenPrefix              = "buf.gen."
@@ -35,6 +35,7 @@ const (
 	// CMDGenerate generate command.
 	CMDGenerate Command = "generate"
 	CMDExport   Command = "export"
+	CMDFormat   Command = "format"
 	CMDConfig   Command = "config"
 	CMDDep      Command = "dep"
 
@@ -45,6 +46,7 @@ var (
 	commands = map[Command]struct{}{
 		CMDGenerate: {},
 		CMDExport:   {},
+		CMDFormat:   {},
 		CMDConfig:   {},
 		CMDDep:      {},
 	}
@@ -204,6 +206,19 @@ func (b Buf) Export(ctx context.Context, protoDir, output string) error {
 		flagOutput: output,
 	}
 	cmd, err := b.command(CMDExport, flags, protoDir)
+	if err != nil {
+		return err
+	}
+
+	return b.runCommand(ctx, cmd...)
+}
+
+// Format runs the buf Format command for the files in the provided path.
+func (b Buf) Format(ctx context.Context, path string) error {
+	flags := map[string]string{
+		flagWrite: "true",
+	}
+	cmd, err := b.command(CMDFormat, flags, path)
 	if err != nil {
 		return err
 	}
