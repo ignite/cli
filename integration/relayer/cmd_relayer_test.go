@@ -461,7 +461,7 @@ func TestBlogIBC(t *testing.T) {
 			envtest.ExecCtx(ctx),
 		))
 	}()
-	time.Sleep(3 * time.Second)
+	time.Sleep(4 * time.Second)
 
 	var (
 		queryOutput   = &bytes.Buffer{}
@@ -545,6 +545,9 @@ func TestBlogIBC(t *testing.T) {
 				if err := json.Unmarshal(txOutput.Bytes(), &txResponse); err != nil {
 					return errors.Errorf("unmarshalling tx response error: %w, response: %s", err, string(output))
 				}
+
+				time.Sleep(4 * time.Second)
+
 				return cmdrunner.New().Run(ctx, step.New(
 					step.Exec(
 						app.Binary(),
