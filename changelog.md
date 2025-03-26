@@ -22,6 +22,10 @@
 - [#4587](https://github.com/ignite/cli/pull/4587) Add missing light clients routes to IBC client keeper.
 - [#4595](https://github.com/ignite/cli/pull/4595) Fix wrong InterfaceRegistry for IBC modules.
 
+### Bug Fixes
+
+- [#4347](https://github.com/ignite/cli/pull/4347) Fix `ts-client` generation
+
 ## [`v29.0.0-beta.1`](https://github.com/ignite/cli/releases/tag/v29.0.0-beta.1)
 
 ### Features
