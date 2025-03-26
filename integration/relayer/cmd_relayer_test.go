@@ -598,7 +598,6 @@ func TestBlogIBC(t *testing.T) {
 				receiverAddr,
 				"--node", refChainRPC,
 				"--home", refChainHome,
-				"--chain-id", refChainChainID,
 				"--log_format", "json",
 				"--output", "json",
 			),
