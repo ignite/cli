@@ -123,13 +123,13 @@ func (g *generator) cleanup() {
 // Generate generates code from protoDir of an SDK app residing at appPath with given options.
 // protoDir must be relative to the projectPath.
 func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir, goModPath string, options ...Option) error {
-	b, err := cosmosbuf.New(cacheStorage, goModPath)
+	buf, err := cosmosbuf.New(cacheStorage, goModPath)
 	if err != nil {
 		return err
 	}
 
 	g := &generator{
-		buf:                 b,
+		buf:                 buf,
 		appPath:             appPath,
 		protoDir:            protoDir,
 		goModPath:           goModPath,

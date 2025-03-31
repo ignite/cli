@@ -115,9 +115,14 @@ func (app *App) registerIBCModules(appOpts servertypes.AppOptions) error {
 
 	app.IBCKeeper.SetRouter(ibcRouter)
 
-	storeProvider := app.IBCKeeper.ClientKeeper.GetStoreProvider()
+	clientKeeper := app.IBCKeeper.ClientKeeper
+	storeProvider := clientKeeper.GetStoreProvider()
+
 	tmLightClientModule := ibctm.NewLightClientModule(app.appCodec, storeProvider)
+	clientKeeper.AddRoute(ibctm.ModuleName, &tmLightClientModule)
+
 	soloLightClientModule := solomachine.NewLightClientModule(app.appCodec, storeProvider)
+	clientKeeper.AddRoute(solomachine.ModuleName, &soloLightClientModule)
 
 	// register IBC modules
 	if err := app.RegisterModules(
@@ -136,7 +141,7 @@ func (app *App) registerIBCModules(appOpts servertypes.AppOptions) error {
 // RegisterIBC Since the IBC modules don't support dependency injection,
 // we need to manually register the modules on the client side.
 // This needs to be removed after IBC supports App Wiring.
-func RegisterIBC(cdc codec.Codec, registry cdctypes.InterfaceRegistry) map[string]appmodule.AppModule {
+func RegisterIBC(cdc codec.Codec) map[string]appmodule.AppModule {
 	modules := map[string]appmodule.AppModule{
 		ibcexported.ModuleName:      ibc.NewAppModule(&ibckeeper.Keeper{}),
 		ibctransfertypes.ModuleName: ibctransfer.NewAppModule(ibctransferkeeper.Keeper{}),
@@ -147,7 +152,7 @@ func RegisterIBC(cdc codec.Codec, registry cdctypes.InterfaceRegistry) map[strin
 
 	for _, m := range modules {
 		if mr, ok := m.(module.AppModuleBasic); ok {
-			mr.RegisterInterfaces(registry)
+			mr.RegisterInterfaces(cdc.InterfaceRegistry())
 		}
 	}
 

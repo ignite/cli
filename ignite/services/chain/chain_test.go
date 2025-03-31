@@ -54,7 +54,7 @@ func TestBech32Prefix(t *testing.T) {
 			AccountAddressPrefix = "mars"
 		)
 		`
-		require.NoError(t, os.WriteFile(filepath.Join(dir, "app", "app.go"), []byte(mockAppGo), 0644))
+		require.NoError(t, os.WriteFile(filepath.Join(dir, "app", "app.go"), []byte(mockAppGo), 0o644))
 
 		c, err := New(dir)
 		require.NoError(t, err)
@@ -74,7 +74,7 @@ func TestBech32Prefix(t *testing.T) {
 
 		const AccountAddressPrefix string = "jupiter" // Some comment
 		`
-		require.NoError(t, os.WriteFile(filepath.Join(dir, "app", "app.go"), []byte(mockAppGo), 0644))
+		require.NoError(t, os.WriteFile(filepath.Join(dir, "app", "app.go"), []byte(mockAppGo), 0o644))
 
 		c, err := New(dir)
 		require.NoError(t, err)
@@ -111,7 +111,7 @@ func TestCoinType(t *testing.T) {
 			ChainCoinType = 529
 		)
 		`
-		require.NoError(t, os.WriteFile(filepath.Join(dir, "app", "app.go"), []byte(mockAppGo), 0644))
+		require.NoError(t, os.WriteFile(filepath.Join(dir, "app", "app.go"), []byte(mockAppGo), 0o644))
 
 		c, err := New(dir)
 		require.NoError(t, err)
@@ -131,7 +131,7 @@ func TestCoinType(t *testing.T) {
 		// ChainCoinType is the coin type for this chain
 		const ChainCoinType = 330 // Custom coin type for test
 		`
-		require.NoError(t, os.WriteFile(filepath.Join(dir, "app", "app.go"), []byte(mockAppGo), 0644))
+		require.NoError(t, os.WriteFile(filepath.Join(dir, "app", "app.go"), []byte(mockAppGo), 0o644))
 
 		c, err := New(dir)
 		require.NoError(t, err)

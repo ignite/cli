@@ -15,7 +15,7 @@ func TestFindFiles(t *testing.T) {
 	tests := []struct {
 		name      string
 		files     []string
-		extension string
+		extension []string
 		prefix    string
 		want      []string
 		err       error
@@ -62,35 +62,35 @@ func TestFindFiles(t *testing.T) {
 		{
 			name:      "test 3 extension json files",
 			files:     []string{"file1.json", "file2.txt", "file3.json", "file4.json"},
-			extension: "json",
+			extension: []string{"json"},
 			want:      []string{"file1.json", "file3.json", "file4.json"},
 			err:       nil,
 		},
 		{
 			name:      "test 3 extension json files with subfolder",
 			files:     []string{"testdata/file1.json", "file2.txt", "foo/file3.json", "file4.json"},
-			extension: "json",
+			extension: []string{"json"},
 			want:      []string{"testdata/file1.json", "foo/file3.json", "file4.json"},
 			err:       nil,
 		},
 		{
 			name:      "test 1 extension txt files",
 			files:     []string{"file1.json", "file2.txt", "file3.json", "file4.json"},
-			extension: "txt",
+			extension: []string{"txt"},
 			want:      []string{"file2.txt"},
 			err:       nil,
 		},
 		{
 			name:      "test 1 extension json files",
 			files:     []string{"file1.json"},
-			extension: "json",
+			extension: []string{"json"},
 			want:      []string{"file1.json"},
 			err:       nil,
 		},
 		{
 			name:      "test invalid files extension",
 			files:     []string{"file1.json", "file2.json", "file3.json", "file4.json"},
-			extension: "txt",
+			extension: []string{"txt"},
 			want:      []string{},
 			err:       nil,
 		},
@@ -98,8 +98,15 @@ func TestFindFiles(t *testing.T) {
 			name:      "test file prefix and extension",
 			files:     []string{"test.file1.json", "test.file2.txt", "test.file3.json"},
 			prefix:    "test.file",
-			extension: "json",
+			extension: []string{"json"},
 			want:      []string{"test.file1.json", "test.file3.json"},
+			err:       nil,
+		},
+		{
+			name:      "test 2 different extensions",
+			files:     []string{"file1.json", "file2.txt", "file3.json", "file4.json", "file.yaml"},
+			extension: []string{"txt", "yaml"},
+			want:      []string{"file2.txt", "file.yaml"},
 			err:       nil,
 		},
 	}
@@ -124,8 +131,9 @@ func TestFindFiles(t *testing.T) {
 			if tt.prefix != "" {
 				opts = append(opts, xos.WithPrefix(tt.prefix))
 			}
-			if tt.extension != "" {
-				opts = append(opts, xos.WithExtension(tt.extension))
+
+			for _, ext := range tt.extension {
+				opts = append(opts, xos.WithExtension(ext))
 			}
 
 			gotFiles, err := xos.FindFiles(tempDir, opts...)

@@ -9,7 +9,7 @@ description: Ignite Chain.
 
 _Ignite is a blockchain to help launch Cosmos SDK-based blockchains._
 
-Using Cosmos SDK and Ignite CLI, developers can quickly create a crypto application that is decentralized, economical for usage, and scalable. The Cosmos SDK framework allows developers to create sovereign application-specific blockchains that become part of the wider [Cosmos ecosystem](https://v1.cosmos.network/ecosystem/apps). Blockchains created with Cosmos SDK use a Proof-of-Stake (PoS) consensus protocol that requires validators to secure the chain.
+Using Cosmos SDK and Ignite CLI, developers can quickly create a crypto application that is decentralized, economical for usage, and scalable. The Cosmos SDK framework allows developers to create sovereign application-specific blockchains that become part of the wider [Cosmos ecosystem](https://cosmos.network/ecosystem/apps). Blockchains created with Cosmos SDK use a Proof-of-Stake (PoS) consensus protocol that requires validators to secure the chain.
 
 Even though tools like Ignite CLI simplify the development of a Cosmos SDK blockchain, launching a new chain is a highly complex process. One of the major challenges of developing and launching your own sovereign blockchain is ensuring the security of the underlying consensus. Since Cosmos SDK chains are based on the PoS consensus, each blockchain requires initial coin allocations and validators before they can be launched, which presents developers with significant challenges, such as determining their chain's tokenomics or coordinating a robust validator set.
 

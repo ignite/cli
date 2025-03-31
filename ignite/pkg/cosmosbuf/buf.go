@@ -19,7 +19,6 @@ import (
 )
 
 const (
-	binaryName                = "buf"
 	flagTemplate              = "template"
 	flagOutput                = "output"
 	flagErrorFormat           = "error-format"
@@ -28,6 +27,7 @@ const (
 	flagBufGenYaml            = "buf-gen-yaml"
 	flagIncludeImports        = "include-imports"
 	flagIncludeWellKnownTypes = "include-wkt"
+	flagWrite                 = "write"
 	flagPath                  = "path"
 	fmtJSON                   = "json"
 	bufGenPrefix              = "buf.gen."
@@ -35,6 +35,7 @@ const (
 	// CMDGenerate generate command.
 	CMDGenerate Command = "generate"
 	CMDExport   Command = "export"
+	CMDFormat   Command = "format"
 	CMDConfig   Command = "config"
 	CMDDep      Command = "dep"
 
@@ -45,6 +46,7 @@ var (
 	commands = map[Command]struct{}{
 		CMDGenerate: {},
 		CMDExport:   {},
+		CMDFormat:   {},
 		CMDConfig:   {},
 		CMDDep:      {},
 	}
@@ -169,19 +171,15 @@ func (b Buf) Update(ctx context.Context, modDir string) error {
 
 // Migrate runs the buf Migrate command for the files in the app directory.
 func (b Buf) Migrate(ctx context.Context, protoDir string) error {
-	yamlFiles, err := xos.FindFiles(protoDir, xos.WithExtension(xos.YAMLFile), xos.WithPrefix(bufGenPrefix))
+	yamlFiles, err := xos.FindFiles(protoDir, xos.WithExtension(xos.YMLFile), xos.WithExtension(xos.YAMLFile), xos.WithPrefix(bufGenPrefix))
 	if err != nil {
 		return err
 	}
-	ymlfiles, err := xos.FindFiles(protoDir, xos.WithExtension(xos.YMLFile), xos.WithPrefix(bufGenPrefix))
-	if err != nil {
-		return err
-	}
-	yamlFiles = append(yamlFiles, ymlfiles...)
 
 	flags := map[string]string{
 		flagWorkspace: ".",
 	}
+
 	if len(yamlFiles) > 0 {
 		flags[flagBufGenYaml] = strings.Join(yamlFiles, ",")
 	}
@@ -190,6 +188,7 @@ func (b Buf) Migrate(ctx context.Context, protoDir string) error {
 	if err != nil {
 		return err
 	}
+
 	return b.runCommand(ctx, cmd...)
 }
 
@@ -207,6 +206,19 @@ func (b Buf) Export(ctx context.Context, protoDir, output string) error {
 		flagOutput: output,
 	}
 	cmd, err := b.command(CMDExport, flags, protoDir)
+	if err != nil {
+		return err
+	}
+
+	return b.runCommand(ctx, cmd...)
+}
+
+// Format runs the buf Format command for the files in the provided path.
+func (b Buf) Format(ctx context.Context, path string) error {
+	flags := map[string]string{
+		flagWrite: "true",
+	}
+	cmd, err := b.command(CMDFormat, flags, path)
 	if err != nil {
 		return err
 	}
