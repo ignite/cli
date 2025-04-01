@@ -366,7 +366,7 @@ balances:
   denom: venuscoin
 ```
 
-The buy order book on the target blokchain is now empty.
+The buy order book on the target blockchain is now empty.
 
 This walkthrough of the interchain exchange showed you how to:
 

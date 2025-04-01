@@ -133,7 +133,7 @@ func RegisterInvariants(ir sdk.InvariantRegistry, k Keeper) {
 }
 
 // ZeroLaunchTimestampInvariant invariant that checks if the
-// `LaunchTimestamp is zero
+// LaunchTimestamp is zero
 func ZeroLaunchTimestampInvariant(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
 		all := k.GetAllChain(ctx)
