@@ -4,21 +4,17 @@ import (
 	"os"
 
 	"cosmossdk.io/client/v2/autocli"
-	"cosmossdk.io/core/address"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
-	"cosmossdk.io/x/tx/signing"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtxconfig "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/cosmos/gogoproto/proto"
 	"github.com/spf13/cobra"
 
 	"<%= ModulePath %>/app"
@@ -36,7 +32,6 @@ func NewRootCmd() *cobra.Command {
 		depinject.Configs(app.AppConfig(),
 			depinject.Supply(log.NewNopLogger()),
 			depinject.Provide(
-				ProvideInterfaceRegistry,
 				ProvideClientContext,
 			),
 		),
