@@ -16,8 +16,10 @@ type defaultPlugin struct {
 }
 
 const (
-	PluginRelayerVersion = "hermes/v0.2.8"
-	PluginRelayerPath    = "github.com/ignite/apps/hermes@" + PluginRelayerVersion
+	PluginRelayerVersion     = "hermes/v0.2.8"
+	PluginRelayerPath        = "github.com/ignite/apps/hermes@" + PluginRelayerVersion
+	PluginAppRegistryVersion = "appregistry/v0.1.2"
+	PluginAppRegistryPath    = "github.com/ignite/apps/appregistry@" + PluginAppRegistryVersion
 )
 
 // defaultPlugins holds the plugin that are considered trustable and for which
@@ -29,6 +31,12 @@ var defaultPlugins = []defaultPlugin{
 		short:   "Connect blockchains with an IBC relayer",
 		aliases: []string{"r"},
 		path:    PluginRelayerPath,
+	},
+	{
+		use:     "appregistry",
+		short:   "Browse the Ignite App Registry App",
+		aliases: []string{"mp"},
+		path:    PluginAppRegistryPath,
 	},
 }
 
