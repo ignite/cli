@@ -16,8 +16,6 @@ type defaultPlugin struct {
 }
 
 const (
-	PluginNetworkVersion = "v0.2.2"
-	PluginNetworkPath    = "github.com/ignite/cli-plugin-network@" + PluginNetworkVersion
 	PluginRelayerVersion = "hermes/v0.2.8"
 	PluginRelayerPath    = "github.com/ignite/apps/hermes@" + PluginRelayerVersion
 )
@@ -26,12 +24,6 @@ const (
 // a command will added if the plugin is not already installed.
 // When the user executes that command, the plugin is automatically installed.
 var defaultPlugins = []defaultPlugin{
-	{
-		use:     "network",
-		short:   "Launch a blockchain in production",
-		aliases: []string{"n"},
-		path:    PluginNetworkPath,
-	},
 	{
 		use:     "relayer",
 		short:   "Connect blockchains with an IBC relayer",
