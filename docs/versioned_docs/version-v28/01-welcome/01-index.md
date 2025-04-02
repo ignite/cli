@@ -1,5 +1,5 @@
 ---
-slug: /
+slug: /welcome
 ---
 
 import ProjectsTable from '@site/src/components/ProjectsTable';
