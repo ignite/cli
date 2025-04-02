@@ -24,7 +24,7 @@ func TestEnsureDefaultPlugins(t *testing.T) {
 			name: "should not add because already present in config",
 			cfg: &pluginsconfig.Config{
 				Apps: []pluginsconfig.Plugin{{
-					Path: "github.com/ignite/cli-plugin-network@v42",
+					Path: PluginRelayerPath,
 				}},
 			},
 			expectAddedInCommand: false,
@@ -36,7 +36,7 @@ func TestEnsureDefaultPlugins(t *testing.T) {
 
 			ensureDefaultPlugins(cmd, tt.cfg)
 
-			expectedCmd := findCommandByPath(cmd, "ignite network")
+			expectedCmd := findCommandByPath(cmd, "ignite relayer")
 			if tt.expectAddedInCommand {
 				assert.NotNil(t, expectedCmd)
 			} else {
