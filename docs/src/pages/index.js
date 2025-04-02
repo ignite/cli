@@ -23,7 +23,7 @@ export default function Home() {
       description="Welcome to Ignite Documentation Portal"
     >
       <div className={styles.hero}>
-        <h1 className={styles.heroTitle}>Welcome to Ignite Docs</h1>
+        <h1 className={styles.heroTitle}>Welcome to Ignite Knowledge Hub</h1>
         <p className={styles.heroSubtitle}>
           Your one-stop portal for Ignite documentation, tutorials, and
           resources
