@@ -19,18 +19,10 @@ Beyond these, Ignite has been instrumental in a wide array of blockchain applica
 - **CometBFT Integration:** Built with the CometBFT consensus engine (formerly Tendermint), ensuring robust consensus mechanisms in your blockchain solutions.
 - **Cross-Domain Applications:** Ignite is perfectly suited for developing a diverse array of use cases across various sectors. These include DeFi, NFTs, supply chain management, smart contracts (both EVM and WASM), and decentralized exchanges (DEXes).
 
-## Install Ignite CLI
-
-Get started with Ignite CLI by running this simple installation command:
-
-```
-curl https://get.ignite.com/cli! | bash
-```
-
 ## Embracing the Cosmos Ecosystem
 
 Ignite CLI is your entry point into the vibrant Cosmos ecosystem, a hub of innovation where you can explore a range of applications, from wallets and explorers to smart contracts and DEXes, all powered by CometBFT and the Cosmos SDK.
-This ecosystem is home to over [$50 billion worth of blockchain projects](https://cosmos.network/ecosystem/tokens/), showcasing the scalability and versatility of the technologies at play.
+This ecosystem is home to over [$100 billion worth of blockchain projects](https://cosmos.network/ecosystem/tokens/), showcasing the scalability and versatility of the technologies at play.
 
 ## Projects using Tendermint and Cosmos SDK
 
