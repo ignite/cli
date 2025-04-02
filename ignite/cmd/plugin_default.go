@@ -16,13 +16,7 @@ type defaultPlugin struct {
 }
 
 const (
-<<<<<<< HEAD
-	PluginNetworkVersion = "v0.2.2"
-	PluginNetworkPath    = "github.com/ignite/cli-plugin-network@" + PluginNetworkVersion
-	PluginRelayerVersion = "hermes/v0.2.4"
-=======
 	PluginRelayerVersion = "hermes/v0.2.8"
->>>>>>> 6f4aa5c2 (refactor: remove network as default plugin (#4586))
 	PluginRelayerPath    = "github.com/ignite/apps/hermes@" + PluginRelayerVersion
 )
 

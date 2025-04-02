@@ -58,18 +58,6 @@ func run(outPath string) error {
 	if err != nil {
 		return err
 	}
-<<<<<<< HEAD
-	// cfg.Apps = append(
-	//	cfg.Apps,
-	// TODO uncomment after fix SPN.
-	// Add network plugin.
-	// pluginsconfig.Plugin{Path: ignitecmd.PluginNetworkPath},
-	// TODO uncomment after launch the `hermes/v0.2.4`.
-	// Add relayer plugin.
-	// pluginsconfig.Plugin{Path: ignitecmd.PluginRelayerPath},
-	// )
-=======
->>>>>>> 6f4aa5c2 (refactor: remove network as default plugin (#4586))
 	if err := cfg.Save(); err != nil {
 		return err
 	}
