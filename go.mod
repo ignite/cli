@@ -81,8 +81,12 @@ require (
 	golang.org/x/tools v0.24.0
 	golang.org/x/vuln v1.0.4
 	google.golang.org/grpc v1.70.0
+<<<<<<< HEAD
 	google.golang.org/protobuf v1.36.4
 	gopkg.in/yaml.v2 v2.4.0
+=======
+	google.golang.org/protobuf v1.36.6
+>>>>>>> 8d9618b2 (chore(templates): bump collections (#4606))
 	gopkg.in/yaml.v3 v3.0.1
 	mvdan.cc/gofumpt v0.7.0
 	sigs.k8s.io/yaml v1.4.0
@@ -97,10 +101,11 @@ require (
 	connectrpc.com/connect v1.16.2 // indirect
 	connectrpc.com/otelconnect v0.7.0 // indirect
 	cosmossdk.io/api v0.7.6 // indirect
-	cosmossdk.io/collections v0.4.0 // indirect
+	cosmossdk.io/collections v1.2.0 // indirect
 	cosmossdk.io/depinject v1.1.0 // indirect
 	cosmossdk.io/errors v1.0.1 // indirect
 	cosmossdk.io/log v1.4.1 // indirect
+	cosmossdk.io/schema v1.0.0 // indirect
 	cosmossdk.io/store v1.1.1 // indirect
 	cosmossdk.io/x/tx v0.13.7 // indirect
 	dario.cat/mergo v1.0.1 // indirect
@@ -479,5 +484,30 @@ require (
 	honnef.co/go/tools v0.5.1 // indirect
 	mvdan.cc/unparam v0.0.0-20240528143540-8a5130ca722f // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
+<<<<<<< HEAD
 	pgregory.net/rapid v1.1.0 // indirect
+=======
+	pgregory.net/rapid v1.2.0 // indirect
+	pluginrpc.com/pluginrpc v0.5.0 // indirect
+)
+
+tool (
+	github.com/bufbuild/buf/cmd/buf
+	github.com/golangci/golangci-lint/cmd/golangci-lint
+	github.com/tbruyelle/mdgofmt/cmd/mdgofmt
+	github.com/vektra/mockery/v2
+	golang.org/x/tools/cmd/goimports
+	golang.org/x/vuln/cmd/govulncheck
+	mvdan.cc/gofumpt
+)
+
+replace (
+	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
+	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2
+	// Fix upstream GHSA-h395-qcrw-5vmq vulnerability.
+	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
+	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.7.0
+	// Downgraded to avoid bugs in following commits which caused simulations to fail.
+	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
+>>>>>>> 8d9618b2 (chore(templates): bump collections (#4606))
 )
