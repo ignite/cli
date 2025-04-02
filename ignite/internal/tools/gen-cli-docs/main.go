@@ -58,10 +58,6 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	cfg.Apps = append(cfg.Apps, pluginsconfig.Plugin{
-		// Add network plugin
-		Path: ignitecmd.PluginNetworkPath,
-	})
 	if err := cfg.Save(); err != nil {
 		return err
 	}
