@@ -30,6 +30,7 @@ To get started, create a blockchain:
 
 * [ignite account](#ignite-account)	 - Create, delete, and show Ignite accounts
 * [ignite app](#ignite-app)	 - Create and manage Ignite Apps
+* [ignite appregistry](#ignite-appregistry)	 - Browse the Ignite App Registry App
 * [ignite chain](#ignite-chain)	 - Build, init and start a blockchain node
 * [ignite completion](#ignite-completion)	 - Generates shell completion script.
 * [ignite docs](#ignite-docs)	 - Show Ignite CLI docs
@@ -436,6 +437,25 @@ ignite app update github.com/org/my-app/
 **SEE ALSO**
 
 * [ignite app](#ignite-app)	 - Create and manage Ignite Apps
+
+
+## ignite appregistry
+
+Browse the Ignite App Registry App
+
+```
+ignite appregistry [flags]
+```
+
+**Options**
+
+```
+  -h, --help   help for appregistry
+```
+
+**SEE ALSO**
+
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 
 
 ## ignite chain
