@@ -33,7 +33,7 @@ This tool generates migration diff files for each of Ignite's scaffold commands.
 1. Clone the Ignite CLI repository:
 
 ```shell
-git clone https://github.com/ignite/cli.git && \
+git clone https://github.com/ignite/cli.git --depth=1 && \
 cd cli/ignite/internal/tools/gen-mig-diffs
 ```
 

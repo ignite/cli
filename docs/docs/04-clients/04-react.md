@@ -1,5 +1,10 @@
 # React frontend
 
+:::warning
+The React frontend is being reworked and is not yet stable.  
+In the meantime, refer to the [Ignite CCA App](https://ignite.com/marketplace/cca).
+:::
+
 Welcome to this tutorial on using Ignite to develop a web application for your
 blockchain with React. Ignite is a tool that simplifies the process of building
 a blockchain application by providing a set of templates and generators that can

@@ -4,7 +4,7 @@ title: cosmostxcollector
 slug: /packages/cosmostxcollector
 ---
 
-# cosmostxcollector
+# Indexer (cosmostxcollector)
 
 The package implements support for collecting transactions and events from Cosmos blockchains
 into a data backend and it also adds support for querying the collected data.
@@ -37,64 +37,64 @@ recent blocks until the current block height and populate the database:
 package main
 
 import (
-	"context"
-	"log"
+ "context"
+ "log"
 
-	"github.com/ignite/cli/v29/ignite/pkg/clictx"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosclient"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmostxcollector"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmostxcollector/adapter/postgres"
+ "github.com/ignite/cli/v29/ignite/pkg/clictx"
+ "github.com/ignite/cli/v29/ignite/pkg/cosmosclient"
+ "github.com/ignite/cli/v29/ignite/pkg/cosmostxcollector"
+ "github.com/ignite/cli/v29/ignite/pkg/cosmostxcollector/adapter/postgres"
 )
 
 const (
-	// Name of a local PostgreSQL database
-	dbName = "cosmos"
+ // Name of a local PostgreSQL database
+ dbName = "cosmos"
 
-	// Cosmos RPC address
-	rpcAddr = "https://rpc.cosmos.directory:443/cosmoshub"
+ // Cosmos RPC address
+ rpcAddr = "https://rpc.cosmos.directory:443/cosmoshub"
 )
 
 func collect(ctx context.Context, db postgres.Adapter) error {
-	// Make sure that the data backend schema is up to date
-	if err := db.Init(ctx); err != nil {
-		return err
-	}
+ // Make sure that the data backend schema is up to date
+ if err := db.Init(ctx); err != nil {
+  return err
+ }
 
-	// Init the Cosmos client
-	client, err := cosmosclient.New(ctx, cosmosclient.WithNodeAddress(rpcAddr))
-	if err != nil {
-		return err
-	}
+ // Init the Cosmos client
+ client, err := cosmosclient.New(ctx, cosmosclient.WithNodeAddress(rpcAddr))
+ if err != nil {
+  return err
+ }
 
-	// Get the latest block height
-	latestHeight, err := client.LatestBlockHeight(ctx)
-	if err != nil {
-		return err
-	}
+ // Get the latest block height
+ latestHeight, err := client.LatestBlockHeight(ctx)
+ if err != nil {
+  return err
+ }
 
-	// Collect transactions and events starting from a block height.
-	// The collector stops at the latest height available at the time of the call.
-	collector := cosmostxcollector.New(db, client)
-	if err := collector.Collect(ctx, latestHeight-50); err != nil {
-		return err
-	}
+ // Collect transactions and events starting from a block height.
+ // The collector stops at the latest height available at the time of the call.
+ collector := cosmostxcollector.New(db, client)
+ if err := collector.Collect(ctx, latestHeight-50); err != nil {
+  return err
+ }
 
-	return nil
+ return nil
 }
 
 func main() {
-	ctx := clictx.From(context.Background())
+ ctx := clictx.From(context.Background())
 
-	// Init an adapter for a local PostgreSQL database running with the default values
-	params := map[string]string{"sslmode": "disable"}
-	db, err := postgres.NewAdapter(dbName, postgres.WithParams(params))
-	if err != nil {
-		log.Fatal(err)
-	}
+ // Init an adapter for a local PostgreSQL database running with the default values
+ params := map[string]string{"sslmode": "disable"}
+ db, err := postgres.NewAdapter(dbName, postgres.WithParams(params))
+ if err != nil {
+  log.Fatal(err)
+ }
 
-	if err := collect(ctx, db); err != nil {
-		log.Fatal(err)
-	}
+ if err := collect(ctx, db); err != nil {
+  log.Fatal(err)
+ }
 }
 ```
 
@@ -119,26 +119,26 @@ The example reads transfer events from Cosmos' bank module and paginates the res
 
 ```go
 import (
-	"context"
+ "context"
 
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/adapter/postgres"
-	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
+ banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+ "github.com/ignite/cli/ignite/pkg/cosmostxcollector/adapter/postgres"
+ "github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
 )
 
 func queryBankTransferEvents(ctx context.Context, db postgres.Adapter) ([]query.Event, error) {
-	// Create an event query that returns events of type "transfer"
-	qry := query.NewEventQuery(
-		query.WithFilters(
-			// Filter transfer events from Cosmos' bank module
-			postgres.FilterByEventType(banktypes.EventTypeTransfer),
-		),
-		query.WithPageSize(10),
-		query.AtPage(1),
-	)
+ // Create an event query that returns events of type "transfer"
+ qry := query.NewEventQuery(
+  query.WithFilters(
+   // Filter transfer events from Cosmos' bank module
+   postgres.FilterByEventType(banktypes.EventTypeTransfer),
+  ),
+  query.WithPageSize(10),
+  query.AtPage(1),
+ )
 
-	// Execute the query
-	return db.QueryEvents(ctx, qry)
+ // Execute the query
+ return db.QueryEvents(ctx, qry)
 }
 ```
 
@@ -157,44 +157,44 @@ interface.
 
 ```go
 import (
-	"context"
+ "context"
 
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/adapter/postgres"
-	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
+ banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+ "github.com/ignite/cli/ignite/pkg/cosmostxcollector/adapter/postgres"
+ "github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
 )
 
 func queryBankTransferEventIDs(ctx context.Context, db postgres.Adapter) (ids []int64, err error) {
-	// Create a query that returns the IDs for events of type "transfer"
-	qry := query.New(
-		"event",
-		query.Fields("id"),
-		query.WithFilters(
-			// Filter transfer events from Cosmos' bank module
-			postgres.NewFilter("type", banktypes.EventTypeTransfer),
-		),
-		query.WithPageSize(10),
-		query.AtPage(1),
-		query.SortByFields(query.SortOrderAsc, "id"),
-	)
+ // Create a query that returns the IDs for events of type "transfer"
+ qry := query.New(
+  "event",
+  query.Fields("id"),
+  query.WithFilters(
+   // Filter transfer events from Cosmos' bank module
+   postgres.NewFilter("type", banktypes.EventTypeTransfer),
+  ),
+  query.WithPageSize(10),
+  query.AtPage(1),
+  query.SortByFields(query.SortOrderAsc, "id"),
+ )
 
-	// Execute the query
-	cr, err := db.Query(ctx, qry)
-	if err != nil {
-		return nil, err
-	}
+ // Execute the query
+ cr, err := db.Query(ctx, qry)
+ if err != nil {
+  return nil, err
+ }
 
-	// Read the results
-	for cr.Next() {
-		var eventID int64
+ // Read the results
+ for cr.Next() {
+  var eventID int64
 
-		if err := cr.Scan(&eventID); err != nil {
-			return nil, err
-		}
+  if err := cr.Scan(&eventID); err != nil {
+   return nil, err
+  }
 
-		ids = append(ids, eventID)
-	}
+  ids = append(ids, eventID)
+ }
 
-	return ids, nil
+ return ids, nil
 }
 ```
