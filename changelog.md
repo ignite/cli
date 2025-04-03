@@ -23,6 +23,7 @@
 - [#4585](https://github.com/ignite/cli/pull/4585) Fix faucet cmd issue.
 - [#4587](https://github.com/ignite/cli/pull/4587) Add missing light clients routes to IBC client keeper.
 - [#4595](https://github.com/ignite/cli/pull/4595) Fix wrong InterfaceRegistry for IBC modules.
+- [#4609](https://github.com/ignite/cli/pull/4609) Add relayer port and version for integration tests.
 
 ## [`v29.0.0-beta.1`](https://github.com/ignite/cli/releases/tag/v29.0.0-beta.1)
 
