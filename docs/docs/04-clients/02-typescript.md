@@ -4,6 +4,11 @@ description: Information about the generated TypeScript client code.
 
 # TypeScript frontend
 
+:::warning
+The TypeScript client is being reworked and is not yet stable.
+In the meantime, refer to the [Ignite CCA App](https://ignite.com/marketplace/cca).
+:::
+
 Ignite offers powerful functionality for generating client-side code for your
 blockchain. Think of this as a one-click client SDK generation tailored
 specifically for your blockchain.
@@ -43,7 +48,7 @@ ignite chain serve -r
 
 ## Setting up a TypeScript frontend client
 
-The best way to get started building with the TypeScript client is by using 
+The best way to get started building with the TypeScript client is by using
 [Vite](https://vitejs.dev). Vite provides boilerplate code for
 vanilla TS projects as well as React, Vue, Lit, Svelte and Preact frameworks.
 You can find additional information at the [Vite Getting Started
@@ -365,10 +370,10 @@ transacting via Keplr like so:
 import { Client } from '../../ts-client';
 
 const client = new Client({ 
-		apiURL: "http://localhost:1317",
-		rpcURL: "http://localhost:26657",
-		prefix: "cosmos"
-	}
+  apiURL: "http://localhost:1317",
+  rpcURL: "http://localhost:26657",
+  prefix: "cosmos"
+ }
 );
 await client.useKeplr();
 ```
@@ -386,10 +391,10 @@ something like:
 import { Client } from '../../ts-client';
 
 const client = new Client({ 
-		apiURL: "http://localhost:1317",
-		rpcURL: "http://localhost:26657",
-		prefix: "cosmos"
-	}
+  apiURL: "http://localhost:1317",
+  rpcURL: "http://localhost:26657",
+  prefix: "cosmos"
+ }
 );
 await client.useKeplr({
   chainName: 'My Great Chain',
@@ -415,10 +420,10 @@ const mnemonic =
 const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic);
 
 const client = new Client({ 
-		apiURL: "http://localhost:1317",
-		rpcURL: "http://localhost:26657",
-		prefix: "cosmos"
-	}
+  apiURL: "http://localhost:1317",
+  rpcURL: "http://localhost:26657",
+  prefix: "cosmos"
+ }
 );
 await client.useKeplr();
 

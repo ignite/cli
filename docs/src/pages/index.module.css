@@ -1,0 +1,125 @@
+.hero {
+  text-align: center;
+  padding: 1.75rem 1.5rem; /* Matches --ifm-spacing-horizontal: theme(spacing.7) */
+  background-color: var(--ifm-background-color);
+  border-bottom: 1px solid var(--ifm-blockquote-border-color);
+}
+
+.heroTitle {
+  font-size: 2.5rem; /* Matches h1 sizing */
+  font-weight: 700;
+  line-height: 2.5rem;
+  letter-spacing: -0.025em; /* Approximates tracking-tight */
+  margin-bottom: 1rem;
+  color: var(--ifm-font-color-base);
+}
+
+.heroSubtitle {
+  font-size: 1.125rem;
+  color: #666; /* Approximates gray.600 */
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.75rem; /* Matches relaxed line height */
+}
+
+.main {
+  padding: 1.75rem 1.5rem;
+  max-width: 90rem;
+  margin: 0 auto;
+}
+
+.cardsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.card {
+  padding: 1.5rem;
+  border: 1px solid var(--ifm-blockquote-border-color);
+  border-radius: 0.5rem;
+  background-color: #f7f7f7; /* Matches --docsearch-searchbox-background as a card bg */
+  transition: all 0.2s ease-in-out;
+}
+
+.card:hover {
+  box-shadow: 0px 0px 80px rgba(0, 0, 0, 0.07);
+  transform: translateY(-2px);
+}
+
+.card h2 {
+  margin-top: 0;
+  font-size: 1.25rem; /* Matches h3 sizing */
+  font-weight: 600;
+  line-height: 1.75rem;
+  letter-spacing: -0.025em;
+  color: var(--ifm-font-color-base);
+}
+
+.card p {
+  color: #666;
+  font-size: 1rem;
+  line-height: 1.75rem;
+  margin-bottom: 1rem;
+}
+
+.cardLink {
+  display: inline-block;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--ifm-color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: all 0.2s ease-in-out;
+}
+
+.cardLink:hover {
+  color: #3d39fc;
+  text-decoration-color: #3d39fc;
+}
+
+/* Dark mode adjustments */
+html[data-theme="dark"] .hero {
+  background-color: var(--ifm-background-color);
+}
+
+html[data-theme="dark"] .card {
+  background-color: #1a1a1a; /* Matches dark theme --ifm-background-color */
+}
+
+html[data-theme="dark"] .card p {
+  color: #b3b3b3; /* Approximates mutedLight */
+}
+
+html[data-theme="dark"] .cardLink {
+  color: var(--ifm-color-primary);
+}
+
+html[data-theme="dark"] .cardLink:hover {
+  color: #3d39fc;
+  text-decoration-color: #3d39fc;
+}
+
+/* Responsive adjustments */
+@media (max-width: 996px) {
+  .cardsContainer {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    padding: 1.5rem 1rem;
+  }
+
+  .main {
+    padding: 1.5rem 1rem;
+  }
+}
+
+@media (min-width: 997px) {
+  .hero {
+    padding-top: 3.5rem;
+    padding-bottom: 3.5rem;
+  }
+}
