@@ -265,12 +265,12 @@ func runChain(
 
 func TestBlogIBC(t *testing.T) {
 	var (
-		env    = envtest.New(t)
-		app    = env.Scaffold("github.com/ignite/blog", "--no-module")
-		ctx    = env.Ctx()
-		tmpDir = t.TempDir()
+		name        = "blog"
+		env         = envtest.New(t)
+		app         = env.Scaffold(fmt.Sprintf("github.com/apps/%s", name), "--no-module")
+		tmpDir      = t.TempDir()
+		ctx, cancel = context.WithCancel(env.Ctx())
 	)
-	ctx, cancel := context.WithCancel(ctx)
 	t.Cleanup(func() {
 		cancel()
 		time.Sleep(5 * time.Second)
@@ -440,6 +440,7 @@ func TestBlogIBC(t *testing.T) {
 				"--generate-wallets",
 				"--overwrite-config",
 			),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
