@@ -265,9 +265,8 @@ func runChain(
 
 func TestBlogIBC(t *testing.T) {
 	var (
-		name   = "blog"
 		env    = envtest.New(t)
-		app    = env.Scaffold(fmt.Sprintf("github.com/ignite/%s", name), "--no-module")
+		app    = env.Scaffold("github.com/ignite/blog", "--no-module")
 		ctx    = env.Ctx()
 		tmpDir = t.TempDir()
 	)
@@ -440,9 +439,6 @@ func TestBlogIBC(t *testing.T) {
 				refChainGRPC,
 				"--chain-a-faucet", hostChainFaucet,
 				"--chain-b-faucet", refChainFaucet,
-				"--chain-a-port-id", name,
-				"--chain-b-port-id", name,
-				"--channel-version", name+"-1",
 				"--generate-wallets",
 				"--overwrite-config",
 			),
