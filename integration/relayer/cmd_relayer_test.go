@@ -265,9 +265,8 @@ func runChain(
 
 func TestBlogIBC(t *testing.T) {
 	var (
-		name        = "blog"
 		env         = envtest.New(t)
-		app         = env.Scaffold(fmt.Sprintf("github.com/apps/%s", name), "--no-module")
+		app         = env.Scaffold("github.com/apps/blog", "--no-module")
 		tmpDir      = t.TempDir()
 		ctx, cancel = context.WithCancel(env.Ctx())
 	)
