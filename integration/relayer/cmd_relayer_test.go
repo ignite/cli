@@ -265,12 +265,11 @@ func runChain(
 
 func TestBlogIBC(t *testing.T) {
 	var (
-		env    = envtest.New(t)
-		app    = env.Scaffold("github.com/ignite/blog", "--no-module")
-		ctx    = env.Ctx()
-		tmpDir = t.TempDir()
+		env         = envtest.New(t)
+		app         = env.Scaffold("github.com/apps/blog", "--no-module")
+		tmpDir      = t.TempDir()
+		ctx, cancel = context.WithCancel(env.Ctx())
 	)
-	ctx, cancel := context.WithCancel(ctx)
 	t.Cleanup(func() {
 		cancel()
 		time.Sleep(5 * time.Second)
@@ -425,8 +424,6 @@ func TestBlogIBC(t *testing.T) {
 
 	env.Must(env.Exec("configure the hermes relayer app",
 		step.NewSteps(step.New(
-			step.Stdout(os.Stdout),
-			step.Stderr(os.Stderr),
 			step.Exec(envtest.IgniteApp,
 				"relayer",
 				"hermes",
@@ -442,14 +439,13 @@ func TestBlogIBC(t *testing.T) {
 				"--generate-wallets",
 				"--overwrite-config",
 			),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	go func() {
 		env.Must(env.Exec("run the hermes relayer",
 			step.NewSteps(step.New(
-				step.Stdout(os.Stdout),
-				step.Stderr(os.Stderr),
 				step.Exec(envtest.IgniteApp,
 					"relayer",
 					"hermes",
@@ -457,11 +453,12 @@ func TestBlogIBC(t *testing.T) {
 					hostChainChainID,
 					refChainChainID,
 				),
+				step.Workdir(app.SourcePath()),
 			)),
 			envtest.ExecCtx(ctx),
 		))
 	}()
-	time.Sleep(4 * time.Second)
+	time.Sleep(3 * time.Second)
 
 	var (
 		queryOutput   = &bytes.Buffer{}
