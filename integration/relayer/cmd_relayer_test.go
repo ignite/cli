@@ -454,11 +454,12 @@ func TestBlogIBC(t *testing.T) {
 					hostChainChainID,
 					refChainChainID,
 				),
+				step.Workdir(app.SourcePath()),
 			)),
 			envtest.ExecCtx(ctx),
 		))
 	}()
-	time.Sleep(4 * time.Second)
+	time.Sleep(3 * time.Second)
 
 	var (
 		queryOutput   = &bytes.Buffer{}
