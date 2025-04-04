@@ -68,10 +68,27 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 
 			return xstrcase.UpperCamel(replacer.Replace(word))
 		},
-		"resolveFile": func(fullPath string) string { // TODO to check
+		"resolveFile": func(fullPath string) string {
+			// Extract just the proto package path, not the full file system path
 			rel, _ := filepath.Rel(protoPath, fullPath)
 			rel = strings.TrimSuffix(rel, ".proto")
-			return rel
+
+			// If the path starts with ../ or contains references outside the package,
+			// extract just the proto package name to create a proper relative import
+			if strings.HasPrefix(rel, "..") || strings.Contains(rel, "/go/pkg/mod/") {
+				// Extract just the file name and its immediate parent directory
+				parts := strings.Split(rel, "/")
+				if len(parts) >= 2 {
+					// Get the parent directory and file name
+					parentDir := parts[len(parts)-2]
+					fileName := parts[len(parts)-1]
+					return "./types/" + parentDir + "/" + fileName
+				}
+				// Fallback to just using the filename
+				return "./types/" + filepath.Base(rel)
+			}
+
+			return "./types/" + rel
 		},
 		"inc": func(i int) int {
 			return i + 1
