@@ -156,7 +156,17 @@ func (g *tsGenerator) generateModuleTemplate(
 		return err
 	}
 
-	return templateTSClientModule.Write(out, protoPath, struct {
+	// Generate the module template
+	if err := templateTSClientModule.Write(out, protoPath, struct {
+		Module module.Module
+	}{
+		Module: m,
+	}); err != nil {
+		return err
+	}
+
+	// Generate the rest API template (using axios)
+	return templateTSClientRest.Write(out, protoPath, struct {
 		Module module.Module
 	}{
 		Module: m,

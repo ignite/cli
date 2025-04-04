@@ -10,10 +10,9 @@ import (
 
 func NewGenerateComposables() *cobra.Command {
 	c := &cobra.Command{
-		Hidden: true, // hidden util we have a better ts-client.
-		Use:    "composables",
-		Short:  "TypeScript frontend client and Vue 3 composables",
-		RunE:   generateComposablesHandler,
+		Use:   "composables",
+		Short: "TypeScript frontend client and Vue 3 composables",
+		RunE:  generateComposablesHandler,
 	}
 
 	c.Flags().AddFlagSet(flagSetYes())
