@@ -30,10 +30,12 @@ ignite app install -g github.com/project/cli-app
 The command will compile the app and make it immediately available to the
 `ignite` command lists.
 
+Discover recommended Apps in the [Ignite Apps Marketplace](https://ignite.com/marketplace).
+
 ## Listing installed apps
 
 When in an ignite scaffolded blockchain you can use the command `ignite app
-list` to list all Ignite Apps and there statuses.
+list` to list all Ignite Apps and their statuses.
 
 ## Updating apps
 

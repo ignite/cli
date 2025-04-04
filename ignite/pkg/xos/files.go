@@ -15,15 +15,17 @@ const (
 )
 
 type findFileOptions struct {
-	extension string
+	extension []string
 	prefix    string
 }
 
 type FindFileOptions func(o *findFileOptions)
 
+// WithExtension adds a file extension to the search options.
+// It can be called multiple times to add multiple extensions.
 func WithExtension(extension string) FindFileOptions {
 	return func(o *findFileOptions) {
-		o.extension = extension
+		o.extension = append(o.extension, extension)
 	}
 }
 
@@ -48,7 +50,15 @@ func FindFiles(directory string, options ...FindFileOptions) ([]string, error) {
 		}
 
 		// Filter by file extension if provided
-		if opts.extension != "" && filepath.Ext(path) != fmt.Sprintf(".%s", opts.extension) {
+		var matched bool
+		for _, ext := range opts.extension {
+			if filepath.Ext(path) == fmt.Sprintf(".%s", ext) {
+				matched = true
+				break
+			}
+		}
+
+		if len(opts.extension) > 0 && !matched {
 			return nil // Skip files that don't match the extension
 		}
 

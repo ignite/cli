@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Introduction
 
-In this tutorial, we will be using Ignite CLI to create a new blockchain. Ignite
+In this guide, we will be using Ignite CLI to create a new blockchain. Ignite
 CLI is a command line interface that allows users to quickly and easily create
 blockchain networks. By using Ignite CLI, we can quickly create a new blockchain
 without having to manually set up all the necessary components.
@@ -14,7 +14,7 @@ directory structure and files that were created. This will give us an
 understanding of how the blockchain is organized and how the different
 components of the blockchain interact with each other.
 
-By the end of this tutorial, you will have a basic understanding of how to use
+By the end of this guide, you will have a basic understanding of how to use
 Ignite CLI to create a new blockchain, and you will have a high-level
 understanding of the directory structure and files that make up a blockchain.
 This knowledge will be useful as you continue to explore the world of blockchain
@@ -115,7 +115,7 @@ automatically build and release a blockchain binary. GitHub Actions is a tool
 that allows developers to automate their software development workflows,
 including building, testing, and deploying their projects. The workflow in the
 `.github` directory is used to automate the process of building the blockchain
-binary and releasing it, which can save time and effort for developers. 
+binary and releasing it, which can save time and effort for developers.
 
 The `readme.md` file is a readme file that provides an overview of the
 blockchain project. This file typically includes information such as the
@@ -140,7 +140,7 @@ starts the node locally and enables automatic code reloading so that changes to
 the code can be reflected in the running blockchain without having to restart
 the node. This allows for faster development and testing of the blockchain.
 
-Congratulations! 🥳 You have successfully created a brand-new Cosmos blockchain
+**Congratulations!** 🥳 You have successfully created a brand-new Cosmos blockchain
 using the Ignite CLI. This blockchain uses the delegated proof of stake (DPoS)
 consensus algorithm, and comes with a set of standard modules for token
 transfers, governance, and inflation. Now that you have a basic understanding of

@@ -61,7 +61,7 @@ const config = {
 
   presets: [
     [
-      "classic",
+      "@docusaurus/preset-classic",
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
@@ -205,11 +205,11 @@ const config = {
               },
               {
                 label: "Twitter",
-                href: "https://twitter.com/ignite_com",
+                href: "https://x.com/ignite",
               },
               {
                 label: "Linkedin",
-                href: "https://www.linkedin.com/company/ignt/",
+                href: "https://www.linkedin.com/company/allinbits",
               },
               {
                 label: "YouTube",

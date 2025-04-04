@@ -100,8 +100,8 @@ func protoQueryModify(opts *Options) genny.RunFn {
 				protoutil.NewOption(
 					"google.api.http",
 					fmt.Sprintf(
-						"/%s/%s/%s%s",
-						appModulePath, opts.ModuleName, opts.QueryName.Snake, requestPath,
+						"/%s/%s/%s/%s%s",
+						appModulePath, opts.ModuleName, opts.ProtoVer, opts.QueryName.Snake, requestPath,
 					),
 					protoutil.Custom(),
 					protoutil.SetField("get"),

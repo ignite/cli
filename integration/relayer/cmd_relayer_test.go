@@ -26,6 +26,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/v29/ignite/pkg/randstr"
 	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
 	envtest "github.com/ignite/cli/v29/integration"
 )
@@ -35,8 +36,8 @@ const (
 )
 
 var (
-	bobName    = "bob"
-	marsConfig = v1.Config{
+	bobName        = "bob"
+	refChainConfig = v1.Config{
 		Config: base.Config{
 			Version: 1,
 			Accounts: []base.Account{
@@ -61,7 +62,7 @@ var (
 				Coins: []string{"500token", "100000000stake"},
 				Host:  ":4501",
 			},
-			Genesis: xyaml.Map{"chain_id": "mars-1"},
+			Genesis: xyaml.Map{"chain_id": randstr.Runes(12)},
 		},
 		Validators: []v1.Validator{
 			{
@@ -77,11 +78,11 @@ var (
 					"p2p": xyaml.Map{"laddr": ":26658"},
 					"rpc": xyaml.Map{"laddr": ":26658", "pprof_laddr": ":6061"},
 				},
-				Home: "$HOME/.mars",
+				Home: filepath.Join(os.TempDir(), randstr.Runes(5)),
 			},
 		},
 	}
-	earthConfig = v1.Config{
+	hostChainConfig = v1.Config{
 		Config: base.Config{
 			Version: 1,
 			Accounts: []base.Account{
@@ -106,7 +107,7 @@ var (
 				Coins: []string{"500token", "100000000stake"},
 				Host:  ":4500",
 			},
-			Genesis: xyaml.Map{"chain_id": "earth-1"},
+			Genesis: xyaml.Map{"chain_id": randstr.Runes(12)},
 		},
 		Validators: []v1.Validator{
 			{
@@ -122,7 +123,7 @@ var (
 					"p2p": xyaml.Map{"laddr": ":26656"},
 					"rpc": xyaml.Map{"laddr": ":26656", "pprof_laddr": ":6060"},
 				},
-				Home: "$HOME/.earth",
+				Home: filepath.Join(os.TempDir(), randstr.Runes(5)),
 			},
 		},
 	}
@@ -264,12 +265,11 @@ func runChain(
 
 func TestBlogIBC(t *testing.T) {
 	var (
-		env    = envtest.New(t)
-		app    = env.Scaffold("github.com/ignite/blog", "--no-module")
-		ctx    = env.Ctx()
-		tmpDir = t.TempDir()
+		env         = envtest.New(t)
+		app         = env.Scaffold("github.com/apps/blog", "--no-module")
+		tmpDir      = t.TempDir()
+		ctx, cancel = context.WithCancel(env.Ctx())
 	)
-	ctx, cancel := context.WithCancel(ctx)
 	t.Cleanup(func() {
 		cancel()
 		time.Sleep(5 * time.Second)
@@ -384,12 +384,12 @@ func TestBlogIBC(t *testing.T) {
 		availableport.WithMaxPort(5000),
 	)
 	require.NoError(t, err)
-	earthAPI, earthRPC, earthGRPC, earthFaucet := runChain(ctx, t, env, app, earthConfig, tmpDir, ports[:7])
-	earthChainID := earthConfig.Genesis["chain_id"].(string)
-	earthHome := earthConfig.Validators[0].Home
-	marsAPI, marsRPC, marsGRPC, marsFaucet := runChain(ctx, t, env, app, marsConfig, tmpDir, ports[7:])
-	marsChainID := marsConfig.Genesis["chain_id"].(string)
-	marsHome := marsConfig.Validators[0].Home
+	hostChainAPI, hostChainRPC, hostChainGRPC, hostChainFaucet := runChain(ctx, t, env, app, hostChainConfig, tmpDir, ports[:7])
+	hostChainChainID := hostChainConfig.Genesis["chain_id"].(string)
+	hostChainHome := hostChainConfig.Validators[0].Home
+	refChainAPI, refChainRPC, refChainGRPC, refChainFaucet := runChain(ctx, t, env, app, refChainConfig, tmpDir, ports[7:])
+	refChainChainID := refChainConfig.Genesis["chain_id"].(string)
+	refChainHome := refChainConfig.Validators[0].Home
 
 	// check the chains is up
 	stepsCheckChains := step.NewSteps(
@@ -400,10 +400,10 @@ func TestBlogIBC(t *testing.T) {
 				"output", "json",
 			),
 			step.PreExec(func() error {
-				if err := env.IsAppServed(ctx, earthAPI); err != nil {
+				if err := env.IsAppServed(ctx, hostChainAPI); err != nil {
 					return err
 				}
-				return env.IsAppServed(ctx, marsAPI)
+				return env.IsAppServed(ctx, refChainAPI)
 			}),
 		),
 	)
@@ -417,7 +417,7 @@ func TestBlogIBC(t *testing.T) {
 				"install",
 				"-g",
 				// filepath.Join(goenv.GoPath(), "src/github.com/ignite/apps/hermes"), // Local path for test proposals
-				"github.com/ignite/apps/hermes@hermes/v0.2.2",
+				"github.com/ignite/apps/hermes@hermes/v0.2.8",
 			),
 		)),
 	))
@@ -428,24 +428,32 @@ func TestBlogIBC(t *testing.T) {
 				"relayer",
 				"hermes",
 				"configure",
-				earthChainID,
-				earthRPC,
-				earthGRPC,
-				marsChainID,
-				marsRPC,
-				marsGRPC,
-				"--chain-a-faucet", earthFaucet,
-				"--chain-b-faucet", marsFaucet,
+				hostChainChainID,
+				hostChainRPC,
+				hostChainGRPC,
+				refChainChainID,
+				refChainRPC,
+				refChainGRPC,
+				"--chain-a-faucet", hostChainFaucet,
+				"--chain-b-faucet", refChainFaucet,
 				"--generate-wallets",
 				"--overwrite-config",
 			),
+			step.Workdir(app.SourcePath()),
 		)),
 	))
 
 	go func() {
 		env.Must(env.Exec("run the hermes relayer",
 			step.NewSteps(step.New(
-				step.Exec(envtest.IgniteApp, "relayer", "hermes", "start", earthChainID, marsChainID),
+				step.Exec(envtest.IgniteApp,
+					"relayer",
+					"hermes",
+					"start",
+					hostChainChainID,
+					refChainChainID,
+				),
+				step.Workdir(app.SourcePath()),
 			)),
 			envtest.ExecCtx(ctx),
 		))
@@ -459,13 +467,14 @@ func TestBlogIBC(t *testing.T) {
 	env.Must(env.Exec("verify if the channel was created", step.NewSteps(
 		step.New(
 			step.Stdout(queryOutput),
+			step.Stderr(queryOutput),
 			step.Exec(
 				app.Binary(),
 				"q",
 				"ibc",
 				"channel",
 				"channels",
-				"--node", earthRPC,
+				"--node", hostChainRPC,
 				"--log_format", "json",
 				"--output", "json",
 			),
@@ -493,7 +502,7 @@ func TestBlogIBC(t *testing.T) {
 		receiverAddr = "cosmos1nrksk5swk6lnmlq670a8kwxmsjnu0ezqts39sa"
 		txOutput     = &bytes.Buffer{}
 		txResponse   struct {
-			Code   int
+			Code   int    `json:"code"`
 			RawLog string `json:"raw_log"`
 			TxHash string `json:"txhash"`
 		}
@@ -502,6 +511,11 @@ func TestBlogIBC(t *testing.T) {
 	stepsTx := step.NewSteps(
 		step.New(
 			step.Stdout(txOutput),
+			step.Stderr(txOutput),
+			step.PreExec(func() error {
+				txOutput.Reset()
+				return nil
+			}),
 			step.Exec(
 				app.Binary(),
 				"tx",
@@ -512,9 +526,9 @@ func TestBlogIBC(t *testing.T) {
 				receiverAddr,
 				"100000stake",
 				"--from", sender,
-				"--node", earthRPC,
-				"--home", earthHome,
-				"--chain-id", earthChainID,
+				"--node", hostChainRPC,
+				"--home", hostChainHome,
+				"--chain-id", hostChainChainID,
 				"--output", "json",
 				"--log_format", "json",
 				"--keyring-backend", "test",
@@ -524,22 +538,26 @@ func TestBlogIBC(t *testing.T) {
 				if execErr != nil {
 					return execErr
 				}
+				output := txOutput.Bytes()
 				if err := json.Unmarshal(txOutput.Bytes(), &txResponse); err != nil {
-					return errors.Errorf("unmarshling tx response: %w", err)
+					return errors.Errorf("unmarshalling tx response error: %w, response: %s", err, string(output))
 				}
+
+				time.Sleep(4 * time.Second)
+
 				return cmdrunner.New().Run(ctx, step.New(
 					step.Exec(
 						app.Binary(),
 						"q",
 						"tx",
 						txResponse.TxHash,
-						"--node", earthRPC,
-						"--home", earthHome,
-						"--chain-id", earthChainID,
+						"--node", hostChainRPC,
+						"--home", hostChainHome,
 						"--output", "json",
 						"--log_format", "json",
 					),
 					step.Stdout(txOutput),
+					step.Stderr(txOutput),
 					step.PreExec(func() error {
 						txOutput.Reset()
 						return nil
@@ -548,8 +566,9 @@ func TestBlogIBC(t *testing.T) {
 						if execErr != nil {
 							return execErr
 						}
-						if err := json.Unmarshal(txOutput.Bytes(), &txResponse); err != nil {
-							return err
+						output := txOutput.Bytes()
+						if err := json.Unmarshal(output, &txResponse); err != nil {
+							return errors.Errorf("unmarshalling tx response error: %w, response: %s", err, string(output))
 						}
 						return nil
 					}),
@@ -570,25 +589,28 @@ func TestBlogIBC(t *testing.T) {
 	steps := step.NewSteps(
 		step.New(
 			step.Stdout(balanceOutput),
+			step.Stderr(balanceOutput),
 			step.Exec(
 				app.Binary(),
 				"q",
 				"bank",
 				"balances",
 				receiverAddr,
-				"--node", marsRPC,
-				"--home", marsHome,
-				"--chain-id", marsChainID,
+				"--node", refChainRPC,
+				"--home", refChainHome,
 				"--log_format", "json",
 				"--output", "json",
 			),
+			step.PreExec(func() error {
+				balanceOutput.Reset()
+				return nil
+			}),
 			step.PostExec(func(execErr error) error {
 				if execErr != nil {
 					return execErr
 				}
 
 				output := balanceOutput.Bytes()
-				defer balanceOutput.Reset()
 				if err := json.Unmarshal(output, &balanceResponse); err != nil {
 					return errors.Errorf("unmarshalling query response error: %w, response: %s", err, string(output))
 				}
@@ -604,9 +626,4 @@ func TestBlogIBC(t *testing.T) {
 		),
 	)
 	env.Must(env.Exec("check ibc balance", steps, envtest.ExecRetry()))
-
-	// TODO test ibc using the blog post methods:
-	// step.Exec(app.Binary(), "tx", "blog", "send-ibc-post", "transfer", "channel-0", "Hello", "Hello_Mars-Alice_from_Earth", "--chain-id", earthChainID, "--from", "alice", "--node", earthGRPC, "--output", "json", "--log_format", "json", "--yes")
-	// TODO test ibc using the hermes ft-transfer:
-	// step.Exec(envtest.IgniteApp, "hermes", "exec", "--", "--config", earthConfig, "tx", "ft-transfer", "--timeout-seconds", "1000", "--dst-chain", earthChainID, "--src-chain", marsChainID, "--src-port", "transfer", "--src-channel", "channel-0", "--amount", "100000", "--denom", "stake", "--output", "json", "--log_format", "json", "--yes")
 }

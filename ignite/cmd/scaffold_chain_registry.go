@@ -15,7 +15,7 @@ func NewScaffoldChainRegistry() *cobra.Command {
 		Short: "Configs for the chain registry",
 		Long: `Scaffold the chain registry chain.json and assets.json files.
 
-The chain registry is a GitHub repo, hosted at https://github.com/cosmos/cosmos-registry, that
+The chain registry is a GitHub repo, hosted at https://github.com/cosmos/chain-registry, that
 contains the chain.json and assets.json files of most of chains in the Cosmos ecosystem.
 It is good practices, when creating a new chain, and about to launch a testnet or mainnet, to
 publish the chain's metadata in the chain registry.
@@ -55,7 +55,7 @@ func scaffoldChainRegistryFiles(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	if err = sc.AddChainRegistryFiles(c, cfg); err != nil {
+	if err = sc.CreateChainRegistryFiles(c, cfg); err != nil {
 		return err
 	}
 

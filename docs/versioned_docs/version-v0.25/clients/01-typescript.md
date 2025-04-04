@@ -249,7 +249,7 @@ const client = new Client({
 );
 ```
 
-The problem is that for a new Ignite CLI scaffolded chain, Keplr has no knowledge of it thus requiring an initial call to [`experimentalSuggestChain()`](https://docs.keplr.app/api/suggest-chain.html) method to add the chain information to the user's Keplr instance.
+The problem is that for a new Ignite CLI scaffolded chain, Keplr has no knowledge of it thus requiring an initial call to [`experimentalSuggestChain()`](https://docs.keplr.app/api/guide/suggest-chain) method to add the chain information to the user's Keplr instance.
 
 The generated client makes this easier by offering a `useKeplr()` method that autodiscovers the chain information and sets it up for you. Thus you can instantiate the client without a wallet and then call `useKeplr()` to enable transacting via Keplr like so:
 

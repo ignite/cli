@@ -1,7 +1,7 @@
 name: Docusaurus add version
 on:
   release:
-    types: [ published ]
+    types: [published]
 
 jobs:
   gen-docs-version:
@@ -11,7 +11,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Cache node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: docs/node_modules
           key: node_modules-${{ hashFiles('**/yarn.lock') }}
@@ -26,6 +26,15 @@ jobs:
       - name: Install Dependencies
         run: yarn install
         working-directory: ./docs
+
+      - name: Skip beta versions
+        continue-on-error: false
+        run: |
+          VERSION=${{ github.ref_name }}
+          if [[ $VERSION == *beta* ]]; then
+            echo "Skipping beta version"
+            exit 1
+          fi
 
       - name: Generate docusaurus docs for major version
         run: |
@@ -47,7 +56,7 @@ jobs:
         working-directory: ./docs
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7
         with:
           title: "chore: docusaurus deploy version ${{ github.ref_name }}"
           commit-message: "chore(docs): deploy version ${{ github.ref_name }}"

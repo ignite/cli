@@ -80,6 +80,7 @@ about Cosmos SDK on https://docs.cosmos.network
 
 	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagSetAccountPrefixes())
+	c.Flags().AddFlagSet(flagSetCoinType())
 	c.Flags().StringP(flagPath, "p", "", "create a project in a specific path")
 	c.Flags().Bool(flagNoDefaultModule, false, "create a project without a default module")
 	c.Flags().StringSlice(flagParams, []string{}, "add default module parameters")
@@ -102,6 +103,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 	var (
 		name          = args[0]
 		addressPrefix = getAddressPrefix(cmd)
+		coinType      = getCoinType(cmd)
 		appPath       = flagGetPath(cmd)
 
 		noDefaultModule, _ = cmd.Flags().GetBool(flagNoDefaultModule)
@@ -119,6 +121,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		} else if len(moduleConfigs) > 0 {
 			return errors.New("module configs flag is only supported if the default module is enabled")
 		}
+		skipProto = true
 	}
 
 	cacheStorage, err := newCache(cmd)
@@ -133,6 +136,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		appPath,
 		name,
 		addressPrefix,
+		coinType,
 		protoDir,
 		noDefaultModule,
 		minimal,
