@@ -20,6 +20,7 @@ var (
 
 	templateTSClientRoot           = newTemplateWriter("root")
 	templateTSClientModule         = newTemplateWriter("module")
+	templateTSClientRest           = newTemplateWriter("rest")
 	templateTSClientComposable     = newTemplateWriter("composable")
 	templateTSClientComposableRoot = newTemplateWriter("composable-root")
 )
@@ -88,7 +89,7 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 				return "./types/" + filepath.Base(rel)
 			}
 
-			return "./types/" + rel
+			return rel
 		},
 		"inc": func(i int) int {
 			return i + 1
