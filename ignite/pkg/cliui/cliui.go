@@ -10,7 +10,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/bubbleconfirm"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/cliquiz"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/clispinner"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/entrywriter"
 	uilog "github.com/ignite/cli/v29/ignite/pkg/cliui/log"
@@ -238,10 +237,10 @@ func (s Session) Print(messages ...interface{}) error {
 }
 
 // Ask asks questions in the terminal and collect answers.
-func (s Session) Ask(questions ...cliquiz.Question) error {
+func (s Session) Ask(questions ...bubbleconfirm.Question) error {
 	defer s.PauseSpinner()()
 	// TODO provide writer from the session
-	return cliquiz.Ask(questions...)
+	return bubbleconfirm.Ask(questions...)
 }
 
 // AskConfirm asks a yes/no question using a bubbletea dialog.

@@ -1,4 +1,3 @@
-// Package bubbleconfirm provides a bubbletea-based confirmation dialog.
 package bubbleconfirm
 
 import (
@@ -16,7 +15,7 @@ const (
 )
 
 var (
-	// Default styles for the confirmation dialog
+	// styles for the confirmation dialog
 	questionStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("230"))
 	cursorStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("212"))
 	yesStyle      = lipgloss.NewStyle().Foreground(lipgloss.Color("42"))
@@ -31,7 +30,7 @@ type Model struct {
 	done     bool
 }
 
-// NewModel creates a new confirmation model with the given question
+// NewModel creates a new confirmation model with the given question.
 func NewModel(question string) Model {
 	return Model{
 		Question: question,
@@ -40,12 +39,12 @@ func NewModel(question string) Model {
 	}
 }
 
-// Init initializes the model
+// Init initializes the model.
 func (m Model) Init() tea.Cmd {
 	return nil
 }
 
-// Update handles messages and updates the model
+// Update handles messages and updates the model.
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -63,7 +62,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.cursor++
 			}
 		case "enter", " ":
-			// Set choice based on cursor position
+			// set choice based on cursor position
 			m.done = true
 			if m.cursor == 0 {
 				m.choice = Yes
@@ -84,7 +83,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-// View renders the confirmation prompt
+// View renders the confirmation prompt.
 func (m Model) View() string {
 	if m.done {
 		return ""
@@ -94,7 +93,7 @@ func (m Model) View() string {
 	yes := "Yes"
 	no := "No"
 
-	// Apply styles based on cursor position
+	// apply styles based on cursor position
 	if m.cursor == 0 {
 		yes = cursorStyle.Render("[") + yesStyle.Render(yes) + cursorStyle.Render("]")
 		no = "[ " + no + " ]"
@@ -106,7 +105,7 @@ func (m Model) View() string {
 	return fmt.Sprintf("%s\n%s %s\n", question, yes, no)
 }
 
-// Choice returns the selected choice (Yes, No, or Undecided)
+// Choice returns the selected choice (Yes, No, or Undecided).
 func (m Model) Choice() int {
 	return m.choice
 }

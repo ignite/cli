@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/cliquiz"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/bubbleconfirm"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosaccount"
 )
@@ -137,11 +137,11 @@ func getPassphrase(cmd *cobra.Command) (string, error) {
 	pass, _ := cmd.Flags().GetString(flagPassphrase)
 
 	if pass == "" && !getIsNonInteractive(cmd) {
-		if err := cliquiz.Ask(
-			cliquiz.NewQuestion("Passphrase",
+		if err := bubbleconfirm.Ask(
+			bubbleconfirm.NewQuestion("Passphrase",
 				&pass,
-				cliquiz.HideAnswer(),
-				cliquiz.GetConfirmation(),
+				bubbleconfirm.HideAnswer(),
+				bubbleconfirm.GetConfirmation(),
 			)); err != nil {
 			return "", err
 		}

@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/cliquiz"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/bubbleconfirm"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosaccount"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
@@ -38,8 +38,10 @@ func accountImportHandler(cmd *cobra.Command, args []string) error {
 	defer session.End()
 
 	if secret == "" {
-		if err := cliquiz.Ask(
-			cliquiz.NewQuestion("Your mnemonic or path to your private key", &secret, cliquiz.Required())); err != nil {
+		session.StopSpinner()
+
+		if err := bubbleconfirm.Ask(
+			bubbleconfirm.NewQuestion("Your mnemonic or path to your private key", &secret, bubbleconfirm.Required())); err != nil {
 			return err
 		}
 	}
