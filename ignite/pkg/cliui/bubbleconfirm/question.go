@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	// styles for the question input
+	// styles for the question input.
 	activeStyle      = lipgloss.NewStyle().Foreground(lipgloss.Color("212"))
 	promptStyle      = lipgloss.NewStyle().Foreground(lipgloss.Color("99"))
 	placeholderStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
@@ -81,7 +81,7 @@ func NewQuestion(question string, answer interface{}, options ...Option) Questio
 	return q
 }
 
-// inputModel represents the bubbletea model for an input prompt
+// inputModel represents the bubbletea model for an input prompt.
 type inputModel struct {
 	Question     string
 	Value        string
@@ -100,7 +100,7 @@ func (m inputModel) Init() tea.Cmd {
 
 // Update handles messages and updates the input model.
 func (m inputModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg := msg.(type) {
+	switch msg := msg.(type) { //nolint:gocritic // more readable than if-else
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "esc":
@@ -166,7 +166,7 @@ func (m inputModel) View() string {
 
 	// show cursor position
 	var display string
-	if m.Value == "" && m.DefaultValue != "" {
+	if m.Value == "" && m.DefaultValue != "" { //nolint:gocritic // more readable than switch
 		// show default value as placeholder
 		display = placeholderStyle.Render(m.DefaultValue)
 	} else if m.cursorPos < len(input) {

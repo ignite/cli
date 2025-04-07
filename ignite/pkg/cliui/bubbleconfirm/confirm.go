@@ -7,7 +7,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// confirmation result values
+// confirmation result values.
 const (
 	Undecided = iota
 	Yes
@@ -15,14 +15,14 @@ const (
 )
 
 var (
-	// styles for the confirmation dialog
+	// styles for the confirmation dialog.
 	questionStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("230"))
 	cursorStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("212"))
 	yesStyle      = lipgloss.NewStyle().Foreground(lipgloss.Color("42"))
 	noStyle       = lipgloss.NewStyle().Foreground(lipgloss.Color("9"))
 )
 
-// Model represents the bubbletea model for a confirmation prompt
+// Model represents the bubbletea model for a confirmation prompt.
 type Model struct {
 	Question string
 	cursor   int
@@ -46,7 +46,7 @@ func (m Model) Init() tea.Cmd {
 
 // Update handles messages and updates the model.
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg := msg.(type) {
+	switch msg := msg.(type) { //nolint:gocritic // more readable than if-else
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q", "esc":
