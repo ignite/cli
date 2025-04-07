@@ -1,7 +1,6 @@
 package ignitecmd
 
 import (
-	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
@@ -277,7 +276,7 @@ func confirmWhenUncommittedChanges(session *cliui.Session, appPath string) error
 	if !cleanState {
 		session.Println(msgCommitPrefix)
 		if err := session.AskConfirm(msgCommitPrompt); err != nil {
-			if errors.Is(err, promptui.ErrAbort) {
+			if errors.Is(err, cliui.ErrAbort) {
 				return errors.New("No")
 			}
 

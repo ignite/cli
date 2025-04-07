@@ -42,7 +42,6 @@ require (
 	github.com/iancoleman/strcase v0.3.0
 	github.com/ignite/web v0.6.1
 	github.com/lib/pq v1.10.9
-	github.com/manifoldco/promptui v0.9.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/muesli/reflow v0.3.0
 	github.com/nqd/flat v0.2.0
@@ -144,7 +143,6 @@ require (
 	github.com/charmbracelet/x/term v0.2.1 // indirect
 	github.com/chavacava/garif v0.1.0 // indirect
 	github.com/chigopher/pathlib v0.19.1 // indirect
-	github.com/chzyer/readline v1.5.1 // indirect
 	github.com/cilium/ebpf v0.16.0 // indirect
 	github.com/ckaznocha/intrange v0.3.0 // indirect
 	github.com/cloudflare/circl v1.3.7 // indirect

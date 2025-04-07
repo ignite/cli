@@ -3,16 +3,17 @@ package analytics
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
 
-	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/v29/ignite/config"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/matomo"
 	"github.com/ignite/cli/v29/ignite/pkg/randstr"
 	"github.com/ignite/cli/v29/ignite/pkg/sentry"
@@ -146,21 +147,20 @@ func checkDNT() (anonIdentity, error) {
 	i.Name = randstr.Runes(16)
 	i.DoNotTrack = false
 
-	prompt := promptui.Select{
-		Label: "Ignite uses anonymized metrics to enhance the application, " +
-			"focusing on features such as command usage. We do not collect " +
-			"identifiable personal information. Your privacy is important to us. " +
-			"For more details, please visit our Privacy Policy at https://ignite.com/privacy " +
-			"and our Terms of Use at https://ignite.com/terms-of-use. " +
-			"Do you consent to the collection of these usage metrics for analytics purposes?",
-		Items: []string{"Yes", "No"},
-	}
-	resultID, _, err := prompt.Run()
-	if err != nil {
+	message := "Ignite uses anonymized metrics to enhance the application, " +
+		"focusing on features such as command usage. We do not collect " +
+		"identifiable personal information. Your privacy is important to us. " +
+		"For more details, please visit our Privacy Policy at https://ignite.com/privacy " +
+		"and our Terms of Use at https://ignite.com/terms-of-use. " +
+		"Do you consent to the collection of these usage metrics for analytics purposes?"
+
+	session := cliui.New()
+	err = session.AskConfirm(message)
+	if err != nil && !errors.Is(err, cliui.ErrAbort) {
 		return anonIdentity{}, err
 	}
 
-	if resultID != 0 {
+	if errors.Is(err, cliui.ErrAbort) {
 		i.DoNotTrack = true
 	}
 
