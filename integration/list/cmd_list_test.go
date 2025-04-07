@@ -23,19 +23,18 @@ func TestGenerateAnAppWithListAndVerify(t *testing.T) {
 	app.Scaffold(
 		"create a module",
 		false,
-		"s", "module", "example", "--require-registration",
+		"module", "example", "--require-registration",
 	)
 
 	app.Scaffold(
 		"create a list",
 		false,
-		"s", "list", "user", "email",
+		"list", "user", "email",
 	)
 
 	app.Scaffold(
 		"create a list with custom path and module",
 		false,
-		"s",
 		"list",
 		"AppPath",
 		"email",
@@ -48,7 +47,6 @@ func TestGenerateAnAppWithListAndVerify(t *testing.T) {
 	app.Scaffold(
 		"create a custom type fields",
 		false,
-		"s",
 		"list",
 		"employee",
 		"numInt:int",
@@ -69,7 +67,6 @@ func TestGenerateAnAppWithListAndVerify(t *testing.T) {
 	app.Scaffold(
 		"create a list with bool",
 		false,
-		"s",
 		"list",
 		"document",
 		"signed:bool",
@@ -80,7 +77,6 @@ func TestGenerateAnAppWithListAndVerify(t *testing.T) {
 	app.Scaffold(
 		"create a list with custom field type",
 		false,
-		"s",
 		"list",
 		"custom",
 		"document:Document",
@@ -91,43 +87,43 @@ func TestGenerateAnAppWithListAndVerify(t *testing.T) {
 	app.Scaffold(
 		"should prevent creating a list with duplicated fields",
 		true,
-		"s", "list", "company", "name", "name",
+		"list", "company", "name", "name",
 	)
 
 	app.Scaffold(
 		"should prevent creating a list with unrecognized field type",
 		true,
-		"s", "list", "employee", "level:itn",
+		"list", "employee", "level:itn",
 	)
 
 	app.Scaffold(
 		"should prevent creating an existing list",
 		true,
-		"s", "list", "user", "email",
+		"list", "user", "email",
 	)
 
 	app.Scaffold(
 		"should prevent creating a list whose name is a reserved word",
 		true,
-		"s", "list", "map", "size:int",
+		"list", "map", "size:int",
 	)
 
 	app.Scaffold(
 		"should prevent creating a list containing a field with a reserved word",
 		true,
-		"s", "list", "document", "type:int",
+		"list", "document", "type:int",
 	)
 
 	app.Scaffold(
 		"create a list with no interaction message",
 		false,
-		"s", "list", "nomessage", "email", "--no-message",
+		"list", "nomessage", "email", "--no-message",
 	)
 
 	app.Scaffold(
 		"should prevent creating a list in a non existent module",
 		true,
-		"s", "list", "user", "email", "--module", "idontexist",
+		"list", "user", "email", "--module", "idontexist",
 	)
 
 	app.EnsureSteady()
@@ -178,13 +174,13 @@ func TestGen(t *testing.T) {
 	app.Scaffold(
 		"create a module",
 		false,
-		"s", "module", "example", "--require-registration",
+		"module", "example", "--require-registration",
 	)
 
 	app.Scaffold(
 		"create a list",
 		false,
-		"s", "list", "user", "email",
+		"list", "user", "email",
 	)
 
 	ctx, cancel := context.WithCancel(env.Ctx())

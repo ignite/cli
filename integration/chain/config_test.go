@@ -38,7 +38,6 @@ func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
 
 	go func() {
 		defer cancel()
-
 		isBackendAliveErr = env.IsAppServed(ctx, servers.API)
 	}()
 

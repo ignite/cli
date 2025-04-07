@@ -27,34 +27,13 @@ func TestCliWithCaching(t *testing.T) {
 		isBackendAliveErr error
 	)
 
-	env.Must(env.Exec("create a message",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"s",
-				"message",
-				"mymessage",
-				"myfield1",
-				"myfield2:bool",
-				"--yes",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a message",
+		false,
+		"message", "mymessage", "myfield1", "myfield2:bool",
+	)
 
-	env.Must(env.Exec("create a query",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"s",
-				"query",
-				"myQuery",
-				"mytypefield",
-				"--yes",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold("create a query", false, "query", "myQuery", "mytypefield")
 
 	env.Must(env.Exec("build",
 		step.NewSteps(step.New(

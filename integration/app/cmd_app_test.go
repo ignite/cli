@@ -91,12 +91,11 @@ func TestGenerateAnAppWithNoDefaultModuleAndCreateAModule(t *testing.T) {
 
 	defer app.EnsureSteady()
 
-	env.Must(env.Exec("should scaffold a new module into a chain that never had modules before",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "first_module"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"should scaffold a new module into a chain that never had modules before",
+		false,
+		"module", "first_module",
+	)
 }
 
 func TestGenerateAppWithEmptyModule(t *testing.T) {
@@ -105,102 +104,71 @@ func TestGenerateAppWithEmptyModule(t *testing.T) {
 		app = env.Scaffold("github.com/test/blog")
 	)
 
-	env.Must(env.Exec("create a module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "example", "--require-registration"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a module",
+		false,
+		"module", "example", "--require-registration",
+	)
 
-	env.Must(env.Exec("should prevent creating an existing module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "example", "--require-registration"),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"should prevent creating an existing module",
+		true,
+		"module", "example", "--require-registration",
+	)
 
-	env.Must(env.Exec("should prevent creating a module with an invalid name",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "example1", "--require-registration"),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"should prevent creating a module with an invalid name",
+		true,
+		"module", "example1", "--require-registration",
+	)
 
-	env.Must(env.Exec("should prevent creating a module with a reserved name",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "tx", "--require-registration"),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"should prevent creating a module with a reserved name",
+		true,
+		"module", "tx", "--require-registration",
+	)
 
-	env.Must(env.Exec("should prevent creating a module with a forbidden prefix",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "ibcfoo", "--require-registration"),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"should prevent creating a module with a forbidden prefix",
+		true,
+		"module", "ibcfoo", "--require-registration",
+	)
 
-	env.Must(env.Exec("should prevent creating a module prefixed with an existing module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "examplefoo", "--require-registration"),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"should prevent creating a module prefixed with an existing module",
+		true,
+		"module", "examplefoo", "--require-registration",
+	)
 
-	env.Must(env.Exec("create a module with dependencies",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"s",
-				"module",
-				"--yes",
-				"with_dep",
-				"--dep",
-				"auth,bank,staking,slashing,example",
-				"--require-registration",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a module with dependencies",
+		false,
+		"module",
+		"with_dep",
+		"--dep",
+		"auth,bank,staking,slashing,example",
+		"--require-registration",
+	)
 
-	env.Must(env.Exec("should prevent creating a module with invalid dependencies",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"s",
-				"module",
-				"--yes",
-				"with_wrong_dep",
-				"--dep",
-				"dup,dup",
-				"--require-registration",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"should prevent creating a module with invalid dependencies",
+		true,
+		"module",
+		"with_wrong_dep",
+		"--dep",
+		"dup,dup",
+		"--require-registration",
+	)
 
-	env.Must(env.Exec("should prevent creating a module with a non registered dependency",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"s",
-				"module",
-				"--yes",
-				"with_no_dep",
-				"--dep",
-				"inexistent",
-				"--require-registration",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"should prevent creating a module with a non registered dependency",
+		true,
+		"module",
+		"with_no_dep",
+		"--dep",
+		"inexistent",
+		"--require-registration",
+	)
 
 	app.EnsureSteady()
 }

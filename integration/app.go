@@ -21,6 +21,8 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/xurl"
 )
 
+const ServeTimeout = time.Minute * 15
+
 const (
 	defaultConfigFileName = "config.yml"
 	defaultTestTimeout    = 30 * time.Minute // Go's default is 10m
@@ -300,10 +302,20 @@ func (a App) MustServe(ctx context.Context) {
 }
 
 func (a App) Scaffold(msg string, shouldFail bool, args ...string) {
+	a.generate(msg, "scaffold", shouldFail, args...)
+}
+
+func (a App) Generate(msg string, shouldFail bool, args ...string) {
+	a.generate(msg, "generate", shouldFail, args...)
+}
+
+func (a App) generate(msg, command string, shouldFail bool, args ...string) {
 	opts := make([]ExecOption, 0)
 	if shouldFail {
 		opts = append(opts, ExecShouldError())
 	}
+
+	args = append([]string{command}, args...)
 	a.env.Must(a.env.Exec(msg,
 		step.NewSteps(step.New(
 			step.Exec(IgniteApp, append(args, "--yes")...),
