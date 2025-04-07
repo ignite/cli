@@ -31,9 +31,7 @@ func TestSignTxWithDashedAppName(t *testing.T) {
 	)
 
 	nodeAddr, err := xurl.TCP(servers.RPC)
-	if err != nil {
-		t.Fatalf("cant read nodeAddr from host.RPC %v: %v", servers.RPC, err)
-	}
+	require.NoErrorf(t, err, "cant read nodeAddr from host.RPC %v", servers.RPC)
 
 	env.Exec("scaffold a simple list",
 		step.NewSteps(step.New(
@@ -60,21 +58,7 @@ func TestSignTxWithDashedAppName(t *testing.T) {
 	// sign tx to add an item to the list.
 	steps := step.NewSteps(
 		step.New(
-			step.Exec(
-				app.Binary(),
-				"config",
-				"output", "json",
-			),
-			step.PreExec(func() error {
-				return env.IsAppServed(ctx, servers.API)
-			}),
-		),
-		step.New(
 			step.Stdout(output),
-			step.PreExec(func() error {
-				err := env.IsAppServed(ctx, servers.API)
-				return err
-			}),
 			step.Exec(
 				app.Binary(),
 				"tx",
@@ -103,6 +87,7 @@ func TestSignTxWithDashedAppName(t *testing.T) {
 
 	go func() {
 		defer cancel()
+		app.WaitChainUp(ctx, servers.API)
 		isTxBodyRetrieved = env.Exec("sign a tx", steps, envtest.ExecRetry())
 	}()
 
@@ -148,16 +133,6 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 		step.New(
 			step.Exec(
 				app.Binary(),
-				"config",
-				"output", "json",
-			),
-			step.PreExec(func() error {
-				return env.IsAppServed(ctx, servers.API)
-			}),
-		),
-		step.New(
-			step.Exec(
-				app.Binary(),
 				"keys",
 				"list",
 				"--keyring-backend", "test",
@@ -190,9 +165,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 				}
 
 				nodeAddr, err := xurl.TCP(servers.RPC)
-				if err != nil {
-					return err
-				}
+				require.NoErrorf(t, err, "cant read nodeAddr from host.RPC %v", servers.RPC)
 
 				// send some tokens from alice to bob and confirm the corresponding tx via gRPC gateway
 				// endpoint by asserting denom and amount.
@@ -264,7 +237,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 
 	go func() {
 		defer cancel()
-
+		app.WaitChainUp(ctx, servers.API)
 		isTxBodyRetrieved = env.Exec("retrieve account addresses", steps, envtest.ExecRetry())
 	}()
 

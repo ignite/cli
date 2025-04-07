@@ -1,6 +1,7 @@
 package envtest
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path"
@@ -19,8 +20,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/goenv"
 	"github.com/ignite/cli/v29/ignite/pkg/xurl"
 )
-
-const ServeTimeout = time.Minute * 15
 
 const (
 	defaultConfigFileName = "config.yml"
@@ -294,4 +293,41 @@ func (a App) GenerateTSClient() bool {
 			step.Workdir(a.path),
 		),
 	))
+}
+
+func (a App) MustServe(ctx context.Context) {
+	a.env.Must(a.Serve("should serve chain", ExecCtx(ctx)))
+}
+
+func (a App) Scaffold(msg string, shouldFail bool, args ...string) {
+	opts := make([]ExecOption, 0)
+	if shouldFail {
+		opts = append(opts, ExecShouldError())
+	}
+	a.env.Must(a.env.Exec(msg,
+		step.NewSteps(step.New(
+			step.Exec(IgniteApp, append(args, "--yes")...),
+			step.Workdir(a.SourcePath()),
+		)),
+		opts...,
+	))
+}
+
+// WaitChainUp waits the chain is up.
+func (a App) WaitChainUp(ctx context.Context, chainAPI string) {
+	// check the chains is up
+	env := a.env
+	stepsCheckChains := step.NewSteps(
+		step.New(
+			step.Exec(
+				a.Binary(),
+				"config",
+				"output", "json",
+			),
+			step.PreExec(func() error {
+				return env.IsAppServed(ctx, chainAPI)
+			}),
+		),
+	)
+	env.Exec(fmt.Sprintf("waiting the chain (%s) is up", chainAPI), stepsCheckChains, ExecRetry())
 }

@@ -392,22 +392,8 @@ func TestBlogIBC(t *testing.T) {
 	refChainHome := refChainConfig.Validators[0].Home
 
 	// check the chains is up
-	stepsCheckChains := step.NewSteps(
-		step.New(
-			step.Exec(
-				app.Binary(),
-				"config",
-				"output", "json",
-			),
-			step.PreExec(func() error {
-				if err := env.IsAppServed(ctx, hostChainAPI); err != nil {
-					return err
-				}
-				return env.IsAppServed(ctx, refChainAPI)
-			}),
-		),
-	)
-	env.Exec("waiting the chain is up", stepsCheckChains, envtest.ExecRetry())
+	app.WaitChainUp(ctx, hostChainAPI)
+	app.WaitChainUp(ctx, refChainAPI)
 
 	// ibc relayer.
 	env.Must(env.Exec("install the hermes relayer app",

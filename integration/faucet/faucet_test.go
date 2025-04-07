@@ -51,10 +51,9 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 
 	// wait servers to be online
 	defer cancel()
-	err := env.IsAppServed(ctx, servers.API)
-	require.NoError(t, err)
+	app.WaitChainUp(ctx, servers.API)
 
-	err = env.IsFaucetServed(ctx, faucetClient)
+	err := env.IsFaucetServed(ctx, faucetClient)
 	require.NoError(t, err)
 
 	// error "account doesn't have any balances" occurs if a sleep is not included
