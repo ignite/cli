@@ -320,7 +320,6 @@ func TestBlogIBC(t *testing.T) {
 		"--no-message",
 		"--module",
 		"blog",
-		"--yes",
 	)
 
 	app.Scaffold(

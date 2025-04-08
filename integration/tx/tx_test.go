@@ -33,18 +33,12 @@ func TestSignTxWithDashedAppName(t *testing.T) {
 	nodeAddr, err := xurl.TCP(servers.RPC)
 	require.NoErrorf(t, err, "cant read nodeAddr from host.RPC %v", servers.RPC)
 
-	env.Exec("scaffold a simple list",
-		step.NewSteps(step.New(
-			step.Workdir(app.SourcePath()),
-			step.Exec(
-				envtest.IgniteApp,
-				"scaffold",
-				"list",
-				"item",
-				"str",
-				"--yes",
-			),
-		)),
+	app.Scaffold(
+		"scaffold a simple list",
+		false,
+		"list",
+		"item",
+		"str",
 	)
 
 	var (

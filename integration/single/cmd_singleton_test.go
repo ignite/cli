@@ -5,7 +5,6 @@ package single_test
 import (
 	"testing"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	envtest "github.com/ignite/cli/v29/integration"
 )
 
@@ -15,62 +14,53 @@ func TestCreateSingleton(t *testing.T) {
 		app = env.Scaffold("github.com/test/blog")
 	)
 
-	env.Must(env.Exec("create an singleton type",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "single", "--yes", "user", "email"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create an singleton type",
+		false,
+		"single", "user", "email",
+	)
 
-	env.Must(env.Exec("create an singleton type with custom path",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "single", "--yes", "appPath", "email", "--path", app.SourcePath()),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create an singleton type with custom path",
+		false,
+		"single", "appPath", "email", "--path", app.SourcePath(),
+	)
 
-	env.Must(env.Exec("create an singleton type with no message",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "single", "--yes", "no-message", "email", "--no-message"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create an singleton type with no message",
+		false,
+		"single", "no-message", "email", "--no-message",
+	)
 
-	env.Must(env.Exec("create a module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "example", "--require-registration"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a module",
+		false,
+		"module", "example", "--require-registration",
+	)
 
-	env.Must(env.Exec("create another type",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "user", "email", "--module", "example"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create another type",
+		false,
+		"list", "user", "email", "--module", "example",
+	)
 
-	env.Must(env.Exec("create another type with a custom field type",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "user-detail", "user:User", "--module", "example"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create another type with a custom field type",
+		false,
+		"list", "user-detail", "user:User", "--module", "example",
+	)
 
-	env.Must(env.Exec("should prevent creating an singleton type with a typename that already exist",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "single", "--yes", "user", "email", "--module", "example"),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"should prevent creating an singleton type with a typename that already exist",
+		true,
+		"single", "user", "email", "--module", "example",
+	)
 
-	env.Must(env.Exec("create an singleton type in a custom module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "single", "--yes", "singleuser", "email", "--module", "example"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create an singleton type in a custom module",
+		false,
+		"single", "singleuser", "email", "--module", "example",
+	)
 
 	app.EnsureSteady()
 }

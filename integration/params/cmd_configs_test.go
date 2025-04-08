@@ -28,7 +28,6 @@ func TestCreateModuleConfigs(t *testing.T) {
 		"should prevent creating configs field that already exist",
 		true,
 		"configs",
-		"--yes",
 		"bla",
 		"buu:uint",
 		"--module",

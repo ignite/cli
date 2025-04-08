@@ -49,7 +49,6 @@ func TestCreateModuleParameters(t *testing.T) {
 		"create a new module parameters in the mars module",
 		false,
 		"params",
-		"--yes",
 		"foo",
 		"bar:uint",
 		"baz:bool",
