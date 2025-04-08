@@ -28,7 +28,7 @@ func TestServeWithCustomHome(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers.API)
 	}()
-	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
+	app.MustServe(ctx)
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -48,7 +48,7 @@ func TestServeWithConfigHome(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers.API)
 	}()
-	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
+	app.MustServe(ctx)
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -77,7 +77,7 @@ func TestServeWithCustomConfigFile(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers.API)
 	}()
-	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
+	app.MustServe(ctx)
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -98,8 +98,7 @@ func TestServeWithName(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers.API)
 	}()
-
-	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
+	app.MustServe(ctx)
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }

@@ -5,7 +5,6 @@ package params_test
 import (
 	"testing"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	envtest "github.com/ignite/cli/v29/integration"
 )
 
@@ -15,65 +14,46 @@ func TestCreateModuleConfigs(t *testing.T) {
 		app = env.Scaffold("github.com/test/mars")
 	)
 
-	env.Must(env.Exec("create a new module with configs",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
-				"s",
-				"module",
-				"--yes",
-				"foo",
-				"--module-configs",
-				"bla,baz:uint,bar:bool",
-				"--require-registration"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a new module with configs",
+		false,
+		"module",
+		"foo",
+		"--module-configs",
+		"bla,baz:uint,bar:bool",
+		"--require-registration",
+	)
 
-	env.Must(env.Exec("should prevent creating configs field that already exist",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
-				"s",
-				"configs",
-				"--yes",
-				"bla",
-				"buu:uint",
-				"--module",
-				"foo",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"should prevent creating configs field that already exist",
+		true,
+		"configs",
+		"--yes",
+		"bla",
+		"buu:uint",
+		"--module",
+		"foo",
+	)
 
-	env.Must(env.Exec("create a new module configs in the foo module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
-				"s",
-				"configs",
-				"--yes",
-				"bol",
-				"buu:uint",
-				"plk:bool",
-				"--module",
-				"foo",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a new module configs in the foo module",
+		false,
+		"configs",
+		"bol",
+		"buu:uint",
+		"plk:bool",
+		"--module",
+		"foo",
+	)
 
-	env.Must(env.Exec("create a new module configs in the mars module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
-				"s",
-				"configs",
-				"--yes",
-				"foo",
-				"bar:uint",
-				"baz:bool",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a new module configs in the mars module",
+		false,
+		"configs",
+		"foo",
+		"bar:uint",
+		"baz:bool",
+	)
 
 	app.EnsureSteady()
 }

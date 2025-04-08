@@ -5,7 +5,6 @@ package other_components_test
 import (
 	"testing"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	envtest "github.com/ignite/cli/v29/integration"
 )
 
@@ -15,143 +14,106 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 		app = env.Scaffold("github.com/test/blog")
 	)
 
-	env.Must(env.Exec("create a query",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"s",
-				"query",
-				"--yes",
-				"foo",
-				"text",
-				"vote:int",
-				"like:bool",
-				"-r",
-				"foo,bar:int,foobar:bool",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a query",
+		false,
+		"query",
+		"foo",
+		"text",
+		"vote:int",
+		"like:bool",
+		"-r",
+		"foo,bar:int,foobar:bool",
+	)
 
-	env.Must(env.Exec("create a query with custom path",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"s",
-				"query",
-				"--yes",
-				"AppPath",
-				"text",
-				"vote:int",
-				"like:bool",
-				"-r",
-				"foo,bar:int,foobar:bool",
-				"--path",
-				"./blog",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a query with custom path",
+		false,
+		"query",
+		"AppPath",
+		"text",
+		"vote:int",
+		"like:bool",
+		"-r",
+		"foo,bar:int,foobar:bool",
+		"--path",
+		"./blog",
+	)
 
-	env.Must(env.Exec("create a paginated query",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"s",
-				"query",
-				"--yes",
-				"bar",
-				"text",
-				"vote:int",
-				"like:bool",
-				"-r",
-				"foo,bar:int,foobar:bool",
-				"--paginated",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a paginated query",
+		false,
+		"query",
+		"bar",
+		"text",
+		"vote:int",
+		"like:bool",
+		"-r",
+		"foo,bar:int,foobar:bool",
+		"--paginated",
+	)
 
-	env.Must(env.Exec("create a custom field type",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
-				"s",
-				"type",
-				"--yes",
-				"custom-type",
-				"numInt:int",
-				"numsInt:array.int",
-				"numsIntAlias:ints",
-				"numUint:uint",
-				"numsUint:array.uint",
-				"numsUintAlias:uints",
-				"textString:string",
-				"textStrings:array.string",
-				"textStringsAlias:strings",
-				"textCoin:coin",
-				"textCoins:array.coin",
-				"textCoinsAlias:coins",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a custom field type",
+		false,
+		"type",
+		"custom-type",
+		"numInt:int",
+		"numsInt:array.int",
+		"numsIntAlias:ints",
+		"numUint:uint",
+		"numsUint:array.uint",
+		"numsUintAlias:uints",
+		"textString:string",
+		"textStrings:array.string",
+		"textStringsAlias:strings",
+		"textCoin:coin",
+		"textCoins:array.coin",
+		"textCoinsAlias:coins",
+	)
+	app.Scaffold(
+		"create a query with the custom field type as a response",
+		false,
+		"query", "foobaz", "-r", "bar:CustomType",
+	)
 
-	env.Must(env.Exec("create a query with the custom field type as a response",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "query", "--yes", "foobaz", "-r", "bar:CustomType"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"should prevent using custom type in request params",
+		true,
+		"query", "bur", "bar:CustomType",
+	)
 
-	env.Must(env.Exec("should prevent using custom type in request params",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "query", "--yes", "bur", "bar:CustomType"),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"create an empty query",
+		false,
+		"query", "foobar",
+	)
 
-	env.Must(env.Exec("create an empty query",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "query", "--yes", "foobar"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"should prevent creating an existing query",
+		true,
+		"query", "foo", "bar",
+	)
 
-	env.Must(env.Exec("should prevent creating an existing query",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "query", "--yes", "foo", "bar"),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"create a module",
+		false,
+		"module", "foo", "--require-registration",
+	)
 
-	env.Must(env.Exec("create a module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "foo", "--require-registration"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
-
-	env.Must(env.Exec("create a query in a module",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"s",
-				"query",
-				"--yes",
-				"foo",
-				"text",
-				"--module",
-				"foo",
-				"--desc",
-				"foo bar foobar",
-				"--response",
-				"foo,bar:int,foobar:bool",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a query in a module",
+		false,
+		"query",
+		"foo",
+		"text",
+		"--module",
+		"foo",
+		"--desc",
+		"foo bar foobar",
+		"--response",
+		"foo,bar:int,foobar:bool",
+	)
 
 	app.EnsureSteady()
 }

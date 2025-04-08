@@ -91,7 +91,7 @@ func TestSignTxWithDashedAppName(t *testing.T) {
 		isTxBodyRetrieved = env.Exec("sign a tx", steps, envtest.ExecRetry())
 	}()
 
-	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
+	app.MustServe(ctx)
 
 	if !isTxBodyRetrieved {
 		t.FailNow()
@@ -241,7 +241,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 		isTxBodyRetrieved = env.Exec("retrieve account addresses", steps, envtest.ExecRetry())
 	}()
 
-	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
+	app.MustServe(ctx)
 
 	if !isTxBodyRetrieved {
 		t.FailNow()
