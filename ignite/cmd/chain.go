@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"golang.org/x/mod/modfile"
 
@@ -267,7 +266,7 @@ func configMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, ap
 			// Confirm before overwriting the config file
 			session.Println(prefix)
 			if err := session.AskConfirm(question); err != nil {
-				if errors.Is(err, promptui.ErrAbort) {
+				if errors.Is(err, cliui.ErrAbort) {
 					return errors.Errorf("stopping because config version v%d is required to run the command", chainconfig.LatestVersion)
 				}
 
