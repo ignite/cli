@@ -138,7 +138,6 @@ func TestGenerateAnAppWithListAndVerify(t *testing.T) {
 	app.WaitChainUp(ctx, servers.API)
 
 	txReponse := app.CLITx(
-		ctx,
 		servers.RPC,
 		"blog",
 		"create-user",
@@ -146,7 +145,6 @@ func TestGenerateAnAppWithListAndVerify(t *testing.T) {
 	)
 
 	txReponse = app.CLIQueryTx(
-		ctx,
 		servers.RPC,
 		txReponse.TxHash,
 	)
@@ -193,7 +191,6 @@ func TestGen(t *testing.T) {
 	app.WaitChainUp(ctx, servers.API)
 
 	txResponse := app.CLITx(
-		ctx,
 		servers.RPC,
 		name,
 		"create-user",
@@ -202,14 +199,12 @@ func TestGen(t *testing.T) {
 	fmt.Println(txResponse)
 
 	txResponse = app.CLIQueryTx(
-		ctx,
 		servers.RPC,
 		txResponse.TxHash,
 	)
 	fmt.Println(txResponse)
 
 	queryReponse := app.CLIQuery(
-		ctx,
 		servers.RPC,
 		name,
 		"list-user",
@@ -217,7 +212,6 @@ func TestGen(t *testing.T) {
 	fmt.Println(queryReponse)
 
 	queryReponse = app.CLIQuery(
-		ctx,
 		servers.RPC,
 		name,
 		"get-user",
