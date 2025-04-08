@@ -10,12 +10,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
-
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/xurl"
 )
 
@@ -34,10 +33,7 @@ type TxResponse struct {
 	Timestamp string `json:"timestamp"`
 }
 
-func (a App) CLITx(ctx context.Context, chainRPC, module, method string, args ...string) TxResponse {
-	ctx, cancel := context.WithTimeout(ctx, defaultRequestTimeout)
-	defer cancel()
-
+func (a App) CLITx(chainRPC, module, method string, args ...string) TxResponse {
 	nodeAddr, err := xurl.TCP(chainRPC)
 	require.NoErrorf(a.env.T(), err, "cant read nodeAddr from host.RPC %v", chainRPC)
 
@@ -90,20 +86,17 @@ func (a App) CLITx(ctx context.Context, chainRPC, module, method string, args ..
 	return txResponse
 }
 
-func (a App) CLIQueryTx(ctx context.Context, chainRPC, txHash string) (txResponse TxResponse) {
-	a.query(ctx, &txResponse, chainRPC, "tx", txHash)
+func (a App) CLIQueryTx(chainRPC, txHash string) (txResponse TxResponse) {
+	a.query(&txResponse, chainRPC, "tx", txHash)
 	return
 }
 
-func (a App) CLIQuery(ctx context.Context, chainRPC, module, method string, args ...string) (result json.RawMessage) {
-	a.query(ctx, &result, chainRPC, module, method, args...)
+func (a App) CLIQuery(chainRPC, module, method string, args ...string) (result json.RawMessage) {
+	a.query(&result, chainRPC, module, method, args...)
 	return
 }
 
-func (a App) query(ctx context.Context, result interface{}, chainRPC, module, method string, args ...string) {
-	ctx, cancel := context.WithTimeout(ctx, defaultRequestTimeout)
-	defer cancel()
-
+func (a App) query(result interface{}, chainRPC, module, method string, args ...string) {
 	nodeAddr, err := xurl.TCP(chainRPC)
 	require.NoErrorf(a.env.T(), err, "cant read nodeAddr from host.RPC %v", chainRPC)
 
