@@ -16,6 +16,7 @@
 - [#4589](https://github.com/ignite/cli/pull/4589) Resolve broken links.
 - [#4596](https://github.com/ignite/cli/pull/4596) Add default `openapi.yml` when skipping proto gen.
 - [#4601](https://github.com/ignite/cli/pull/4601) Add `appregistry` as default plugin
+- [#4613](https://github.com/ignite/cli/pull/4613) Improve and simplify prompting logic by bubbletea.
 
 ### Fixes
 
