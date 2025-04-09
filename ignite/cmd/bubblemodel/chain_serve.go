@@ -261,7 +261,7 @@ func (m ChainServe) renderQuitView() string {
 	}
 
 	fmt.Fprintf(&view, "%s %s\n", icons.Info, colors.Info("Stopped"))
-	view.WriteString(announcements.GetAnnouncements())
+	view.WriteString(announcements.Fetch())
 
 	return view.String()
 }

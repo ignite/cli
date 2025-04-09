@@ -5,32 +5,40 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
 )
 
 var (
-	SurveyLink      = "https://bit.ly/3WZS2uS"
-	AnnouncementAPI = "http://api.ignite.com/announcements"
+	SurveyLink = "https://bit.ly/3WZS2uS"
+	APIURL     = "http://announcements.ignite.com/v1/announcements"
 )
 
-type announcement struct {
-	Announcements []string `json:"announcements"`
+type api struct {
+	Announcements []announcement `json:"announcements"`
 }
 
-func GetAnnouncements() string {
-	resp, err := http.Get(AnnouncementAPI) //nolint:gosec
+type announcement struct {
+	ID        string    `json:"id"`
+	Text      string    `json:"text"`
+	Timestamp time.Time `json:"timestamp"`
+	User      string    `json:"user"`
+}
+
+// Fetch fetches the latest announcements from the API.
+func Fetch() string {
+	resp, err := http.Get(APIURL) //nolint:gosec
 	if err != nil || resp.StatusCode != 200 {
 		return fallbackData()
 	}
 	defer resp.Body.Close()
 
-	var data announcement
+	var data api
 	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
 		return fallbackData()
 	}
 
-	// is this needed? or if its empty we don't want to show anything?
 	if len(data.Announcements) == 0 {
 		return fallbackData()
 	}
@@ -38,8 +46,8 @@ func GetAnnouncements() string {
 	var out strings.Builder
 	fmt.Fprintf(&out, "\n%s %s\n", icons.Announcement, "Announcements")
 
-	for _, announcement := range data.Announcements {
-		fmt.Fprintf(&out, "%s %s\n", icons.Bullet, announcement)
+	for _, msg := range data.Announcements {
+		fmt.Fprintf(&out, "%s %s\n", icons.Bullet, msg.Text)
 	}
 
 	return out.String()
