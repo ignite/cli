@@ -20,6 +20,7 @@ var (
 
 	templateTSClientRoot           = newTemplateWriter("root")
 	templateTSClientModule         = newTemplateWriter("module")
+	templateTSClientRest           = newTemplateWriter("rest")
 	templateTSClientComposable     = newTemplateWriter("composable")
 	templateTSClientComposableRoot = newTemplateWriter("composable-root")
 )
@@ -68,10 +69,15 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 
 			return xstrcase.UpperCamel(replacer.Replace(word))
 		},
-		"resolveFile": func(fullPath string) string { // TODO to check
+		"resolveFile": func(fullPath string) string {
 			rel, _ := filepath.Rel(protoPath, fullPath)
 			rel = strings.TrimSuffix(rel, ".proto")
-			return rel
+
+			if strings.Contains(rel, "..") || strings.Contains(rel, "/go/pkg/mod/") {
+				return rel
+			}
+
+			return "./types/" + rel
 		},
 		"inc": func(i int) int {
 			return i + 1
