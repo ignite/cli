@@ -1,7 +1,6 @@
 package ignitecmd
 
 import (
-	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
@@ -52,9 +51,10 @@ func generateTSClientHandler(cmd *cobra.Command, _ []string) error {
 	defer session.End()
 
 	if err := session.AskConfirm(msgBufAuth); err != nil {
-		if errors.Is(err, promptui.ErrAbort) {
+		if errors.Is(err, cliui.ErrAbort) {
 			return errors.New("buf not auth")
 		}
+
 		return err
 	}
 

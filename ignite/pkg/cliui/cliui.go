@@ -6,12 +6,13 @@ import (
 	"os"
 	"sync"
 
-	"github.com/manifoldco/promptui"
+	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/cliquiz"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/bubbleconfirm"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/clispinner"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/entrywriter"
 	uilog "github.com/ignite/cli/v29/ignite/pkg/cliui/log"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/events"
 )
 
@@ -236,23 +237,39 @@ func (s Session) Print(messages ...interface{}) error {
 }
 
 // Ask asks questions in the terminal and collect answers.
-func (s Session) Ask(questions ...cliquiz.Question) error {
+func (s Session) Ask(questions ...bubbleconfirm.Question) error {
 	defer s.PauseSpinner()()
 	// TODO provide writer from the session
-	return cliquiz.Ask(questions...)
+	return bubbleconfirm.Ask(questions...)
 }
 
-// AskConfirm asks yes/no question in the terminal.
+// AskConfirm asks a yes/no question using a bubbletea dialog.
+var ErrAbort = errors.New("aborted or not confirmed")
+
 func (s Session) AskConfirm(message string) error {
 	defer s.PauseSpinner()()
-	prompt := promptui.Prompt{
-		Label:     message,
-		IsConfirm: true,
-		Stdout:    s.out.Stdout(),
-		Stdin:     s.options.stdin,
+
+	// Create and run the bubbletea program
+	p := tea.NewProgram(bubbleconfirm.NewModel(message))
+
+	// Run the program
+	m, err := p.Run()
+	if err != nil {
+		return err
 	}
-	_, err := prompt.Run()
-	return err
+
+	// Type assert to our model
+	confirmModel, ok := m.(bubbleconfirm.Model)
+	if !ok {
+		return errors.New("could not assert type to bubbleconfirm.Model")
+	}
+
+	// Check the result
+	if confirmModel.Choice() != bubbleconfirm.Yes {
+		return ErrAbort
+	}
+
+	return nil
 }
 
 // PrintTable prints table data.
