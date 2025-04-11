@@ -11,8 +11,9 @@ import (
 
 func TestCreateMap(t *testing.T) {
 	var (
-		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/blog")
+		env     = envtest.New(t)
+		app     = env.ScaffoldApp("github.com/test/blog")
+		servers = app.RandomizeServerPorts()
 	)
 
 	app.Scaffold(
@@ -145,4 +146,6 @@ func TestCreateMap(t *testing.T) {
 	)
 
 	app.EnsureSteady()
+
+	app.RunChainAndSimulateTxs(servers)
 }

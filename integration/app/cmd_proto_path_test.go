@@ -60,7 +60,7 @@ var (
 func TestChangeProtoPath(t *testing.T) {
 	var (
 		env     = envtest.New(t)
-		app     = env.Scaffold("github.com/test/protopath", "--proto-dir", newProtoPath)
+		app     = env.ScaffoldApp("github.com/test/protopath", "--proto-dir", newProtoPath)
 		appPath = app.SourcePath()
 		cfgPath = filepath.Join(appPath, chain.ConfigFilenames[0])
 	)

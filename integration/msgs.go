@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -87,16 +88,17 @@ func (a App) CLITx(chainRPC, module, method string, args ...string) TxResponse {
 }
 
 func (a App) CLIQueryTx(chainRPC, txHash string) (txResponse TxResponse) {
-	a.query(&txResponse, chainRPC, "tx", txHash)
-	return
+	output := a.query(chainRPC, "tx", txHash)
+	err := json.Unmarshal(output, &txResponse)
+	require.NoError(a.env.T(), err, "unmarshalling tx response: %s", string(output))
+	return txResponse
 }
 
-func (a App) CLIQuery(chainRPC, module, method string, args ...string) (result json.RawMessage) {
-	a.query(&result, chainRPC, module, method, args...)
-	return
+func (a App) CLIQuery(chainRPC, module, method string, args ...string) []byte {
+	return a.query(chainRPC, module, method, args...)
 }
 
-func (a App) query(result interface{}, chainRPC, module, method string, args ...string) {
+func (a App) query(chainRPC, module, method string, args ...string) []byte {
 	nodeAddr, err := xurl.TCP(chainRPC)
 	require.NoErrorf(a.env.T(), err, "cant read nodeAddr from host.RPC %v", chainRPC)
 
@@ -129,10 +131,6 @@ func (a App) query(result interface{}, chainRPC, module, method string, args ...
 				if outErr.Len() > 0 {
 					return errors.Errorf("error executing request: %s", outErr.String())
 				}
-				output := output.Bytes()
-				if err := json.Unmarshal(output, &result); err != nil {
-					return errors.Errorf("unmarshalling tx response error: %w, response: %s", err, string(output))
-				}
 				return nil
 			}),
 		))
@@ -140,9 +138,11 @@ func (a App) query(result interface{}, chainRPC, module, method string, args ...
 	if !a.env.Exec(fmt.Sprintf("fetching query data %s => %s", module, method), steps, ExecRetry()) {
 		a.env.t.FailNow()
 	}
+
+	return output.Bytes()
 }
 
-func (a App) APIQuery(ctx context.Context, chainAPI, namespace, module, method string, args ...string) json.RawMessage {
+func (a App) APIQuery(ctx context.Context, chainAPI, namespace, module, method string, args ...string) []byte {
 	ctx, cancel := context.WithTimeout(ctx, defaultRequestTimeout)
 	defer cancel()
 
@@ -166,9 +166,8 @@ func (a App) APIQuery(ctx context.Context, chainAPI, namespace, module, method s
 		require.Failf(a.env.T(), "unexpected status code", "expected 200 OK, got %d", resp.StatusCode)
 	}
 
-	result := json.RawMessage{}
-	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(&result)
-	require.NoErrorf(a.env.T(), err, "failed to decode JSON response")
-	return result
+	body, err := io.ReadAll(resp.Body)
+	require.NoErrorf(a.env.T(), err, "failed to read response body")
+
+	return body
 }

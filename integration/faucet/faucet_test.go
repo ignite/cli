@@ -32,7 +32,7 @@ var (
 func TestRequestCoinsFromFaucet(t *testing.T) {
 	var (
 		env          = envtest.New(t)
-		app          = env.Scaffold("github.com/test/faucetapp")
+		app          = env.ScaffoldApp("github.com/test/faucetapp")
 		servers      = app.RandomizeServerPorts()
 		faucetURL    = app.EnableFaucet(defaultCoins, maxCoins)
 		ctx, cancel  = context.WithTimeout(env.Ctx(), envtest.ServeTimeout)

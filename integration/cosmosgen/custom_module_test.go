@@ -20,7 +20,7 @@ func TestCustomModule(t *testing.T) {
 
 	var (
 		env     = envtest.New(t)
-		app     = env.Scaffold("chain", "--no-module")
+		app     = env.ScaffoldApp("chain", "--no-module")
 		servers = app.RandomizeServerPorts()
 	)
 

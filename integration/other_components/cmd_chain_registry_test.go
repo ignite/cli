@@ -16,7 +16,7 @@ import (
 func TestCreateChainRegistry(t *testing.T) {
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/mars")
+		app = env.ScaffoldApp("github.com/test/mars")
 	)
 
 	env.Must(env.Exec("create chain-registry files",

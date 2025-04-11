@@ -3,8 +3,6 @@
 package list_test
 
 import (
-	"context"
-	"fmt"
 	"testing"
 
 	envtest "github.com/ignite/cli/v29/integration"
@@ -12,11 +10,8 @@ import (
 
 func TestGenerateAnAppWithListAndVerify(t *testing.T) {
 	var (
-		name      = "blog"
-		namespace = "github.com/test/" + name
-
 		env     = envtest.New(t)
-		app     = env.Scaffold(namespace)
+		app     = env.ScaffoldApp("github.com/test/blog")
 		servers = app.RandomizeServerPorts()
 	)
 
@@ -128,113 +123,5 @@ func TestGenerateAnAppWithListAndVerify(t *testing.T) {
 
 	app.EnsureSteady()
 
-	ctx, cancel := context.WithCancel(env.Ctx())
-	defer cancel()
-
-	go func() {
-		app.MustServe(ctx)
-	}()
-
-	app.WaitChainUp(ctx, servers.API)
-
-	txReponse := app.CLITx(
-		servers.RPC,
-		"blog",
-		"create-user",
-		"test@user.com",
-	)
-
-	txReponse = app.CLIQueryTx(
-		servers.RPC,
-		txReponse.TxHash,
-	)
-
-	apiReponse := app.APIQuery(
-		ctx,
-		servers.API,
-		namespace,
-		name,
-		"user",
-	)
-	fmt.Println(apiReponse)
-}
-
-func TestGen(t *testing.T) {
-	var (
-		name      = "blog"
-		namespace = "github.com/test/" + name
-
-		env     = envtest.New(t)
-		app     = env.Scaffold(namespace)
-		servers = app.RandomizeServerPorts()
-	)
-
-	app.Scaffold(
-		"create a module",
-		false,
-		"module", "example", "--require-registration",
-	)
-
-	app.Scaffold(
-		"create a list",
-		false,
-		"list", "user", "email",
-	)
-
-	ctx, cancel := context.WithCancel(env.Ctx())
-	defer cancel()
-
-	go func() {
-		app.MustServe(ctx)
-	}()
-
-	app.WaitChainUp(ctx, servers.API)
-
-	txResponse := app.CLITx(
-		servers.RPC,
-		name,
-		"create-user",
-		"test@user.com",
-	)
-	fmt.Println(txResponse)
-
-	txResponse = app.CLIQueryTx(
-		servers.RPC,
-		txResponse.TxHash,
-	)
-	fmt.Println(txResponse)
-
-	queryReponse := app.CLIQuery(
-		servers.RPC,
-		name,
-		"list-user",
-	)
-	fmt.Println(queryReponse)
-
-	queryReponse = app.CLIQuery(
-		servers.RPC,
-		name,
-		"get-user",
-		"0",
-	)
-	fmt.Println(queryReponse)
-
-	apiReponse := app.APIQuery(
-		ctx,
-		servers.API,
-		namespace,
-		name,
-		"user",
-	)
-	fmt.Println(apiReponse)
-
-	apiReponse = app.APIQuery(
-		ctx,
-		servers.API,
-		namespace,
-		name,
-		"user",
-		"0",
-	)
-	fmt.Println(apiReponse)
+	app.RunChainAndSimulateTxs(servers)
 }

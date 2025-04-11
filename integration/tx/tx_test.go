@@ -25,7 +25,7 @@ func TestSignTxWithDashedAppName(t *testing.T) {
 	var (
 		env         = envtest.New(t)
 		appname     = "da-shed-a-p-p"
-		app         = env.Scaffold(appname)
+		app         = env.ScaffoldApp(appname)
 		servers     = app.RandomizeServerPorts()
 		ctx, cancel = context.WithCancel(env.Ctx())
 	)
@@ -98,7 +98,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 	var (
 		env         = envtest.New(t)
 		appname     = randstr.Runes(10)
-		app         = env.Scaffold(fmt.Sprintf("github.com/test/%s", appname))
+		app         = env.ScaffoldApp(fmt.Sprintf("github.com/test/%s", appname))
 		servers     = app.RandomizeServerPorts()
 		ctx, cancel = context.WithCancel(env.Ctx())
 	)

@@ -20,7 +20,7 @@ func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
 	var (
 		env               = envtest.New(t)
 		appname           = randstr.Runes(10)
-		app               = env.Scaffold(fmt.Sprintf("github.com/test/%s", appname))
+		app               = env.ScaffoldApp(fmt.Sprintf("github.com/test/%s", appname))
 		servers           = app.RandomizeServerPorts()
 		ctx, cancel       = context.WithCancel(env.Ctx())
 		isBackendAliveErr error

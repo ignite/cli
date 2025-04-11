@@ -11,7 +11,7 @@ import (
 func TestCreateModuleWithIBC(t *testing.T) {
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/blogibc")
+		app = env.ScaffoldApp("github.com/test/blogibc")
 	)
 
 	app.Scaffold(
@@ -82,7 +82,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 func TestCreateIBCPacket(t *testing.T) {
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/blogibcb")
+		app = env.ScaffoldApp("github.com/test/blogibcb")
 	)
 
 	app.Scaffold(

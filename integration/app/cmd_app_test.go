@@ -19,7 +19,7 @@ import (
 func TestGenerateAnApp(t *testing.T) {
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/blog")
+		app = env.ScaffoldApp("github.com/test/blog")
 	)
 
 	_, statErr := os.Stat(filepath.Join(app.SourcePath(), "x", "blog"))
@@ -32,7 +32,7 @@ func TestGenerateAnApp(t *testing.T) {
 func TestGenerateAnAppMinimal(t *testing.T) {
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("blog", "--minimal")
+		app = env.ScaffoldApp("blog", "--minimal")
 	)
 
 	_, statErr := os.Stat(filepath.Join(app.SourcePath(), "x", "blog"))
@@ -45,7 +45,7 @@ func TestGenerateAnAppMinimal(t *testing.T) {
 func TestGenerateAnAppWithName(t *testing.T) {
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("blog")
+		app = env.ScaffoldApp("blog")
 	)
 
 	_, statErr := os.Stat(filepath.Join(app.SourcePath(), "x", "blog"))
@@ -74,7 +74,7 @@ func TestGenerateAnAppWithInvalidName(t *testing.T) {
 func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/blog", "--no-module")
+		app = env.ScaffoldApp("github.com/test/blog", "--no-module")
 	)
 
 	_, statErr := os.Stat(filepath.Join(app.SourcePath(), "x", "blog"))
@@ -86,7 +86,7 @@ func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
 func TestGenerateAnAppWithNoDefaultModuleAndCreateAModule(t *testing.T) {
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/blog", "--no-module")
+		app = env.ScaffoldApp("github.com/test/blog", "--no-module")
 	)
 
 	defer app.EnsureSteady()
@@ -101,7 +101,7 @@ func TestGenerateAnAppWithNoDefaultModuleAndCreateAModule(t *testing.T) {
 func TestGenerateAppWithEmptyModule(t *testing.T) {
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/blog")
+		app = env.ScaffoldApp("github.com/test/blog")
 	)
 
 	app.Scaffold(
@@ -176,7 +176,7 @@ func TestGenerateAppWithEmptyModule(t *testing.T) {
 func TestGenerateAnAppWithAddressPrefix(t *testing.T) {
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/blog", "--address-prefix=gm", "--coin-type=60")
+		app = env.ScaffoldApp("github.com/test/blog", "--address-prefix=gm", "--coin-type=60")
 	)
 
 	_, statErr := os.Stat(filepath.Join(app.SourcePath(), "x", "blog"))

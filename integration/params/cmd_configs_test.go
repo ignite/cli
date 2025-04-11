@@ -3,6 +3,7 @@
 package params_test
 
 import (
+	"context"
 	"testing"
 
 	envtest "github.com/ignite/cli/v29/integration"
@@ -10,8 +11,12 @@ import (
 
 func TestCreateModuleConfigs(t *testing.T) {
 	var (
-		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/mars")
+		name      = "mars"
+		namespace = "github.com/test/" + name
+
+		env     = envtest.New(t)
+		app     = env.ScaffoldApp(namespace)
+		servers = app.RandomizeServerPorts()
 	)
 
 	app.Scaffold(
@@ -55,4 +60,13 @@ func TestCreateModuleConfigs(t *testing.T) {
 	)
 
 	app.EnsureSteady()
+
+	ctx, cancel := context.WithCancel(env.Ctx())
+	defer cancel()
+
+	go func() {
+		app.MustServe(ctx)
+	}()
+
+	app.WaitChainUp(ctx, servers.API)
 }
