@@ -1,11 +1,13 @@
 package envtest
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/stretchr/testify/require"
@@ -18,6 +20,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
 	"github.com/ignite/cli/v29/ignite/pkg/goenv"
 	"github.com/ignite/cli/v29/ignite/pkg/xurl"
+	"github.com/ignite/cli/v29/ignite/templates/field"
 )
 
 const ServeTimeout = time.Minute * 15
@@ -27,25 +30,39 @@ const (
 	defaultTestTimeout    = 30 * time.Minute // Go's default is 10m
 )
 
-// Hosts contains the "hostname:port" addresses for different service hosts.
-type Hosts struct {
-	RPC     string
-	P2P     string
-	Prof    string
-	GRPC    string
-	GRPCWeb string
-	API     string
-	Faucet  string
-}
+type (
+	// Hosts contains the "hostname:port" addresses for different service hosts.
+	Hosts struct {
+		RPC     string
+		P2P     string
+		Prof    string
+		GRPC    string
+		GRPCWeb string
+		API     string
+		Faucet  string
+	}
 
-type App struct {
-	path        string
-	configPath  string
-	homePath    string
-	testTimeout time.Duration
+	App struct {
+		namespace   string
+		name        string
+		path        string
+		configPath  string
+		homePath    string
+		testTimeout time.Duration
 
-	env Env
-}
+		env Env
+
+		scaffolded []scaffold
+	}
+
+	scaffold struct {
+		fields   field.Fields
+		index    string
+		module   string
+		name     string
+		typeName string
+	}
+)
 
 type AppOption func(*App)
 
@@ -67,8 +84,8 @@ func AppTestTimeout(d time.Duration) AppOption {
 	}
 }
 
-// Scaffold scaffolds an app to a unique appPath and returns it.
-func (e Env) Scaffold(name string, flags ...string) App {
+// ScaffoldApp scaffolds an app to a unique appPath and returns it.
+func (e Env) ScaffoldApp(namespace string, flags ...string) App {
 	root := e.TmpDir()
 
 	e.Exec("scaffold an app",
@@ -78,7 +95,7 @@ func (e Env) Scaffold(name string, flags ...string) App {
 				append([]string{
 					"scaffold",
 					"chain",
-					name,
+					namespace,
 				}, flags...)...,
 			),
 			step.Workdir(root),
@@ -86,21 +103,24 @@ func (e Env) Scaffold(name string, flags ...string) App {
 	)
 
 	var (
-		appDirName    = path.Base(name)
+		appDirName    = path.Base(namespace)
 		appSourcePath = filepath.Join(root, appDirName)
 		appHomePath   = e.AppHome(appDirName)
 	)
 
 	e.t.Cleanup(func() { os.RemoveAll(appHomePath) })
 
-	return e.App(appSourcePath, AppHomePath(appHomePath))
+	return e.App(namespace, appSourcePath, AppHomePath(appHomePath))
 }
 
-func (e Env) App(path string, options ...AppOption) App {
+func (e Env) App(namespace, appPath string, options ...AppOption) App {
 	app := App{
 		env:         e,
-		path:        path,
+		path:        appPath,
 		testTimeout: defaultTestTimeout,
+		scaffolded:  make([]scaffold, 0),
+		namespace:   namespace,
+		name:        path.Base(namespace),
 	}
 
 	for _, apply := range options {
@@ -108,13 +128,13 @@ func (e Env) App(path string, options ...AppOption) App {
 	}
 
 	if app.configPath == "" {
-		app.configPath = filepath.Join(path, defaultConfigFileName)
+		app.configPath = filepath.Join(appPath, defaultConfigFileName)
 	}
 
 	return app
 }
 
-func (a App) SourcePath() string {
+func (a *App) SourcePath() string {
 	return a.path
 }
 
@@ -128,14 +148,14 @@ func (a *App) SetConfigPath(path string) {
 
 // Binary returns the binary name of the app. Can be executed directly w/o any
 // path after app.Serve is called, since it should be in the $PATH.
-func (a App) Binary() string {
+func (a *App) Binary() string {
 	return path.Base(a.path) + "d"
 }
 
 // Serve serves an application lives under path with options where msg describes the
 // execution from the serving action.
 // unless calling with Must(), Serve() will not exit test runtime on failure.
-func (a App) Serve(msg string, options ...ExecOption) (ok bool) {
+func (a *App) Serve(msg string, options ...ExecOption) (ok bool) {
 	serveCommand := []string{
 		"chain",
 		"serve",
@@ -165,7 +185,7 @@ func (a App) Serve(msg string, options ...ExecOption) (ok bool) {
 }
 
 // Simulate runs the simulation test for the app.
-func (a App) Simulate(numBlocks, blockSize int) {
+func (a *App) Simulate(numBlocks, blockSize int) {
 	a.env.Exec("running the simulation tests",
 		step.NewSteps(step.New(
 			step.Exec(
@@ -183,7 +203,7 @@ func (a App) Simulate(numBlocks, blockSize int) {
 }
 
 // EnsureSteady ensures that app living at the path can compile and its tests are passing.
-func (a App) EnsureSteady() {
+func (a *App) EnsureSteady() {
 	_, statErr := os.Stat(a.configPath)
 
 	require.False(a.env.t, os.IsNotExist(statErr), "config.yml cannot be found")
@@ -198,7 +218,7 @@ func (a App) EnsureSteady() {
 
 // EnableFaucet enables faucet by finding a random port for the app faucet and update config.yml
 // with this port and provided coins options.
-func (a App) EnableFaucet(coins, coinsMax []string) (faucetAddr string) {
+func (a *App) EnableFaucet(coins, coinsMax []string) (faucetAddr string) {
 	// find a random available port
 	port, err := availableport.Find(1)
 	require.NoError(a.env.t, err)
@@ -217,7 +237,7 @@ func (a App) EnableFaucet(coins, coinsMax []string) (faucetAddr string) {
 
 // RandomizeServerPorts randomizes server ports for the app at path, updates
 // its config.yml and returns new values.
-func (a App) RandomizeServerPorts() Hosts {
+func (a *App) RandomizeServerPorts() Hosts {
 	// generate random server ports
 	ports, err := availableport.Find(7)
 	require.NoError(a.env.t, err)
@@ -256,7 +276,7 @@ func (a App) RandomizeServerPorts() Hosts {
 
 // UseRandomHomeDir sets in the blockchain config files generated temporary directories for home directories.
 // Returns the random home directory.
-func (a App) UseRandomHomeDir() (homeDirPath string) {
+func (a *App) UseRandomHomeDir() (homeDirPath string) {
 	dir := a.env.TmpDir()
 
 	a.EditConfig(func(c *chainconfig.Config) {
@@ -266,7 +286,7 @@ func (a App) UseRandomHomeDir() (homeDirPath string) {
 	return dir
 }
 
-func (a App) Config() chainconfig.Config {
+func (a *App) Config() chainconfig.Config {
 	bz, err := os.ReadFile(a.configPath)
 	require.NoError(a.env.t, err)
 
@@ -276,7 +296,7 @@ func (a App) Config() chainconfig.Config {
 	return conf
 }
 
-func (a App) EditConfig(apply func(*chainconfig.Config)) {
+func (a *App) EditConfig(apply func(*chainconfig.Config)) {
 	conf := a.Config()
 	apply(&conf)
 
@@ -287,11 +307,100 @@ func (a App) EditConfig(apply func(*chainconfig.Config)) {
 }
 
 // GenerateTSClient runs the command to generate the Typescript client code.
-func (a App) GenerateTSClient() bool {
+func (a *App) GenerateTSClient() bool {
 	return a.env.Exec("generate typescript client", step.NewSteps(
 		step.New(
 			step.Exec(IgniteApp, "g", "ts-client", "--yes", "--clear-cache"),
 			step.Workdir(a.path),
 		),
 	))
+}
+
+func (a *App) MustServe(ctx context.Context) {
+	a.env.Must(a.Serve("should serve chain", ExecCtx(ctx)))
+}
+
+func (a *App) Scaffold(msg string, shouldFail bool, typeName string, args ...string) {
+	a.generate(msg, "scaffold", shouldFail, append([]string{typeName}, args...)...)
+
+	if !shouldFail {
+		module := ""
+		index := ""
+		name := args[0]
+		args = args[1:]
+		filteredArgs := make([]string, 0)
+
+		// remove the flags from the args
+		for _, arg := range args {
+			if strings.HasPrefix(arg, "--") {
+				break
+			}
+			filteredArgs = append(filteredArgs, arg)
+		}
+
+		// parse the arg flags
+		for i, arg := range args {
+			// skip tests if the type don't have message
+			if arg == "--no-message" {
+				return
+			}
+			// get the scaffold module
+			if arg == "--module" && i+1 < len(args) {
+				module = args[i+1]
+			}
+			if arg == "--index" && i+1 < len(args) {
+				index = args[i+1]
+			}
+		}
+
+		f, err := field.ParseFields(filteredArgs, func(string) error { return nil })
+		require.NoError(a.env.t, err)
+
+		a.scaffolded = append(a.scaffolded, scaffold{
+			fields:   f,
+			module:   module,
+			index:    index,
+			typeName: typeName,
+			name:     name,
+		})
+	}
+}
+
+func (a *App) Generate(msg string, shouldFail bool, args ...string) {
+	a.generate(msg, "generate", shouldFail, args...)
+}
+
+func (a *App) generate(msg, command string, shouldFail bool, args ...string) {
+	opts := make([]ExecOption, 0)
+	if shouldFail {
+		opts = append(opts, ExecShouldError())
+	}
+
+	args = append([]string{command}, args...)
+	a.env.Must(a.env.Exec(msg,
+		step.NewSteps(step.New(
+			step.Exec(IgniteApp, append(args, "--yes")...),
+			step.Workdir(a.SourcePath()),
+		)),
+		opts...,
+	))
+}
+
+// WaitChainUp waits the chain is up.
+func (a *App) WaitChainUp(ctx context.Context, chainAPI string) {
+	// check the chains is up
+	env := a.env
+	stepsCheckChains := step.NewSteps(
+		step.New(
+			step.Exec(
+				a.Binary(),
+				"config",
+				"output", "json",
+			),
+			step.PreExec(func() error {
+				return env.IsAppServed(ctx, chainAPI)
+			}),
+		),
+	)
+	env.Exec(fmt.Sprintf("waiting the chain (%s) is up", chainAPI), stepsCheckChains, ExecRetry())
 }
