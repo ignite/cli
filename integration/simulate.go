@@ -29,6 +29,18 @@ func (a *App) assertJSONData(data []byte, msgName string, fields field.Fields) {
 	}
 }
 
+func (a *App) assertJSONList(data []byte, msgName string, fields field.Fields) {
+	value, _, _, err := jsonparser.Get(data, msgName, "[0]")
+	require.NoError(a.env.t, err)
+
+	for _, f := range fields {
+		dt, _ := datatype.IsSupportedType(f.DatatypeName)
+		value, _, _, err := jsonparser.Get(value, f.Name.Snake)
+		require.NoError(a.env.T(), err)
+		require.EqualValues(a.env.T(), string(value), dt.DefaultTestValue)
+	}
+}
+
 func (a *App) createTx(
 	servers Hosts,
 	module string,
@@ -157,9 +169,7 @@ func (a *App) SendListTxsAndQueryFirst(
 		module,
 		"list-"+name.Kebab,
 	)
-	queryListValue, _, _, err := jsonparser.Get(queryListResponse, name.Snake, "[0]")
-	require.NoError(a.env.t, err)
-	a.assertJSONData(queryListValue, "", fields)
+	a.assertJSONList(queryListResponse, name.Snake, fields)
 
 	apiListResponse := a.APIQuery(
 		ctx,
@@ -167,9 +177,6 @@ func (a *App) SendListTxsAndQueryFirst(
 		a.namespace,
 		module,
 		name.Snake,
-		"0",
 	)
-	apiListValue, _, _, err := jsonparser.Get(apiListResponse, "", "[0]")
-	require.NoError(a.env.t, err)
-	a.assertJSONData(apiListValue, name.Snake, fields)
+	a.assertJSONList(apiListResponse, name.Snake, fields)
 }
