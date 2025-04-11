@@ -2,7 +2,6 @@ package envtest
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/buger/jsonparser"
 	"github.com/stretchr/testify/require"
@@ -30,6 +29,31 @@ func (a *App) assertJSONData(data []byte, msgName string, fields field.Fields) {
 	}
 }
 
+func (a *App) createTx(
+	servers Hosts,
+	module string,
+	name multiformatname.Name,
+	args ...string,
+) TxResponse {
+	txResponse := a.CLITx(
+		servers.RPC,
+		module,
+		"create-"+name.Kebab,
+		args...,
+	)
+	require.Equal(a.env.T(), 0, txResponse.Code,
+		"tx failed code=%d log=%s", txResponse.Code, txResponse.RawLog)
+
+	tx := a.CLIQueryTx(
+		servers.RPC,
+		txResponse.TxHash,
+	)
+	require.Equal(a.env.T(), 0, tx.Code,
+		"tx failed code=%d log=%s", txResponse.Code, txResponse.RawLog)
+
+	return tx
+}
+
 func (a *App) RunChainAndSimulateTxs(servers Hosts) {
 	ctx, cancel := context.WithCancel(a.env.ctx)
 	defer cancel()
@@ -55,9 +79,10 @@ func (a *App) RunSimulationTxs(ctx context.Context, servers Hosts) {
 		switch s.typeName {
 		case "module":
 		case "list":
+			a.SendListTxsAndQueryFirst(ctx, servers, module, name, s.fields)
 		case "map":
 		case "single":
-			a.SendSingleTxAndQuery(ctx, servers, module, name, s.fields)
+			a.SendSingleTxsAndQuery(ctx, servers, module, name, s.fields)
 		case "type":
 		case "params":
 		case "configs":
@@ -68,8 +93,8 @@ func (a *App) RunSimulationTxs(ctx context.Context, servers Hosts) {
 	}
 }
 
-// SendSingleTxAndQuery send a chain transaction to a single store and query.
-func (a *App) SendSingleTxAndQuery(
+// SendSingleTxsAndQuery send a chain transaction to a single store and query.
+func (a *App) SendSingleTxsAndQuery(
 	ctx context.Context,
 	servers Hosts,
 	module string,
@@ -77,88 +102,74 @@ func (a *App) SendSingleTxAndQuery(
 	fields field.Fields,
 ) {
 	args := txArgs(fields)
-	txResponse := a.CLITx(
-		servers.RPC,
-		module,
-		"create-"+name.Kebab,
-		args...,
-	)
-	require.Equal(a.env.T(), 0, txResponse.Code,
-		"tx failed code=%d log=%s", txResponse.Code, txResponse.RawLog)
+	_ = a.createTx(servers, module, name, args...)
 
-	tx := a.CLIQueryTx(
-		servers.RPC,
-		txResponse.TxHash,
-	)
-	require.Equal(a.env.T(), 0, tx.Code,
-		"tx failed code=%d log=%s", txResponse.Code, txResponse.RawLog)
-
-	queryReponse := a.CLIQuery(
+	queryResponse := a.CLIQuery(
 		servers.RPC,
 		module,
 		"get-"+name.Kebab,
 	)
-	a.assertJSONData(queryReponse, name.Snake, fields)
+	a.assertJSONData(queryResponse, name.Snake, fields)
 
-	apiReponse := a.APIQuery(
+	apiResponse := a.APIQuery(
 		ctx,
 		servers.API,
 		a.namespace,
 		module,
 		name.Snake,
 	)
-	a.assertJSONData(apiReponse, name.Snake, fields)
+	a.assertJSONData(apiResponse, name.Snake, fields)
 
-	require.JSONEq(a.env.t, string(queryReponse), string(apiReponse))
+	require.JSONEq(a.env.t, string(queryResponse), string(apiResponse))
 }
 
-// SendTxAndQueryFirst send a chain transaction and query the first element
-func (a *App) SendTxAndQueryFirst(ctx context.Context, servers Hosts, namespace, module, msgName string, args ...string) {
-	txResponse := a.CLITx(
+// SendListTxsAndQueryFirst send a chain transaction and query the first element
+func (a *App) SendListTxsAndQueryFirst(
+	ctx context.Context,
+	servers Hosts,
+	module string,
+	name multiformatname.Name,
+	fields field.Fields,
+) {
+	args := txArgs(fields)
+	_ = a.createTx(servers, module, name, args...)
+
+	queryResponse := a.CLIQuery(
 		servers.RPC,
 		module,
-		"create-"+msgName,
-		args...,
-	)
-	fmt.Println(txResponse)
-
-	txResponse = a.CLIQueryTx(
-		servers.RPC,
-		txResponse.TxHash,
-	)
-	fmt.Println(txResponse)
-
-	queryReponse := a.CLIQuery(
-		servers.RPC,
-		module,
-		"list-"+msgName,
-	)
-	fmt.Println(queryReponse)
-
-	queryReponse = a.CLIQuery(
-		servers.RPC,
-		module,
-		"get-"+msgName,
+		"get-"+name.Kebab,
 		"0",
 	)
-	fmt.Println(queryReponse)
+	a.assertJSONData(queryResponse, name.Snake, fields)
 
-	apiReponse := a.APIQuery(
+	apiResponse := a.APIQuery(
 		ctx,
 		servers.API,
-		namespace,
+		a.namespace,
 		module,
-		msgName,
-	)
-	fmt.Println(apiReponse)
-
-	apiReponse = a.APIQuery(
-		ctx,
-		servers.API,
-		namespace,
-		module,
-		msgName,
+		name.Snake,
 		"0",
 	)
-	fmt.Println(apiReponse)
+	a.assertJSONData(apiResponse, name.Snake, fields)
+
+	queryListResponse := a.CLIQuery(
+		servers.RPC,
+		module,
+		"list-"+name.Kebab,
+	)
+	queryListValue, _, _, err := jsonparser.Get(queryListResponse, name.Snake, "[0]")
+	require.NoError(a.env.t, err)
+	a.assertJSONData(queryListValue, "", fields)
+
+	apiListResponse := a.APIQuery(
+		ctx,
+		servers.API,
+		a.namespace,
+		module,
+		name.Snake,
+		"0",
+	)
+	apiListValue, _, _, err := jsonparser.Get(apiListResponse, "", "[0]")
+	require.NoError(a.env.t, err)
+	a.assertJSONData(apiListValue, name.Snake, fields)
 }

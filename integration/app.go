@@ -338,11 +338,13 @@ func (a *App) Scaffold(msg string, shouldFail bool, typeName string, args ...str
 			filteredArgs = append(filteredArgs, arg)
 		}
 
-		// get the module flag if exist
+		// parse the arg flags
 		for i, arg := range args {
+			// skip tests if the type don't have message
 			if arg == "--no-message" {
 				return
 			}
+			// get the scaffold module
 			if arg == "--module" && i+1 < len(args) {
 				module = args[i+1]
 			}
