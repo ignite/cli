@@ -57,7 +57,7 @@ type (
 
 	scaffold struct {
 		fields   field.Fields
-		index    string
+		indexes  field.Fields
 		module   string
 		name     string
 		typeName string
@@ -353,13 +353,16 @@ func (a *App) Scaffold(msg string, shouldFail bool, typeName string, args ...str
 			}
 		}
 
-		f, err := field.ParseFields(filteredArgs, func(string) error { return nil })
+		indexFields, err := field.ParseFields(strings.Split(index, ""), func(string) error { return nil })
+		require.NoError(a.env.t, err)
+
+		argsFields, err := field.ParseFields(filteredArgs, func(string) error { return nil })
 		require.NoError(a.env.t, err)
 
 		a.scaffolded = append(a.scaffolded, scaffold{
-			fields:   f,
+			fields:   argsFields,
+			indexes:  indexFields,
 			module:   module,
-			index:    index,
 			typeName: typeName,
 			name:     name,
 		})

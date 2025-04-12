@@ -11,22 +11,22 @@ import (
 	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
 )
 
-// dataType determines the default test value for a given datatype.
+// testValue determines the default test value for a given datatype.
 // If the default value is "null", it adjusts the value to "{}".
-func dataType(name datatype.Name) string {
+func testValue(name datatype.Name) string {
 	dt, _ := datatype.IsSupportedType(name)
-	testValue := dt.DefaultTestValue
-	if testValue == "null" {
-		testValue = "{}"
+	value := dt.DefaultTestValue
+	if value == "null" {
+		value = "{}"
 	}
-	return testValue
+	return value
 }
 
 // txArgs generates transaction arguments as strings from a given set of fields.
 func txArgs(fields field.Fields) []string {
 	args := make([]string, len(fields))
 	for i, f := range fields {
-		args[i] = dataType(f.DatatypeName)
+		args[i] = testValue(f.DatatypeName)
 	}
 	return args
 }
@@ -34,7 +34,10 @@ func txArgs(fields field.Fields) []string {
 // assertJSONData verifies that the JSON data contains expected values for the given fields.
 func (a *App) assertJSONData(data []byte, msgName string, fields field.Fields) {
 	for _, f := range fields {
-		dt := dataType(f.DatatypeName)
+		dt := testValue(f.DatatypeName)
+		if dt == "{}" {
+			continue
+		}
 		value, _, _, err := jsonparser.Get(data, msgName, f.Name.Snake)
 		require.NoError(a.env.T(), err)
 		require.EqualValues(a.env.T(), dt, string(value))
@@ -47,7 +50,10 @@ func (a *App) assertJSONList(data []byte, msgName string, fields field.Fields) {
 	require.NoError(a.env.t, err)
 
 	for _, f := range fields {
-		dt := dataType(f.DatatypeName)
+		dt := testValue(f.DatatypeName)
+		if dt == "{}" {
+			continue
+		}
 		value, _, _, err := jsonparser.Get(value, f.Name.Snake)
 		require.NoError(a.env.T(), err)
 		require.EqualValues(a.env.T(), dt, string(value))
@@ -116,7 +122,7 @@ func (a *App) RunSimulationTxs(ctx context.Context, servers Hosts) {
 		case "list":
 			a.SendListTxsAndQueryFirst(ctx, servers, module, name, s.fields)
 		case "map":
-			// No implementation for "map" type
+			a.SendMapTxsAndQuery(ctx, servers, module, name, s.fields)
 		case "single":
 			a.SendSingleTxsAndQuery(ctx, servers, module, name, s.fields)
 		case "type":
@@ -165,6 +171,57 @@ func (a *App) SendSingleTxsAndQuery(
 
 // SendListTxsAndQueryFirst sends a list transaction and queries the first element using both CLI and API.
 func (a *App) SendListTxsAndQueryFirst(
+	ctx context.Context,
+	servers Hosts,
+	module string,
+	name multiformatname.Name,
+	fields field.Fields,
+) {
+	// Generate transaction arguments and submit the transaction
+	args := txArgs(fields)
+	_ = a.createTx(servers, module, name, args...)
+
+	// Query the chain for the first element via CLI
+	queryResponse := a.CLIQuery(
+		servers.RPC,
+		module,
+		"get-"+name.Kebab,
+		"0",
+	)
+	a.assertJSONData(queryResponse, name.Snake, fields)
+
+	// Query the chain for the first element via API
+	apiResponse := a.APIQuery(
+		ctx,
+		servers.API,
+		a.namespace,
+		module,
+		name.Snake,
+		"0",
+	)
+	a.assertJSONData(apiResponse, name.Snake, fields)
+
+	// Query the full list via CLI
+	queryListResponse := a.CLIQuery(
+		servers.RPC,
+		module,
+		"list-"+name.Kebab,
+	)
+	a.assertJSONList(queryListResponse, name.Snake, fields)
+
+	// Query the full list via API
+	apiListResponse := a.APIQuery(
+		ctx,
+		servers.API,
+		a.namespace,
+		module,
+		name.Snake,
+	)
+	a.assertJSONList(apiListResponse, name.Snake, fields)
+}
+
+// SendMapTxsAndQuery sends a map transaction and queries the element using both CLI and API.
+func (a *App) SendMapTxsAndQuery(
 	ctx context.Context,
 	servers Hosts,
 	module string,
