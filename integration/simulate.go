@@ -123,11 +123,11 @@ func (a *App) RunSimulationTxs(ctx context.Context, servers Hosts) {
 			a.SendMapTxsAndQuery(ctx, servers, module, name, s.fields, s.index)
 		case "single":
 			a.SendSingleTxsAndQuery(ctx, servers, module, name, s.fields)
-		case "type":
 		case "params":
-		case "configs":
 		case "message":
 		case "query":
+		case "configs":
+		case "type":
 		case "packet":
 		}
 	}

@@ -58,6 +58,7 @@ type (
 	scaffold struct {
 		fields   field.Fields
 		index    field.Field
+		response field.Fields
 		module   string
 		name     string
 		typeName string
@@ -324,56 +325,7 @@ func (a *App) Scaffold(msg string, shouldFail bool, typeName string, args ...str
 	a.generate(msg, "scaffold", shouldFail, append([]string{typeName}, args...)...)
 
 	if !shouldFail {
-		module := ""
-		index := ""
-		name := args[0]
-		args = args[1:]
-		filteredArgs := make([]string, 0)
-
-		// remove the flags from the args
-		for _, arg := range args {
-			if strings.HasPrefix(arg, "--") {
-				break
-			}
-			filteredArgs = append(filteredArgs, arg)
-		}
-
-		// parse the arg flags
-		for i, arg := range args {
-			// skip tests if the type don't have message
-			if arg == "--no-message" {
-				return
-			}
-			// get the scaffold module
-			if arg == "--module" && i+1 < len(args) {
-				module = args[i+1]
-			}
-			if arg == "--index" && i+1 < len(args) {
-				index = args[i+1]
-			}
-		}
-
-		argsFields, err := field.ParseFields(filteredArgs, func(string) error { return nil })
-		require.NoError(a.env.t, err)
-
-		s := scaffold{
-			fields:   argsFields,
-			module:   module,
-			typeName: typeName,
-			name:     name,
-		}
-
-		if typeName == "map" {
-			if index == "" {
-				index = "index:string"
-			}
-			indexFields, err := field.ParseFields(strings.Split(index, ","), func(string) error { return nil })
-			require.NoError(a.env.t, err)
-			require.Len(a.env.t, indexFields, 1)
-			s.index = indexFields[0]
-		}
-
-		a.scaffolded = append(a.scaffolded, s)
+		a.addScaffoldCmd(typeName, args...)
 	}
 }
 
@@ -395,6 +347,72 @@ func (a *App) generate(msg, command string, shouldFail bool, args ...string) {
 		)),
 		opts...,
 	))
+}
+
+func (a *App) addScaffoldCmd(typeName string, args ...string) {
+	module := ""
+	index := ""
+	response := ""
+	name := args[0]
+	args = args[1:]
+	filteredArgs := make([]string, 0)
+
+	// remove the flags from the args
+	for _, arg := range args {
+		if strings.HasPrefix(arg, "-") {
+			break
+		}
+		filteredArgs = append(filteredArgs, arg)
+	}
+
+	// parse the arg flags
+	for i, arg := range args {
+		// skip tests if the type don't have message
+		if arg == "--no-message" {
+			return
+		}
+		// get the scaffold module
+		if arg == "--module" && i+1 < len(args) {
+			module = args[i+1]
+		}
+		if arg == "--index" && i+1 < len(args) {
+			index = args[i+1]
+		}
+		if (arg == "-r" || arg == "--response") && i+1 < len(args) {
+			response = args[i+1]
+		}
+	}
+
+	argsFields, err := field.ParseFields(filteredArgs, func(string) error { return nil })
+	require.NoError(a.env.t, err)
+
+	s := scaffold{
+		fields:   argsFields,
+		module:   module,
+		typeName: typeName,
+		name:     name,
+	}
+
+	switch typeName {
+	case "map":
+		if index == "" {
+			index = "index:string"
+		}
+		indexFields, err := field.ParseFields(strings.Split(index, ","), func(string) error { return nil })
+		require.NoError(a.env.t, err)
+		require.Len(a.env.t, indexFields, 1)
+		s.index = indexFields[0]
+	case "query", "message":
+		if response == "" {
+			break
+		}
+		responseFields, err := field.ParseFields(strings.Split(response, ","), func(string) error { return nil })
+		require.NoError(a.env.t, err)
+		require.Len(a.env.t, responseFields, 1)
+		s.response = responseFields
+	}
+
+	a.scaffolded = append(a.scaffolded, s)
 }
 
 // WaitChainUp waits the chain is up.
