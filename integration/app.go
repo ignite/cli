@@ -59,6 +59,7 @@ type (
 		fields   field.Fields
 		index    field.Field
 		response field.Fields
+		params   field.Fields
 		module   string
 		name     string
 		typeName string
@@ -317,10 +318,18 @@ func (a *App) GenerateTSClient() bool {
 	))
 }
 
+// MustServe serves the application and ensures success, failing the test if serving fails.
+// It uses the provided context to allow cancellation.
 func (a *App) MustServe(ctx context.Context) {
 	a.env.Must(a.Serve("should serve chain", ExecCtx(ctx)))
 }
 
+// Scaffold scaffolds a new module or component in the app and optionally
+// validates if it should fail.
+// - msg: description of the scaffolding operation.
+// - shouldFail: whether the scaffolding is expected to fail.
+// - typeName: the type of the scaffold (e.g., "map", "message").
+// - args: additional arguments for the scaffold command.
 func (a *App) Scaffold(msg string, shouldFail bool, typeName string, args ...string) {
 	a.generate(msg, "scaffold", shouldFail, append([]string{typeName}, args...)...)
 
@@ -329,10 +338,20 @@ func (a *App) Scaffold(msg string, shouldFail bool, typeName string, args ...str
 	}
 }
 
+// Generate executes a code generation command in the app and optionally
+// validates if it should fail.
+// - msg: description of the generation operation.
+// - shouldFail: whether the generation is expected to fail.
+// - args: arguments for the generation command.
 func (a *App) Generate(msg string, shouldFail bool, args ...string) {
 	a.generate(msg, "generate", shouldFail, args...)
 }
 
+// generate is a helper method to execute a scaffolding or generation command with the specified options.
+// - msg: description of the operation.
+// - command: the command to execute (e.g., "scaffold", "generate").
+// - shouldFail: whether the command is expected to fail.
+// - args: arguments for the command.
 func (a *App) generate(msg, command string, shouldFail bool, args ...string) {
 	opts := make([]ExecOption, 0)
 	if shouldFail {
@@ -349,10 +368,14 @@ func (a *App) generate(msg, command string, shouldFail bool, args ...string) {
 	))
 }
 
+// addScaffoldCmd processes the scaffold arguments and adds the scaffolded command metadata to the app.
+// - typeName: the type of the scaffold (e.g., "map", "message").
+// - args: arguments for the scaffold command.
 func (a *App) addScaffoldCmd(typeName string, args ...string) {
 	module := ""
 	index := ""
 	response := ""
+	params := ""
 	name := args[0]
 	args = args[1:]
 	filteredArgs := make([]string, 0)
@@ -367,7 +390,7 @@ func (a *App) addScaffoldCmd(typeName string, args ...string) {
 
 	// parse the arg flags
 	for i, arg := range args {
-		// skip tests if the type don't have message
+		// skip tests if the type doesn't need a message
 		if arg == "--no-message" {
 			return
 		}
@@ -377,6 +400,9 @@ func (a *App) addScaffoldCmd(typeName string, args ...string) {
 		}
 		if arg == "--index" && i+1 < len(args) {
 			index = args[i+1]
+		}
+		if arg == "--params" && i+1 < len(args) {
+			params = args[i+1]
 		}
 		if (arg == "-r" || arg == "--response") && i+1 < len(args) {
 			response = args[i+1]
@@ -393,6 +419,7 @@ func (a *App) addScaffoldCmd(typeName string, args ...string) {
 		name:     name,
 	}
 
+	// Handle field specifics based on scaffold type
 	switch typeName {
 	case "map":
 		if index == "" {
@@ -410,6 +437,16 @@ func (a *App) addScaffoldCmd(typeName string, args ...string) {
 		require.NoError(a.env.t, err)
 		require.Len(a.env.t, responseFields, 1)
 		s.response = responseFields
+	case "module":
+		if params == "" {
+			break
+		}
+		paramsFields, err := field.ParseFields(strings.Split(params, ","), func(string) error { return nil })
+		require.NoError(a.env.t, err)
+		require.Len(a.env.t, paramsFields, 1)
+		s.params = paramsFields
+	case "params":
+		s.params = argsFields
 	}
 
 	a.scaffolded = append(a.scaffolded, s)

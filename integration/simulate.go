@@ -187,7 +187,14 @@ func (a *App) SendMapTxsAndQuery(
 	fields field.Fields,
 	index field.Field,
 ) {
-	a.SendTxsAndQuery(ctx, servers, module, name, fields, testValue(index.DatatypeName))
+	a.SendTxsAndQuery(
+		ctx,
+		servers,
+		module,
+		name,
+		append(field.Fields{index}, fields...),
+		testValue(index.DatatypeName),
+	)
 }
 
 // SendTxsAndQuery sends a transaction and queries the element using both CLI and API.
