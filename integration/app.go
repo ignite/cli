@@ -57,7 +57,7 @@ type (
 
 	scaffold struct {
 		fields   field.Fields
-		indexes  field.Fields
+		index    field.Field
 		module   string
 		name     string
 		typeName string
@@ -353,19 +353,27 @@ func (a *App) Scaffold(msg string, shouldFail bool, typeName string, args ...str
 			}
 		}
 
-		indexFields, err := field.ParseFields(strings.Split(index, ","), func(string) error { return nil })
-		require.NoError(a.env.t, err)
-
 		argsFields, err := field.ParseFields(filteredArgs, func(string) error { return nil })
 		require.NoError(a.env.t, err)
 
-		a.scaffolded = append(a.scaffolded, scaffold{
+		s := scaffold{
 			fields:   argsFields,
-			indexes:  indexFields,
 			module:   module,
 			typeName: typeName,
 			name:     name,
-		})
+		}
+
+		if typeName == "map" {
+			if index == "" {
+				index = "index:string"
+			}
+			indexFields, err := field.ParseFields(strings.Split(index, ","), func(string) error { return nil })
+			require.NoError(a.env.t, err)
+			require.Len(a.env.t, indexFields, 1)
+			s.index = indexFields[0]
+		}
+
+		a.scaffolded = append(a.scaffolded, s)
 	}
 }
 

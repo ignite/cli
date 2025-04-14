@@ -122,7 +122,7 @@ func (a *App) RunSimulationTxs(ctx context.Context, servers Hosts) {
 		case "list":
 			a.SendListTxsAndQueryFirst(ctx, servers, module, name, s.fields)
 		case "map":
-			a.SendMapTxsAndQuery(ctx, servers, module, name, s.indexes, s.fields)
+			a.SendMapTxsAndQuery(ctx, servers, module, name, s.fields, s.index)
 		case "single":
 			a.SendSingleTxsAndQuery(ctx, servers, module, name, s.fields)
 		case "type":
@@ -177,6 +177,30 @@ func (a *App) SendListTxsAndQueryFirst(
 	name multiformatname.Name,
 	fields field.Fields,
 ) {
+	a.SendTxsAndQuery(ctx, servers, module, name, fields, "0")
+}
+
+// SendMapTxsAndQuery sends a map transaction and queries the element using both CLI and API.
+func (a *App) SendMapTxsAndQuery(
+	ctx context.Context,
+	servers Hosts,
+	module string,
+	name multiformatname.Name,
+	fields field.Fields,
+	index field.Field,
+) {
+	a.SendTxsAndQuery(ctx, servers, module, name, fields, testValue(index.DatatypeName))
+}
+
+// SendTxsAndQuery sends a transaction and queries the element using both CLI and API.
+func (a *App) SendTxsAndQuery(
+	ctx context.Context,
+	servers Hosts,
+	module string,
+	name multiformatname.Name,
+	fields field.Fields,
+	index string,
+) {
 	// Generate transaction arguments and submit the transaction
 	args := txArgs(fields)
 	_ = a.createTx(servers, module, name, args...)
@@ -186,7 +210,7 @@ func (a *App) SendListTxsAndQueryFirst(
 		servers.RPC,
 		module,
 		"get-"+name.Kebab,
-		"0",
+		index,
 	)
 	a.assertJSONData(queryResponse, name.Snake, fields)
 
@@ -197,59 +221,7 @@ func (a *App) SendListTxsAndQueryFirst(
 		a.namespace,
 		module,
 		name.Snake,
-		"0",
-	)
-	a.assertJSONData(apiResponse, name.Snake, fields)
-
-	// Query the full list via CLI
-	queryListResponse := a.CLIQuery(
-		servers.RPC,
-		module,
-		"list-"+name.Kebab,
-	)
-	a.assertJSONList(queryListResponse, name.Snake, fields)
-
-	// Query the full list via API
-	apiListResponse := a.APIQuery(
-		ctx,
-		servers.API,
-		a.namespace,
-		module,
-		name.Snake,
-	)
-	a.assertJSONList(apiListResponse, name.Snake, fields)
-}
-
-// SendMapTxsAndQuery sends a map transaction and queries the element using both CLI and API.
-func (a *App) SendMapTxsAndQuery(
-	ctx context.Context,
-	servers Hosts,
-	module string,
-	name multiformatname.Name,
-	indexes field.Fields,
-	fields field.Fields,
-) {
-	// Generate transaction arguments and submit the transaction
-	args := txArgs(append(indexes, fields...))
-	_ = a.createTx(servers, module, name, args...)
-
-	// Query the chain for the first element via CLI
-	queryResponse := a.CLIQuery(
-		servers.RPC,
-		module,
-		"get-"+name.Kebab,
-		"0",
-	)
-	a.assertJSONData(queryResponse, name.Snake, fields)
-
-	// Query the chain for the first element via API
-	apiResponse := a.APIQuery(
-		ctx,
-		servers.API,
-		a.namespace,
-		module,
-		name.Snake,
-		"0",
+		index,
 	)
 	a.assertJSONData(apiResponse, name.Snake, fields)
 
