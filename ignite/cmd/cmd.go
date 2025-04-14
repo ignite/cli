@@ -2,6 +2,7 @@ package ignitecmd
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
@@ -11,6 +12,7 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
+<<<<<<< HEAD
 	"github.com/ignite/cli/v28/ignite/config"
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
@@ -20,6 +22,26 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/gitpod"
 	"github.com/ignite/cli/v28/ignite/pkg/goenv"
 	"github.com/ignite/cli/v28/ignite/version"
+=======
+	"github.com/ignite/cli/v29/ignite/config"
+	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
+	"github.com/ignite/cli/v29/ignite/pkg/announcements"
+	"github.com/ignite/cli/v29/ignite/pkg/cache"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui"
+	uilog "github.com/ignite/cli/v29/ignite/pkg/cliui/log"
+	"github.com/ignite/cli/v29/ignite/pkg/dircache"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/goenv"
+	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v29/ignite/version"
+)
+
+type key int
+
+const (
+	keyChainConfig     key = iota
+	keyChainConfigPath key = iota
+>>>>>>> dd78fcb3 (feat: wire announcement api (#4615))
 )
 
 const (
@@ -49,14 +71,17 @@ func New(ctx context.Context) (*cobra.Command, func(), error) {
 	c := &cobra.Command{
 		Use:   "ignite",
 		Short: "Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain",
-		Long: `Ignite CLI is a tool for creating sovereign blockchains built with Cosmos SDK, the world's
+		Long: fmt.Sprintf(`Ignite CLI is a tool for creating sovereign blockchains built with Cosmos SDK, the world's
 most popular modular blockchain framework. Ignite CLI offers everything you need to scaffold,
 test, build, and launch your blockchain.
 
 To get started, create a blockchain:
 
-	ignite scaffold chain example
-`,
+$ ignite scaffold chain example
+
+Announcements:
+%s
+`, announcements.Fetch()),
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		Args:          cobra.MinimumNArgs(0), // note(@julienrbrt): without this, ignite __complete(noDesc) hidden commands are not working.
