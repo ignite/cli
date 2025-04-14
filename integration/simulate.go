@@ -66,7 +66,7 @@ func (a *App) createTx(
 	module string,
 	name multiformatname.Name,
 	args ...string,
-) TxResponse {
+) {
 	// Submit the transaction and verify it was accepted
 	txResponse := a.CLITx(
 		servers.RPC,
@@ -84,8 +84,6 @@ func (a *App) createTx(
 	)
 	require.Equal(a.env.T(), 0, tx.Code,
 		"tx failed code=%d log=%s", txResponse.Code, txResponse.RawLog)
-
-	return tx
 }
 
 // RunChainAndSimulateTxs starts the blockchain network and runs transaction simulations.
@@ -145,7 +143,7 @@ func (a *App) SendSingleTxsAndQuery(
 ) {
 	// Generate transaction arguments and submit the transaction
 	args := txArgs(fields)
-	_ = a.createTx(servers, module, name, args...)
+	a.createTx(servers, module, name, args...)
 
 	// Query the state via CLI
 	queryResponse := a.CLIQuery(
@@ -203,7 +201,7 @@ func (a *App) SendTxsAndQuery(
 ) {
 	// Generate transaction arguments and submit the transaction
 	args := txArgs(fields)
-	_ = a.createTx(servers, module, name, args...)
+	a.createTx(servers, module, name, args...)
 
 	// Query the chain for the first element via CLI
 	queryResponse := a.CLIQuery(
