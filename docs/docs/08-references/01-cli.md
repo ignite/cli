@@ -17,7 +17,12 @@ test, build, and launch your blockchain.
 
 To get started, create a blockchain:
 
-	ignite scaffold chain example
+$ ignite scaffold chain example
+
+Announcements:
+
+💬 Survey: https://bit.ly/3WZS2uS
+
 
 
 **Options**

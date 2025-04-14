@@ -56,7 +56,7 @@ case "$1" in
     reset) run
         ;;
 
-    # scratch builds the container, resets existing and attachs to it.
+    # scratch builds the container, resets existing and attaches to it.
     scratch)
         build
         run
