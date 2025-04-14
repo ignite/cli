@@ -353,7 +353,7 @@ func (a *App) Scaffold(msg string, shouldFail bool, typeName string, args ...str
 			}
 		}
 
-		indexFields, err := field.ParseFields(strings.Split(index, ""), func(string) error { return nil })
+		indexFields, err := field.ParseFields(strings.Split(index, ","), func(string) error { return nil })
 		require.NoError(a.env.t, err)
 
 		argsFields, err := field.ParseFields(filteredArgs, func(string) error { return nil })

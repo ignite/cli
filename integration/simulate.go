@@ -122,7 +122,7 @@ func (a *App) RunSimulationTxs(ctx context.Context, servers Hosts) {
 		case "list":
 			a.SendListTxsAndQueryFirst(ctx, servers, module, name, s.fields)
 		case "map":
-			a.SendMapTxsAndQuery(ctx, servers, module, name, s.fields)
+			a.SendMapTxsAndQuery(ctx, servers, module, name, s.indexes, s.fields)
 		case "single":
 			a.SendSingleTxsAndQuery(ctx, servers, module, name, s.fields)
 		case "type":
@@ -226,10 +226,11 @@ func (a *App) SendMapTxsAndQuery(
 	servers Hosts,
 	module string,
 	name multiformatname.Name,
+	indexes field.Fields,
 	fields field.Fields,
 ) {
 	// Generate transaction arguments and submit the transaction
-	args := txArgs(fields)
+	args := txArgs(append(indexes, fields...))
 	_ = a.createTx(servers, module, name, args...)
 
 	// Query the chain for the first element via CLI
