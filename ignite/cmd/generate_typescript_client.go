@@ -50,12 +50,14 @@ func generateTSClientHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
 	defer session.End()
 
-	if err := session.AskConfirm(msgBufAuth); err != nil {
-		if errors.Is(err, cliui.ErrAbort) {
-			return errors.New("buf not auth")
-		}
+	if !getYes(cmd) {
+		if err := session.AskConfirm(msgBufAuth); err != nil {
+			if errors.Is(err, cliui.ErrAbort) {
+				return errors.New("buf not auth")
+			}
 
-		return err
+			return err
+		}
 	}
 
 	c, err := chain.NewWithHomeFlags(
