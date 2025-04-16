@@ -2,6 +2,7 @@ package cosmosgen
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
@@ -23,9 +24,8 @@ type tsGenerator struct {
 }
 
 type generatePayload struct {
-	Modules         []module.Module
-	PackageNS       string
-	IsConsumerChain bool
+	Modules   []module.Module
+	PackageNS string
 }
 
 func newTSGenerator(g *generator) *tsGenerator {
@@ -44,23 +44,10 @@ func (g *generator) generateTS(ctx context.Context) error {
 
 	appModulePath := gomodulepath.ExtractAppPath(chainPath.RawPath)
 	data := generatePayload{
-		Modules:         g.appModules,
-		PackageNS:       strings.ReplaceAll(appModulePath, "/", "-"),
-		IsConsumerChain: false,
+		Modules:   g.appModules,
+		PackageNS: strings.ReplaceAll(appModulePath, "/", "-"),
 	}
 
-	// Third party modules are always required to generate the root
-	// template because otherwise it would be generated only with
-	// custom modules losing the registration of the third party
-	// modules when the root templates are re-generated.
-	for _, modules := range g.thirdModules {
-		data.Modules = append(data.Modules, modules...)
-		for _, m := range modules {
-			if strings.HasPrefix(m.Pkg.Name, "interchain_security.ccv.consumer") {
-				data.IsConsumerChain = true
-			}
-		}
-	}
 	// Make sure the modules are always sorted to keep the import
 	// and module registration order consistent so the generated
 	// files are not changed.
@@ -72,6 +59,8 @@ func (g *generator) generateTS(ctx context.Context) error {
 	if err := tsg.generateModuleTemplates(ctx); err != nil {
 		return err
 	}
+
+	fmt.Println(data)
 
 	return tsg.generateRootTemplates(data)
 }
