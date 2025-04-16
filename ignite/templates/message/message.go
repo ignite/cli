@@ -4,7 +4,6 @@ import (
 	"embed"
 	"fmt"
 	"path/filepath"
-	"strings"
 
 	"github.com/emicklei/proto"
 	"github.com/gobuffalo/genny/v2"
@@ -214,17 +213,6 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn
 			return err
 		}
 
-		var positionalArgs string
-		for i, field := range opts.Fields {
-			// only the last field can be a variadic field
-			if i == len(opts.Fields)-1 && field.IsSlice() {
-				positionalArgs += fmt.Sprintf(`{ProtoField: "%s", Varargs: true}, `, field.ProtoFieldName())
-				continue
-			}
-
-			positionalArgs += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
-		}
-
 		template := `{
 			RpcMethod: "%[2]v",
 			Use: "%[3]v",
@@ -239,7 +227,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn
 			opts.MsgName.PascalCase,
 			fmt.Sprintf("%s %s", opts.MsgName.Kebab, opts.Fields.CLIUsage()),
 			opts.MsgName.Original,
-			strings.TrimSpace(positionalArgs),
+			opts.Fields.ProtoFieldNameAutoCLI(),
 		)
 
 		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLITx, replacement)
