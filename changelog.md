@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## Features
+
+- [#4615](https://github.com/ignite/cli/pull/4615) Fetch Ignite announcements from API.
+
 ## Changes
 
 - [#4586](https://github.com/ignite/cli/pull/4586) Remove network as default plugin.
