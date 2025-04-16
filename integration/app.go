@@ -394,17 +394,17 @@ func (a *App) addScaffoldCmd(typeName string, args ...string) {
 		if arg == "--no-message" {
 			return
 		}
-		// get the scaffold module
-		if arg == "--module" && i+1 < len(args) {
+		if i+1 >= len(args) {
+			break
+		}
+		switch arg {
+		case "--module":
 			module = args[i+1]
-		}
-		if arg == "--index" && i+1 < len(args) {
+		case "--index":
 			index = args[i+1]
-		}
-		if arg == "--params" && i+1 < len(args) {
+		case "--params":
 			params = args[i+1]
-		}
-		if (arg == "-r" || arg == "--response") && i+1 < len(args) {
+		case "-r", "--response":
 			response = args[i+1]
 		}
 	}
@@ -435,15 +435,16 @@ func (a *App) addScaffoldCmd(typeName string, args ...string) {
 		}
 		responseFields, err := field.ParseFields(strings.Split(response, ","), func(string) error { return nil })
 		require.NoError(a.env.t, err)
-		require.Len(a.env.t, responseFields, 1)
+		require.Greater(a.env.t, len(responseFields), 0)
 		s.response = responseFields
 	case "module":
+		s.module = name
 		if params == "" {
 			break
 		}
 		paramsFields, err := field.ParseFields(strings.Split(params, ","), func(string) error { return nil })
 		require.NoError(a.env.t, err)
-		require.Len(a.env.t, paramsFields, 1)
+		require.Greater(a.env.t, len(paramsFields), 0)
 		s.params = paramsFields
 	case "params":
 		s.params = argsFields
