@@ -4,7 +4,6 @@ import (
 	"embed"
 	"fmt"
 	"path/filepath"
-	"strings"
 
 	"github.com/emicklei/proto"
 	"github.com/gobuffalo/genny/v2"
@@ -159,11 +158,6 @@ func cliQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 			return err
 		}
 
-		var positionalArgs string
-		for _, field := range opts.ReqFields {
-			positionalArgs += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
-		}
-
 		template := `{
 					RpcMethod: "%[2]v",
 					Use: "%[3]v",
@@ -178,7 +172,7 @@ func cliQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 			opts.QueryName.PascalCase,
 			fmt.Sprintf("%s %s", opts.QueryName.Kebab, opts.ReqFields.CLIUsage()),
 			opts.Description,
-			strings.TrimSpace(positionalArgs),
+			opts.ReqFields.ProtoFieldNameAutoCLI(),
 		)
 		content := replacer.Replace(f.String(), PlaceholderAutoCLIQuery, replacement)
 
