@@ -35,7 +35,7 @@ func (f Field) IsSlice() bool {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
 
-	return !dt.NonIndex
+	return dt.NonIndex
 }
 
 // ProtoFieldName returns the field name used in proto.
