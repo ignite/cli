@@ -22,9 +22,12 @@
   <a href="https://github.com/ignite/cli">
     <img alt="Lines Of Code" src="https://tokei.rs/b1/github/ignite/cli" />
   </a>
+  <a href="https://github.com/ignite/cli/actions/workflows/test.yml">
     <img alt="Test Status" src="https://github.com/ignite/cli/workflows/Test/badge.svg" />
+  <a href="https://github.com/ignite/cli/actions/workflows/test-lint.yml">
     <img alt="Lint Status" src="https://github.com/ignite/cli/workflows/Lint/badge.svg" />
-    <a href="https://discord.com/invite/ignite" target="_blank"><img alt="Discord" src="https://img.shields.io/discord/893126937067802685"></a>
+  <a href="https://x.com/ignite" target="_blank"><img alt="Twitter" src="https://img.shields.io/twitter/follow/ignite" />
+  <a href="https://discord.com/invite/ignite" target="_blank"><img alt="Discord" src="https://img.shields.io/discord/893126937067802685"></a>
 </div>
 
 ![Ignite CLI](./assets/ignite-cli.png)

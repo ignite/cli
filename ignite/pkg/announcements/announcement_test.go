@@ -9,7 +9,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/announcements"
 )
 
-func TestGetAnnouncements(t *testing.T) {
+func TestFetchAnnouncements(t *testing.T) {
 	fallbackData := fmt.Sprintf("\n💬 Survey: %s\n", announcements.SurveyLink)
 
 	tests := []struct {
@@ -20,9 +20,9 @@ func TestGetAnnouncements(t *testing.T) {
 	}{
 		{
 			name:         "successful retrieval",
-			mockResponse: `{"announcements":["Announcement 1","Announcement 2"]}`,
+			mockResponse: `{"version":1,"announcements":[{"id":"1744230503810","text":"New Ignite announcement: v1.0.0 released!","timestamp":"2025-04-09T20:28:23.810Z","user":"announcement-bot"}]}`,
 			statusCode:   http.StatusOK,
-			expected:     "\n🗣️ Announcements\n⋆ Announcement 1\n⋆ Announcement 2\n",
+			expected:     "\n🗣️ Announcements\n⋆ New Ignite announcement: v1.0.0 released!\n",
 		},
 		{
 			name:         "empty announcements",
@@ -52,11 +52,11 @@ func TestGetAnnouncements(t *testing.T) {
 			}))
 			defer server.Close()
 
-			originalAPI := announcements.AnnouncementAPI
-			announcements.AnnouncementAPI = server.URL
-			defer func() { announcements.AnnouncementAPI = originalAPI }()
+			originalAPI := announcements.APIURL
+			announcements.APIURL = server.URL
+			defer func() { announcements.APIURL = originalAPI }()
 
-			result := announcements.GetAnnouncements()
+			result := announcements.Fetch()
 			if result != tt.expected {
 				t.Errorf("expected %q, got %q", tt.expected, result)
 			}

@@ -29,7 +29,7 @@ type templateWriter struct {
 	templateDir string
 }
 
-// tpl returns a func for template residing at templatePath to initialize a text template
+// newTemplateWriter returns a func for template residing at templatePath to initialize a text template
 // with given protoPath.
 func newTemplateWriter(templateDir string) templateWriter {
 	return templateWriter{
