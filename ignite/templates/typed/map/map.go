@@ -627,6 +627,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 			return err
 		}
 
+<<<<<<< HEAD
 		var positionalArgs, positionalArgsStr string
 		var indexes, indexesStr string
 		for _, field := range opts.Fields {
@@ -639,6 +640,12 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 		}
 		positionalArgs = indexes + positionalArgs
 		positionalArgsStr = indexesStr + positionalArgsStr
+=======
+		index := fmt.Sprintf(`{ProtoField: "%s"}, `, opts.Index.ProtoFieldName())
+		indexStr := fmt.Sprintf("[%s] ", opts.Index.ProtoFieldName())
+		positionalArgs := index + opts.Fields.ProtoFieldNameAutoCLI()
+		positionalArgsStr := indexStr + opts.Fields.CLIUsage()
+>>>>>>> 7c532030 (feat(templates): set varargs in autocli config when needed (#4624))
 
 		template := `{
 			RpcMethod: "Create%[2]v",

@@ -491,8 +491,13 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 			opts.TypeName.UpperCamel,
 			opts.TypeName.Kebab,
 			opts.TypeName.Original,
+<<<<<<< HEAD
 			strings.TrimSpace(positionalArgs),
 			strings.TrimSpace(positionalArgsStr),
+=======
+			opts.Fields.ProtoFieldNameAutoCLI(),
+			opts.Fields.CLIUsage(),
+>>>>>>> 7c532030 (feat(templates): set varargs in autocli config when needed (#4624))
 		)
 
 		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLITx, replacement)

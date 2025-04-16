@@ -42,11 +42,26 @@ func (f Fields) ProtoImports() []string {
 	return allImports
 }
 
+<<<<<<< HEAD
 // String returns all inline fields args for command usage.
 func (f Fields) String() string {
 	args := ""
 	for _, field := range f {
 		args += fmt.Sprintf(" [%s]", field.Name.Kebab)
+=======
+// ProtoFieldNameAutoCLI returns  all inline fields args for name used in proto.
+// It should be used in AutoCLI to generate the field name.
+func (f Fields) ProtoFieldNameAutoCLI() string {
+	args := ""
+	for i, field := range f {
+		// only the last field can be a variadic field
+		if i == len(f)-1 && field.IsSlice() {
+			args += fmt.Sprintf(`{ProtoField: "%s", Varargs: true}, `, field.ProtoFieldName())
+			continue
+		}
+
+		args += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
+>>>>>>> 7c532030 (feat(templates): set varargs in autocli config when needed (#4624))
 	}
 	return args
 }
