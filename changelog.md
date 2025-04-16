@@ -18,6 +18,7 @@
 - [#4601](https://github.com/ignite/cli/pull/4601) Add `appregistry` as default plugin
 - [#4613](https://github.com/ignite/cli/pull/4613) Improve and simplify prompting logic by bubbletea.
 - [#4615](https://github.com/ignite/cli/pull/4615) Fetch Ignite announcements from API.
+- [#4624](https://github.com/ignite/cli/pull/4624) Fix autocli templates for variadics.
 
 ### Fixes
 

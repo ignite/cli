@@ -668,7 +668,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 
 		index := fmt.Sprintf(`{ProtoField: "%s"}, `, opts.Index.ProtoFieldName())
 		indexStr := fmt.Sprintf("[%s] ", opts.Index.ProtoFieldName())
-		positionalArgs := index + opts.Fields.ProtoFieldName()
+		positionalArgs := index + opts.Fields.ProtoFieldNameAutoCLI()
 		positionalArgsStr := indexStr + opts.Fields.CLIUsage()
 
 		template := `{

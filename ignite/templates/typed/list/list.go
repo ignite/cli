@@ -430,7 +430,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 			opts.TypeName.PascalCase,
 			opts.TypeName.Kebab,
 			opts.TypeName.Original,
-			opts.Fields.ProtoFieldName(),
+			opts.Fields.ProtoFieldNameAutoCLI(),
 			opts.Fields.CLIUsage(),
 		)
 
