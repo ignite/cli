@@ -41,10 +41,10 @@ Use the
 `<filename>:<line>` notation:
 
 ```
-(dlv) break x/hello/client/cli/query_say_hello.go:14
+(dlv) break x/hello/keeper/query_say_hello.go:13
 ```
 
-This command adds a breakpoint to the `x/hello/client/cli/query_say_hello.go`
+This command adds a breakpoint to the `x/hello/keeper/query_say_hello.go`
 file at line 14.
 
 Once all breakpoints are set resume blockchain execution using the
@@ -183,17 +183,16 @@ hellod query hello say-hello bob
 A debugger shell will be launched when the breakpoint is triggered:
 
 ```
-     7:		"google.golang.org/grpc/codes"
-     8:		"google.golang.org/grpc/status"
-     9:		"hello/x/hello/types"
-    10:	)
+     7:  "google.golang.org/grpc/codes"
+     8:  "google.golang.org/grpc/status"
+     9:  "hello/x/hello/types"
+    10: )
     11:
-=>  12:	func (k Keeper) SayHello(goCtx context.Context, req *types.QuerySayHelloRequest) (*types.QuerySayHelloResponse, error) {
-    13:		if req == nil {
-    14:			return nil, status.Error(codes.InvalidArgument, "invalid request")
-    15:		}
+=>  12: func (k Keeper) SayHello(ctx context.Context, req *types.QuerySayHelloRequest) (*types.QuerySayHelloResponse, error) {
+    13:  if req == nil {
+    14:   return nil, status.Error(codes.InvalidArgument, "invalid request")
+    15:  }
     16:
-    17:		ctx := sdk.UnwrapSDKContext(goCtx)
 ```
 
 From then on you can use Delve commands like `next` (alias `n`) or `print`
