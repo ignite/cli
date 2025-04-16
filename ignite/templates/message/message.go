@@ -215,7 +215,13 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn
 		}
 
 		var positionalArgs string
-		for _, field := range opts.Fields {
+		for i, field := range opts.Fields {
+			// only the last field can be a variadic field
+			if i == len(opts.Fields)-1 && field.IsSlice() {
+				positionalArgs += fmt.Sprintf(`{ProtoField: "%s", Varargs: true}, `, field.ProtoFieldName())
+				continue
+			}
+
 			positionalArgs += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
 		}
 

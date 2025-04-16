@@ -160,7 +160,13 @@ func cliQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 		}
 
 		var positionalArgs string
-		for _, field := range opts.ReqFields {
+		for i, field := range opts.ReqFields {
+			// only the last field can be a variadic field
+			if i == len(opts.ReqFields)-1 && field.IsSlice() {
+				positionalArgs += fmt.Sprintf(`{ProtoField: "%s", Varargs: true}, `, field.ProtoFieldName())
+				continue
+			}
+
 			positionalArgs += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
 		}
 
