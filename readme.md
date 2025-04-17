@@ -272,7 +272,7 @@ Ignite CLI is a free and open source product maintained by
 [Ignite](https://ignite.com). Here's where you can find us. Stay in touch.
 
 - [ignite.com website](https://ignite.com)
-- [@ignite on Twitter](https://x.com/ignite)
+- [@ignite on X (formerly Twitter)](https://x.com/ignite)
 - [ignite.com/blog](https://ignite.com/blog)
 - [Ignite Discord](https://discord.com/invite/ignite)
 - [Ignite YouTube](https://www.youtube.com/@ignitehq)
