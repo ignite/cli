@@ -23,9 +23,8 @@ type tsGenerator struct {
 }
 
 type generatePayload struct {
-	Modules         []module.Module
-	PackageNS       string
-	IsConsumerChain bool
+	Modules   []module.Module
+	PackageNS string
 }
 
 func newTSGenerator(g *generator) *tsGenerator {
@@ -44,23 +43,10 @@ func (g *generator) generateTS(ctx context.Context) error {
 
 	appModulePath := gomodulepath.ExtractAppPath(chainPath.RawPath)
 	data := generatePayload{
-		Modules:         g.appModules,
-		PackageNS:       strings.ReplaceAll(appModulePath, "/", "-"),
-		IsConsumerChain: false,
+		Modules:   g.appModules,
+		PackageNS: strings.ReplaceAll(appModulePath, "/", "-"),
 	}
 
-	// Third party modules are always required to generate the root
-	// template because otherwise it would be generated only with
-	// custom modules losing the registration of the third party
-	// modules when the root templates are re-generated.
-	for _, modules := range g.thirdModules {
-		data.Modules = append(data.Modules, modules...)
-		for _, m := range modules {
-			if strings.HasPrefix(m.Pkg.Name, "interchain_security.ccv.consumer") {
-				data.IsConsumerChain = true
-			}
-		}
-	}
 	// Make sure the modules are always sorted to keep the import
 	// and module registration order consistent so the generated
 	// files are not changed.
@@ -77,39 +63,38 @@ func (g *generator) generateTS(ctx context.Context) error {
 }
 
 func (g *tsGenerator) generateModuleTemplates(ctx context.Context) error {
-	gg := &errgroup.Group{}
 	dirCache := cache.New[[]byte](g.g.cacheStorage, dirchangeCacheNamespace)
-	add := func(sourcePath string, modules []module.Module) {
-		for _, m := range modules {
-			m := m
-			gg.Go(func() error {
-				cacheKey := m.Pkg.Path
-				paths := []string{m.Pkg.Path, g.g.opts.jsOut(m)}
+	add := func(sourcePath string, m module.Module) error {
+		cacheKey := m.Pkg.Path
+		paths := []string{m.Pkg.Path, g.g.opts.jsOut(m)}
 
-				// Always generate module templates by default unless cache is enabled, in which
-				// case the module template is generated when one or more files were changed in
-				// the module since the last generation.
-				if g.g.opts.useCache {
-					changed, err := dirchange.HasDirChecksumChanged(dirCache, cacheKey, sourcePath, paths...)
-					if err != nil {
-						return err
-					}
+		// Always generate module templates by default unless cache is enabled, in which
+		// case the module template is generated when one or more files were changed in
+		// the module since the last generation.
+		if g.g.opts.useCache {
+			changed, err := dirchange.HasDirChecksumChanged(dirCache, cacheKey, sourcePath, paths...)
+			if err != nil {
+				return err
+			}
 
-					if !changed {
-						return nil
-					}
-				}
-
-				if err := g.generateModuleTemplate(ctx, sourcePath, m); err != nil {
-					return err
-				}
-
-				return dirchange.SaveDirChecksum(dirCache, cacheKey, sourcePath, paths...)
-			})
+			if !changed {
+				return nil
+			}
 		}
+
+		if err := g.generateModuleTemplate(ctx, sourcePath, m); err != nil {
+			return err
+		}
+
+		return dirchange.SaveDirChecksum(dirCache, cacheKey, sourcePath, paths...)
 	}
 
-	add(g.g.appPath, g.g.appModules)
+	gg := &errgroup.Group{}
+	for _, m := range g.g.appModules {
+		gg.Go(func() error {
+			return add(g.g.appPath, m)
+		})
+	}
 
 	// Always generate third party modules; This is required because not generating them might
 	// lead to issues with the module registration in the root template. The root template must
@@ -117,7 +102,11 @@ func (g *tsGenerator) generateModuleTemplates(ctx context.Context) error {
 	// is available and not generated it would lead to the registration of a new not generated
 	// 3rd party module.
 	for sourcePath, modules := range g.g.thirdModules {
-		add(sourcePath, modules)
+		for _, m := range modules {
+			gg.Go(func() error {
+				return add(sourcePath, m)
+			})
+		}
 	}
 
 	return gg.Wait()
@@ -132,6 +121,7 @@ func (g *tsGenerator) generateModuleTemplate(
 		out      = g.g.opts.jsOut(m)
 		typesOut = filepath.Join(out, "types")
 	)
+
 	if err := os.MkdirAll(typesOut, 0o766); err != nil {
 		return err
 	}
@@ -141,7 +131,7 @@ func (g *tsGenerator) generateModuleTemplate(
 
 	// All "cosmossdk.io" module packages must use SDK's
 	// proto path which is where the proto files are stored.
-	protoPath := filepath.Join(g.g.appPath, g.g.protoDir)
+	protoPath := filepath.Join(appPath, g.g.protoDir) // use module app path
 	if module.IsCosmosSDKModulePkg(appPath) {
 		protoPath = filepath.Join(g.g.sdkDir, "proto")
 	}
@@ -158,7 +148,17 @@ func (g *tsGenerator) generateModuleTemplate(
 		return err
 	}
 
-	return templateTSClientModule.Write(out, protoPath, struct {
+	// Generate the module template
+	if err := templateTSClientModule.Write(out, protoPath, struct {
+		Module module.Module
+	}{
+		Module: m,
+	}); err != nil {
+		return err
+	}
+
+	// Generate the rest API template (using axios)
+	return templateTSClientRest.Write(out, protoPath, struct {
 		Module module.Module
 	}{
 		Module: m,

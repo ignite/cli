@@ -20,6 +20,7 @@ var (
 	templateTSClientModule         = newTemplateWriter("module")
 	templateTSClientVue            = newTemplateWriter("vue")
 	templateTSClientVueRoot        = newTemplateWriter("vue-root")
+	templateTSClientRest           = newTemplateWriter("rest")
 	templateTSClientComposable     = newTemplateWriter("composable")
 	templateTSClientComposableRoot = newTemplateWriter("composable-root")
 )
@@ -69,9 +70,13 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 			return strcase.ToCamel(replacer.Replace(word))
 		},
 		"resolveFile": func(fullPath string) string {
-			rel, _ := filepath.Rel(protoPath, fullPath)
+			_ = protoPath // eventually, we should use the proto folder name of this, for the application (but not for the other modules)
+
+			res := strings.Split(fullPath, "proto/")
+			rel := res[len(res)-1] // get path after proto/
 			rel = strings.TrimSuffix(rel, ".proto")
-			return rel
+
+			return "./types/" + rel
 		},
 		"inc": func(i int) int {
 			return i + 1

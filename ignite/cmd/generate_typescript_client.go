@@ -12,14 +12,13 @@ import (
 
 const (
 	flagUseCache = "use-cache"
-	msgBufAuth   = "Generate ts-client depends on a 'buf.build' remote plugin, and as of August 1, 2024, Buf will begin limiting remote plugin requests from unauthenticated users on 'buf.build'. If you send more than ten unauthenticated requests per hour using remote plugins, you’ll start to see rate limit errors. Please authenticate before running ts-client command using 'buf registry login' command and follow the instructions. For more info, check https://buf.build/docs/generate/auth-required."
+	msgBufAuth   = "Generate ts-client uses a 'buf.build' remote plugin. Buf is begin limiting remote plugin requests from unauthenticated users on 'buf.build'. Intensively using this function will get you rate limited. Authenticate with 'buf registry login' to avoid this (https://buf.build/docs/generate/auth-required)."
 )
 
 func NewGenerateTSClient() *cobra.Command {
 	c := &cobra.Command{
-		Hidden: true, // hidden util we have a better ts-client.
-		Use:    "ts-client",
-		Short:  "TypeScript frontend client",
+		Use:   "ts-client",
+		Short: "TypeScript frontend client",
 		Long: `Generate a framework agnostic TypeScript client for your blockchain project.
 
 By default the TypeScript client is generated in the "ts-client/" directory. You
@@ -52,11 +51,14 @@ func generateTSClientHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
 	defer session.End()
 
-	if err := session.AskConfirm(msgBufAuth); err != nil {
-		if errors.Is(err, promptui.ErrAbort) {
-			return errors.New("buf not auth")
+	if !getYes(cmd) {
+		if err := session.AskConfirm(msgBufAuth); err != nil {
+			if errors.Is(err, promptui.ErrAbort) {
+				return errors.New("buf not auth")
+			}
+
+			return err
 		}
-		return err
 	}
 
 	c, err := chain.NewWithHomeFlags(

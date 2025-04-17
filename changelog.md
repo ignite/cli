@@ -10,6 +10,10 @@
 
 - [#4586](https://github.com/ignite/cli/pull/4586) Remove network as default plugin.
 
+### Bug Fixes
+
+- [#4347](https://github.com/ignite/cli/pull/4347) Fix `ts-client` generation
+
 ## [`v28.8.2`](https://github.com/ignite/cli/releases/tag/v28.8.2)
 
 ### Changes
