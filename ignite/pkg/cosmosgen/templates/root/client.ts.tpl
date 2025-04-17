@@ -78,11 +78,9 @@ export class IgniteClient extends EventEmitter {
       ).queryClient;
       const bankQueryClient = (await import("./cosmos.bank.v1beta1/module"))
         .queryClient;
-      {{ if eq .IsConsumerChain false }}
       const stakingQueryClient = (await import("./cosmos.staking.v1beta1/module")).queryClient;
       const stakingqc = stakingQueryClient({ addr: this.env.apiURL });
       const staking = await (await stakingqc.queryParams()).data;
-      {{ end }}
       const qc = queryClient({ addr: this.env.apiURL });
       const node_info = await (await qc.serviceGetNodeInfo()).data;
       const chainId = node_info.default_node_info?.network ?? "";
@@ -116,15 +114,12 @@ export class IgniteClient extends EventEmitter {
           return y;
         }) ?? [];
 
-      {{ if eq .IsConsumerChain true -}}
-      let stakeCurrency = currencies.find((x) => !x.coinDenom.startsWith("ibc/"));
-      {{ else }}
       let stakeCurrency = {
               coinDenom: staking.params?.bond_denom?.toUpperCase() ?? "",
               coinMinimalDenom: staking.params?.bond_denom ?? "",
               coinDecimals: 0,
             };
-      {{ end }}
+
       let feeCurrencies =
         tokens.supply?.map((x) => {
           const y = {

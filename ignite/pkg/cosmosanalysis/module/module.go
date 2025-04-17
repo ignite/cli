@@ -87,7 +87,7 @@ type moduleDiscoverer struct {
 // IsCosmosSDKModulePkg check if a Go import path is a Cosmos SDK package module.
 // These type of package have the "cosmossdk.io/x" prefix.
 func IsCosmosSDKModulePkg(path string) bool {
-	return strings.Contains(path, "cosmossdk.io/x/")
+	return strings.Contains(path, "cosmossdk.io/x/") || strings.Contains(path, "github.com/cosmos/cosmos-sdk")
 }
 
 // Discover discovers and returns modules and their types that are registered in the app
@@ -278,13 +278,6 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 		// do not use GenesisState type.
 		if protomsg.Name == "GenesisState" {
 			return false
-		}
-
-		// do not use if an SDK message.
-		for _, msg := range msgs {
-			if msg == protomsg.Name {
-				return false
-			}
 		}
 
 		// do not use if used as a request/return type of RPC.

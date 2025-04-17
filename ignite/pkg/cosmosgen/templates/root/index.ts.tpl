@@ -2,7 +2,7 @@
 import { Registry } from '@cosmjs/proto-signing'
 import { IgniteClient } from "./client";
 import { MissingWalletError } from "./helpers";
-{{ range .Modules }}import { IgntModule as {{ camelCaseUpperSta .Pkg.Name }}, msgTypes as {{ camelCaseUpperSta .Pkg.Name }}MsgTypes } from './{{ .Pkg.Name }}'
+{{ range .Modules }}import { IgntModule as {{ camelCaseUpperSta .Pkg.Name }}, msgTypes as {{ camelCaseUpperSta .Pkg.Name }}MsgTypes } from './{{ replace .Pkg.Name "." "/" }}'
 {{ end }}
 
 const Client = IgniteClient.plugin([

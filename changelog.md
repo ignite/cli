@@ -29,6 +29,10 @@
 - [#4595](https://github.com/ignite/cli/pull/4595) Fix wrong InterfaceRegistry for IBC modules.
 - [#4609](https://github.com/ignite/cli/pull/4609) Add work dir for relayer integration tests.
 
+### Bug Fixes
+
+- [#4347](https://github.com/ignite/cli/pull/4347) Fix `ts-client` generation
+
 ## [`v29.0.0-beta.1`](https://github.com/ignite/cli/releases/tag/v29.0.0-beta.1)
 
 ### Features
