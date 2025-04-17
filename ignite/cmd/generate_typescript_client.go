@@ -51,22 +51,14 @@ func generateTSClientHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
 	defer session.End()
 
-<<<<<<< HEAD
-	if err := session.AskConfirm(msgBufAuth); err != nil {
-		if errors.Is(err, promptui.ErrAbort) {
-			return errors.New("buf not auth")
-		}
-		return err
-=======
 	if !getYes(cmd) {
 		if err := session.AskConfirm(msgBufAuth); err != nil {
-			if errors.Is(err, cliui.ErrAbort) {
+			if errors.Is(err, promptui.ErrAbort) {
 				return errors.New("buf not auth")
 			}
 
 			return err
 		}
->>>>>>> 1fc0b9af (fix(cosmosgen): fix ts-client (#4347))
 	}
 
 	c, err := chain.NewWithHomeFlags(

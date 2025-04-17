@@ -64,18 +64,9 @@ func (g *generator) generateTS(ctx context.Context) error {
 
 func (g *tsGenerator) generateModuleTemplates(ctx context.Context) error {
 	dirCache := cache.New[[]byte](g.g.cacheStorage, dirchangeCacheNamespace)
-<<<<<<< HEAD
-	add := func(sourcePath string, modules []module.Module) {
-		for _, m := range modules {
-			m := m
-			gg.Go(func() error {
-				cacheKey := m.Pkg.Path
-				paths := []string{m.Pkg.Path, g.g.opts.jsOut(m)}
-=======
 	add := func(sourcePath string, m module.Module) error {
 		cacheKey := m.Pkg.Path
 		paths := []string{m.Pkg.Path, g.g.opts.jsOut(m)}
->>>>>>> 1fc0b9af (fix(cosmosgen): fix ts-client (#4347))
 
 		// Always generate module templates by default unless cache is enabled, in which
 		// case the module template is generated when one or more files were changed in
