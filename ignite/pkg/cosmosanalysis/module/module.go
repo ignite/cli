@@ -280,13 +280,6 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 			return false
 		}
 
-		// do not use if an SDK message.
-		for _, msg := range msgs {
-			if msg == protomsg.Name {
-				return false
-			}
-		}
-
 		// do not use if used as a request/return type of RPC.
 		for _, s := range pkg.Services {
 			for _, q := range s.RPCFuncs {
