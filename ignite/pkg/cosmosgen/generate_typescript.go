@@ -12,6 +12,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
 	"github.com/ignite/cli/v29/ignite/pkg/dirchange"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
+	"golang.org/x/sync/errgroup"
 )
 
 var dirchangeCacheNamespace = "generate.typescript.dirchange"
@@ -87,10 +88,11 @@ func (g *tsGenerator) generateModuleTemplates(ctx context.Context) error {
 		return dirchange.SaveDirChecksum(dirCache, cacheKey, sourcePath, paths...)
 	}
 
+	gg := &errgroup.Group{}
 	for _, m := range g.g.appModules {
-		if err := add(g.g.appPath, m); err != nil {
-			return err
-		}
+		gg.Go(func() error {
+			return add(g.g.appPath, m)
+		})
 	}
 
 	// Always generate third party modules; This is required because not generating them might
@@ -100,13 +102,13 @@ func (g *tsGenerator) generateModuleTemplates(ctx context.Context) error {
 	// 3rd party module.
 	for sourcePath, modules := range g.g.thirdModules {
 		for _, m := range modules {
-			if err := add(sourcePath, m); err != nil {
-				return err
-			}
+			gg.Go(func() error {
+				return add(sourcePath, m)
+			})
 		}
 	}
 
-	return nil
+	return gg.Wait()
 }
 
 func (g *tsGenerator) generateModuleTemplate(
