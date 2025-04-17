@@ -1027,8 +1027,69 @@ meant to be edited by hand.
 **SEE ALSO**
 
 * [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite generate composables](#ignite-generate-composables)	 - TypeScript frontend client and Vue 3 composables
+* [ignite generate hooks](#ignite-generate-hooks)	 - TypeScript frontend client and React hooks
 * [ignite generate openapi](#ignite-generate-openapi)	 - OpenAPI spec for your chain
 * [ignite generate proto-go](#ignite-generate-proto-go)	 - Compile protocol buffer files to Go source code required by Cosmos SDK
+* [ignite generate ts-client](#ignite-generate-ts-client)	 - TypeScript frontend client
+
+
+## ignite generate composables
+
+TypeScript frontend client and Vue 3 composables
+
+```
+ignite generate composables [flags]
+```
+
+**Options**
+
+```
+  -h, --help            help for composables
+  -o, --output string   Vue 3 composables output path
+  -y, --yes             answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+      --clear-cache           clear the build cache (advanced)
+      --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
+  -p, --path string           path of the app (default ".")
+```
+
+**SEE ALSO**
+
+* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
+
+
+## ignite generate hooks
+
+TypeScript frontend client and React hooks
+
+```
+ignite generate hooks [flags]
+```
+
+**Options**
+
+```
+  -h, --help            help for hooks
+  -o, --output string   React hooks output path
+  -y, --yes             answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+      --clear-cache           clear the build cache (advanced)
+      --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
+  -p, --path string           path of the app (default ".")
+```
+
+**SEE ALSO**
+
+* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
 
 
 ## ignite generate openapi
@@ -1072,6 +1133,57 @@ ignite generate proto-go [flags]
 ```
   -h, --help   help for proto-go
   -y, --yes    answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+      --clear-cache           clear the build cache (advanced)
+      --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
+  -p, --path string           path of the app (default ".")
+```
+
+**SEE ALSO**
+
+* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
+
+
+## ignite generate ts-client
+
+TypeScript frontend client
+
+**Synopsis**
+
+Generate a framework agnostic TypeScript client for your blockchain project.
+
+By default the TypeScript client is generated in the "ts-client/" directory. You
+can customize the output directory in config.yml:
+
+	client:
+	  typescript:
+	    path: new-path
+
+Output can also be customized by using a flag:
+
+	ignite generate ts-client --output new-path
+
+TypeScript client code can be automatically regenerated on reset or source code
+changes when the blockchain is started with a flag:
+
+	ignite chain serve --generate-clients
+
+
+```
+ignite generate ts-client [flags]
+```
+
+**Options**
+
+```
+  -h, --help            help for ts-client
+  -o, --output string   TypeScript client output path
+      --use-cache       use build cache to speed-up generation
+  -y, --yes             answers interactive yes/no questions with yes
 ```
 
 **Options inherited from parent commands**
