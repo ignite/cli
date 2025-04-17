@@ -2,13 +2,10 @@ package cosmosgen
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
-
-	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/module"
@@ -60,44 +57,41 @@ func (g *generator) generateTS(ctx context.Context) error {
 		return err
 	}
 
-	fmt.Println(data)
-
 	return tsg.generateRootTemplates(data)
 }
 
 func (g *tsGenerator) generateModuleTemplates(ctx context.Context) error {
-	gg := &errgroup.Group{}
 	dirCache := cache.New[[]byte](g.g.cacheStorage, dirchangeCacheNamespace)
-	add := func(sourcePath string, modules []module.Module) {
-		for _, m := range modules {
-			gg.Go(func() error {
-				cacheKey := m.Pkg.Path
-				paths := []string{m.Pkg.Path, g.g.opts.jsOut(m)}
+	add := func(sourcePath string, m module.Module) error {
+		cacheKey := m.Pkg.Path
+		paths := []string{m.Pkg.Path, g.g.opts.jsOut(m)}
 
-				// Always generate module templates by default unless cache is enabled, in which
-				// case the module template is generated when one or more files were changed in
-				// the module since the last generation.
-				if g.g.opts.useCache {
-					changed, err := dirchange.HasDirChecksumChanged(dirCache, cacheKey, sourcePath, paths...)
-					if err != nil {
-						return err
-					}
+		// Always generate module templates by default unless cache is enabled, in which
+		// case the module template is generated when one or more files were changed in
+		// the module since the last generation.
+		if g.g.opts.useCache {
+			changed, err := dirchange.HasDirChecksumChanged(dirCache, cacheKey, sourcePath, paths...)
+			if err != nil {
+				return err
+			}
 
-					if !changed {
-						return nil
-					}
-				}
-
-				if err := g.generateModuleTemplate(ctx, sourcePath, m); err != nil {
-					return err
-				}
-
-				return dirchange.SaveDirChecksum(dirCache, cacheKey, sourcePath, paths...)
-			})
+			if !changed {
+				return nil
+			}
 		}
+
+		if err := g.generateModuleTemplate(ctx, sourcePath, m); err != nil {
+			return err
+		}
+
+		return dirchange.SaveDirChecksum(dirCache, cacheKey, sourcePath, paths...)
 	}
 
-	add(g.g.appPath, g.g.appModules)
+	for _, m := range g.g.appModules {
+		if err := add(g.g.appPath, m); err != nil {
+			return err
+		}
+	}
 
 	// Always generate third party modules; This is required because not generating them might
 	// lead to issues with the module registration in the root template. The root template must
@@ -105,10 +99,14 @@ func (g *tsGenerator) generateModuleTemplates(ctx context.Context) error {
 	// is available and not generated it would lead to the registration of a new not generated
 	// 3rd party module.
 	for sourcePath, modules := range g.g.thirdModules {
-		add(sourcePath, modules)
+		for _, m := range modules {
+			if err := add(sourcePath, m); err != nil {
+				return err
+			}
+		}
 	}
 
-	return gg.Wait()
+	return nil
 }
 
 func (g *tsGenerator) generateModuleTemplate(
@@ -120,6 +118,7 @@ func (g *tsGenerator) generateModuleTemplate(
 		out      = g.g.opts.jsOut(m)
 		typesOut = filepath.Join(out, "types")
 	)
+
 	if err := os.MkdirAll(typesOut, 0o766); err != nil {
 		return err
 	}
