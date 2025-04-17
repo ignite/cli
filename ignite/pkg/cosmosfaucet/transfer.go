@@ -73,7 +73,7 @@ func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sd
 	transfer := sdk.NewCoins()
 	// check for each coin, the max transferred amount hasn't been reached
 	for _, c := range coins {
-		if f.indexerDisabled { // we cannot check the amount if indexer is disabled
+		if f.indexerDisabled { // we cannot check the transfer history if indexer is disabled
 			transfer = transfer.Add(c)
 			continue
 		}

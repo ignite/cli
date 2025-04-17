@@ -141,6 +141,7 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 }
 
 // indexerDisabled checks if the indexer is disabled in the config.yml.
+// More specifically, it checks if a kv indexer is used (psql indexer is not supported).
 func indexerDisabled(valCfg xyaml.Map) bool {
 	const txIndexKey = "tx_index"
 	v, ok := valCfg[txIndexKey]

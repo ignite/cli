@@ -143,8 +143,7 @@ func Version(version cosmosver.Version) Option {
 }
 
 // IndexerDisabled tells whether the indexing is disabled on the node.
-// Without indexing, the faucet won't be able to check the limits for each account,
-// nor verify the transaction status.
+// Without indexing, the faucet won't be able to check the limits for each account, nor verify the transaction status.
 func IndexerDisabled() Option {
 	return func(f *Faucet) {
 		f.indexerDisabled = true
