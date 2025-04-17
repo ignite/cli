@@ -70,12 +70,9 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 			return xstrcase.UpperCamel(replacer.Replace(word))
 		},
 		"resolveFile": func(fullPath string) string {
-			rel, _ := filepath.Rel(protoPath, fullPath)
+			res := strings.Split(fullPath, "proto/")
+			rel := res[len(res)-1] // get path after proto/
 			rel = strings.TrimSuffix(rel, ".proto")
-
-			if strings.Contains(rel, "..") || strings.Contains(rel, "/go/pkg/mod/") {
-				return rel
-			}
 
 			return "./types/" + rel
 		},

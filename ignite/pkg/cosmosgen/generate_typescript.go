@@ -128,7 +128,7 @@ func (g *tsGenerator) generateModuleTemplate(
 
 	// All "cosmossdk.io" module packages must use SDK's
 	// proto path which is where the proto files are stored.
-	protoPath := filepath.Join(g.g.appPath, g.g.protoDir)
+	protoPath := filepath.Join(appPath, g.g.protoDir) // use module app path
 	if module.IsCosmosSDKModulePkg(appPath) {
 		protoPath = filepath.Join(g.g.sdkDir, "proto")
 	}
