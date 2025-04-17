@@ -6,7 +6,7 @@ import { msgTypes } from './registry';
 import { IgniteClient } from "../client"
 import { MissingWalletError } from "../helpers"
 import { Api } from "./rest";
-{{ range .Module.Msgs }}import { {{ .Name }} } from "./types/{{ resolveFile .FilePath }}";
+{{ range .Module.Msgs }}import { {{ .Name }} } from "{{ resolveFile .FilePath }}";
 {{ end }}
 {{ range .Module.Types }}import { {{ .Name }} as type{{- .Name -}} } from "./types"
 {{ end }}
