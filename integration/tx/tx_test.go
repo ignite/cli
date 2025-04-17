@@ -25,28 +25,20 @@ func TestSignTxWithDashedAppName(t *testing.T) {
 	var (
 		env         = envtest.New(t)
 		appname     = "da-shed-a-p-p"
-		app         = env.Scaffold(appname)
+		app         = env.ScaffoldApp(appname)
 		servers     = app.RandomizeServerPorts()
 		ctx, cancel = context.WithCancel(env.Ctx())
 	)
 
 	nodeAddr, err := xurl.TCP(servers.RPC)
-	if err != nil {
-		t.Fatalf("cant read nodeAddr from host.RPC %v: %v", servers.RPC, err)
-	}
+	require.NoErrorf(t, err, "cant read nodeAddr from host.RPC %v", servers.RPC)
 
-	env.Exec("scaffold a simple list",
-		step.NewSteps(step.New(
-			step.Workdir(app.SourcePath()),
-			step.Exec(
-				envtest.IgniteApp,
-				"scaffold",
-				"list",
-				"item",
-				"str",
-				"--yes",
-			),
-		)),
+	app.Scaffold(
+		"scaffold a simple list",
+		false,
+		"list",
+		"item",
+		"str",
 	)
 
 	var (
@@ -60,21 +52,7 @@ func TestSignTxWithDashedAppName(t *testing.T) {
 	// sign tx to add an item to the list.
 	steps := step.NewSteps(
 		step.New(
-			step.Exec(
-				app.Binary(),
-				"config",
-				"output", "json",
-			),
-			step.PreExec(func() error {
-				return env.IsAppServed(ctx, servers.API)
-			}),
-		),
-		step.New(
 			step.Stdout(output),
-			step.PreExec(func() error {
-				err := env.IsAppServed(ctx, servers.API)
-				return err
-			}),
 			step.Exec(
 				app.Binary(),
 				"tx",
@@ -103,10 +81,11 @@ func TestSignTxWithDashedAppName(t *testing.T) {
 
 	go func() {
 		defer cancel()
+		app.WaitChainUp(ctx, servers.API)
 		isTxBodyRetrieved = env.Exec("sign a tx", steps, envtest.ExecRetry())
 	}()
 
-	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
+	app.MustServe(ctx)
 
 	if !isTxBodyRetrieved {
 		t.FailNow()
@@ -119,7 +98,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 	var (
 		env         = envtest.New(t)
 		appname     = randstr.Runes(10)
-		app         = env.Scaffold(fmt.Sprintf("github.com/test/%s", appname))
+		app         = env.ScaffoldApp(fmt.Sprintf("github.com/test/%s", appname))
 		servers     = app.RandomizeServerPorts()
 		ctx, cancel = context.WithCancel(env.Ctx())
 	)
@@ -145,16 +124,6 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 	// 2- send tokens from one to other.
 	// 3- verify tx by using gRPC Gateway API.
 	steps := step.NewSteps(
-		step.New(
-			step.Exec(
-				app.Binary(),
-				"config",
-				"output", "json",
-			),
-			step.PreExec(func() error {
-				return env.IsAppServed(ctx, servers.API)
-			}),
-		),
 		step.New(
 			step.Exec(
 				app.Binary(),
@@ -190,9 +159,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 				}
 
 				nodeAddr, err := xurl.TCP(servers.RPC)
-				if err != nil {
-					return err
-				}
+				require.NoErrorf(t, err, "cant read nodeAddr from host.RPC %v", servers.RPC)
 
 				// send some tokens from alice to bob and confirm the corresponding tx via gRPC gateway
 				// endpoint by asserting denom and amount.
@@ -264,11 +231,11 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 
 	go func() {
 		defer cancel()
-
+		app.WaitChainUp(ctx, servers.API)
 		isTxBodyRetrieved = env.Exec("retrieve account addresses", steps, envtest.ExecRetry())
 	}()
 
-	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
+	app.MustServe(ctx)
 
 	if !isTxBodyRetrieved {
 		t.FailNow()

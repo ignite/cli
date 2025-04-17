@@ -17,7 +17,7 @@ func TestCosmosGenScaffold(t *testing.T) {
 
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/blog")
+		app = env.ScaffoldApp("github.com/test/blog")
 	)
 
 	const (
