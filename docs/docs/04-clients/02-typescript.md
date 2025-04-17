@@ -4,11 +4,6 @@ description: Information about the generated TypeScript client code.
 
 # TypeScript frontend
 
-:::warning
-The TypeScript client is being reworked and is not yet stable.
-In the meantime, refer to the [Ignite CCA App](https://ignite.com/marketplace/cca).
-:::
-
 Ignite offers powerful functionality for generating client-side code for your
 blockchain. Think of this as a one-click client SDK generation tailored
 specifically for your blockchain.
