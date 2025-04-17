@@ -2,7 +2,9 @@ package chain
 
 import (
 	"context"
+	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	sdkmath "cosmossdk.io/math"
@@ -14,6 +16,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosfaucet"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/xurl"
+	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
 )
 
 var (
@@ -84,6 +87,12 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 		cosmosfaucet.Version(c.Version),
 	}
 
+	// check if indexer is enabled or not.
+	if indexerDisabled(validator.Config) {
+		faucetOptions = append(faucetOptions, cosmosfaucet.IndexerDisabled())
+		c.ev.Send("⚠️ CometBFT indexer disabled. Faucet can't check account limits or verify transaction status.")
+	}
+
 	// parse coins to pass to the faucet as coins.
 	for _, coin := range conf.Faucet.Coins {
 		parsedCoin, err := sdk.ParseCoinNormalized(coin)
@@ -129,4 +138,15 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 
 	// init the faucet with options and return.
 	return cosmosfaucet.New(ctx, commands, faucetOptions...)
+}
+
+// indexerDisabled checks if the indexer is disabled in the config.yml.
+func indexerDisabled(valCfg xyaml.Map) bool {
+	const txIndexKey = "tx_index"
+	v, ok := valCfg[txIndexKey]
+	if !ok {
+		return false
+	}
+
+	return !strings.Contains(fmt.Sprintf("%v", v), "kv")
 }

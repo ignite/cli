@@ -74,6 +74,9 @@ type Faucet struct {
 
 	// version holds the cosmos-sdk version.
 	version cosmosver.Version
+
+	// indexerDisabled tells whether the indexing is disabled on the node.
+	indexerDisabled bool
 }
 
 // Option configures the faucetOptions.
@@ -136,6 +139,15 @@ func OpenAPI(apiAddress string) Option {
 func Version(version cosmosver.Version) Option {
 	return func(f *Faucet) {
 		f.version = version
+	}
+}
+
+// IndexerDisabled tells whether the indexing is disabled on the node.
+// Without indexing, the faucet won't be able to check the limits for each account,
+// nor verify the transaction status.
+func IndexerDisabled() Option {
+	return func(f *Faucet) {
+		f.indexerDisabled = true
 	}
 }
 
