@@ -245,7 +245,7 @@ func handleIncludes(cfg *Config) error {
 
 		// Merge the included config with the primary config
 		if err = mergo.Merge(cfg, includeCfg, mergo.WithOverride); err != nil {
-			return errors.Wrapf(err, "failed to merge included file '%s'", configPath)
+			return errors.Wrapf(err, "failed to merge included file '%s'", includePath)
 		}
 	}
 
