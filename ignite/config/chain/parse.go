@@ -199,8 +199,10 @@ func handleIncludes(cfg *Config) error {
 			if err != nil {
 				return errors.Wrapf(err, "failed to create temp file for URL")
 			}
-			defer os.Remove(tmpFile.Name())
-			defer tmpFile.Close()
+			defer func() {
+				tmpFile.Close()
+				os.Remove(tmpFile.Name())
+			}()
 
 			resp, err := http.Get(includePath)
 			if err != nil {
@@ -208,14 +210,15 @@ func handleIncludes(cfg *Config) error {
 			}
 			defer resp.Body.Close()
 
-			_, err = io.Copy(tmpFile, resp.Body)
-			if err != nil {
+			if resp.StatusCode != http.StatusOK {
+				return errors.Errorf("failed to download file, status code: %d", resp.StatusCode)
+			}
+
+			if _, err = io.Copy(tmpFile, resp.Body); err != nil {
 				return errors.Wrapf(err, "failed to save downloaded file from '%s'", includePath)
 			}
 
-			// Rewind temp file for reading
-			_, err = tmpFile.Seek(0, 0)
-			if err != nil {
+			if _, err = tmpFile.Seek(0, io.SeekStart); err != nil {
 				return errors.Wrapf(err, "failed to rewind temp file from '%s'", includePath)
 			}
 
@@ -241,9 +244,8 @@ func handleIncludes(cfg *Config) error {
 		}
 
 		// Merge the included config with the primary config
-		err = mergo.Merge(cfg, includeCfg, mergo.WithOverride)
-		if err != nil {
-			return errors.Wrapf(err, "failed to merge included file '%s'", includePath)
+		if err = mergo.Merge(cfg, includeCfg, mergo.WithOverride); err != nil {
+			return errors.Wrapf(err, "failed to merge included file '%s'", configPath)
 		}
 	}
 
