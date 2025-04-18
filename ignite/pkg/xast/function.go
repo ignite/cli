@@ -492,7 +492,7 @@ func ModifyCaller(content, callerExpr string, modifiers func([]string) ([]string
 	// parse the caller expression to extract package name and function name
 	var pkgName, funcName string
 	parts := strings.Split(callerExpr, ".")
-	if len(parts) == 1 {
+	if len(parts) == 1 { //nolint:gocritic // more readable than if-else
 		funcName = parts[0]
 	} else if len(parts) == 2 {
 		pkgName = parts[0]
