@@ -1,0 +1,19 @@
+version: 1
+accounts:
+  - name: alice
+    coins:
+      - 20000token
+      - 200000000stake
+faucet:
+  name: alice
+  coins:
+    - 5token
+    - 100000stake
+client:
+  typescript:
+    path: override-2
+  openapi:
+    path: docs/static/include2.yml
+validators:
+  - name: validator1
+    bonded: 100000000stake
