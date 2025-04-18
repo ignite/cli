@@ -15,7 +15,7 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosfaucet"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/xurl"
-	"github.com/ignite/cli/v28/ignite/pkg/xyaml"
+	xyaml "github.com/ignite/cli/v28/ignite/pkg/yaml"
 )
 
 var (
