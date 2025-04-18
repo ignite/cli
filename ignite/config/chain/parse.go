@@ -3,11 +3,14 @@ package chain
 import (
 	"bytes"
 	"io"
+	"net/http"
+	"net/url"
 	"os"
+	"path/filepath"
 
-	"gopkg.in/yaml.v3"
-
+	"dario.cat/mergo"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
+	"gopkg.in/yaml.v3"
 
 	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/config/chain/version"
@@ -42,14 +45,14 @@ func parse(configFile io.Reader) (*Config, error) {
 	var buf bytes.Buffer
 
 	// Read the config file version first to know how to decode it
-	version, err := ReadConfigVersion(io.TeeReader(configFile, &buf))
+	v, err := ReadConfigVersion(io.TeeReader(configFile, &buf))
 	if err != nil {
 		return DefaultChainConfig(), err
 	}
 
 	// Decode the current config file version and assign default
 	// values for the fields that are empty
-	c, err := decodeConfig(&buf, version)
+	c, err := decodeConfig(&buf, v)
 	if err != nil {
 		return DefaultChainConfig(), err
 	}
@@ -63,6 +66,11 @@ func parse(configFile io.Reader) (*Config, error) {
 	// Finally make sure the config is the latest one before validating it
 	cfg, err := ConvertLatest(c)
 	if err != nil {
+		return DefaultChainConfig(), err
+	}
+
+	// Handle includes
+	if err := handleIncludes(cfg); err != nil {
 		return DefaultChainConfig(), err
 	}
 
@@ -173,6 +181,69 @@ func validateNetworkConfig(c *Config) error {
 
 		if account.Mnemonic != "" {
 			return &ValidationError{"cannot include mnemonic in network config genesis"}
+		}
+	}
+
+	return nil
+}
+
+func handleIncludes(cfg *Config) error {
+	if len(cfg.Include) == 0 {
+		return nil
+	}
+
+	for _, includePath := range cfg.Include {
+		if u, err := url.ParseRequestURI(includePath); err == nil && u.Scheme != "" {
+			// Download file from URL to temp file
+			tmpFile, err := os.CreateTemp("", "config-*.yml")
+			if err != nil {
+				return errors.Wrapf(err, "failed to create temp file for URL")
+			}
+			defer os.Remove(tmpFile.Name())
+			defer tmpFile.Close()
+
+			resp, err := http.Get(includePath)
+			if err != nil {
+				return errors.Wrapf(err, "failed to download from URL '%s'", includePath)
+			}
+			defer resp.Body.Close()
+
+			_, err = io.Copy(tmpFile, resp.Body)
+			if err != nil {
+				return errors.Wrapf(err, "failed to save downloaded file from '%s'", includePath)
+			}
+
+			// Rewind temp file for reading
+			_, err = tmpFile.Seek(0, 0)
+			if err != nil {
+				return errors.Wrapf(err, "failed to rewind temp file from '%s'", includePath)
+			}
+
+			includePath = tmpFile.Name()
+		}
+
+		// Resolve path - if relative, use base directory
+		absPath, err := filepath.Abs(includePath)
+		if err != nil {
+			return errors.Wrapf(err, "failed to resolve included path '%s'", includePath)
+		}
+
+		includeFile, err := os.Open(absPath)
+		if err != nil {
+			return errors.Errorf("failed to open included file '%s'", includePath)
+		}
+		defer includeFile.Close()
+
+		// Parse the included config
+		includeCfg, err := parse(includeFile)
+		if err != nil {
+			return errors.Wrapf(err, "failed to parse included config file '%s'", includePath)
+		}
+
+		// Merge the included config with the primary config
+		err = mergo.Merge(cfg, includeCfg, mergo.WithOverride)
+		if err != nil {
+			return errors.Wrapf(err, "failed to merge included file '%s'", includePath)
 		}
 	}
 
