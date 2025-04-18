@@ -5,6 +5,8 @@
 ## Features
 
 - [#4615](https://github.com/ignite/cli/pull/4615) Fetch Ignite announcements from API.
+- [#4624](https://github.com/ignite/cli/pull/4624) Fix autocli templates for variadics.
+- [#4633](https://github.com/ignite/cli/pull/4633) Loosen faucet check when indexer disabled.
 
 ## Changes
 

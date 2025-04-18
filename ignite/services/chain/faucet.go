@@ -2,17 +2,28 @@ package chain
 
 import (
 	"context"
+	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+<<<<<<< HEAD
 	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
 	chaincmdrunner "github.com/ignite/cli/v28/ignite/pkg/chaincmd/runner"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosfaucet"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/xurl"
+=======
+	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
+	chaincmdrunner "github.com/ignite/cli/v29/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosfaucet"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/xurl"
+	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
+>>>>>>> 8e76c5f2 (feat(cosmosfaucet): loosen faucet check when indexer disabled (#4633))
 )
 
 var (
@@ -83,6 +94,12 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 		cosmosfaucet.Version(c.Version),
 	}
 
+	// check if indexer is enabled or not.
+	if indexerDisabled(validator.Config) {
+		faucetOptions = append(faucetOptions, cosmosfaucet.IndexerDisabled())
+		c.ev.Send("⚠️ CometBFT indexer disabled. Faucet can't check account limits or verify transaction status.")
+	}
+
 	// parse coins to pass to the faucet as coins.
 	for _, coin := range conf.Faucet.Coins {
 		parsedCoin, err := sdk.ParseCoinNormalized(coin)
@@ -128,4 +145,16 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 
 	// init the faucet with options and return.
 	return cosmosfaucet.New(ctx, commands, faucetOptions...)
+}
+
+// indexerDisabled checks if the indexer is disabled in the config.yml.
+// More specifically, it checks if a kv indexer is used (psql indexer is not supported).
+func indexerDisabled(valCfg xyaml.Map) bool {
+	const txIndexKey = "tx_index"
+	v, ok := valCfg[txIndexKey]
+	if !ok {
+		return false
+	}
+
+	return !strings.Contains(fmt.Sprintf("%v", v), "kv")
 }
