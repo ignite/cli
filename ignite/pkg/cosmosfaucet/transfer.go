@@ -75,7 +75,7 @@ func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sd
 	// check for each coin, the max transferred amount hasn't been reached
 	for _, c := range coins {
 		if f.indexerDisabled { // we cannot check the transfer history if indexer is disabled
-			transfer = transfer.Add(c)
+			coinsStr = append(coinsStr, c.String())
 			continue
 		}
 
@@ -116,7 +116,7 @@ func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sd
 	}
 
 	if f.indexerDisabled {
-		return txHash, nil // we cannot check the tx status if indexer is disabled
+		return nil // we cannot check the tx status if indexer is disabled
 	}
 
 	// wait for send tx to be confirmed
