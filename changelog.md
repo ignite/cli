@@ -5,6 +5,7 @@
 ## Features
 
 - [#4615](https://github.com/ignite/cli/pull/4615) Fetch Ignite announcements from API.
+- [#4633](https://github.com/ignite/cli/pull/4633) Loosen faucet check when indexer disabled.
 
 ## Changes
 

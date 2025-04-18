@@ -74,6 +74,11 @@ func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sd
 
 	// check for each coin, the max transferred amount hasn't been reached
 	for _, c := range coins {
+		if f.indexerDisabled { // we cannot check the transfer history if indexer is disabled
+			coinsStr = append(coinsStr, c.String())
+			continue
+		}
+
 		totalSent, err := f.TotalTransferredAmount(ctx, toAccountAddress, c.Denom)
 		if err != nil {
 			return err
@@ -108,6 +113,10 @@ func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sd
 	txHash, err := f.runner.BankSend(ctx, fromAccount.Address, toAccountAddress, strings.Join(coinsStr, ","), chaincmd.BankSendWithFees(f.feeAmount))
 	if err != nil {
 		return err
+	}
+
+	if f.indexerDisabled {
+		return nil // we cannot check the tx status if indexer is disabled
 	}
 
 	// wait for send tx to be confirmed
