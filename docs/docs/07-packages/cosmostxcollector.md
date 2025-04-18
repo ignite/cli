@@ -1,6 +1,6 @@
 ---
 sidebar_position: 0
-title: cosmostxcollector
+title: Indexer (cosmostxcollector)
 slug: /packages/cosmostxcollector
 ---
 
