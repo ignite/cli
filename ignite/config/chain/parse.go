@@ -7,10 +7,12 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"time"
 
 	"dario.cat/mergo"
-	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"gopkg.in/yaml.v3"
+
+	"github.com/cosmos/cosmos-sdk/types/bech32"
 
 	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/config/chain/version"
@@ -204,7 +206,8 @@ func handleIncludes(cfg *Config) error {
 				os.Remove(tmpFile.Name())
 			}()
 
-			resp, err := http.Get(includePath)
+			client := &http.Client{Timeout: 30 * time.Second}
+			resp, err := client.Get(includePath)
 			if err != nil {
 				return errors.Wrapf(err, "failed to download from URL '%s'", includePath)
 			}
