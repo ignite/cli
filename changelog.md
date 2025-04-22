@@ -4,7 +4,7 @@
 
 ## [`v28.9.0`](https://github.com/ignite/cli/releases/tag/v28.9.0)
 
-## Features
+### Features
 
 - [#4639](https://github.com/ignite/cli/pull/4639) Add `xast.ModifyCaller` function.
 - [#4615](https://github.com/ignite/cli/pull/4615) Fetch Ignite announcements from API.
