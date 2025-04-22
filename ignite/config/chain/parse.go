@@ -196,36 +196,11 @@ func handleIncludes(cfg *Config) error {
 
 	for _, includePath := range cfg.Include {
 		if u, err := url.ParseRequestURI(includePath); err == nil && u.Scheme != "" {
-			// Download file from URL to temp file
-			tmpFile, err := os.CreateTemp("", "config-*.yml")
+			includePath, err = fetchConfigFile(includePath)
 			if err != nil {
-				return errors.Wrapf(err, "failed to create temp file for URL")
+				return errors.Wrapf(err, "failed to fetch included config file '%s'", includePath)
 			}
-			defer func() {
-				tmpFile.Close()
-				os.Remove(tmpFile.Name())
-			}()
-
-			client := &http.Client{Timeout: 30 * time.Second}
-			resp, err := client.Get(includePath)
-			if err != nil {
-				return errors.Wrapf(err, "failed to download from URL '%s'", includePath)
-			}
-			defer resp.Body.Close()
-
-			if resp.StatusCode != http.StatusOK {
-				return errors.Errorf("failed to download file, status code: %d", resp.StatusCode)
-			}
-
-			if _, err = io.Copy(tmpFile, resp.Body); err != nil {
-				return errors.Wrapf(err, "failed to save downloaded file from '%s'", includePath)
-			}
-
-			if _, err = tmpFile.Seek(0, io.SeekStart); err != nil {
-				return errors.Wrapf(err, "failed to rewind temp file from '%s'", includePath)
-			}
-
-			includePath = tmpFile.Name()
+			defer os.Remove(includePath)
 		}
 
 		// Resolve path - if relative, use base directory
@@ -246,11 +221,45 @@ func handleIncludes(cfg *Config) error {
 			return errors.Wrapf(err, "failed to parse included config file '%s'", includePath)
 		}
 
+		if cfg.Version != includeCfg.Version {
+			return errors.Errorf("included config version '%d' does not match with chain config version '%d'", includeCfg.Version, cfg.Version)
+		}
+
 		// Merge the included config with the primary config
-		if err = mergo.Merge(cfg, includeCfg, mergo.WithOverride); err != nil {
+		if err = mergo.Merge(cfg, includeCfg, mergo.WithAppendSlice, mergo.WithOverride); err != nil {
 			return errors.Wrapf(err, "failed to merge included file '%s'", includePath)
 		}
 	}
 
 	return nil
+}
+
+func fetchConfigFile(URL string) (string, error) {
+	// Download file from URL to temp file
+	tmpFile, err := os.CreateTemp("", "config-*.yml")
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to create temp file for URL")
+	}
+	defer tmpFile.Close()
+
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Get(URL)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to download from URL '%s'", URL)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", errors.Errorf("failed to download file, status code: %d", resp.StatusCode)
+	}
+
+	if _, err = io.Copy(tmpFile, resp.Body); err != nil {
+		return "", errors.Wrapf(err, "failed to save downloaded file from '%s'", URL)
+	}
+
+	if _, err = tmpFile.Seek(0, io.SeekStart); err != nil {
+		return "", errors.Wrapf(err, "failed to rewind temp file from '%s'", URL)
+	}
+
+	return tmpFile.Name(), nil
 }

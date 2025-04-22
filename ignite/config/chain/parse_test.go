@@ -122,6 +122,7 @@ func TestHandleIncludes(t *testing.T) {
 		{
 			name: "Single valid include",
 			baseConfig: `
+version: 1
 client:
   typescript:
     path: original
@@ -160,6 +161,7 @@ validators:
 		{
 			name: "Multiple valid includes",
 			baseConfig: `
+version: 1
 client:
   typescript:
     path: original
@@ -177,6 +179,10 @@ build:
     proto:
         path: proto
 accounts:
+    - name: bob
+      coins:
+        - 10000token
+        - 100000000stake
     - name: alice
       coins:
         - 20000token
@@ -186,6 +192,8 @@ faucet:
     coins:
         - 5token
         - 100000stake
+        - 5token
+        - 100000stake
     host: 0.0.0.0:4500
 client:
     typescript:
@@ -193,12 +201,15 @@ client:
     openapi:
         path: docs/static/include2.yml
 validators:
+    - name: alice
+      bonded: 100000000stake
     - name: validator1
       bonded: 100000000stake`,
 		},
 		{
 			name: "Invalid include file path",
 			baseConfig: `
+version: 1
 client:
   typescript:
     path: original
@@ -209,8 +220,8 @@ include:
 		{
 			name: "Empty include list",
 			baseConfig: `
-validation: sovereign
 version: 1
+validation: sovereign
 accounts:
   - name: alice
     coins:
@@ -255,6 +266,7 @@ validators:
 		{
 			name: "Empty values include",
 			baseConfig: `
+version: 1
 include:
   - "./testdata/include1.yml"
   - "./testdata/include2.yml"
@@ -269,6 +281,10 @@ build:
     proto:
         path: proto
 accounts:
+    - name: bob
+      coins:
+        - 10000token
+        - 100000000stake
     - name: alice
       coins:
         - 20000token
@@ -278,6 +294,8 @@ faucet:
     coins:
         - 5token
         - 100000stake
+        - 5token
+        - 100000stake
     host: 0.0.0.0:4500
 client:
     typescript:
@@ -285,14 +303,16 @@ client:
     openapi:
         path: docs/static/include2.yml
 validators:
+    - name: alice
+      bonded: 100000000stake
     - name: validator1
       bonded: 100000000stake`,
 		},
 		{
 			name: "HTTP include",
 			baseConfig: fmt.Sprintf(`
-validation: sovereign
 version: 1
+validation: sovereign
 accounts:
   - name: alice
     coins:
@@ -325,11 +345,21 @@ build:
 accounts:
     - name: alice
       coins:
+        - 10000token
+    - name: bob
+      coins:
+        - 10000token
+        - 100000000stake
+    - name: alice
+      coins:
         - 20000token
         - 200000000stake
 faucet:
     name: alice
     coins:
+        - 5token
+        - 5token
+        - 100000stake
         - 5token
         - 100000stake
     host: 0.0.0.0:4500
@@ -339,14 +369,18 @@ client:
     openapi:
         path: docs/static/include2.yml
 validators:
+    - name: alice
+      bonded: 100stake
+    - name: alice
+      bonded: 100000000stake
     - name: validator1
       bonded: 100000000stake`, server),
 		},
 		{
 			name: "HTTP and local include",
 			baseConfig: fmt.Sprintf(`
-validation: sovereign
 version: 1
+validation: sovereign
 accounts:
   - name: alice
     coins:
@@ -379,11 +413,21 @@ build:
 accounts:
     - name: alice
       coins:
+        - 10000token
+    - name: bob
+      coins:
+        - 10000token
+        - 100000000stake
+    - name: alice
+      coins:
         - 20000token
         - 200000000stake
 faucet:
     name: alice
     coins:
+        - 5token
+        - 5token
+        - 100000stake
         - 5token
         - 100000stake
     host: 0.0.0.0:4500
@@ -393,6 +437,10 @@ client:
     openapi:
         path: docs/static/include2.yml
 validators:
+    - name: alice
+      bonded: 100stake
+    - name: alice
+      bonded: 100000000stake
     - name: validator1
       bonded: 100000000stake`, server),
 		},
