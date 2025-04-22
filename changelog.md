@@ -7,6 +7,7 @@
 - [#4509](https://github.com/ignite/cli/pull/4509) Upgrade to Go 1.24. Running `ignite doctor` migrates the scaffolded `tools.go` to the tool directive in the go.mod
 - [#4588](https://github.com/ignite/cli/pull/4588) Run `buf format after scaffold proto files.
 - [#4638](https://github.com/ignite/cli/pull/4638) Add include feature to the chain config file.
+- [#4639](https://github.com/ignite/cli/pull/4639) Add `xast.ModifyCaller` function.
 
 ### Changes
 
