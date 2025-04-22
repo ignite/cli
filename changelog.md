@@ -7,14 +7,11 @@
 ## Features
 
 - [#4639](https://github.com/ignite/cli/pull/4639) Add `xast.ModifyCaller` function.
+- [#4615](https://github.com/ignite/cli/pull/4615) Fetch Ignite announcements from API.
 
 ### Changes
 
-- [#4615](https://github.com/ignite/cli/pull/4615) Fetch Ignite announcements from API.
 - [#4633](https://github.com/ignite/cli/pull/4633) Loosen faucet check when indexer disabled.
-
-## Changes
-
 - [#4586](https://github.com/ignite/cli/pull/4586) Remove network as default plugin.
 
 ### Bug Fixes
