@@ -7,6 +7,7 @@ import (
 	"go/format"
 	"go/parser"
 	"go/token"
+	"sort"
 	"strings"
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
@@ -482,4 +483,127 @@ func structToBlockStmt(code string) (ast.Expr, error) {
 
 func toStruct(code string) string {
 	return fmt.Sprintf(`struct {}{ %s }`, strings.TrimSpace(code))
+}
+
+// ModifyCaller replaces all arguments of a specific function call in the given content.
+// The callerExpr should be in the format "pkgname.FuncName" or just "FuncName".
+// The modifiers function is called with the existing arguments and should return the new arguments.
+func ModifyCaller(content, callerExpr string, modifiers func([]string) ([]string, error)) (string, error) {
+	// parse the caller expression to extract package name and function name
+	var pkgName, funcName string
+	parts := strings.Split(callerExpr, ".")
+	switch len(parts) {
+	case 1:
+		funcName = parts[0]
+	case 2:
+		pkgName = parts[0]
+		funcName = parts[1]
+	default:
+		return "", errors.New("invalid caller expression format, use 'pkgname.FuncName' or 'FuncName'")
+	}
+
+	fileSet := token.NewFileSet()
+	// preserve original source positions for maintaining whitespace
+	fileSet.AddFile("", fileSet.Base(), len(content))
+
+	f, err := parser.ParseFile(fileSet, "", content, parser.ParseComments)
+	if err != nil {
+		return "", err
+	}
+
+	// track positions of all call expressions that need modification
+	type callModification struct {
+		node     *ast.CallExpr
+		newArgs  []string
+		startPos token.Pos
+		endPos   token.Pos
+	}
+
+	var modifications []callModification
+
+	errInspect := Inspect(f, func(n ast.Node) error {
+		callExpr, ok := n.(*ast.CallExpr)
+		if !ok {
+			return nil
+		}
+
+		// check if this call matches our target function
+		match := false
+		switch fun := callExpr.Fun.(type) {
+		case *ast.Ident:
+			// handle case of FuncName()
+			if pkgName == "" && fun.Name == funcName {
+				match = true
+			}
+		case *ast.SelectorExpr:
+			// handle case of pkg.FuncName()
+			if ident, ok := fun.X.(*ast.Ident); ok && ident.Name == pkgName && fun.Sel.Name == funcName {
+				match = true
+			}
+		}
+
+		if !match {
+			return nil
+		}
+
+		// extract current arguments as strings
+		currentArgs := make([]string, len(callExpr.Args))
+		for i, arg := range callExpr.Args {
+			var buf bytes.Buffer
+			if err := format.Node(&buf, fileSet, arg); err != nil {
+				return err
+			}
+			currentArgs[i] = buf.String()
+		}
+
+		// apply the modifier function
+		newArgs, err := modifiers(currentArgs)
+		if err != nil {
+			return err
+		}
+
+		// record this modification for later application
+		modifications = append(modifications, callModification{
+			node:     callExpr,
+			newArgs:  newArgs,
+			startPos: callExpr.Lparen + 1, // position right after the left parenthesis
+			endPos:   callExpr.Rparen,     // position of the right parenthesis
+		})
+
+		return nil
+	})
+
+	if errInspect != nil {
+		return "", errInspect
+	}
+
+	if len(modifications) == 0 {
+		return "", errors.Errorf("function call %s not found in file content", callerExpr)
+	}
+
+	// apply modifications in reverse order to avoid position shifts
+	sort.Slice(modifications, func(i, j int) bool {
+		return modifications[i].startPos > modifications[j].startPos
+	})
+
+	// make modifications directly to the content string
+	result := []byte(content)
+	for _, mod := range modifications {
+		// build the new arguments string
+		newArgsStr := strings.Join(mod.newArgs, ", ")
+
+		// replace the arguments in the original content
+		startOffset := fileSet.Position(mod.startPos).Offset
+		endOffset := fileSet.Position(mod.endPos).Offset
+
+		result = append(
+			result[:startOffset],
+			append(
+				[]byte(newArgsStr),
+				result[endOffset:]...,
+			)...,
+		)
+	}
+
+	return string(result), nil
 }
