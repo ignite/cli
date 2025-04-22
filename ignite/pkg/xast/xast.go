@@ -18,7 +18,7 @@ var ErrStop = errors.New("ast stop")
 // inspected (like returning false in the function of ast.Inspect).
 func Inspect(n ast.Node, f func(n ast.Node) error) (err error) {
 	ast.Inspect(n, func(n ast.Node) bool {
-		err = f(n)
+		err = errors.Join(err, f(n))
 		if err == nil {
 			return true
 		}
