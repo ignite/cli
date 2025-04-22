@@ -411,43 +411,6 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 	// Return the modified content.
 	return buf.String(), nil
 }
-<<<<<<< HEAD
-=======
-
-func codeToBlockStmt(fileSet *token.FileSet, code string) (*ast.BlockStmt, error) {
-	newFuncContent := toCode(code)
-	newContent, err := parser.ParseFile(fileSet, "", newFuncContent, parser.ParseComments)
-	if err != nil {
-		return nil, err
-	}
-	return newContent.Decls[0].(*ast.FuncDecl).Body, nil
-}
-
-func toCode(code string) string {
-	return fmt.Sprintf("package p; func _() { %s }", strings.TrimSpace(code))
-}
-
-func structToBlockStmt(code string) (ast.Expr, error) {
-	newFuncContent := toStruct(code)
-	newContent, err := parser.ParseExpr(newFuncContent)
-	if err != nil {
-		return nil, err
-	}
-	newCompositeList, ok := newContent.(*ast.CompositeLit)
-	if !ok {
-		return nil, errors.New("not a composite literal")
-	}
-
-	if len(newCompositeList.Elts) != 1 {
-		return nil, errors.New("composite literal has more than one element or zero")
-	}
-
-	return newCompositeList.Elts[0], nil
-}
-
-func toStruct(code string) string {
-	return fmt.Sprintf(`struct {}{ %s }`, strings.TrimSpace(code))
-}
 
 // ModifyCaller replaces all arguments of a specific function call in the given content.
 // The callerExpr should be in the format "pkgname.FuncName" or just "FuncName".
@@ -571,4 +534,3 @@ func ModifyCaller(content, callerExpr string, modifiers func([]string) ([]string
 
 	return string(result), nil
 }
->>>>>>> 121c3a88 (feat(pkg/xast): add `ModifyCaller` function (#4639))
