@@ -75,6 +75,9 @@ func AppendFuncCode(code string) FunctionOptions {
 	}
 }
 
+// AppendFuncCodeAtLine append a new code at line.
+var AppendFuncCodeAtLine = AppendFuncAtLine
+
 // AppendFuncAtLine append a new code at line.
 func AppendFuncAtLine(code string, lineNumber uint64) FunctionOptions {
 	return func(c *functionOpts) {
@@ -245,16 +248,18 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 				errInspect = errors.Errorf("line number %d out of range", newLine.number)
 				return false
 			}
+
 			// Parse the Go code to insert.
-			insertionExpr, err := parser.ParseExprFrom(fileSet, "", []byte(newLine.code), parser.ParseComments)
+			body, err := codeToBlockStmt(fileSet, newLine.code)
 			if err != nil {
 				errInspect = err
 				return false
 			}
+
 			// Insert code at the specified line number.
 			funcDecl.Body.List = append(
 				funcDecl.Body.List[:newLine.number],
-				append([]ast.Stmt{&ast.ExprStmt{X: insertionExpr}}, funcDecl.Body.List[newLine.number:]...)...,
+				append(body.List, funcDecl.Body.List[newLine.number:]...)...,
 			)
 		}
 

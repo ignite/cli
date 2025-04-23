@@ -49,6 +49,9 @@ func anotherFunction() bool {
 					ReplaceFuncBody(`return false`),
 					AppendFuncAtLine(`fmt.Println("Appended at line 0.")`, 0),
 					AppendFuncAtLine(`SimpleCall(foo, bar)`, 1),
+					AppendFuncAtLine(`if param1 == "" {
+						return false
+					}`, 2),
 					AppendFuncCode(`fmt.Println("Appended code.")`),
 					AppendFuncCode(`Param{Baz: baz, Foo: foo}`),
 					NewFuncReturn("1"),
@@ -72,6 +75,9 @@ func main() {
 func anotherFunction(param1 string) bool {
 	fmt.Println("Appended at line 0.", "test")
 	SimpleCall(baz, foo, bar, bla)
+	if param1 == "" {
+		return false
+	}
 	fmt.Println("Appended code.", "test")
 	Param{Baz: baz, Foo: foo, Bar: "bar"}
 	return 1
@@ -249,7 +255,7 @@ func anotherFunction() bool {
 				functionName: "anotherFunction",
 				functions:    []FunctionOptions{AppendFuncAtLine("9#.(c", 0)},
 			},
-			err: errors.New("1:2: illegal character U+0023 '#'"),
+			err: errors.New("1:24: illegal character U+0023 '#'"),
 		},
 		{
 			name: "invalid code append",
