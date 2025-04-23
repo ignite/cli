@@ -7,8 +7,10 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"syscall"
 
+	"github.com/charmbracelet/bubbles/help"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"golang.org/x/sync/errgroup"
@@ -27,6 +29,97 @@ const (
 	Running
 )
 
+// ui styling constants
+var (
+	// base colors
+	activeColor    = lipgloss.Color("#1B7FCA") // bright blue
+	subtleColor    = lipgloss.Color("#5C6A72") // dark gray
+	textColor      = lipgloss.Color("#232326") // nearly black
+	highlightColor = lipgloss.Color("#10B981") // green
+	warningColor   = lipgloss.Color("#FF5436") // red
+	focusedColor   = lipgloss.Color("#A27DF8") // purple
+
+	// tabs styling
+	activeTabBorder = lipgloss.Border{
+		Top:         "─",
+		Bottom:      " ",
+		Left:        "│",
+		Right:       "│",
+		TopLeft:     "╭",
+		TopRight:    "╮",
+		BottomLeft:  "┘",
+		BottomRight: "└",
+	}
+
+	tabBorder = lipgloss.Border{
+		Top:         "─",
+		Bottom:      "─",
+		Left:        "│",
+		Right:       "│",
+		TopLeft:     "╭",
+		TopRight:    "╮",
+		BottomLeft:  "╰",
+		BottomRight: "╯",
+	}
+
+	tabStyle = lipgloss.NewStyle().
+			Border(tabBorder).
+			BorderForeground(subtleColor).
+			Padding(0, 1)
+
+	activeTabStyle = lipgloss.NewStyle().
+			Border(activeTabBorder).
+			BorderForeground(activeColor).
+			Foreground(activeColor).
+			Bold(true).
+			Padding(0, 1)
+
+	// active/stopped tab styles
+	runningTabStyle = lipgloss.NewStyle().
+			Border(tabBorder).
+			BorderForeground(highlightColor).
+			Foreground(subtleColor).
+			Padding(0, 1)
+
+	activeRunningTabStyle = lipgloss.NewStyle().
+				Border(activeTabBorder).
+				BorderForeground(highlightColor).
+				Foreground(highlightColor).
+				Bold(true).
+				Padding(0, 1)
+
+	tabGap = tabStyle.Copy().
+		BorderTop(false).
+		BorderLeft(false).
+		BorderRight(false)
+
+	// node status styles
+	nodeActiveStyle  = lipgloss.NewStyle().Foreground(highlightColor).Bold(true)
+	nodeStoppedStyle = lipgloss.NewStyle().Foreground(warningColor)
+	tcpStyle         = lipgloss.NewStyle().Foreground(activeColor)
+	infoStyle        = lipgloss.NewStyle().Foreground(subtleColor)
+
+	// header styling
+	headerStyle = lipgloss.NewStyle().
+			Foreground(focusedColor).
+			Bold(true).
+			Padding(0, 0, 1, 0)
+
+	// log styles
+	logEntryStyle = lipgloss.NewStyle().
+			Foreground(textColor).
+			PaddingLeft(2)
+
+	logBoxStyle = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(subtleColor).
+			Padding(1, 2).
+			Width(80)
+
+	// help style
+	helpStyle = lipgloss.NewStyle().Foreground(subtleColor)
+)
+
 // Make sure MultiNode implements tea.Model interface.
 var _ tea.Model = MultiNode{}
 
@@ -40,6 +133,11 @@ type MultiNode struct {
 	pids         []int      // Store the PIDs of the running processes
 	numNodes     int        // Number of nodes
 	logs         [][]string // Store logs for each node
+
+	// UI state
+	selectedNode int        // Currently selected node index
+	help         help.Model // Help menu model
+	showHelp     bool       // Whether to show the help menu
 }
 
 // ToggleNodeMsg is a structure used to pass messages
@@ -57,6 +155,11 @@ type UpdateStatusMsg struct {
 // UpdateLogsMsg is for continuously updating the chain logs in the View.
 type UpdateLogsMsg struct{}
 
+// SwitchFocusMsg indicates a switch in focus to another node
+type SwitchFocusMsg struct {
+	nodeIdx int
+}
+
 // UpdateDeemon returns a command that sends an UpdateLogsMsg.
 // This command is intended to continuously refresh the logs displayed in the user interface.
 func UpdateDeemon() tea.Cmd {
@@ -71,6 +174,10 @@ func NewModel(ctx context.Context, chainname string, args chain.MultiNodeArgs) (
 	if err != nil {
 		return MultiNode{}, err
 	}
+
+	h := help.New()
+	h.ShowAll = true
+
 	return MultiNode{
 		ctx:          ctx,
 		appd:         chainname + "d",
@@ -79,6 +186,9 @@ func NewModel(ctx context.Context, chainname string, args chain.MultiNodeArgs) (
 		pids:         make([]int, numNodes),
 		numNodes:     numNodes,
 		logs:         make([][]string, numNodes), // Initialize logs for each node
+		selectedNode: 0,                          // Select the first node initially
+		help:         h,
+		showHelp:     false,
 	}, nil
 }
 
@@ -91,6 +201,13 @@ func (m MultiNode) Init() tea.Cmd {
 func ToggleNode(nodeIdx int) tea.Cmd {
 	return func() tea.Msg {
 		return ToggleNodeMsg{nodeIdx: nodeIdx}
+	}
+}
+
+// SwitchFocus changes the focus to a specific node
+func SwitchFocus(nodeIdx int) tea.Cmd {
+	return func() tea.Msg {
+		return SwitchFocusMsg{nodeIdx: nodeIdx}
 	}
 }
 
@@ -137,7 +254,6 @@ func RunNode(nodeIdx int, start bool, m MultiNode) tea.Cmd {
 						// Handle context cancellation
 						return gCtx.Err()
 					default:
-
 						line := scanner.Text()
 						// Add log line to the respective node's log slice
 						m.logs[nodeIdx] = append(m.logs[nodeIdx], line)
@@ -199,17 +315,36 @@ func (m MultiNode) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "q":
+		case "q", "ctrl+c":
 			m.StopAllNodes() // Stop all nodes before quitting
 			return m, tea.Quit
+		case "h":
+			// Toggle help screen
+			m.showHelp = !m.showHelp
+			return m, nil
+		case "tab", "right":
+			// Move selection to the next node
+			m.selectedNode = (m.selectedNode + 1) % m.numNodes
+			return m, nil
+		case "shift+tab", "left":
+			// Move selection to the previous node
+			m.selectedNode = (m.selectedNode - 1 + m.numNodes) % m.numNodes
+			return m, nil
 		default:
 			// Check for numbers from 1 to numNodes
 			for i := 0; i < m.numNodes; i++ {
 				if msg.String() == fmt.Sprintf("%d", i+1) {
+					// First switch focus to this node
+					m.selectedNode = i
+					// Then toggle the node state
 					return m, ToggleNode(i)
 				}
 			}
 		}
+
+	case SwitchFocusMsg:
+		m.selectedNode = msg.nodeIdx
+		return m, nil
 
 	case ToggleNodeMsg:
 		if m.nodeStatuses[msg.nodeIdx] == Running {
@@ -220,6 +355,7 @@ func (m MultiNode) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case UpdateStatusMsg:
 		m.nodeStatuses[msg.nodeIdx] = msg.status
 		return m, UpdateDeemon()
+
 	case UpdateLogsMsg:
 		return m, UpdateDeemon()
 	}
@@ -229,41 +365,127 @@ func (m MultiNode) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 // View renders the interface.
 func (m MultiNode) View() string {
-	// Define styles for the state
-	runningStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("2"))                               // green
-	stoppedStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("1"))                               // red
-	tcpStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("3"))                                   // yellow
-	grayStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("8"))                                  // gray
-	purpleStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("5"))                                // purple
-	statusBarStyle := lipgloss.NewStyle().Background(lipgloss.Color("0"))                             // Status bar style
-	blueStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("45")).Background(lipgloss.Color("0")) // blue
-
-	statusBar := blueStyle.Render("Press q to quit | Press 1-4 to ") + statusBarStyle.Render(runningStyle.Render("start")) + blueStyle.Render("/") + statusBarStyle.Render(stoppedStyle.Render("stop")) + blueStyle.Render(" corresponding node")
-	output := statusBar + "\n\n"
-
-	// Add node control section
-	output += purpleStyle.Render("Node Control:")
-	for i := 0; i < m.numNodes; i++ {
-		status := stoppedStyle.Render("[Stopped]")
-		if m.nodeStatuses[i] == Running {
-			status = runningStyle.Render("[Running]")
-		}
-
-		tcpAddress := tcpStyle.Render(fmt.Sprintf("tcp://127.0.0.1:%d", m.args.ListPorts[i]))
-		nodeGray := grayStyle.Render("--node")
-		nodeNumber := purpleStyle.Render(fmt.Sprintf("%d.", i+1))
-
-		output += fmt.Sprintf("\n%s Node %d %s %s %s:\n", nodeNumber, i+1, status, nodeGray, tcpAddress)
-		output += " [\n"
-		if m.logs != nil {
-			for _, line := range m.logs[i] {
-				output += "  " + line + "\n"
-			}
-		}
-
-		output += " ]\n\n"
+	if m.showHelp {
+		return renderHelpView()
 	}
 
-	output += grayStyle.Render("\nPress q to quit.\n")
-	return output
+	// Create tabs for nodes
+	tabs := []string{}
+	for i := 0; i < m.numNodes; i++ {
+		var status string
+		if m.nodeStatuses[i] == Running {
+			status = "●"
+		} else {
+			status = "○"
+		}
+
+		tabText := fmt.Sprintf("Node %d %s", i+1, status)
+
+		// apply different styling based on node status and selection
+		if i == m.selectedNode {
+			if m.nodeStatuses[i] == Running {
+				tabs = append(tabs, activeRunningTabStyle.Render(tabText))
+			} else {
+				tabs = append(tabs, activeTabStyle.Render(tabText))
+			}
+		} else {
+			if m.nodeStatuses[i] == Running {
+				tabs = append(tabs, runningTabStyle.Render(tabText))
+			} else {
+				tabs = append(tabs, tabStyle.Render(tabText))
+			}
+		}
+	}
+
+	// Render the tab row
+	tabRow := lipgloss.JoinHorizontal(lipgloss.Bottom, tabs...)
+
+	// Header row with status
+	header := lipgloss.JoinHorizontal(
+		lipgloss.Left,
+		headerStyle.Render("Ignite Node Dashboard"),
+	)
+
+	// Render selected node details
+	nodeDetails := renderNodeDetails(m, m.selectedNode)
+
+	// Render the keyboard controls help at the bottom
+	var controls string
+	controls = fmt.Sprintf("%s ←/→: Switch node • %s 1-%d: Toggle node • %s q: Quit • %s h: Help",
+		infoStyle.Render("•"),
+		infoStyle.Render("•"),
+		m.numNodes,
+		infoStyle.Render("•"),
+		infoStyle.Render("•"),
+	)
+
+	// Assemble the final view
+	return fmt.Sprintf("%s\n%s\n\n%s\n\n%s",
+		header,
+		tabRow,
+		nodeDetails,
+		controls,
+	)
+}
+
+// renderNodeDetails renders the details of a specific node
+func renderNodeDetails(m MultiNode, nodeIdx int) string {
+	status := nodeStoppedStyle.Render("[Stopped]")
+	statusVerb := "start"
+
+	if m.nodeStatuses[nodeIdx] == Running {
+		status = nodeActiveStyle.Render("[Running]")
+		statusVerb = "stop"
+	}
+
+	tcpAddress := tcpStyle.Render(fmt.Sprintf("tcp://127.0.0.1:%d", m.args.ListPorts[nodeIdx]))
+	nodeInfo := fmt.Sprintf("Node %d %s\nEndpoint: %s",
+		nodeIdx+1,
+		status,
+		tcpAddress,
+	)
+
+	// Action button
+	actionPrompt := fmt.Sprintf("Press [%d] to %s", nodeIdx+1, statusVerb)
+
+	// Log section
+	var logContent string
+	if len(m.logs[nodeIdx]) > 0 {
+		logEntries := []string{}
+		for _, line := range m.logs[nodeIdx] {
+			logEntries = append(logEntries, logEntryStyle.Render(line))
+		}
+		logContent = strings.Join(logEntries, "\n")
+	} else {
+		logContent = infoStyle.Render("No logs available")
+	}
+
+	logs := fmt.Sprintf("Logs:\n%s", logBoxStyle.Render(logContent))
+
+	return fmt.Sprintf("%s\n%s\n\n%s", nodeInfo, actionPrompt, logs)
+}
+
+// renderHelpView displays help information
+func renderHelpView() string {
+	return lipgloss.NewStyle().
+		BorderStyle(lipgloss.RoundedBorder()).
+		BorderForeground(subtleColor).
+		Padding(1, 2).
+		Render(`Ignite Node Dashboard Help
+
+Navigation:
+  • Left/Right or Tab/Shift+Tab: Switch between nodes
+  • 1-4: Toggle the corresponding node on/off
+  • h: Toggle this help screen
+  • q or Ctrl+c: Quit and stop all nodes
+
+Node Status:
+  • [Running]: The node is active and processing blocks
+  • [Stopped]: The node is inactive
+
+This dashboard allows you to manage multiple validator nodes
+in your local testnet environment. You can start and stop nodes
+independently and monitor their logs in real-time.
+
+Press h to return to the dashboard.`)
 }
