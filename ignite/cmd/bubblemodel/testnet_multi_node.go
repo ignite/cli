@@ -29,9 +29,9 @@ const (
 	Running
 )
 
-// ui styling constants
+// ui styling constants.
 var (
-	// base colors
+	// base colors.
 	activeColor    = lipgloss.Color("#1B7FCA") // bright blue
 	subtleColor    = lipgloss.Color("#5C6A72") // dark gray
 	textColor      = lipgloss.Color("#232326") // nearly black
@@ -39,7 +39,7 @@ var (
 	warningColor   = lipgloss.Color("#FF5436") // red
 	focusedColor   = lipgloss.Color("#A27DF8") // purple
 
-	// tabs styling
+	// tabs styling.
 	activeTabBorder = lipgloss.Border{
 		Top:         "─",
 		Bottom:      " ",
@@ -74,7 +74,7 @@ var (
 			Bold(true).
 			Padding(0, 1)
 
-	// active/stopped tab styles
+	// active/stopped tab styles.
 	runningTabStyle = lipgloss.NewStyle().
 			Border(tabBorder).
 			BorderForeground(highlightColor).
@@ -88,24 +88,19 @@ var (
 				Bold(true).
 				Padding(0, 1)
 
-	tabGap = tabStyle.Copy().
-		BorderTop(false).
-		BorderLeft(false).
-		BorderRight(false)
-
-	// node status styles
+	// node status styles.
 	nodeActiveStyle  = lipgloss.NewStyle().Foreground(highlightColor).Bold(true)
 	nodeStoppedStyle = lipgloss.NewStyle().Foreground(warningColor)
 	tcpStyle         = lipgloss.NewStyle().Foreground(activeColor)
 	infoStyle        = lipgloss.NewStyle().Foreground(subtleColor)
 
-	// header styling
+	// header styling.
 	headerStyle = lipgloss.NewStyle().
 			Foreground(focusedColor).
 			Bold(true).
 			Padding(0, 0, 1, 0)
 
-	// log styles
+	// log styles.
 	logEntryStyle = lipgloss.NewStyle().
 			Foreground(textColor).
 			PaddingLeft(2)
@@ -115,9 +110,6 @@ var (
 			BorderForeground(subtleColor).
 			Padding(1, 2).
 			Width(80)
-
-	// help style
-	helpStyle = lipgloss.NewStyle().Foreground(subtleColor)
 )
 
 // Make sure MultiNode implements tea.Model interface.
@@ -155,7 +147,7 @@ type UpdateStatusMsg struct {
 // UpdateLogsMsg is for continuously updating the chain logs in the View.
 type UpdateLogsMsg struct{}
 
-// SwitchFocusMsg indicates a switch in focus to another node
+// SwitchFocusMsg indicates a switch in focus to another node.
 type SwitchFocusMsg struct {
 	nodeIdx int
 }
@@ -204,7 +196,7 @@ func ToggleNode(nodeIdx int) tea.Cmd {
 	}
 }
 
-// SwitchFocus changes the focus to a specific node
+// SwitchFocus changes the focus to a specific node.
 func SwitchFocus(nodeIdx int) tea.Cmd {
 	return func() tea.Msg {
 		return SwitchFocusMsg{nodeIdx: nodeIdx}
@@ -410,8 +402,7 @@ func (m MultiNode) View() string {
 	nodeDetails := renderNodeDetails(m, m.selectedNode)
 
 	// Render the keyboard controls help at the bottom
-	var controls string
-	controls = fmt.Sprintf("%s ←/→: Switch node • %s 1-%d: Toggle node • %s q: Quit • %s h: Help",
+	controls := fmt.Sprintf("%s ←/→: Switch node • %s 1-%d: Toggle node • %s q: Quit • %s h: Help",
 		infoStyle.Render("•"),
 		infoStyle.Render("•"),
 		m.numNodes,
@@ -428,7 +419,7 @@ func (m MultiNode) View() string {
 	)
 }
 
-// renderNodeDetails renders the details of a specific node
+// renderNodeDetails renders the details of a specific node.
 func renderNodeDetails(m MultiNode, nodeIdx int) string {
 	status := nodeStoppedStyle.Render("[Stopped]")
 	statusVerb := "start"
@@ -465,7 +456,7 @@ func renderNodeDetails(m MultiNode, nodeIdx int) string {
 	return fmt.Sprintf("%s\n%s\n\n%s", nodeInfo, actionPrompt, logs)
 }
 
-// renderHelpView displays help information
+// renderHelpView displays help information.
 func renderHelpView() string {
 	return lipgloss.NewStyle().
 		BorderStyle(lipgloss.RoundedBorder()).
