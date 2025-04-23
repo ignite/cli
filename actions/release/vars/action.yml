@@ -40,7 +40,7 @@ runs:
         echo "should_release=$should_release" >> $GITHUB_OUTPUT
         echo "is_release_type_latest=$is_release_type_latest" >> $GITHUB_OUTPUT
         echo "tag_name=$tag_name" >> $GITHUB_OUTPUT
-        echo "tarball_prefix='$repo_name'_$tag_name" >> $GITHUB_OUTPUT
+        echo "tarball_prefix=$repo_name_$tag_name" >> $GITHUB_OUTPUT
       shell: bash
     - run: |
         echo "- should_release: ${{ steps.vars.outputs.should_release }}"
