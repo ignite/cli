@@ -75,6 +75,9 @@ func AppendFuncCode(code string) FunctionOptions {
 	}
 }
 
+// AppendFuncCodeAtLine append a new code at line.
+var AppendFuncCodeAtLine = AppendFuncAtLine
+
 // AppendFuncAtLine append a new code at line.
 func AppendFuncAtLine(code string, lineNumber uint64) FunctionOptions {
 	return func(c *functionOpts) {
@@ -149,23 +152,20 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 	// Parse the content of the new function into an ast.
 	var newFunctionBody *ast.BlockStmt
 	if opts.body != "" {
-		newFuncContent := fmt.Sprintf("package p; func _() { %s }", strings.TrimSpace(opts.body))
-		newContent, err := parser.ParseFile(fileSet, "", newFuncContent, parser.ParseComments)
+		newFunctionBody, err = codeToBlockStmt(fileSet, opts.body)
 		if err != nil {
 			return "", err
 		}
-		newFunctionBody = newContent.Decls[0].(*ast.FuncDecl).Body
 	}
 
 	// Parse the content of the append code an ast.
 	appendCode := make([]ast.Stmt, 0)
 	for _, codeToInsert := range opts.appendCode {
-		newFuncContent := fmt.Sprintf("package p; func _() { %s }", strings.TrimSpace(codeToInsert))
-		newContent, err := parser.ParseFile(fileSet, "", newFuncContent, parser.ParseComments)
+		body, err := codeToBlockStmt(fileSet, codeToInsert)
 		if err != nil {
 			return "", err
 		}
-		appendCode = append(appendCode, newContent.Decls[0].(*ast.FuncDecl).Body.List...)
+		appendCode = append(appendCode, body.List...)
 	}
 
 	// Parse the content of the return vars into an ast.
@@ -245,16 +245,18 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 				errInspect = errors.Errorf("line number %d out of range", newLine.number)
 				return false
 			}
+
 			// Parse the Go code to insert.
-			insertionExpr, err := parser.ParseExprFrom(fileSet, "", []byte(newLine.code), parser.ParseComments)
+			body, err := codeToBlockStmt(fileSet, newLine.code)
 			if err != nil {
 				errInspect = err
 				return false
 			}
+
 			// Insert code at the specified line number.
 			funcDecl.Body.List = append(
 				funcDecl.Body.List[:newLine.number],
-				append([]ast.Stmt{&ast.ExprStmt{X: insertionExpr}}, funcDecl.Body.List[newLine.number:]...)...,
+				append(body.List, funcDecl.Body.List[newLine.number:]...)...,
 			)
 		}
 
@@ -410,6 +412,19 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 
 	// Return the modified content.
 	return buf.String(), nil
+}
+
+func codeToBlockStmt(fileSet *token.FileSet, code string) (*ast.BlockStmt, error) {
+	newFuncContent := toCode(code)
+	newContent, err := parser.ParseFile(fileSet, "", newFuncContent, parser.ParseComments)
+	if err != nil {
+		return nil, err
+	}
+	return newContent.Decls[0].(*ast.FuncDecl).Body, nil
+}
+
+func toCode(code string) string {
+	return fmt.Sprintf("package p; func _() { %s }", strings.TrimSpace(code))
 }
 
 // ModifyCaller replaces all arguments of a specific function call in the given content.

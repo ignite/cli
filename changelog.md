@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changes
+
+- [#4643](https://github.com/ignite/cli/pull/4643) Allow append abritrary blocks in `AppendFuncAtLine`.
+
 ## [`v28.9.0`](https://github.com/ignite/cli/releases/tag/v28.9.0)
 
 ### Features
