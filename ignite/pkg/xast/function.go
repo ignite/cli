@@ -152,23 +152,20 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 	// Parse the content of the new function into an ast.
 	var newFunctionBody *ast.BlockStmt
 	if opts.body != "" {
-		newFuncContent := fmt.Sprintf("package p; func _() { %s }", strings.TrimSpace(opts.body))
-		newContent, err := parser.ParseFile(fileSet, "", newFuncContent, parser.ParseComments)
+		newFunctionBody, err = codeToBlockStmt(fileSet, opts.body)
 		if err != nil {
 			return "", err
 		}
-		newFunctionBody = newContent.Decls[0].(*ast.FuncDecl).Body
 	}
 
 	// Parse the content of the append code an ast.
 	appendCode := make([]ast.Stmt, 0)
 	for _, codeToInsert := range opts.appendCode {
-		newFuncContent := fmt.Sprintf("package p; func _() { %s }", strings.TrimSpace(codeToInsert))
-		newContent, err := parser.ParseFile(fileSet, "", newFuncContent, parser.ParseComments)
+		body, err := codeToBlockStmt(fileSet, codeToInsert)
 		if err != nil {
 			return "", err
 		}
-		appendCode = append(appendCode, newContent.Decls[0].(*ast.FuncDecl).Body.List...)
+		appendCode = append(appendCode, body.List...)
 	}
 
 	// Parse the content of the return vars into an ast.
@@ -415,6 +412,19 @@ func ModifyFunction(fileContent, functionName string, functions ...FunctionOptio
 
 	// Return the modified content.
 	return buf.String(), nil
+}
+
+func codeToBlockStmt(fileSet *token.FileSet, code string) (*ast.BlockStmt, error) {
+	newFuncContent := toCode(code)
+	newContent, err := parser.ParseFile(fileSet, "", newFuncContent, parser.ParseComments)
+	if err != nil {
+		return nil, err
+	}
+	return newContent.Decls[0].(*ast.FuncDecl).Body, nil
+}
+
+func toCode(code string) string {
+	return fmt.Sprintf("package p; func _() { %s }", strings.TrimSpace(code))
 }
 
 // ModifyCaller replaces all arguments of a specific function call in the given content.
