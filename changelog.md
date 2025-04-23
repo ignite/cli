@@ -13,6 +13,7 @@
 - [#4601](https://github.com/ignite/cli/pull/4601) Add `appregistry` as default plugin
 - [#4613](https://github.com/ignite/cli/pull/4613) Improve and simplify prompting logic by bubbletea.
 - [#4624](https://github.com/ignite/cli/pull/4624) Fix autocli templates for variadics.
+- [#4644](https://github.com/ignite/cli/pull/4644) Improve UI and UX for `testnet multi-node` command.
 
 ### Fixes
 
