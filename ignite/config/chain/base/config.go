@@ -165,6 +165,7 @@ const (
 
 // Config defines a struct with the fields that are common to all config versions.
 type Config struct {
+<<<<<<< HEAD
 	Validation Validation      `yaml:"validation,omitempty"`
 	Version    version.Version `yaml:"version"`
 	Build      Build           `yaml:"build,omitempty"`
@@ -173,6 +174,17 @@ type Config struct {
 	Client     Client          `yaml:"client,omitempty"`
 	Genesis    xyaml.Map       `yaml:"genesis,omitempty"`
 	Minimal    bool            `yaml:"minimal,omitempty"`
+=======
+	Include    []string        `yaml:"include,omitempty" doc:"Include incorporate a separate config.yml file directly in your current config file."`
+	Validation Validation      `yaml:"validation,omitempty" doc:"Specifies the type of validation the blockchain uses (e.g., sovereign)."`
+	Version    version.Version `yaml:"version" doc:"Defines the configuration version number."`
+	Build      Build           `yaml:"build,omitempty" doc:"Contains build configuration options."`
+	Accounts   []Account       `yaml:"accounts" doc:"Lists the options for setting up Cosmos Accounts."`
+	Faucet     Faucet          `yaml:"faucet,omitempty" doc:"Configuration for the faucet."`
+	Client     Client          `yaml:"client,omitempty" doc:"Configures client code generation."`
+	Genesis    xyaml.Map       `yaml:"genesis,omitempty" doc:"Custom genesis block modifications. Follow the nesting of the genesis file here to access all the parameters."`
+	Minimal    bool            `yaml:"minimal,omitempty" doc:"Indicates if the blockchain is minimal with the required Cosmos SDK modules."`
+>>>>>>> af6b115e (feat: add include feature to the chain config file (#4638))
 }
 
 // GetVersion returns the config version.
