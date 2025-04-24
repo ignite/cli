@@ -107,21 +107,21 @@ func AppendFuncParams(name, varType string, index int) FunctionOptions {
 	}
 }
 
-// ReplaceFuncBody replaces the entire body of a function
+// ReplaceFuncBody replaces the entire body of a function, the method will replace first and apply the other options after.
 func ReplaceFuncBody(body string) FunctionOptions {
 	return func(c *functionOpts) {
 		c.body = body
 	}
 }
 
-// AppendFuncTestCase adds a test case to a test function
+// AppendFuncTestCase adds a test case to a test function, if exists, of a function in Go source code content.
 func AppendFuncTestCase(testCase string) FunctionOptions {
 	return func(c *functionOpts) {
 		c.appendTestCase = append(c.appendTestCase, testCase)
 	}
 }
 
-// AppendFuncCode adds code to the end of a function
+// AppendFuncCode adds code to the end of a function, if exists, of a function in Go source code content.
 func AppendFuncCode(code string) FunctionOptions {
 	return func(c *functionOpts) {
 		c.appendCode = append(c.appendCode, code)
@@ -138,7 +138,8 @@ func AppendFuncAtLine(code string, lineNumber uint64) FunctionOptions {
 	}
 }
 
-// AppendInsideFuncCall adds an argument to a function call
+// AppendInsideFuncCall adds an argument to a function call. For instances, the method have a parameter a
+// // call 'New(param1, param2)' and we want to add the param3 the result will be 'New(param1, param2, param3)'.
 func AppendInsideFuncCall(callName, code string, index int) FunctionOptions {
 	return func(c *functionOpts) {
 		c.insideCall = append(c.insideCall, functionCall{
@@ -149,7 +150,9 @@ func AppendInsideFuncCall(callName, code string, index int) FunctionOptions {
 	}
 }
 
-// AppendFuncStruct adds a field to a struct literal
+// AppendFuncStruct adds a field to a struct literal. For instances,
+// // the struct have only one parameter 'Params{Param1: param1}' and we want to add
+// // the param2 the result will be 'Params{Param1: param1, Param2: param2}'.
 func AppendFuncStruct(name, param, code string, index int) FunctionOptions {
 	return func(c *functionOpts) {
 		c.insideStruct = append(c.insideStruct, functionStruct{
@@ -184,7 +187,7 @@ func newFunctionOptions(funcName string) functionOpts {
 }
 
 // ModifyFunction modifies a function in Go source code using functional options
-func ModifyFunction(content []byte, funcName string, functions ...FunctionOptions) (string, error) {
+func ModifyFunction(content string, funcName string, functions ...FunctionOptions) (string, error) {
 	// Collect all function options
 	opts := newFunctionOptions(funcName)
 	for _, fn := range functions {
@@ -366,14 +369,14 @@ func addTestCase(funcDecl *ast.FuncDecl, testCase []string) error {
 }
 
 // exprName extracts the name from an AST expression
-func exprName(expr ast.Expr) (string, error) {
+func exprName(expr ast.Expr) (string, bool) {
 	switch exp := expr.(type) {
 	case *ast.Ident:
-		return exp.Name, nil
+		return exp.Name, true
 	case *ast.SelectorExpr:
-		return exp.Sel.Name, nil
+		return exp.Sel.Name, true
 	default:
-		return "", errors.Errorf("unexpected expression type %T", exp)
+		return "", false
 	}
 }
 
@@ -542,9 +545,8 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 		ast.Inspect(funcDecl, func(n ast.Node) bool {
 			switch expr := n.(type) {
 			case *ast.CallExpr:
-				name, err := exprName(expr.Fun)
-				if err != nil {
-					errInspect = err
+				name, exist := exprName(expr.Fun)
+				if !exist {
 					return true
 				}
 
@@ -560,9 +562,8 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 				delete(callMapCheck, name)
 
 			case *ast.CompositeLit:
-				name, err := exprName(expr.Type)
-				if err != nil {
-					errInspect = err
+				name, exist := exprName(expr.Type)
+				if !exist {
 					return true
 				}
 
