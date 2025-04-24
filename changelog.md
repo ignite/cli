@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## [`v28.10.0`](https://github.com/ignite/cli/releases/tag/v28.10.0)
+
+### Features
+
+- [#4638](https://github.com/ignite/cli/pull/4638) Add include feature to the chain config file.
+
 ### Changes
 
 - [#4643](https://github.com/ignite/cli/pull/4643) Allow append abritrary blocks in `AppendFuncAtLine`.

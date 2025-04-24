@@ -165,6 +165,7 @@ const (
 
 // Config defines a struct with the fields that are common to all config versions.
 type Config struct {
+	Include    []string        `yaml:"include,omitempty"`
 	Validation Validation      `yaml:"validation,omitempty"`
 	Version    version.Version `yaml:"version"`
 	Build      Build           `yaml:"build,omitempty"`
