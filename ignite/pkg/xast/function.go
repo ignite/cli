@@ -168,7 +168,7 @@ func AppendFuncStruct(name, param, code string, index int) FunctionOptions {
 	}
 }
 
-// NewFuncReturn replaces return statements in a function
+// NewFuncReturn replaces return statements in a function.
 func NewFuncReturn(returnVars ...string) FunctionOptions {
 	return func(c *functionOpts) {
 		c.returnVars = append(c.returnVars, returnVars...)

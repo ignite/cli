@@ -62,7 +62,7 @@ func (c *Config) updateValidatorAddresses() (err error) {
 		}
 		portIncrement := margin * i
 		if portIncrement < 0 {
-			return errors.Errorf("calculated port increment is negative: %d", portIncrement) //nolint: forbidigo
+			return errors.Errorf("calculated port increment is negative: %d", portIncrement)
 		}
 
 		servers, err = incrementDefaultServerPortsBy(servers, uint64(portIncrement))
