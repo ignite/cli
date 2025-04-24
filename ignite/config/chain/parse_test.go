@@ -12,17 +12,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 
-<<<<<<< HEAD
 	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
 	"github.com/ignite/cli/v28/ignite/config/chain/version"
 	"github.com/ignite/cli/v28/ignite/config/testdata"
-=======
-	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
-	"github.com/ignite/cli/v29/ignite/config/chain/version"
-	"github.com/ignite/cli/v29/ignite/config/testdata"
-	"github.com/ignite/cli/v29/ignite/pkg/availableport"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
->>>>>>> af6b115e (feat: add include feature to the chain config file (#4638))
+	"github.com/ignite/cli/v28/ignite/pkg/availableport"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 func TestReadConfigVersion(t *testing.T) {

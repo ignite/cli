@@ -9,12 +9,7 @@ import (
 	"path/filepath"
 	"time"
 
-<<<<<<< HEAD
-=======
 	"dario.cat/mergo"
-	"gopkg.in/yaml.v3"
-
->>>>>>> af6b115e (feat: add include feature to the chain config file (#4638))
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"gopkg.in/yaml.v2"
 
@@ -117,28 +112,6 @@ func ReadConfigVersion(configFile io.Reader) (version.Version, error) {
 	return c.Version, err
 }
 
-<<<<<<< HEAD
-=======
-// ReadProtoPath reads the proto path.
-func ReadProtoPath(configFile io.Reader) (string, error) {
-	c := struct {
-		Build struct {
-			Proto struct {
-				Path string `yaml:"path"`
-			} `yaml:"proto"`
-		} `yaml:"build"`
-	}{}
-
-	c.Build.Proto.Path = defaults.ProtoDir
-	err := yaml.NewDecoder(configFile).Decode(&c)
-
-	return c.Build.Proto.Path, err
-}
-
-// decodeConfig decodes a config from an io.Reader using the specified version.
-// It returns a version.Converter interface or an error if version is not supported
-// or if decoding fails.
->>>>>>> af6b115e (feat: add include feature to the chain config file (#4638))
 func decodeConfig(r io.Reader, version version.Version) (version.Converter, error) {
 	c, ok := Versions[version]
 	if !ok {
