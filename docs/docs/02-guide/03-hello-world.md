@@ -37,7 +37,7 @@ This command generates code for a new query, `say-hello`, which accepts a name, 
 - **Understanding the Scaffolded Code:**
 
   - `proto/hello/hello/query.proto`: Defines the request and response structure.
-  - `x/hello/client/cli/query_say_hello.go`: Contains the CLI commands for the query.
+  - `x/hello/module/autocli.go`: Contains commands for the query, using [AutoCLI](../08-references/04-glossary.md#autocli).
   - `x/hello/keeper/query_say_hello.go`: Houses the logic for the query response.
 
 ## Customizing the Query Response
@@ -53,11 +53,9 @@ package keeper
 
 import (
  "context"
- "fmt"
 
  "hello/x/hello/types"
 
- sdk "github.com/cosmos/cosmos-sdk/types"
  "google.golang.org/grpc/codes"
  "google.golang.org/grpc/status"
 )
@@ -67,10 +65,8 @@ func (q queryServer) SayHello(ctx context.Context, req *types.QuerySayHelloReque
   return nil, status.Error(codes.InvalidArgument, "invalid request")
  }
 
- // Validation and Context unwrapping
- sdkCtx := sdk.UnwrapSDKContext(ctx)
+ // TODO: Process the query
 
- _ = sdkCtx
  // Custom Response
  return &types.QuerySayHelloResponse{Name: fmt.Sprintf("Hello %s!", req.Name)}, nil
 }

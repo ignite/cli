@@ -72,6 +72,9 @@ func TestValidate(t *testing.T) {
 					ReplaceFuncBody(`return false`),
 					AppendFuncAtLine(`fmt.Println("Appended at line 0.")`, 0),
 					AppendFuncAtLine(`SimpleCall(foo, bar)`, 1),
+					AppendFuncAtLine(`if param1 == "" {
+						return false
+					}`, 2),
 					AppendFuncCode(`fmt.Println("Appended code.")`),
 					AppendFuncCode(`Param{Baz: baz, Foo: foo}`),
 					NewFuncReturn("1"),
@@ -99,6 +102,9 @@ func main() {
 func anotherFunction(param1 string) bool {
 	fmt.Println("Appended at line 0.", "test")
 	SimpleCall(baz, foo, bar, bla)
+	if param1 == "" {
+		return false
+	}
 	fmt.Println("Appended code.", "test")
 	Param{Baz: baz, Foo: foo, Bar: "bar"}
 	return 1
@@ -545,7 +551,7 @@ func TestValidate(t *testing.T) {
 				functionName: "anotherFunction",
 				functions:    []FunctionOptions{AppendFuncAtLine("9#.(c", 0)},
 			},
-			err: errors.New("1:2: illegal character U+0023 '#'"),
+			err: errors.New("1:24: illegal character U+0023 '#'"),
 		},
 		{
 			name: "invalid code append",
@@ -612,6 +618,218 @@ func TestValidate(t *testing.T) {
 			}
 			require.NoError(t, err)
 			require.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestModifyCaller(t *testing.T) {
+	existingContent := `package main
+
+import (
+	"context"
+	"fmt"
+)
+
+func main() {
+	// Simple function call
+	fmt.Println("Hello, world!")
+	
+	// Call with multiple arguments
+	server.Foo(param1, param2, 42)
+	
+	// Call with no arguments
+	EmptyFunc()
+	
+	// Call with complex arguments
+	ComplexFunc([]string{"a", "b"}, map[string]int{"a": 1})
+	
+	// Multiple calls to the same function
+	fmt.Println("First call")
+	fmt.Println("Second call")
+}
+`
+
+	tests := []struct {
+		name          string
+		content       string
+		callerExpr    string
+		modifierFunc  func([]string) ([]string, error)
+		expected      string
+		expectedError string
+	}{
+		{
+			name:       "replace arguments in fmt.Println",
+			content:    existingContent,
+			callerExpr: "fmt.Println",
+			modifierFunc: func(args []string) ([]string, error) {
+				return []string{`"Modified output"`}, nil
+			},
+			expected: `package main
+
+import (
+	"context"
+	"fmt"
+)
+
+func main() {
+	// Simple function call
+	fmt.Println("Modified output")
+	
+	// Call with multiple arguments
+	server.Foo(param1, param2, 42)
+	
+	// Call with no arguments
+	EmptyFunc()
+	
+	// Call with complex arguments
+	ComplexFunc([]string{"a", "b"}, map[string]int{"a": 1})
+	
+	// Multiple calls to the same function
+	fmt.Println("Modified output")
+	fmt.Println("Modified output")
+}
+`,
+		},
+		{
+			name:       "replace server.Foo arguments",
+			content:    existingContent,
+			callerExpr: "server.Foo",
+			modifierFunc: func(args []string) ([]string, error) {
+				return []string{"context.Background()", "newParam", "123"}, nil
+			},
+			expected: `package main
+
+import (
+	"context"
+	"fmt"
+)
+
+func main() {
+	// Simple function call
+	fmt.Println("Hello, world!")
+	
+	// Call with multiple arguments
+	server.Foo(context.Background(), newParam, 123)
+	
+	// Call with no arguments
+	EmptyFunc()
+	
+	// Call with complex arguments
+	ComplexFunc([]string{"a", "b"}, map[string]int{"a": 1})
+	
+	// Multiple calls to the same function
+	fmt.Println("First call")
+	fmt.Println("Second call")
+}
+`,
+		},
+		{
+			name:       "add argument to EmptyFunc",
+			content:    existingContent,
+			callerExpr: "EmptyFunc",
+			modifierFunc: func(args []string) ([]string, error) {
+				return []string{`"new argument"`}, nil
+			},
+			expected: `package main
+
+import (
+	"context"
+	"fmt"
+)
+
+func main() {
+	// Simple function call
+	fmt.Println("Hello, world!")
+	
+	// Call with multiple arguments
+	server.Foo(param1, param2, 42)
+	
+	// Call with no arguments
+	EmptyFunc("new argument")
+	
+	// Call with complex arguments
+	ComplexFunc([]string{"a", "b"}, map[string]int{"a": 1})
+	
+	// Multiple calls to the same function
+	fmt.Println("First call")
+	fmt.Println("Second call")
+}
+`,
+		},
+		{
+			name:       "modify complex arguments",
+			content:    existingContent,
+			callerExpr: "ComplexFunc",
+			modifierFunc: func(args []string) ([]string, error) {
+				return []string{`[]string{"x", "y", "z"}`, `map[string]int{"x": 10}`}, nil
+			},
+			expected: `package main
+
+import (
+	"context"
+	"fmt"
+)
+
+func main() {
+	// Simple function call
+	fmt.Println("Hello, world!")
+	
+	// Call with multiple arguments
+	server.Foo(param1, param2, 42)
+	
+	// Call with no arguments
+	EmptyFunc()
+	
+	// Call with complex arguments
+	ComplexFunc([]string{"x", "y", "z"}, map[string]int{"x": 10})
+	
+	// Multiple calls to the same function
+	fmt.Println("First call")
+	fmt.Println("Second call")
+}
+`,
+		},
+		{
+			name:       "function not found",
+			content:    existingContent,
+			callerExpr: "NonExistentFunc",
+			modifierFunc: func(args []string) ([]string, error) {
+				return []string{`"test"`}, nil
+			},
+			expectedError: "function call NonExistentFunc not found in file content",
+		},
+		{
+			name:       "error in modifier function",
+			content:    existingContent,
+			callerExpr: "fmt.Println",
+			modifierFunc: func(args []string) ([]string, error) {
+				return nil, errors.New("custom error in modifier")
+			},
+			expectedError: "custom error in modifier",
+		},
+		{
+			name:       "invalid caller expression",
+			content:    existingContent,
+			callerExpr: "pkg.sub.Function",
+			modifierFunc: func(args []string) ([]string, error) {
+				return []string{`"test"`}, nil
+			},
+			expectedError: "invalid caller expression format, use 'pkgname.FuncName' or 'FuncName'",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := ModifyCaller(tt.content, tt.callerExpr, tt.modifierFunc)
+
+			if tt.expectedError != "" {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), tt.expectedError)
+				return
+			}
+
+			require.NoError(t, err)
+			require.Equal(t, tt.expected, result)
 		})
 	}
 }

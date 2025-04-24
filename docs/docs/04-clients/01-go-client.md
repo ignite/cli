@@ -77,15 +77,14 @@ To import dependencies for your package, you can add the following code to the
 ```text title="blogclient/go.mod"
 module blogclient
 
-go 1.20
+go 1.24
 
 require (
-	blog v0.0.0-00010101000000-000000000000
-	github.com/ignite/cli v0.25.2
+ blog v0.0.0-00010101000000-000000000000
+ github.com/ignite/cli/v28 v28.8.2
 )
 
 replace blog => ../blog
-replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 ```
 
 Your package will import two dependencies:
@@ -97,7 +96,6 @@ The `replace` directive uses the package from the local `blog` directory and is
 specified as a relative path to the `blogclient` directory.
 
 Cosmos SDK uses a custom version of the `protobuf` package, so use the `replace`
-directive to specify the correct dependency.
 
 Finally, install dependencies for your `blogclient`:
 
@@ -114,72 +112,72 @@ code:
 package main
 
 import (
-	"context"
-	"fmt"
-	"log"
+ "context"
+ "fmt"
+ "log"
 
-	// Importing the general purpose Cosmos blockchain client
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosclient"
+ // Importing the general purpose Cosmos blockchain client
+ "github.com/ignite/cli/v29/ignite/pkg/cosmosclient"
 
-	// Importing the types package of your blog blockchain
-	"blog/x/blog/types"
+ // Importing the types package of your blog blockchain
+ "blog/x/blog/types"
 )
 
 func main() {
-	ctx := context.Background()
-	addressPrefix := "cosmos"
+ ctx := context.Background()
+ addressPrefix := "cosmos"
 
-	// Create a Cosmos client instance
-	client, err := cosmosclient.New(ctx, cosmosclient.WithAddressPrefix(addressPrefix))
-	if err != nil {
-		log.Fatal(err)
-	}
+ // Create a Cosmos client instance
+ client, err := cosmosclient.New(ctx, cosmosclient.WithAddressPrefix(addressPrefix))
+ if err != nil {
+  log.Fatal(err)
+ }
 
-	// Account `alice` was initialized during `ignite chain serve`
-	accountName := "alice"
+ // Account `alice` was initialized during `ignite chain serve`
+ accountName := "alice"
 
-	// Get account from the keyring
-	account, err := client.Account(accountName)
-	if err != nil {
-		log.Fatal(err)
-	}
+ // Get account from the keyring
+ account, err := client.Account(accountName)
+ if err != nil {
+  log.Fatal(err)
+ }
 
-	addr, err := account.Address(addressPrefix)
-	if err != nil {
-		log.Fatal(err)
-	}
+ addr, err := account.Address(addressPrefix)
+ if err != nil {
+  log.Fatal(err)
+ }
 
-	// Define a message to create a post
-	msg := &types.MsgCreatePost{
-		Creator: addr,
-		Title:   "Hello!",
-		Body:    "This is the first post",
-	}
+ // Define a message to create a post
+ msg := &types.MsgCreatePost{
+  Creator: addr,
+  Title:   "Hello!",
+  Body:    "This is the first post",
+ }
 
-	// Broadcast a transaction from account `alice` with the message
-	// to create a post store response in txResp
-	txResp, err := client.BroadcastTx(ctx, account, msg)
-	if err != nil {
-		log.Fatal(err)
-	}
+ // Broadcast a transaction from account `alice` with the message
+ // to create a post store response in txResp
+ txResp, err := client.BroadcastTx(ctx, account, msg)
+ if err != nil {
+  log.Fatal(err)
+ }
 
-	// Print response from broadcasting a transaction
-	fmt.Print("MsgCreatePost:\n\n")
-	fmt.Println(txResp)
+ // Print response from broadcasting a transaction
+ fmt.Print("MsgCreatePost:\n\n")
+ fmt.Println(txResp)
 
-	// Instantiate a query client for your `blog` blockchain
-	queryClient := types.NewQueryClient(client.Context())
+ // Instantiate a query client for your `blog` blockchain
+ queryClient := types.NewQueryClient(client.Context())
 
-	// Query the blockchain using the client's `PostAll` method
-	// to get all posts store all posts in queryResp
-	queryResp, err := queryClient.PostAll(ctx, &types.QueryAllPostRequest{})
-	if err != nil {
-		log.Fatal(err)
-	}
+ // Query the blockchain using the client's `PostAll` method
+ // to get all posts store all posts in queryResp
+ queryResp, err := queryClient.PostAll(ctx, &types.QueryAllPostRequest{})
+ if err != nil {
+  log.Fatal(err)
+ }
 
-	// Print response from querying all the posts
-	fmt.Print("\n\nAll posts:\n\n")
-	fmt.Println(queryResp)
+ // Print response from querying all the posts
+ fmt.Print("\n\nAll posts:\n\n")
+ fmt.Println(queryResp)
 }
 ```
 

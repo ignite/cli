@@ -7,6 +7,7 @@ import (
 	"go/format"
 	"go/parser"
 	"go/token"
+	"sort"
 	"strings"
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
@@ -15,54 +16,54 @@ import (
 type (
 	// functionOpts represent the options for functions.
 	functionOpts struct {
-		funcName       string          // Name of the function to modify
-		newParams      []functionParam // Parameters to add to the function
-		body           string          // New function body content
-		newLines       []functionLine  // Lines to insert at specific positions
-		insideCall     functionCalls   // Function calls to modify
-		insideStruct   functionStructs // Struct literals to modify
-		appendTestCase []string        // Test cases to append
-		appendCode     []string        // Code to append at the end
-		returnVars     []string        // Return variables to modify
+		funcName       string          // Name of the function to modify.
+		newParams      []functionParam // Parameters to add to the function.
+		body           string          // New function body content.
+		newLines       []functionLine  // Lines to insert at specific positions.
+		insideCall     functionCalls   // Function calls to modify.
+		insideStruct   functionStructs // Struct literals to modify.
+		appendTestCase []string        // Test cases to append.
+		appendCode     []string        // Code to append at the end.
+		returnVars     []string        // Return variables to modify.
 	}
 
 	// FunctionOptions configures code generation.
 	FunctionOptions func(*functionOpts)
 
-	// functionStruct represents a struct literal to modify
+	// functionStruct represents a struct literal to modify.
 	functionStruct struct {
-		name  string // Name of the struct type
-		param string // Name of the struct field
-		code  string // Code to insert
-		index int    // Position to insert at
+		name  string // Name of the struct type.
+		param string // Name of the struct field.
+		code  string // Code to insert.
+		index int    // Position to insert at.
 	}
 	functionStructs    []functionStruct
 	functionStructsMap map[string]functionStructs
 
-	// functionCall represents a function call to modify
+	// functionCall represents a function call to modify.
 	functionCall struct {
-		name  string // Name of the function
-		code  string // Code to insert
-		index int    // Position to insert at
+		name  string // Name of the function.
+		code  string // Code to insert.
+		index int    // Position to insert at.
 	}
 	functionCalls    []functionCall
 	functionCallsMap map[string]functionCalls
 
-	// functionParam represents a parameter to add to a function
+	// functionParam represents a parameter to add to a function.
 	functionParam struct {
-		name    string // Parameter name
-		varType string // Parameter type
-		index   int    // Position to insert at
+		name    string // Parameter name.
+		varType string // Parameter type.
+		index   int    // Position to insert at.
 	}
 
-	// functionLine represents a line of code to insert
+	// functionLine represents a line of code to insert.
 	functionLine struct {
-		code   string // Code to insert
-		number uint64 // Line number to insert at
+		code   string // Code to insert.
+		number uint64 // Line number to insert at.
 	}
 )
 
-// Field creates an AST field node from the function parameter
+// Field creates an AST field node from the function parameter.
 func (p functionParam) Field() *ast.Field {
 	return &ast.Field{
 		Names: []*ast.Ident{ast.NewIdent(p.name)},
@@ -70,7 +71,7 @@ func (p functionParam) Field() *ast.Field {
 	}
 }
 
-// Map converts a slice of functionStructs to a map keyed by struct name
+// Map converts a slice of functionStructs to a map keyed by struct name.
 func (s functionStructs) Map() functionStructsMap {
 	structMap := make(functionStructsMap)
 	for _, c := range s {
@@ -83,7 +84,7 @@ func (s functionStructs) Map() functionStructsMap {
 	return structMap
 }
 
-// Map converts a slice of functionCalls to a map keyed by function name
+// Map converts a slice of functionCalls to a map keyed by function name.
 func (c functionCalls) Map() functionCallsMap {
 	callMap := make(functionCallsMap)
 	for _, c := range c {
@@ -96,7 +97,7 @@ func (c functionCalls) Map() functionCallsMap {
 	return callMap
 }
 
-// AppendFuncParams adds a new parameter to a function
+// AppendFuncParams adds a new parameter to a function.
 func AppendFuncParams(name, varType string, index int) FunctionOptions {
 	return func(c *functionOpts) {
 		c.newParams = append(c.newParams, functionParam{
@@ -128,7 +129,10 @@ func AppendFuncCode(code string) FunctionOptions {
 	}
 }
 
-// AppendFuncAtLine inserts code at a specific line number
+// AppendFuncCodeAtLine inserts code at a specific line number.
+var AppendFuncCodeAtLine = AppendFuncAtLine
+
+// AppendFuncAtLine inserts code at a specific line number.
 func AppendFuncAtLine(code string, lineNumber uint64) FunctionOptions {
 	return func(c *functionOpts) {
 		c.newLines = append(c.newLines, functionLine{
@@ -171,7 +175,7 @@ func NewFuncReturn(returnVars ...string) FunctionOptions {
 	}
 }
 
-// newFunctionOptions creates a new functionOpts with defaults
+// newFunctionOptions creates a new functionOpts with defaults.
 func newFunctionOptions(funcName string) functionOpts {
 	return functionOpts{
 		funcName:       funcName,
@@ -186,9 +190,9 @@ func newFunctionOptions(funcName string) functionOpts {
 	}
 }
 
-// ModifyFunction modifies a function in Go source code using functional options
+// ModifyFunction modifies a function in Go source code using functional options.
 func ModifyFunction(content string, funcName string, functions ...FunctionOptions) (string, error) {
-	// Collect all function options
+	// Collect all function options.
 	opts := newFunctionOptions(funcName)
 	for _, fn := range functions {
 		fn(&opts)
@@ -201,18 +205,18 @@ func ModifyFunction(content string, funcName string, functions ...FunctionOption
 		return "", fmt.Errorf("failed to parse file: %w", err)
 	}
 
-	// Find target function
+	// Find the target function.
 	funcDecl := findFuncDecl(file, funcName)
 	if funcDecl == nil {
 		return "", errors.Errorf("function %q not found", funcName)
 	}
 
-	// Apply modifications
+	// Apply modifications.
 	if err := applyFunctionOptions(fset, funcDecl, &opts); err != nil {
 		return "", err
 	}
 
-	// Format and return modified source
+	// Format and return the modified source.
 	var buf bytes.Buffer
 	if err := format.Node(&buf, fset, file); err != nil {
 		return "", fmt.Errorf("failed to format modified file: %w", err)
@@ -220,7 +224,7 @@ func ModifyFunction(content string, funcName string, functions ...FunctionOption
 	return formatNode(fset, file)
 }
 
-// findFuncDecl finds a function declaration in an AST by name
+// findFuncDecl finds a function declaration in an AST by name.
 func findFuncDecl(file *ast.File, name string) *ast.FuncDecl {
 	for _, decl := range file.Decls {
 		if fd, ok := decl.(*ast.FuncDecl); ok && fd.Name.Name == name {
@@ -230,7 +234,7 @@ func findFuncDecl(file *ast.File, name string) *ast.FuncDecl {
 	return nil
 }
 
-// addCode converts string code snippets into AST statements
+// addCode converts string code snippets into AST statements.
 func addCode(fileSet *token.FileSet, appendCode []string) ([]ast.Stmt, error) {
 	code := make([]ast.Stmt, 0)
 	for _, codeToInsert := range appendCode {
@@ -243,7 +247,7 @@ func addCode(fileSet *token.FileSet, appendCode []string) ([]ast.Stmt, error) {
 	return code, nil
 }
 
-// modifyReturnVars converts return variable strings into AST expressions
+// modifyReturnVars converts return variable strings into AST expressions.
 func modifyReturnVars(fileSet *token.FileSet, returnVars []string) ([]ast.Expr, error) {
 	stmts := make([]ast.Expr, 0)
 	for _, returnVar := range returnVars {
@@ -256,7 +260,7 @@ func modifyReturnVars(fileSet *token.FileSet, returnVars []string) ([]ast.Expr, 
 	return stmts, nil
 }
 
-// addParams adds new parameters to a function declaration
+// addParams adds new parameters to a function declaration.
 func addParams(funcDecl *ast.FuncDecl, newParams []functionParam) error {
 	for _, p := range newParams {
 		switch {
@@ -276,7 +280,7 @@ func addParams(funcDecl *ast.FuncDecl, newParams []functionParam) error {
 	return nil
 }
 
-// addNewLine inserts code at specific line numbers in a function body
+// addNewLine inserts code at specific line numbers in a function body.
 func addNewLine(fileSet *token.FileSet, funcDecl *ast.FuncDecl, newLines []functionLine) error {
 	for _, newLine := range newLines {
 		// Validate line number
@@ -299,7 +303,7 @@ func addNewLine(fileSet *token.FileSet, funcDecl *ast.FuncDecl, newLines []funct
 	return nil
 }
 
-// modifyReturn handles return statement modifications and code appending
+// modifyReturn handles return statement modifications and code appending.
 func modifyReturn(funcDecl *ast.FuncDecl, returnStmts []ast.Expr, appendCode []ast.Stmt) error {
 	if len(funcDecl.Body.List) > 0 {
 		lastStmt := funcDecl.Body.List[len(funcDecl.Body.List)-1]
@@ -335,7 +339,7 @@ func modifyReturn(funcDecl *ast.FuncDecl, returnStmts []ast.Expr, appendCode []a
 	return nil
 }
 
-// addTestCase adds test cases to a test function
+// addTestCase adds test cases to a test function.
 func addTestCase(funcDecl *ast.FuncDecl, testCase []string) error {
 	// Find tests variable
 	for _, stmt := range funcDecl.Body.List {
@@ -368,7 +372,7 @@ func addTestCase(funcDecl *ast.FuncDecl, testCase []string) error {
 	return nil
 }
 
-// exprName extracts the name from an AST expression
+// exprName extracts the name from an AST expression.
 func exprName(expr ast.Expr) (string, bool) {
 	switch exp := expr.(type) {
 	case *ast.Ident:
@@ -380,7 +384,7 @@ func exprName(expr ast.Expr) (string, bool) {
 	}
 }
 
-// addFunctionCall modifies function call arguments
+// addFunctionCall modifies function call arguments.
 func addFunctionCall(expr *ast.CallExpr, calls functionCalls) error {
 	for _, c := range calls {
 		newArg := ast.NewIdent(c.code)
@@ -400,7 +404,7 @@ func addFunctionCall(expr *ast.CallExpr, calls functionCalls) error {
 	return nil
 }
 
-// addStructs modifies struct literal fields
+// addStructs modifies struct literal fields.
 func addStructs(expr *ast.CompositeLit, structs functionStructs) error {
 	for _, s := range structs {
 		var newArg ast.Expr = ast.NewIdent(s.code)
@@ -426,7 +430,7 @@ func addStructs(expr *ast.CompositeLit, structs functionStructs) error {
 	return nil
 }
 
-// codeToBlockStmt parses code string into AST block statement
+// codeToBlockStmt parses code string into AST block statement.
 func codeToBlockStmt(fileSet *token.FileSet, code string) (*ast.BlockStmt, error) {
 	newFuncContent := toCode(code)
 	newContent, err := parser.ParseFile(fileSet, "", newFuncContent, parser.ParseComments)
@@ -436,12 +440,12 @@ func codeToBlockStmt(fileSet *token.FileSet, code string) (*ast.BlockStmt, error
 	return newContent.Decls[0].(*ast.FuncDecl).Body, nil
 }
 
-// toCode wraps code in a function for parsing
+// toCode wraps code in a function for parsing.
 func toCode(code string) string {
 	return fmt.Sprintf("package p; func _() { %s }", strings.TrimSpace(code))
 }
 
-// structToBlockStmt parses struct literal code into AST expression
+// structToBlockStmt parses struct literal code into AST expression.
 func structToBlockStmt(code string) (ast.Expr, error) {
 	newFuncContent := toStruct(code)
 	newContent, err := parser.ParseExpr(newFuncContent)
@@ -461,12 +465,12 @@ func structToBlockStmt(code string) (ast.Expr, error) {
 	return newCompositeList.Elts[0], nil
 }
 
-// toStruct wraps code in an anonymous struct literal for parsing
+// toStruct wraps code in an anonymous struct literal for parsing.
 func toStruct(code string) string {
 	return fmt.Sprintf(`struct {}{ %s }`, strings.TrimSpace(code))
 }
 
-// formatNode formats an AST node into Go source code
+// formatNode formats an AST node into Go source code.
 func formatNode(fileSet *token.FileSet, f *ast.File) (string, error) {
 	var buf bytes.Buffer
 	if err := format.Node(&buf, fileSet, f); err != nil {
@@ -475,7 +479,7 @@ func formatNode(fileSet *token.FileSet, f *ast.File) (string, error) {
 	return buf.String(), nil
 }
 
-// applyFunctionOptions applies all modifications to a function
+// applyFunctionOptions applies all modifications to a function.
 func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functionOpts) (err error) {
 	// Parse new function body if provided
 	var newFunctionBody *ast.BlockStmt
@@ -486,19 +490,19 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 		}
 	}
 
-	// Parse append code
+	// Parse append code.
 	appendCode, err := addCode(fileSet, opts.appendCode)
 	if err != nil {
 		return err
 	}
 
-	// Parse return variables
+	// Parse return variables.
 	returnStmts, err := modifyReturnVars(fileSet, opts.returnVars)
 	if err != nil {
 		return err
 	}
 
-	// Create maps for tracking modifications
+	// Create maps for tracking modifications.
 	var (
 		callMap        = opts.insideCall.Map()
 		callMapCheck   = opts.insideCall.Map()
@@ -506,7 +510,7 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 		structMapCheck = opts.insideStruct.Map()
 	)
 
-	// Apply all modifications
+	// Apply all modifications.
 	var (
 		found      bool
 		errInspect error
@@ -517,31 +521,31 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 			return true
 		}
 
-		// Add parameters
+		// Add parameters.
 		if err := addParams(funcDecl, opts.newParams); err != nil {
 			errInspect = err
 			return false
 		}
 
-		// Replace body if needed
+		// Replace body if needed.
 		if newFunctionBody != nil {
 			funcDecl.Body = newFunctionBody
 			funcDecl.Body.Rbrace = funcDecl.Body.Pos()
 		}
 
-		// Add new lines
+		// Add new lines.
 		if err := addNewLine(fileSet, funcDecl, opts.newLines); err != nil {
 			errInspect = err
 			return false
 		}
 
-		// Modify returns and append code
+		// Modify returns and append code.
 		if err := modifyReturn(funcDecl, returnStmts, appendCode); err != nil {
 			errInspect = err
 			return false
 		}
 
-		// Modify function calls and struct literals
+		// Modify function calls and struct literals.
 		ast.Inspect(funcDecl, func(n ast.Node) bool {
 			switch expr := n.(type) {
 			case *ast.CallExpr:
@@ -587,7 +591,7 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 			return false
 		}
 
-		// Verify all modifications were applied
+		// Verify all modifications were applied.
 		if len(callMapCheck) > 0 {
 			errInspect = errors.Errorf("function calls not found: %v", callMapCheck)
 			return false
@@ -597,7 +601,7 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 			return false
 		}
 
-		// Add test cases
+		// Add test cases.
 		if err := addTestCase(funcDecl, opts.appendTestCase); err != nil {
 			errInspect = err
 			return false
@@ -615,4 +619,127 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 	}
 
 	return nil
+}
+
+// ModifyCaller replaces all arguments of a specific function call in the given content.
+// The callerExpr should be in the format "pkgname.FuncName" or just "FuncName".
+// The modifiers function is called with the existing arguments and should return the new arguments.
+func ModifyCaller(content, callerExpr string, modifiers func([]string) ([]string, error)) (string, error) {
+	// parse the caller expression to extract package name and function name
+	var pkgName, funcName string
+	parts := strings.Split(callerExpr, ".")
+	switch len(parts) {
+	case 1:
+		funcName = parts[0]
+	case 2:
+		pkgName = parts[0]
+		funcName = parts[1]
+	default:
+		return "", errors.New("invalid caller expression format, use 'pkgname.FuncName' or 'FuncName'")
+	}
+
+	fileSet := token.NewFileSet()
+	// preserve original source positions for maintaining whitespace
+	fileSet.AddFile("", fileSet.Base(), len(content))
+
+	f, err := parser.ParseFile(fileSet, "", content, parser.ParseComments)
+	if err != nil {
+		return "", err
+	}
+
+	// track positions of all call expressions that need modification
+	type callModification struct {
+		node     *ast.CallExpr
+		newArgs  []string
+		startPos token.Pos
+		endPos   token.Pos
+	}
+
+	var modifications []callModification
+
+	errInspect := Inspect(f, func(n ast.Node) error {
+		callExpr, ok := n.(*ast.CallExpr)
+		if !ok {
+			return nil
+		}
+
+		// check if this call matches our target function
+		match := false
+		switch fun := callExpr.Fun.(type) {
+		case *ast.Ident:
+			// handle case of FuncName()
+			if pkgName == "" && fun.Name == funcName {
+				match = true
+			}
+		case *ast.SelectorExpr:
+			// handle case of pkg.FuncName()
+			if ident, ok := fun.X.(*ast.Ident); ok && ident.Name == pkgName && fun.Sel.Name == funcName {
+				match = true
+			}
+		}
+
+		if !match {
+			return nil
+		}
+
+		// extract current arguments as strings
+		currentArgs := make([]string, len(callExpr.Args))
+		for i, arg := range callExpr.Args {
+			var buf bytes.Buffer
+			if err := format.Node(&buf, fileSet, arg); err != nil {
+				return err
+			}
+			currentArgs[i] = buf.String()
+		}
+
+		// apply the modifier function
+		newArgs, err := modifiers(currentArgs)
+		if err != nil {
+			return err
+		}
+
+		// record this modification for later application
+		modifications = append(modifications, callModification{
+			node:     callExpr,
+			newArgs:  newArgs,
+			startPos: callExpr.Lparen + 1, // position right after the left parenthesis
+			endPos:   callExpr.Rparen,     // position of the right parenthesis
+		})
+
+		return nil
+	})
+
+	if errInspect != nil {
+		return "", errInspect
+	}
+
+	if len(modifications) == 0 {
+		return "", errors.Errorf("function call %s not found in file content", callerExpr)
+	}
+
+	// apply modifications in reverse order to avoid position shifts
+	sort.Slice(modifications, func(i, j int) bool {
+		return modifications[i].startPos > modifications[j].startPos
+	})
+
+	// make modifications directly to the content string
+	result := []byte(content)
+	for _, mod := range modifications {
+		// build the new arguments string
+		newArgsStr := strings.Join(mod.newArgs, ", ")
+
+		// replace the arguments in the original content
+		startOffset := fileSet.Position(mod.startPos).Offset
+		endOffset := fileSet.Position(mod.endPos).Offset
+
+		result = append(
+			result[:startOffset],
+			append(
+				[]byte(newArgsStr),
+				result[endOffset:]...,
+			)...,
+		)
+	}
+
+	return string(result), nil
 }
