@@ -130,6 +130,9 @@ func ReadProtoPath(configFile io.Reader) (string, error) {
 	return c.Build.Proto.Path, err
 }
 
+// decodeConfig decodes a config from an io.Reader using the specified version.
+// It returns a version.Converter interface or an error if version is not supported
+// or if decoding fails.
 func decodeConfig(r io.Reader, version version.Version) (version.Converter, error) {
 	c, ok := Versions[version]
 	if !ok {
@@ -148,6 +151,8 @@ func decodeConfig(r io.Reader, version version.Version) (version.Converter, erro
 	return cfg, nil
 }
 
+// validateConfig validates a chain configuration by checking that at least one
+// account exists and that all validators have required name and bonded fields.
 func validateConfig(c *Config) error {
 	if len(c.Accounts) == 0 {
 		return &ValidationError{"at least one account is required"}
@@ -166,6 +171,8 @@ func validateConfig(c *Config) error {
 	return nil
 }
 
+// validateNetworkConfig validates a network genesis configuration by ensuring
+// no validators exist and that all accounts have valid addresses, coins and no mnemonics.
 func validateNetworkConfig(c *Config) error {
 	if len(c.Validators) != 0 {
 		return &ValidationError{"no validators can be used in config for network genesis"}
@@ -189,6 +196,8 @@ func validateNetworkConfig(c *Config) error {
 	return nil
 }
 
+// handleIncludes processes included configuration files referenced in the main config.
+// It supports both local files and remote URLs, merging their contents with the main config.
 func handleIncludes(cfg *Config) error {
 	if len(cfg.Include) == 0 {
 		return nil
@@ -234,8 +243,10 @@ func handleIncludes(cfg *Config) error {
 	return nil
 }
 
-func fetchConfigFile(URL string) (string, error) {
-	// Download file from URL to temp file
+// fetchConfigFile downloads a configuration file from a URL and saves it to a temporary file.
+// Returns the path to the temporary file or an error if the download fails.
+func fetchConfigFile(url string) (string, error) {
+	// Download the file from URL to a temporary file.
 	tmpFile, err := os.CreateTemp("", "config-*.yml")
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to create temp file for URL")
@@ -243,9 +254,9 @@ func fetchConfigFile(URL string) (string, error) {
 	defer tmpFile.Close()
 
 	client := &http.Client{Timeout: 30 * time.Second}
-	resp, err := client.Get(URL)
+	resp, err := client.Get(url)
 	if err != nil {
-		return "", errors.Wrapf(err, "failed to download from URL '%s'", URL)
+		return "", errors.Wrapf(err, "failed to download from URL '%s'", url)
 	}
 	defer resp.Body.Close()
 
@@ -254,11 +265,11 @@ func fetchConfigFile(URL string) (string, error) {
 	}
 
 	if _, err = io.Copy(tmpFile, resp.Body); err != nil {
-		return "", errors.Wrapf(err, "failed to save downloaded file from '%s'", URL)
+		return "", errors.Wrapf(err, "failed to save downloaded file from '%s'", url)
 	}
 
 	if _, err = tmpFile.Seek(0, io.SeekStart); err != nil {
-		return "", errors.Wrapf(err, "failed to rewind temp file from '%s'", URL)
+		return "", errors.Wrapf(err, "failed to rewind temp file from '%s'", url)
 	}
 
 	return tmpFile.Name(), nil
