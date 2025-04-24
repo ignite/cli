@@ -524,7 +524,7 @@ func TestValidate(t *testing.T) {
 				functionName: "anotherFunction",
 				functions:    []FunctionOptions{AppendFuncParams("9#.(c", "string", 0)},
 			},
-			err: errors.New("format.Node internal error (12:22: expected ')', found 9 (and 1 more errors))"),
+			err: errors.New("failed to format modified file: format.Node internal error (12:22: expected ')', found 9 (and 1 more errors))"),
 		},
 		{
 			name: "invalid content for replace body",
@@ -587,7 +587,7 @@ func TestValidate(t *testing.T) {
 				functionName: "anotherFunction",
 				functions:    []FunctionOptions{AppendInsideFuncCall("NewParam", "9#.(c", 0)},
 			},
-			err: errors.New("format.Node internal error (13:21: illegal character U+0023 '#' (and 4 more errors))"),
+			err: errors.New("failed to format modified file: format.Node internal error (13:21: illegal character U+0023 '#' (and 4 more errors))"),
 		},
 		{
 			name: "call params out of range",

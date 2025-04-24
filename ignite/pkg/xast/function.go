@@ -289,15 +289,15 @@ func addNewLine(fileSet *token.FileSet, funcDecl *ast.FuncDecl, newLines []funct
 		}
 
 		// Parse insertion code
-		insertionExpr, err := parser.ParseExprFrom(fileSet, "", []byte(newLine.code), parser.ParseComments)
+		insertionExpr, err := codeToBlockStmt(fileSet, newLine.code)
 		if err != nil {
 			return err
 		}
 
-		// Insert at line number
+		// Insert code at the specified line number.
 		funcDecl.Body.List = append(
 			funcDecl.Body.List[:newLine.number],
-			append([]ast.Stmt{&ast.ExprStmt{X: insertionExpr}}, funcDecl.Body.List[newLine.number:]...)...,
+			append(insertionExpr.List, funcDecl.Body.List[newLine.number:]...)...,
 		)
 	}
 	return nil
