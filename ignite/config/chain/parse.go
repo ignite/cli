@@ -179,7 +179,7 @@ func validateNetworkConfig(c *Config) error {
 	}
 
 	for _, account := range c.Accounts {
-		// must have valid bech32 addr
+		// must have valid bech32 addr.
 		if _, _, err := bech32.DecodeAndConvert(account.Address); err != nil {
 			return errors.Errorf("invalid address %s: %w", account.Address, err)
 		}
@@ -212,7 +212,7 @@ func handleIncludes(cfg *Config) error {
 			defer os.Remove(includePath)
 		}
 
-		// Resolve path - if relative, use base directory
+		// Resolve path - if relative, use the base directory.
 		absPath, err := filepath.Abs(includePath)
 		if err != nil {
 			return errors.Wrapf(err, "failed to resolve included path '%s'", includePath)
@@ -224,7 +224,7 @@ func handleIncludes(cfg *Config) error {
 		}
 		defer includeFile.Close()
 
-		// Parse the included config
+		// Parse the included config.
 		includeCfg, err := parse(includeFile)
 		if err != nil {
 			return errors.Wrapf(err, "failed to parse included config file '%s'", includePath)
@@ -234,7 +234,7 @@ func handleIncludes(cfg *Config) error {
 			return errors.Errorf("included config version '%d' does not match with chain config version '%d'", includeCfg.Version, cfg.Version)
 		}
 
-		// Merge the included config with the primary config
+		// Merge the included config with the primary config.
 		if err = mergo.Merge(cfg, includeCfg, mergo.WithAppendSlice, mergo.WithOverride); err != nil {
 			return errors.Wrapf(err, "failed to merge included file '%s'", includePath)
 		}
