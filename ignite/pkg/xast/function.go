@@ -202,7 +202,7 @@ func ModifyFunction(content string, funcName string, functions ...FunctionOption
 	fset := token.NewFileSet()
 	file, err := parser.ParseFile(fset, "", content, parser.ParseComments)
 	if err != nil {
-		return "", fmt.Errorf("failed to parse file: %w", err)
+		return "", errors.Errorf("failed to parse file: %w", err)
 	}
 
 	// Find the target function.
@@ -219,7 +219,7 @@ func ModifyFunction(content string, funcName string, functions ...FunctionOption
 	// Format and return the modified source.
 	var buf bytes.Buffer
 	if err := format.Node(&buf, fset, file); err != nil {
-		return "", fmt.Errorf("failed to format modified file: %w", err)
+		return "", errors.Errorf("failed to format modified file: %w", err)
 	}
 	return formatNode(fset, file)
 }

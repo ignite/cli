@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"fmt"
 	"io"
 
 	"dario.cat/mergo"
@@ -10,6 +9,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/config/chain/base"
 	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/config/chain/version"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/xnet"
 )
 
@@ -62,7 +62,7 @@ func (c *Config) updateValidatorAddresses() (err error) {
 		}
 		portIncrement := margin * i
 		if portIncrement < 0 {
-			return fmt.Errorf("calculated port increment is negative: %d", portIncrement) //nolint: forbidigo
+			return errors.Errorf("calculated port increment is negative: %d", portIncrement) //nolint: forbidigo
 		}
 
 		servers, err = incrementDefaultServerPortsBy(servers, uint64(portIncrement))

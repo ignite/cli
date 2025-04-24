@@ -1,7 +1,6 @@
 package cosmoserror_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -45,7 +44,7 @@ func TestUnwrap(t *testing.T) {
 		},
 		{
 			name: "should unwrap error",
-			err:  fmt.Errorf("test error 4: %w", errors.New("test error 6")), //nolint:forbidigo
+			err:  errors.Errorf("test error 4: %w", errors.New("test error 6")), //nolint:forbidigo
 			want: errors.New("test error 6"),
 		},
 	}
