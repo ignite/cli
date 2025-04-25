@@ -6,7 +6,6 @@
 
 - [#4509](https://github.com/ignite/cli/pull/4509) Upgrade to Go 1.24. Running `ignite doctor` migrates the scaffolded `tools.go` to the tool directive in the go.mod
 - [#4588](https://github.com/ignite/cli/pull/4588) Run `buf format after scaffold proto files.
-- [#4638](https://github.com/ignite/cli/pull/4638) Add include feature to the chain config file.
 
 ### Changes
 
@@ -14,7 +13,6 @@
 - [#4601](https://github.com/ignite/cli/pull/4601) Add `appregistry` as default plugin
 - [#4613](https://github.com/ignite/cli/pull/4613) Improve and simplify prompting logic by bubbletea.
 - [#4624](https://github.com/ignite/cli/pull/4624) Fix autocli templates for variadics.
-- [#4643](https://github.com/ignite/cli/pull/4643) Allow append abritrary blocks in `AppendFuncAtLine`.
 - [#4645](https://github.com/ignite/cli/pull/4645) Refactor the xast.ModifyFunction to improve the readability.
 
 ### Fixes
@@ -92,6 +90,16 @@
 - [#4402](https://github.com/ignite/cli/pull/4402) Fix gentx parser into the cosmosutil package
 - [#4552](https://github.com/ignite/cli/pull/4552) Avoid direct access to proto field `perms.Account` and `perms.Permissions`
 - [#4555](https://github.com/ignite/cli/pull/4555) Fix buf lint issues into the chain code
+
+## [`v28.10.0`](https://github.com/ignite/cli/releases/tag/v28.10.0)
+
+### Features
+
+- [#4638](https://github.com/ignite/cli/pull/4638) Add include feature to the chain config file.
+
+### Changes
+
+- [#4643](https://github.com/ignite/cli/pull/4643) Allow append abritrary blocks in `AppendFuncAtLine`.
 
 ## [`v28.9.0`](https://github.com/ignite/cli/releases/tag/v28.9.0)
 
