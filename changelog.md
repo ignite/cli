@@ -14,7 +14,6 @@
 - [#4613](https://github.com/ignite/cli/pull/4613) Improve and simplify prompting logic by bubbletea.
 - [#4624](https://github.com/ignite/cli/pull/4624) Fix autocli templates for variadics.
 - [#4644](https://github.com/ignite/cli/pull/4644) Improve UI and UX for `testnet multi-node` command.
-- [#4643](https://github.com/ignite/cli/pull/4643) Allow append abritrary blocks in `AppendFuncAtLine`.
 
 ### Fixes
 
@@ -91,6 +90,16 @@
 - [#4402](https://github.com/ignite/cli/pull/4402) Fix gentx parser into the cosmosutil package
 - [#4552](https://github.com/ignite/cli/pull/4552) Avoid direct access to proto field `perms.Account` and `perms.Permissions`
 - [#4555](https://github.com/ignite/cli/pull/4555) Fix buf lint issues into the chain code
+
+## [`v28.10.0`](https://github.com/ignite/cli/releases/tag/v28.10.0)
+
+### Features
+
+- [#4638](https://github.com/ignite/cli/pull/4638) Add include feature to the chain config file.
+
+### Changes
+
+- [#4643](https://github.com/ignite/cli/pull/4643) Allow append abritrary blocks in `AppendFuncAtLine`.
 
 ## [`v28.9.0`](https://github.com/ignite/cli/releases/tag/v28.9.0)
 

@@ -136,6 +136,7 @@ const (
 
 // Config defines a struct with the fields that are common to all config versions.
 type Config struct {
+	Include    []string        `yaml:"include,omitempty" doc:"Include incorporate a separate config.yml file directly in your current config file."`
 	Validation Validation      `yaml:"validation,omitempty" doc:"Specifies the type of validation the blockchain uses (e.g., sovereign)."`
 	Version    version.Version `yaml:"version" doc:"Defines the configuration version number."`
 	Build      Build           `yaml:"build,omitempty" doc:"Contains build configuration options."`

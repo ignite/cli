@@ -281,3 +281,56 @@ client:
   hooks:
     path: "react/src/hooks"
 ```
+
+## Include
+
+In your main `config.yml`, use the `include` field to reference other local or remote YAML files.
+It allows you to split your chain configuration across multiple files, making it easier to manage and reuse configuration parts.  
+
+```yml
+version: 1
+include:
+  - "./accounts.yml"
+  - "./validators.yml"
+```
+
+Include remote files via URL or server path are also valid:
+
+```yml
+version: 1
+include:
+  - "localhost:3045/accounts.yml"
+  - "https://ignite.com/config/validators.yml"
+```
+
+#### Common Use Cases:
+
+Split your config into a base setup and an external `accounts.yml` for better separation of concerns:
+
+- `config.yml`
+```yml
+version: 1
+include:
+  - "./accounts.yml"
+client:
+  typescript:
+    path: ts-client
+```
+
+- `accounts.yml`
+```yml
+accounts:
+  - name: alice
+    coins:
+      - 20000token
+      - 200000000stake
+  - name: bob
+    coins:
+      - 20000token
+      - 200000000stake
+faucet:
+  name: alice
+  coins:
+    - 5token
+    - 100000stake
+```

@@ -1,0 +1,20 @@
+validation: sovereign
+version: 1
+accounts:
+  - name: bob
+    coins:
+      - 10000token
+      - 100000000stake
+faucet:
+  name: danilo
+  coins:
+    - 5token
+    - 100000stake
+client:
+  typescript:
+    path: override-1
+  openapi:
+    path: docs/static/include1.yml
+validators:
+  - name: alice
+    bonded: 100000000stake
