@@ -4,6 +4,7 @@ package protoanalysis
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
@@ -94,13 +95,7 @@ func IsImported(path string, dependencies ...string) error {
 	}
 
 	for _, wantDep := range dependencies {
-		found := false
-		for _, fileDep := range f.Dependencies {
-			if wantDep == fileDep {
-				found = true
-				break
-			}
-		}
+		found := slices.Contains(f.Dependencies, wantDep)
 		if !found {
 			return errors.Wrap(ErrImportNotFound, fmt.Sprintf(
 				"invalid proto dependency %s for file %s", wantDep, path),

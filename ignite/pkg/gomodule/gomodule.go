@@ -9,6 +9,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"golang.org/x/mod/modfile"
@@ -63,11 +64,8 @@ func FilterVersions(dependencies []Version, paths ...string) []Version {
 	var filtered []Version
 
 	for _, dep := range dependencies {
-		for _, path := range paths {
-			if dep.Path == path {
-				filtered = append(filtered, dep)
-				break
-			}
+		if slices.Contains(paths, dep.Path) {
+			filtered = append(filtered, dep)
 		}
 	}
 
