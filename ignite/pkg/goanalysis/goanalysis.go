@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"golang.org/x/mod/modfile"
@@ -139,10 +140,8 @@ func declVarExists(decl ast.Decl, methodDecl string) bool {
 		if err != nil {
 			return false
 		}
-		for _, decl := range decls {
-			if decl == methodDecl {
-				return true
-			}
+		if slices.Contains(decls, methodDecl) {
+			return true
 		}
 	}
 	return false
