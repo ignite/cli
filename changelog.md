@@ -14,6 +14,7 @@
 - [#4613](https://github.com/ignite/cli/pull/4613) Improve and simplify prompting logic by bubbletea.
 - [#4624](https://github.com/ignite/cli/pull/4624) Fix autocli templates for variadics.
 - [#4645](https://github.com/ignite/cli/pull/4645) Refactor the xast.ModifyFunction to improve the readability.
+- [#4582](https://github.com/ignite/cli/issues/4582) xast misplacing comments.
 
 ### Fixes
 
