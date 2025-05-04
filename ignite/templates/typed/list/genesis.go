@@ -73,7 +73,7 @@ func genesisTypesModify(opts *typed.Options) genny.RunFn {
 			return err
 		}
 
-		content, err := xast.AppendImports(f.String(), xast.WithLastImport("fmt"))
+		content, err := xast.AppendImports(f.String(), xast.WithImport("fmt"))
 		if err != nil {
 			return err
 		}
