@@ -397,7 +397,7 @@ func codecModify(opts *PacketOptions) genny.RunFn {
 		}
 
 		// Set import if not set yet
-		content, err := xast.AppendImports(f.String(), xast.WithLastNamedImport("sdk", "github.com/cosmos/cosmos-sdk/types"))
+		content, err := xast.AppendImports(f.String(), xast.WithNamedImport("sdk", "github.com/cosmos/cosmos-sdk/types"))
 		if err != nil {
 			return err
 		}

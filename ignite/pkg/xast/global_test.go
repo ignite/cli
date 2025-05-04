@@ -29,6 +29,7 @@ import (
 	"fmt"
 )
 
+// This is a comment
 `,
 				globalType: GlobalTypeVar,
 				globals: []GlobalOptions{
@@ -42,6 +43,8 @@ import (
 )
 
 var myIntVar int = 42
+
+// This is a comment
 `,
 		},
 		{
@@ -53,6 +56,7 @@ import (
 	"fmt"
 )
 
+// This is a comment
 `,
 				globalType: GlobalTypeConst,
 				globals: []GlobalOptions{
@@ -66,6 +70,8 @@ import (
 )
 
 const myIntConst int = 42
+
+// This is a comment
 `,
 		},
 		{
@@ -77,6 +83,7 @@ import (
     "fmt"
 )
 
+// This is a comment
 `,
 				globalType: GlobalTypeConst,
 				globals: []GlobalOptions{
@@ -90,6 +97,41 @@ import (
 )
 
 const myStringConst string = "hello"
+
+// This is a comment
+`,
+		},
+		{
+			name: "Insert string const when already exist one",
+			args: args{
+				fileContent: `package main
+
+import (
+    "fmt"
+)
+
+// myIntConst is my const int
+const myIntConst int = 42
+
+// This is a comment
+`,
+				globalType: GlobalTypeConst,
+				globals: []GlobalOptions{
+					WithGlobal("myStringConst", "string", `"hello"`),
+				},
+			},
+			want: `package main
+
+import (
+	"fmt"
+)
+
+const myStringConst string = "hello"
+
+// myIntConst is my const int
+const myIntConst int = 42
+
+// This is a comment
 `,
 		},
 		{
@@ -101,6 +143,7 @@ import (
 	"fmt"
 )
 
+// This is a comment
 `,
 				globalType: GlobalTypeConst,
 				globals: []GlobalOptions{
@@ -118,12 +161,16 @@ import (
 const myStringConst string = "hello"
 const myBoolConst bool = true
 const myUintConst uint64 = 40
+
+// This is a comment
 `,
 		},
 		{
 			name: "Insert global int var with not imports",
 			args: args{
 				fileContent: `package main
+
+// This is a comment
 `,
 				globalType: GlobalTypeVar,
 				globals: []GlobalOptions{
@@ -133,6 +180,8 @@ const myUintConst uint64 = 40
 			want: `package main
 
 var myIntVar int = 42
+
+// This is a comment
 `,
 		},
 		{

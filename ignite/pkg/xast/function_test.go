@@ -18,17 +18,25 @@ import (
 	"fmt"
 )
 
+// main function
 func main() {
+	// print hello world
 	fmt.Println("Hello, world!")
+	// call new param function
 	New(param1, param2)
 }
 
+// anotherFunction another function
 func anotherFunction() bool {
+	// init param
 	p := bla.NewParam()
+	// start to call something
 	p.CallSomething("Another call")
+	// return always true
 	return true
 }
 
+// TestValidate test the validations
 func TestValidate(t *testing.T) {
 	tests := []struct {
 		desc     string
@@ -94,11 +102,15 @@ import (
 	"fmt"
 )
 
+// main function
 func main() {
+	// print hello world
 	fmt.Println("Hello, world!")
+	// call new param function
 	New(param1, param2)
 }
 
+// anotherFunction another function
 func anotherFunction(param1 string) bool {
 	fmt.Println("Appended at line 0.", "test")
 	SimpleCall(baz, foo, bar, bla)
@@ -110,6 +122,7 @@ func anotherFunction(param1 string) bool {
 	return 1
 }
 
+// TestValidate test the validations
 func TestValidate(t *testing.T) {
 	tests := []struct {
 		desc     string
@@ -146,13 +159,18 @@ import (
 	"fmt"
 )
 
+// main function
 func main() {
+	// print hello world
 	fmt.Println("Hello, world!")
+	// call new param function
 	New(param1, param2)
 }
 
+// anotherFunction another function
 func anotherFunction() bool { return false }
 
+// TestValidate test the validations
 func TestValidate(t *testing.T) {
 	tests := []struct {
 		desc     string
@@ -183,9 +201,9 @@ func TestValidate(t *testing.T) {
 				functionName: "TestValidate",
 				functions: []FunctionOptions{
 					AppendFuncTestCase(`{
-								desc:     "valid genesis state",
-								genState: GenesisState{},
-					}`),
+	desc: "valid genesis state", 
+	genState: GenesisState{},
+}`),
 				},
 			},
 			want: `package main
@@ -194,17 +212,25 @@ import (
 	"fmt"
 )
 
+// main function
 func main() {
+	// print hello world
 	fmt.Println("Hello, world!")
+	// call new param function
 	New(param1, param2)
 }
 
+// anotherFunction another function
 func anotherFunction() bool {
+	// init param
 	p := bla.NewParam()
+	// start to call something
 	p.CallSomething("Another call")
+	// return always true
 	return true
 }
 
+// TestValidate test the validations
 func TestValidate(t *testing.T) {
 	tests := []struct {
 		desc     string
@@ -218,7 +244,6 @@ func TestValidate(t *testing.T) {
 			desc:     "valid genesis state",
 			genState: types.GenesisState{},
 		}, {
-
 			desc: "valid genesis state",
 
 			genState: GenesisState{}},
@@ -238,14 +263,17 @@ func TestValidate(t *testing.T) {
 				fileContent:  existingContent,
 				functionName: "TestValidate",
 				functions: []FunctionOptions{
-					AppendFuncTestCase(`{
-								desc:     "valid first genesis state",
-								genState: GenesisState{},
-					}`),
-					AppendFuncTestCase(`{
-								desc:     "valid second genesis state",
-								genState: GenesisState{},
-					}`),
+					AppendFuncTestCase(`
+{
+	desc:     "valid first genesis state",
+	genState: GenesisState{},
+}`),
+					AppendFuncTestCase(`
+{
+	desc:     "valid second genesis state",
+	genState: GenesisState{},
+}
+`),
 				},
 			},
 			want: `package main
@@ -254,17 +282,25 @@ import (
 	"fmt"
 )
 
+// main function
 func main() {
+	// print hello world
 	fmt.Println("Hello, world!")
+	// call new param function
 	New(param1, param2)
 }
 
+// anotherFunction another function
 func anotherFunction() bool {
+	// init param
 	p := bla.NewParam()
+	// start to call something
 	p.CallSomething("Another call")
+	// return always true
 	return true
 }
 
+// TestValidate test the validations
 func TestValidate(t *testing.T) {
 	tests := []struct {
 		desc     string
@@ -278,16 +314,12 @@ func TestValidate(t *testing.T) {
 			desc:     "valid genesis state",
 			genState: types.GenesisState{},
 		}, {
-
 			desc: "valid first genesis state",
 
-			genState: GenesisState{},
-		}, {
-
+			genState: GenesisState{}}, {
 			desc: "valid second genesis state",
 
-			genState: GenesisState{},
-		},
+			genState: GenesisState{}},
 	}
 	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
@@ -315,22 +347,30 @@ import (
 	"fmt"
 )
 
+// main function
 func main() {
+	// print hello world
 	fmt.Println("Hello, world!")
+	// call new param function
 	New(param1, param2)
 }
 
+// anotherFunction another function
 func anotherFunction() bool {
 	fmt.Println("Appended at line 0.")
 	SimpleCall(foo, bar)
 
+	// init param
 	p := bla.NewParam()
+	// start to call something
 	p.CallSomething("Another call")
 	fmt.Println("Appended code.")
 
+	// return always true
 	return true
 }
 
+// TestValidate test the validations
 func TestValidate(t *testing.T) {
 	tests := []struct {
 		desc     string
@@ -381,17 +421,25 @@ import (
 	"fmt"
 )
 
+// main function
 func main() {
+	// print hello world
 	fmt.Println("Hello, world!")
+	// call new param function
 	New(param1, param2)
 }
 
+// anotherFunction another function
 func anotherFunction() bool {
+	// init param
 	p := bla.NewParam(baz, bla)
+	// start to call something
 	p.CallSomething("test2", "Another call", "test1")
+	// return always true
 	return true
 }
 
+// TestValidate test the validations
 func TestValidate(t *testing.T) {
 	tests := []struct {
 		desc     string
@@ -424,12 +472,15 @@ import (
 	"fmt"
 )
 
+// anotherFunction another function
 func anotherFunction() bool {
 	Param{Baz: baz, Foo: foo}
 	Client{baz, foo}
+	// return always true
 	return true
 }
 
+// TestValidate test the validations
 func TestValidate(t *testing.T) {
 	tests := []struct {
 		desc     string
@@ -465,12 +516,15 @@ import (
 	"fmt"
 )
 
+// anotherFunction another function
 func anotherFunction() bool {
 	Param{Baz: baz, Bla: bla, Foo: foo, Bar: bar}
 	Client{bar, baz, foo}
+	// return always true
 	return true
 }
 
+// TestValidate test the validations
 func TestValidate(t *testing.T) {
 	tests := []struct {
 		desc     string
@@ -524,7 +578,7 @@ func TestValidate(t *testing.T) {
 				functionName: "anotherFunction",
 				functions:    []FunctionOptions{AppendFuncParams("9#.(c", "string", 0)},
 			},
-			err: errors.New("failed to format modified file: format.Node internal error (12:22: expected ')', found 9 (and 1 more errors))"),
+			err: errors.New("format.Node internal error (16:22: expected ')', found 9 (and 1 more errors))"),
 		},
 		{
 			name: "invalid content for replace body",
@@ -587,7 +641,7 @@ func TestValidate(t *testing.T) {
 				functionName: "anotherFunction",
 				functions:    []FunctionOptions{AppendInsideFuncCall("NewParam", "9#.(c", 0)},
 			},
-			err: errors.New("failed to format modified file: format.Node internal error (13:21: illegal character U+0023 '#' (and 4 more errors))"),
+			err: errors.New("format.Node internal error (18:21: illegal character U+0023 '#' (and 4 more errors))"),
 		},
 		{
 			name: "call params out of range",
@@ -630,8 +684,10 @@ import (
 	"fmt"
 )
 
+// main function
 func main() {
 	// Simple function call
+	// print hello world
 	fmt.Println("Hello, world!")
 	
 	// Call with multiple arguments
@@ -671,8 +727,10 @@ import (
 	"fmt"
 )
 
+// main function
 func main() {
 	// Simple function call
+	// print hello world
 	fmt.Println("Modified output")
 	
 	// Call with multiple arguments
@@ -704,8 +762,10 @@ import (
 	"fmt"
 )
 
+// main function
 func main() {
 	// Simple function call
+	// print hello world
 	fmt.Println("Hello, world!")
 	
 	// Call with multiple arguments
@@ -737,8 +797,10 @@ import (
 	"fmt"
 )
 
+// main function
 func main() {
 	// Simple function call
+	// print hello world
 	fmt.Println("Hello, world!")
 	
 	// Call with multiple arguments
@@ -770,8 +832,10 @@ import (
 	"fmt"
 )
 
+// main function
 func main() {
 	// Simple function call
+	// print hello world
 	fmt.Println("Hello, world!")
 	
 	// Call with multiple arguments
