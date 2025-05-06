@@ -431,33 +431,68 @@ func addFunctionCall(expr *ast.CallExpr, calls functionCalls) error {
 }
 
 // addStructs modifies struct literal fields.
-func addStructs(expr *ast.CompositeLit, structs functionStructs) error {
-	for _, s := range structs {
-		var newArg ast.Expr
-		ident := ast.NewIdent(s.code)
+func addStructs(fileSet *token.FileSet, f *ast.FuncDecl, expr *ast.CompositeLit, structs functionStructs) error {
+	file := fileSet.File(f.Pos())
 
-		if s.param != "" {
-			newArg = &ast.KeyValueExpr{
-				Key:   ast.NewIdent(s.param),
-				Colon: token.NoPos,
-				Value: ident,
+	// Find the current max offset to avoid reused positions
+	maxOffset := file.Offset(expr.Rbrace)
+	for _, elt := range expr.Elts {
+		if pos := elt.End(); pos.IsValid() {
+			offset := file.Offset(pos)
+			if offset > maxOffset {
+				maxOffset = offset
 			}
-		} else {
-			newArg = ident
+		}
+	}
+
+	// Insertion loop
+	for i, s := range structs {
+		// Create a real AST node from parsed Go code
+		src := s.code
+		if s.param != "" {
+			src = fmt.Sprintf("%s: %s", s.param, s.code)
 		}
 
-		// Insert at the correct index or append
+		exprStr := fmt.Sprintf("package dummy\nvar _ = struct{_ interface{}}{%s}", src)
+		fakeFile, err := parser.ParseFile(fileSet, "", exprStr, parser.AllErrors)
+		if err != nil || len(fakeFile.Decls) == 0 {
+			return errors.Errorf("failed to parse inserted field code: %w", err)
+		}
+
+		gen := fakeFile.Decls[0].(*ast.GenDecl)
+		val := gen.Specs[0].(*ast.ValueSpec).Values[0].(*ast.CompositeLit)
+		newExpr := val.Elts[0]
+
+		// Advance position
+		insertOffset := maxOffset + (i+1)*10
+		insertPos := file.Pos(insertOffset)
+
+		// Manually assign a synthetic line-position
+		switch node := newExpr.(type) {
+		case *ast.KeyValueExpr:
+			if ident, ok := node.Key.(*ast.Ident); ok {
+				ident.NamePos = insertPos
+			}
+			node.Colon = insertPos
+		case *ast.Ident:
+			node.NamePos = insertPos
+		}
+
+		// Append or insert
 		switch {
 		case s.index == -1:
 			// Append at the end
-			expr.Elts = append(expr.Elts, newArg)
+			expr.Elts = append(expr.Elts, newExpr)
 		case s.index >= 0 && s.index <= len(expr.Elts):
 			// Insert at index
-			expr.Elts = append(expr.Elts[:s.index], append([]ast.Expr{newArg}, expr.Elts[s.index:]...)...)
+			expr.Elts = append(expr.Elts[:s.index], append([]ast.Expr{newExpr}, expr.Elts[s.index:]...)...)
 		default:
 			return errors.Errorf("function call index %d out of range", s.index)
 		}
 	}
+
+	// Force the closing brace to its own line
+	file.AddLine(file.Offset(expr.Rbrace))
 	return nil
 }
 
@@ -583,7 +618,7 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 					return true
 				}
 
-				if err := addStructs(expr, structs); err != nil {
+				if err := addStructs(fileSet, f, expr, structs); err != nil {
 					errInspect = err
 					return false
 				}
