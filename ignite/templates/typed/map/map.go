@@ -359,7 +359,7 @@ func genesisTypesModify(opts *typed.Options) genny.RunFn {
 			return err
 		}
 
-		content, err := xast.AppendImports(f.String(), xast.WithLastImport("fmt"))
+		content, err := xast.AppendImports(f.String(), xast.WithImport("fmt"))
 		if err != nil {
 			return err
 		}
@@ -718,7 +718,7 @@ func typesCodecModify(opts *typed.Options) genny.RunFn {
 		}
 
 		// Import
-		content, err := xast.AppendImports(f.String(), xast.WithLastNamedImport("sdk", "github.com/cosmos/cosmos-sdk/types"))
+		content, err := xast.AppendImports(f.String(), xast.WithNamedImport("sdk", "github.com/cosmos/cosmos-sdk/types"))
 		if err != nil {
 			return err
 		}
