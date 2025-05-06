@@ -434,7 +434,7 @@ func addFunctionCall(expr *ast.CallExpr, calls functionCalls) error {
 func addStructs(expr *ast.CompositeLit, structs functionStructs) error {
 	for _, s := range structs {
 		var newArg ast.Expr
-		var ident = ast.NewIdent(s.code)
+		ident := ast.NewIdent(s.code)
 
 		if s.param != "" {
 			newArg = &ast.KeyValueExpr{
