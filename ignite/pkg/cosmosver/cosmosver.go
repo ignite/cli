@@ -22,7 +22,7 @@ var (
 	StargateFortyFourVersion      = newVersion("0.44.0-alpha")
 	StargateFortyFiveThreeVersion = newVersion("0.45.3")
 	StargateFortySevenTwoVersion  = newVersion("0.47.2")
-	StargateFiftyVersion          = newVersion("0.50.1") // 0.50.0 has been retracted and should not be used
+	StargateFiftyVersion          = newVersion("0.50.0") // 0.50.0 has been retracted and replaced with 0.50.1, but we keep it here for compatibility with pseudo versions.
 	StargateFiftyThreeVersion     = newVersion("0.53.0")
 )
 
