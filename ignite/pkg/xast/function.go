@@ -433,18 +433,23 @@ func addFunctionCall(expr *ast.CallExpr, calls functionCalls) error {
 // addStructs modifies struct literal fields.
 func addStructs(expr *ast.CompositeLit, structs functionStructs) error {
 	for _, s := range structs {
-		var newArg ast.Expr = ast.NewIdent(s.code)
+		var newArg ast.Expr
+		var ident = ast.NewIdent(s.code)
+
 		if s.param != "" {
 			newArg = &ast.KeyValueExpr{
 				Key:   ast.NewIdent(s.param),
-				Colon: token.Pos(s.index),
-				Value: ast.NewIdent(s.code),
+				Colon: token.NoPos,
+				Value: ident,
 			}
+		} else {
+			newArg = ident
 		}
 
+		// Insert at the correct index or append
 		switch {
 		case s.index == -1:
-			// Append at end
+			// Append at the end
 			expr.Elts = append(expr.Elts, newArg)
 		case s.index >= 0 && s.index <= len(expr.Elts):
 			// Insert at index
