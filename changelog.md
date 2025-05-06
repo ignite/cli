@@ -24,6 +24,7 @@
 - [#4587](https://github.com/ignite/cli/pull/4587) Add missing light clients routes to IBC client keeper.
 - [#4595](https://github.com/ignite/cli/pull/4595) Fix wrong InterfaceRegistry for IBC modules.
 - [#4609](https://github.com/ignite/cli/pull/4609) Add work dir for relayer integration tests.
+- [#4658](https://github.com/ignite/cli/pull/4658) Fix indentation for params scaffolded into a struct.
 
 ### Bug Fixes
 
