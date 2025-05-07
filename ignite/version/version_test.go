@@ -29,7 +29,7 @@ func TestAssertSupportedCosmosSDKVersion(t *testing.T) {
 		{
 			"v0.47.3",
 			cosmosver.Version{Version: "v0.47.3", Semantic: semver.MustParse("0.47.3")},
-			"",
+			"Your chain has been scaffolded with an older version of Cosmos SDK: v0.47.3",
 		},
 		{
 			"v0.50",
@@ -39,6 +39,11 @@ func TestAssertSupportedCosmosSDKVersion(t *testing.T) {
 		{
 			"v0.50 fork",
 			cosmosver.Version{Version: "v0.50.1-rollkit-v0.11.6-no-fraud-proofs", Semantic: semver.MustParse("0.50.1-rollkit-v0.11.6-no-fraud-proofs")},
+			"",
+		},
+		{
+			"v0.53",
+			cosmosver.Version{Version: "v0.53.0", Semantic: semver.MustParse("0.53.0")},
 			"",
 		},
 	}
