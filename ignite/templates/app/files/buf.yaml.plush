@@ -11,7 +11,7 @@ deps:
 lint:
   use:
     - COMMENTS
-    - DEFAULT
+    - STANDARD
     - FILE_LOWER_SNAKE_CASE
   except:
     - COMMENT_FIELD
