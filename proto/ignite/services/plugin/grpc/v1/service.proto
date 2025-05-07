@@ -75,10 +75,18 @@ message ExecuteHookCleanUpResponse {}
 service ClientAPIService {
   // GetChainInfo returns basic chain info for the configured app
   rpc GetChainInfo(GetChainInfoRequest) returns (GetChainInfoResponse);
+  // GetIgniteInfo returns basic ignite info
+  rpc GetIgniteInfo(GetIgniteInfoRequest) returns (GetIgniteInfoResponse);
 }
 
 message GetChainInfoRequest {}
 
 message GetChainInfoResponse {
   ChainInfo chain_info = 1;
+}
+
+message GetIgniteInfoRequest {}
+
+message GetIgniteInfoResponse {
+  IgniteInfo ignite_info = 1;
 }
