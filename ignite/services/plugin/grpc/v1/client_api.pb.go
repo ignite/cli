@@ -7,11 +7,12 @@
 package v1
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -108,9 +109,7 @@ type IgniteInfo struct {
 	ConfigVersion   string                 `protobuf:"bytes,7,opt,name=config_version,json=configVersion,proto3" json:"config_version,omitempty"`
 	Os              string                 `protobuf:"bytes,8,opt,name=os,proto3" json:"os,omitempty"`
 	Arch            string                 `protobuf:"bytes,9,opt,name=arch,proto3" json:"arch,omitempty"`
-	Uname           string                 `protobuf:"bytes,10,opt,name=uname,proto3" json:"uname,omitempty"`
-	Cwd             string                 `protobuf:"bytes,11,opt,name=cwd,proto3" json:"cwd,omitempty"`
-	BuildFromSource bool                   `protobuf:"varint,12,opt,name=build_from_source,json=buildFromSource,proto3" json:"build_from_source,omitempty"`
+	BuildFromSource bool                   `protobuf:"varint,10,opt,name=build_from_source,json=buildFromSource,proto3" json:"build_from_source,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -208,20 +207,6 @@ func (x *IgniteInfo) GetArch() string {
 	return ""
 }
 
-func (x *IgniteInfo) GetUname() string {
-	if x != nil {
-		return x.Uname
-	}
-	return ""
-}
-
-func (x *IgniteInfo) GetCwd() string {
-	if x != nil {
-		return x.Cwd
-	}
-	return ""
-}
-
 func (x *IgniteInfo) GetBuildFromSource() bool {
 	if x != nil {
 		return x.BuildFromSource
@@ -241,7 +226,7 @@ const file_ignite_services_plugin_grpc_v1_client_api_proto_rawDesc = "" +
 	"configPath\x12\x1f\n" +
 	"\vrpc_address\x18\x04 \x01(\tR\n" +
 	"rpcAddress\x12\x12\n" +
-	"\x04home\x18\x05 \x01(\tR\x04home\"\xed\x02\n" +
+	"\x04home\x18\x05 \x01(\tR\x04home\"\xc5\x02\n" +
 	"\n" +
 	"IgniteInfo\x12\x1f\n" +
 	"\vcli_version\x18\x01 \x01(\tR\n" +
@@ -258,11 +243,9 @@ const file_ignite_services_plugin_grpc_v1_client_api_proto_rawDesc = "" +
 	"sourceHash\x12%\n" +
 	"\x0econfig_version\x18\a \x01(\tR\rconfigVersion\x12\x0e\n" +
 	"\x02os\x18\b \x01(\tR\x02os\x12\x12\n" +
-	"\x04arch\x18\t \x01(\tR\x04arch\x12\x14\n" +
-	"\x05uname\x18\n" +
-	" \x01(\tR\x05uname\x12\x10\n" +
-	"\x03cwd\x18\v \x01(\tR\x03cwd\x12*\n" +
-	"\x11build_from_source\x18\f \x01(\bR\x0fbuildFromSourceB:Z8github.com/ignite/cli/v29/ignite/services/plugin/grpc/v1b\x06proto3"
+	"\x04arch\x18\t \x01(\tR\x04arch\x12*\n" +
+	"\x11build_from_source\x18\n" +
+	" \x01(\bR\x0fbuildFromSourceB:Z8github.com/ignite/cli/v29/ignite/services/plugin/grpc/v1b\x06proto3"
 
 var (
 	file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescOnce sync.Once

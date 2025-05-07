@@ -30,9 +30,9 @@ func (app) Execute(ctx context.Context, cmd *plugin.ExecutedCommand, api plugin.
 	i, err := api.GetIgniteInfo(ctx)
 	fmt.Printf(
 		"ok args=%s cliVersion=%s goVersion=%s sdkVersion=%s bufVersion=%s buildDate=%s "+
-			"sourceHash=%s cwd=%s configVersion=%s os=%s arch=%s uname=%s buildFromSource=%t\n",
-		cmd.Args, i.CliVersion, i.GoVersion, i.SdkVersion, i.BufVersion, i.BuildDate, i.SourceHash,
-		i.Cwd, i.ConfigVersion, i.Os, i.Arch, i.Uname, i.BuildFromSource,
+			"sourceHash=%s configVersion=%s os=%s arch=%s buildFromSource=%t\n",
+		cmd.Args, i.CliVersion, i.GoVersion, i.SdkVersion, i.BufVersion, i.BuildDate, i.SourceHash, i.ConfigVersion,
+		i.Os, i.Arch, i.BuildFromSource,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to get ignite info: %w", err)

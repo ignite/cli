@@ -109,8 +109,6 @@ func (api clientAPI) GetIgniteInfo(ctx context.Context) (*IgniteInfo, error) {
 		ConfigVersion:   info.ConfigVersion,
 		Os:              info.OS,
 		Arch:            info.Arch,
-		Uname:           info.Uname,
-		Cwd:             info.CWD,
 		BuildFromSource: info.BuildFromSource,
 	}, nil
 }
