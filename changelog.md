@@ -24,11 +24,12 @@
 - [#4587](https://github.com/ignite/cli/pull/4587) Add missing light clients routes to IBC client keeper.
 - [#4595](https://github.com/ignite/cli/pull/4595) Fix wrong InterfaceRegistry for IBC modules.
 - [#4609](https://github.com/ignite/cli/pull/4609) Add work dir for relayer integration tests.
-- [#4582](https://github.com/ignite/cli/issues/4582) Fix xast misplacing comments.
 
 ### Bug Fixes
 
 - [#4347](https://github.com/ignite/cli/pull/4347) Fix `ts-client` generation
+- [#4582](https://github.com/ignite/cli/issues/4582) Fix xast misplacing comments.
+- [#4660](https://github.com/ignite/cli/pull/4660) Fix xast test case indentation.
 
 ## [`v29.0.0-beta.1`](https://github.com/ignite/cli/releases/tag/v29.0.0-beta.1)
 

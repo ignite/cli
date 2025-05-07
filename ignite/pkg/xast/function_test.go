@@ -244,9 +244,9 @@ func TestValidate(t *testing.T) {
 			desc:     "valid genesis state",
 			genState: types.GenesisState{},
 		}, {
-			desc: "valid genesis state",
-
-			genState: GenesisState{}},
+			desc:     "valid genesis state",
+			genState: GenesisState{},
+		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
@@ -314,12 +314,12 @@ func TestValidate(t *testing.T) {
 			desc:     "valid genesis state",
 			genState: types.GenesisState{},
 		}, {
-			desc: "valid first genesis state",
-
-			genState: GenesisState{}}, {
-			desc: "valid second genesis state",
-
-			genState: GenesisState{}},
+			desc:     "valid first genesis state",
+			genState: GenesisState{},
+		}, {
+			desc:     "valid second genesis state",
+			genState: GenesisState{},
+		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
