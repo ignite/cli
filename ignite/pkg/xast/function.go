@@ -154,8 +154,8 @@ func AppendInsideFuncCall(callName, code string, index int) FunctionOptions {
 	}
 }
 
-// AppendFuncStruct adds a field to a struct literal. For instances,
-// // the struct have only one parameter 'Params{Param1: param1}' and we want to add
+// AppendFuncStruct adds a field to a struct literal. For instance,
+// // the struct has only one parameter 'Params{Param1: param1}' and we want to add
 // // the param2 the result will be 'Params{Param1: param1, Param2: param2}'.
 func AppendFuncStruct(name, param, code string, index int) FunctionOptions {
 	return func(c *functionOpts) {
@@ -307,7 +307,7 @@ func modifyReturn(funcDecl *ast.FuncDecl, returnStmts []ast.Expr, appendCode []a
 		lastStmt := funcDecl.Body.List[len(funcDecl.Body.List)-1]
 		switch stmt := lastStmt.(type) {
 		case *ast.ReturnStmt:
-			// Modify return statement
+			// Modify the return statement
 			if len(returnStmts) > 0 {
 				stmt.Results = returnStmts
 			}
@@ -338,7 +338,7 @@ func modifyReturn(funcDecl *ast.FuncDecl, returnStmts []ast.Expr, appendCode []a
 }
 
 // addTestCase adds test cases to a test function.
-func addTestCase(funcDecl *ast.FuncDecl, testCase []string) error {
+func addTestCase(fSet *token.FileSet, funcDecl *ast.FuncDecl, testCase []string) error {
 	// Find tests variable
 	for _, stmt := range funcDecl.Body.List {
 		assignStmt, ok := stmt.(*ast.AssignStmt)
@@ -360,7 +360,7 @@ func addTestCase(funcDecl *ast.FuncDecl, testCase []string) error {
 
 		// Add test cases
 		for _, tc := range testCase {
-			testCaseStmt, err := structToBlockStmt(tc)
+			testCaseStmt, err := structToBlockStmt(fSet, tc)
 			if err != nil {
 				return err
 			}
@@ -371,9 +371,9 @@ func addTestCase(funcDecl *ast.FuncDecl, testCase []string) error {
 }
 
 // structToBlockStmt parses struct literal code into AST expression.
-func structToBlockStmt(code string) (ast.Expr, error) {
+func structToBlockStmt(fSet *token.FileSet, code string) (ast.Expr, error) {
 	newFuncContent := toStruct(code)
-	newContent, err := parser.ParseExpr(newFuncContent)
+	newContent, err := parser.ParseExprFrom(fSet, "temp.go", newFuncContent, parser.AllErrors)
 	if err != nil {
 		return nil, err
 	}
@@ -604,7 +604,7 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 		}
 
 		// Add test cases.
-		if err := addTestCase(funcDecl, opts.appendTestCase); err != nil {
+		if err := addTestCase(fileSet, funcDecl, opts.appendTestCase); err != nil {
 			errInspect = err
 			return false
 		}
