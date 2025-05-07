@@ -22,11 +22,11 @@ func ModuleSimulationMsgModify(
 	// Import
 	content, err := xast.AppendImports(
 		content,
-		xast.WithLastNamedImport(
+		xast.WithNamedImport(
 			fmt.Sprintf("%[1]vsimulation", moduleName),
 			fmt.Sprintf("%[1]v/x/%[2]v/simulation", modulePath, moduleName),
 		),
-		xast.WithImport("math/rand", 0),
+		xast.WithImport("math/rand"),
 	)
 	if err != nil {
 		return "", err

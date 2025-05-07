@@ -6,7 +6,8 @@ import (
 	"go/format"
 	"go/parser"
 	"go/token"
-	"strconv"
+
+	"golang.org/x/tools/go/ast/astutil"
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
@@ -21,52 +22,27 @@ type (
 	ImportOptions func(*importOpts)
 
 	imp struct {
-		repo  string
-		name  string
-		index int
+		path string
+		name string
 	}
 )
 
-// WithLastImport add a new import int the end.
-func WithLastImport(repo string) ImportOptions {
+// WithImport add a new import at the end of the imports.
+func WithImport(repo string) ImportOptions {
 	return func(c *importOpts) {
 		c.imports = append(c.imports, imp{
-			repo:  repo,
-			name:  "",
-			index: -1,
+			path: repo,
+			name: "",
 		})
 	}
 }
 
-// WithImport add a new import. If the index is -1 will append in the end of the imports.
-func WithImport(repo string, index int) ImportOptions {
+// WithNamedImport add a new import with name at the end of the imports.
+func WithNamedImport(name, repo string) ImportOptions {
 	return func(c *importOpts) {
 		c.imports = append(c.imports, imp{
-			repo:  repo,
-			name:  "",
-			index: index,
-		})
-	}
-}
-
-// WithNamedImport add a new import with name. If the index is -1 will append in the end of the imports.
-func WithNamedImport(name, repo string, index int) ImportOptions {
-	return func(c *importOpts) {
-		c.imports = append(c.imports, imp{
-			name:  name,
-			repo:  repo,
-			index: index,
-		})
-	}
-}
-
-// WithLastNamedImport add a new import with name in the end of the imports.
-func WithLastNamedImport(name, repo string) ImportOptions {
-	return func(c *importOpts) {
-		c.imports = append(c.imports, imp{
-			name:  name,
-			repo:  repo,
-			index: -1,
+			name: name,
+			path: repo,
 		})
 	}
 }
@@ -92,64 +68,22 @@ func AppendImports(fileContent string, imports ...ImportOptions) (string, error)
 	if err != nil {
 		return "", err
 	}
-
-	// Find the existing import declaration.
-	var importDecl *ast.GenDecl
-	for _, decl := range f.Decls {
-		genDecl, ok := decl.(*ast.GenDecl)
-		if !ok || genDecl.Tok != token.IMPORT || len(genDecl.Specs) == 0 {
-			continue
-		}
-		importDecl = genDecl
-		break
-	}
-
-	if importDecl == nil {
-		// If no existing import declaration found, create a new one.
-		importDecl = &ast.GenDecl{
-			Tok:   token.IMPORT,
-			Specs: make([]ast.Spec, 0),
-		}
-		f.Decls = append([]ast.Decl{importDecl}, f.Decls...)
-	}
-
-	// Check existing imports to avoid duplicates.
-	existImports := make(map[string]struct{})
-	for _, spec := range importDecl.Specs {
-		importSpec, ok := spec.(*ast.ImportSpec)
-		if !ok {
-			continue
-		}
-		existImports[importSpec.Path.Value] = struct{}{}
-	}
+	cmap := ast.NewCommentMap(fileSet, f, f.Comments)
 
 	// Add new import statements.
-	for _, importStmt := range opts.imports {
-		// Check if the import already exists.
-		path := strconv.Quote(importStmt.repo)
-		if _, ok := existImports[path]; ok {
-			continue
-		}
-		// Create a new import spec.
-		spec := &ast.ImportSpec{
-			Name: ast.NewIdent(importStmt.name),
-			Path: &ast.BasicLit{
-				Kind:  token.STRING,
-				Value: path,
-			},
+	for _, importPath := range opts.imports {
+		if astutil.UsesImport(f, importPath.path) {
+			astutil.DeleteNamedImport(fileSet, f, importPath.name, importPath.path)
 		}
 
-		switch {
-		case importStmt.index == -1:
-			// Append the new argument to the end
-			importDecl.Specs = append(importDecl.Specs, spec)
-		case importStmt.index >= 0 && importStmt.index <= len(importDecl.Specs):
-			// Insert the new argument at the specified index
-			importDecl.Specs = append(importDecl.Specs[:importStmt.index], append([]ast.Spec{spec}, importDecl.Specs[importStmt.index:]...)...)
-		default:
-			return "", errors.Errorf("index out of range") // Stop the inspection, an error occurred
+		if !astutil.AddNamedImport(fileSet, f, importPath.name, importPath.path) {
+			return "", errors.Errorf("failed to add import %s - %s", importPath.name, importPath.path)
 		}
+
+		ast.SortImports(fileSet, f)
 	}
+
+	f.Comments = cmap.Filter(f).Comments()
 
 	// Format the modified AST.
 	var buf bytes.Buffer

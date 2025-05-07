@@ -154,8 +154,8 @@ func AppendInsideFuncCall(callName, code string, index int) FunctionOptions {
 	}
 }
 
-// AppendFuncStruct adds a field to a struct literal. For instances,
-// // the struct have only one parameter 'Params{Param1: param1}' and we want to add
+// AppendFuncStruct adds a field to a struct literal. For instance,
+// // the struct has only one parameter 'Params{Param1: param1}' and we want to add
 // // the param2 the result will be 'Params{Param1: param1, Param2: param2}'.
 func AppendFuncStruct(name, param, code string, index int) FunctionOptions {
 	return func(c *functionOpts) {
@@ -205,6 +205,8 @@ func ModifyFunction(content string, funcName string, functions ...FunctionOption
 		return "", errors.Errorf("failed to parse file: %w", err)
 	}
 
+	cmap := ast.NewCommentMap(fset, file, file.Comments)
+
 	// Find the target function.
 	funcDecl := findFuncDecl(file, funcName)
 	if funcDecl == nil {
@@ -216,11 +218,7 @@ func ModifyFunction(content string, funcName string, functions ...FunctionOption
 		return "", err
 	}
 
-	// Format and return the modified source.
-	var buf bytes.Buffer
-	if err := format.Node(&buf, fset, file); err != nil {
-		return "", errors.Errorf("failed to format modified file: %w", err)
-	}
+	file.Comments = cmap.Filter(file).Comments()
 	return formatNode(fset, file)
 }
 
@@ -309,7 +307,7 @@ func modifyReturn(funcDecl *ast.FuncDecl, returnStmts []ast.Expr, appendCode []a
 		lastStmt := funcDecl.Body.List[len(funcDecl.Body.List)-1]
 		switch stmt := lastStmt.(type) {
 		case *ast.ReturnStmt:
-			// Modify return statement
+			// Modify the return statement
 			if len(returnStmts) > 0 {
 				stmt.Results = returnStmts
 			}
@@ -340,7 +338,7 @@ func modifyReturn(funcDecl *ast.FuncDecl, returnStmts []ast.Expr, appendCode []a
 }
 
 // addTestCase adds test cases to a test function.
-func addTestCase(funcDecl *ast.FuncDecl, testCase []string) error {
+func addTestCase(fSet *token.FileSet, funcDecl *ast.FuncDecl, testCase []string) error {
 	// Find tests variable
 	for _, stmt := range funcDecl.Body.List {
 		assignStmt, ok := stmt.(*ast.AssignStmt)
@@ -361,8 +359,8 @@ func addTestCase(funcDecl *ast.FuncDecl, testCase []string) error {
 		}
 
 		// Add test cases
-		for _, testCase := range testCase {
-			testCaseStmt, err := structToBlockStmt(testCase)
+		for _, tc := range testCase {
+			testCaseStmt, err := structToBlockStmt(fSet, tc)
 			if err != nil {
 				return err
 			}
@@ -370,6 +368,34 @@ func addTestCase(funcDecl *ast.FuncDecl, testCase []string) error {
 		}
 	}
 	return nil
+}
+
+// structToBlockStmt parses struct literal code into AST expression.
+func structToBlockStmt(fSet *token.FileSet, code string) (ast.Expr, error) {
+	newFuncContent := toStruct(code)
+	newContent, err := parser.ParseExprFrom(fSet, "temp.go", newFuncContent, parser.AllErrors)
+	if err != nil {
+		return nil, err
+	}
+
+	newCompositeList, ok := newContent.(*ast.CompositeLit)
+	if !ok {
+		return nil, errors.New("not a composite literal")
+	}
+
+	if len(newCompositeList.Elts) != 1 {
+		return nil, errors.New("composite literal has more than one element or zero")
+	}
+
+	return newCompositeList.Elts[0], nil
+}
+
+// toStruct wraps code in an anonymous struct literal for parsing.
+func toStruct(code string) string {
+	code = strings.TrimSpace(code)
+	code = strings.ReplaceAll(code, "\n\t", "\n")
+	code = strings.ReplaceAll(code, "\n	", "\n")
+	return fmt.Sprintf("struct {}{ %s  }", code)
 }
 
 // exprName extracts the name from an AST expression.
@@ -445,37 +471,13 @@ func toCode(code string) string {
 	return fmt.Sprintf("package p; func _() { %s }", strings.TrimSpace(code))
 }
 
-// structToBlockStmt parses struct literal code into AST expression.
-func structToBlockStmt(code string) (ast.Expr, error) {
-	newFuncContent := toStruct(code)
-	newContent, err := parser.ParseExpr(newFuncContent)
-	if err != nil {
-		return nil, err
-	}
-
-	newCompositeList, ok := newContent.(*ast.CompositeLit)
-	if !ok {
-		return nil, errors.New("not a composite literal")
-	}
-
-	if len(newCompositeList.Elts) != 1 {
-		return nil, errors.New("composite literal has more than one element or zero")
-	}
-
-	return newCompositeList.Elts[0], nil
-}
-
-// toStruct wraps code in an anonymous struct literal for parsing.
-func toStruct(code string) string {
-	return fmt.Sprintf(`struct {}{ %s }`, strings.TrimSpace(code))
-}
-
 // formatNode formats an AST node into Go source code.
 func formatNode(fileSet *token.FileSet, f *ast.File) (string, error) {
 	var buf bytes.Buffer
 	if err := format.Node(&buf, fileSet, f); err != nil {
 		return "", err
 	}
+
 	return buf.String(), nil
 }
 
@@ -602,7 +604,7 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 		}
 
 		// Add test cases.
-		if err := addTestCase(funcDecl, opts.appendTestCase); err != nil {
+		if err := addTestCase(fileSet, funcDecl, opts.appendTestCase); err != nil {
 			errInspect = err
 			return false
 		}

@@ -89,11 +89,11 @@ func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.R
 		// Import
 		content, err := xast.AppendImports(
 			fConfig.String(),
-			xast.WithLastNamedImport(
+			xast.WithNamedImport(
 				"_",
 				fmt.Sprintf("%[1]v/x/%[2]v/module", opts.ModulePath, opts.ModuleName),
 			),
-			xast.WithLastNamedImport(
+			xast.WithNamedImport(
 				fmt.Sprintf("%[1]vmoduletypes", opts.ModuleName),
 				fmt.Sprintf("%[1]v/x/%[2]v/types", opts.ModulePath, opts.ModuleName),
 			),
@@ -154,7 +154,7 @@ func appModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 		// Import
 		content, err := xast.AppendImports(
 			f.String(),
-			xast.WithLastNamedImport(
+			xast.WithNamedImport(
 				fmt.Sprintf("%[1]vmodulekeeper", opts.ModuleName),
 				fmt.Sprintf("%[1]v/x/%[2]v/keeper", opts.ModulePath, opts.ModuleName),
 			),
