@@ -245,8 +245,9 @@ func GetInfo(ctx context.Context) (Info, error) {
 
 // AssertSupportedCosmosSDKVersion asserts that a Cosmos SDK version is supported by Ignite CLI.
 func AssertSupportedCosmosSDKVersion(v cosmosver.Version) error {
-	if v.LT(cosmosver.StargateFortySevenTwoVersion) {
+	if v.LT(cosmosver.StargateFiftyVersion) {
 		return errors.Errorf(errOldCosmosSDKVersionStr, v)
 	}
+
 	return nil
 }
