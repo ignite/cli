@@ -25,6 +25,7 @@
 - [#4595](https://github.com/ignite/cli/pull/4595) Fix wrong InterfaceRegistry for IBC modules.
 - [#4609](https://github.com/ignite/cli/pull/4609) Add work dir for relayer integration tests.
 - [#4658](https://github.com/ignite/cli/pull/4658) Fix indentation for params scaffolded into a struct.
+- [#4660](https://github.com/ignite/cli/pull/4660) Fix xast test case indentation.
 
 ### Bug Fixes
 
