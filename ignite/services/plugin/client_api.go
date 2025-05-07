@@ -3,9 +3,8 @@ package plugin
 import (
 	"context"
 
-	"github.com/ignite/cli/v29/ignite/version"
-
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/version"
 )
 
 // ErrAppChainNotFound indicates that the plugin command is not running inside a blockchain app.
