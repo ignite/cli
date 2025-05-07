@@ -72,6 +72,6 @@ type Interface interface {
 type ClientAPI interface {
 	// GetChainInfo returns basic info for the configured blockchain app.
 	GetChainInfo(context.Context) (*ChainInfo, error)
-	// GetIgniteInfo returns basic info for the ignite.
+	// GetIgniteInfo returns basic info for the Ignite.
 	GetIgniteInfo(context.Context) (*IgniteInfo, error)
 }
