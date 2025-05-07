@@ -186,7 +186,8 @@ func NewModel(ctx context.Context, chainname string, args chain.MultiNodeArgs) (
 
 // Init implements the Init method of the tea.Model interface.
 func (m MultiNode) Init() tea.Cmd {
-	return nil
+	// start all nodes as soon as the application launches
+	return m.StartAllNodes()
 }
 
 // ToggleNode toggles the state of a node.
@@ -295,11 +296,23 @@ func RunNode(nodeIdx int, start bool, m MultiNode) tea.Cmd {
 
 // StopAllNodes stops all nodes.
 func (m *MultiNode) StopAllNodes() {
-	for i := 0; i < m.numNodes; i++ {
+	for i := range m.numNodes {
 		if m.nodeStatuses[i] == Running {
 			RunNode(i, false, *m)() // Stop node
 		}
 	}
+}
+
+// StartAllNodes starts all nodes that are currently stopped.
+func (m *MultiNode) StartAllNodes() tea.Cmd {
+	cmds := make([]tea.Cmd, 0, m.numNodes)
+	for i := range m.numNodes {
+		if m.nodeStatuses[i] == Stopped {
+			cmds = append(cmds, RunNode(i, true, *m))
+		}
+	}
+
+	return tea.Batch(cmds...)
 }
 
 // Update handles messages and updates the model.
