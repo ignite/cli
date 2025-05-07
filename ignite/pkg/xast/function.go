@@ -432,9 +432,19 @@ func addFunctionCall(expr *ast.CallExpr, calls functionCalls) error {
 
 // addStructs modifies struct literal fields.
 func addStructs(fileSet *token.FileSet, f *ast.FuncDecl, expr *ast.CompositeLit, structs functionStructs) error {
-	file := fileSet.File(f.Pos())
+	// Sort the structs by target index to handle insertions in order
+	sort.Slice(structs, func(i, j int) bool {
+		if structs[i].index == -1 {
+			return false
+		}
+		if structs[j].index == -1 {
+			return true
+		}
+		return structs[i].index < structs[j].index
+	})
 
 	// Find the current max offset to avoid reused positions
+	file := fileSet.File(f.Pos())
 	maxOffset := file.Offset(expr.Rbrace)
 	for _, elt := range expr.Elts {
 		if pos := elt.End(); pos.IsValid() {
@@ -453,7 +463,7 @@ func addStructs(fileSet *token.FileSet, f *ast.FuncDecl, expr *ast.CompositeLit,
 			src = fmt.Sprintf("%s: %s", s.param, s.code)
 		}
 
-		exprStr := fmt.Sprintf("package dummy\nvar _ = struct{_ interface{}}{%s}", src)
+		exprStr := fmt.Sprintf("package main\nvar _ = struct{_ interface{}}{%s}", src)
 		fakeFile, err := parser.ParseFile(fileSet, "", exprStr, parser.AllErrors)
 		if err != nil || len(fakeFile.Decls) == 0 {
 			return errors.Errorf("failed to parse inserted field code: %w", err)
@@ -464,7 +474,7 @@ func addStructs(fileSet *token.FileSet, f *ast.FuncDecl, expr *ast.CompositeLit,
 		newExpr := val.Elts[0]
 
 		// Advance position
-		insertOffset := maxOffset + (i+1)*10
+		insertOffset := maxOffset + i
 		insertPos := file.Pos(insertOffset)
 
 		// Manually assign a synthetic line-position
@@ -490,7 +500,6 @@ func addStructs(fileSet *token.FileSet, f *ast.FuncDecl, expr *ast.CompositeLit,
 			return errors.Errorf("function call index %d out of range", s.index)
 		}
 	}
-
 	// Force the closing brace to its own line
 	file.AddLine(file.Offset(expr.Rbrace))
 	return nil
@@ -512,9 +521,9 @@ func toCode(code string) string {
 }
 
 // formatNode formats an AST node into Go source code.
-func formatNode(fileSet *token.FileSet, f *ast.File) (string, error) {
+func formatNode(fileSet *token.FileSet, n ast.Node) (string, error) {
 	var buf bytes.Buffer
-	if err := format.Node(&buf, fileSet, f); err != nil {
+	if err := format.Node(&buf, fileSet, n); err != nil {
 		return "", err
 	}
 

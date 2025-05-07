@@ -334,9 +334,8 @@ func keeperModify(opts *typed.Options) genny.RunFn {
 			"NewKeeper",
 			xast.AppendFuncStruct(
 				"Keeper",
-				fmt.Sprintf("%[1]vSeq", opts.TypeName.UpperCamel),
-				fmt.Sprintf(`collections.NewSequence(sb, types.%[2]vCountKey, "%[3]vSequence")`,
-					opts.TypeName.UpperCamel,
+				opts.TypeName.UpperCamel,
+				fmt.Sprintf(`collections.NewMap(sb, types.%[1]vKey, "%[2]v", collections.Uint64Key, codec.CollValue[types.%[1]v](cdc))`,
 					opts.TypeName.PascalCase,
 					opts.TypeName.LowerCamel,
 				),
@@ -344,8 +343,9 @@ func keeperModify(opts *typed.Options) genny.RunFn {
 			),
 			xast.AppendFuncStruct(
 				"Keeper",
-				opts.TypeName.UpperCamel,
-				fmt.Sprintf(`collections.NewMap(sb, types.%[1]vKey, "%[2]v", collections.Uint64Key, codec.CollValue[types.%[1]v](cdc))`,
+				fmt.Sprintf("%[1]vSeq", opts.TypeName.UpperCamel),
+				fmt.Sprintf(`collections.NewSequence(sb, types.%[2]vCountKey, "%[3]vSequence")`,
+					opts.TypeName.UpperCamel,
 					opts.TypeName.PascalCase,
 					opts.TypeName.LowerCamel,
 				),
