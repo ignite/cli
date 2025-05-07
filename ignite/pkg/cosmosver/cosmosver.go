@@ -22,7 +22,8 @@ var (
 	StargateFortyFourVersion      = newVersion("0.44.0-alpha")
 	StargateFortyFiveThreeVersion = newVersion("0.45.3")
 	StargateFortySevenTwoVersion  = newVersion("0.47.2")
-	StargateFiftyVersion          = newVersion("0.50.1") // 0.50.0 has been retracted and should not be used
+	StargateFiftyVersion          = newVersion("0.50.0") // 0.50.0 has been retracted and replaced with 0.50.1, but we keep it here for compatibility with pseudo versions.
+	StargateFiftyThreeVersion     = newVersion("0.53.0")
 )
 
 var (
@@ -33,6 +34,7 @@ var (
 		StargateFortyFiveThreeVersion,
 		StargateFortySevenTwoVersion,
 		StargateFiftyVersion,
+		StargateFiftyThreeVersion, // NOTE: v0.50 and v0.53 are API compatible but consensus incompatible when using the new features from v0.53.
 	}
 
 	// Latest is the latest known version of the Cosmos-SDK.

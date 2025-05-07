@@ -7,6 +7,9 @@
 - [#4509](https://github.com/ignite/cli/pull/4509) Upgrade to Go 1.24. Running `ignite doctor` migrates the scaffolded `tools.go` to the tool directive in the go.mod
 - [#4588](https://github.com/ignite/cli/pull/4588) Run `buf format after scaffold proto files.
 - [#4603](https://github.com/ignite/cli/issues/4603) Add `GetIgniteInfo` gRPC API for apps.
+- [#4657](https://github.com/ignite/cli/pull/4657) Upgrade to Cosmos SDK [v0.53.0](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.53.0).
+  - Add x/epochs module to default template (except for minimal template).
+  - Bump minimum compatible Cosmos SDK version to `v0.50.0`.
 
 ### Changes
 
