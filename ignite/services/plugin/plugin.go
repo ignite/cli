@@ -275,7 +275,7 @@ func (p *Plugin) load(ctx context.Context) {
 	}
 	// Create an hclog.Logger
 	logLevel := hclog.Error
-	if env.DebugEnabled() {
+	if env.IsDebug() {
 		logLevel = hclog.Trace
 	}
 	logger := hclog.New(&hclog.LoggerOptions{

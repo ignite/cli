@@ -13,7 +13,15 @@ const (
 	configDir = "IGNT_CONFIG_DIR"
 )
 
-func DebugEnabled() bool {
+// SetDebug sets the debug environment variable to "1".
+// This is used to enable debug mode in the application.
+func SetDebug() {
+	_ = os.Setenv(debug, "1")
+}
+
+// IsDebug checks if the debug environment variable is set to "1".
+// This is used to determine if the application is running in debug mode.
+func IsDebug() bool {
 	return os.Getenv(debug) == "1"
 }
 

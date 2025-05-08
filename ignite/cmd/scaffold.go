@@ -6,6 +6,7 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v29/ignite/pkg/env"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
 	"github.com/ignite/cli/v29/ignite/pkg/xgit"
@@ -130,10 +131,20 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 		NewScaffoldChainRegistry(),
 	)
 
+	// same flag as for chain serve but different behavior
+	// the verbose flag on scaffold sets the IGNT_DEBUG env var
+	// while on serve it bypass the session logger for the app default
+	c.PersistentFlags().AddFlagSet(flagSetVerbose())
+
 	return c
 }
 
 func migrationPreRunHandler(cmd *cobra.Command, args []string) error {
+	if verbose := flagGetVerbose(cmd); verbose {
+		// sets the IGNT_DEBUG env var to enable verbose logging
+		env.SetDebug()
+	}
+
 	if err := gitChangesConfirmPreRunHandler(cmd, args); err != nil {
 		return err
 	}
@@ -314,4 +325,9 @@ func flagGetNoMessage(cmd *cobra.Command) bool {
 func flagGetSigner(cmd *cobra.Command) string {
 	signer, _ := cmd.Flags().GetString(flagSigner)
 	return signer
+}
+
+func flagGetVerbose(cmd *cobra.Command) bool {
+	verbose, _ := cmd.Flags().GetBool(flagVerbose)
+	return verbose
 }
