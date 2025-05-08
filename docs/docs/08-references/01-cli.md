@@ -2033,7 +2033,6 @@ ignite testnet in-place [flags]
   -h, --help                    help for in-place
       --home string             directory where the blockchain node is initialized
   -p, --path string             path of the app (default ".")
-      --quit-on-fail            quit program if the app fails to start
       --skip-proto              skip file generation from proto
   -v, --verbose                 verbose output
 ```
@@ -2084,7 +2083,6 @@ ignite testnet multi-node [flags]
       --home string              directory where the blockchain node is initialized
       --node-dir-prefix string   prefix of dir node (default "validator")
   -p, --path string              path of the app (default ".")
-      --quit-on-fail             quit program if the app fails to start
   -r, --reset-once               reset the app state once on init
       --skip-proto               skip file generation from proto
   -v, --verbose                  verbose output
