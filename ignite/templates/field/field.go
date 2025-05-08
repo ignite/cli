@@ -28,14 +28,27 @@ func (f Field) DataType() string {
 }
 
 // IsSlice returns true if the field is a slice.
-// It assumes that a non indexable type is a slice.
 func (f Field) IsSlice() bool {
 	dt, ok := datatype.IsSupportedType(f.DatatypeName)
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
 
-	return dt.NonIndex && f.Datatype != string(datatype.Coin)
+	switch f.DatatypeName {
+	case datatype.StringSlice,
+		datatype.IntSlice,
+		datatype.UintSlice,
+		datatype.StringSliceAlias,
+		datatype.IntSliceAlias,
+		datatype.UintSliceAlias,
+		datatype.CoinSliceAlias:
+		return true
+	case datatype.Coin, datatype.Custom:
+		return false
+	default:
+		// For other types, we assume that it is a slice if non indexable.
+		return dt.NonIndex
+	}
 }
 
 // ProtoFieldName returns the field name used in proto.
