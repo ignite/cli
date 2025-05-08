@@ -84,12 +84,15 @@ func TestValidate(t *testing.T) {
 						return false
 					}`, 2),
 					AppendFuncCode(`fmt.Println("Appended code.")`),
-					AppendFuncCode(`Param{Baz: baz, Foo: foo}`),
+					AppendFuncCode(`Param{
+						Baz: baz, 
+						Foo: foo,
+					}`),
 					NewFuncReturn("1"),
 					AppendInsideFuncCall("SimpleCall", "baz", 0),
 					AppendInsideFuncCall("SimpleCall", "bla", -1),
 					AppendInsideFuncCall("Println", strconv.Quote("test"), -1),
-					AppendFuncStruct("Param", "Bar", strconv.Quote("bar"), -1),
+					AppendFuncStruct("Param", "Bar", strconv.Quote("bar")),
 					AppendFuncTestCase(`{
 								desc:     "valid first genesis state",
 								genState: GenesisState{},
@@ -118,7 +121,11 @@ func anotherFunction(param1 string) bool {
 		return false
 	}
 	fmt.Println("Appended code.", "test")
-	Param{Baz: baz, Foo: foo, Bar: "bar"}
+	Param{
+		Baz: baz,
+		Foo: foo,
+		Bar: "bar",
+	}
 	return 1
 }
 
@@ -474,7 +481,10 @@ import (
 
 // anotherFunction another function
 func anotherFunction() bool {
-	Param{Baz: baz, Foo: foo}
+	Param{
+		Baz: baz, 
+		Foo: foo, 
+	}
 	Client{baz, foo}
 	// return always true
 	return true
@@ -505,9 +515,9 @@ func TestValidate(t *testing.T) {
 `,
 				functionName: "anotherFunction",
 				functions: []FunctionOptions{
-					AppendFuncStruct("Param", "Bar", "bar", -1),
-					AppendFuncStruct("Param", "Bla", "bla", 1),
-					AppendFuncStruct("Client", "", "bar", 0),
+					AppendFuncStruct("Param", "Bar", "bar"),
+					AppendFuncStruct("Param", "Bla", "bla"),
+					AppendFuncStruct("Client", "", "bar"),
 				},
 			},
 			want: `package main
@@ -518,8 +528,13 @@ import (
 
 // anotherFunction another function
 func anotherFunction() bool {
-	Param{Baz: baz, Bla: bla, Foo: foo, Bar: bar}
-	Client{bar, baz, foo}
+	Param{
+		Baz: baz,
+		Foo: foo,
+		Bar: bar,
+		Bla: bla,
+	}
+	Client{baz, foo, bar}
 	// return always true
 	return true
 }

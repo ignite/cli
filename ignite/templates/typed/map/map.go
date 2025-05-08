@@ -148,7 +148,6 @@ func keeperModify(opts *typed.Options) genny.RunFn {
 					opts.TypeName.LowerCamel,
 					opts.Index.CollectionsKeyValueType(),
 				),
-				-1,
 			),
 		)
 		if err != nil {
@@ -368,7 +367,6 @@ func genesisTypesModify(opts *typed.Options) genny.RunFn {
 			"GenesisState",
 			fmt.Sprintf("%[1]vMap", opts.TypeName.UpperCamel),
 			fmt.Sprintf("[]%[1]v{}", opts.TypeName.PascalCase),
-			-1,
 		))
 		if err != nil {
 			return err
@@ -488,7 +486,6 @@ func genesisTestsModify(opts *typed.Options) genny.RunFn {
 					sampleIndexes[0],
 					sampleIndexes[1],
 				),
-				-1,
 			),
 			xast.AppendFuncCode(fmt.Sprintf("require.ElementsMatch(t, genesisState.%[1]vMap, got.%[1]vMap)", opts.TypeName.UpperCamel)),
 		)
@@ -548,7 +545,6 @@ func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 					sampleIndexes[0],
 					sampleIndexes[1],
 				),
-				-1,
 			),
 			xast.AppendFuncTestCase(replacementDuplicated),
 		)

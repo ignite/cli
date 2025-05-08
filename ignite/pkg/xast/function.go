@@ -35,7 +35,6 @@ type (
 		name  string // Name of the struct type.
 		param string // Name of the struct field.
 		code  string // Code to insert.
-		index int    // Position to insert at.
 	}
 	functionStructs    []functionStruct
 	functionStructsMap map[string]functionStructs
@@ -157,13 +156,12 @@ func AppendInsideFuncCall(callName, code string, index int) FunctionOptions {
 // AppendFuncStruct adds a field to a struct literal. For instance,
 // // the struct has only one parameter 'Params{Param1: param1}' and we want to add
 // // the param2 the result will be 'Params{Param1: param1, Param2: param2}'.
-func AppendFuncStruct(name, param, code string, index int) FunctionOptions {
+func AppendFuncStruct(name, param, code string) FunctionOptions {
 	return func(c *functionOpts) {
 		c.insideStruct = append(c.insideStruct, functionStruct{
 			name:  name,
 			param: param,
 			code:  code,
-			index: index,
 		})
 	}
 }
@@ -431,29 +429,51 @@ func addFunctionCall(expr *ast.CallExpr, calls functionCalls) error {
 }
 
 // addStructs modifies struct literal fields.
-func addStructs(expr *ast.CompositeLit, structs functionStructs) error {
-	for _, s := range structs {
-		var newArg ast.Expr = ast.NewIdent(s.code)
+func addStructs(fileSet *token.FileSet, expr *ast.CompositeLit, structs functionStructs) {
+	// Find the current max offset to avoid reused positions
+	file := fileSet.File(expr.Pos())
+	maxOffset := file.Offset(expr.Rbrace)
+	for _, elt := range expr.Elts {
+		if pos := elt.End(); pos.IsValid() {
+			offset := file.Offset(pos)
+			if offset > maxOffset {
+				maxOffset = offset
+			}
+		}
+	}
+
+	for i, s := range structs {
+		// Advance position
+		insertOffset := maxOffset + i
+		insertPos := file.Pos(insertOffset)
+
+		value := ast.NewIdent(s.code)
+		value.NamePos = insertPos
+
+		var newArg ast.Expr = value
 		if s.param != "" {
+			key := ast.NewIdent(s.param)
+			key.NamePos = insertPos + token.Pos(i)
+
 			newArg = &ast.KeyValueExpr{
-				Key:   ast.NewIdent(s.param),
-				Colon: token.Pos(s.index),
-				Value: ast.NewIdent(s.code),
+				Key:   key,
+				Value: value,
+				Colon: insertPos,
 			}
 		}
 
-		switch {
-		case s.index == -1:
-			// Append at end
-			expr.Elts = append(expr.Elts, newArg)
-		case s.index >= 0 && s.index <= len(expr.Elts):
-			// Insert at index
-			expr.Elts = append(expr.Elts[:s.index], append([]ast.Expr{newArg}, expr.Elts[s.index:]...)...)
-		default:
-			return errors.Errorf("function call index %d out of range", s.index)
+		expr.Elts = append(expr.Elts, newArg)
+		expr.Rbrace += token.Pos(i + 1)
+	}
+
+	// Ensure closing brace is on a new line
+	if len(expr.Elts) > 0 {
+		last := expr.Elts[len(expr.Elts)-1]
+		if file.Line(expr.Rbrace) == file.Line(last.End()) {
+			// Force a new line before Rbrace
+			file.AddLine(file.Offset(expr.Rbrace))
 		}
 	}
-	return nil
 }
 
 // codeToBlockStmt parses code string into AST block statement.
@@ -472,9 +492,9 @@ func toCode(code string) string {
 }
 
 // formatNode formats an AST node into Go source code.
-func formatNode(fileSet *token.FileSet, f *ast.File) (string, error) {
+func formatNode(fileSet *token.FileSet, n ast.Node) (string, error) {
 	var buf bytes.Buffer
-	if err := format.Node(&buf, fileSet, f); err != nil {
+	if err := format.Node(&buf, fileSet, n); err != nil {
 		return "", err
 	}
 
@@ -578,10 +598,7 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 					return true
 				}
 
-				if err := addStructs(expr, structs); err != nil {
-					errInspect = err
-					return false
-				}
+				addStructs(fileSet, expr, structs)
 				delete(structMapCheck, name)
 
 			default:
