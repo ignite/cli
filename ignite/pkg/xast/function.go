@@ -458,11 +458,21 @@ func addStructs(fileSet *token.FileSet, f *ast.FuncDecl, expr *ast.CompositeLit,
 			newArg = &ast.KeyValueExpr{
 				Key:   key,
 				Value: value,
+				Colon: insertPos,
 			}
 		}
 
 		expr.Elts = append(expr.Elts, newArg)
-		expr.Rbrace += token.Pos(1)
+		expr.Rbrace += token.Pos(i + 1)
+	}
+
+	// Ensure closing brace is on a new line
+	if len(expr.Elts) > 0 {
+		last := expr.Elts[len(expr.Elts)-1]
+		if file.Line(expr.Rbrace) == file.Line(last.End()) {
+			// Force a new line before Rbrace
+			file.AddLine(file.Offset(expr.Rbrace))
+		}
 	}
 
 	return nil
