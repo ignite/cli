@@ -22,6 +22,7 @@
 
 ### Fixes
 
+- [#4347](https://github.com/ignite/cli/pull/4347) Fix `ts-client` generation
 - [#4577](https://github.com/ignite/cli/pull/4577) Add proto version to query path.
 - [#4579](https://github.com/ignite/cli/pull/4579) Fix empty params response.
 - [#4585](https://github.com/ignite/cli/pull/4585) Fix faucet cmd issue.
@@ -29,11 +30,6 @@
 - [#4595](https://github.com/ignite/cli/pull/4595) Fix wrong InterfaceRegistry for IBC modules.
 - [#4609](https://github.com/ignite/cli/pull/4609) Add work dir for relayer integration tests.
 - [#4658](https://github.com/ignite/cli/pull/4658) Fix indentation for params scaffolded into a struct.
-- [#4660](https://github.com/ignite/cli/pull/4660) Fix xast test case indentation.
-
-### Bug Fixes
-
-- [#4347](https://github.com/ignite/cli/pull/4347) Fix `ts-client` generation
 - [#4582](https://github.com/ignite/cli/issues/4582) Fix xast misplacing comments.
 - [#4660](https://github.com/ignite/cli/pull/4660) Fix xast test case indentation.
 
@@ -122,7 +118,7 @@
 - [#4633](https://github.com/ignite/cli/pull/4633) Loosen faucet check when indexer disabled.
 - [#4586](https://github.com/ignite/cli/pull/4586) Remove network as default plugin.
 
-### Bug Fixes
+### Fixes
 
 - [#4347](https://github.com/ignite/cli/pull/4347) Fix `ts-client` generation.
 
@@ -135,7 +131,7 @@
 
 ## [`v28.8.1`](https://github.com/ignite/cli/releases/tag/v28.8.1)
 
-### Bug Fixes
+### Fixes
 
 - [#4532](https://github.com/ignite/cli/pull/4532) Fix non working _shortcuts_ in validator home config
 - [#4538](https://github.com/ignite/cli/pull/4538) Create a simple spinner for non-terminal interactions
@@ -154,7 +150,7 @@
 - [#4471](https://github.com/ignite/cli/pull/4471) Bump Ignite & chain minimum Go version to 1.23.
 - [#4529](https://github.com/ignite/cli/pull/4531) Bump Cosmos SDK to v0.50.12.
 
-### Bug Fixes
+### Fixes
 
 - [#4474](https://github.com/ignite/cli/pull/4474) Fix issue in `build --release` command
 - [#4479](https://github.com/ignite/cli/pull/4479) Scaffold an `uint64 type crashs Ignite
