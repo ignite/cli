@@ -16,8 +16,8 @@
 - [#4601](https://github.com/ignite/cli/pull/4601) Add `appregistry` as default plugin
 - [#4613](https://github.com/ignite/cli/pull/4613) Improve and simplify prompting logic by bubbletea.
 - [#4624](https://github.com/ignite/cli/pull/4624) Fix autocli templates for variadics.
+- [#4644](https://github.com/ignite/cli/pull/4644) Improve UI and UX for `testnet multi-node` command.
 - [#4645](https://github.com/ignite/cli/pull/4645) Refactor the xast.ModifyFunction to improve the readability.
-- [#4582](https://github.com/ignite/cli/issues/4582) xast misplacing comments.
 
 ### Fixes
 
@@ -27,11 +27,12 @@
 - [#4587](https://github.com/ignite/cli/pull/4587) Add missing light clients routes to IBC client keeper.
 - [#4595](https://github.com/ignite/cli/pull/4595) Fix wrong InterfaceRegistry for IBC modules.
 - [#4609](https://github.com/ignite/cli/pull/4609) Add work dir for relayer integration tests.
-- [#4660](https://github.com/ignite/cli/pull/4660) Fix xast test case indentation.
 
 ### Bug Fixes
 
 - [#4347](https://github.com/ignite/cli/pull/4347) Fix `ts-client` generation
+- [#4582](https://github.com/ignite/cli/issues/4582) Fix xast misplacing comments.
+- [#4660](https://github.com/ignite/cli/pull/4660) Fix xast test case indentation.
 
 ## [`v29.0.0-beta.1`](https://github.com/ignite/cli/releases/tag/v29.0.0-beta.1)
 
