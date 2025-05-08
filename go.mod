@@ -57,6 +57,7 @@ require (
 	golang.org/x/sync v0.13.0
 	golang.org/x/term v0.31.0
 	golang.org/x/text v0.24.0
+	golang.org/x/tools v0.31.0
 	google.golang.org/grpc v1.72.0
 	google.golang.org/protobuf v1.36.6
 	gopkg.in/yaml.v3 v3.0.1
@@ -294,7 +295,7 @@ require (
 	github.com/jdx/go-netrc v1.0.0 // indirect
 	github.com/jgautheron/goconst v1.7.1 // indirect
 	github.com/jingyugao/rowserrcheck v1.1.1 // indirect
-	github.com/jinzhu/copier v0.3.5 // indirect
+	github.com/jinzhu/copier v0.4.0 // indirect
 	github.com/jjti/go-spancheck v0.6.4 // indirect
 	github.com/jmhodges/levigo v1.0.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
@@ -439,7 +440,7 @@ require (
 	github.com/uudashr/gocognit v1.2.0 // indirect
 	github.com/uudashr/iface v1.3.1 // indirect
 	github.com/vbatts/tar-split v0.11.6 // indirect
-	github.com/vektra/mockery/v2 v2.46.0 // indirect
+	github.com/vektra/mockery/v2 v2.53.3 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	github.com/xen0n/gosmopolitan v1.2.2 // indirect
 	github.com/yagipy/maintidx v1.0.0 // indirect
@@ -476,7 +477,6 @@ require (
 	golang.org/x/net v0.39.0 // indirect
 	golang.org/x/sys v0.32.0 // indirect
 	golang.org/x/telemetry v0.0.0-20241106142447-58a1122356f5 // indirect
-	golang.org/x/tools v0.31.0 // indirect
 	golang.org/x/vuln v1.1.4 // indirect
 	google.golang.org/genproto v0.0.0-20241118233622-e639e219e697 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250324211829-b45e905df463 // indirect

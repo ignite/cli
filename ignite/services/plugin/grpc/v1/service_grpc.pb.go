@@ -312,7 +312,8 @@ var InterfaceService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	ClientAPIService_GetChainInfo_FullMethodName = "/ignite.services.plugin.grpc.v1.ClientAPIService/GetChainInfo"
+	ClientAPIService_GetChainInfo_FullMethodName  = "/ignite.services.plugin.grpc.v1.ClientAPIService/GetChainInfo"
+	ClientAPIService_GetIgniteInfo_FullMethodName = "/ignite.services.plugin.grpc.v1.ClientAPIService/GetIgniteInfo"
 )
 
 // ClientAPIServiceClient is the client API for ClientAPIService service.
@@ -323,6 +324,8 @@ const (
 type ClientAPIServiceClient interface {
 	// GetChainInfo returns basic chain info for the configured app
 	GetChainInfo(ctx context.Context, in *GetChainInfoRequest, opts ...grpc.CallOption) (*GetChainInfoResponse, error)
+	// GetIgniteInfo returns basic ignite info
+	GetIgniteInfo(ctx context.Context, in *GetIgniteInfoRequest, opts ...grpc.CallOption) (*GetIgniteInfoResponse, error)
 }
 
 type clientAPIServiceClient struct {
@@ -343,6 +346,16 @@ func (c *clientAPIServiceClient) GetChainInfo(ctx context.Context, in *GetChainI
 	return out, nil
 }
 
+func (c *clientAPIServiceClient) GetIgniteInfo(ctx context.Context, in *GetIgniteInfoRequest, opts ...grpc.CallOption) (*GetIgniteInfoResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetIgniteInfoResponse)
+	err := c.cc.Invoke(ctx, ClientAPIService_GetIgniteInfo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ClientAPIServiceServer is the server API for ClientAPIService service.
 // All implementations must embed UnimplementedClientAPIServiceServer
 // for forward compatibility.
@@ -351,6 +364,8 @@ func (c *clientAPIServiceClient) GetChainInfo(ctx context.Context, in *GetChainI
 type ClientAPIServiceServer interface {
 	// GetChainInfo returns basic chain info for the configured app
 	GetChainInfo(context.Context, *GetChainInfoRequest) (*GetChainInfoResponse, error)
+	// GetIgniteInfo returns basic ignite info
+	GetIgniteInfo(context.Context, *GetIgniteInfoRequest) (*GetIgniteInfoResponse, error)
 	mustEmbedUnimplementedClientAPIServiceServer()
 }
 
@@ -363,6 +378,9 @@ type UnimplementedClientAPIServiceServer struct{}
 
 func (UnimplementedClientAPIServiceServer) GetChainInfo(context.Context, *GetChainInfoRequest) (*GetChainInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetChainInfo not implemented")
+}
+func (UnimplementedClientAPIServiceServer) GetIgniteInfo(context.Context, *GetIgniteInfoRequest) (*GetIgniteInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetIgniteInfo not implemented")
 }
 func (UnimplementedClientAPIServiceServer) mustEmbedUnimplementedClientAPIServiceServer() {}
 func (UnimplementedClientAPIServiceServer) testEmbeddedByValue()                          {}
@@ -403,6 +421,24 @@ func _ClientAPIService_GetChainInfo_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ClientAPIService_GetIgniteInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetIgniteInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientAPIServiceServer).GetIgniteInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClientAPIService_GetIgniteInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientAPIServiceServer).GetIgniteInfo(ctx, req.(*GetIgniteInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ClientAPIService_ServiceDesc is the grpc.ServiceDesc for ClientAPIService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -413,6 +449,10 @@ var ClientAPIService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetChainInfo",
 			Handler:    _ClientAPIService_GetChainInfo_Handler,
+		},
+		{
+			MethodName: "GetIgniteInfo",
+			Handler:    _ClientAPIService_GetIgniteInfo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

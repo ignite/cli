@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/version"
 )
 
 // ErrAppChainNotFound indicates that the plugin command is not running inside a blockchain app.
@@ -89,4 +90,24 @@ func (api clientAPI) getChain() (Chainer, error) {
 		return nil, ErrAppChainNotFound
 	}
 	return api.o.chain, nil
+}
+
+func (api clientAPI) GetIgniteInfo(ctx context.Context) (*IgniteInfo, error) {
+	info, err := version.GetInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &IgniteInfo{
+		CliVersion:      info.CLIVersion,
+		GoVersion:       info.GoVersion,
+		SdkVersion:      info.SDKVersion,
+		BufVersion:      info.BufVersion,
+		BuildDate:       info.BuildDate,
+		SourceHash:      info.SourceHash,
+		ConfigVersion:   info.ConfigVersion,
+		Os:              info.OS,
+		Arch:            info.Arch,
+		BuildFromSource: info.BuildFromSource,
+	}, nil
 }
