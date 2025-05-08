@@ -33,7 +33,6 @@ We can create a testnet from the local network state and mint additional coins f
 	c.Flags().AddFlagSet(flagSetAccountPrefixes())
 	c.Flags().AddFlagSet(flagSetCoinType())
 
-	c.Flags().Bool(flagQuitOnFail, false, "quit program if the app fails to start")
 	return c
 }
 

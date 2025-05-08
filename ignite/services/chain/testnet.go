@@ -73,9 +73,5 @@ func (c Chain) TestnetMultiNode(ctx context.Context, args MultiNodeArgs) error {
 		return err
 	}
 
-	err = c.MultiNode(ctx, commands, args)
-	if err != nil {
-		return err
-	}
-	return nil
+	return c.MultiNode(ctx, commands, args)
 }
