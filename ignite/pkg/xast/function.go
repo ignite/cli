@@ -35,7 +35,6 @@ type (
 		name  string // Name of the struct type.
 		param string // Name of the struct field.
 		code  string // Code to insert.
-		index int    // Position to insert at.
 	}
 	functionStructs    []functionStruct
 	functionStructsMap map[string]functionStructs
@@ -157,13 +156,12 @@ func AppendInsideFuncCall(callName, code string, index int) FunctionOptions {
 // AppendFuncStruct adds a field to a struct literal. For instance,
 // // the struct has only one parameter 'Params{Param1: param1}' and we want to add
 // // the param2 the result will be 'Params{Param1: param1, Param2: param2}'.
-func AppendFuncStruct(name, param, code string, index int) FunctionOptions {
+func AppendFuncStruct(name, param, code string) FunctionOptions {
 	return func(c *functionOpts) {
 		c.insideStruct = append(c.insideStruct, functionStruct{
 			name:  name,
 			param: param,
 			code:  code,
-			index: index,
 		})
 	}
 }
@@ -432,17 +430,6 @@ func addFunctionCall(expr *ast.CallExpr, calls functionCalls) error {
 
 // addStructs modifies struct literal fields.
 func addStructs(fileSet *token.FileSet, f *ast.FuncDecl, expr *ast.CompositeLit, structs functionStructs) error {
-	// Sort the structs by target index to handle insertions in order
-	sort.Slice(structs, func(i, j int) bool {
-		if structs[i].index == -1 {
-			return false
-		}
-		if structs[j].index == -1 {
-			return true
-		}
-		return structs[i].index < structs[j].index
-	})
-
 	// Find the current max offset to avoid reused positions
 	file := fileSet.File(f.Pos())
 	maxOffset := file.Offset(expr.Rbrace)
@@ -488,17 +475,7 @@ func addStructs(fileSet *token.FileSet, f *ast.FuncDecl, expr *ast.CompositeLit,
 			node.NamePos = insertPos
 		}
 
-		// Append or insert
-		switch {
-		case s.index == -1:
-			// Append at the end
-			expr.Elts = append(expr.Elts, newExpr)
-		case s.index >= 0 && s.index <= len(expr.Elts):
-			// Insert at index
-			expr.Elts = append(expr.Elts[:s.index], append([]ast.Expr{newExpr}, expr.Elts[s.index:]...)...)
-		default:
-			return errors.Errorf("function call index %d out of range", s.index)
-		}
+		expr.Elts = append(expr.Elts, newExpr)
 	}
 	// Force the closing brace to its own line
 	file.AddLine(file.Offset(expr.Rbrace))
