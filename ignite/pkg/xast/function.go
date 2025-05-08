@@ -431,7 +431,7 @@ func addFunctionCall(expr *ast.CallExpr, calls functionCalls) error {
 // addStructs modifies struct literal fields.
 func addStructs(fileSet *token.FileSet, f *ast.FuncDecl, expr *ast.CompositeLit, structs functionStructs) error {
 	// Find the current max offset to avoid reused positions
-	file := fileSet.File(f.Pos())
+	file := fileSet.File(expr.Pos())
 	maxOffset := file.Offset(expr.Rbrace)
 	for _, elt := range expr.Elts {
 		if pos := elt.End(); pos.IsValid() {
@@ -442,43 +442,29 @@ func addStructs(fileSet *token.FileSet, f *ast.FuncDecl, expr *ast.CompositeLit,
 		}
 	}
 
-	// Insertion loop
 	for i, s := range structs {
-		// Create a real AST node from parsed Go code
-		src := s.code
-		if s.param != "" {
-			src = fmt.Sprintf("%s: %s", s.param, s.code)
-		}
-
-		exprStr := fmt.Sprintf("package main\nvar _ = struct{_ interface{}}{%s}", src)
-		fakeFile, err := parser.ParseFile(fileSet, "", exprStr, parser.AllErrors)
-		if err != nil || len(fakeFile.Decls) == 0 {
-			return errors.Errorf("failed to parse inserted field code: %w", err)
-		}
-
-		gen := fakeFile.Decls[0].(*ast.GenDecl)
-		val := gen.Specs[0].(*ast.ValueSpec).Values[0].(*ast.CompositeLit)
-		newExpr := val.Elts[0]
-
 		// Advance position
 		insertOffset := maxOffset + i
 		insertPos := file.Pos(insertOffset)
 
-		// Manually assign a synthetic line-position
-		switch node := newExpr.(type) {
-		case *ast.KeyValueExpr:
-			if ident, ok := node.Key.(*ast.Ident); ok {
-				ident.NamePos = insertPos
+		value := ast.NewIdent(s.code)
+		value.NamePos = insertPos
+
+		var newArg ast.Expr = value
+		if s.param != "" {
+			key := ast.NewIdent(s.param)
+			key.NamePos = insertPos + token.Pos(i)
+
+			newArg = &ast.KeyValueExpr{
+				Key:   key,
+				Value: value,
 			}
-			node.Colon = insertPos
-		case *ast.Ident:
-			node.NamePos = insertPos
 		}
 
-		expr.Elts = append(expr.Elts, newExpr)
+		expr.Elts = append(expr.Elts, newArg)
+		expr.Rbrace += token.Pos(1)
 	}
-	// Force the closing brace to its own line
-	file.AddLine(file.Offset(expr.Rbrace))
+
 	return nil
 }
 

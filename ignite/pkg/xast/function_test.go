@@ -531,7 +531,7 @@ func anotherFunction() bool {
 	Param{
 		Baz: baz,
 		Foo: foo,
-		Bar: bar, 
+		Bar: bar,
 		Bla: bla,
 	}
 	Client{baz, foo, bar}
