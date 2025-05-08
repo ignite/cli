@@ -339,7 +339,6 @@ func keeperModify(opts *typed.Options) genny.RunFn {
 					opts.TypeName.PascalCase,
 					opts.TypeName.LowerCamel,
 				),
-				-1,
 			),
 			xast.AppendFuncStruct(
 				"Keeper",
@@ -349,7 +348,6 @@ func keeperModify(opts *typed.Options) genny.RunFn {
 					opts.TypeName.PascalCase,
 					opts.TypeName.LowerCamel,
 				),
-				-1,
 			),
 		)
 		if err != nil {

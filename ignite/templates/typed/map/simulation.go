@@ -38,7 +38,6 @@ func moduleSimulationModify(opts *typed.Options) genny.RunFn {
 					sampleIndexes[0],
 					sampleIndexes[1],
 				),
-				-1,
 			),
 		)
 		if err != nil {
