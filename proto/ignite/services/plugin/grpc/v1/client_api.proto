@@ -9,5 +9,18 @@ message ChainInfo {
   string app_path = 2;
   string config_path = 3;
   string rpc_address = 4;
-  string home        = 5;
+  string home = 5;
+}
+
+message IgniteInfo {
+  string cli_version = 1;
+  string go_version = 2;
+  string sdk_version = 3;
+  string buf_version = 4;
+  string build_date = 5;
+  string source_hash = 6;
+  string config_version = 7;
+  string os = 8;
+  string arch = 9;
+  bool build_from_source = 10;
 }

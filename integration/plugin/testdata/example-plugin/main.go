@@ -44,6 +44,7 @@ func (p) Execute(ctx context.Context, cmd *plugin.ExecutedCommand, api plugin.Cl
 	fmt.Printf("My config parameters: %v\n", cmd.With)
 
 	fmt.Println(api.GetChainInfo(ctx))
+	fmt.Println(api.GetIgniteInfo(ctx))
 
 	return nil
 }
