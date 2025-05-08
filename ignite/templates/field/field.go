@@ -38,12 +38,22 @@ func (f Field) IsSlice() bool {
 	case datatype.StringSlice,
 		datatype.IntSlice,
 		datatype.UintSlice,
+		datatype.Coins,
 		datatype.StringSliceAlias,
 		datatype.IntSliceAlias,
 		datatype.UintSliceAlias,
-		datatype.CoinSliceAlias:
+		datatype.CoinSliceAlias,
+		datatype.Bytes:
 		return true
-	case datatype.Coin, datatype.Custom:
+	case
+		datatype.String,
+		datatype.Bool,
+		datatype.Int,
+		datatype.Int64,
+		datatype.Uint,
+		datatype.Uint64,
+		datatype.Coin,
+		datatype.Custom:
 		return false
 	default:
 		// For other types, we assume that it is a slice if non indexable.
