@@ -429,7 +429,7 @@ func addFunctionCall(expr *ast.CallExpr, calls functionCalls) error {
 }
 
 // addStructs modifies struct literal fields.
-func addStructs(fileSet *token.FileSet, expr *ast.CompositeLit, structs functionStructs) error {
+func addStructs(fileSet *token.FileSet, expr *ast.CompositeLit, structs functionStructs) {
 	// Find the current max offset to avoid reused positions
 	file := fileSet.File(expr.Pos())
 	maxOffset := file.Offset(expr.Rbrace)
@@ -474,8 +474,6 @@ func addStructs(fileSet *token.FileSet, expr *ast.CompositeLit, structs function
 			file.AddLine(file.Offset(expr.Rbrace))
 		}
 	}
-
-	return nil
 }
 
 // codeToBlockStmt parses code string into AST block statement.
@@ -600,10 +598,7 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 					return true
 				}
 
-				if err := addStructs(fileSet, expr, structs); err != nil {
-					errInspect = err
-					return false
-				}
+				addStructs(fileSet, expr, structs)
 				delete(structMapCheck, name)
 
 			default:
