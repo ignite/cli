@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"maps"
 	"path/filepath"
 	"strings"
 
@@ -277,9 +278,7 @@ func (b Buf) Generate(
 		flagErrorFormat: fmtJSON,
 		flagLogFormat:   fmtJSON,
 	}
-	for k, v := range opts.flags {
-		flags[k] = v
-	}
+	maps.Copy(flags, opts.flags)
 	if opts.includeImports {
 		flags[flagIncludeImports] = "true"
 	}

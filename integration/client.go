@@ -2,6 +2,7 @@ package envtest
 
 import (
 	"bytes"
+	"maps"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -25,9 +26,7 @@ type ClientOption func(*clientOptions)
 // ClientEnv option defines environment values for the tests.
 func ClientEnv(env map[string]string) ClientOption {
 	return func(o *clientOptions) {
-		for k, v := range env {
-			o.env[k] = v
-		}
+		maps.Copy(o.env, env)
 	}
 }
 
