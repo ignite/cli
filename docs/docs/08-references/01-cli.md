@@ -1022,6 +1022,7 @@ meant to be edited by hand.
       --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
   -h, --help                  help for generate
   -p, --path string           path of the app (default ".")
+  -v, --verbose               verbose output
 ```
 
 **SEE ALSO**
@@ -1056,6 +1057,7 @@ ignite generate composables [flags]
       --clear-cache           clear the build cache (advanced)
       --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
   -p, --path string           path of the app (default ".")
+  -v, --verbose               verbose output
 ```
 
 **SEE ALSO**
@@ -1085,6 +1087,7 @@ ignite generate hooks [flags]
       --clear-cache           clear the build cache (advanced)
       --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
   -p, --path string           path of the app (default ".")
+  -v, --verbose               verbose output
 ```
 
 **SEE ALSO**
@@ -1113,6 +1116,7 @@ ignite generate openapi [flags]
       --clear-cache           clear the build cache (advanced)
       --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
   -p, --path string           path of the app (default ".")
+  -v, --verbose               verbose output
 ```
 
 **SEE ALSO**
@@ -1141,6 +1145,7 @@ ignite generate proto-go [flags]
       --clear-cache           clear the build cache (advanced)
       --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
   -p, --path string           path of the app (default ".")
+  -v, --verbose               verbose output
 ```
 
 **SEE ALSO**
@@ -1192,6 +1197,7 @@ ignite generate ts-client [flags]
       --clear-cache           clear the build cache (advanced)
       --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
   -p, --path string           path of the app (default ".")
+  -v, --verbose               verbose output
 ```
 
 **SEE ALSO**
@@ -1282,7 +1288,8 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 **Options**
 
 ```
-  -h, --help   help for scaffold
+  -h, --help      help for scaffold
+  -v, --verbose   verbose output
 ```
 
 **SEE ALSO**
@@ -1371,6 +1378,12 @@ ignite scaffold chain [name] [flags]
       --skip-proto               skip proto generation
 ```
 
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
+```
+
 **SEE ALSO**
 
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
@@ -1403,6 +1416,12 @@ ignite scaffold chain-registry [flags]
   -h, --help          help for chain-registry
   -p, --path string   path of the app (default ".")
   -y, --yes           answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
 ```
 
 **SEE ALSO**
@@ -1441,6 +1460,12 @@ ignite scaffold configs [configs]... [flags]
       --module string   module to add the query into (default: app's main module)
   -p, --path string     path of the app (default ".")
   -y, --yes             answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
 ```
 
 **SEE ALSO**
@@ -1555,6 +1580,12 @@ ignite scaffold list NAME [field]... [flags]
   -y, --yes             answers interactive yes/no questions with yes
 ```
 
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
+```
+
 **SEE ALSO**
 
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
@@ -1618,6 +1649,12 @@ ignite scaffold map NAME [field]... [flags]
   -p, --path string     path of the app (default ".")
       --signer string   label for the message signer (default: creator)
   -y, --yes             answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
 ```
 
 **SEE ALSO**
@@ -1694,6 +1731,12 @@ ignite scaffold message [name] [field1:type1] [field2:type2] ... [flags]
   -r, --response strings   response fields
       --signer string      label for the message signer (default: creator)
   -y, --yes                answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
 ```
 
 **SEE ALSO**
@@ -1784,6 +1827,12 @@ ignite scaffold module [name] [flags]
   -y, --yes                      answers interactive yes/no questions with yes
 ```
 
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
+```
+
 **SEE ALSO**
 
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
@@ -1812,6 +1861,12 @@ ignite scaffold packet [packetName] [field1] [field2] ... --module [moduleName] 
   -p, --path string     path of the app (default ".")
       --signer string   label for the message signer (default: creator)
   -y, --yes             answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
 ```
 
 **SEE ALSO**
@@ -1854,6 +1909,12 @@ ignite scaffold params [param]... [flags]
   -y, --yes             answers interactive yes/no questions with yes
 ```
 
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
+```
+
 **SEE ALSO**
 
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
@@ -1884,6 +1945,12 @@ ignite scaffold query [name] [field1:type1] [field2:type2] ... [flags]
   -p, --path string        path of the app (default ".")
   -r, --response strings   response fields
   -y, --yes                answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
 ```
 
 **SEE ALSO**
@@ -1922,6 +1989,12 @@ ignite scaffold single NAME [field:type]... [flags]
   -p, --path string     path of the app (default ".")
       --signer string   label for the message signer (default: creator)
   -y, --yes             answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
 ```
 
 **SEE ALSO**
@@ -1980,6 +2053,12 @@ ignite scaffold type NAME [field:type] ... [flags]
   -p, --path string     path of the app (default ".")
       --signer string   label for the message signer (default: creator)
   -y, --yes             answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
 ```
 
 **SEE ALSO**
