@@ -35,6 +35,7 @@
 - [#4658](https://github.com/ignite/cli/pull/4658) Fix indentation for params scaffolded into a struct.
 - [#4582](https://github.com/ignite/cli/issues/4582) Fix xast misplacing comments.
 - [#4660](https://github.com/ignite/cli/pull/4660) Fix xast test case indentation.
+- [#4667](https://github.com/ignite/cli/pull/4667) Harden `IsSlice`
 
 ## [`v29.0.0-beta.1`](https://github.com/ignite/cli/releases/tag/v29.0.0-beta.1)
 
