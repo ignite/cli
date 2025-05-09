@@ -5,6 +5,7 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
+	"github.com/ignite/cli/v29/ignite/pkg/env"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/xfilepath"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
@@ -75,6 +76,11 @@ The blockchain is using the Cosmos SDK modular blockchain framework. Learn more
 about Cosmos SDK on https://docs.cosmos.network
 `,
 		Args: cobra.ExactArgs(1),
+		PersistentPreRun: func(cmd *cobra.Command, _ []string) {
+			if verbose := flagGetVerbose(cmd); verbose {
+				env.SetDebug()
+			}
+		},
 		RunE: scaffoldChainHandler,
 	}
 

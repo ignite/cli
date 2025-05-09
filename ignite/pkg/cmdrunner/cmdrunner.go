@@ -81,7 +81,7 @@ func EnableDebug() Option {
 func New(options ...Option) *Runner {
 	runner := &Runner{
 		endSignal: os.Interrupt,
-		debug:     env.DebugEnabled(),
+		debug:     env.IsDebug(),
 	}
 	for _, apply := range options {
 		apply(runner)
