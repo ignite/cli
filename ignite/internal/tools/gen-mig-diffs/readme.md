@@ -43,6 +43,14 @@ go install . && gen-mig-diffs -h
 gen-mig-diffs --output temp/migs --from v0.27.2 --to v28.3.0
 ```
 
+4. In case of the issue `unable to authenticate, attempted methods [none publickey], no supported methods remain`.
+   Make sure you have SSH keys set up for GitHub. If yes, try to add the SSH key to your SSH agent:
+
+```shell
+chmod 600 ~/.ssh/id_rsa
+ssh-add ~/.ssh/id_rsa
+```
+
 ## Usage
 
 ```bash
