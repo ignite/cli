@@ -66,17 +66,17 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 
 		if !opts.NoSimulation {
 			g.RunFn(moduleSimulationModify(opts))
-			if err := g.OnlyFS(subSimapp, nil, nil); err != nil {
+			if err := typed.Box(subSimapp, opts, g); err != nil {
 				return nil, err
 			}
 		}
 
-		if err := g.OnlyFS(subMessages, nil, nil); err != nil {
+		if err := typed.Box(subMessages, opts, g); err != nil {
 			return nil, err
 		}
 	}
 
-	return g, g.OnlyFS(subComponent, nil, nil)
+	return g, typed.Box(subComponent, opts, g)
 }
 
 // typesKeyModify modifies the keys.go file to add a new collection prefix.

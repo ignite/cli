@@ -62,20 +62,20 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 
 		if !opts.NoSimulation {
 			g.RunFn(moduleSimulationModify(opts))
-			if err := g.OnlyFS(subSimapp, nil, nil); err != nil {
+			if err := typed.Box(subSimapp, opts, g); err != nil {
 				return nil, err
 			}
 		}
 
 		// Messages template
-		if err := g.OnlyFS(subMessages, nil, nil); err != nil {
+		if err := typed.Box(subMessages, opts, nil); g != nil {
 			return nil, err
 		}
 	}
 
 	g.RunFn(frontendSrcStoreAppModify(replacer, opts))
 
-	return g, g.OnlyFS(subComponent, nil, nil)
+	return g, typed.Box(subComponent, nil, nil)
 }
 
 // protoTxModify modifies the tx.proto file to add the required RPCs and messages.

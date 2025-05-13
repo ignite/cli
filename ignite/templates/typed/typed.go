@@ -1,8 +1,9 @@
 package typed
 
 import (
+	"io/fs"
+
 	"github.com/gobuffalo/genny/v2"
-	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
@@ -12,8 +13,8 @@ import (
 	"github.com/ignite/cli/v29/ignite/templates/testutil"
 )
 
-func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
-	if err := g.Box(box); err != nil {
+func Box(box fs.FS, opts *Options, g *genny.Generator) error {
+	if err := g.OnlyFS(box, nil, nil); err != nil {
 		return err
 	}
 

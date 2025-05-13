@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/genny/v2"
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/templates/typed"
 )
 
 //go:embed files/component/* files/component/**/*
@@ -19,5 +20,5 @@ func NewGenerator() (*genny.Generator, error) {
 		return nil, errors.Errorf("fail to generate sub: %w", err)
 	}
 	g := genny.New()
-	return g, g.OnlyFS(subFs, nil, nil)
+	return g, typed.Box(subFs, nil, nil)
 }
