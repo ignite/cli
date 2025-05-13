@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"embed"
 	"fmt"
+	"io/fs"
 	"math/big"
 	"path/filepath"
 
@@ -15,7 +16,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/typed"
 )
 
@@ -27,31 +27,27 @@ var (
 	fsComponent embed.FS
 
 	//go:embed files/simapp/* files/simapp/**/*
-	fsimapp embed.FS
+	fsSimapp embed.FS
 )
 
 // NewGenerator returns the generator to scaffold a new indexed type in a module.
 func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
-	var (
-		g = genny.New()
+	subMessages, err := fs.Sub(fsMessages, "files/messages")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
 
-		messagesTemplate = xgenny.NewEmbedWalker(
-			fsMessages,
-			"files/messages/",
-			opts.AppPath,
-		)
-		componentTemplate = xgenny.NewEmbedWalker(
-			fsComponent,
-			"files/component/",
-			opts.AppPath,
-		)
-		simappTemplate = xgenny.NewEmbedWalker(
-			fsimapp,
-			"files/simapp/",
-			opts.AppPath,
-		)
-	)
+	subComponent, err := fs.Sub(fsComponent, "files/component")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
 
+	subSimapp, err := fs.Sub(fsSimapp, "files/simapp")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
+
+	g := genny.New()
 	g.RunFn(protoRPCModify(opts))
 	g.RunFn(typesKeyModify(opts))
 	g.RunFn(keeperModify(opts))
@@ -70,17 +66,17 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 
 		if !opts.NoSimulation {
 			g.RunFn(moduleSimulationModify(opts))
-			if err := typed.Box(simappTemplate, opts, g); err != nil {
+			if err := g.OnlyFS(subSimapp, nil, nil); err != nil {
 				return nil, err
 			}
 		}
 
-		if err := typed.Box(messagesTemplate, opts, g); err != nil {
+		if err := g.OnlyFS(subMessages, nil, nil); err != nil {
 			return nil, err
 		}
 	}
 
-	return g, typed.Box(componentTemplate, opts, g)
+	return g, g.OnlyFS(subComponent, nil, nil)
 }
 
 // typesKeyModify modifies the keys.go file to add a new collection prefix.

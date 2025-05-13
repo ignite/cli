@@ -3,6 +3,7 @@ package maptype
 import (
 	"embed"
 	"fmt"
+	"io/fs"
 	"path/filepath"
 	"strings"
 
@@ -14,7 +15,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
 	"github.com/ignite/cli/v29/ignite/templates/typed"
 )
@@ -45,36 +45,28 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 		generateTest = true
 	}
 
-	var (
-		g = genny.New()
+	subMessages, err := fs.Sub(fsMessages, "files/tests/messages")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
+	subTestsMessages, err := fs.Sub(fsTestsMessages, "files/messages")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
+	subComponent, err := fs.Sub(fsComponent, "files/component")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
+	subTestsComponent, err := fs.Sub(fsTestsComponent, "files/tests/component")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
+	subSimapp, err := fs.Sub(fsSimapp, "files/simapp")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
 
-		messagesTemplate = xgenny.NewEmbedWalker(
-			fsMessages,
-			"files/messages/",
-			opts.AppPath,
-		)
-		testsMessagesTemplate = xgenny.NewEmbedWalker(
-			fsTestsMessages,
-			"files/tests/messages/",
-			opts.AppPath,
-		)
-		componentTemplate = xgenny.NewEmbedWalker(
-			fsComponent,
-			"files/component/",
-			opts.AppPath,
-		)
-		testsComponentTemplate = xgenny.NewEmbedWalker(
-			fsTestsComponent,
-			"files/tests/component/",
-			opts.AppPath,
-		)
-		simappTemplate = xgenny.NewEmbedWalker(
-			fsSimapp,
-			"files/simapp/",
-			opts.AppPath,
-		)
-	)
-
+	g := genny.New()
 	g.RunFn(protoRPCModify(opts))
 	g.RunFn(keeperModify(opts))
 	g.RunFn(clientCliQueryModify(replacer, opts))
@@ -92,27 +84,27 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 
 		if !opts.NoSimulation {
 			g.RunFn(moduleSimulationModify(opts))
-			if err := typed.Box(simappTemplate, opts, g); err != nil {
+			if err := g.OnlyFS(subSimapp, nil, nil); err != nil {
 				return nil, err
 			}
 		}
 
-		if err := typed.Box(messagesTemplate, opts, g); err != nil {
+		if err := g.OnlyFS(subMessages, nil, nil); err != nil {
 			return nil, err
 		}
 		if generateTest {
-			if err := typed.Box(testsMessagesTemplate, opts, g); err != nil {
+			if err := g.OnlyFS(subTestsMessages, nil, nil); err != nil {
 				return nil, err
 			}
 		}
 	}
 
 	if generateTest {
-		if err := typed.Box(testsComponentTemplate, opts, g); err != nil {
+		if err := g.OnlyFS(subTestsComponent, nil, nil); err != nil {
 			return nil, err
 		}
 	}
-	return g, typed.Box(componentTemplate, opts, g)
+	return g, g.OnlyFS(subComponent, nil, nil)
 }
 
 // keeperModify modifies the keeper to add a new collections map type.
