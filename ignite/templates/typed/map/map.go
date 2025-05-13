@@ -45,11 +45,11 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 		generateTest = true
 	}
 
-	subMessages, err := fs.Sub(fsMessages, "files/tests/messages")
+	subMessages, err := fs.Sub(fsMessages, "files/messages")
 	if err != nil {
 		return nil, errors.Errorf("fail to generate sub: %w", err)
 	}
-	subTestsMessages, err := fs.Sub(fsTestsMessages, "files/messages")
+	subTestsMessages, err := fs.Sub(fsTestsMessages, "files/tests/messages")
 	if err != nil {
 		return nil, errors.Errorf("fail to generate sub: %w", err)
 	}
