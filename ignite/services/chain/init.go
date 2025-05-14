@@ -102,7 +102,7 @@ func (c *Chain) InitChain(ctx context.Context, initConfiguration, initGenesis bo
 		)
 	}
 
-	if err := commands.Init(ctx, moniker); err != nil {
+	if err := commands.Init(ctx, moniker, initOptions...); err != nil {
 		return err
 	}
 

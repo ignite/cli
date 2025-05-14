@@ -146,7 +146,7 @@ type Config struct {
 	Faucet       Faucet          `yaml:"faucet,omitempty" doc:"Configuration for the faucet."`
 	Client       Client          `yaml:"client,omitempty" doc:"Configures client code generation."`
 	Genesis      xyaml.Map       `yaml:"genesis,omitempty" doc:"Custom genesis block modifications. Follow the nesting of the genesis file here to access all the parameters."`
-	DefaultDenom string          `yaml:"default-denom,omitempty" doc:"Default staking denom (default is stake).`
+	DefaultDenom string          `yaml:"default_denom,omitempty" doc:"Default staking denom (default is stake)."`
 }
 
 // GetVersion returns the config version.
