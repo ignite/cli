@@ -1,10 +1,10 @@
 ---
-sidebar_position: 3
+sidebar_position: 2
 description: Primary configuration file to describe the development environment for your blockchain.
-title: Configuration documentation
+title: Configuration File Documentation
 ---
 
-# Configuration file reference
+# Configuration File Reference
 
 The `config.yml` file generated in your blockchain folder uses key-value pairs
 to describe the development environment for your blockchain.
