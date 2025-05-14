@@ -1,11 +1,13 @@
 ---
-sidebar_position: 4
-title: Configuration file example
+sidebar_position: 3
+description: Configuration File Example.
+title: Configuration File Example
 ---
 
-### Structure of the config.yml file
+## Configuration file example
 
 ```yaml title="config.yml"
+include: (string list) # Include incorporate a separate config.yml file directly in your current config file.
 validation: (string) # Specifies the type of validation the blockchain uses (e.g., sovereign).
 version: (uint) # Defines the configuration version number.
 build: # Contains build configuration options.
@@ -29,6 +31,7 @@ faucet: # Configuration for the faucet.
   rate_limit_window: (string) # Timeframe after which the limit will be refreshed.
   host: (string) # Host address of the faucet server.
   port: (uint) # Port number for the faucet server.
+  tx_fee: (string) # Tx fee the faucet needs to pay for each transaction.
 client: # Configures client code generation.
   typescript: # Relative path where the application&#39;s Typescript files are located.
     path: (string) # Relative path where the application&#39;s Typescript files are located.
@@ -50,7 +53,6 @@ validators: (list) # Contains information related to the list of validators and 
   gentx: # Overwrites the appd&#39;s config/gentx.toml configurations.
     amount: (string) # Amount for the current Gentx.
     moniker: (string) # Optional moniker for the validator.
-    home: (string) # Directory for configuration and data.
     keyring-backend: (string) # Backend for the keyring.
     chain-id: (string) # Network chain ID.
     commission-max-change-rate: (string) # Maximum commission change rate percentage per day.
