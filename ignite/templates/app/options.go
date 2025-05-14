@@ -10,6 +10,7 @@ type Options struct {
 	ModulePath       string
 	AddressPrefix    string
 	CoinType         uint32
+	DefaultDenom     string
 	// IncludePrefixes is used to filter the files to include from the generator
 	IncludePrefixes []string
 	IsChainMinimal  bool

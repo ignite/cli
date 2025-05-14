@@ -96,6 +96,7 @@ type Faucet struct {
 }
 
 // Init overwrites sdk configurations with given values.
+// Deprecated: Used in config v0 only.
 type Init struct {
 	// App overwrites appd's config/app.toml configs.
 	App xyaml.Map `yaml:"app" doc:"Overwrites the appd's config/app.toml configurations."`
@@ -111,6 +112,7 @@ type Init struct {
 }
 
 // Host keeps configuration related to started servers.
+// Deprecated: Used in config v0 only.
 type Host struct {
 	RPC     string `yaml:"rpc" doc:"RPC server address."`
 	P2P     string `yaml:"p2p" doc:"P2P server address."`
@@ -136,25 +138,20 @@ const (
 
 // Config defines a struct with the fields that are common to all config versions.
 type Config struct {
-	Include    []string        `yaml:"include,omitempty" doc:"Include incorporate a separate config.yml file directly in your current config file."`
-	Validation Validation      `yaml:"validation,omitempty" doc:"Specifies the type of validation the blockchain uses (e.g., sovereign)."`
-	Version    version.Version `yaml:"version" doc:"Defines the configuration version number."`
-	Build      Build           `yaml:"build,omitempty" doc:"Contains build configuration options."`
-	Accounts   []Account       `yaml:"accounts" doc:"Lists the options for setting up Cosmos Accounts."`
-	Faucet     Faucet          `yaml:"faucet,omitempty" doc:"Configuration for the faucet."`
-	Client     Client          `yaml:"client,omitempty" doc:"Configures client code generation."`
-	Genesis    xyaml.Map       `yaml:"genesis,omitempty" doc:"Custom genesis block modifications. Follow the nesting of the genesis file here to access all the parameters."`
-	Minimal    bool            `yaml:"minimal,omitempty" doc:"Indicates if the blockchain is minimal with the required Cosmos SDK modules."`
+	Include      []string        `yaml:"include,omitempty" doc:"Include incorporate a separate config.yml file directly in your current config file."`
+	Validation   Validation      `yaml:"validation,omitempty" doc:"Specifies the type of validation the blockchain uses (e.g., sovereign)."`
+	Version      version.Version `yaml:"version" doc:"Defines the configuration version number."`
+	Build        Build           `yaml:"build,omitempty" doc:"Contains build configuration options."`
+	Accounts     []Account       `yaml:"accounts" doc:"Lists the options for setting up Cosmos Accounts."`
+	Faucet       Faucet          `yaml:"faucet,omitempty" doc:"Configuration for the faucet."`
+	Client       Client          `yaml:"client,omitempty" doc:"Configures client code generation."`
+	Genesis      xyaml.Map       `yaml:"genesis,omitempty" doc:"Custom genesis block modifications. Follow the nesting of the genesis file here to access all the parameters."`
+	DefaultDenom string          `yaml:"default-denom,omitempty" doc:"Default staking denom (default is stake).`
 }
 
 // GetVersion returns the config version.
 func (c Config) GetVersion() version.Version {
 	return c.Version
-}
-
-// IsChainMinimal returns true if the chain is minimally scaffolded.
-func (c Config) IsChainMinimal() bool {
-	return c.Minimal
 }
 
 func (c Config) IsSovereignChain() bool {

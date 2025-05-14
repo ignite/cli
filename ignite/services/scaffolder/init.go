@@ -21,7 +21,7 @@ func Init(
 	runner *xgenny.Runner,
 	root, name, addressPrefix string,
 	coinType uint32,
-	protoDir string,
+	defaultDenom, protoDir string,
 	noDefaultModule, minimal bool,
 	params, moduleConfigs []string,
 ) (string, string, error) {
@@ -58,6 +58,7 @@ func Init(
 		pathInfo,
 		addressPrefix,
 		coinType,
+		defaultDenom,
 		protoDir,
 		path,
 		noDefaultModule,
@@ -76,6 +77,7 @@ func generate(
 	addressPrefix string,
 	coinType uint32,
 	protoDir,
+	defaultDenom,
 	absRoot string,
 	noDefaultModule, minimal bool,
 	params, moduleConfigs []string,
@@ -108,6 +110,7 @@ func generate(
 		BinaryNamePrefix: pathInfo.Root,
 		AddressPrefix:    addressPrefix,
 		CoinType:         coinType,
+		DefaultDenom:     defaultDenom,
 		IsChainMinimal:   minimal,
 	})
 	if err != nil {

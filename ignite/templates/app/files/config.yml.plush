@@ -1,5 +1,6 @@
 version: 1
 validation: sovereign
+default-denom: <%= DefaultDenom %>
 accounts: 
 - name: alice
   coins:

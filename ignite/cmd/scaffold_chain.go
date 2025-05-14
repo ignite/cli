@@ -11,12 +11,15 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/pkg/xgit"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 const (
 	flagMinimal         = "minimal"
 	flagNoDefaultModule = "no-module"
 	flagSkipGit         = "skip-git"
+	flagDefaultDenom    = "default-denom"
 
 	tplScaffoldChainSuccess = `
 ⭐️ Successfully created a new blockchain '%[1]v'.
@@ -87,6 +90,7 @@ about Cosmos SDK on https://docs.cosmos.network
 	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagSetAccountPrefixes())
 	c.Flags().AddFlagSet(flagSetCoinType())
+	c.Flags().String(flagDefaultDenom, sdk.DefaultBondDenom, "default staking denom")
 	c.Flags().StringP(flagPath, "p", "", "create a project in a specific path")
 	c.Flags().Bool(flagNoDefaultModule, false, "create a project without a default module")
 	c.Flags().StringSlice(flagParams, []string{}, "add default module parameters")
@@ -119,6 +123,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		moduleConfigs, _   = cmd.Flags().GetStringSlice(flagModuleConfigs)
 		skipProto, _       = cmd.Flags().GetBool(flagSkipProto)
 		protoDir, _        = cmd.Flags().GetString(flagProtoDir)
+		defaultDenom, _    = cmd.Flags().GetString(flagDefaultDenom)
 	)
 
 	if noDefaultModule {
@@ -143,6 +148,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		name,
 		addressPrefix,
 		coinType,
+		defaultDenom,
 		protoDir,
 		noDefaultModule,
 		minimal,
