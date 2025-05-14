@@ -1,3 +1,9 @@
+---
+sidebar_position: 4
+description: Glossary For Configurations.
+title: Glossary
+---
+
 # Glossary
 
 ## AutoCLI
