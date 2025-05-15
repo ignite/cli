@@ -63,8 +63,8 @@ func CheckBufFiles(appPath, protoDir string) (bool, error) {
 }
 
 // BoxBufFiles box all buf files.
-func BoxBufFiles(runner *xgenny.Runner, appPath, protoDir string) (xgenny.SourceModification, error) {
-	g, err := app.NewBufGenerator(appPath, protoDir)
+func BoxBufFiles(runner *xgenny.Runner, protoDir string) (xgenny.SourceModification, error) {
+	g, err := app.NewBufGenerator(protoDir)
 	if err != nil {
 		return xgenny.SourceModification{}, err
 	}

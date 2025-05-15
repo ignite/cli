@@ -114,7 +114,7 @@ func generate(
 		return xgenny.SourceModification{}, err
 	}
 	// Create the 'testutil' package with the test helpers
-	if err := testutil.Register(g, absRoot); err != nil {
+	if err := testutil.Register(g); err != nil {
 		return xgenny.SourceModification{}, err
 	}
 

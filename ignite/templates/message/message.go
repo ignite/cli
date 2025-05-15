@@ -3,11 +3,11 @@ package message
 import (
 	"embed"
 	"fmt"
+	"io/fs"
 	"path/filepath"
 
 	"github.com/emicklei/proto"
 	"github.com/gobuffalo/genny/v2"
-	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
@@ -28,8 +28,8 @@ var (
 	fsSimapp embed.FS
 )
 
-func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
-	if err := g.Box(box); err != nil {
+func Box(box fs.FS, opts *Options, g *genny.Generator) error {
+	if err := g.OnlyFS(box, nil, nil); err != nil {
 		return err
 	}
 	ctx := plush.NewContext()
@@ -52,7 +52,7 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	g.Transformer(genny.Replace("{{msgName}}", opts.MsgName.Snake))
 
 	// Create the 'testutil' package with the test helpers
-	return testutil.Register(g, opts.AppPath)
+	return testutil.Register(g)
 }
 
 // NewGenerator returns the generator to scaffold a empty message in a module.
@@ -64,24 +64,22 @@ func NewGenerator(replacer placeholder.Replacer, opts *Options) (*genny.Generato
 	g.RunFn(typesCodecModify(opts))
 	g.RunFn(clientCliTxModify(replacer, opts))
 
-	template := xgenny.NewEmbedWalker(
-		fsMessage,
-		"files/message",
-		opts.AppPath,
-	)
+	subMessage, err := fs.Sub(fsMessage, "files/message")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
 
 	if !opts.NoSimulation {
 		g.RunFn(moduleSimulationModify(opts))
-		simappTemplate := xgenny.NewEmbedWalker(
-			fsSimapp,
-			"files/simapp",
-			opts.AppPath,
-		)
-		if err := Box(simappTemplate, opts, g); err != nil {
+		subSimapp, err := fs.Sub(fsSimapp, "files/simapp")
+		if err != nil {
+			return nil, errors.Errorf("fail to generate sub: %w", err)
+		}
+		if err := Box(subSimapp, opts, g); err != nil {
 			return nil, err
 		}
 	}
-	return g, Box(template, opts, g)
+	return g, Box(subMessage, opts, g)
 }
 
 // protoTxRPCModify modifies the tx.proto file to add the required RPCs and messages.

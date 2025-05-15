@@ -3,6 +3,7 @@ package ibc
 import (
 	"embed"
 	"fmt"
+	"io/fs"
 	"path/filepath"
 
 	"github.com/emicklei/proto"
@@ -52,26 +53,21 @@ func (opts *PacketOptions) ProtoFile(fname string) string {
 
 // NewPacket returns the generator to scaffold a packet in an IBC module.
 func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Generator, error) {
-	var (
-		g = genny.New()
-
-		componentTemplate = xgenny.NewEmbedWalker(
-			fsPacketComponent,
-			"files/packet/component/",
-			opts.AppPath,
-		)
-		messagesTemplate = xgenny.NewEmbedWalker(
-			fsPacketMessages,
-			"files/packet/messages/",
-			opts.AppPath,
-		)
-	)
+	subPacketComponent, err := fs.Sub(fsPacketComponent, "files/packet/component")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
+	subPacketMessages, err := fs.Sub(fsPacketMessages, "files/packet/messages")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
 
 	// Add the component
+	g := genny.New()
 	g.RunFn(moduleModify(replacer, opts))
 	g.RunFn(protoModify(opts))
 	g.RunFn(eventModify(replacer, opts))
-	if err := g.Box(componentTemplate); err != nil {
+	if err := g.OnlyFS(subPacketComponent, nil, nil); err != nil {
 		return g, err
 	}
 
@@ -80,7 +76,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 		g.RunFn(protoTxModify(opts))
 		g.RunFn(clientCliTxModify(opts))
 		g.RunFn(codecModify(opts))
-		if err := g.Box(messagesTemplate); err != nil {
+		if err := g.OnlyFS(subPacketMessages, nil, nil); err != nil {
 			return g, err
 		}
 	}
@@ -104,7 +100,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	g.Transformer(genny.Replace("{{packetName}}", opts.PacketName.Snake))
 
 	// Create the 'testutil' package with the test helpers
-	if err := testutil.Register(g, opts.AppPath); err != nil {
+	if err := testutil.Register(g); err != nil {
 		return g, err
 	}
 

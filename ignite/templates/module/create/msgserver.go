@@ -2,11 +2,13 @@ package modulecreate
 
 import (
 	"fmt"
+	"io/fs"
 	"path/filepath"
 
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
 
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
@@ -20,14 +22,15 @@ const msgServiceImport = `"github.com/cosmos/cosmos-sdk/types/msgservice"`
 // AddMsgServerConventionToLegacyModule add the files and the necessary modifications to an existing module that doesn't support MsgServer convention
 // https://github.com/cosmos/cosmos-sdk/blob/main/docs/architecture/adr-031-msg-service.md
 func AddMsgServerConventionToLegacyModule(replacer placeholder.Replacer, opts *MsgServerOptions) (*genny.Generator, error) {
-	var (
-		g        = genny.New()
-		template = xgenny.NewEmbedWalker(fsMsgServer, "files/msgserver/", opts.AppPath)
-	)
+	subFs, err := fs.Sub(fsMsgServer, "files/msgserver")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
 
+	g := genny.New()
 	g.RunFn(codecPath(replacer, opts.AppPath, opts.ModuleName))
 
-	if err := g.Box(template); err != nil {
+	if err := g.OnlyFS(subFs, nil, nil); err != nil {
 		return g, err
 	}
 
