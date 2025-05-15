@@ -1,10 +1,10 @@
 ---
-sidebar_position: 3
+sidebar_position: 2
 description: Configuration File Example.
 title: Configuration File Example
 ---
 
-## Configuration file example
+## Configuration File Example
 
 ```yaml title="config.yml"
 include: (string list) # Include incorporate a separate config.yml file directly in your current config file.
