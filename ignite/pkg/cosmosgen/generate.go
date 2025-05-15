@@ -270,6 +270,8 @@ func (g *generator) resolveIncludes(ctx context.Context, path, protoDir string) 
 		fi, err := os.Stat(protoPath)
 		if err != nil && !os.IsNotExist(err) {
 			return protoIncludes{}, false, err
+		} else if os.IsNotExist(err) {
+			return protoIncludes{}, false, fmt.Errorf("proto directory %s does not exist", protoPath)
 		} else if !fi.IsDir() {
 			// Just return the global includes when a proto directory doesn't exist
 			return includes, true, nil
