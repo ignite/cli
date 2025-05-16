@@ -126,6 +126,10 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		defaultDenom, _    = cmd.Flags().GetString(flagDefaultDenom)
 	)
 
+	if cmd.Flags().Changed(flagDefaultDenom) && len(defaultDenom) <= 2 {
+		return errors.New("default denom must be at least 3 characters and maximum 128 characters")
+	}
+
 	if noDefaultModule {
 		if len(params) > 0 {
 			return errors.New("params flag is only supported if the default module is enabled")

@@ -268,11 +268,13 @@ func (g *generator) resolveIncludes(ctx context.Context, path, protoDir string) 
 		// Check that the app/package proto directory exists
 		protoPath = filepath.Join(path, protoDir)
 		fi, err := os.Stat(protoPath)
-		if err != nil && !os.IsNotExist(err) {
+		if os.IsNotExist(err) {
+			return protoIncludes{}, false, errors.Errorf("proto directory %s does not exist", protoPath)
+		} else if err != nil {
 			return protoIncludes{}, false, err
-		} else if os.IsNotExist(err) {
-			return protoIncludes{}, false, fmt.Errorf("proto directory %s does not exist", protoPath)
-		} else if !fi.IsDir() {
+		}
+
+		if !fi.IsDir() {
 			// Just return the global includes when a proto directory doesn't exist
 			return includes, true, nil
 		}
