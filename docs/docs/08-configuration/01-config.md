@@ -1,10 +1,12 @@
 ---
-sidebar_position: 2
+sidebar_position: 1
 description: Primary configuration file to describe the development environment for your blockchain.
 title: Configuration File Documentation
 ---
 
 # Configuration File Reference
+
+After scaffolding a blockchain with Ignite CLI, you will find a configuration file at the root of your newly created directory.
 
 The `config.yml` file generated in your blockchain folder uses key-value pairs
 to describe the development environment for your blockchain.
