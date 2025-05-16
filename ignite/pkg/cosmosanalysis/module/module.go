@@ -235,33 +235,7 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 		return Module{}, err
 	}
 
-	pkgRelPath, err := extractRelPath(pkg.GoImportPath(), d.basegopath)
-	if err != nil {
-		return Module{}, err
-	}
-
-	// Find the `sdk.Msg` interface implementation
-	// TODO(@julienrbrt): Eventually analyse the gRPC services from the protofile
-	// via protoreflect to get its messages.
-	pkgPath := filepath.Join(d.sourcePath, pkgRelPath)
-	unfilteredMsgs, err := cosmosanalysis.FindImplementation(pkgPath, []string{
-		"Reset",
-		"Descriptor",
-		"ProtoMessage",
-	})
-	if err != nil {
-		return Module{}, err
-	}
-
-	// filter out the messages that do not have the Msg prefix
-	var msgs []string
-	for i := len(unfilteredMsgs) - 1; i >= 0; i-- {
-		if strings.HasPrefix(unfilteredMsgs[i], "Msg") {
-			msgs = append(msgs, unfilteredMsgs[i])
-		}
-	}
-
-	if len(pkg.Services)+len(msgs) == 0 {
+	if len(pkg.Services) == 0 {
 		return Module{}, nil
 	}
 
@@ -269,22 +243,6 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 		Name:         pkg.ModuleName(),
 		GoModulePath: d.basegopath,
 		Pkg:          pkg,
-	}
-
-	for _, msg := range msgs {
-		pkgmsg, err := pkg.MessageByName(msg)
-		if err != nil {
-			// no msg found in the proto defs corresponds to discovered sdk message.
-			// if it cannot be found, nothing to worry about, this means that it is used
-			// only internally and not open for actual use.
-			continue
-		}
-
-		m.Msgs = append(m.Msgs, Msg{
-			Name:     msg,
-			URI:      fmt.Sprintf("%s.%s", pkg.Name, msg),
-			FilePath: pkgmsg.Path,
-		})
 	}
 
 	// isType whether if protomsg can be added as an any Type to Module.
@@ -329,19 +287,38 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 		})
 	}
 
-	// fill queries.
+	// fill queries & messages.
 	for _, s := range pkg.Services {
 		for _, q := range s.RPCFuncs {
-			if len(q.HTTPRules) == 0 {
-				continue
-			}
+			switch s.Name {
+			case "Msg":
+				for _, msg := range []string{q.RequestType, q.ReturnsType} {
+					pkgmsg, err := pkg.MessageByName(msg)
+					if err != nil {
+						// no msg found in the proto defs corresponds to discovered sdk message.
+						// if it cannot be found, nothing to worry about, this means that it is used
+						// only internally and not open for actual use.
+						continue
+					}
 
-			m.HTTPQueries = append(m.HTTPQueries, HTTPQuery{
-				Name:      q.Name,
-				FullName:  s.Name + q.Name,
-				Rules:     q.HTTPRules,
-				Paginated: q.Paginated,
-			})
+					m.Msgs = append(m.Msgs, Msg{
+						Name:     msg,
+						URI:      fmt.Sprintf("%s.%s", pkg.Name, msg),
+						FilePath: pkgmsg.Path,
+					})
+				}
+			case "Query":
+				if len(q.HTTPRules) == 0 {
+					continue
+				}
+
+				m.HTTPQueries = append(m.HTTPQueries, HTTPQuery{
+					Name:      q.Name,
+					FullName:  s.Name + q.Name,
+					Rules:     q.HTTPRules,
+					Paginated: q.Paginated,
+				})
+			}
 		}
 	}
 
