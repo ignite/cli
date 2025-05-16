@@ -244,7 +244,7 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 	// TODO(@julienrbrt): Eventually analyse the gRPC services from the protofile
 	// via protoreflect to get its messages.
 	pkgPath := filepath.Join(d.sourcePath, pkgRelPath)
-	msgs, err := cosmosanalysis.FindImplementation(pkgPath, []string{
+	unfilteredMsgs, err := cosmosanalysis.FindImplementation(pkgPath, []string{
 		"Reset",
 		"Descriptor",
 		"ProtoMessage",
@@ -254,9 +254,10 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 	}
 
 	// filter out the messages that do not have the Msg prefix
-	for i := len(msgs) - 1; i >= 0; i-- {
-		if !strings.HasPrefix(msgs[i], "Msg") {
-			msgs = append(msgs[:i], msgs[i+1:]...)
+	var msgs []string
+	for i := len(unfilteredMsgs) - 1; i >= 0; i-- {
+		if strings.HasPrefix(unfilteredMsgs[i], "Msg") {
+			msgs = append(msgs, unfilteredMsgs[i])
 		}
 	}
 
