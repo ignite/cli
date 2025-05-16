@@ -70,6 +70,9 @@ type App struct {
 }
 
 func init() {
+	<%= if (DefaultDenom) { %>
+	sdk.DefaultBondDenom = "<%= DefaultDenom %>"
+	<% } %>
 	var err error
 	clienthelpers.EnvPrefix = Name
 	DefaultNodeHome, err = clienthelpers.GetNodeHomeDirectory("." + Name)

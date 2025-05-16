@@ -70,6 +70,7 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 	ctx.Set("BinaryNamePrefix", opts.BinaryNamePrefix)
 	ctx.Set("AddressPrefix", opts.AddressPrefix)
 	ctx.Set("CoinType", opts.CoinType)
+	ctx.Set("DefaultDenom", opts.DefaultDenom)
 	ctx.Set("DepTools", cosmosgen.DepTools())
 	ctx.Set("IsChainMinimal", opts.IsChainMinimal)
 
