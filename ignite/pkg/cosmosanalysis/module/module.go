@@ -208,25 +208,6 @@ func RootGoImportPath(importPath string) string {
 	return importPath
 }
 
-func extractRelPath(pkgGoImportPath, baseGoPath string) (string, error) {
-	// Remove the import prefix to get the relative path
-	if strings.HasPrefix(pkgGoImportPath, baseGoPath) {
-		return strings.TrimPrefix(pkgGoImportPath, baseGoPath), nil
-	}
-
-	// When the import path prefix defined by the proto package
-	// doesn't match the base Go import path it means that the
-	// latter might have a version suffix and the former doesn't.
-	if p, v := path.Split(baseGoPath); semver.IsValid(v) {
-		// Use the import path without the version as prefix
-		p = strings.TrimRight(p, "/")
-
-		return strings.TrimPrefix(pkgGoImportPath, p), nil
-	}
-
-	return "", errors.Errorf("proto go import %s is not relative to %s", pkgGoImportPath, baseGoPath)
-}
-
 // discover discovers and sdk module by a proto pkg.
 func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 	// Check if the proto package services are implemented
