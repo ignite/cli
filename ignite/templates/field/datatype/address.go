@@ -18,7 +18,7 @@ var DataAddress = DataType{
 	ValueIndex:              "\"cosmos1abcdefghijklmnopqrstuvwxyz0123456\"",
 	ValueInvalidIndex:       "\"cosmos1invalid\"",
 	ProtoType: func(_, name string, index int) string {
-		return fmt.Sprintf("string %s = %d [(cosmos_proto.scalar) = \"cosmos.AddressString\"]", name, index)
+		return fmt.Sprintf(`string %s = %d [(cosmos_proto.scalar) = "cosmos.AddressString"]`, name, index)
 	},
 	GenesisArgs: func(name multiformatname.Name, value int) string {
 		return fmt.Sprintf("%s: \"cosmos1address%d\",\n", name.UpperCamel, value)
@@ -34,7 +34,7 @@ var DataAddress = DataType{
 	},
 	ToProtoField: func(_, name string, index int) *proto.NormalField {
 		field := protoutil.NewField(name, "string", index)
-		option := protoutil.NewOption("cosmos_proto.scalar", "\"cosmos.AddressString\"", protoutil.Custom())
+		option := protoutil.NewOption("cosmos_proto.scalar", "cosmos.AddressString", protoutil.Custom())
 		field.Options = append(field.Options, option)
 		return field
 	},
