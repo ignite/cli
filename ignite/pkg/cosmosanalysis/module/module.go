@@ -287,6 +287,7 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 					FilePath: pkgmsg.Path,
 				})
 			case "Query":
+				// no http rules means this query is not exposed as a REST endpoint.
 				if len(q.HTTPRules) == 0 {
 					continue
 				}
