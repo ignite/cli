@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changes
+
+- [#4689](https://github.com/ignite/cli/pull/4689) Revert `HasGenesis` implementation from retracted `core` v1 to SDK `HasGenesis` interface.
+
 ## [`v29.0.0-rc.1`](https://github.com/ignite/cli/releases/tag/v29.0.0-rc.1)
 
 ### Features
