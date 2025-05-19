@@ -273,21 +273,19 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 		for _, q := range s.RPCFuncs {
 			switch s.Name {
 			case "Msg":
-				for _, msg := range []string{q.RequestType, q.ReturnsType} {
-					pkgmsg, err := pkg.MessageByName(msg)
-					if err != nil {
-						// no msg found in the proto defs corresponds to discovered sdk message.
-						// if it cannot be found, nothing to worry about, this means that it is used
-						// only internally and not open for actual use.
-						continue
-					}
-
-					m.Msgs = append(m.Msgs, Msg{
-						Name:     msg,
-						URI:      fmt.Sprintf("%s.%s", pkg.Name, msg),
-						FilePath: pkgmsg.Path,
-					})
+				pkgmsg, err := pkg.MessageByName(q.RequestType)
+				if err != nil {
+					// no msg found in the proto defs corresponds to discovered sdk message.
+					// if it cannot be found, nothing to worry about, this means that it is used
+					// only internally and not open for actual use.
+					continue
 				}
+
+				m.Msgs = append(m.Msgs, Msg{
+					Name:     q.RequestType,
+					URI:      fmt.Sprintf("%s.%s", pkg.Name, q.RequestType),
+					FilePath: pkgmsg.Path,
+				})
 			case "Query":
 				if len(q.HTTPRules) == 0 {
 					continue
