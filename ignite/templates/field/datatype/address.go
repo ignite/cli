@@ -21,7 +21,7 @@ var DataAddress = DataType{
 		return fmt.Sprintf("string %s = %d", name, index)
 	},
 	GenesisArgs: func(name multiformatname.Name, value int) string {
-		return fmt.Sprintf("%s: \"cosmos1address%d\",\n", name.UpperCamel, value)
+		return fmt.Sprintf("%s: \"%d\",\n", name.UpperCamel, value)
 	},
 	CLIArgs: func(name multiformatname.Name, _, prefix string, argIndex int) string {
 		return fmt.Sprintf("%s%s := args[%d]", prefix, name.UpperCamel, argIndex)

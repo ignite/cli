@@ -4,7 +4,7 @@
 
 ### Features
 
-- [#4687](https://github.com/ignite/cli/pull/4687) Add address type with `scalar` annotations.
+- [#4687](https://github.com/ignite/cli/pull/4687) Add address type with `scalar` annotations, and add `scalar` type to signer field.
 
 ## [`v29.0.0-rc.1`](https://github.com/ignite/cli/releases/tag/v29.0.0-rc.1)
 
