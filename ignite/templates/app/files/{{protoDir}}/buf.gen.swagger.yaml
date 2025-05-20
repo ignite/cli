@@ -10,6 +10,7 @@ plugins:
         "go",
         "tool",
         "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2",
+        "-outputFormat=yaml",
       ]
     out: .
     opt:
