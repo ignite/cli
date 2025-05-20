@@ -17,20 +17,22 @@
   "scripts": {
     "build": "NODE_OPTIONS='--max-old-space-size=16384' tsc"
   },
-  "dependencies": {    
-    "@cosmjs/proto-signing": "0.32.1",
-    "@cosmjs/stargate": "0.32.1",
-    "@keplr-wallet/types": "^0.12.44", 
-    "axios": "0.21.4",
+  "dependencies": {   
+    "@cosmjs/proto-signing": "0.33.1",
+    "@cosmjs/stargate": "0.33.1",
+    "@keplr-wallet/types": "^0.12.234",
+    "axios": "1.9.0",
     "buffer": "^6.0.3",
     "events": "^3.3.0"
   },
   "peerDependencies": {
-    "@cosmjs/proto-signing": "0.32.1",
-    "@cosmjs/stargate": "0.32.1"
+    "@cosmjs/proto-signing": "0.33.1",
+    "@cosmjs/stargate": "0.33.1"
   }, 
   "devDependencies": {
-    "@types/events": "^3.0.0",
-    "typescript": "^4.8.4"
+    "@bufbuild/protobuf": "^2.4.0",
+    "@types/events": "^3.0.3",
+    "qs": "^6.14.0",
+    "typescript": "^5.8.3"
   }
 }
