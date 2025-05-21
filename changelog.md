@@ -6,6 +6,10 @@
 
 - [#4683](https://github.com/ignite/cli/pull/4683) Allow to change default denom via flag.
 
+### Bug Fixes
+
+- [#4686](https://github.com/ignite/cli/pull/4686) Filter discovered protos to only messages.
+
 ## [`v29.0.0-rc.1`](https://github.com/ignite/cli/releases/tag/v29.0.0-rc.1)
 
 ### Features
