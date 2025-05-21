@@ -30,6 +30,38 @@ func newModule(relChainPath, goImportPath string) module.Module {
 			GoImportName: "github.com/tendermint/planet/x/mars/types",
 			Messages: []protoanalysis.Message{
 				{
+					Name:               "MsgMyMessageRequest",
+					Path:               filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
+					HighestFieldNumber: 1,
+					Fields: map[string]string{
+						"mytypefield": "string",
+					},
+				},
+				{
+					Name:               "MsgMyMessageResponse",
+					Path:               filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
+					HighestFieldNumber: 1,
+					Fields: map[string]string{
+						"mytypefield": "string",
+					},
+				},
+				{
+					Name:               "MsgBarRequest",
+					Path:               filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
+					HighestFieldNumber: 1,
+					Fields: map[string]string{
+						"mytypefield": "string",
+					},
+				},
+				{
+					Name:               "MsgBarResponse",
+					Path:               filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
+					HighestFieldNumber: 1,
+					Fields: map[string]string{
+						"mytypefield": "string",
+					},
+				},
+				{
 					Name:               "QueryMyQueryRequest",
 					Path:               filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
 					HighestFieldNumber: 2,
@@ -58,6 +90,21 @@ func newModule(relChainPath, goImportPath string) module.Module {
 				},
 			},
 			Services: []protoanalysis.Service{
+				{
+					Name: "Msg",
+					RPCFuncs: []protoanalysis.RPCFunc{
+						{
+							Name:        "MyMessage",
+							RequestType: "MsgMyMessageRequest",
+							ReturnsType: "MsgMyMessageResponse",
+						},
+						{
+							Name:        "Bar",
+							RequestType: "MsgBarRequest",
+							ReturnsType: "MsgBarResponse",
+						},
+					},
+				},
 				{
 					Name: "Query",
 					RPCFuncs: []protoanalysis.RPCFunc{
@@ -89,7 +136,18 @@ func newModule(relChainPath, goImportPath string) module.Module {
 				},
 			},
 		},
-		Msgs: []module.Msg(nil),
+		Msgs: []module.Msg{
+			{
+				Name:     "MsgMyMessageRequest",
+				URI:      "tendermint.planet.mars.MsgMyMessageRequest",
+				FilePath: filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
+			},
+			{
+				Name:     "MsgBarRequest",
+				URI:      "tendermint.planet.mars.MsgBarRequest",
+				FilePath: filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
+			},
+		},
 		HTTPQueries: []module.HTTPQuery{
 			{
 				Name:     "MyQuery",
