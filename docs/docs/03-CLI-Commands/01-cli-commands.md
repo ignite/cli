@@ -1367,6 +1367,7 @@ ignite scaffold chain [name] [flags]
       --address-prefix string    account address prefix (default "cosmos")
       --clear-cache              clear the build cache (advanced)
       --coin-type uint32         coin type to use for the account (default 118)
+      --default-denom string     default staking denom (default "stake")
   -h, --help                     help for chain
       --minimal                  create a minimal blockchain (with the minimum required Cosmos SDK modules)
       --module-configs strings   add module configs
