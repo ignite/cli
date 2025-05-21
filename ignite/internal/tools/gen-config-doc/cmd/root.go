@@ -21,7 +21,7 @@ const (
 	flagOutput   = "output"
 	flagFilename = "filename"
 
-	defaultFilename = "01-config.md"
+	defaultFilename = "02-config_example.md"
 	defaultDocPath  = "docs/docs/08-configuration"
 )
 
