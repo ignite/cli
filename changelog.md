@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Bug Fixes
+
+- [#4686](https://github.com/ignite/cli/pull/4686) Filter discovered protos to only messages.
+
 ## [`v28.10.0`](https://github.com/ignite/cli/releases/tag/v28.10.0)
 
 ### Features
