@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
@@ -23,6 +24,7 @@ import (
 var (
 	_ module.AppModuleBasic = (*AppModule)(nil)
 	_ module.AppModule      = (*AppModule)(nil)
+	_ module.HasGenesis	  = (*AppModule)(nil)
 
 	_ appmodule.AppModule       = (*AppModule)(nil)
 	_ appmodule.HasBeginBlocker = (*AppModule)(nil)
@@ -85,12 +87,12 @@ func (am AppModule) RegisterServices(registrar grpc.ServiceRegistrar) error {
 
 // DefaultGenesis returns a default GenesisState for the module, marshalled to json.RawMessage.
 // The default GenesisState need to be defined by the module developer and is primarily used for testing.
-func (am AppModule) DefaultGenesis() json.RawMessage {
+func (am AppModule) DefaultGenesis(codec.JSONCodec) json.RawMessage {
 	return am.cdc.MustMarshalJSON(types.DefaultGenesis())
 }
 
 // ValidateGenesis used to validate the GenesisState, given in its json.RawMessage form.
-func (am AppModule) ValidateGenesis(bz json.RawMessage) error {
+func (am AppModule) ValidateGenesis(_ codec.JSONCodec, _ client.TxEncodingConfig, bz json.RawMessage) error {
 	var genState types.GenesisState
 	if err := am.cdc.UnmarshalJSON(bz, &genState); err != nil {
 		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
@@ -100,24 +102,31 @@ func (am AppModule) ValidateGenesis(bz json.RawMessage) error {
 }
 
 // InitGenesis performs the module's genesis initialization. It returns no validator updates.
-func (am AppModule) InitGenesis(ctx context.Context, gs json.RawMessage) error {
+func (am AppModule) InitGenesis(ctx sdk.Context, _ codec.JSONCodec, gs json.RawMessage) {
 	var genState types.GenesisState
 	// Initialize global index to index in genesis state
 	if err := am.cdc.UnmarshalJSON(gs, &genState); err != nil {
-		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
+		panic(fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err))
 	}
 
-	return am.keeper.InitGenesis(ctx, genState)
+	if err := am.keeper.InitGenesis(ctx, genState); err != nil {
+		panic(fmt.Errorf("failed to initialize %s genesis state: %w", types.ModuleName, err))
+	}
 }
 
 // ExportGenesis returns the module's exported genesis state as raw JSON bytes.
-func (am AppModule) ExportGenesis(ctx context.Context) (json.RawMessage, error) {
+func (am AppModule) ExportGenesis(ctx sdk.Context, _ codec.JSONCodec) json.RawMessage {
 	genState, err := am.keeper.ExportGenesis(ctx)
 	if err != nil {
-	    return nil, err
+		panic(fmt.Errorf("failed to export %s genesis state: %w", types.ModuleName, err))
 	}
 
-	return am.cdc.MarshalJSON(genState)
+	bz, err := am.cdc.MarshalJSON(genState)
+	if err != nil {
+		panic(fmt.Errorf("failed to marshal %s genesis state: %w", types.ModuleName, err))
+	}
+
+	return bz
 }
 
 // ConsensusVersion is a sequence number for state-breaking change of the module.
