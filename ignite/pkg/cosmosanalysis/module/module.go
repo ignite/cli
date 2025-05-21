@@ -208,25 +208,6 @@ func RootGoImportPath(importPath string) string {
 	return importPath
 }
 
-func extractRelPath(pkgGoImportPath, baseGoPath string) (string, error) {
-	// Remove the import prefix to get the relative path
-	if strings.HasPrefix(pkgGoImportPath, baseGoPath) {
-		return strings.TrimPrefix(pkgGoImportPath, baseGoPath), nil
-	}
-
-	// When the import path prefix defined by the proto package
-	// doesn't match the base Go import path it means that the
-	// latter might have a version suffix and the former doesn't.
-	if p, v := path.Split(baseGoPath); semver.IsValid(v) {
-		// Use the import path without the version as prefix
-		p = strings.TrimRight(p, "/")
-
-		return strings.TrimPrefix(pkgGoImportPath, p), nil
-	}
-
-	return "", errors.Errorf("proto go import %s is not relative to %s", pkgGoImportPath, baseGoPath)
-}
-
 // discover discovers and sdk module by a proto pkg.
 func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 	// Check if the proto package services are implemented
@@ -235,19 +216,7 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 		return Module{}, err
 	}
 
-	pkgRelPath, err := extractRelPath(pkg.GoImportPath(), d.basegopath)
-	if err != nil {
-		return Module{}, err
-	}
-
-	// Find the `sdk.Msg` interface implementation
-	pkgPath := filepath.Join(d.sourcePath, pkgRelPath)
-	msgs, err := cosmosanalysis.FindImplementation(pkgPath, messageImplementation)
-	if err != nil {
-		return Module{}, err
-	}
-
-	if len(pkg.Services)+len(msgs) == 0 {
+	if len(pkg.Services) == 0 {
 		return Module{}, nil
 	}
 
@@ -255,22 +224,6 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 		Name:         pkg.ModuleName(),
 		GoModulePath: d.basegopath,
 		Pkg:          pkg,
-	}
-
-	for _, msg := range msgs {
-		pkgmsg, err := pkg.MessageByName(msg)
-		if err != nil {
-			// no msg found in the proto defs corresponds to discovered sdk message.
-			// if it cannot be found, nothing to worry about, this means that it is used
-			// only internally and not open for actual use.
-			continue
-		}
-
-		m.Msgs = append(m.Msgs, Msg{
-			Name:     msg,
-			URI:      fmt.Sprintf("%s.%s", pkg.Name, msg),
-			FilePath: pkgmsg.Path,
-		})
 	}
 
 	// isType whether if protomsg can be added as an any Type to Module.
@@ -315,19 +268,37 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 		})
 	}
 
-	// fill queries.
+	// fill queries & messages.
 	for _, s := range pkg.Services {
 		for _, q := range s.RPCFuncs {
-			if len(q.HTTPRules) == 0 {
-				continue
-			}
+			switch s.Name {
+			case "Msg":
+				pkgmsg, err := pkg.MessageByName(q.RequestType)
+				if err != nil {
+					// no msg found in the proto defs corresponds to discovered sdk message.
+					// if it cannot be found, nothing to worry about, this means that it is used
+					// only internally and not open for actual use.
+					continue
+				}
 
-			m.HTTPQueries = append(m.HTTPQueries, HTTPQuery{
-				Name:      q.Name,
-				FullName:  s.Name + q.Name,
-				Rules:     q.HTTPRules,
-				Paginated: q.Paginated,
-			})
+				m.Msgs = append(m.Msgs, Msg{
+					Name:     q.RequestType,
+					URI:      fmt.Sprintf("%s.%s", pkg.Name, q.RequestType),
+					FilePath: pkgmsg.Path,
+				})
+			case "Query":
+				// no http rules means this query is not exposed as a REST endpoint.
+				if len(q.HTTPRules) == 0 {
+					continue
+				}
+
+				m.HTTPQueries = append(m.HTTPQueries, HTTPQuery{
+					Name:      q.Name,
+					FullName:  s.Name + q.Name,
+					Rules:     q.HTTPRules,
+					Paginated: q.Paginated,
+				})
+			}
 		}
 	}
 
