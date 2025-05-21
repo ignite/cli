@@ -3,8 +3,6 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/env"
@@ -14,6 +12,8 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/xgit"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
 )
+
+const defaultIgniteDenom = "stake"
 
 const (
 	flagMinimal         = "minimal"
@@ -90,7 +90,7 @@ about Cosmos SDK on https://docs.cosmos.network
 	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagSetAccountPrefixes())
 	c.Flags().AddFlagSet(flagSetCoinType())
-	c.Flags().String(flagDefaultDenom, sdk.DefaultBondDenom, "default staking denom")
+	c.Flags().String(flagDefaultDenom, defaultIgniteDenom, "default staking denom")
 	c.Flags().StringP(flagPath, "p", "", "create a project in a specific path")
 	c.Flags().Bool(flagNoDefaultModule, false, "create a project without a default module")
 	c.Flags().StringSlice(flagParams, []string{}, "add default module parameters")
