@@ -2,6 +2,7 @@ package chain
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -80,22 +81,29 @@ func (c *Chain) InitChain(ctx context.Context, initConfiguration, initGenesis bo
 		return err
 	}
 
-	commands, err := c.Commands(ctx)
-	if err != nil {
-		return err
-	}
-
-	// init node.
-	if err := commands.Init(ctx, moniker); err != nil {
-		return err
-	}
-
 	var conf *chainconfig.Config
 	if initConfiguration || initGenesis {
 		conf, err = c.Config()
 		if err != nil {
 			return err
 		}
+	}
+
+	commands, err := c.Commands(ctx)
+	if err != nil {
+		return err
+	}
+
+	// init node.
+	var initOptions []string
+	if denom := conf.DefaultDenom; len(denom) > 0 {
+		initOptions = append(initOptions,
+			fmt.Sprintf("--default-denom=%s", denom),
+		)
+	}
+
+	if err := commands.Init(ctx, moniker, initOptions...); err != nil {
+		return err
 	}
 
 	// overwrite app config files with the values defined in Ignite's config file

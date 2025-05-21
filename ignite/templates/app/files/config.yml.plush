@@ -1,14 +1,15 @@
 version: 1
 validation: sovereign
+default_denom: <%= DefaultDenom %>
 accounts: 
 - name: alice
   coins:
   - 20000token
-  - 200000000stake
+  - 200000000<%= DefaultDenom %>
 - name: bob
   coins:
   - 10000token
-  - 100000000stake
+  - 100000000<%= DefaultDenom %>
 client:
   openapi:
     path: docs/static/openapi.yml
@@ -19,8 +20,8 @@ faucet:
   - 100000stake
 validators:
 - name: alice
-  bonded: 100000000stake
+  bonded: 100000000<%= DefaultDenom %>
 - name: validator1
-  bonded: 200000000stake
+  bonded: 200000000<%= DefaultDenom %>
 - name: validator2
-  bonded: 100000000stake
+  bonded: 100000000<%= DefaultDenom %>
