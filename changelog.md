@@ -6,6 +6,10 @@
 
 - [#4687](https://github.com/ignite/cli/pull/4687) Add address type with `scalar` annotations, and add `scalar` type to signer field.
 
+### Changes
+
+- [#4689](https://github.com/ignite/cli/pull/4689) Revert `HasGenesis` implementation from retracted `core` v1 to SDK `HasGenesis` interface.
+
 ### Bug Fixes
 
 - [#4686](https://github.com/ignite/cli/pull/4686) Filter discovered protos to only messages.
