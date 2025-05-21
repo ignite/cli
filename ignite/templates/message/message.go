@@ -132,6 +132,7 @@ func protoTxMessageModify(opts *Options) genny.RunFn {
 		}
 		// Prepare the fields and create the messages.
 		creator := protoutil.NewField(opts.MsgSigner.Snake, "string", 1)
+		creator.Options = append(creator.Options, protoutil.NewOption("cosmos_proto.scalar", "cosmos.AddressString", protoutil.Custom())) // set the scalar annotation
 		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.Snake)
 		msgFields := []*proto.NormalField{creator}
 		for i, field := range opts.Fields {
