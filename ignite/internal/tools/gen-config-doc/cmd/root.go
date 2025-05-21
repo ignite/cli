@@ -21,8 +21,8 @@ const (
 	flagOutput   = "output"
 	flagFilename = "filename"
 
-	defaultFilename = "03-config.md"
-	defaultDocPath  = "docs/docs/08-references"
+	defaultFilename = "01-config.md"
+	defaultDocPath  = "docs/docs/08-configuration"
 )
 
 // NewRootCmd creates a new root command.
