@@ -47,6 +47,7 @@ func (f Field) IsSlice() bool {
 		return true
 	case
 		datatype.String,
+		datatype.Address,
 		datatype.Bool,
 		datatype.Int,
 		datatype.Int64,

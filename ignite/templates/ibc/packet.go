@@ -330,8 +330,13 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 		for i, field := range opts.Fields {
 			sendFields = append(sendFields, field.ToProtoField(i+5))
 		}
+
+		// set address options on signer field
+		signerField := protoutil.NewField(opts.MsgSigner.Snake, "string", 1)
+		signerField.Options = append(signerField.Options, protoutil.NewOption("cosmos_proto.scalar", "cosmos.AddressString", protoutil.Custom()))
+
 		sendFields = append(sendFields,
-			protoutil.NewField(opts.MsgSigner.Snake, "string", 1),
+			signerField,
 			protoutil.NewField("port", "string", 2),
 			protoutil.NewField("channelID", "string", 3),
 			protoutil.NewField("timeoutTimestamp", "uint64", 4),
