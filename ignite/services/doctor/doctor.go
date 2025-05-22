@@ -18,6 +18,8 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/events"
 	"github.com/ignite/cli/v29/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
+	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v29/ignite/templates/app"
 )
 
 // DONTCOVER: Doctor read and write the filesystem intensively, so it's better
@@ -87,6 +89,12 @@ func (d *Doctor) MigrateBufConfig(ctx context.Context, cacheStorage cache.Storag
 		return errf(err)
 	}
 
+	runner := xgenny.NewRunner(ctx, appPath)
+	_, err = boxBufFiles(runner, appPath, protoPath)
+	if err != nil {
+		return err
+	}
+
 	d.ev.Send(
 		"buf config files migrated",
 		events.Icon(icons.OK),
@@ -94,13 +102,16 @@ func (d *Doctor) MigrateBufConfig(ctx context.Context, cacheStorage cache.Storag
 		events.ProgressFinish(),
 	)
 
-	d.ev.Send(
-		"Manual Step: Update the local field of buf files to use `go tool`",
-		events.Icon(icons.User),
-		events.Indent(1),
-	)
-
 	return nil
+}
+
+// BoxBufFiles box all buf files.
+func boxBufFiles(runner *xgenny.Runner, appPath, protoDir string) (xgenny.SourceModification, error) {
+	g, err := app.NewBufGenerator(appPath, protoDir)
+	if err != nil {
+		return xgenny.SourceModification{}, err
+	}
+	return runner.RunAndApply(g)
 }
 
 // MigrateChainConfig migrates the chain config if required.
