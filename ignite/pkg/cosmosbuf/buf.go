@@ -172,7 +172,11 @@ func (b Buf) Update(ctx context.Context, modDir string) error {
 
 // Migrate runs the buf Migrate command for the files in the app directory.
 func (b Buf) Migrate(ctx context.Context, protoDir string) error {
-	yamlFiles, err := xos.FindFiles(protoDir, xos.WithExtension(xos.YMLFile), xos.WithExtension(xos.YAMLFile), xos.WithPrefix(bufGenPrefix))
+	yamlFiles, err := xos.FindFiles(protoDir,
+		xos.WithExtension(xos.YMLFile),
+		xos.WithExtension(xos.YAMLFile),
+		xos.WithPrefix(bufGenPrefix),
+	)
 	if err != nil {
 		return err
 	}

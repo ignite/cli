@@ -18,6 +18,8 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/events"
 	"github.com/ignite/cli/v29/ignite/pkg/goanalysis"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
+	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v29/ignite/templates/app"
 )
 
 // DONTCOVER: Doctor read and write the filesystem intensively, so it's better
@@ -50,14 +52,21 @@ func (d *Doctor) MigrateBufConfig(ctx context.Context, cacheStorage cache.Storag
 		return errors.Errorf("doctor migrate buf config: %w", err)
 	}
 
-	d.ev.Send("Checking buf config file version")
+	d.ev.Send("Checking buf config file version:")
 
 	// Check if the appPath contains the buf.work.yaml file in the root folder.
+	// The buf.work.yaml file does not exist in buf v2 config, so it is a good
+	// indicator that the buf config is already migrated.
 	bufWorkFile := path.Join(appPath, "buf.work.yaml")
 	if _, err := os.Stat(bufWorkFile); os.IsNotExist(err) {
+		d.ev.Send(
+			fmt.Sprintf("buf files %s", colors.Success("OK")),
+			events.Icon(icons.OK),
+			events.Indent(1),
+		)
 		return nil
 	} else if err != nil {
-		return errf(errors.Errorf("unable to check if buf.work.yaml exists: %w", err))
+		return errf(errors.Errorf("unable to check buf files have been migrated: %w", err))
 	}
 
 	d.ev.Send("Migrating buf config file to v2")
@@ -82,11 +91,11 @@ func (d *Doctor) MigrateBufConfig(ctx context.Context, cacheStorage cache.Storag
 		return errf(err)
 	}
 
-	d.ev.Send(
-		"Important: Update the local field of buf files to use `go tool`",
-		events.Icon(icons.Announcement),
-		events.Indent(1),
-	)
+	runner := xgenny.NewRunner(ctx, appPath)
+	_, err = boxBufFiles(runner, appPath, protoPath)
+	if err != nil {
+		return err
+	}
 
 	d.ev.Send(
 		"buf config files migrated",
@@ -96,6 +105,15 @@ func (d *Doctor) MigrateBufConfig(ctx context.Context, cacheStorage cache.Storag
 	)
 
 	return nil
+}
+
+// BoxBufFiles box all buf files.
+func boxBufFiles(runner *xgenny.Runner, appPath, protoDir string) (xgenny.SourceModification, error) {
+	g, err := app.NewBufGenerator(appPath, protoDir)
+	if err != nil {
+		return xgenny.SourceModification{}, err
+	}
+	return runner.RunAndApply(g)
 }
 
 // MigrateChainConfig migrates the chain config if required.

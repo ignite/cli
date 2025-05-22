@@ -152,11 +152,6 @@ func migrationPreRunHandler(cmd *cobra.Command, args []string) error {
 	session := cliui.New()
 	defer session.End()
 
-	cfg, _, err := getChainConfig(cmd)
-	if err != nil {
-		return err
-	}
-
 	appPath, err := goModulePath(cmd)
 	if err != nil {
 		return err
@@ -172,10 +167,6 @@ func migrationPreRunHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if err := toolsMigrationPreRunHandler(cmd, session, appPath); err != nil {
-		return err
-	}
-
-	if err := bufMigrationPreRunHandler(cmd, session, appPath, cfg.Build.Proto.Path); err != nil {
 		return err
 	}
 
