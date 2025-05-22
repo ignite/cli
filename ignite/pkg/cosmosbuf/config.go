@@ -7,7 +7,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const bufConfig = "buf.yaml"
+const bufYamlFilename = "buf.yaml"
 
 type (
 	// BufWork represents the buf.yaml file.
@@ -26,7 +26,7 @@ type (
 
 // ParseBufConfig parse the buf.yaml file at app path.
 func ParseBufConfig(appPath string) (BufWork, error) {
-	path := filepath.Join(appPath, bufConfig)
+	path := filepath.Join(appPath, bufYamlFilename)
 
 	f, err := os.Open(path)
 	if err != nil {

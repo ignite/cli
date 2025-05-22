@@ -55,16 +55,18 @@ func (d *Doctor) MigrateBufConfig(ctx context.Context, cacheStorage cache.Storag
 	d.ev.Send("Checking buf config file version:")
 
 	// Check if the appPath contains the buf.work.yaml file in the root folder.
+	// The buf.work.yaml file does not exist in buf v2 config, so it is a good
+	// indicator that the buf config is already migrated.
 	bufWorkFile := path.Join(appPath, "buf.work.yaml")
 	if _, err := os.Stat(bufWorkFile); os.IsNotExist(err) {
 		d.ev.Send(
-			fmt.Sprintf("buf.yaml file %s", colors.Success("OK")),
+			fmt.Sprintf("buf files %s", colors.Success("OK")),
 			events.Icon(icons.OK),
 			events.Indent(1),
 		)
 		return nil
 	} else if err != nil {
-		return errf(errors.Errorf("unable to check if buf.work.yaml exists: %w", err))
+		return errf(errors.Errorf("unable to check buf files have been migrated: %w", err))
 	}
 
 	d.ev.Send("Migrating buf config file to v2")
