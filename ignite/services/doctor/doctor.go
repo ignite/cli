@@ -50,11 +50,16 @@ func (d *Doctor) MigrateBufConfig(ctx context.Context, cacheStorage cache.Storag
 		return errors.Errorf("doctor migrate buf config: %w", err)
 	}
 
-	d.ev.Send("Checking buf config file version")
+	d.ev.Send("Checking buf config file version:")
 
 	// Check if the appPath contains the buf.work.yaml file in the root folder.
 	bufWorkFile := path.Join(appPath, "buf.work.yaml")
 	if _, err := os.Stat(bufWorkFile); os.IsNotExist(err) {
+		d.ev.Send(
+			fmt.Sprintf("buf.yaml file %s", colors.Success("OK")),
+			events.Icon(icons.OK),
+			events.Indent(1),
+		)
 		return nil
 	} else if err != nil {
 		return errf(errors.Errorf("unable to check if buf.work.yaml exists: %w", err))
@@ -83,16 +88,16 @@ func (d *Doctor) MigrateBufConfig(ctx context.Context, cacheStorage cache.Storag
 	}
 
 	d.ev.Send(
-		"Important: Update the local field of buf files to use `go tool`",
-		events.Icon(icons.Announcement),
-		events.Indent(1),
-	)
-
-	d.ev.Send(
 		"buf config files migrated",
 		events.Icon(icons.OK),
 		events.Indent(1),
 		events.ProgressFinish(),
+	)
+
+	d.ev.Send(
+		"Manual Step: Update the local field of buf files to use `go tool`",
+		events.Icon(icons.User),
+		events.Indent(1),
 	)
 
 	return nil
