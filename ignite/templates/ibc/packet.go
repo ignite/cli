@@ -18,7 +18,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/xstrings"
 	"github.com/ignite/cli/v29/ignite/templates/field"
 	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"
-	"github.com/ignite/cli/v29/ignite/templates/testutil"
 	"github.com/ignite/cli/v29/ignite/templates/typed"
 )
 
@@ -102,11 +101,6 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{protoVer}}", opts.ProtoVer))
 	g.Transformer(genny.Replace("{{packetName}}", opts.PacketName.Snake))
-
-	// Create the 'testutil' package with the test helpers
-	if err := testutil.Register(g, opts.AppPath); err != nil {
-		return g, err
-	}
 
 	return g, nil
 }
