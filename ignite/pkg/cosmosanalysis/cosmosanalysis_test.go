@@ -1,6 +1,9 @@
 package cosmosanalysis_test
 
 import (
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"os"
 	"path/filepath"
 	"testing"
@@ -73,60 +76,75 @@ func (f Foo) foobar() {}
 
 	appFile = []byte(`
 package app
-type App struct {}
-func (app *App) Name() string { return app.BaseApp.Name() }
-func (app *App) RegisterAPIRoutes()                                   {}
-func (app *App) RegisterTxService()                                   {}
-func (app *App) AppCodec() codec.Codec                                { return app.appCodec }
-func (app *App) GetKey(storeKey string) *storetypes.KVStoreKey        { return nil }
-func (app *App) GetMemKey(storeKey string) *storetypes.MemoryStoreKey { return nil }
-func (app *App) kvStoreKeys() map[string]*storetypes.KVStoreKey       { return nil }
-func (app *App) GetSubspace(moduleName string) paramstypes.Subspace   { return subspace }
-func (app *App) TxConfig() client.TxConfig                       { return nil }
-func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	return app.mm.BeginBlock(ctx, req)
-}
-func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
-	return app.mm.EndBlock(ctx, req)
-}
-`)
+
+import (
+	runtime "github.com/cosmos/cosmos-sdk/runtime"
+)
+
+type App struct {
+	*runtime.App
+}`)
 	appTestFile = []byte(`
 package app_test
-type App struct {}
-func (app *App) Name() string { return app.BaseApp.Name() }
-func (app *App) RegisterAPIRoutes()                                   {}
-func (app *App) RegisterTxService()                                   {}
-func (app *App) AppCodec() codec.Codec                                { return app.appCodec }
-func (app *App) GetKey(storeKey string) *storetypes.KVStoreKey        { return nil }
-func (app *App) GetMemKey(storeKey string) *storetypes.MemoryStoreKey { return nil }
-func (app *App) kvStoreKeys() map[string]*storetypes.KVStoreKey       { return nil }
-func (app *App) GetSubspace(moduleName string) paramstypes.Subspace   { return subspace }
-func (app *App) TxConfig() client.TxConfig                       { return nil }
-func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	return app.mm.BeginBlock(ctx, req)
-}
-func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
-	return app.mm.EndBlock(ctx, req)
-}
-`)
+
+import (
+	runtime "github.com/cosmos/cosmos-sdk/runtime"
+)
+
+type App struct {
+	*runtime.App
+}`)
+
 	appFileSDKv47 = []byte(`
 package app
-type App struct {}
-func (app *App) Name() string { return app.BaseApp.Name() }
-func (app *App) RegisterAPIRoutes()                                   {}
-func (app *App) RegisterTxService()                                   {}
-func (app *App) AppCodec() codec.Codec                                { return app.appCodec }
-func (app *App) GetKey(storeKey string) *storetypes.KVStoreKey        { return nil }
-func (app *App) GetMemKey(storeKey string) *storetypes.MemoryStoreKey { return nil }
-func (app *App) GetSubspace(moduleName string) paramstypes.Subspace   { return subspace }
-func (app *App) TxConfig() client.TxConfig                       { return nil }
-func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	return app.mm.BeginBlock(ctx, req)
+
+import "github.com/cosmos/cosmos-sdk/baseapp"
+
+type App struct {
+	baseapp.BaseApp
+}`)
+
+	embeddedTypeFile = []byte(`
+package foo
+
+import (
+	"github.com/cosmos/cosmos-sdk/baseapp"
+	runtime "github.com/cosmos/cosmos-sdk/runtime"
+)
+
+type App1 struct {
+	*runtime.App
 }
-func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
-	return app.mm.EndBlock(ctx, req)
+
+type App2 struct {
+	baseapp.BaseApp
+}
+
+type NotApp struct{}
+
+// AppPointer uses a pointer to an embedded type
+type AppPointer struct {
+	*runtime.App
+}
+
+// AppNoEmbed has the type but doesn't embed it
+type AppNoEmbed struct {
+	a runtime.App
+}
+
+// OtherEmbed embeds a different type from a target package
+type OtherEmbed struct {
+	*runtime.Server
 }
 `)
+	appModuleGoMod = []byte(`
+module example.com/foo
+
+go 1.19
+
+require (
+	github.com/cosmos/cosmos-sdk v0.47.0
+)`)
 )
 
 func TestFindImplementation(t *testing.T) {
@@ -277,4 +295,80 @@ func TestValidateGoMod(t *testing.T) {
 	require.NoError(t, err)
 	err = cosmosanalysis.ValidateGoMod(modFile)
 	require.NoError(t, err)
+}
+
+func TestFindEmbed(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	// Create a dummy go.mod for the test package
+	modPath := filepath.Join(tmpDir, "go.mod")
+	err := os.WriteFile(modPath, appModuleGoMod, 0o644)
+	require.NoError(t, err)
+
+	// Create the test file
+	filePath := filepath.Join(tmpDir, "app.go")
+	err = os.WriteFile(filePath, embeddedTypeFile, 0o644)
+	require.NoError(t, err)
+
+	targets := []string{
+		"github.com/cosmos/cosmos-sdk/runtime.App",
+		"github.com/cosmos/cosmos-sdk/baseapp.BaseApp",
+	}
+
+	found, err := cosmosanalysis.FindEmbed(tmpDir, targets)
+	require.NoError(t, err)
+	require.ElementsMatch(t, []string{"App1", "App2", "AppPointer"}, found)
+
+	// Test with a directory that doesn't contain the target embeds
+	emptyDir := t.TempDir()
+	modPathEmpty := filepath.Join(emptyDir, "go.mod")
+	err = os.WriteFile(modPathEmpty, appModuleGoMod, 0o644)
+	require.NoError(t, err)
+	otherFilePath := filepath.Join(emptyDir, "other.go")
+	err = os.WriteFile(otherFilePath, []byte(`package foo; type Bar struct{}`), 0o644)
+	require.NoError(t, err)
+
+	foundEmpty, err := cosmosanalysis.FindEmbed(emptyDir, targets)
+	require.NoError(t, err)
+	require.Empty(t, foundEmpty)
+
+	// Test with non-existent directory
+	_, err = cosmosanalysis.FindEmbed(filepath.Join(tmpDir, "nonexistent"), targets)
+	require.Error(t, err) // Expect an error because parser.ParseDir will fail
+}
+
+func TestFindEmbedInFile(t *testing.T) {
+	tmpDir := t.TempDir()
+	filePath := filepath.Join(tmpDir, "app.go")
+	err := os.WriteFile(filePath, embeddedTypeFile, 0o644)
+	require.NoError(t, err)
+
+	fset := token.NewFileSet()
+	fileNode, err := parser.ParseFile(fset, filePath, nil, 0)
+	require.NoError(t, err)
+
+	targets := []string{
+		"github.com/cosmos/cosmos-sdk/runtime.App",
+		"github.com/cosmos/cosmos-sdk/baseapp.BaseApp",
+		"github.com/cosmos/cosmos-sdk/runtime.Server", // To test OtherEmbed
+	}
+
+	found := cosmosanalysis.FindEmbedInFile(fileNode, targets)
+	require.ElementsMatch(t, []string{"App1", "App2", "AppPointer", "OtherEmbed"}, found)
+
+	// Test with a node that is not an *ast.File (though the function expects it)
+	// Create a simple ident node
+	identNode := ast.NewIdent("SomeIdent")
+	foundNotFile := cosmosanalysis.FindEmbedInFile(identNode, targets)
+	require.Empty(t, foundNotFile) // Expect empty as it's not a file node
+
+	// Test with a file that doesn't import/embed the target types
+	otherContent := `package bar; type Bar struct{}`
+	otherFilePath := filepath.Join(tmpDir, "other.go")
+	err = os.WriteFile(otherFilePath, []byte(otherContent), 0o644)
+	require.NoError(t, err)
+	otherFileNode, err := parser.ParseFile(fset, otherFilePath, nil, 0)
+	require.NoError(t, err)
+	foundOther := cosmosanalysis.FindEmbedInFile(otherFileNode, targets)
+	require.Empty(t, foundOther)
 }

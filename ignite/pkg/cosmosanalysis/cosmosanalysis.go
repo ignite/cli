@@ -240,9 +240,9 @@ func FindEmbed(modulePath string, targetEmbeddedTypes []string) (found []string,
 func FindEmbedInFile(n ast.Node, targetEmbeddedTypes []string) (found []string) {
 	fileNode, ok := n.(*ast.File)
 	if !ok {
-		// Or handle error, e.g. return nil or an error
 		return nil
 	}
+
 	return findStructsEmbeddingInFile(fileNode, targetEmbeddedTypes)
 }
 
