@@ -2,12 +2,13 @@ package modulecreate
 
 import (
 	"fmt"
-	"path/filepath"
+	"io/fs"
 
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
 	"github.com/iancoleman/strcase"
 
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
@@ -19,25 +20,21 @@ import (
 
 // NewGenerator returns the generator to scaffold a module inside an app.
 func NewGenerator(opts *CreateOptions) (*genny.Generator, error) {
-	var (
-		g = genny.New()
+	subMsgServer, err := fs.Sub(fsMsgServer, "files/msgserver")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
 
-		msgServerTemplate = xgenny.NewEmbedWalker(
-			fsMsgServer,
-			"files/msgserver/",
-			opts.AppPath,
-		)
-		baseTemplate = xgenny.NewEmbedWalker(
-			fsBase,
-			"files/base/",
-			opts.AppPath,
-		)
-	)
+	subBase, err := fs.Sub(fsBase, "files/base")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
 
-	if err := g.Box(msgServerTemplate); err != nil {
+	g := genny.New()
+	if err := g.OnlyFS(subMsgServer, nil, nil); err != nil {
 		return g, err
 	}
-	if err := g.Box(baseTemplate); err != nil {
+	if err := g.OnlyFS(subBase, nil, nil); err != nil {
 		return g, err
 	}
 
@@ -80,7 +77,7 @@ func NewAppModify(replacer placeholder.Replacer, opts *CreateOptions) *genny.Gen
 
 func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		configPath := filepath.Join(opts.AppPath, module.PathAppConfigGo)
+		configPath := module.PathAppConfigGo
 		fConfig, err := r.Disk.Find(configPath)
 		if err != nil {
 			return err
@@ -145,7 +142,7 @@ func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.R
 // app.go modification when creating a module.
 func appModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		appPath := filepath.Join(opts.AppPath, module.PathAppGo)
+		appPath := module.PathAppGo
 		f, err := r.Disk.Find(appPath)
 		if err != nil {
 			return err

@@ -166,7 +166,6 @@ func (s Scaffolder) AddType(
 		g    *genny.Generator
 		opts = &typed.Options{
 			AppName:      s.modpath.Package,
-			AppPath:      s.appPath,
 			ProtoDir:     s.protoDir,
 			ProtoVer:     "v1", // TODO(@julienrbrt): possibly in the future add flag to specify custom proto version.
 			ModulePath:   s.modpath.RawPath,
@@ -188,7 +187,6 @@ func (s Scaffolder) AddType(
 			ModuleName: opts.ModuleName,
 			ModulePath: opts.ModulePath,
 			AppName:    opts.AppName,
-			AppPath:    opts.AppPath,
 			ProtoDir:   opts.ProtoDir,
 			ProtoVer:   opts.ProtoVer,
 		},

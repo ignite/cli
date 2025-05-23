@@ -34,6 +34,9 @@ var (
 	// The path is relative to the app's directory.
 	DefaultComposablesPath = "vue/src/composables"
 
+	// DefaultVueTypesPath defines the default vue types path.
+	DefaultVueTypesPath = "vue/src/views/Types.vue"
+
 	// DefaultHooksPath defines the default relative path to use when generating useQuery hooks for a React app.
 	// The path is relative to the app's directory.
 	DefaultHooksPath = "react/src/hooks"

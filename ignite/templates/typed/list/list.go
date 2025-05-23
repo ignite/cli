@@ -3,6 +3,7 @@ package list
 import (
 	"embed"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,12 +11,12 @@ import (
 	"github.com/emicklei/proto"
 	"github.com/gobuffalo/genny/v2"
 
+	"github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/typed"
 )
 
@@ -32,26 +33,20 @@ var (
 
 // NewGenerator returns the generator to scaffold a new type in a module.
 func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
-	var (
-		g = genny.New()
+	subMessages, err := fs.Sub(fsMessages, "files/messages")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
+	subComponent, err := fs.Sub(fsComponent, "files/component")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
+	subSimapp, err := fs.Sub(fsSimapp, "files/simapp")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
 
-		messagesTemplate = xgenny.NewEmbedWalker(
-			fsMessages,
-			"files/messages/",
-			opts.AppPath,
-		)
-		componentTemplate = xgenny.NewEmbedWalker(
-			fsComponent,
-			"files/component/",
-			opts.AppPath,
-		)
-		simappTemplate = xgenny.NewEmbedWalker(
-			fsSimapp,
-			"files/simapp/",
-			opts.AppPath,
-		)
-	)
-
+	g := genny.New()
 	g.RunFn(protoQueryModify(opts))
 	g.RunFn(typesKeyModify(opts))
 	g.RunFn(keeperModify(opts))
@@ -68,20 +63,20 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 
 		if !opts.NoSimulation {
 			g.RunFn(moduleSimulationModify(opts))
-			if err := typed.Box(simappTemplate, opts, g); err != nil {
+			if err := typed.Box(subSimapp, opts, g); err != nil {
 				return nil, err
 			}
 		}
 
 		// Messages template
-		if err := typed.Box(messagesTemplate, opts, g); err != nil {
+		if err := typed.Box(subMessages, opts, g); err != nil {
 			return nil, err
 		}
 	}
 
 	g.RunFn(frontendSrcStoreAppModify(replacer, opts))
 
-	return g, typed.Box(componentTemplate, opts, g)
+	return g, typed.Box(subComponent, opts, g)
 }
 
 // protoTxModify modifies the tx.proto file to add the required RPCs and messages.
@@ -285,7 +280,7 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 // typesKeyModify modifies the keys.go file to add a new collection prefix.
 func typesKeyModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/keys.go")
+		path := filepath.Join("x", opts.ModuleName, "types/keys.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -307,7 +302,7 @@ var (
 // keeperModify modifies the keeper to add a new collections item type.
 func keeperModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/keeper.go")
+		path := filepath.Join("x", opts.ModuleName, "keeper/keeper.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -362,7 +357,7 @@ func keeperModify(opts *typed.Options) genny.RunFn {
 
 func typesCodecModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/codec.go")
+		path := filepath.Join("x", opts.ModuleName, "types/codec.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -397,7 +392,7 @@ func typesCodecModify(opts *typed.Options) genny.RunFn {
 
 func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/autocli.go")
+		path := filepath.Join("x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -441,7 +436,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 
 func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/autocli.go")
+		path := filepath.Join("x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -475,7 +470,7 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 
 func frontendSrcStoreAppModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "vue/src/views/Types.vue")
+		path := chain.DefaultVueTypesPath
 		f, err := r.Disk.Find(path)
 		if os.IsNotExist(err) {
 			// Skip modification if the app doesn't contain front-end

@@ -67,7 +67,7 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 
 func genesisTypesModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis.go")
+		path := filepath.Join("x", opts.ModuleName, "types/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -121,7 +121,7 @@ for _, elem := range gs.%[2]vList {
 
 func genesisModuleModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/genesis.go")
+		path := filepath.Join("x", opts.ModuleName, "keeper/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -186,7 +186,7 @@ if err != nil {
 
 func genesisTestsModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/genesis_test.go")
+		path := filepath.Join("x", opts.ModuleName, "keeper/genesis_test.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -222,7 +222,7 @@ require.Equal(t, genesisState.%[1]vCount, got.%[1]vCount)`, opts.TypeName.UpperC
 
 func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis_test.go")
+		path := filepath.Join("x", opts.ModuleName, "types/genesis_test.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

@@ -49,7 +49,6 @@ func (s Scaffolder) CreateConfigs(
 		ModuleName: moduleName,
 		Configs:    configsFields,
 		AppName:    s.modpath.Package,
-		AppPath:    s.appPath,
 		ProtoDir:   s.protoDir,
 		ProtoVer:   "v1", // TODO(@julienrbrt): possibly in the future add flag to specify custom proto version.
 	}

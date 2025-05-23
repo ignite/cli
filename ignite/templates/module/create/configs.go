@@ -19,7 +19,7 @@ func NewModuleConfigs(opts ConfigsOptions) (*genny.Generator, error) {
 func configsProtoModify(opts ConfigsOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		// here we do not use opts.ProtoFile as it will append an extra opts.ProtoVer in the path
-		path := filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, "module", opts.ProtoVer, "module.proto")
+		path := filepath.Join(opts.ProtoDir, opts.AppName, opts.ModuleName, "module", opts.ProtoVer, "module.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
