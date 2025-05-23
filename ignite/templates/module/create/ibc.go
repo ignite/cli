@@ -59,7 +59,7 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 
 func genesisModify(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/genesis.go")
+		path := filepath.Join("x", opts.ModuleName, "keeper/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -99,7 +99,7 @@ func genesisModify(opts *CreateOptions) genny.RunFn {
 
 func genesisTypesModify(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis.go")
+		path := filepath.Join("x", opts.ModuleName, "types/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -175,7 +175,7 @@ func genesisProtoModify(opts *CreateOptions) genny.RunFn {
 
 func keysModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/keys.go")
+		path := filepath.Join("x", opts.ModuleName, "types/keys.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -205,7 +205,7 @@ PortID = "%[1]v"`
 
 func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, module.PathIBCConfigGo)
+		path := module.PathIBCConfigGo
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

@@ -110,7 +110,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 // keeperModify modifies the keeper to add a new collections map type.
 func keeperModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/keeper.go")
+		path := filepath.Join("x", opts.ModuleName, "keeper/keeper.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -269,7 +269,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 
 func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/autocli.go")
+		path := filepath.Join("x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -344,7 +344,7 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 
 func genesisTypesModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis.go")
+		path := filepath.Join("x", opts.ModuleName, "types/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -398,7 +398,7 @@ for _, elem := range gs.%[2]vMap {
 
 func genesisModuleModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/genesis.go")
+		path := filepath.Join("x", opts.ModuleName, "keeper/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -453,7 +453,7 @@ for _, elem := range genState.%[2]vMap {
 
 func genesisTestsModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/genesis_test.go")
+		path := filepath.Join("x", opts.ModuleName, "keeper/genesis_test.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -492,7 +492,7 @@ func genesisTestsModify(opts *typed.Options) genny.RunFn {
 
 func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis_test.go")
+		path := filepath.Join("x", opts.ModuleName, "types/genesis_test.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -649,7 +649,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 
 func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/autocli.go")
+		path := filepath.Join("x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -700,7 +700,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 
 func typesCodecModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/codec.go")
+		path := filepath.Join("x", opts.ModuleName, "types/codec.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

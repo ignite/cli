@@ -49,7 +49,6 @@ func (s Scaffolder) CreateParams(
 		ModuleName: moduleName,
 		Params:     paramsFields,
 		AppName:    s.modpath.Package,
-		AppPath:    s.appPath,
 		ProtoDir:   s.protoDir,
 		ProtoVer:   "v1", // TODO(@julienrbrt): possibly in the future add flag to specify custom proto version.
 	}

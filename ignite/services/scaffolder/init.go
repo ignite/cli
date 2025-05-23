@@ -104,7 +104,6 @@ func generate(
 		// generate application template
 		ModulePath:       pathInfo.RawPath,
 		AppName:          pathInfo.Package,
-		AppPath:          absRoot,
 		ProtoDir:         protoDir,
 		GitHubPath:       githubPath,
 		BinaryNamePrefix: pathInfo.Root,
@@ -133,7 +132,6 @@ func generate(
 			ModuleName: pathInfo.Package, // App name
 			ModulePath: pathInfo.RawPath,
 			AppName:    pathInfo.Package,
-			AppPath:    absRoot,
 			ProtoDir:   protoDir,
 			ProtoVer:   "v1", // TODO(@julienrbrt): possibly in the future add flag to specify custom proto version.
 			Params:     paramsFields,

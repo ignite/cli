@@ -11,6 +11,7 @@ import (
 	"github.com/emicklei/proto"
 	"github.com/gobuffalo/genny/v2"
 
+	"github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
@@ -279,7 +280,7 @@ func protoQueryModify(opts *typed.Options) genny.RunFn {
 // typesKeyModify modifies the keys.go file to add a new collection prefix.
 func typesKeyModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/keys.go")
+		path := filepath.Join("x", opts.ModuleName, "types/keys.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -301,7 +302,7 @@ var (
 // keeperModify modifies the keeper to add a new collections item type.
 func keeperModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/keeper.go")
+		path := filepath.Join("x", opts.ModuleName, "keeper/keeper.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -356,7 +357,7 @@ func keeperModify(opts *typed.Options) genny.RunFn {
 
 func typesCodecModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/codec.go")
+		path := filepath.Join("x", opts.ModuleName, "types/codec.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -391,7 +392,7 @@ func typesCodecModify(opts *typed.Options) genny.RunFn {
 
 func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/autocli.go")
+		path := filepath.Join("x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -435,7 +436,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 
 func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/autocli.go")
+		path := filepath.Join("x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -469,7 +470,7 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 
 func frontendSrcStoreAppModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "vue/src/views/Types.vue")
+		path := chain.DefaultVueTypesPath
 		f, err := r.Disk.Find(path)
 		if os.IsNotExist(err) {
 			// Skip modification if the app doesn't contain front-end

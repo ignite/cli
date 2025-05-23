@@ -93,16 +93,16 @@ func (sm *SourceModification) String() (string, error) {
 		return files, nil
 	}
 
+	files, err := appendPrefix(sm.CreatedFiles(), createPrefix)
+	if err != nil {
+		return "", err
+	}
 	modified, err := appendPrefix(sm.ModifiedFiles(), modifyPrefix)
 	if err != nil {
 		return "", err
 	}
-	created, err := appendPrefix(sm.CreatedFiles(), createPrefix)
-	if err != nil {
-		return "", err
-	}
 
-	files := append(modified, created...)
+	files = append(files, modified...)
 
 	// sort filenames without a prefix
 	sort.Slice(files, func(i, j int) bool {

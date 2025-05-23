@@ -34,7 +34,6 @@ var (
 // PacketOptions are options to scaffold a packet in a IBC module.
 type PacketOptions struct {
 	AppName    string
-	AppPath    string
 	ProtoDir   string
 	ProtoVer   string
 	ModuleName string
@@ -48,16 +47,16 @@ type PacketOptions struct {
 
 // ProtoFile returns the path to the proto folder.
 func (opts *PacketOptions) ProtoFile(fname string) string {
-	return filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, opts.ProtoVer, fname)
+	return filepath.Join(opts.ProtoDir, opts.AppName, opts.ModuleName, opts.ProtoVer, fname)
 }
 
 // NewPacket returns the generator to scaffold a packet in an IBC module.
 func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Generator, error) {
-	subPacketComponent, err := fs.Sub(fsPacketComponent, "files/packet/component")
+	subPacketComponent, err := fs.Sub(fsPacketComponent, "files/packet/component/**/*")
 	if err != nil {
 		return nil, errors.Errorf("fail to generate sub: %w", err)
 	}
-	subPacketMessages, err := fs.Sub(fsPacketMessages, "files/packet/messages")
+	subPacketMessages, err := fs.Sub(fsPacketMessages, "files/packet/messages/**/*")
 	if err != nil {
 		return nil, errors.Errorf("fail to generate sub: %w", err)
 	}
@@ -109,7 +108,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 
 func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/module_ibc.go")
+		path := filepath.Join("x", opts.ModuleName, "module/module_ibc.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -270,7 +269,7 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 
 func eventModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/events_ibc.go")
+		path := filepath.Join("x", opts.ModuleName, "types/events_ibc.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -369,7 +368,7 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 // clientCliTxModify does not use AutoCLI here, because it as a better UX as it is.
 func clientCliTxModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		filePath := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/tx.go")
+		filePath := filepath.Join("x", opts.ModuleName, "client/cli/tx.go")
 		f, err := r.Disk.Find(filePath)
 		if err != nil {
 			return err
@@ -391,7 +390,7 @@ func clientCliTxModify(opts *PacketOptions) genny.RunFn {
 
 func codecModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/codec.go")
+		path := filepath.Join("x", opts.ModuleName, "types/codec.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

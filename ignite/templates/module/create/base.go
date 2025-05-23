@@ -3,7 +3,6 @@ package modulecreate
 import (
 	"fmt"
 	"io/fs"
-	"path/filepath"
 
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
@@ -78,7 +77,7 @@ func NewAppModify(replacer placeholder.Replacer, opts *CreateOptions) *genny.Gen
 
 func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		configPath := filepath.Join(opts.AppPath, module.PathAppConfigGo)
+		configPath := module.PathAppConfigGo
 		fConfig, err := r.Disk.Find(configPath)
 		if err != nil {
 			return err
@@ -143,7 +142,7 @@ func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.R
 // app.go modification when creating a module.
 func appModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		appPath := filepath.Join(opts.AppPath, module.PathAppGo)
+		appPath := module.PathAppGo
 		f, err := r.Disk.Find(appPath)
 		if err != nil {
 			return err

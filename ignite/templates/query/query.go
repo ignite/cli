@@ -149,7 +149,7 @@ func protoQueryModify(opts *Options) genny.RunFn {
 
 func cliQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/autocli.go")
+		path := filepath.Join("x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

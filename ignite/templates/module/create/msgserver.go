@@ -28,7 +28,7 @@ func AddMsgServerConventionToLegacyModule(replacer placeholder.Replacer, opts *M
 	}
 
 	g := genny.New()
-	g.RunFn(codecPath(replacer, opts.AppPath, opts.ModuleName))
+	g.RunFn(codecPath(replacer, opts.ModuleName))
 
 	if err := g.OnlyFS(subFs, nil, nil); err != nil {
 		return g, err
@@ -53,9 +53,9 @@ func AddMsgServerConventionToLegacyModule(replacer placeholder.Replacer, opts *M
 	return g, nil
 }
 
-func codecPath(replacer placeholder.Replacer, appPath, moduleName string) genny.RunFn {
+func codecPath(replacer placeholder.Replacer, moduleName string) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(appPath, "x", moduleName, "types/codec.go")
+		path := filepath.Join("x", moduleName, "types/codec.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

@@ -170,7 +170,7 @@ func protoTxMessageModify(opts *Options) genny.RunFn {
 
 func typesCodecModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/codec.go")
+		path := filepath.Join("x", opts.ModuleName, "types/codec.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -206,7 +206,7 @@ func typesCodecModify(opts *Options) genny.RunFn {
 
 func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/autocli.go")
+		path := filepath.Join("x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -237,7 +237,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn
 
 func moduleSimulationModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/simulation.go")
+		path := filepath.Join("x", opts.ModuleName, "module/simulation.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
