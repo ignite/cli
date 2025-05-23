@@ -14,11 +14,11 @@ import (
 var fsComponent embed.FS
 
 // NewGenerator returns the generator to scaffold a basic type in  module.
-func NewGenerator() (*genny.Generator, error) {
+func NewGenerator(opts *typed.Options) (*genny.Generator, error) {
 	subFs, err := fs.Sub(fsComponent, "files/component")
 	if err != nil {
 		return nil, errors.Errorf("fail to generate sub: %w", err)
 	}
 	g := genny.New()
-	return g, typed.Box(subFs, nil, nil)
+	return g, typed.Box(subFs, opts, g)
 }

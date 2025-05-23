@@ -204,7 +204,7 @@ func (s Scaffolder) AddType(
 	case o.isSingleton:
 		g, err = singleton.NewGenerator(s.Tracer(), opts)
 	default:
-		g, err = dry.NewGenerator()
+		g, err = dry.NewGenerator(opts)
 	}
 	if err != nil {
 		return err

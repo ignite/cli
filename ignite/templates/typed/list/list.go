@@ -69,14 +69,14 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 		}
 
 		// Messages template
-		if err := typed.Box(subMessages, opts, nil); g != nil {
+		if err := typed.Box(subMessages, opts, g); g != nil {
 			return nil, err
 		}
 	}
 
 	g.RunFn(frontendSrcStoreAppModify(replacer, opts))
 
-	return g, typed.Box(subComponent, nil, nil)
+	return g, typed.Box(subComponent, opts, g)
 }
 
 // protoTxModify modifies the tx.proto file to add the required RPCs and messages.
