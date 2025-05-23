@@ -12,7 +12,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/templates/app"
 	"github.com/ignite/cli/v29/ignite/templates/field"
 	modulecreate "github.com/ignite/cli/v29/ignite/templates/module/create"
-	"github.com/ignite/cli/v29/ignite/templates/testutil"
 )
 
 // Init initializes a new app with name and given options.
@@ -114,10 +113,6 @@ func generate(
 		IsChainMinimal:   minimal,
 	})
 	if err != nil {
-		return xgenny.SourceModification{}, err
-	}
-	// Create the 'testutil' package with the test helpers
-	if err := testutil.Register(g, absRoot); err != nil {
 		return xgenny.SourceModification{}, err
 	}
 
