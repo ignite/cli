@@ -20,6 +20,10 @@ understanding of the directory structure and files that make up a blockchain.
 This knowledge will be useful as you continue to explore the world of blockchain
 development.
 
+If you are looking for more tutorials and hands-on experience, check out our tutorials website:
+
+[Ignite Tutorials](https://tutorials.ignite.com)
+
 ## Creating a new blockchain
 
 To create a new blockchain project with Ignite, you will need to run the

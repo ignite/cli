@@ -30,7 +30,7 @@ import (
 const (
 	moduleCacheNamespace       = "generate.setup.module"
 	includeProtoCacheNamespace = "generator.includes.proto"
-	workFilename               = "buf.work.yaml"
+	bufYamlFilename            = "buf.yaml"
 )
 
 var (
@@ -223,7 +223,7 @@ func (g *generator) findBufPath(modpath string) (string, error) {
 			return err
 		}
 		base := filepath.Base(path)
-		if base == "buf.yaml" || base == "buf.yml" {
+		if base == bufYamlFilename || base == "buf.yml" {
 			bufPath = path
 			return filepath.SkipAll
 		}
@@ -268,9 +268,13 @@ func (g *generator) resolveIncludes(ctx context.Context, path, protoDir string) 
 		// Check that the app/package proto directory exists
 		protoPath = filepath.Join(path, protoDir)
 		fi, err := os.Stat(protoPath)
-		if err != nil && !os.IsNotExist(err) {
+		if os.IsNotExist(err) {
+			return protoIncludes{}, false, errors.Errorf("proto directory %s does not exist", protoPath)
+		} else if err != nil {
 			return protoIncludes{}, false, err
-		} else if !fi.IsDir() {
+		}
+
+		if !fi.IsDir() {
 			// Just return the global includes when a proto directory doesn't exist
 			return includes, true, nil
 		}
@@ -456,21 +460,30 @@ func (g generator) vendorProtoPackage(pkgName, protoPath string) (err error) {
 		return err
 	}
 
-	path := filepath.Join(g.appPath, workFilename)
+	path := filepath.Join(g.appPath, bufYamlFilename)
 	bz, err := os.ReadFile(path)
 	if err != nil {
 		return errors.Errorf("error reading Buf workspace file: %s: %w", path, err)
 	}
 
 	ws := struct {
-		Version     string   `yaml:"version"`
-		Directories []string `yaml:"directories"`
+		Version string `yaml:"version"`
+		Modules []struct {
+			Path string `yaml:"path"`
+		} `yaml:"modules"`
+		Deps     []string `yaml:"deps"`
+		Lint     any      `yaml:"lint"`
+		Breaking any      `yaml:"breaking"`
 	}{}
 	if err := yaml.Unmarshal(bz, &ws); err != nil {
 		return err
 	}
 
-	ws.Directories = append(ws.Directories, vendorRelPath)
+	ws.Modules = append(ws.Modules, struct {
+		Path string `yaml:"path"`
+	}{
+		Path: vendorRelPath,
+	})
 
 	f, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC, 0o644)
 	if err != nil {

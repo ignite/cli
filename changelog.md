@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Features
+
+- [#4683](https://github.com/ignite/cli/pull/4683) Allow to change default denom via flag.
+- [#4687](https://github.com/ignite/cli/pull/4687) Add address type with `scalar` annotations, and add `scalar` type to signer field.
+
+### Changes
+
+- [#4689](https://github.com/ignite/cli/pull/4689) Revert `HasGenesis` implementation from retracted `core` v1 to SDK `HasGenesis` interface.
+- [#4701](https://github.com/ignite/cli/pull/4701) Improve `ignite doctor` by removing manual migration step. Additionally, remove protoc to buf migrations logic.
+
+### Bug Fixes
+
+- [#4686](https://github.com/ignite/cli/pull/4686) Filter discovered protos to only messages.
+
 ## [`v29.0.0-rc.1`](https://github.com/ignite/cli/releases/tag/v29.0.0-rc.1)
 
 ### Features

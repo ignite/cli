@@ -157,12 +157,12 @@ const config = {
             title: "Products",
             items: [
               {
-                label: "CLI",
+                label: "Ignite CLI",
                 href: "https://ignite.com/cli",
               },
               {
-                label: "Accelerator",
-                href: "https://ignite.com/accelerator",
+                label: "Ignite Apps",
+                href: "https://ignite.com/marketplace",
               },
             ],
           },
@@ -180,10 +180,6 @@ const config = {
               {
                 label: "Blog",
                 href: "https://ignite.com/blog",
-              },
-              {
-                label: "Press",
-                href: "https://ignite.com/press",
               },
             ],
           },
