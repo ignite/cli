@@ -196,3 +196,23 @@ func TestGenerateAnAppWithAddressPrefix(t *testing.T) {
 
 	app.EnsureSteady()
 }
+
+func TestGenerateAnAppWithDefaultDenom(t *testing.T) {
+	var (
+		env = envtest.New(t)
+		app = env.ScaffoldApp("github.com/test/blog", "--default-denom=good")
+	)
+
+	_, statErr := os.Stat(filepath.Join(app.SourcePath(), "x", "blog"))
+	require.False(t, os.IsNotExist(statErr), "the default module should be scaffolded")
+
+	c, err := chain.New(app.SourcePath())
+	require.NoError(t, err, "failed to get new chain")
+
+	cfg, err := c.Config()
+	require.NoError(t, err)
+
+	require.Equal(t, cfg.DefaultDenom, "good")
+
+	app.EnsureSteady()
+}

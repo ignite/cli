@@ -106,7 +106,7 @@ func genesisTypesModify(opts *CreateOptions) genny.RunFn {
 		// Import
 		content, err := xast.AppendImports(
 			f.String(),
-			xast.WithLastNamedImport("host", "github.com/cosmos/ibc-go/v10/modules/core/24-host"),
+			xast.WithNamedImport("host", "github.com/cosmos/ibc-go/v10/modules/core/24-host"),
 		)
 		if err != nil {
 			return err
@@ -116,7 +116,7 @@ func genesisTypesModify(opts *CreateOptions) genny.RunFn {
 		content, err = xast.ModifyFunction(
 			content,
 			"DefaultGenesis",
-			xast.AppendFuncStruct("GenesisState", "PortId", "PortID", -1),
+			xast.AppendFuncStruct("GenesisState", "PortId", "PortID"),
 		)
 		if err != nil {
 			return err
@@ -212,11 +212,11 @@ func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunF
 		// Import
 		content, err := xast.AppendImports(
 			f.String(),
-			xast.WithLastNamedImport(
+			xast.WithNamedImport(
 				fmt.Sprintf("%[1]vmodule", opts.ModuleName),
 				fmt.Sprintf("%[1]v/x/%[2]v/module", opts.ModulePath, opts.ModuleName),
 			),
-			xast.WithLastNamedImport(
+			xast.WithNamedImport(
 				fmt.Sprintf("%[1]vmoduletypes", opts.ModuleName),
 				fmt.Sprintf("%[1]v/x/%[2]v/types", opts.ModulePath, opts.ModuleName),
 			),

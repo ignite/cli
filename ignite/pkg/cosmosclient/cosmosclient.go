@@ -78,14 +78,14 @@ type FaucetClient interface {
 	Transfer(context.Context, cosmosfaucet.TransferRequest) (cosmosfaucet.TransferResponse, error)
 }
 
-// Gasometer allows to mock the tx.CalculateGas func.
+// Gasometer allows mocking the tx.CalculateGas func.
 //
 //go:generate mockery --srcpkg . --name Gasometer --filename gasometer.go --with-expecter
 type Gasometer interface {
 	CalculateGas(clientCtx gogogrpc.ClientConn, txf tx.Factory, msgs ...sdktypes.Msg) (*txtypes.SimulateResponse, uint64, error)
 }
 
-// Signer allows to mock the tx.Sign func.
+// Signer allows mocking the tx.Sign func.
 //
 //go:generate mockery --srcpkg . --name Signer --filename signer.go --with-expecter
 type Signer interface {

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"maps"
 	"path/filepath"
 	"strings"
 
@@ -171,7 +172,11 @@ func (b Buf) Update(ctx context.Context, modDir string) error {
 
 // Migrate runs the buf Migrate command for the files in the app directory.
 func (b Buf) Migrate(ctx context.Context, protoDir string) error {
-	yamlFiles, err := xos.FindFiles(protoDir, xos.WithExtension(xos.YMLFile), xos.WithExtension(xos.YAMLFile), xos.WithPrefix(bufGenPrefix))
+	yamlFiles, err := xos.FindFiles(protoDir,
+		xos.WithExtension(xos.YMLFile),
+		xos.WithExtension(xos.YAMLFile),
+		xos.WithPrefix(bufGenPrefix),
+	)
 	if err != nil {
 		return err
 	}
@@ -277,9 +282,7 @@ func (b Buf) Generate(
 		flagErrorFormat: fmtJSON,
 		flagLogFormat:   fmtJSON,
 	}
-	for k, v := range opts.flags {
-		flags[k] = v
-	}
+	maps.Copy(flags, opts.flags)
 	if opts.includeImports {
 		flags[flagIncludeImports] = "true"
 	}

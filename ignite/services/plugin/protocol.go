@@ -229,6 +229,15 @@ func (c clientAPIClient) GetChainInfo(ctx context.Context) (*ChainInfo, error) {
 	return r.ChainInfo, nil
 }
 
+func (c clientAPIClient) GetIgniteInfo(ctx context.Context) (*IgniteInfo, error) {
+	r, err := c.grpc.GetIgniteInfo(ctx, &v1.GetIgniteInfoRequest{})
+	if err != nil {
+		return nil, err
+	}
+
+	return r.IgniteInfo, nil
+}
+
 type clientAPIServer struct {
 	v1.UnimplementedClientAPIServiceServer
 
@@ -242,4 +251,13 @@ func (s clientAPIServer) GetChainInfo(ctx context.Context, _ *v1.GetChainInfoReq
 	}
 
 	return &v1.GetChainInfoResponse{ChainInfo: chainInfo}, nil
+}
+
+func (s clientAPIServer) GetIgniteInfo(ctx context.Context, _ *v1.GetIgniteInfoRequest) (*v1.GetIgniteInfoResponse, error) {
+	igniteInfo, err := s.impl.GetIgniteInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &v1.GetIgniteInfoResponse{IgniteInfo: igniteInfo}, nil
 }

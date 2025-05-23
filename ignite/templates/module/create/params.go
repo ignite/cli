@@ -85,7 +85,6 @@ func paramsTypesModify(opts ParamsOptions) genny.RunFn {
 					"Params",
 					param.Name.UpperCamel,
 					param.ProtoFieldName(),
-					-1,
 				),
 			)
 

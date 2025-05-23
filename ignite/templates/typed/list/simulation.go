@@ -34,13 +34,11 @@ func moduleSimulationModify(opts *typed.Options) genny.RunFn {
 					opts.TypeName.PascalCase,
 					msgField,
 				),
-				-1,
 			),
 			xast.AppendFuncStruct(
 				"GenesisState",
 				fmt.Sprintf("%[1]vCount", opts.TypeName.UpperCamel),
 				"2",
-				-1,
 			),
 		)
 		if err != nil {

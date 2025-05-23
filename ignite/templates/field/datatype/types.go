@@ -34,6 +34,8 @@ const (
 	Coins Name = "array.coin"
 	// Bytes represents the bytes type name.
 	Bytes Name = "bytes"
+	// Address represents the address type name.
+	Address Name = "address"
 	// Custom represents the custom type name.
 	Custom Name = Name(TypeCustom)
 
@@ -70,6 +72,7 @@ var supportedTypes = map[Name]DataType{
 	Coin:             DataCoin,
 	Coins:            DataCoinSlice,
 	CoinSliceAlias:   DataCoinSlice,
+	Address:          DataAddress,
 	Custom:           DataCustom,
 }
 

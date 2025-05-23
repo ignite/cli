@@ -187,11 +187,11 @@ func (c ChainCmd) StartCommand(options ...string) step.Option {
 }
 
 // InitCommand returns the command to initialize the chain.
-func (c ChainCmd) InitCommand(moniker string) step.Option {
-	command := []string{
+func (c ChainCmd) InitCommand(moniker string, options ...string) step.Option {
+	command := append([]string{
 		commandInit,
 		moniker,
-	}
+	}, options...)
 	command = c.attachChainID(command)
 	return c.daemonCommand(command)
 }

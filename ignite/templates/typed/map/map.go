@@ -148,7 +148,6 @@ func keeperModify(opts *typed.Options) genny.RunFn {
 					opts.TypeName.LowerCamel,
 					opts.Index.CollectionsKeyValueType(),
 				),
-				-1,
 			),
 		)
 		if err != nil {
@@ -359,7 +358,7 @@ func genesisTypesModify(opts *typed.Options) genny.RunFn {
 			return err
 		}
 
-		content, err := xast.AppendImports(f.String(), xast.WithLastImport("fmt"))
+		content, err := xast.AppendImports(f.String(), xast.WithImport("fmt"))
 		if err != nil {
 			return err
 		}
@@ -368,7 +367,6 @@ func genesisTypesModify(opts *typed.Options) genny.RunFn {
 			"GenesisState",
 			fmt.Sprintf("%[1]vMap", opts.TypeName.UpperCamel),
 			fmt.Sprintf("[]%[1]v{}", opts.TypeName.PascalCase),
-			-1,
 		))
 		if err != nil {
 			return err
@@ -488,7 +486,6 @@ func genesisTestsModify(opts *typed.Options) genny.RunFn {
 					sampleIndexes[0],
 					sampleIndexes[1],
 				),
-				-1,
 			),
 			xast.AppendFuncCode(fmt.Sprintf("require.ElementsMatch(t, genesisState.%[1]vMap, got.%[1]vMap)", opts.TypeName.UpperCamel)),
 		)
@@ -548,7 +545,6 @@ func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 					sampleIndexes[0],
 					sampleIndexes[1],
 				),
-				-1,
 			),
 			xast.AppendFuncTestCase(replacementDuplicated),
 		)
@@ -625,6 +621,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 		}
 
 		creator := protoutil.NewField(opts.MsgSigner.Snake, "string", 1)
+		creator.Options = append(creator.Options, protoutil.NewOption("cosmos_proto.scalar", "cosmos.AddressString", protoutil.Custom())) // set the scalar annotation
 		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.Snake)
 		commonFields := []*proto.NormalField{creator}
 		commonFields = append(commonFields, index)
@@ -718,7 +715,7 @@ func typesCodecModify(opts *typed.Options) genny.RunFn {
 		}
 
 		// Import
-		content, err := xast.AppendImports(f.String(), xast.WithLastNamedImport("sdk", "github.com/cosmos/cosmos-sdk/types"))
+		content, err := xast.AppendImports(f.String(), xast.WithNamedImport("sdk", "github.com/cosmos/cosmos-sdk/types"))
 		if err != nil {
 			return err
 		}

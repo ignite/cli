@@ -28,6 +28,7 @@ meant to be edited by hand.
 	}
 
 	c.PersistentFlags().AddFlagSet(flagSetEnableProtoVendor())
+	c.PersistentFlags().AddFlagSet(flagSetVerbose())
 
 	flagSetPath(c)
 	flagSetClearCache(c)

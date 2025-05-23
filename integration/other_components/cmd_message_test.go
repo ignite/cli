@@ -22,6 +22,7 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 		"text",
 		"vote:int",
 		"like:bool",
+		"from:address",
 		"-r",
 		"foo,bar:int,foobar:bool",
 	)

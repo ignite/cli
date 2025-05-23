@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"slices"
 
 	"github.com/ignite/cli/v29/ignite/pkg/jsonfile"
 )
@@ -83,12 +84,7 @@ func (g Genesis) HasAccount(address string) bool {
 	if err != nil {
 		return false
 	}
-	for _, account := range accounts {
-		if account == address {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(accounts, address)
 }
 
 // StakeDenom returns the stake denom from the genesis.

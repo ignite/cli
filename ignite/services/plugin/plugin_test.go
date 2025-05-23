@@ -226,6 +226,10 @@ func (TestClientAPI) GetChainInfo(context.Context) (*ChainInfo, error) {
 	return &ChainInfo{}, nil
 }
 
+func (TestClientAPI) GetIgniteInfo(context.Context) (*IgniteInfo, error) {
+	return &IgniteInfo{}, nil
+}
+
 func TestPluginLoad(t *testing.T) {
 	wd, err := os.Getwd()
 	require.NoError(t, err)

@@ -68,6 +68,7 @@ func InsertGlobal(fileContent string, globalType GlobalType, globals ...GlobalOp
 	if err != nil {
 		return "", err
 	}
+	cmap := ast.NewCommentMap(fileSet, f, f.Comments)
 
 	// Find the index of the import declaration or package declaration if no imports.
 	var insertIndex int
@@ -130,6 +131,8 @@ func InsertGlobal(fileContent string, globalType GlobalType, globals ...GlobalOp
 		insertIndex++
 	}
 
+	f.Comments = cmap.Filter(f).Comments()
+
 	// Format the modified AST.
 	var buf bytes.Buffer
 	if err := format.Node(&buf, fileSet, f); err != nil {
@@ -167,9 +170,12 @@ func AppendFunction(fileContent string, function string) (modifiedContent string
 	if err != nil {
 		return "", err
 	}
+	cmap := ast.NewCommentMap(fileSet, f, f.Comments)
 
 	// Append the function declaration to the file's declarations.
 	f.Decls = append(f.Decls, funcDecl)
+
+	f.Comments = cmap.Filter(f).Comments()
 
 	// Format the modified AST.
 	var buf bytes.Buffer
@@ -228,6 +234,7 @@ func ModifyStruct(fileContent, structName string, options ...StructOpts) (string
 	if err != nil {
 		return "", err
 	}
+	cmap := ast.NewCommentMap(fileSet, f, f.Comments)
 
 	// Locate and modify the struct declaration.
 	var found bool
@@ -267,6 +274,8 @@ func ModifyStruct(fileContent, structName string, options ...StructOpts) (string
 	if !found {
 		return "", errors.Errorf("struct %q not found in file content", structName)
 	}
+
+	f.Comments = cmap.Filter(f).Comments()
 
 	// Format the modified AST.
 	var buf bytes.Buffer

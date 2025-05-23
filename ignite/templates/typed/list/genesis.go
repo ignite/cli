@@ -73,7 +73,7 @@ func genesisTypesModify(opts *typed.Options) genny.RunFn {
 			return err
 		}
 
-		content, err := xast.AppendImports(f.String(), xast.WithLastImport("fmt"))
+		content, err := xast.AppendImports(f.String(), xast.WithImport("fmt"))
 		if err != nil {
 			return err
 		}
@@ -83,7 +83,6 @@ func genesisTypesModify(opts *typed.Options) genny.RunFn {
 			"GenesisState",
 			fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
 			fmt.Sprintf("[]%[1]v{}", opts.TypeName.PascalCase),
-			-1,
 		))
 		if err != nil {
 			return err
@@ -204,13 +203,11 @@ require.Equal(t, genesisState.%[1]vCount, got.%[1]vCount)`, opts.TypeName.UpperC
 				"GenesisState",
 				fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
 				fmt.Sprintf("[]types.%[1]v{{ Id: 0 }, { Id: 1 }}", opts.TypeName.PascalCase),
-				-1,
 			),
 			xast.AppendFuncStruct(
 				"GenesisState",
 				fmt.Sprintf("%[1]vCount", opts.TypeName.UpperCamel),
 				"2",
-				-1,
 			),
 			xast.AppendFuncCode(replacementAssert),
 		)
@@ -279,13 +276,11 @@ func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 				"GenesisState",
 				fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
 				fmt.Sprintf("[]types.%[1]v{{ Id: 0 }, { Id: 1 }}", opts.TypeName.PascalCase),
-				-1,
 			),
 			xast.AppendFuncStruct(
 				"GenesisState",
 				fmt.Sprintf("%[1]vCount", opts.TypeName.UpperCamel),
 				"2",
-				-1,
 			),
 			xast.AppendFuncTestCase(replacementTestDuplicated),
 			xast.AppendFuncTestCase(replacementInvalidCount),

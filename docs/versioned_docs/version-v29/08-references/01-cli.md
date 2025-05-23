@@ -1022,13 +1022,77 @@ meant to be edited by hand.
       --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
   -h, --help                  help for generate
   -p, --path string           path of the app (default ".")
+  -v, --verbose               verbose output
 ```
 
 **SEE ALSO**
 
 * [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite generate composables](#ignite-generate-composables)	 - TypeScript frontend client and Vue 3 composables
+* [ignite generate hooks](#ignite-generate-hooks)	 - TypeScript frontend client and React hooks
 * [ignite generate openapi](#ignite-generate-openapi)	 - OpenAPI spec for your chain
 * [ignite generate proto-go](#ignite-generate-proto-go)	 - Compile protocol buffer files to Go source code required by Cosmos SDK
+* [ignite generate ts-client](#ignite-generate-ts-client)	 - TypeScript frontend client
+
+
+## ignite generate composables
+
+TypeScript frontend client and Vue 3 composables
+
+```
+ignite generate composables [flags]
+```
+
+**Options**
+
+```
+  -h, --help            help for composables
+  -o, --output string   Vue 3 composables output path
+  -y, --yes             answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+      --clear-cache           clear the build cache (advanced)
+      --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
+  -p, --path string           path of the app (default ".")
+  -v, --verbose               verbose output
+```
+
+**SEE ALSO**
+
+* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
+
+
+## ignite generate hooks
+
+TypeScript frontend client and React hooks
+
+```
+ignite generate hooks [flags]
+```
+
+**Options**
+
+```
+  -h, --help            help for hooks
+  -o, --output string   React hooks output path
+  -y, --yes             answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+      --clear-cache           clear the build cache (advanced)
+      --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
+  -p, --path string           path of the app (default ".")
+  -v, --verbose               verbose output
+```
+
+**SEE ALSO**
+
+* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
 
 
 ## ignite generate openapi
@@ -1052,6 +1116,7 @@ ignite generate openapi [flags]
       --clear-cache           clear the build cache (advanced)
       --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
   -p, --path string           path of the app (default ".")
+  -v, --verbose               verbose output
 ```
 
 **SEE ALSO**
@@ -1080,6 +1145,59 @@ ignite generate proto-go [flags]
       --clear-cache           clear the build cache (advanced)
       --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
   -p, --path string           path of the app (default ".")
+  -v, --verbose               verbose output
+```
+
+**SEE ALSO**
+
+* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
+
+
+## ignite generate ts-client
+
+TypeScript frontend client
+
+**Synopsis**
+
+Generate a framework agnostic TypeScript client for your blockchain project.
+
+By default the TypeScript client is generated in the "ts-client/" directory. You
+can customize the output directory in config.yml:
+
+	client:
+	  typescript:
+	    path: new-path
+
+Output can also be customized by using a flag:
+
+	ignite generate ts-client --output new-path
+
+TypeScript client code can be automatically regenerated on reset or source code
+changes when the blockchain is started with a flag:
+
+	ignite chain serve --generate-clients
+
+
+```
+ignite generate ts-client [flags]
+```
+
+**Options**
+
+```
+  -h, --help            help for ts-client
+  -o, --output string   TypeScript client output path
+      --use-cache       use build cache to speed-up generation
+  -y, --yes             answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+      --clear-cache           clear the build cache (advanced)
+      --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
+  -p, --path string           path of the app (default ".")
+  -v, --verbose               verbose output
 ```
 
 **SEE ALSO**
@@ -1170,7 +1288,8 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 **Options**
 
 ```
-  -h, --help   help for scaffold
+  -h, --help      help for scaffold
+  -v, --verbose   verbose output
 ```
 
 **SEE ALSO**
@@ -1259,6 +1378,12 @@ ignite scaffold chain [name] [flags]
       --skip-proto               skip proto generation
 ```
 
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
+```
+
 **SEE ALSO**
 
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
@@ -1291,6 +1416,12 @@ ignite scaffold chain-registry [flags]
   -h, --help          help for chain-registry
   -p, --path string   path of the app (default ".")
   -y, --yes           answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
 ```
 
 **SEE ALSO**
@@ -1329,6 +1460,12 @@ ignite scaffold configs [configs]... [flags]
       --module string   module to add the query into (default: app's main module)
   -p, --path string     path of the app (default ".")
   -y, --yes             answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
 ```
 
 **SEE ALSO**
@@ -1443,6 +1580,12 @@ ignite scaffold list NAME [field]... [flags]
   -y, --yes             answers interactive yes/no questions with yes
 ```
 
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
+```
+
 **SEE ALSO**
 
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
@@ -1506,6 +1649,12 @@ ignite scaffold map NAME [field]... [flags]
   -p, --path string     path of the app (default ".")
       --signer string   label for the message signer (default: creator)
   -y, --yes             answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
 ```
 
 **SEE ALSO**
@@ -1582,6 +1731,12 @@ ignite scaffold message [name] [field1:type1] [field2:type2] ... [flags]
   -r, --response strings   response fields
       --signer string      label for the message signer (default: creator)
   -y, --yes                answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
 ```
 
 **SEE ALSO**
@@ -1672,6 +1827,12 @@ ignite scaffold module [name] [flags]
   -y, --yes                      answers interactive yes/no questions with yes
 ```
 
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
+```
+
 **SEE ALSO**
 
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
@@ -1700,6 +1861,12 @@ ignite scaffold packet [packetName] [field1] [field2] ... --module [moduleName] 
   -p, --path string     path of the app (default ".")
       --signer string   label for the message signer (default: creator)
   -y, --yes             answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
 ```
 
 **SEE ALSO**
@@ -1742,6 +1909,12 @@ ignite scaffold params [param]... [flags]
   -y, --yes             answers interactive yes/no questions with yes
 ```
 
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
+```
+
 **SEE ALSO**
 
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
@@ -1772,6 +1945,12 @@ ignite scaffold query [name] [field1:type1] [field2:type2] ... [flags]
   -p, --path string        path of the app (default ".")
   -r, --response strings   response fields
   -y, --yes                answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
 ```
 
 **SEE ALSO**
@@ -1810,6 +1989,12 @@ ignite scaffold single NAME [field:type]... [flags]
   -p, --path string     path of the app (default ".")
       --signer string   label for the message signer (default: creator)
   -y, --yes             answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
 ```
 
 **SEE ALSO**
@@ -1870,6 +2055,12 @@ ignite scaffold type NAME [field:type] ... [flags]
   -y, --yes             answers interactive yes/no questions with yes
 ```
 
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
+```
+
 **SEE ALSO**
 
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
@@ -1921,7 +2112,6 @@ ignite testnet in-place [flags]
   -h, --help                    help for in-place
       --home string             directory where the blockchain node is initialized
   -p, --path string             path of the app (default ".")
-      --quit-on-fail            quit program if the app fails to start
       --skip-proto              skip file generation from proto
   -v, --verbose                 verbose output
 ```
@@ -1972,7 +2162,6 @@ ignite testnet multi-node [flags]
       --home string              directory where the blockchain node is initialized
       --node-dir-prefix string   prefix of dir node (default "validator")
   -p, --path string              path of the app (default ".")
-      --quit-on-fail             quit program if the app fails to start
   -r, --reset-once               reset the app state once on init
       --skip-proto               skip file generation from proto
   -v, --verbose                  verbose output

@@ -330,8 +330,13 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 		for i, field := range opts.Fields {
 			sendFields = append(sendFields, field.ToProtoField(i+5))
 		}
+
+		// set address options on signer field
+		signerField := protoutil.NewField(opts.MsgSigner.Snake, "string", 1)
+		signerField.Options = append(signerField.Options, protoutil.NewOption("cosmos_proto.scalar", "cosmos.AddressString", protoutil.Custom()))
+
 		sendFields = append(sendFields,
-			protoutil.NewField(opts.MsgSigner.Snake, "string", 1),
+			signerField,
 			protoutil.NewField("port", "string", 2),
 			protoutil.NewField("channelID", "string", 3),
 			protoutil.NewField("timeoutTimestamp", "uint64", 4),
@@ -397,7 +402,7 @@ func codecModify(opts *PacketOptions) genny.RunFn {
 		}
 
 		// Set import if not set yet
-		content, err := xast.AppendImports(f.String(), xast.WithLastNamedImport("sdk", "github.com/cosmos/cosmos-sdk/types"))
+		content, err := xast.AppendImports(f.String(), xast.WithNamedImport("sdk", "github.com/cosmos/cosmos-sdk/types"))
 		if err != nil {
 			return err
 		}
