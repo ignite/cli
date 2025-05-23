@@ -10,7 +10,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"
 	"github.com/ignite/cli/v29/ignite/templates/module"
-	"github.com/ignite/cli/v29/ignite/templates/testutil"
 )
 
 func Box(box fs.FS, opts *Options, g *genny.Generator) error {
@@ -50,6 +49,5 @@ func Box(box fs.FS, opts *Options, g *genny.Generator) error {
 	g.Transformer(genny.Replace("{{protoVer}}", opts.ProtoVer))
 	g.Transformer(genny.Replace("{{typeName}}", opts.TypeName.Snake))
 
-	// Create the 'testutil' package with the test helpers
-	return testutil.Register(g)
+	return nil
 }

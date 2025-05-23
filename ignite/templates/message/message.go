@@ -16,7 +16,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"
-	"github.com/ignite/cli/v29/ignite/templates/testutil"
 	"github.com/ignite/cli/v29/ignite/templates/typed"
 )
 
@@ -51,8 +50,7 @@ func Box(box fs.FS, opts *Options, g *genny.Generator) error {
 	g.Transformer(genny.Replace("{{protoVer}}", opts.ProtoVer))
 	g.Transformer(genny.Replace("{{msgName}}", opts.MsgName.Snake))
 
-	// Create the 'testutil' package with the test helpers
-	return testutil.Register(g)
+	return nil
 }
 
 // NewGenerator returns the generator to scaffold a empty message in a module.
