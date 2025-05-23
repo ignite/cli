@@ -52,11 +52,11 @@ func (opts *PacketOptions) ProtoFile(fname string) string {
 
 // NewPacket returns the generator to scaffold a packet in an IBC module.
 func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Generator, error) {
-	subPacketComponent, err := fs.Sub(fsPacketComponent, "files/packet/component/**/*")
+	subPacketComponent, err := fs.Sub(fsPacketComponent, "files/packet/component")
 	if err != nil {
 		return nil, errors.Errorf("fail to generate sub: %w", err)
 	}
-	subPacketMessages, err := fs.Sub(fsPacketMessages, "files/packet/messages/**/*")
+	subPacketMessages, err := fs.Sub(fsPacketMessages, "files/packet/messages")
 	if err != nil {
 		return nil, errors.Errorf("fail to generate sub: %w", err)
 	}
