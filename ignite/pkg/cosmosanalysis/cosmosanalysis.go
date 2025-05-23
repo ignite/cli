@@ -249,7 +249,8 @@ func FindEmbedInFile(n ast.Node, targetEmbeddedTypes []string) (found []string) 
 // findStructsEmbeddingInFile checks if any struct in the given AST file embeds one of the target types.
 // targetTypes should be fully qualified (e.g., "package/path.TypeName").
 func findStructsEmbeddingInFile(fileNode *ast.File, targetEmbeddedTypes []string) (foundStructNames []string) {
-	activeTargets := make(map[string]string) // map local package name -> expected TypeName
+	// activeTargets maps local package name to a set of expected TypeNames from that package
+	activeTargets := make(map[string]map[string]struct{})
 
 	for _, targetFQN := range targetEmbeddedTypes {
 		dotIndex := strings.LastIndex(targetFQN, ".")
@@ -271,7 +272,11 @@ func findStructsEmbeddingInFile(fileNode *ast.File, targetEmbeddedTypes []string
 					pathParts := strings.Split(importPath, "/")
 					localPkgName = pathParts[len(pathParts)-1]
 				}
-				activeTargets[localPkgName] = expectedTypeName
+
+				if _, ok := activeTargets[localPkgName]; !ok {
+					activeTargets[localPkgName] = make(map[string]struct{})
+				}
+				activeTargets[localPkgName][expectedTypeName] = struct{}{}
 				break // found the import for this target, move to next targetFQN
 			}
 		}
@@ -307,16 +312,16 @@ func findStructsEmbeddingInFile(fileNode *ast.File, targetEmbeddedTypes []string
 					continue
 				}
 
-				pkgIdent, ok := selExpr.X.(*ast.Ident)
-				if !ok {
+				pkgIdent, okIdent := selExpr.X.(*ast.Ident)
+				if !okIdent {
 					continue
 				}
 
 				pkgNameInCode := pkgIdent.Name
 				typeNameInCode := selExpr.Sel.Name
 
-				if expectedTypeName, found := activeTargets[pkgNameInCode]; found {
-					if typeNameInCode == expectedTypeName {
+				if expectedTypeNamesSet, pkgFound := activeTargets[pkgNameInCode]; pkgFound {
+					if _, typeFound := expectedTypeNamesSet[typeNameInCode]; typeFound {
 						foundStructNames = append(foundStructNames, typeSpec.Name.Name)
 					}
 				}
