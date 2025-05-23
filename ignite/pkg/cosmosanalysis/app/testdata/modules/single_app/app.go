@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/api"
@@ -20,6 +21,8 @@ import (
 )
 
 type Foo struct {
+	baseapp.BaseApp
+
 	AuthKeeper    authkeeper.Keeper
 	BankKeeper    bankkeeper.Keeper
 	StakingKeeper stakingkeeper.Keeper
