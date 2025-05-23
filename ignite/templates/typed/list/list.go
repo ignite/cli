@@ -69,7 +69,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 		}
 
 		// Messages template
-		if err := typed.Box(subMessages, opts, g); g != nil {
+		if err := typed.Box(subMessages, opts, g); err != nil {
 			return nil, err
 		}
 	}
