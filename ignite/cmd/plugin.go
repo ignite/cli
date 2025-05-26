@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -421,13 +422,18 @@ If no path is specified all declared apps are updated.`,
 				// update all plugins
 				return plugin.Update(plugins...)
 			}
+			pluginPath, err := getAppPath(args[0])
+			if err != nil {
+				return err
+			}
+
 			// find the plugin to update
 			for _, p := range plugins {
-				if p.HasPath(args[0]) {
+				if p.HasPath(pluginPath) {
 					return plugin.Update(p)
 				}
 			}
-			return errors.Errorf("App %q not found", args[0])
+			return errors.Errorf("App %q not found", pluginPath)
 		},
 	}
 }
@@ -460,14 +466,19 @@ Respects key value pairs declared after the app path to be added to the generate
 				return err
 			}
 
+			pluginPath, err := getAppPath(args[0])
+			if err != nil {
+				return err
+			}
+
 			for _, p := range conf.Apps {
-				if p.HasPath(args[0]) {
-					return errors.Errorf("app %s is already installed", args[0])
+				if p.HasPath(pluginPath) {
+					return errors.Errorf("app %s is already installed", pluginPath)
 				}
 			}
 
 			p := pluginsconfig.Plugin{
-				Path:   args[0],
+				Path:   pluginPath,
 				With:   make(map[string]string),
 				Global: global,
 			}
@@ -497,10 +508,10 @@ Respects key value pairs declared after the app path to be added to the generate
 
 			if err := plugins[0].Error; err != nil {
 				if strings.Contains(err.Error(), "go.mod file not found in current directory") {
-					return errors.Errorf("unable to find an App at the root of this repository (%s). Please ensure your repository URL is correct. If you're trying to install an App under a subfolder, include the path at the end of your repository URL, e.g., github.com/ignite/apps/appregistry", args[0])
+					return errors.Errorf("unable to find an App at the root of this repository (%s). Please ensure your repository URL is correct. If you're trying to install an App under a subfolder, include the path at the end of your repository URL, e.g., github.com/ignite/apps/appregistry", pluginPath)
 				}
 
-				return errors.Errorf("error while loading app %q: %w", args[0], plugins[0].Error)
+				return errors.Errorf("error while loading app %q: %w", pluginPath, plugins[0].Error)
 			}
 			session.Println(icons.OK, "Done loading apps")
 			conf.Apps = append(conf.Apps, p)
@@ -509,7 +520,7 @@ Respects key value pairs declared after the app path to be added to the generate
 				return err
 			}
 
-			session.Printf("%s Installed %s\n", icons.Tada, args[0])
+			session.Printf("%s Installed %s\n", icons.Tada, pluginPath)
 			return nil
 		},
 	}
@@ -545,9 +556,14 @@ func NewAppUninstall() *cobra.Command {
 				return err
 			}
 
+			pluginPath, err := getAppPath(args[0])
+			if err != nil {
+				return err
+			}
+
 			removed := false
 			for i, cp := range conf.Apps {
-				if cp.HasPath(args[0]) {
+				if cp.HasPath(pluginPath) {
 					conf.Apps = append(conf.Apps[:i], conf.Apps[i+1:]...)
 					removed = true
 					break
@@ -556,14 +572,14 @@ func NewAppUninstall() *cobra.Command {
 
 			if !removed {
 				// return if no matching plugin path found
-				return errors.Errorf("app %s not found", args[0])
+				return errors.Errorf("app %s not found", pluginPath)
 			}
 
 			if err := conf.Save(); err != nil {
 				return err
 			}
 
-			s.Printf("%s %s uninstalled\n", icons.OK, args[0])
+			s.Printf("%s %s uninstalled\n", icons.OK, pluginPath)
 			s.Printf("\t%s updated\n", conf.Path())
 
 			return nil
@@ -629,11 +645,18 @@ func NewAppDescribe() *cobra.Command {
 		Example: "ignite app describe github.com/org/my-app/",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			s := cliui.New(cliui.WithStdout(os.Stdout))
-			ctx := cmd.Context()
+			var (
+				s   = cliui.New(cliui.WithStdout(os.Stdout))
+				ctx = cmd.Context()
+			)
+
+			pluginPath, err := getAppPath(args[0])
+			if err != nil {
+				return err
+			}
 
 			for _, p := range plugins {
-				if p.HasPath(args[0]) {
+				if p.HasPath(pluginPath) {
 					manifest, err := p.Interface.Manifest(ctx)
 					if err != nil {
 						return errors.Errorf("error while loading app manifest: %w", err)
@@ -719,4 +742,27 @@ func flagSetPluginsGlobal() *flag.FlagSet {
 func flagGetPluginsGlobal(cmd *cobra.Command) bool {
 	global, _ := cmd.Flags().GetBool(flagPluginsGlobal)
 	return global
+}
+
+func getAppPath(path string) (string, error) {
+	if pluginsconfig.IsLocalPath(path) {
+		// if directory is relative, make it absolute
+		if !filepath.IsAbs(path) {
+			pluginPathAbs, err := filepath.Abs(path)
+			if err != nil {
+				return "", errors.Wrapf(err, "failed to get absolute path of %s", path)
+			}
+			path = pluginPathAbs
+		}
+
+		st, err := os.Stat(path)
+		if err != nil {
+			return "", errors.Wrapf(err, "local app path %q not found", path)
+		}
+		if !st.IsDir() {
+			return "", errors.Errorf("local app path %q is not a directory", path)
+		}
+	}
+
+	return path, nil
 }
