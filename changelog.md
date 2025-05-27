@@ -38,6 +38,7 @@
 - [#4624](https://github.com/ignite/cli/pull/4624) Fix autocli templates for variadics.
 - [#4644](https://github.com/ignite/cli/pull/4644) Improve UI and UX for `testnet multi-node` command.
 - [#4645](https://github.com/ignite/cli/pull/4645) Refactor the xast.ModifyFunction to improve the readability.
+- [#3393](https://github.com/ignite/cli/issues/3393) Remove xgenny embed walker
 - [#4664](https://github.com/ignite/cli/pull/4664) Add verbose flags on `scaffold` and `generate` commands.
   - The flag displays the steps Ignite is taking to generate the code.
   - The verbosity only applies to the command. For full verbosity use the `IGNT_DEBUG` environment variable instead.

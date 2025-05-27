@@ -92,7 +92,7 @@ func (d *Doctor) MigrateBufConfig(ctx context.Context, cacheStorage cache.Storag
 	}
 
 	runner := xgenny.NewRunner(ctx, appPath)
-	_, err = boxBufFiles(runner, appPath, protoPath)
+	_, err = boxBufFiles(runner, protoPath)
 	if err != nil {
 		return err
 	}
@@ -108,8 +108,8 @@ func (d *Doctor) MigrateBufConfig(ctx context.Context, cacheStorage cache.Storag
 }
 
 // BoxBufFiles box all buf files.
-func boxBufFiles(runner *xgenny.Runner, appPath, protoDir string) (xgenny.SourceModification, error) {
-	g, err := app.NewBufGenerator(appPath, protoDir)
+func boxBufFiles(runner *xgenny.Runner, protoDir string) (xgenny.SourceModification, error) {
+	g, err := app.NewBufGenerator(protoDir)
 	if err != nil {
 		return xgenny.SourceModification{}, err
 	}
