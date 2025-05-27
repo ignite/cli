@@ -19,9 +19,6 @@
 -->
 </div>
 <div align="center">
-  <a href="https://github.com/ignite/cli">
-    <img alt="Lines Of Code" src="https://tokei.rs/b1/github/ignite/cli" />
-  </a>
   <a href="https://github.com/ignite/cli/actions/workflows/test.yml">
     <img alt="Test Status" src="https://github.com/ignite/cli/workflows/Test/badge.svg" />
   <a href="https://github.com/ignite/cli/actions/workflows/test-lint.yml">
@@ -198,28 +195,33 @@ possible experience, use the version of Ignite CLI that corresponds to the
 version of Cosmos SDK that your blockchain is built with. Unless noted
 otherwise, a row refers to a minor version and all associated patch versions.
 
-| Ignite CLI  | Cosmos SDK  | IBC                  | Notes                                                         |
-| ----------- | ----------- | -------------------- | ------------------------------------------------------------- |
-| v28.x.y     | v0.50.x     | v8.0.0               | -                                                             |
-| v0.27.1     | v0.47.3     | v7.1.0               | -                                                             |
-| v0.26.0     | v0.46.7     | v6.1.0               | -                                                             |
-| v0.25.2     | v0.46.6     | v5.1.0               | Bump Tendermint version to v0.34.24                           |
-| v0.25.1     | v0.46.3     | v5.0.0               | Includes Dragonberry security fix                             |
-| ~~v0.24.0~~ | ~~v0.46.0~~ | ~~v5.0.0~~           | This version is deprecated due to a security fix in `v0.25.0` |
-| v0.23.0     | v0.45.5     | v3.0.1               |                                                               |
-| v0.21.1     | v0.45.4     | v2.0.3               | Supports Cosmos SDK v0.46.0-alpha1 and above                  |
-| v0.21.0     | v0.45.4     | v2.0.3               |                                                               |
-| v0.20.0     | v0.45.3     | v2.0.3               |                                                               |
-| v0.19       | v0.44       | v1.2.2               |                                                               |
-| v0.18       | v0.44       | v1.2.2               | `ignite chain serve` works with v0.44.x chains                |
-| v0.17       | v0.42       | Same with Cosmos SDK |                                                               |
+| Ignite CLI  | Cosmos SDK        | IBC                  | Notes                                                         |
+| ----------- | ----------------- | -------------------- | ------------------------------------------------------------- |
+| v29.x.y     | v0.50.x & v0.53.x | v10.2.0              | Originally in v0.53.x. Can work with v0.50.x.                 |
+| v28.x.y     | v0.50.x & v0.53.x | v8.0.0               | Originally in v0.50.x. Can work with v0.53.x.                 |
+| v0.27.1     | v0.47.3           | v7.1.0               | -                                                             |
+| v0.26.0     | v0.46.7           | v6.1.0               | -                                                             |
+| v0.25.2     | v0.46.6           | v5.1.0               | Bump Tendermint version to v0.34.24                           |
+| v0.25.1     | v0.46.3           | v5.0.0               | Includes Dragonberry security fix                             |
+| ~~v0.24.0~~ | ~~v0.46.0~~       | ~~v5.0.0~~           | This version is deprecated due to a security fix in `v0.25.0` |
+| v0.23.0     | v0.45.5           | v3.0.1               |                                                               |
+| v0.21.1     | v0.45.4           | v2.0.3               | Supports Cosmos SDK v0.46.0-alpha1 and above                  |
+| v0.21.0     | v0.45.4           | v2.0.3               |                                                               |
+| v0.20.0     | v0.45.3           | v2.0.3               |                                                               |
+| v0.19       | v0.44             | v1.2.2               |                                                               |
+| v0.18       | v0.44             | v1.2.2               | `ignite chain serve` works with v0.44.x chains                |
+| v0.17       | v0.42             | Same with Cosmos SDK |                                                               |
 
 To upgrade your blockchain to the newer version of Cosmos SDK, see the
 [Migration guide](https://docs.ignite.com/migration).
 
 ## Ignite Apps
 
-Ignite Apps aims to extend the functionality of Ignite CLI, offering both official and community-contributed integrations. These integrations are designed to streamline development processes and offer valuable insights for blockchain app developers.
+[Ignite Apps](https://ignite.com/marketplace) aims to extend the functionality of Ignite CLI, offering both official and community-contributed integrations. These integrations are designed to streamline development processes and offer valuable insights for blockchain app developers.
+
+### Discover Ignite Apps
+
+You can discover available Ignite Apps in the [Ignite Marketplace](https://ignite.com/marketplace). The marketplace features a variety of apps that can enhance your development experience, including tools for scaffolding, deploying, and more.
 
 ### How to Install an Ignite App
 
