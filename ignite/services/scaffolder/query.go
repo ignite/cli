@@ -62,7 +62,6 @@ func (s Scaffolder) AddQuery(
 		g    *genny.Generator
 		opts = &query.Options{
 			AppName:     s.modpath.Package,
-			AppPath:     s.appPath,
 			ProtoDir:    s.protoDir,
 			ProtoVer:    "v1", // TODO(@julienrbrt): possibly in the future add flag to specify custom proto version.
 			ModulePath:  s.modpath.RawPath,

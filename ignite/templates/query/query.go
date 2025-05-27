@@ -3,11 +3,11 @@ package query
 import (
 	"embed"
 	"fmt"
+	"io/fs"
 	"path/filepath"
 
 	"github.com/emicklei/proto"
 	"github.com/gobuffalo/genny/v2"
-	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
@@ -19,10 +19,10 @@ import (
 )
 
 //go:embed files/* files/**/*
-var fs embed.FS
+var files embed.FS
 
-func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
-	if err := g.Box(box); err != nil {
+func Box(box fs.FS, opts *Options, g *genny.Generator) error {
+	if err := g.OnlyFS(box, nil, nil); err != nil {
 		return err
 	}
 	ctx := plush.NewContext()
@@ -48,19 +48,16 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 
 // NewGenerator returns the generator to scaffold a empty query in a module.
 func NewGenerator(replacer placeholder.Replacer, opts *Options) (*genny.Generator, error) {
-	var (
-		g        = genny.New()
-		template = xgenny.NewEmbedWalker(
-			fs,
-			"files/",
-			opts.AppPath,
-		)
-	)
+	subFs, err := fs.Sub(files, "files")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
 
+	g := genny.New()
 	g.RunFn(protoQueryModify(opts))
 	g.RunFn(cliQueryModify(replacer, opts))
 
-	return g, Box(template, opts, g)
+	return g, Box(subFs, opts, g)
 }
 
 // Modifies query.proto to add the required RPCs and Messages.
@@ -152,7 +149,7 @@ func protoQueryModify(opts *Options) genny.RunFn {
 
 func cliQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/autocli.go")
+		path := filepath.Join("x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

@@ -13,7 +13,6 @@ import (
 type ConfigsOptions struct {
 	ModuleName string
 	AppName    string
-	AppPath    string
 	ProtoDir   string
 	ProtoVer   string
 	Configs    field.Fields
@@ -21,14 +20,13 @@ type ConfigsOptions struct {
 
 // ProtoFile returns the path to the proto folder.
 func (opts *ConfigsOptions) ProtoFile(fname string) string {
-	return filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, opts.ProtoVer, fname)
+	return filepath.Join(opts.ProtoDir, opts.AppName, opts.ModuleName, opts.ProtoVer, fname)
 }
 
 // ParamsOptions represents the options to scaffold a Cosmos SDK module parameters.
 type ParamsOptions struct {
 	ModuleName string
 	AppName    string
-	AppPath    string
 	ProtoDir   string
 	ProtoVer   string
 	Params     field.Fields
@@ -36,7 +34,7 @@ type ParamsOptions struct {
 
 // ProtoFile returns the path to the proto folder.
 func (opts *ParamsOptions) ProtoFile(fname string) string {
-	return filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, opts.ProtoVer, fname)
+	return filepath.Join(opts.ProtoDir, opts.AppName, opts.ModuleName, opts.ProtoVer, fname)
 }
 
 // MsgServerOptions defines options to add MsgServer.
@@ -44,14 +42,13 @@ type MsgServerOptions struct {
 	ModuleName string
 	ModulePath string
 	AppName    string
-	AppPath    string
 	ProtoDir   string
 	ProtoVer   string
 }
 
 // ProtoFile returns the path to the proto folder.
 func (opts *MsgServerOptions) ProtoFile(fname string) string {
-	return filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, opts.ProtoVer, fname)
+	return filepath.Join(opts.ProtoDir, opts.AppName, opts.ModuleName, opts.ProtoVer, fname)
 }
 
 // CreateOptions represents the options to scaffold a Cosmos SDK module.
@@ -77,7 +74,7 @@ type CreateOptions struct {
 
 // ProtoFile returns the path to the proto folder.
 func (opts *CreateOptions) ProtoFile(fname string) string {
-	return filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, opts.ProtoVer, fname)
+	return filepath.Join(opts.ProtoDir, opts.AppName, opts.ModuleName, opts.ProtoVer, fname)
 }
 
 // Dependency represents a module dependency of a module.

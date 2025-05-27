@@ -1,6 +1,7 @@
 package xgenny
 
 import (
+	"path/filepath"
 	"sort"
 	"strings"
 
@@ -67,7 +68,7 @@ func (sm *SourceModification) AppendCreatedFiles(createdFiles ...string) {
 	}
 }
 
-// Merge merges new source modification to an existing one.
+// Merge merges a new source modification to an existing one.
 func (sm *SourceModification) Merge(newSm SourceModification) {
 	sm.AppendModifiedFiles(newSm.ModifiedFiles()...)
 	sm.AppendCreatedFiles(newSm.CreatedFiles()...)
@@ -75,26 +76,35 @@ func (sm *SourceModification) Merge(newSm SourceModification) {
 
 // String convert to string value.
 func (sm *SourceModification) String() (string, error) {
-	// get file names and add prefix
-	files := make([]string, 0)
-	for _, modified := range sm.ModifiedFiles() {
-		// get the relative app path from the current directory
-		relativePath, err := xfilepath.RelativePath(modified)
-		if err != nil {
-			return "", err
+	appendPrefix := func(paths []string, prefix string) ([]string, error) {
+		files := make([]string, 0)
+		for _, path := range paths {
+			absPath, err := filepath.Abs(path)
+			if err != nil {
+				return nil, err
+			}
+			// get the relative app path from the current directory
+			relPath, err := xfilepath.RelativePath(absPath)
+			if err != nil {
+				return nil, err
+			}
+			files = append(files, prefix+relPath)
 		}
-		files = append(files, modifyPrefix+relativePath)
-	}
-	for _, created := range sm.CreatedFiles() {
-		// get the relative app path from the current directory
-		relativePath, err := xfilepath.RelativePath(created)
-		if err != nil {
-			return "", err
-		}
-		files = append(files, createPrefix+relativePath)
+		return files, nil
 	}
 
-	// sort filenames without prefix
+	files, err := appendPrefix(sm.CreatedFiles(), createPrefix)
+	if err != nil {
+		return "", err
+	}
+	modified, err := appendPrefix(sm.ModifiedFiles(), modifyPrefix)
+	if err != nil {
+		return "", err
+	}
+
+	files = append(files, modified...)
+
+	// sort filenames without a prefix
 	sort.Slice(files, func(i, j int) bool {
 		s1 := removePrefix(files[i])
 		s2 := removePrefix(files[j])
