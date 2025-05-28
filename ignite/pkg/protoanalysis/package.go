@@ -144,6 +144,9 @@ type (
 
 	// HTTPRule keeps info about a configured http rule of an RPC func.
 	HTTPRule struct {
+		// Endpoint is the HTTP endpoint path pattern.
+		Endpoint string `json:"endpoint,omitempty"`
+
 		// Params is a list of parameters defined in the HTTP endpoint itself.
 		Params []string `json:"params,omitempty"`
 
