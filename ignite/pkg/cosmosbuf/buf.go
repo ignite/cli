@@ -33,7 +33,8 @@ const (
 	fmtJSON                   = "json"
 	bufGenPrefix              = "buf.gen."
 
-	// CMDGenerate generate command.
+	// CMD*** are the buf commands.
+	CMDBuf              = "buf"
 	CMDGenerate Command = "generate"
 	CMDExport   Command = "export"
 	CMDFormat   Command = "format"
@@ -132,7 +133,7 @@ func FileByFile() GenOption {
 
 // New creates a new Buf based on the installed binary.
 func New(cacheStorage cache.Storage, goModPath string) (Buf, error) {
-	bufCacheDir := filepath.Join("buf", goModPath)
+	bufCacheDir := filepath.Join(CMDBuf, goModPath)
 	c, err := dircache.New(cacheStorage, bufCacheDir, specCacheNamespace)
 	if err != nil {
 		return Buf{}, err
