@@ -16,6 +16,7 @@
 - [#4701](https://github.com/ignite/cli/pull/4701) Improve `ignite doctor` by removing manual migration step. Additionally, remove protoc to buf migrations logic.
 - [#4703](https://github.com/ignite/cli/pull/4703) Remove testutil.Register function.
 - [#4702](https://github.com/ignite/cli/pull/4702) Improve app detection by checking for inheritance instead of interface implementation.
+- [#4707](https://github.com/ignite/cli/pull/4707) Show `buf` version in `ignite version` only when in a go module.
 
 ### Bug Fixes
 
@@ -40,6 +41,7 @@
 - [#4624](https://github.com/ignite/cli/pull/4624) Fix autocli templates for variadics.
 - [#4644](https://github.com/ignite/cli/pull/4644) Improve UI and UX for `testnet multi-node` command.
 - [#4645](https://github.com/ignite/cli/pull/4645) Refactor the xast.ModifyFunction to improve the readability.
+- [#3393](https://github.com/ignite/cli/issues/3393) Remove xgenny embed walker
 - [#4664](https://github.com/ignite/cli/pull/4664) Add verbose flags on `scaffold` and `generate` commands.
   - The flag displays the steps Ignite is taking to generate the code.
   - The verbosity only applies to the command. For full verbosity use the `IGNT_DEBUG` environment variable instead.

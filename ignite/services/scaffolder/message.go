@@ -128,7 +128,6 @@ func (s Scaffolder) AddMessage(
 		g    *genny.Generator
 		opts = &message.Options{
 			AppName:      s.modpath.Package,
-			AppPath:      s.appPath,
 			ProtoDir:     s.protoDir,
 			ProtoVer:     "v1", // TODO(@julienrbrt): possibly in the future add flag to specify custom proto version.
 			ModulePath:   s.modpath.RawPath,
@@ -151,7 +150,6 @@ func (s Scaffolder) AddMessage(
 			ModuleName: opts.ModuleName,
 			ModulePath: opts.ModulePath,
 			AppName:    opts.AppName,
-			AppPath:    opts.AppPath,
 			ProtoDir:   opts.ProtoDir,
 			ProtoVer:   opts.ProtoVer,
 		},

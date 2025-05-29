@@ -2,6 +2,7 @@ package modulecreate
 
 import (
 	"fmt"
+	"io/fs"
 	"path/filepath"
 
 	"github.com/gobuffalo/genny/v2"
@@ -20,18 +21,19 @@ import (
 
 // NewIBC returns the generator to scaffold the implementation of the IBCModule interface inside a module.
 func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generator, error) {
-	var (
-		g        = genny.New()
-		template = xgenny.NewEmbedWalker(fsIBC, "files/ibc/", opts.AppPath)
-	)
+	subFs, err := fs.Sub(fsIBC, "files/ibc")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
 
+	g := genny.New()
 	g.RunFn(genesisModify(opts))
 	g.RunFn(genesisTypesModify(opts))
 	g.RunFn(genesisProtoModify(opts))
 	g.RunFn(keysModify(replacer, opts))
 
-	if err := g.Box(template); err != nil {
-		return g, err
+	if err := g.OnlyFS(subFs, nil, nil); err != nil {
+		return g, errors.Errorf("generator fs: %w", err)
 	}
 
 	appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
@@ -57,7 +59,7 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 
 func genesisModify(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/genesis.go")
+		path := filepath.Join("x", opts.ModuleName, "keeper/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -97,7 +99,7 @@ func genesisModify(opts *CreateOptions) genny.RunFn {
 
 func genesisTypesModify(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis.go")
+		path := filepath.Join("x", opts.ModuleName, "types/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -173,7 +175,7 @@ func genesisProtoModify(opts *CreateOptions) genny.RunFn {
 
 func keysModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/keys.go")
+		path := filepath.Join("x", opts.ModuleName, "types/keys.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -203,7 +205,7 @@ PortID = "%[1]v"`
 
 func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, module.PathIBCConfigGo)
+		path := module.PathIBCConfigGo
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

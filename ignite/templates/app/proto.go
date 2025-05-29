@@ -3,11 +3,13 @@ package app
 import (
 	"embed"
 	"fmt"
+	"io/fs"
 	"strings"
 
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
 
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/xembed"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"
@@ -17,16 +19,14 @@ import (
 var fsProto embed.FS
 
 // NewBufGenerator returns the generator to buf build files.
-func NewBufGenerator(appPath, protoDir string) (*genny.Generator, error) {
-	var (
-		g        = genny.New()
-		template = xgenny.NewEmbedWalker(
-			fsProto,
-			"files",
-			appPath,
-		)
-	)
-	if err := xgenny.Box(g, template); err != nil {
+func NewBufGenerator(protoDir string) (*genny.Generator, error) {
+	subFs, err := fs.Sub(fsProto, "files")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
+
+	g := genny.New()
+	if err := g.OnlyFS(subFs, nil, nil); err != nil {
 		return nil, err
 	}
 

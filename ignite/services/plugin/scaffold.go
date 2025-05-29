@@ -3,6 +3,7 @@ package plugin
 import (
 	"context"
 	"embed"
+	"io/fs"
 	"os"
 	"path"
 	"path/filepath"
@@ -23,24 +24,23 @@ var fsPluginSource embed.FS
 
 // Scaffold generates a plugin structure under dir/path.Base(appName).
 func Scaffold(ctx context.Context, dir, appName string, sharedHost bool) (string, error) {
+	subFs, err := fs.Sub(fsPluginSource, "template")
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+
 	var (
 		name     = filepath.Base(appName)
 		title    = toTitle(name)
 		finalDir = path.Join(dir, name)
-		g        = genny.New()
-		template = xgenny.NewEmbedWalker(
-			fsPluginSource,
-			"template",
-			finalDir,
-		)
 	)
-
 	if _, err := os.Stat(finalDir); err == nil {
 		// finalDir already exists, don't overwrite stuff
 		return "", errors.Errorf("directory %q already exists, abort scaffolding", finalDir)
 	}
 
-	if err := g.Box(template); err != nil {
+	g := genny.New()
+	if err := g.OnlyFS(subFs, nil, nil); err != nil {
 		return "", errors.WithStack(err)
 	}
 
