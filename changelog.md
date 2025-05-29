@@ -13,6 +13,7 @@
 - [#4701](https://github.com/ignite/cli/pull/4701) Improve `ignite doctor` by removing manual migration step. Additionally, remove protoc to buf migrations logic.
 - [#4703](https://github.com/ignite/cli/pull/4703) Remove testutil.Register function.
 - [#4702](https://github.com/ignite/cli/pull/4702) Improve app detection by checking for inheritance instead of interface implementation.
+- [#4707](https://github.com/ignite/cli/pull/4707) Show `buf` version in `ignite version` only when in a go module.
 
 ### Bug Fixes
 
