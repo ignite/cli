@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -18,6 +17,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodule"
+	"github.com/ignite/cli/v29/ignite/pkg/xfilepath"
 	"github.com/ignite/cli/v29/ignite/pkg/xgit"
 	"github.com/ignite/cli/v29/ignite/services/chain"
 	"github.com/ignite/cli/v29/ignite/services/plugin"
@@ -745,24 +745,13 @@ func flagGetPluginsGlobal(cmd *cobra.Command) bool {
 }
 
 func getAppPath(path string) (string, error) {
-	if pluginsconfig.IsLocalPath(path) {
+	if xfilepath.IsDir(path) {
 		// if directory is relative, make it absolute
-		if !filepath.IsAbs(path) {
-			pluginPathAbs, err := filepath.Abs(path)
-			if err != nil {
-				return "", errors.Wrapf(err, "failed to get absolute path of %s", path)
-			}
-			path = pluginPathAbs
-		}
-
-		st, err := os.Stat(path)
+		pluginPathAbs, err := xfilepath.MustAbs(path)
 		if err != nil {
-			return "", errors.Wrapf(err, "local app path %q not found", path)
+			return "", errors.Wrapf(err, "failed to get absolute path of %s", path)
 		}
-		if !st.IsDir() {
-			return "", errors.Errorf("local app path %q is not a directory", path)
-		}
+		path = pluginPathAbs
 	}
-
 	return path, nil
 }

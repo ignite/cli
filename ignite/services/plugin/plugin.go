@@ -148,11 +148,20 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 		apply(p)
 	}
 
-	p.name = path.Base(pluginPath)
+	// This is a local plugin, check if the directory exists
+	if filepath.IsAbs(pluginPath) {
 
-	// This is a local plugin, check if the file exists
-	if pluginsconfig.IsLocalPath(pluginPath) {
+		st, err := os.Stat(pluginPath)
+		if err != nil {
+			p.Error = errors.Wrapf(err, "local app path %q not found", pluginPath)
+			return p
+		}
+		if !st.IsDir() {
+			p.Error = errors.Errorf("local app path %q is not a directory", pluginPath)
+			return p
+		}
 		p.srcPath = pluginPath
+		p.name = path.Base(pluginPath)
 		return p
 	}
 
@@ -183,6 +192,8 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 	repoSubPath := path.Join(parts[3:]...)
 
 	p.srcPath = path.Join(p.cloneDir, repoSubPath)
+	p.name = path.Base(pluginPath)
+
 	return p
 }
 

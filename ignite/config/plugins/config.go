@@ -9,6 +9,7 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodule"
+	"github.com/ignite/cli/v29/ignite/pkg/xfilepath"
 )
 
 type Config struct {
@@ -76,17 +77,6 @@ func RemoveDuplicates(plugins []Plugin) (unique []Plugin) {
 	return unique
 }
 
-// IsLocalPath returns true if the path is a local directory.
-func IsLocalPath(path string) bool {
-	if strings.HasPrefix(path, "/") || strings.HasPrefix(path, ".") || strings.HasPrefix(path, "~") {
-		return true
-	}
-	if info, err := os.Stat(path); err == nil && info.IsDir() {
-		return true
-	}
-	return false
-}
-
 // IsGlobal returns whether the plugin is installed globally or locally for a chain.
 func (p Plugin) IsGlobal() bool {
 	return p.Global
@@ -94,7 +84,7 @@ func (p Plugin) IsGlobal() bool {
 
 // IsLocalPath returns true if the plugin path is a local directory.
 func (p Plugin) IsLocalPath() bool {
-	return IsLocalPath(p.Path)
+	return xfilepath.IsDir(p.Path)
 }
 
 // HasPath verifies if a plugin has the given path regardless of version.
