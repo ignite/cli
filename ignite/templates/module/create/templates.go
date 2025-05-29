@@ -10,7 +10,4 @@ var (
 
 	//go:embed files/ibc/* files/ibc/**/*
 	fsIBC embed.FS
-
-	//go:embed files/msgserver/* files/msgserver/**/*
-	fsMsgServer embed.FS
 )

@@ -20,20 +20,12 @@ import (
 
 // NewGenerator returns the generator to scaffold a module inside an app.
 func NewGenerator(opts *CreateOptions) (*genny.Generator, error) {
-	subMsgServer, err := fs.Sub(fsMsgServer, "files/msgserver")
-	if err != nil {
-		return nil, errors.Errorf("fail to generate sub: %w", err)
-	}
-
 	subBase, err := fs.Sub(fsBase, "files/base")
 	if err != nil {
 		return nil, errors.Errorf("fail to generate sub: %w", err)
 	}
 
 	g := genny.New()
-	if err := g.OnlyFS(subMsgServer, nil, nil); err != nil {
-		return g, err
-	}
 	if err := g.OnlyFS(subBase, nil, nil); err != nil {
 		return g, err
 	}

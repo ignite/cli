@@ -11,7 +11,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/templates/field"
 	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
 	"github.com/ignite/cli/v29/ignite/templates/message"
-	modulecreate "github.com/ignite/cli/v29/ignite/templates/module/create"
 )
 
 // messageOptions represents configuration for the message scaffolding.
@@ -141,31 +140,13 @@ func (s Scaffolder) AddMessage(
 		}
 	)
 
-	// Check and support MsgServer convention
-	var gens []*genny.Generator
-	gens, err = supportMsgServer(
-		gens,
-		s.Tracer(),
-		&modulecreate.MsgServerOptions{
-			ModuleName: opts.ModuleName,
-			ModulePath: opts.ModulePath,
-			AppName:    opts.AppName,
-			ProtoDir:   opts.ProtoDir,
-			ProtoVer:   opts.ProtoVer,
-		},
-	)
-	if err != nil {
-		return err
-	}
-
 	// Scaffold
 	g, err = message.NewGenerator(s.Tracer(), opts)
 	if err != nil {
 		return err
 	}
-	gens = append(gens, g)
 
-	return s.Run(gens...)
+	return s.Run(g)
 }
 
 // checkForbiddenMessageField returns true if the name is forbidden as a message name.
