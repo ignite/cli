@@ -3,6 +3,7 @@ package plugins_test
 import (
 	"os"
 	"path"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -17,11 +18,19 @@ func TestPluginIsGlobal(t *testing.T) {
 }
 
 func TestPluginIsLocalPath(t *testing.T) {
+	pwd, err := os.Getwd()
+	require.NoError(t, err)
+
 	assert.False(t, pluginsconfig.Plugin{}.IsLocalPath())
 	assert.False(t, pluginsconfig.Plugin{Path: "github.com/ignite/example"}.IsLocalPath())
-	assert.True(t, pluginsconfig.Plugin{Path: "/home/bob/example"}.IsLocalPath())
-	assert.True(t, pluginsconfig.Plugin{Path: "./example"}.IsLocalPath())
-	assert.True(t, pluginsconfig.Plugin{Path: "../example"}.IsLocalPath())
+	assert.False(t, pluginsconfig.Plugin{Path: "invalid_path"}.IsLocalPath())
+	assert.False(t, pluginsconfig.Plugin{Path: "/testdata"}.IsLocalPath())
+	assert.True(t, pluginsconfig.Plugin{Path: "testdata"}.IsLocalPath())
+	assert.True(t, pluginsconfig.Plugin{Path: "/"}.IsLocalPath())
+	assert.True(t, pluginsconfig.Plugin{Path: "."}.IsLocalPath())
+	assert.True(t, pluginsconfig.Plugin{Path: ".."}.IsLocalPath())
+	assert.True(t, pluginsconfig.Plugin{Path: pwd}.IsLocalPath())
+	assert.True(t, pluginsconfig.Plugin{Path: filepath.Join(pwd, "testdata")}.IsLocalPath())
 }
 
 func TestPluginHasPath(t *testing.T) {
