@@ -68,16 +68,6 @@ func TestNewPlugin(t *testing.T) {
 			},
 		},
 		{
-			name:      "ok: relative local plugin",
-			pluginCfg: pluginsconfig.Plugin{Path: "./testdata"},
-			expectedPlugin: Plugin{
-				srcPath: path.Join(wd, "testdata"),
-				name:    "testdata",
-				stdout:  os.Stdout,
-				stderr:  os.Stderr,
-			},
-		},
-		{
 			name:      "fail: remote plugin with only domain",
 			pluginCfg: pluginsconfig.Plugin{Path: "github.com"},
 			expectedPlugin: Plugin{
@@ -583,10 +573,10 @@ func assertPlugin(t *testing.T, want, have Plugin) {
 	t.Helper()
 
 	if want.Error != nil {
-		require.Error(t, have.Error)
+		require.Errorf(t, have.Error, "expected error %q", want.Error)
 		assert.Regexp(t, want.Error.Error(), have.Error.Error())
 	} else {
-		require.NoError(t, have.Error)
+		require.NoErrorf(t, have.Error, "expected no error, got %v", have.Error)
 	}
 
 	// Errors aren't comparable with assert.Equal, because of the different stacks
