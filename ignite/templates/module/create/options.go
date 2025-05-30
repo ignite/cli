@@ -37,20 +37,6 @@ func (opts *ParamsOptions) ProtoFile(fname string) string {
 	return filepath.Join(opts.ProtoDir, opts.AppName, opts.ModuleName, opts.ProtoVer, fname)
 }
 
-// MsgServerOptions defines options to add MsgServer.
-type MsgServerOptions struct {
-	ModuleName string
-	ModulePath string
-	AppName    string
-	ProtoDir   string
-	ProtoVer   string
-}
-
-// ProtoFile returns the path to the proto folder.
-func (opts *MsgServerOptions) ProtoFile(fname string) string {
-	return filepath.Join(opts.ProtoDir, opts.AppName, opts.ModuleName, opts.ProtoVer, fname)
-}
-
 // CreateOptions represents the options to scaffold a Cosmos SDK module.
 type CreateOptions struct {
 	ModuleName string

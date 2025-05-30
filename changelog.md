@@ -14,6 +14,7 @@
 - [#4703](https://github.com/ignite/cli/pull/4703) Remove testutil.Register function.
 - [#4702](https://github.com/ignite/cli/pull/4702) Improve app detection by checking for inheritance instead of interface implementation.
 - [#4707](https://github.com/ignite/cli/pull/4707) Show `buf` version in `ignite version` only when in a go module.
+- [#4709](https://github.com/ignite/cli/pull/4709) Remove legacy msgServer support
 - [#4710](https://github.com/ignite/cli/pull/4710) Remove the `nullify` pkg from the chain `testutil`
 
 ### Bug Fixes
