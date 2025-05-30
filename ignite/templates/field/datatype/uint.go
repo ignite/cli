@@ -48,7 +48,8 @@ var (
 	DataUintSlice = DataType{
 		DataType:                func(string) string { return "[]uint64" },
 		CollectionsKeyValueName: func(string) string { return collectionValueComment },
-		DefaultTestValue:        "1,2,3,4,5",
+		DefaultTestValue:        "[]uint64{1, 2, 3, 4, 5}",
+		ValueLoop:               "[]uint64{uint64(i)%1, uint64(i)%2, uint64(i)%3}",
 		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("repeated uint64 %s = %d", name, index)
 		},
@@ -71,6 +72,5 @@ var (
 			return protoutil.NewField(name, "uint64", index, protoutil.Repeated())
 		},
 		GoCLIImports: []GoImport{{Name: "github.com/spf13/cast"}, {Name: "strings"}},
-		NonIndex:     true,
 	}
 )

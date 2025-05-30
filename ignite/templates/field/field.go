@@ -29,11 +29,6 @@ func (f Field) DataType() string {
 
 // IsSlice returns true if the field is a slice.
 func (f Field) IsSlice() bool {
-	dt, ok := datatype.IsSupportedType(f.DatatypeName)
-	if !ok {
-		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
-	}
-
 	switch f.DatatypeName {
 	case datatype.StringSlice,
 		datatype.IntSlice,
@@ -58,7 +53,7 @@ func (f Field) IsSlice() bool {
 		return false
 	default:
 		// For other types, we assume that it is a slice if non indexable.
-		return dt.NonIndex
+		return false
 	}
 }
 
@@ -105,9 +100,6 @@ func (f Field) ValueLoop() string {
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
-	if dt.NonIndex {
-		panic(fmt.Sprintf("non index type %s", f.DatatypeName))
-	}
 	return dt.ValueLoop
 }
 
@@ -117,9 +109,6 @@ func (f Field) ValueIndex() string {
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
-	if dt.NonIndex {
-		panic(fmt.Sprintf("non index type %s", f.DatatypeName))
-	}
 	return dt.ValueIndex
 }
 
@@ -128,9 +117,6 @@ func (f Field) ValueInvalidIndex() string {
 	dt, ok := datatype.IsSupportedType(f.DatatypeName)
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
-	}
-	if dt.NonIndex {
-		panic(fmt.Sprintf("non index type %s", f.DatatypeName))
 	}
 	return dt.ValueInvalidIndex
 }
@@ -160,9 +146,6 @@ func (f Field) ToBytes(name string) string {
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
-	if dt.NonIndex {
-		panic(fmt.Sprintf("non index type %s", f.DatatypeName))
-	}
 	return dt.ToBytes(name)
 }
 
@@ -171,9 +154,6 @@ func (f Field) ToString(name string) string {
 	dt, ok := datatype.IsSupportedType(f.DatatypeName)
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
-	}
-	if dt.NonIndex {
-		panic(fmt.Sprintf("non index type %s", f.DatatypeName))
 	}
 	return dt.ToString(name)
 }

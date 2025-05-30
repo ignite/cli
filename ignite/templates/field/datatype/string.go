@@ -42,7 +42,8 @@ var (
 	DataStringSlice = DataType{
 		DataType:                func(string) string { return "[]string" },
 		CollectionsKeyValueName: func(string) string { return collectionValueComment },
-		DefaultTestValue:        "abc,xyz",
+		DefaultTestValue:        `[]string{"abc", "xyz"}`,
+		ValueLoop:               `[]string{"abc"+strconv.Itoa(i), "xyz"+strconv.Itoa(i)}`,
 		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("repeated string %s = %d", name, index)
 		},
@@ -57,6 +58,5 @@ var (
 		ToProtoField: func(_, name string, index int) *proto.NormalField {
 			return protoutil.NewField(name, "string", index, protoutil.Repeated())
 		},
-		NonIndex: true,
 	}
 )

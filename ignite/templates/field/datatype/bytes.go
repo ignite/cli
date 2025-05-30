@@ -14,6 +14,7 @@ var DataBytes = DataType{
 	DataType:                func(string) string { return "[]byte" },
 	CollectionsKeyValueName: func(string) string { return "collections.BytesKey" },
 	DefaultTestValue:        "[]byte{1, 2, 3, 4, 5}",
+	ValueLoop:               "[]byte{i%1, i%2, i%3}",
 	ProtoType: func(_, name string, index int) string {
 		return fmt.Sprintf("bytes %s = %d", name, index)
 	},
@@ -32,5 +33,4 @@ var DataBytes = DataType{
 	ToProtoField: func(_, name string, index int) *proto.NormalField {
 		return protoutil.NewField(name, "bytes", index)
 	},
-	NonIndex: true,
 }

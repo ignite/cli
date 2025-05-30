@@ -13,7 +13,8 @@ import (
 var DataCustom = DataType{
 	DataType:                func(datatype string) string { return fmt.Sprintf("*%s", datatype) },
 	CollectionsKeyValueName: func(string) string { return collectionValueComment },
-	DefaultTestValue:        "null",
+	DefaultTestValue:        "nil",
+	ValueLoop:               "nil",
 	ProtoType: func(datatype, name string, index int) string {
 		return fmt.Sprintf("%s %s = %d", datatype, name, index)
 	},
@@ -31,5 +32,4 @@ var DataCustom = DataType{
 		return protoutil.NewField(name, datatype, index)
 	},
 	GoCLIImports: []GoImport{{Name: "encoding/json"}},
-	NonIndex:     true,
 }
