@@ -105,6 +105,9 @@ func (f Field) ValueLoop() string {
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
+	if dt.NonIndex {
+		panic(fmt.Sprintf("non index type %s", f.DatatypeName))
+	}
 	return dt.ValueLoop
 }
 
@@ -157,6 +160,9 @@ func (f Field) ToBytes(name string) string {
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
+	if dt.NonIndex {
+		panic(fmt.Sprintf("non index type %s", f.DatatypeName))
+	}
 	return dt.ToBytes(name)
 }
 
@@ -165,6 +171,9 @@ func (f Field) ToString(name string) string {
 	dt, ok := datatype.IsSupportedType(f.DatatypeName)
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
+	}
+	if dt.NonIndex {
+		panic(fmt.Sprintf("non index type %s", f.DatatypeName))
 	}
 	return dt.ToString(name)
 }
