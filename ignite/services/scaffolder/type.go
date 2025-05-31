@@ -212,7 +212,7 @@ func checkForbiddenTypeIndex(index string) error {
 	if len(indexSplit) > 1 {
 		index = indexSplit[0]
 		indexType := datatype.Name(indexSplit[1])
-		if _, ok := datatype.IsSupportedType(indexType); !ok {
+		if f, ok := datatype.IsSupportedType(indexType); !ok || f.NonIndex {
 			return errors.Errorf("invalid index type %s", indexType)
 		}
 	}
