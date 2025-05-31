@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [`v29.0.0`](https://github.com/ignite/cli/releases/tag/v29.0.0)
+
 ### Features
 
 - [#4683](https://github.com/ignite/cli/pull/4683) Allow to change default denom via flag.
@@ -17,7 +19,7 @@
 - [#4709](https://github.com/ignite/cli/pull/4709) Remove legacy msgServer support
 - [#4710](https://github.com/ignite/cli/pull/4710) Remove the `nullify` pkg from the chain `testutil`
 
-### Bug Fixes
+### Fixes
 
 - [#4686](https://github.com/ignite/cli/pull/4686) Filter discovered protos to only messages.
 - [#4694](https://github.com/ignite/cli/issues/4694) Install an app using the `.` as a current path show a wrong app name.
@@ -207,7 +209,7 @@
 
 - [#4376](https://github.com/ignite/cli/pull/4376) Set different chain-id for in place testnet
 
-### Bug Fixes
+### Fixes
 
 - [#4421](https://github.com/ignite/cli/pull/4422) Fix typo in simulation template
 
