@@ -21,6 +21,7 @@
 
 ### Fixes
 
+- [#4691](https://github.com/ignite/cli/pull/4691), [#4706](https://github.com/ignite/cli/pull/4706) Fix ts-client query template and solely Go template for `ts-client` generation.
 - [#4686](https://github.com/ignite/cli/pull/4686) Filter discovered protos to only messages.
 - [#4694](https://github.com/ignite/cli/issues/4694) Install an app using the `.` as a current path show a wrong app name.
 

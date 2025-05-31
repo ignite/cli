@@ -212,6 +212,7 @@ func (b builder) constantToHTTPRules(requestMessage *proto.Message, constant pro
 
 	// create and add the HTTP rule to the list.
 	httpRule := HTTPRule{
+		Endpoint: endpoint,
 		Params:   params,
 		HasQuery: queryParamsCount > 0,
 		HasBody:  bodyFieldsCount > 0,

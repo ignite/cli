@@ -307,8 +307,9 @@ func TestLiquidity(t *testing.T) {
 							ReturnsType: "MsgCreatePoolResponse",
 							HTTPRules: []HTTPRule{
 								{
-									Params:  []string{"test"},
-									HasBody: true,
+									Endpoint: "/liquidity/pools/{test}",
+									Params:   []string{"test"},
+									HasBody:  true,
 								},
 							},
 						},
@@ -318,8 +319,9 @@ func TestLiquidity(t *testing.T) {
 							ReturnsType: "MsgDepositWithinBatchResponse",
 							HTTPRules: []HTTPRule{
 								{
-									Params:  []string{"pool_id"},
-									HasBody: true,
+									Endpoint: "/liquidity/pools/{pool_id}/batch/deposits",
+									Params:   []string{"pool_id"},
+									HasBody:  true,
 								},
 							},
 						},
@@ -329,8 +331,9 @@ func TestLiquidity(t *testing.T) {
 							ReturnsType: "MsgWithdrawWithinBatchResponse",
 							HTTPRules: []HTTPRule{
 								{
-									Params:  []string{"pool_id"},
-									HasBody: true,
+									Endpoint: "/liquidity/pools/{pool_id}/batch/withdraws",
+									Params:   []string{"pool_id"},
+									HasBody:  true,
 								},
 							},
 						},
@@ -340,6 +343,7 @@ func TestLiquidity(t *testing.T) {
 							ReturnsType: "MsgSwapWithinBatchResponse",
 							HTTPRules: []HTTPRule{
 								{
+									Endpoint: "/liquidity/pools/{pool_id}/batch/swaps",
 									Params:   []string{"pool_id"},
 									HasQuery: true,
 									HasBody:  true,
@@ -357,6 +361,7 @@ func TestLiquidity(t *testing.T) {
 							ReturnsType: "QueryLiquidityPoolsResponse",
 							HTTPRules: []HTTPRule{
 								{
+									Endpoint: "/liquidity/pools",
 									HasQuery: true,
 								},
 							},
@@ -367,7 +372,8 @@ func TestLiquidity(t *testing.T) {
 							ReturnsType: "QueryLiquidityPoolResponse",
 							HTTPRules: []HTTPRule{
 								{
-									Params: []string{"pool_id"},
+									Endpoint: "/liquidity/pools/{pool_id}",
+									Params:   []string{"pool_id"},
 								},
 							},
 						},
@@ -377,7 +383,8 @@ func TestLiquidity(t *testing.T) {
 							ReturnsType: "QueryLiquidityPoolBatchResponse",
 							HTTPRules: []HTTPRule{
 								{
-									Params: []string{"pool_id"},
+									Endpoint: "/liquidity/pools/{pool_id}/batch",
+									Params:   []string{"pool_id"},
 								},
 							},
 						},
@@ -387,6 +394,7 @@ func TestLiquidity(t *testing.T) {
 							ReturnsType: "QueryPoolBatchSwapMsgsResponse",
 							HTTPRules: []HTTPRule{
 								{
+									Endpoint: "/liquidity/pools/{pool_id}/batch/swaps",
 									Params:   []string{"pool_id"},
 									HasQuery: true,
 								},
@@ -398,7 +406,8 @@ func TestLiquidity(t *testing.T) {
 							ReturnsType: "QueryPoolBatchSwapMsgResponse",
 							HTTPRules: []HTTPRule{
 								{
-									Params: []string{"pool_id", "msg_index"},
+									Endpoint: "/liquidity/pools/{pool_id}/batch/swaps/{msg_index}",
+									Params:   []string{"pool_id", "msg_index"},
 								},
 							},
 						},
@@ -408,6 +417,7 @@ func TestLiquidity(t *testing.T) {
 							ReturnsType: "QueryPoolBatchDepositMsgsResponse",
 							HTTPRules: []HTTPRule{
 								{
+									Endpoint: "/liquidity/pools/{pool_id}/batch/deposits",
 									Params:   []string{"pool_id"},
 									HasQuery: true,
 								},
@@ -419,7 +429,8 @@ func TestLiquidity(t *testing.T) {
 							ReturnsType: "QueryPoolBatchDepositMsgResponse",
 							HTTPRules: []HTTPRule{
 								{
-									Params: []string{"pool_id", "msg_index"},
+									Endpoint: "/liquidity/pools/{pool_id}/batch/deposits/{msg_index}",
+									Params:   []string{"pool_id", "msg_index"},
 								},
 							},
 						},
@@ -429,6 +440,7 @@ func TestLiquidity(t *testing.T) {
 							ReturnsType: "QueryPoolBatchWithdrawMsgsResponse",
 							HTTPRules: []HTTPRule{
 								{
+									Endpoint: "/liquidity/pools/{pool_id}/batch/withdraws",
 									Params:   []string{"pool_id"},
 									HasQuery: true,
 								},
@@ -440,7 +452,8 @@ func TestLiquidity(t *testing.T) {
 							ReturnsType: "QueryPoolBatchWithdrawMsgResponse",
 							HTTPRules: []HTTPRule{
 								{
-									Params: []string{"pool_id", "msg_index"},
+									Endpoint: "/liquidity/pools/{pool_id}/batch/withdraws/{msg_index}",
+									Params:   []string{"pool_id", "msg_index"},
 								},
 							},
 						},
@@ -449,7 +462,9 @@ func TestLiquidity(t *testing.T) {
 							RequestType: "QueryParamsRequest",
 							ReturnsType: "QueryParamsResponse",
 							HTTPRules: []HTTPRule{
-								{},
+								{
+									Endpoint: "/liquidity/params",
+								},
 							},
 						},
 					},

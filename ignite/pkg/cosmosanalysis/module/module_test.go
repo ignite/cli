@@ -114,6 +114,7 @@ func newModule(relChainPath, goImportPath string) module.Module {
 							ReturnsType: "QueryMyQueryResponse",
 							HTTPRules: []protoanalysis.HTTPRule{
 								{
+									Endpoint: "/tendermint/mars/my_query/{mytypefield}",
 									Params:   []string{"mytypefield"},
 									HasQuery: true,
 									HasBody:  false,
@@ -127,6 +128,7 @@ func newModule(relChainPath, goImportPath string) module.Module {
 							ReturnsType: "QueryFooResponse",
 							HTTPRules: []protoanalysis.HTTPRule{
 								{
+									Endpoint: "/tendermint/mars/foo",
 									HasQuery: false,
 									HasBody:  false,
 								},
@@ -154,6 +156,7 @@ func newModule(relChainPath, goImportPath string) module.Module {
 				FullName: "QueryMyQuery",
 				Rules: []protoanalysis.HTTPRule{
 					{
+						Endpoint: "/tendermint/mars/my_query/{mytypefield}",
 						Params:   []string{"mytypefield"},
 						HasQuery: true,
 						HasBody:  false,
@@ -166,6 +169,7 @@ func newModule(relChainPath, goImportPath string) module.Module {
 				FullName: "QueryFoo",
 				Rules: []protoanalysis.HTTPRule{
 					{
+						Endpoint: "/tendermint/mars/foo",
 						HasQuery: false,
 						HasBody:  false,
 					},
