@@ -95,6 +95,7 @@ type DataType struct {
 	ToString                func(name string) string
 	ToProtoField            func(datatype, name string, index int) *proto.NormalField
 	CLIArgs                 func(name multiformatname.Name, datatype, prefix string, argIndex int) string
+	NonIndex                bool
 }
 
 // GoImports represents a list of go import.

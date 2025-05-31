@@ -29,6 +29,7 @@ var (
 		},
 		GoCLIImports: []GoImport{{Name: "github.com/cosmos/cosmos-sdk/types", Alias: "sdk"}},
 		ProtoImports: []string{"gogoproto/gogo.proto", "cosmos/base/v1beta1/coin.proto"},
+		NonIndex:     true,
 		ToProtoField: func(_, name string, index int) *proto.NormalField {
 			option := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
 			return protoutil.NewField(
@@ -56,6 +57,7 @@ var (
 		},
 		GoCLIImports: []GoImport{{Name: "github.com/cosmos/cosmos-sdk/types", Alias: "sdk"}},
 		ProtoImports: []string{"gogoproto/gogo.proto", "cosmos/base/v1beta1/coin.proto"},
+		NonIndex:     true,
 		ToProtoField: func(_, name string, index int) *proto.NormalField {
 			option := protoutil.NewOption("gogoproto.nullable", "false", protoutil.Custom())
 			return protoutil.NewField(

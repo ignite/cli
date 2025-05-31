@@ -33,4 +33,5 @@ var DataBytes = DataType{
 	ToProtoField: func(_, name string, index int) *proto.NormalField {
 		return protoutil.NewField(name, "bytes", index)
 	},
+	NonIndex: true,
 }

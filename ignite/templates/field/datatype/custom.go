@@ -32,4 +32,5 @@ var DataCustom = DataType{
 		return protoutil.NewField(name, datatype, index)
 	},
 	GoCLIImports: []GoImport{{Name: "encoding/json"}},
+	NonIndex:     true,
 }

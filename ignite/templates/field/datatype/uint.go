@@ -72,5 +72,6 @@ var (
 			return protoutil.NewField(name, "uint64", index, protoutil.Repeated())
 		},
 		GoCLIImports: []GoImport{{Name: "github.com/spf13/cast"}, {Name: "strings"}},
+		NonIndex:     true,
 	}
 )

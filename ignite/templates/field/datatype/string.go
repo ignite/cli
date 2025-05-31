@@ -58,5 +58,6 @@ var (
 		ToProtoField: func(_, name string, index int) *proto.NormalField {
 			return protoutil.NewField(name, "string", index, protoutil.Repeated())
 		},
+		NonIndex: true,
 	}
 )
