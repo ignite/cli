@@ -1,10 +1,10 @@
 ---
-sidebar_position: 4
-description: Configuration file example.
-title: Configuration file example
+sidebar_position: 2
+description: Configuration File Example.
+title: Configuration File Example
 ---
 
-## Configuration file example
+## Configuration File Example
 
 ```yaml title="config.yml"
 include: (string list) # Include incorporate a separate config.yml file directly in your current config file.
@@ -42,7 +42,7 @@ client: # Configures client code generation.
   openapi: # Configures OpenAPI spec generation for the API.
     path: (string) # Relative path where the application&#39;s OpenAPI files are located.
 genesis: (key/value) # Custom genesis block modifications. Follow the nesting of the genesis file here to access all the parameters.
-minimal: (bool) # Indicates if the blockchain is minimal with the required Cosmos SDK modules.
+default_denom: (string) # Default staking denom (default is stake).
 validators: (list) # Contains information related to the list of validators and settings.
   name: (string) # Name of the validator.
   bonded: (string) # Amount staked by the validator.
