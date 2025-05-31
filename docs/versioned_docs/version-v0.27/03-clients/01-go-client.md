@@ -80,8 +80,8 @@ module blogclient
 go 1.20
 
 require (
-	blog v0.0.0-00010101000000-000000000000
-	github.com/ignite/cli v0.27.2
+ blog v0.0.0-00010101000000-000000000000
+ github.com/ignite/cli v0.27.2
 )
 
 replace blog => ../blog
@@ -94,7 +94,7 @@ Your package will import two dependencies:
 * `ignite` for the `cosmosclient` package
 
 The `replace` directive uses the package from the local `blog` directory and is
-specified as a relative path to the `blogclient` directory. 
+specified as a relative path to the `blogclient` directory.
 
 Cosmos SDK uses a custom version of the `protobuf` package, so use the `replace`
 directive to specify the correct dependency.
@@ -233,7 +233,7 @@ and `main.go` file:
 	"github.com/<github-user-name>/blog/x/blog/types"
 ```
 
-Then, update the dependencies again: 
+Then, update the dependencies again:
 
 ```bash
 go mod tidy
@@ -253,25 +253,22 @@ ignite account import alice --keyring-dir /path/to/client/blogclient/keyring-tes
 Define the path inside 'main.go':
 
 ```go title="blogclient/main.go"
-.
-.
-.
+// ...
 func main() {
-    ctx := context.Background()
-    addressPrefix := "cosmos"
+	ctx := context.Background()
+	addressPrefix := "cosmos"
 
-    // Create a Cosmos client instance
-    client, err := cosmosclient.New(ctx, cosmosclient.WithAddressPrefix(addressPrefix),
-     cosmosclient.WithKeyringBackend("test"), cosmosclient.WithKeyringDir(".") ) 
-    if err != nil {
-        log.Fatal(err)
-    }
+	// Create a Cosmos client instance
+	client, err := cosmosclient.New(ctx, cosmosclient.WithAddressPrefix(addressPrefix),
+		cosmosclient.WithKeyringBackend("test"), cosmosclient.WithKeyringDir("."))
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    // Account `alice` was initialized during `ignite chain serve` 
-    accountName :="aliceAddress"
-.
-.
-.
+	// Account `alice` was initialized during `ignite chain serve`
+	accountName := "aliceAddress"
+	// ...
+}
 ```
 
 ## Run the blockchain and the client
