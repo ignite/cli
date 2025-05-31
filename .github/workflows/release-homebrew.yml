@@ -19,7 +19,7 @@ jobs:
         run: |
           echo "tag-name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
-      - uses: mislav/bump-homebrew-formula-action@v3
+      - uses: mislav/bump-homebrew-formula-action@v3.3
         with:
           formula-name: ignite
           formula-path: Formula/i/ignite.rb
