@@ -163,6 +163,7 @@ func newModule(relChainPath, goImportPath string) module.Module {
 					},
 				},
 				Paginated: true,
+				FilePath:  filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
 			},
 			{
 				Name:     "Foo",
@@ -174,6 +175,7 @@ func newModule(relChainPath, goImportPath string) module.Module {
 						HasBody:  false,
 					},
 				},
+				FilePath: filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
 			},
 		},
 		Types: []module.Type(nil),

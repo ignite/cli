@@ -1,7 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, ResponseType } from "axios";
 {{ range .HTTPQueries }}import { Query{{ .Name }}Response } from "{{ resolveFile .FilePath }}";
 {{ end }}
-
 export type QueryParamsType = Record<string | number, any>;
 
 export interface FullRequestParams extends Omit<AxiosRequestConfig, "data" | "params" | "url" | "responseType"> {
@@ -132,7 +131,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @name {{ .Name }}
    * @request GET:{{ (index .Rules 0).Endpoint }}
    */
-  {{ .Name }} = (
+  query{{ .Name }} = (
     {{- if (index .Rules 0).Params }}
     {{- range $i, $param := (index .Rules 0).Params }}{{ if $i }}, {{ end }}{{ $param }}: string{{- end }},
     {{- end }}
