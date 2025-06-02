@@ -78,6 +78,13 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 
 			return "./types/" + rel
 		},
+		"transformPath": func(path string) string {
+			// transformPath converts a endpoint path to a valid JS substring path.
+			// e.g. /cosmos/bank/v1beta1/spendable_balances/{address}/by_denom -> /cosmos/bank/v1beta1/spendable_balances/${address}/by_denom
+			path = strings.ReplaceAll(path, "{", "${")
+			path = strings.ReplaceAll(path, "=**}", "}")
+			return path
+		},
 		"inc": func(i int) int {
 			return i + 1
 		},

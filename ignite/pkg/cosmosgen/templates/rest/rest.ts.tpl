@@ -128,24 +128,25 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * {{ .FullName }}
    *
    * @tags Query
-   * @name {{ .Name }}
+   * @name query{{ .Name }}
    * @request GET:{{ (index .Rules 0).Endpoint }}
    */
   query{{ .Name }} = (
     {{- if (index .Rules 0).Params }}
     {{- range $i, $param := (index .Rules 0).Params }}{{ if $i }}, {{ end }}{{ $param }}: string{{- end }},
-    {{- end }}
+    {{- end }}{{- if .Paginated }}
     query?: {
       "pagination.key"?: string;
       "pagination.offset"?: string;
       "pagination.limit"?: string;
       "pagination.count_total"?: boolean;
       "pagination.reverse"?: boolean;
-    },
+    },{{ else}}
+    query?: Record<string, any>,{{- end}}
     params: RequestParams = {},
   ) =>
     this.request<Query{{ .Name }}Response>({
-      path: `{{ (index .Rules 0).Endpoint }}`,
+      path: `{{  transformPath (index .Rules 0).Endpoint }}`,
       method: "GET",
       query: query,
       format: "json",
