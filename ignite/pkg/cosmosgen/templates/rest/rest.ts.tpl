@@ -1,23 +1,21 @@
-{{/*
-  go template for generating a typescript rest client from a cosmos sdk module
-  input: . (type: Module)
-*/}}
-
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, ResponseType } from "axios";
-import {
-  {{- range .HTTPQueries }}
-  Query{{ .Name }}Response,
-  {{- end }}
-} from "./module";
+{{ range .HTTPQueries }}import { Query{{ .Name }}Response } from "{{ resolveFile .FilePath }}";
+{{ end }}
 
 export type QueryParamsType = Record<string | number, any>;
 
 export interface FullRequestParams extends Omit<AxiosRequestConfig, "data" | "params" | "url" | "responseType"> {
+  /** set parameter to `true` for call `securityWorker` for this request */
   secure?: boolean;
+  /** request path */
   path: string;
+  /** content type of request body */
   type?: ContentType;
+  /** query params */
   query?: QueryParamsType;
+  /** format of response (i.e. response.json() -> format: "json") */
   format?: ResponseType;
+  /** request body */
   body?: unknown;
 }
 
@@ -124,7 +122,6 @@ export class HttpClient<SecurityDataType = unknown> {
 
 /**
  * @title {{ .Pkg.Name }}
- * @version version not set
  */
 export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
   {{- range .HTTPQueries }}
@@ -133,14 +130,19 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    *
    * @tags Query
    * @name {{ .Name }}
-   * @summary auto-generated from proto
    * @request GET:{{ (index .Rules 0).Endpoint }}
    */
   {{ .Name }} = (
     {{- if (index .Rules 0).Params }}
     {{- range $i, $param := (index .Rules 0).Params }}{{ if $i }}, {{ end }}{{ $param }}: string{{- end }},
     {{- end }}
-    query?: Record<string, any>,
+    query?: {
+      "pagination.key"?: string;
+      "pagination.offset"?: string;
+      "pagination.limit"?: string;
+      "pagination.count_total"?: boolean;
+      "pagination.reverse"?: boolean;
+    },
     params: RequestParams = {},
   ) =>
     this.request<Query{{ .Name }}Response>({

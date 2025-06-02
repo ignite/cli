@@ -66,6 +66,9 @@ type HTTPQuery struct {
 
 	// Paginated indicates that the query is using pagination.
 	Paginated bool `json:"paginated,omitempty"`
+
+	// FilePath is the path of the .proto file where message is defined at.
+	FilePath string `json:"file_path,omitempty"`
 }
 
 // Type is a proto type that might be used by module.
@@ -271,15 +274,16 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 	// fill queries & messages.
 	for _, s := range pkg.Services {
 		for _, q := range s.RPCFuncs {
+			pkgmsg, err := pkg.MessageByName(q.RequestType)
+			if err != nil {
+				// no msg found in the proto defs corresponds to discovered sdk message.
+				// if it cannot be found, nothing to worry about, this means that it is used
+				// only internally and not open for actual use.
+				continue
+			}
+
 			switch s.Name {
 			case "Msg":
-				pkgmsg, err := pkg.MessageByName(q.RequestType)
-				if err != nil {
-					// no msg found in the proto defs corresponds to discovered sdk message.
-					// if it cannot be found, nothing to worry about, this means that it is used
-					// only internally and not open for actual use.
-					continue
-				}
 
 				m.Msgs = append(m.Msgs, Msg{
 					Name:     q.RequestType,
@@ -297,6 +301,7 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 					FullName:  s.Name + q.Name,
 					Rules:     q.HTTPRules,
 					Paginated: q.Paginated,
+					FilePath:  pkgmsg.Path,
 				})
 			}
 		}
