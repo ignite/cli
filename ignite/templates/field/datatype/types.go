@@ -86,7 +86,7 @@ type DataType struct {
 	CollectionsKeyValueName func(datatype string) string
 	GenesisArgs             func(name multiformatname.Name, value int) string
 	ProtoImports            []string
-	GoCLIImports            []GoImport
+	GoCLIImports            GoImports
 	DefaultTestValue        string
 	ValueLoop               string
 	ValueIndex              string
@@ -97,6 +97,9 @@ type DataType struct {
 	CLIArgs                 func(name multiformatname.Name, datatype, prefix string, argIndex int) string
 	NonIndex                bool
 }
+
+// GoImports represents a list of go import.
+type GoImports []GoImport
 
 // GoImport represents the go import repo name with the alias.
 type GoImport struct {

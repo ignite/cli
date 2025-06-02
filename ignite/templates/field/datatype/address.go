@@ -14,9 +14,9 @@ var DataAddress = DataType{
 	DataType:                func(string) string { return "string" },
 	CollectionsKeyValueName: func(string) string { return "collections.StringKey" },
 	DefaultTestValue:        "cosmos1abcdefghijklmnopqrstuvwxyz0123456",
-	ValueLoop:               "fmt.Sprintf(\"cosmos1abcdef%d\", i)",
-	ValueIndex:              "\"cosmos1abcdefghijklmnopqrstuvwxyz0123456\"",
-	ValueInvalidIndex:       "\"cosmos1invalid\"",
+	ValueLoop:               "fmt.Sprintf(`cosmos1abcdef%d`, i)",
+	ValueIndex:              "`cosmos1abcdefghijklmnopqrstuvwxyz0123456`",
+	ValueInvalidIndex:       "`cosmos1invalid`",
 	ProtoType: func(_, name string, index int) string {
 		return fmt.Sprintf("string %s = %d", name, index)
 	},

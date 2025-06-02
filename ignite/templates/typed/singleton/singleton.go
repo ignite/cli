@@ -319,7 +319,7 @@ func genesisTestsModify(opts *typed.Options) genny.RunFn {
 				fmt.Sprintf("&types.%[1]v{ %[2]v }", opts.TypeName.PascalCase, sampleFields),
 			),
 			xast.AppendFuncCode(
-				fmt.Sprintf("require.Equal(t, genesisState.%[1]v, got.%[1]v)", opts.TypeName.UpperCamel),
+				fmt.Sprintf("require.EqualExportedValues(t, genesisState.%[1]v, got.%[1]v)", opts.TypeName.UpperCamel),
 			),
 		)
 		if err != nil {

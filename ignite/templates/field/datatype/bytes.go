@@ -14,6 +14,7 @@ var DataBytes = DataType{
 	DataType:                func(string) string { return "[]byte" },
 	CollectionsKeyValueName: func(string) string { return "collections.BytesKey" },
 	DefaultTestValue:        "[]byte{1, 2, 3, 4, 5}",
+	ValueLoop:               "[]byte{1+i%1, 2+i%2, 3+i%3}",
 	ProtoType: func(_, name string, index int) string {
 		return fmt.Sprintf("bytes %s = %d", name, index)
 	},

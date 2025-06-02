@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [`v29.0.0`](https://github.com/ignite/cli/releases/tag/v29.0.0)
+
 ### Features
 
 - [#4683](https://github.com/ignite/cli/pull/4683) Allow to change default denom via flag.
@@ -13,11 +15,15 @@
 - [#4701](https://github.com/ignite/cli/pull/4701) Improve `ignite doctor` by removing manual migration step. Additionally, remove protoc to buf migrations logic.
 - [#4703](https://github.com/ignite/cli/pull/4703) Remove testutil.Register function.
 - [#4702](https://github.com/ignite/cli/pull/4702) Improve app detection by checking for inheritance instead of interface implementation.
+- [#4707](https://github.com/ignite/cli/pull/4707) Show `buf` version in `ignite version` only when in a go module.
+- [#4709](https://github.com/ignite/cli/pull/4709) Remove legacy msgServer support
+- [#4710](https://github.com/ignite/cli/pull/4710) Remove the `nullify` pkg from the chain `testutil`
 
-### Bug Fixes
+### Fixes
 
 - [#4691](https://github.com/ignite/cli/pull/4691), [#4706](https://github.com/ignite/cli/pull/4706) Fix ts-client query template and solely Go template for `ts-client` generation.
 - [#4686](https://github.com/ignite/cli/pull/4686) Filter discovered protos to only messages.
+- [#4694](https://github.com/ignite/cli/issues/4694) Install an app using the `.` as a current path show a wrong app name.
 
 ## [`v29.0.0-rc.1`](https://github.com/ignite/cli/releases/tag/v29.0.0-rc.1)
 
@@ -204,7 +210,7 @@
 
 - [#4376](https://github.com/ignite/cli/pull/4376) Set different chain-id for in place testnet
 
-### Bug Fixes
+### Fixes
 
 - [#4421](https://github.com/ignite/cli/pull/4422) Fix typo in simulation template
 
