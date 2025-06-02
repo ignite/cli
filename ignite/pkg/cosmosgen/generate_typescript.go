@@ -158,7 +158,7 @@ func (g *tsGenerator) generateModuleTemplate(
 
 	// Generate the rest API template (using axios)
 	return templateTSClientRest.Write(out, protoPath, struct {
-		Module module.Module
+		module.Module
 	}{
 		Module: m,
 	})
