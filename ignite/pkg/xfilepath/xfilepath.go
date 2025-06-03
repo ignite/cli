@@ -99,3 +99,20 @@ func RelativePath(appPath string) (string, error) {
 	}
 	return path, nil
 }
+
+// IsDir returns true if the path is a local directory.
+func IsDir(path string) bool {
+	if info, err := os.Stat(path); err == nil && info.IsDir() {
+		return true
+	}
+	return false
+}
+
+// MustAbs returns an absolute representation of path
+// if the path is not absolute.
+func MustAbs(path string) (string, error) {
+	if !filepath.IsAbs(path) {
+		return filepath.Abs(path)
+	}
+	return path, nil
+}

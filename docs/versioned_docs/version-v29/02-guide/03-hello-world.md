@@ -52,23 +52,24 @@ Update the `SayHello` function in `x/hello/keeper/query_say_hello.go` to return 
 package keeper
 
 import (
- "context"
+	"context"
+	"fmt"
 
- "hello/x/hello/types"
+	"hello/x/hello/types"
 
- "google.golang.org/grpc/codes"
- "google.golang.org/grpc/status"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func (q queryServer) SayHello(ctx context.Context, req *types.QuerySayHelloRequest) (*types.QuerySayHelloResponse, error) {
- if req == nil {
-  return nil, status.Error(codes.InvalidArgument, "invalid request")
- }
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
 
- // TODO: Process the query
+	// TODO: Process the query
 
- // Custom Response
- return &types.QuerySayHelloResponse{Name: fmt.Sprintf("Hello %s!", req.Name)}, nil
+	// Custom Response
+	return &types.QuerySayHelloResponse{Name: fmt.Sprintf("Hello %s!", req.Name)}, nil
 }
 ```
 

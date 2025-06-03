@@ -152,3 +152,86 @@ func TestRelativePath(t *testing.T) {
 		})
 	}
 }
+
+func TestIsDir(t *testing.T) {
+	tests := []struct {
+		name string
+		path string
+		want bool
+	}{
+		{
+			name: "existing directory",
+			path: ".",
+			want: true,
+		},
+		{
+			name: "existing sub directory",
+			path: "./testdata",
+			want: true,
+		},
+		{
+			name: "existing file",
+			path: "./testdata/testfile",
+			want: false,
+		},
+		{
+			name: "non-existing directory",
+			path: "nonexistent",
+			want: false,
+		},
+		{
+			name: "parent directory",
+			path: "..",
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := xfilepath.IsDir(tt.path)
+			require.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestMustAbs(t *testing.T) {
+	pwd, err := os.Getwd()
+	require.NoError(t, err)
+
+	tests := []struct {
+		name string
+		path string
+		want string
+		err  error
+	}{
+		{
+			name: "already absolute path",
+			path: "/absolute/path",
+			want: "/absolute/path",
+			err:  nil,
+		},
+		{
+			name: "relative path",
+			path: "relative/path",
+			want: filepath.Join(pwd, "relative/path"),
+			err:  nil,
+		},
+		{
+			name: "current directory",
+			path: ".",
+			want: pwd,
+			err:  nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := xfilepath.MustAbs(tt.path)
+			if tt.err != nil {
+				require.Error(t, err)
+				require.Equal(t, tt.err.Error(), err.Error())
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, tt.want, got)
+		})
+	}
+}

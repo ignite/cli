@@ -192,7 +192,7 @@ func genesisTestsModify(opts *typed.Options) genny.RunFn {
 			return err
 		}
 
-		replacementAssert := fmt.Sprintf(`require.ElementsMatch(t, genesisState.%[1]vList, got.%[1]vList)
+		replacementAssert := fmt.Sprintf(`require.EqualExportedValues(t, genesisState.%[1]vList, got.%[1]vList)
 require.Equal(t, genesisState.%[1]vCount, got.%[1]vCount)`, opts.TypeName.UpperCamel)
 
 		// add parameter to the struct into the new method.

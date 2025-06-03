@@ -479,7 +479,7 @@ func genesisTestsModify(opts *typed.Options) genny.RunFn {
 					sampleIndexes[1],
 				),
 			),
-			xast.AppendFuncCode(fmt.Sprintf("require.ElementsMatch(t, genesisState.%[1]vMap, got.%[1]vMap)", opts.TypeName.UpperCamel)),
+			xast.AppendFuncCode(fmt.Sprintf("require.EqualExportedValues(t, genesisState.%[1]vMap, got.%[1]vMap)", opts.TypeName.UpperCamel)),
 		)
 		if err != nil {
 			return err
