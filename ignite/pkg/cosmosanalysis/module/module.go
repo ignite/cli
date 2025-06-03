@@ -58,6 +58,9 @@ type HTTPQuery struct {
 	// Name of the RPC func.
 	Name string `json:"name,omitempty"`
 
+	// ResponseType is the type of the response.
+	ResponseType string `json:"response_type,omitempty"`
+
 	// FullName of the query with service name and rpc func name.
 	FullName string `json:"full_name,omitempty"`
 
@@ -297,11 +300,12 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 				}
 
 				m.HTTPQueries = append(m.HTTPQueries, HTTPQuery{
-					Name:      q.Name,
-					FullName:  s.Name + q.Name,
-					Rules:     q.HTTPRules,
-					Paginated: q.Paginated,
-					FilePath:  pkgmsg.Path,
+					Name:         q.Name,
+					FullName:     s.Name + q.Name,
+					Rules:        q.HTTPRules,
+					Paginated:    q.Paginated,
+					FilePath:     pkgmsg.Path,
+					ResponseType: q.ReturnsType,
 				})
 			}
 		}

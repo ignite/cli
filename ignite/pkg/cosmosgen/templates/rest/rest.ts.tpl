@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, ResponseType } from "axios";
-{{ range .HTTPQueries }}import { Query{{ .Name }}Response } from "{{ resolveFile .FilePath }}";
+{{ range .HTTPQueries }}import { {{ .ResponseType }} } from "{{ resolveFile .FilePath }}";
 {{ end }}
 export type QueryParamsType = Record<string | number, any>;
 
@@ -145,7 +145,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     query?: Record<string, any>,{{- end}}
     params: RequestParams = {},
   ) =>
-    this.request<Query{{ .Name }}Response>({
+    this.request<{{ .ResponseType }}>({
       path: `{{  transformPath (index .Rules 0).Endpoint }}`,
       method: "GET",
       query: query,

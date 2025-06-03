@@ -152,8 +152,9 @@ func newModule(relChainPath, goImportPath string) module.Module {
 		},
 		HTTPQueries: []module.HTTPQuery{
 			{
-				Name:     "MyQuery",
-				FullName: "QueryMyQuery",
+				Name:         "MyQuery",
+				FullName:     "QueryMyQuery",
+				ResponseType: "QueryMyQueryResponse",
 				Rules: []protoanalysis.HTTPRule{
 					{
 						Endpoint: "/tendermint/mars/my_query/{mytypefield}",
@@ -166,8 +167,9 @@ func newModule(relChainPath, goImportPath string) module.Module {
 				FilePath:  filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
 			},
 			{
-				Name:     "Foo",
-				FullName: "QueryFoo",
+				Name:         "Foo",
+				FullName:     "QueryFoo",
+				ResponseType: "QueryFooResponse",
 				Rules: []protoanalysis.HTTPRule{
 					{
 						Endpoint: "/tendermint/mars/foo",
