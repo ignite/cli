@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changes
+
+- []() Bump Cosmos SDK to `v0.53.2`.
+
 ## [`v29.0.0`](https://github.com/ignite/cli/releases/tag/v29.0.0)
 
 ### Features
