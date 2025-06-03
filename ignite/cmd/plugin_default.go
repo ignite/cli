@@ -16,9 +16,9 @@ type defaultPlugin struct {
 }
 
 const (
-	PluginRelayerVersion     = "hermes/v0.2.8"
+	PluginRelayerVersion     = "hermes/v0.3.0"
 	PluginRelayerPath        = "github.com/ignite/apps/hermes@" + PluginRelayerVersion
-	PluginAppRegistryVersion = "appregistry/v0.1.2"
+	PluginAppRegistryVersion = "appregistry/v0.1.3"
 	PluginAppRegistryPath    = "github.com/ignite/apps/appregistry@" + PluginAppRegistryVersion
 )
 
