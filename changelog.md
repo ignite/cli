@@ -4,7 +4,7 @@
 
 ### Changes
 
-- []() Bump default Ignite Apps.
+- [#4718](https://github.com/ignite/cli/pull/4718) Bump default Ignite Apps.
 
 ## [`v29.0.0`](https://github.com/ignite/cli/releases/tag/v29.0.0)
 
