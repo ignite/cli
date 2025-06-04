@@ -1,7 +1,15 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, ResponseType } from "axios";
 {{ range .HTTPQueries }}import { {{ .ResponseType }} } from "{{ resolveFile .FilePath }}";
 {{ end }}
+import type {SnakeCasedPropertiesDeep} from 'type-fest';
+
 export type QueryParamsType = Record<string | number, any>;
+
+
+export type ChangeProtoToJSPrimitives<T extends object> = {
+  [key in keyof T]: T[key] extends Uint8Array | Date ? string :  T[key] extends object ? ChangeProtoToJSPrimitives<T[key]>: T[key];
+  // ^^^^ This line is used to convert Uint8Array to string, if you want to keep Uint8Array as is, you can remove this line
+}
 
 export interface FullRequestParams extends Omit<AxiosRequestConfig, "data" | "params" | "url" | "responseType"> {
   /** set parameter to `true` for call `securityWorker` for this request */
@@ -145,7 +153,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     query?: Record<string, any>,{{- end}}
     params: RequestParams = {},
   ) =>
-    this.request<{{ .ResponseType }}>({
+    this.request<SnakeCasedPropertiesDeep<ChangeProtoToJSPrimitives<{{ .ResponseType }}>>>({
       path: `{{  transformPath (index .Rules 0).Endpoint }}`,
       method: "GET",
       query: query,
