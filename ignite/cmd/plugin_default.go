@@ -16,8 +16,15 @@ type defaultPlugin struct {
 }
 
 const (
+<<<<<<< HEAD
 	PluginRelayerVersion = "hermes/v0.2.8"
 	PluginRelayerPath    = "github.com/ignite/apps/hermes@" + PluginRelayerVersion
+=======
+	PluginRelayerVersion     = "hermes/v0.3.0"
+	PluginRelayerPath        = "github.com/ignite/apps/hermes@" + PluginRelayerVersion
+	PluginAppRegistryVersion = "appregistry/v0.1.3"
+	PluginAppRegistryPath    = "github.com/ignite/apps/appregistry@" + PluginAppRegistryVersion
+>>>>>>> 4f9e5253 (chore: bump default plugins (#4718))
 )
 
 // defaultPlugins holds the plugin that are considered trustable and for which
