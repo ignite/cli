@@ -3,6 +3,7 @@ package protoanalysis
 import (
 	"fmt"
 	"regexp"
+	"slices"
 	"strings"
 
 	"github.com/emicklei/proto"
@@ -195,9 +196,9 @@ func (b builder) constantToHTTPRules(requestMessage *proto.Message, constant pro
 
 	// calculate url params, query params and body fields counts.
 	var (
-		messageFieldsCount = b.messageFieldsCount(requestMessage)
-		paramsCount        = len(params)
-		bodyFieldsCount    int
+		messageFields, messageFieldsCount = b.messageFieldsCount(requestMessage)
+		paramsCount                       = len(params)
+		bodyFieldsCount                   int
 	)
 
 	if body, ok := constant.Map["body"]; ok { // check if body is specified.
@@ -210,12 +211,40 @@ func (b builder) constantToHTTPRules(requestMessage *proto.Message, constant pro
 
 	queryParamsCount := messageFieldsCount - paramsCount - bodyFieldsCount
 
+	var (
+		queryFields map[string]string
+		bodyFields  map[string]string
+	)
+	for name, t := range messageFields {
+		if slices.Contains(params, name) {
+			// this is a URL parameter, skip it
+			continue
+		}
+
+		// If there are body fields, we need to add them to the bodyFields map.
+		// There are no known post requests that contain body fields and query params
+		if bodyFieldsCount > 0 {
+			if len(bodyFields) == 0 {
+				bodyFields = make(map[string]string)
+			}
+			bodyFields[name] = t
+		} else {
+			if len(queryFields) == 0 {
+				queryFields = make(map[string]string)
+			}
+
+			queryFields[name] = t
+		}
+	}
+
 	// create and add the HTTP rule to the list.
 	httpRule := HTTPRule{
-		Endpoint: endpoint,
-		Params:   params,
-		HasQuery: queryParamsCount > 0,
-		HasBody:  bodyFieldsCount > 0,
+		Endpoint:    endpoint,
+		Params:      params,
+		HasQuery:    queryParamsCount > 0,
+		QueryFields: queryFields,
+		HasBody:     bodyFieldsCount > 0,
+		BodyFields:  bodyFields,
 	}
 
 	httpRules = append(httpRules, httpRule)
@@ -228,14 +257,23 @@ func (b builder) constantToHTTPRules(requestMessage *proto.Message, constant pro
 	return httpRules
 }
 
-func (b builder) messageFieldsCount(message *proto.Message) (count int) {
+func (b builder) messageFieldsCount(message *proto.Message) (messageFields map[string]string, count int) {
+	messageFields = make(map[string]string)
+
 	for _, el := range message.Elements {
 		switch el.(type) {
-		case
-			*proto.NormalField,
-			*proto.MapField,
-			*proto.OneOfField:
+		case *proto.NormalField:
 			count++
+			nf := el.(*proto.NormalField)
+			messageFields[nf.Name] = nf.Type
+		case *proto.MapField:
+			count++
+			mf := el.(*proto.MapField)
+			messageFields[mf.Name] = fmt.Sprintf("map<%s, %s>", mf.KeyType, mf.Type)
+		case *proto.OneOfField:
+			count++
+			oneOff := el.(*proto.OneOfField)
+			messageFields[oneOff.Name] = oneOff.Type
 		}
 	}
 

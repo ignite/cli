@@ -117,10 +117,12 @@ func newModule(relChainPath, goImportPath string) module.Module {
 									Endpoint: "/tendermint/mars/my_query/{mytypefield}",
 									Params:   []string{"mytypefield"},
 									HasQuery: true,
-									HasBody:  false,
+									QueryFields: map[string]string{
+										"pagination": "cosmos.base.query.v1beta1.PageRequest",
+									},
+									HasBody: false,
 								},
 							},
-							Paginated: true,
 						},
 						{
 							Name:        "Foo",
@@ -160,7 +162,10 @@ func newModule(relChainPath, goImportPath string) module.Module {
 						Endpoint: "/tendermint/mars/my_query/{mytypefield}",
 						Params:   []string{"mytypefield"},
 						HasQuery: true,
-						HasBody:  false,
+						QueryFields: map[string]string{
+							"pagination": "cosmos.base.query.v1beta1.PageRequest",
+						},
+						HasBody: false,
 					},
 				},
 				Paginated: true,

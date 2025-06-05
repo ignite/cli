@@ -143,14 +143,44 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     {{- if (index .Rules 0).Params }}
     {{- range $i, $param := (index .Rules 0).Params }}{{ if $i }}, {{ end }}{{ $param }}: string{{- end }},
     {{- end }}{{- if .Paginated }}
+    {{- if gt (len (index .Rules 0).QueryFields) 0 }}
+    {{- $queryFields := mapToTypeScriptObject (index .Rules 0).QueryFields }}
+    {{- if ne $queryFields "{  }" }}
+    query?: ({
+      "pagination.key"?: string;
+      "pagination.offset"?: string;
+      "pagination.limit"?: string;
+      "pagination.count_total"?: boolean;
+      "pagination.reverse"?: boolean;
+    } & {{ $queryFields }}),
+    {{- else }}
     query?: {
       "pagination.key"?: string;
       "pagination.offset"?: string;
       "pagination.limit"?: string;
       "pagination.count_total"?: boolean;
       "pagination.reverse"?: boolean;
-    },{{ else}}
-    query?: Record<string, any>,{{- end}}
+    },
+    {{- end }}
+    {{- else }}
+    query?: {
+      "pagination.key"?: string;
+      "pagination.offset"?: string;
+      "pagination.limit"?: string;
+      "pagination.count_total"?: boolean;
+      "pagination.reverse"?: boolean;
+    },
+    {{- end }}
+{{- else if gt (len (index .Rules 0).QueryFields) 0 }}
+    {{- $queryFields := mapToTypeScriptObject (index .Rules 0).QueryFields }}
+    {{- if ne $queryFields "{  }" }}
+    query?: {{ $queryFields }},
+    {{- else }}
+    query?: Record<string, any>,
+    {{- end }}
+{{- else}}
+    query?: Record<string, any>,
+{{- end}}
     params: RequestParams = {},
   ) =>
     this.request<SnakeCasedPropertiesDeep<ChangeProtoToJSPrimitives<{{ .ResponseType }}>>>({

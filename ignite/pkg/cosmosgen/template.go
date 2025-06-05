@@ -2,6 +2,7 @@ package cosmosgen
 
 import (
 	"embed"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -84,6 +85,22 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 			path = strings.ReplaceAll(path, "{", "${")
 			path = strings.ReplaceAll(path, "=**}", "}")
 			return path
+		},
+		"mapToTypeScriptObject": func(m map[string]string) string {
+			// mapToTs converts a map to a TypeScript object string.
+			// e.g. {"key1": "value1", "key2": "value2"} -> { key1: "value1", key2: "value2" }
+			var sb strings.Builder
+			sb.WriteString("{ ")
+			for k, v := range m {
+				// skip proto fields that aren't raw types
+				if strings.Contains(v, ".") {
+					continue
+				}
+
+				sb.WriteString(fmt.Sprintf(`"%s"?: %s; `, k, v))
+			}
+			sb.WriteString(" }")
+			return sb.String()
 		},
 		"inc": func(i int) int {
 			return i + 1

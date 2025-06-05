@@ -310,6 +310,10 @@ func TestLiquidity(t *testing.T) {
 									Endpoint: "/liquidity/pools/{test}",
 									Params:   []string{"test"},
 									HasBody:  true,
+									BodyFields: map[string]string{
+										"base_req": "BaseReq",
+										"msg":      "MsgCreatePool",
+									},
 								},
 							},
 						},
@@ -322,6 +326,10 @@ func TestLiquidity(t *testing.T) {
 									Endpoint: "/liquidity/pools/{pool_id}/batch/deposits",
 									Params:   []string{"pool_id"},
 									HasBody:  true,
+									BodyFields: map[string]string{
+										"base_req": "BaseReq",
+										"msg":      "MsgDepositWithinBatch",
+									},
 								},
 							},
 						},
@@ -334,6 +342,10 @@ func TestLiquidity(t *testing.T) {
 									Endpoint: "/liquidity/pools/{pool_id}/batch/withdraws",
 									Params:   []string{"pool_id"},
 									HasBody:  true,
+									BodyFields: map[string]string{
+										"base_req": "BaseReq",
+										"msg":      "MsgWithdrawWithinBatch",
+									},
 								},
 							},
 						},
@@ -345,8 +357,12 @@ func TestLiquidity(t *testing.T) {
 								{
 									Endpoint: "/liquidity/pools/{pool_id}/batch/swaps",
 									Params:   []string{"pool_id"},
-									HasQuery: true,
+									HasQuery: true, // NOTE: this should never happen in this case, but this was done to test protoanalysis detection in SwapApi proto definition.
 									HasBody:  true,
+									BodyFields: map[string]string{
+										"base_req": "BaseReq",
+										"msg":      "MsgSwapWithinBatch",
+									},
 								},
 							},
 						},
@@ -363,6 +379,9 @@ func TestLiquidity(t *testing.T) {
 								{
 									Endpoint: "/liquidity/pools",
 									HasQuery: true,
+									QueryFields: map[string]string{
+										"pagination": "cosmos.base.query.v1beta1.PageRequest",
+									},
 								},
 							},
 						},
@@ -397,6 +416,9 @@ func TestLiquidity(t *testing.T) {
 									Endpoint: "/liquidity/pools/{pool_id}/batch/swaps",
 									Params:   []string{"pool_id"},
 									HasQuery: true,
+									QueryFields: map[string]string{
+										"pagination": "cosmos.base.query.v1beta1.PageRequest",
+									},
 								},
 							},
 						},
@@ -420,6 +442,9 @@ func TestLiquidity(t *testing.T) {
 									Endpoint: "/liquidity/pools/{pool_id}/batch/deposits",
 									Params:   []string{"pool_id"},
 									HasQuery: true,
+									QueryFields: map[string]string{
+										"pagination": "cosmos.base.query.v1beta1.PageRequest",
+									},
 								},
 							},
 						},
@@ -443,6 +468,9 @@ func TestLiquidity(t *testing.T) {
 									Endpoint: "/liquidity/pools/{pool_id}/batch/withdraws",
 									Params:   []string{"pool_id"},
 									HasQuery: true,
+									QueryFields: map[string]string{
+										"pagination": "cosmos.base.query.v1beta1.PageRequest",
+									},
 								},
 							},
 						},

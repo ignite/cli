@@ -253,17 +253,6 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 
 	// fill types.
 	for _, protomsg := range pkg.Messages {
-		// Update pagination for RPC functions when a service response uses pagination
-		if hasPagination(protomsg) {
-			for _, s := range pkg.Services {
-				for i, q := range s.RPCFuncs {
-					if q.RequestType == protomsg.Name || q.ReturnsType == protomsg.Name {
-						s.RPCFuncs[i].Paginated = true
-					}
-				}
-			}
-		}
-
 		if !isType(protomsg) {
 			continue
 		}
@@ -299,11 +288,20 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 					continue
 				}
 
+				// check if the query is paginated.
+				isPaginated := false
+				for _, hr := range q.HTTPRules {
+					if hr.IsPaginated() {
+						isPaginated = true
+						break
+					}
+				}
+
 				m.HTTPQueries = append(m.HTTPQueries, HTTPQuery{
 					Name:         q.Name,
 					FullName:     s.Name + q.Name,
 					Rules:        q.HTTPRules,
-					Paginated:    q.Paginated,
+					Paginated:    isPaginated,
 					FilePath:     pkgmsg.Path,
 					ResponseType: q.ReturnsType,
 				})
@@ -406,19 +404,6 @@ func (d moduleDiscoverer) isPkgFromRegisteredModule(pkg protoanalysis.Package) (
 	}
 
 	return false, nil
-}
-
-func hasPagination(msg protoanalysis.Message) bool {
-	for _, fieldType := range msg.Fields {
-		// Message field type suffix check to match common pagination types:
-		//    cosmos.base.query.v1beta1.PageRequest
-		//    cosmos.base.query.v1beta1.PageResponse
-		if strings.HasSuffix(fieldType, "PageRequest") || strings.HasSuffix(fieldType, "PageResponse") {
-			return true
-		}
-	}
-
-	return false
 }
 
 func switchCosmosSDKPackagePath(srcPath, sdkDir string) string {
