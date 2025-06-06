@@ -87,19 +87,43 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 			return path
 		},
 		"mapToTypeScriptObject": func(m map[string]string) string {
-			// mapToTs converts a map to a TypeScript object string.
-			// e.g. {"key1": "value1", "key2": "value2"} -> { key1: "value1", key2: "value2" }
+			// mapToTypeScriptObject converts a map to a TypeScript object string.
+			// e.g. {"key1"?: value1; "key2"?: value2}
+
+			// protoTypeToTypeScriptType converts a proto type string to a TypeScript type string.
+			// e.g. "string" -> "string", "int32" -> "number", "bool" -> "boolean", "bytes" -> "Uint8Array", etc.
+			protoTypeToTypeScriptType := func(pt string) string {
+				switch pt {
+				case "string":
+					return "string"
+				case "int32", "int64", "uint32", "uint64", "sint32", "sint64", "fixed32", "fixed64", "sfixed32", "sfixed64", "float", "double":
+					return "number"
+				case "bool":
+					return "boolean"
+				case "bytes":
+					return "Uint8Array"
+				default:
+					// for complex or unknown types, return as-is (could be an imported type)
+					return pt
+				}
+			}
+
 			var sb strings.Builder
-			sb.WriteString("{ ")
+			sb.WriteString("{")
+			sb.WriteString("\n")
 			for k, v := range m {
 				// skip proto fields that aren't raw types
+				// TODO: parse proto types to deepest inner type
 				if strings.Contains(v, ".") {
+					sb.WriteString(fmt.Sprintf(`      "%s"?: any /* TODO */;`, k))
+					sb.WriteString("\n")
 					continue
 				}
 
-				sb.WriteString(fmt.Sprintf(`"%s"?: %s; `, k, v))
+				sb.WriteString(fmt.Sprintf(`      "%s"?: %s;`, k, protoTypeToTypeScriptType(v)))
+				sb.WriteString("\n")
 			}
-			sb.WriteString(" }")
+			sb.WriteString("    }")
 			return sb.String()
 		},
 		"inc": func(i int) int {

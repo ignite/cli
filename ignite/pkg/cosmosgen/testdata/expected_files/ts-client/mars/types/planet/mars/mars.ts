@@ -53,6 +53,7 @@ export interface QueryWithPaginationResponse {
 export interface QueryWithQueryParamsRequest {
   mytypefield: string;
   queryParam: string;
+  mybool: boolean;
 }
 
 export interface QueryWithQueryParamsResponse {
@@ -662,7 +663,7 @@ export const QueryWithPaginationResponse: MessageFns<QueryWithPaginationResponse
 };
 
 function createBaseQueryWithQueryParamsRequest(): QueryWithQueryParamsRequest {
-  return { mytypefield: "", queryParam: "" };
+  return { mytypefield: "", queryParam: "", mybool: false };
 }
 
 export const QueryWithQueryParamsRequest: MessageFns<QueryWithQueryParamsRequest> = {
@@ -672,6 +673,9 @@ export const QueryWithQueryParamsRequest: MessageFns<QueryWithQueryParamsRequest
     }
     if (message.queryParam !== "") {
       writer.uint32(18).string(message.queryParam);
+    }
+    if (message.mybool !== false) {
+      writer.uint32(24).bool(message.mybool);
     }
     return writer;
   },
@@ -699,6 +703,14 @@ export const QueryWithQueryParamsRequest: MessageFns<QueryWithQueryParamsRequest
           message.queryParam = reader.string();
           continue;
         }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.mybool = reader.bool();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -712,6 +724,7 @@ export const QueryWithQueryParamsRequest: MessageFns<QueryWithQueryParamsRequest
     return {
       mytypefield: isSet(object.mytypefield) ? globalThis.String(object.mytypefield) : "",
       queryParam: isSet(object.queryParam) ? globalThis.String(object.queryParam) : "",
+      mybool: isSet(object.mybool) ? globalThis.Boolean(object.mybool) : false,
     };
   },
 
@@ -723,6 +736,9 @@ export const QueryWithQueryParamsRequest: MessageFns<QueryWithQueryParamsRequest
     if (message.queryParam !== "") {
       obj.queryParam = message.queryParam;
     }
+    if (message.mybool !== false) {
+      obj.mybool = message.mybool;
+    }
     return obj;
   },
 
@@ -733,6 +749,7 @@ export const QueryWithQueryParamsRequest: MessageFns<QueryWithQueryParamsRequest
     const message = createBaseQueryWithQueryParamsRequest();
     message.mytypefield = object.mytypefield ?? "";
     message.queryParam = object.queryParam ?? "";
+    message.mybool = object.mybool ?? false;
     return message;
   },
 };

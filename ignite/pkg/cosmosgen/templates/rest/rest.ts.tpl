@@ -136,48 +136,14 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * {{ .FullName }}
    *
    * @tags Query
-   * @name query{{ .Name }}
+   * @name {{ camelCase .FullName }}
    * @request GET:{{ (index .Rules 0).Endpoint }}
    */
-  query{{ .Name }} = (
+  {{ camelCase .FullName }} = (
     {{- if (index .Rules 0).Params }}
     {{- range $i, $param := (index .Rules 0).Params }}{{ if $i }}, {{ end }}{{ $param }}: string{{- end }},
-    {{- end }}{{- if .Paginated }}
-    {{- if gt (len (index .Rules 0).QueryFields) 0 }}
-    {{- $queryFields := mapToTypeScriptObject (index .Rules 0).QueryFields }}
-    {{- if ne $queryFields "{  }" }}
-    query?: ({
-      "pagination.key"?: string;
-      "pagination.offset"?: string;
-      "pagination.limit"?: string;
-      "pagination.count_total"?: boolean;
-      "pagination.reverse"?: boolean;
-    } & {{ $queryFields }}),
-    {{- else }}
-    query?: {
-      "pagination.key"?: string;
-      "pagination.offset"?: string;
-      "pagination.limit"?: string;
-      "pagination.count_total"?: boolean;
-      "pagination.reverse"?: boolean;
-    },
-    {{- end }}
-    {{- else }}
-    query?: {
-      "pagination.key"?: string;
-      "pagination.offset"?: string;
-      "pagination.limit"?: string;
-      "pagination.count_total"?: boolean;
-      "pagination.reverse"?: boolean;
-    },
-    {{- end }}
-{{- else if gt (len (index .Rules 0).QueryFields) 0 }}
-    {{- $queryFields := mapToTypeScriptObject (index .Rules 0).QueryFields }}
-    {{- if ne $queryFields "{  }" }}
-    query?: {{ $queryFields }},
-    {{- else }}
-    query?: Record<string, any>,
-    {{- end }}
+    {{- end }}{{- if gt (len (index .Rules 0).QueryFields) 0 }}
+    query?: {{ mapToTypeScriptObject (index .Rules 0).QueryFields }},
 {{- else}}
     query?: Record<string, any>,
 {{- end}}

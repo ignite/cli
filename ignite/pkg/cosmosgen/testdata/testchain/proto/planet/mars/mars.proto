@@ -75,6 +75,7 @@ message QueryWithPaginationResponse {
 message QueryWithQueryParamsRequest {
   string mytypefield = 1;
   string query_param = 2;
+  bool mybool = 3;
 }
 
 message QueryWithQueryParamsResponse {

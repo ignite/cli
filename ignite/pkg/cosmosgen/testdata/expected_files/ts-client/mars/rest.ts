@@ -206,7 +206,10 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request GET:/ignite/mars/query_with_query_params/{mytypefield}
    */
   queryQueryWithQueryParams = (mytypefield: string,
-    query?: { "query_param"?: string;  },
+    query?: {
+      "query_param"?: string;
+      "mybool"?: boolean;
+    },
     params: RequestParams = {},
   ) =>
     this.request<SnakeCasedPropertiesDeep<ChangeProtoToJSPrimitives<QueryWithQueryParamsResponse>>>({
@@ -225,13 +228,14 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request GET:/ignite/mars/query_with_query_params/{mytypefield}
    */
   queryQueryWithQueryParamsWithPagination = (mytypefield: string,
-    query?: ({
+    query?: {
       "pagination.key"?: string;
       "pagination.offset"?: string;
       "pagination.limit"?: string;
       "pagination.count_total"?: boolean;
       "pagination.reverse"?: boolean;
-    } & { "query_param"?: string;  }),
+      "query_param"?: string;
+    },
     params: RequestParams = {},
   ) =>
     this.request<SnakeCasedPropertiesDeep<ChangeProtoToJSPrimitives<QueryWithQueryParamsWithPaginationResponse>>>({
