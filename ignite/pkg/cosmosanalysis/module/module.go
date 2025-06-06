@@ -90,9 +90,9 @@ type moduleDiscoverer struct {
 	registeredModules []string
 }
 
-// IsCosmosSDKModulePkg check if a Go import path is a Cosmos SDK package module.
-// These type of package have the "cosmossdk.io/x" prefix.
-func IsCosmosSDKModulePkg(path string) bool {
+// IsCosmosSDKPackage check if a Go import path is a Cosmos SDK package.
+// These type of package have the "cosmossdk.io/x" prefix or "github.com/cosmos/cosmos-sdk" prefix.
+func IsCosmosSDKPackage(path string) bool {
 	return strings.Contains(path, "cosmossdk.io/x/") || strings.Contains(path, "github.com/cosmos/cosmos-sdk")
 }
 
@@ -146,7 +146,7 @@ func Discover(ctx context.Context, chainRoot, sourcePath string, options ...Disc
 	// SDK package because the module packages doesn't contain the proto files. These
 	// files are only available from the Cosmos SDK package.
 	var protoPath string
-	if o.sdkDir != "" && IsCosmosSDKModulePkg(sourcePath) {
+	if o.sdkDir != "" && IsCosmosSDKPackage(sourcePath) {
 		protoPath = switchCosmosSDKPackagePath(sourcePath, o.sdkDir)
 	} else {
 		protoPath = filepath.Join(sourcePath, o.protoDir)
