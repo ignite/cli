@@ -261,19 +261,16 @@ func (b builder) messageFieldsCount(message *proto.Message) (messageFields map[s
 	messageFields = make(map[string]string)
 
 	for _, el := range message.Elements {
-		switch el.(type) {
+		switch el := el.(type) {
 		case *proto.NormalField:
 			count++
-			nf := el.(*proto.NormalField)
-			messageFields[nf.Name] = nf.Type
+			messageFields[el.Name] = el.Type
 		case *proto.MapField:
 			count++
-			mf := el.(*proto.MapField)
-			messageFields[mf.Name] = fmt.Sprintf("map<%s, %s>", mf.KeyType, mf.Type)
+			messageFields[el.Name] = fmt.Sprintf("map<%s, %s>", el.KeyType, el.Type)
 		case *proto.OneOfField:
 			count++
-			oneOff := el.(*proto.OneOfField)
-			messageFields[oneOff.Name] = oneOff.Type
+			messageFields[el.Name] = el.Type
 		}
 	}
 
