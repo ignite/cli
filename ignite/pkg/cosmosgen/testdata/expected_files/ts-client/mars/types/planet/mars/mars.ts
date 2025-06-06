@@ -70,6 +70,10 @@ export interface QueryWithQueryParamsWithPaginationResponse {
   pagination: PageResponse | undefined;
 }
 
+export interface AnotherType {
+  mytypefield: string;
+}
+
 function createBaseMsgMyMessageRequest(): MsgMyMessageRequest {
   return { mytypefield: "" };
 }
@@ -967,6 +971,64 @@ export const QueryWithQueryParamsWithPaginationResponse: MessageFns<QueryWithQue
     message.pagination = (object.pagination !== undefined && object.pagination !== null)
       ? PageResponse.fromPartial(object.pagination)
       : undefined;
+    return message;
+  },
+};
+
+function createBaseAnotherType(): AnotherType {
+  return { mytypefield: "" };
+}
+
+export const AnotherType: MessageFns<AnotherType> = {
+  encode(message: AnotherType, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.mytypefield !== "") {
+      writer.uint32(10).string(message.mytypefield);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): AnotherType {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseAnotherType();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.mytypefield = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): AnotherType {
+    return { mytypefield: isSet(object.mytypefield) ? globalThis.String(object.mytypefield) : "" };
+  },
+
+  toJSON(message: AnotherType): unknown {
+    const obj: any = {};
+    if (message.mytypefield !== "") {
+      obj.mytypefield = message.mytypefield;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<AnotherType>, I>>(base?: I): AnotherType {
+    return AnotherType.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<AnotherType>, I>>(object: I): AnotherType {
+    const message = createBaseAnotherType();
+    message.mytypefield = object.mytypefield ?? "";
     return message;
   },
 };

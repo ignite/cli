@@ -9,6 +9,7 @@ import { Api } from "./rest";
 import { MsgMyMessageRequest } from "./types/planet/mars/mars";
 import { MsgBarRequest } from "./types/planet/mars/mars";
 
+import { AnotherType as typeAnotherType} from "./types"
 
 export { MsgMyMessageRequest, MsgBarRequest };
 
@@ -130,6 +131,7 @@ class SDKModule {
 		this.query = queryClient({ addr: client.env.apiURL });		
 		this.updateTX(client);
 		this.structure =  {
+						AnotherType: getStructure(typeAnotherType.fromPartial({})),
 						
 		};
 		client.on('signer-changed',(signer) => {			
