@@ -264,7 +264,11 @@ func (b builder) messageFieldsCount(message *proto.Message) (messageFields map[s
 		switch el := el.(type) {
 		case *proto.NormalField:
 			count++
-			messageFields[el.Name] = el.Type
+			if el.Repeated {
+				messageFields[el.Name] = fmt.Sprintf("repeated %s", el.Type)
+			} else {
+				messageFields[el.Name] = el.Type
+			}
 		case *proto.MapField:
 			count++
 			messageFields[el.Name] = fmt.Sprintf("map<%s, %s>", el.KeyType, el.Type)

@@ -27,12 +27,18 @@ func TestGenerateTypeScript(t *testing.T) {
 	buf, err := cosmosbuf.New(cacheStorage, t.Name())
 	require.NoError(err)
 
+	// Use module discovery to collect test module proto.
+	m, err := module.Discover(t.Context(), appDir, appDir, module.WithProtoDir("proto"))
+	require.NoError(err, "failed to discover module")
+	require.Len(m, 1, "expected exactly one module to be discovered")
+
 	g := newTSGenerator(&generator{
 		appPath:      appDir,
 		protoDir:     "proto",
 		goModPath:    "go.mod",
 		cacheStorage: cacheStorage,
 		buf:          buf,
+		appModules:   m,
 		opts: &generateOptions{
 			useCache: false,
 			jsOut: func(m module.Module) string {
@@ -41,12 +47,7 @@ func TestGenerateTypeScript(t *testing.T) {
 		},
 	})
 
-	// Use module discovery to collect test module proto.
-	module, err := module.Discover(t.Context(), appDir, appDir, module.WithProtoDir(g.g.protoDir))
-	require.NoError(err, "failed to discover module")
-	require.Len(module, 1, "expected exactly one module to be discovered")
-
-	err = g.generateModuleTemplate(t.Context(), appDir, module[0])
+	err = g.generateModuleTemplate(t.Context(), appDir, m[0])
 	require.NoError(err, "failed to generate TypeScript files")
 
 	// compare all generated files to golden files

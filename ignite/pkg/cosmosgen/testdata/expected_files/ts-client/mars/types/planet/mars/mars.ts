@@ -54,6 +54,7 @@ export interface QueryWithQueryParamsRequest {
   mytypefield: string;
   queryParam: string;
   mybool: boolean;
+  myrepeatedbool: boolean[];
 }
 
 export interface QueryWithQueryParamsResponse {
@@ -663,7 +664,7 @@ export const QueryWithPaginationResponse: MessageFns<QueryWithPaginationResponse
 };
 
 function createBaseQueryWithQueryParamsRequest(): QueryWithQueryParamsRequest {
-  return { mytypefield: "", queryParam: "", mybool: false };
+  return { mytypefield: "", queryParam: "", mybool: false, myrepeatedbool: [] };
 }
 
 export const QueryWithQueryParamsRequest: MessageFns<QueryWithQueryParamsRequest> = {
@@ -677,6 +678,11 @@ export const QueryWithQueryParamsRequest: MessageFns<QueryWithQueryParamsRequest
     if (message.mybool !== false) {
       writer.uint32(24).bool(message.mybool);
     }
+    writer.uint32(34).fork();
+    for (const v of message.myrepeatedbool) {
+      writer.bool(v);
+    }
+    writer.join();
     return writer;
   },
 
@@ -711,6 +717,24 @@ export const QueryWithQueryParamsRequest: MessageFns<QueryWithQueryParamsRequest
           message.mybool = reader.bool();
           continue;
         }
+        case 4: {
+          if (tag === 32) {
+            message.myrepeatedbool.push(reader.bool());
+
+            continue;
+          }
+
+          if (tag === 34) {
+            const end2 = reader.uint32() + reader.pos;
+            while (reader.pos < end2) {
+              message.myrepeatedbool.push(reader.bool());
+            }
+
+            continue;
+          }
+
+          break;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -725,6 +749,9 @@ export const QueryWithQueryParamsRequest: MessageFns<QueryWithQueryParamsRequest
       mytypefield: isSet(object.mytypefield) ? globalThis.String(object.mytypefield) : "",
       queryParam: isSet(object.queryParam) ? globalThis.String(object.queryParam) : "",
       mybool: isSet(object.mybool) ? globalThis.Boolean(object.mybool) : false,
+      myrepeatedbool: globalThis.Array.isArray(object?.myrepeatedbool)
+        ? object.myrepeatedbool.map((e: any) => globalThis.Boolean(e))
+        : [],
     };
   },
 
@@ -739,6 +766,9 @@ export const QueryWithQueryParamsRequest: MessageFns<QueryWithQueryParamsRequest
     if (message.mybool !== false) {
       obj.mybool = message.mybool;
     }
+    if (message.myrepeatedbool?.length) {
+      obj.myrepeatedbool = message.myrepeatedbool;
+    }
     return obj;
   },
 
@@ -750,6 +780,7 @@ export const QueryWithQueryParamsRequest: MessageFns<QueryWithQueryParamsRequest
     message.mytypefield = object.mytypefield ?? "";
     message.queryParam = object.queryParam ?? "";
     message.mybool = object.mybool ?? false;
+    message.myrepeatedbool = object.myrepeatedbool?.map((e) => e) || [];
     return message;
   },
 };

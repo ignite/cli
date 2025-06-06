@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"text/template"
 
@@ -90,36 +91,28 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 			// mapToTypeScriptObject converts a map to a TypeScript object string.
 			// e.g. {"key1"?: value1; "key2"?: value2}
 
-			// protoTypeToTypeScriptType converts a proto type string to a TypeScript type string.
-			// e.g. "string" -> "string", "int32" -> "number", "bool" -> "boolean", "bytes" -> "Uint8Array", etc.
-			protoTypeToTypeScriptType := func(pt string) string {
-				switch pt {
-				case "string":
-					return "string"
-				case "int32", "int64", "uint32", "uint64", "sint32", "sint64", "fixed32", "fixed64", "sfixed32", "sfixed64", "float", "double":
-					return "number"
-				case "bool":
-					return "boolean"
-				case "bytes":
-					return "Uint8Array"
-				default:
-					// for complex or unknown types, return as-is (could be an imported type)
-					return pt
-				}
+			sortedKeys := make([]string, 0, len(m))
+			for k := range m {
+				sortedKeys = append(sortedKeys, k)
 			}
+			sort.Strings(sortedKeys)
 
 			var sb strings.Builder
 			sb.WriteString("{")
 			sb.WriteString("\n")
-			for k, v := range m {
-				// TODO(@julienrbrt): parse proto types to deepest inner type
-				if strings.Contains(v, ".") {
-					sb.WriteString(fmt.Sprintf(`      "%s"?: any /* TODO */;`, k))
-					sb.WriteString("\n")
-					continue
+			for _, k := range sortedKeys {
+				v_typeStr := m[k]
+
+				if strings.Contains(v_typeStr, ".") {
+					// TODO(@julienrbrt): parse proto types to deepest inner type
+					if strings.Contains(v_typeStr, ".") {
+						sb.WriteString(fmt.Sprintf(`      "%s"?: any /* TODO */;`, k))
+						sb.WriteString("\n")
+						continue
+					}
 				}
 
-				sb.WriteString(fmt.Sprintf(`      "%s"?: %s;`, k, protoTypeToTypeScriptType(v)))
+				sb.WriteString(fmt.Sprintf(`      "%s"?: %s;`, k, protoTypeToTypeScriptType(v_typeStr)))
 				sb.WriteString("\n")
 			}
 			sb.WriteString("    }")
@@ -159,4 +152,32 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 	}
 
 	return nil
+}
+
+// protoTypeToTypeScriptType converts a proto type string to a TypeScript type string.
+// e.g. "string" -> "string", "int32" -> "number", "bool" -> "boolean", "bytes" -> "Uint8Array", etc.
+func protoTypeToTypeScriptType(pt string) string {
+	isRepeated := strings.HasPrefix(pt, "repeated ")
+	if isRepeated {
+		pt = strings.TrimPrefix(pt, "repeated ")
+	}
+
+	var tsBaseType string
+	switch pt {
+	case "string":
+		tsBaseType = "string"
+	case "int32", "int64", "uint32", "uint64", "sint32", "sint64", "fixed32", "fixed64", "sfixed32", "sfixed64", "float", "double":
+		tsBaseType = "number"
+	case "bool":
+		tsBaseType = "boolean"
+	case "bytes":
+		tsBaseType = "Uint8Array"
+	default:
+		tsBaseType = pt
+	}
+
+	if isRepeated {
+		return tsBaseType + "[]"
+	}
+	return tsBaseType
 }

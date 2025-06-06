@@ -76,6 +76,7 @@ message QueryWithQueryParamsRequest {
   string mytypefield = 1;
   string query_param = 2;
   bool mybool = 3;
+  repeated bool myrepeatedbool = 4;
 }
 
 message QueryWithQueryParamsResponse {

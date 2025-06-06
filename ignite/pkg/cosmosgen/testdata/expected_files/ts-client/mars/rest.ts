@@ -207,8 +207,9 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   queryQueryWithQueryParams = (mytypefield: string,
     query?: {
-      "query_param"?: string;
       "mybool"?: boolean;
+      "myrepeatedbool"?: boolean[];
+      "query_param"?: string;
     },
     params: RequestParams = {},
   ) =>

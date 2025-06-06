@@ -203,8 +203,9 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   queryQueryWithQueryParams = (mytypefield: string,
     query?: {
-      "query_param"?: string;
       "mybool"?: boolean;
+      "myrepeatedbool"?: boolean[];
+      "query_param"?: string;
     },
     params: RequestParams = {},
   ) =>
@@ -225,8 +226,8 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   queryQueryWithQueryParamsWithPagination = (mytypefield: string,
     query?: {
-      "query_param"?: string;
       "pagination"?: any /* TODO */;
+      "query_param"?: string;
     },
     params: RequestParams = {},
   ) =>
