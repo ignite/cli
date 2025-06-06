@@ -112,8 +112,7 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 			sb.WriteString("{")
 			sb.WriteString("\n")
 			for k, v := range m {
-				// skip proto fields that aren't raw types
-				// TODO: parse proto types to deepest inner type
+				// TODO(@julienrbrt): parse proto types to deepest inner type
 				if strings.Contains(v, ".") {
 					sb.WriteString(fmt.Sprintf(`      "%s"?: any /* TODO */;`, k))
 					sb.WriteString("\n")
