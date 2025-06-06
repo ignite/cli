@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changes
+
+- [#4718](https://github.com/ignite/cli/pull/4718) Bump default Ignite Apps.
+
 ### Bug Fixes
 
 - [#4686](https://github.com/ignite/cli/pull/4686) Filter discovered protos to only messages.
