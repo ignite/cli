@@ -101,18 +101,32 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 			sb.WriteString("{")
 			sb.WriteString("\n")
 			for _, k := range sortedKeys {
-				v_typeStr := m[k]
+				typeStr := m[k]
 
-				if strings.Contains(v_typeStr, ".") {
-					// TODO(@julienrbrt): parse proto types to deepest inner type
-					if strings.Contains(v_typeStr, ".") {
+				if strings.Contains(typeStr, ".") {
+					// TODO(@julienrbrt): parse proto types to deepest inner type and remove hardcoded pagination types.
+					if strings.Contains(typeStr, ".") {
+						if strings.EqualFold(typeStr, "cosmos.base.query.v1beta1.PageRequest") {
+							sb.WriteString(`      "pagination.key"?: string;`)
+							sb.WriteString("\n")
+							sb.WriteString(`      "pagination.offset"?: string;`)
+							sb.WriteString("\n")
+							sb.WriteString(`      "pagination.limit"?: string;`)
+							sb.WriteString("\n")
+							sb.WriteString(`      "pagination.count_total"?: boolean;`)
+							sb.WriteString("\n")
+							sb.WriteString(`      "pagination.reverse"?: boolean;`)
+							sb.WriteString("\n")
+							continue
+						}
+
 						sb.WriteString(fmt.Sprintf(`      "%s"?: any /* TODO */;`, k))
 						sb.WriteString("\n")
 						continue
 					}
 				}
 
-				sb.WriteString(fmt.Sprintf(`      "%s"?: %s;`, k, protoTypeToTypeScriptType(v_typeStr)))
+				sb.WriteString(fmt.Sprintf(`      "%s"?: %s;`, k, protoTypeToTypeScriptType(typeStr)))
 				sb.WriteString("\n")
 			}
 			sb.WriteString("    }")

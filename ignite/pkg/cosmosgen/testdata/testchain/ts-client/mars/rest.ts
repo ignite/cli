@@ -182,7 +182,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   queryQueryParamsWithPagination = (mytypefield: string,
     query?: {
-      "pagination"?: any /* TODO */;
+      "pagination.key"?: string;
+      "pagination.offset"?: string;
+      "pagination.limit"?: string;
+      "pagination.count_total"?: boolean;
+      "pagination.reverse"?: boolean;
     },
     params: RequestParams = {},
   ) =>
@@ -226,7 +230,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    */
   queryQueryWithQueryParamsWithPagination = (mytypefield: string,
     query?: {
-      "pagination"?: any /* TODO */;
+      "pagination.key"?: string;
+      "pagination.offset"?: string;
+      "pagination.limit"?: string;
+      "pagination.count_total"?: boolean;
+      "pagination.reverse"?: boolean;
       "query_param"?: string;
     },
     params: RequestParams = {},
