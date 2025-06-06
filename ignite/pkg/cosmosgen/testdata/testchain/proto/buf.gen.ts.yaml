@@ -1,0 +1,14 @@
+# This file should be identical to https://github.com/ignite/cli/blob/main/ignite/templates/app/files/%7B%7BprotoDir%7D%7D/buf.gen.ts.yaml
+version: v2
+managed:
+  enabled: true
+plugins:
+  - remote: buf.build/community/stephenh-ts-proto
+    out: .
+    opt:
+      - logtostderr=true
+      - allow_merge=true
+      - json_names_for_fields=false
+      - ts_proto_opt=snakeToCamel=true
+      - ts_proto_opt=esModuleInterop=true
+      - ts_proto_out=.
