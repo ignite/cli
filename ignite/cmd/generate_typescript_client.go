@@ -36,8 +36,7 @@ changes when the blockchain is started with a flag:
 
 	ignite chain serve --generate-clients
 `,
-		RunE:   generateTSClientHandler,
-		Hidden: true, // TODO(julienrbrt): remove this after https://github.com/ignite/cli/pull/4706.
+		RunE: generateTSClientHandler,
 	}
 
 	c.Flags().AddFlagSet(flagSetYes())

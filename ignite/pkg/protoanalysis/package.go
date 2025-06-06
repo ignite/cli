@@ -137,20 +137,44 @@ type (
 		// spec:
 		//   https://github.com/googleapis/googleapis/blob/master/google/api/http.proto.
 		HTTPRules []HTTPRule `json:"http_rules,omitempty"`
-
-		// Paginated indicates that the RPC function is using pagination.
-		Paginated bool `json:"paginated,omitempty"`
 	}
 
 	// HTTPRule keeps info about a configured http rule of an RPC func.
 	HTTPRule struct {
+		// Endpoint is the HTTP endpoint path pattern.
+		Endpoint string `json:"endpoint,omitempty"`
+
 		// Params is a list of parameters defined in the HTTP endpoint itself.
 		Params []string `json:"params,omitempty"`
 
 		// HasQuery indicates if there is a request query.
 		HasQuery bool `json:"has_query,omitempty"`
 
+		// QueryFields is a list of query fields defined in the HTTP endpoint.
+		QueryFields map[string]string `json:"query_fields,omitempty"`
+
 		// HasBody indicates if there is a request payload.
 		HasBody bool `json:"has_body,omitempty"`
+
+		// BodyFields is a list of body fields defined in the HTTP endpoint.
+		BodyFields map[string]string `json:"body_fields,omitempty"`
 	}
 )
+
+// IsPaginated checks if the HTTPRule is paginated based on its QueryFields.
+func (hr HTTPRule) IsPaginated() bool {
+	if len(hr.QueryFields) == 0 {
+		return false
+	}
+
+	for _, fieldType := range hr.QueryFields {
+		// Message field type suffix check to match common pagination types:
+		//    cosmos.base.query.v1beta1.PageRequest
+		//    cosmos.base.query.v1beta1.PageResponse
+		if strings.HasSuffix(fieldType, "PageRequest") || strings.HasSuffix(fieldType, "PageResponse") {
+			return true
+		}
+	}
+
+	return false
+}

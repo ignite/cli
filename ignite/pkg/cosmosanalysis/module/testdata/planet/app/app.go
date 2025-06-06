@@ -2,7 +2,6 @@ package app
 
 import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
@@ -19,5 +18,3 @@ type Foo struct {
 	GovKeeper     govkeeper.Keeper
 	MarsKeeper    marskeeper.Keeper
 }
-
-var ModuleBasics = module.NewBasicManager(mars.AppModuleBasic{})

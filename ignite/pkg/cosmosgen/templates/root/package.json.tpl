@@ -33,6 +33,7 @@
     "@bufbuild/protobuf": "^2.4.0",
     "@types/events": "^3.0.3",
     "qs": "^6.14.0",
+    "type-fest": "^4.41.0",
     "typescript": "^5.8.3"
   }
 }
