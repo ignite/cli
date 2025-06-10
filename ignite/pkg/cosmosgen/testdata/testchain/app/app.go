@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/gogo/protobuf/codec"
-	marskeeper "github.com/tendermint/planet/x/mars/keeper"
+	marskeeper "github.com/ignite/planet/x/mars/keeper"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
