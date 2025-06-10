@@ -2,8 +2,10 @@ package cosmosgen
 
 import (
 	"embed"
+	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"text/template"
 
@@ -78,6 +80,58 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 
 			return "./types/" + rel
 		},
+		"transformPath": func(path string) string {
+			// transformPath converts a endpoint path to a valid JS substring path.
+			// e.g. /cosmos/bank/v1beta1/spendable_balances/{address}/by_denom -> /cosmos/bank/v1beta1/spendable_balances/${address}/by_denom
+			path = strings.ReplaceAll(path, "{", "${")
+			path = strings.ReplaceAll(path, "=**}", "}")
+			return path
+		},
+		"mapToTypeScriptObject": func(m map[string]string) string {
+			// mapToTypeScriptObject converts a map to a TypeScript object string.
+			// e.g. {"key1"?: value1; "key2"?: value2}
+
+			sortedKeys := make([]string, 0, len(m))
+			for k := range m {
+				sortedKeys = append(sortedKeys, k)
+			}
+			sort.Strings(sortedKeys)
+
+			var sb strings.Builder
+			sb.WriteString("{")
+			sb.WriteString("\n")
+			for _, k := range sortedKeys {
+				typeStr := m[k]
+
+				if strings.Contains(typeStr, ".") {
+					// TODO(@julienrbrt): parse proto types to deepest inner type and remove hardcoded pagination types.
+					if strings.Contains(typeStr, ".") {
+						if strings.EqualFold(typeStr, "cosmos.base.query.v1beta1.PageRequest") {
+							sb.WriteString(`      "pagination.key"?: string;`)
+							sb.WriteString("\n")
+							sb.WriteString(`      "pagination.offset"?: string;`)
+							sb.WriteString("\n")
+							sb.WriteString(`      "pagination.limit"?: string;`)
+							sb.WriteString("\n")
+							sb.WriteString(`      "pagination.count_total"?: boolean;`)
+							sb.WriteString("\n")
+							sb.WriteString(`      "pagination.reverse"?: boolean;`)
+							sb.WriteString("\n")
+							continue
+						}
+
+						sb.WriteString(fmt.Sprintf(`      "%s"?: any /* TODO */;`, k))
+						sb.WriteString("\n")
+						continue
+					}
+				}
+
+				sb.WriteString(fmt.Sprintf(`      "%s"?: %s;`, k, protoTypeToTypeScriptType(typeStr)))
+				sb.WriteString("\n")
+			}
+			sb.WriteString("    }")
+			return sb.String()
+		},
 		"inc": func(i int) int {
 			return i + 1
 		},
@@ -112,4 +166,32 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 	}
 
 	return nil
+}
+
+// protoTypeToTypeScriptType converts a proto type string to a TypeScript type string.
+// e.g. "string" -> "string", "int32" -> "number", "bool" -> "boolean", "bytes" -> "Uint8Array", etc.
+func protoTypeToTypeScriptType(pt string) string {
+	isRepeated := strings.HasPrefix(pt, "repeated ")
+	if isRepeated {
+		pt = strings.TrimPrefix(pt, "repeated ")
+	}
+
+	var tsBaseType string
+	switch pt {
+	case "string":
+		tsBaseType = "string"
+	case "int32", "int64", "uint32", "uint64", "sint32", "sint64", "fixed32", "fixed64", "sfixed32", "sfixed64", "float", "double":
+		tsBaseType = "number"
+	case "bool":
+		tsBaseType = "boolean"
+	case "bytes":
+		tsBaseType = "Uint8Array"
+	default:
+		tsBaseType = pt
+	}
+
+	if isRepeated {
+		return tsBaseType + "[]"
+	}
+	return tsBaseType
 }
