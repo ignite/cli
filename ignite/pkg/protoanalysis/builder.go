@@ -170,15 +170,15 @@ func (b builder) constantToHTTPRules(requestMessage *proto.Message, constant pro
 	endpoint := constant.Source
 
 	if endpoint == "" {
-		for key, val := range constant.Map {
-			switch key {
+		for _, each := range constant.OrderedMap {
+			switch each.Name {
 			case
 				"get",
 				"post",
 				"put",
 				"patch",
 				"delete":
-				endpoint = val.Source
+				endpoint = each.Source
 			}
 			if endpoint != "" {
 				break
@@ -201,7 +201,7 @@ func (b builder) constantToHTTPRules(requestMessage *proto.Message, constant pro
 		bodyFieldsCount                   int
 	)
 
-	if body, ok := constant.Map["body"]; ok { // check if body is specified.
+	if body, ok := constant.OrderedMap.Get("body"); ok { // check if body is specified.
 		if body.Source == "*" { // means there should be no query params per the spec.
 			bodyFieldsCount = messageFieldsCount - paramsCount
 		} else if body.Source != "" {
@@ -250,7 +250,7 @@ func (b builder) constantToHTTPRules(requestMessage *proto.Message, constant pro
 	httpRules = append(httpRules, httpRule)
 
 	// search for nested HTTP rules.
-	if constant, ok := constant.Map["additional_bindings"]; ok {
+	if constant, ok := constant.OrderedMap.Get("additional_bindings"); ok {
 		httpRules = append(httpRules, b.constantToHTTPRules(requestMessage, *constant)...)
 	}
 
