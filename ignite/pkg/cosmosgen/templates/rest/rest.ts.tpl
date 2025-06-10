@@ -1,7 +1,8 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, ResponseType } from "axios";
 {{ range .HTTPQueries }}import { {{ .ResponseType }} } from "{{ resolveFile .FilePath }}";
 {{ end }}
-// Import relevant Request types here
+{{ range .HTTPQueries }}import { {{ .RequestType }} } from "{{ resolveFile .FilePath }}";
+{{ end }}
 
 import type {SnakeCasedPropertiesDeep} from 'type-fest';
 

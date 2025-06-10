@@ -5,7 +5,12 @@ import { QueryWithPaginationResponse } from "./types/planet/mars/mars";
 import { QueryWithQueryParamsResponse } from "./types/planet/mars/mars";
 import { QueryWithQueryParamsWithPaginationResponse } from "./types/planet/mars/mars";
 
-// Import relevant Request types here
+import { QuerySimpleRequest } from "./types/planet/mars/mars";
+import { QuerySimpleParamsRequest } from "./types/planet/mars/mars";
+import { QueryWithPaginationRequest } from "./types/planet/mars/mars";
+import { QueryWithQueryParamsRequest } from "./types/planet/mars/mars";
+import { QueryWithQueryParamsWithPaginationRequest } from "./types/planet/mars/mars";
+
 
 import type {SnakeCasedPropertiesDeep} from 'type-fest';
 

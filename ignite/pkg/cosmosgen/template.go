@@ -106,21 +106,7 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 				if strings.Contains(typeStr, ".") {
 					// TODO(@julienrbrt): parse proto types to deepest inner type and remove hardcoded pagination types.
 					if strings.Contains(typeStr, ".") {
-						if strings.EqualFold(typeStr, "cosmos.base.query.v1beta1.PageRequest") {
-							sb.WriteString(`      "pagination.key"?: string;`)
-							sb.WriteString("\n")
-							sb.WriteString(`      "pagination.offset"?: string;`)
-							sb.WriteString("\n")
-							sb.WriteString(`      "pagination.limit"?: string;`)
-							sb.WriteString("\n")
-							sb.WriteString(`      "pagination.count_total"?: boolean;`)
-							sb.WriteString("\n")
-							sb.WriteString(`      "pagination.reverse"?: boolean;`)
-							sb.WriteString("\n")
-							continue
-						}
-
-						sb.WriteString(fmt.Sprintf(`      "%s"?: any /* TODO */;`, k))
+						sb.WriteString(fmt.Sprintf(`      "%s"?: %s;`, k, typeStr))
 						sb.WriteString("\n")
 						continue
 					}

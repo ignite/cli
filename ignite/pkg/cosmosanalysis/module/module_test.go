@@ -156,6 +156,7 @@ func newModule(relChainPath, goImportPath string) module.Module {
 			{
 				Name:         "MyQuery",
 				FullName:     "QueryMyQuery",
+				RequestType:  "QueryMyQueryRequest",
 				ResponseType: "QueryMyQueryResponse",
 				Rules: []protoanalysis.HTTPRule{
 					{
@@ -174,6 +175,7 @@ func newModule(relChainPath, goImportPath string) module.Module {
 			{
 				Name:         "Foo",
 				FullName:     "QueryFoo",
+				RequestType:  "QueryFooRequest",
 				ResponseType: "QueryFooResponse",
 				Rules: []protoanalysis.HTTPRule{
 					{
