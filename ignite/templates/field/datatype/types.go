@@ -51,9 +51,6 @@ const (
 	// TypeCustom represents the string type name id.
 	TypeCustom = "customstarporttype"
 
-	// NullValue represents the null value for custom types.
-	NullValue = "null"
-
 	collectionValueComment = "/* Add collection key value */"
 )
 

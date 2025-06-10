@@ -12,14 +12,9 @@ import (
 )
 
 // testValue determines the default test value for a given datatype.
-// If the default value is "null", it adjusts the value to "{}".
 func testValue(name datatype.Name) string {
 	dt, _ := datatype.IsSupportedType(name)
-	value := dt.DefaultTestValue
-	if value == datatype.NullValue {
-		value = "{}"
-	}
-	return value
+	return dt.DefaultTestValue
 }
 
 // txArgs generates transaction arguments as strings from a given set of fields.
