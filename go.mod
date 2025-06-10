@@ -35,6 +35,7 @@ require (
 	github.com/cosmos/gogoproto v1.7.0
 	github.com/emicklei/proto v1.12.2
 	github.com/emicklei/proto-contrib v0.15.0
+	github.com/ettle/strcase v0.2.0
 	github.com/getsentry/sentry-go v0.27.0
 	github.com/go-delve/delve v1.21.0
 	github.com/go-git/go-git/v5 v5.13.2
@@ -206,7 +207,6 @@ require (
 	github.com/dvsekhvalnov/jose2go v1.6.0 // indirect
 	github.com/emicklei/dot v1.6.2 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
-	github.com/ettle/strcase v0.2.0 // indirect
 	github.com/fatih/color v1.17.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/fatih/structtag v1.2.0 // indirect

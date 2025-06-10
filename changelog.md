@@ -6,9 +6,10 @@
 
 - [#4718](https://github.com/ignite/cli/pull/4718) Bump default Ignite Apps.
 
-### Bug Fixes
+### Fixes
 
 - [#4686](https://github.com/ignite/cli/pull/4686) Filter discovered protos to only messages.
+- [#4691](https://github.com/ignite/cli/pull/4691), [#4706](https://github.com/ignite/cli/pull/4706) Fix ts-client query template and solely Go template for `ts-client` generation.
 
 ## [`v28.10.0`](https://github.com/ignite/cli/releases/tag/v28.10.0)
 
@@ -32,7 +33,7 @@
 - [#4633](https://github.com/ignite/cli/pull/4633) Loosen faucet check when indexer disabled.
 - [#4586](https://github.com/ignite/cli/pull/4586) Remove network as default plugin.
 
-### Bug Fixes
+### Fixes
 
 - [#4347](https://github.com/ignite/cli/pull/4347) Fix `ts-client` generation
 
@@ -45,7 +46,7 @@
 
 ## [`v28.8.1`](https://github.com/ignite/cli/releases/tag/v28.8.1)
 
-### Bug Fixes
+### Fixes
 
 - [#4532](https://github.com/ignite/cli/pull/4532) Fix non working _shortcuts_ in validator home config
 - [#4538](https://github.com/ignite/cli/pull/4538) Create a simple spinner for non-terminal interactions
@@ -64,7 +65,7 @@
 - [#4471](https://github.com/ignite/cli/pull/4471) Bump Ignite & chain minimum Go version to 1.23.
 - [#4529](https://github.com/ignite/cli/pull/4531) Bump Cosmos SDK to v0.50.12.
 
-### Bug Fixes
+### Fixes
 
 - [#4474](https://github.com/ignite/cli/pull/4474) Fix issue in `build --release` command
 - [#4479](https://github.com/ignite/cli/pull/4479) Scaffold an `uint64 type crashs Ignite
@@ -94,7 +95,7 @@
 
 - [#4376](https://github.com/ignite/cli/pull/4376) Set different chain-id for in place testnet
 
-### Bug Fixes
+### Fixes
 
 - [#4421](https://github.com/ignite/cli/pull/4422) Fix typo in simulation template
 
