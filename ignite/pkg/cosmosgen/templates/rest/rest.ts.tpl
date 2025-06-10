@@ -7,7 +7,6 @@ import type {SnakeCasedPropertiesDeep} from 'type-fest';
 
 export type QueryParamsType = Record<string | number, any>;
 
-
 export type FlattenObject<TValue> = CollapseEntries<CreateObjectEntries<TValue, TValue>>;
 
 type Entry = { key: string; value: unknown };
