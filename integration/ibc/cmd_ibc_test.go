@@ -136,10 +136,9 @@ func TestCreateIBCPacket(t *testing.T) {
 		"textString:string",
 		"textStrings:array.string",
 		"textStringsAlias:strings",
+		"victory:bool",
 		"textCoin:coin",
 		"textCoins:array.coin",
-		"textCoinsAlias:coins",
-		"victory:bool",
 		"--module",
 		"foo",
 	)
@@ -147,7 +146,7 @@ func TestCreateIBCPacket(t *testing.T) {
 	app.Scaffold(
 		"create a custom field type",
 		false,
-		"type", "custom-type", "customField:uint", "--module", "foo",
+		"type", "custom-type", "customField:uint", "--module", "foo", "textCoinsAlias:coins",
 	)
 
 	app.Scaffold(

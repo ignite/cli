@@ -76,13 +76,12 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 		"textStringsAlias:strings",
 		"textCoin:coin",
 		"textCoins:array.coin",
-		"textCoinsAlias:coins",
 	)
 
 	app.Scaffold(
 		"create a message with the custom field type",
 		false,
-		"message", "foo-baz", "customField:CustomType",
+		"message", "foo-baz", "customField:CustomType", "textCoinsAlias:coins",
 	)
 
 	app.Scaffold(

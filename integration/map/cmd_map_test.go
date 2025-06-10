@@ -84,8 +84,27 @@ func TestCreateMap(t *testing.T) {
 		"textStrings:array.string",
 		"textStringsAlias:strings",
 		"textCoin:coin",
-		"textCoins:array.coin",
 		"textCoinsAlias:coins",
+		"--module",
+		"example",
+	)
+
+	app.Scaffold(
+		"create a map with Coin and Coins",
+		false,
+		"map",
+		"salary",
+		"numInt:int",
+		"numsInt:array.int",
+		"numsIntAlias:ints",
+		"numUint:uint",
+		"numsUint:array.uint",
+		"numsUintAlias:uints",
+		"textString:string",
+		"textStrings:array.string",
+		"textStringsAlias:strings",
+		"textCoin:coin",
+		"textCoins:array.coin",
 		"--module",
 		"example",
 	)

@@ -55,7 +55,6 @@ func TestGenerateAnAppWithListAndVerify(t *testing.T) {
 		"textStringsAlias:strings",
 		"textCoin:coin",
 		"textCoins:array.coin",
-		"textCoinsAlias:coins",
 		"--no-simulation",
 	)
 
@@ -65,6 +64,7 @@ func TestGenerateAnAppWithListAndVerify(t *testing.T) {
 		"list",
 		"document",
 		"signed:bool",
+		"textCoinsAlias:coins",
 		"--module",
 		"example",
 	)
