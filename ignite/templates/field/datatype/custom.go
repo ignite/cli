@@ -13,8 +13,8 @@ import (
 var DataCustom = DataType{
 	DataType:                func(datatype string) string { return fmt.Sprintf("*%s", datatype) },
 	CollectionsKeyValueName: func(string) string { return collectionValueComment },
-	DefaultTestValue:        "nil",
-	ValueLoop:               "nil",
+	DefaultTestValue:        NullValue,
+	ValueLoop:               NullValue,
 	ProtoType: func(datatype, name string, index int) string {
 		return fmt.Sprintf("%s %s = %d", datatype, name, index)
 	},

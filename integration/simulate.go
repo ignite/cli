@@ -16,7 +16,7 @@ import (
 func testValue(name datatype.Name) string {
 	dt, _ := datatype.IsSupportedType(name)
 	value := dt.DefaultTestValue
-	if value == "null" {
+	if value == datatype.NullValue {
 		value = "{}"
 	}
 	return value
