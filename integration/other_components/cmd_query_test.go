@@ -74,7 +74,7 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 	app.Scaffold(
 		"create a query with the custom field type as a response",
 		false,
-		"query", "foobaz", "-r", "bar:CustomType", "textCoinsAlias:coins",
+		"query", "foobaz", "textCoinsAlias:coins", "-r", "bar:CustomType",
 	)
 
 	app.Scaffold(
