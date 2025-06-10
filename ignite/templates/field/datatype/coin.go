@@ -14,8 +14,7 @@ var (
 	DataCoin = DataType{
 		DataType:                func(string) string { return "sdk.Coin" },
 		CollectionsKeyValueName: func(string) string { return collectionValueComment },
-		DefaultTestValue:        "sdk.NewInt64Coin(`token`, 10)",
-		ValueCLI:                "10token",
+		DefaultTestValue:        "10token",
 		ValueLoop:               "sdk.NewInt64Coin(`token`, int64(i+100))",
 		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("cosmos.base.v1beta1.Coin %s = %d [(gogoproto.nullable) = false]",
