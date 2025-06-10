@@ -1,16 +1,12 @@
 package app
 
 import (
-<<<<<<< HEAD
 	"cosmossdk.io/client/v2/autocli"
 	"github.com/cosmos/cosmos-sdk/api/tendermint/abci"
 	"github.com/cosmos/cosmos-sdk/client"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-=======
-	"github.com/cosmos/cosmos-sdk/baseapp"
->>>>>>> ef864aad (feat(cosmosgen,cosmosanalysis): generic query template (#4706))
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
@@ -29,7 +25,6 @@ type Foo struct {
 	GovKeeper     govkeeper.Keeper
 	MarsKeeper    marskeeper.Keeper
 }
-<<<<<<< HEAD
 
 var ModuleBasics = module.NewBasicManager(mars.AppModuleBasic{})
 
@@ -52,5 +47,3 @@ func (Foo) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.Respon
 func (Foo) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	return app.mm.EndBlock(ctx, req)
 }
-=======
->>>>>>> ef864aad (feat(cosmosgen,cosmosanalysis): generic query template (#4706))
