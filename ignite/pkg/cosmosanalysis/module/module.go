@@ -58,6 +58,9 @@ type HTTPQuery struct {
 	// Name of the RPC func.
 	Name string `json:"name,omitempty"`
 
+	// ResponseType is the type of the response.
+	ResponseType string `json:"response_type,omitempty"`
+
 	// FullName of the query with service name and rpc func name.
 	FullName string `json:"full_name,omitempty"`
 
@@ -66,6 +69,9 @@ type HTTPQuery struct {
 
 	// Paginated indicates that the query is using pagination.
 	Paginated bool `json:"paginated,omitempty"`
+
+	// FilePath is the path of the .proto file where message is defined at.
+	FilePath string `json:"file_path,omitempty"`
 }
 
 // Type is a proto type that might be used by module.
@@ -84,9 +90,9 @@ type moduleDiscoverer struct {
 	registeredModules []string
 }
 
-// IsCosmosSDKModulePkg check if a Go import path is a Cosmos SDK package module.
-// These type of package have the "cosmossdk.io/x" prefix.
-func IsCosmosSDKModulePkg(path string) bool {
+// IsCosmosSDKPackage check if a Go import path is a Cosmos SDK package.
+// These type of package have the "cosmossdk.io/x" prefix or "github.com/cosmos/cosmos-sdk" prefix.
+func IsCosmosSDKPackage(path string) bool {
 	return strings.Contains(path, "cosmossdk.io/x/") || strings.Contains(path, "github.com/cosmos/cosmos-sdk")
 }
 
@@ -140,7 +146,7 @@ func Discover(ctx context.Context, chainRoot, sourcePath string, options ...Disc
 	// SDK package because the module packages doesn't contain the proto files. These
 	// files are only available from the Cosmos SDK package.
 	var protoPath string
-	if o.sdkDir != "" && IsCosmosSDKModulePkg(sourcePath) {
+	if o.sdkDir != "" && IsCosmosSDKPackage(sourcePath) {
 		protoPath = switchCosmosSDKPackagePath(sourcePath, o.sdkDir)
 	} else {
 		protoPath = filepath.Join(sourcePath, o.protoDir)
@@ -247,17 +253,6 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 
 	// fill types.
 	for _, protomsg := range pkg.Messages {
-		// Update pagination for RPC functions when a service response uses pagination
-		if hasPagination(protomsg) {
-			for _, s := range pkg.Services {
-				for i, q := range s.RPCFuncs {
-					if q.RequestType == protomsg.Name || q.ReturnsType == protomsg.Name {
-						s.RPCFuncs[i].Paginated = true
-					}
-				}
-			}
-		}
-
 		if !isType(protomsg) {
 			continue
 		}
@@ -271,32 +266,44 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 	// fill queries & messages.
 	for _, s := range pkg.Services {
 		for _, q := range s.RPCFuncs {
+			pkgmsg, err := pkg.MessageByName(q.RequestType)
+			if err != nil {
+				// no msg found in the proto defs corresponds to discovered sdk message.
+				// if it cannot be found, nothing to worry about, this means that it is used
+				// only internally and not open for actual use.
+				continue
+			}
+
 			switch s.Name {
 			case "Msg":
-				pkgmsg, err := pkg.MessageByName(q.RequestType)
-				if err != nil {
-					// no msg found in the proto defs corresponds to discovered sdk message.
-					// if it cannot be found, nothing to worry about, this means that it is used
-					// only internally and not open for actual use.
-					continue
-				}
 
 				m.Msgs = append(m.Msgs, Msg{
 					Name:     q.RequestType,
 					URI:      fmt.Sprintf("%s.%s", pkg.Name, q.RequestType),
 					FilePath: pkgmsg.Path,
 				})
-			case "Query":
+			case "Query", "Service":
 				// no http rules means this query is not exposed as a REST endpoint.
 				if len(q.HTTPRules) == 0 {
 					continue
 				}
 
+				// check if the query is paginated.
+				isPaginated := false
+				for _, hr := range q.HTTPRules {
+					if hr.IsPaginated() {
+						isPaginated = true
+						break
+					}
+				}
+
 				m.HTTPQueries = append(m.HTTPQueries, HTTPQuery{
-					Name:      q.Name,
-					FullName:  s.Name + q.Name,
-					Rules:     q.HTTPRules,
-					Paginated: q.Paginated,
+					Name:         q.Name,
+					FullName:     s.Name + q.Name,
+					Rules:        q.HTTPRules,
+					Paginated:    isPaginated,
+					FilePath:     pkgmsg.Path,
+					ResponseType: q.ReturnsType,
 				})
 			}
 		}
@@ -397,19 +404,6 @@ func (d moduleDiscoverer) isPkgFromRegisteredModule(pkg protoanalysis.Package) (
 	}
 
 	return false, nil
-}
-
-func hasPagination(msg protoanalysis.Message) bool {
-	for _, fieldType := range msg.Fields {
-		// Message field type suffix check to match common pagination types:
-		//    cosmos.base.query.v1beta1.PageRequest
-		//    cosmos.base.query.v1beta1.PageResponse
-		if strings.HasSuffix(fieldType, "PageRequest") || strings.HasSuffix(fieldType, "PageResponse") {
-			return true
-		}
-	}
-
-	return false
 }
 
 func switchCosmosSDKPackagePath(srcPath, sdkDir string) string {
