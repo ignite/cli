@@ -262,7 +262,7 @@ func (g *generator) resolveIncludes(ctx context.Context, path, protoDir string) 
 	// The "cosmossdk.io" module packages must use SDK's proto path which is
 	// where all proto files for there type of Go package are.
 	var protoPath string
-	if module.IsCosmosSDKModulePkg(path) {
+	if module.IsCosmosSDKPackage(path) {
 		protoPath = filepath.Join(g.sdkDir, "proto")
 	} else {
 		// Check that the app/package proto directory exists

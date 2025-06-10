@@ -1,9 +1,75 @@
-// FOR REFERENCE ONLY -- NOT A TEMPLATE
-
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, ResponseType } from "axios";
-import { QueryAllBalancesResponse, QueryBalanceResponse, QueryDenomMetadataByQueryStringResponse, QueryDenomMetadataResponse, QueryDenomOwnersByQueryResponse, QueryDenomOwnersResponse, QueryDenomsMetadataResponse, QueryParamsResponse, QuerySpendableBalancesResponse, QuerySupplyOfResponse, QueryTotalSupplyResponse } from "./module";
+{{ range .HTTPQueries }}import { {{ .ResponseType }} } from "{{ resolveFile .FilePath }}";
+{{ end }}
+// Import relevant Request types here
+
+import type {SnakeCasedPropertiesDeep} from 'type-fest';
 
 export type QueryParamsType = Record<string | number, any>;
+
+export type FlattenObject<TValue> = CollapseEntries<CreateObjectEntries<TValue, TValue>>;
+
+type Entry = { key: string; value: unknown };
+type EmptyEntry<TValue> = { key: ''; value: TValue };
+type ExcludedTypes = Date | Set<unknown> | Map<unknown, unknown>;
+type ArrayEncoder = `[${bigint}]`;
+
+type EscapeArrayKey<TKey extends string> = TKey extends `${infer TKeyBefore}.${ArrayEncoder}${infer TKeyAfter}`
+  ? EscapeArrayKey<`${TKeyBefore}${ArrayEncoder}${TKeyAfter}`>
+  : TKey;
+
+// Transforms entries to one flattened type
+type CollapseEntries<TEntry extends Entry> = {
+  [E in TEntry as EscapeArrayKey<E['key']>]: E['value'];
+};
+
+// Transforms array type to object
+type CreateArrayEntry<TValue, TValueInitial> = OmitItself<
+  TValue extends unknown[] ? { [k: ArrayEncoder]: TValue[number] } : TValue,
+  TValueInitial
+>;
+
+// Omit the type that references itself
+type OmitItself<TValue, TValueInitial> = TValue extends TValueInitial
+  ? EmptyEntry<TValue>
+  : OmitExcludedTypes<TValue, TValueInitial>;
+
+// Omit the type that is listed in ExcludedTypes union
+type OmitExcludedTypes<TValue, TValueInitial> = TValue extends ExcludedTypes
+  ? EmptyEntry<TValue>
+  : CreateObjectEntries<TValue, TValueInitial>;
+
+type CreateObjectEntries<TValue, TValueInitial> = TValue extends object
+  ? {
+      // Checks that Key is of type string
+      [TKey in keyof TValue]-?: TKey extends string
+        ? // Nested key can be an object, run recursively to the bottom
+          CreateArrayEntry<TValue[TKey], TValueInitial> extends infer TNestedValue
+          ? TNestedValue extends Entry
+            ? TNestedValue['key'] extends ''
+              ? {
+                  key: TKey;
+                  value: TNestedValue['value'];
+                }
+              :
+                  | {
+                      key: `${TKey}.${TNestedValue['key']}`;
+                      value: TNestedValue['value'];
+                    }
+                  | {
+                      key: TKey;
+                      value: TValue[TKey];
+                    }
+            : never
+          : never
+        : never;
+    }[keyof TValue] // Builds entry for each key
+  : EmptyEntry<TValue>;
+
+export type ChangeProtoToJSPrimitives<T extends object> = {
+  [key in keyof T]: T[key] extends Uint8Array | Date ? string :  T[key] extends object ? ChangeProtoToJSPrimitives<T[key]>: T[key];
+  // ^^^^ This line is used to convert Uint8Array to string, if you want to keep Uint8Array as is, you can remove this line
+}
 
 export interface FullRequestParams extends Omit<AxiosRequestConfig, "data" | "params" | "url" | "responseType"> {
   /** set parameter to `true` for call `securityWorker` for this request */
@@ -122,258 +188,35 @@ export class HttpClient<SecurityDataType = unknown> {
 }
 
 /**
- * @title cosmos/bank/v1beta1/authz.proto
- * @version version not set
+ * @title {{ .Pkg.Name }}
  */
 export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
+  {{- range .HTTPQueries }}
   /**
-   * No description
+   * {{ .FullName }}
    *
    * @tags Query
-   * @name QueryAllBalances
-   * @summary AllBalances queries the balance of all coins for a single account.
-   * @request GET:/cosmos/bank/v1beta1/balances/{address}
+   * @name {{ camelCase .FullName }}
+   * @request GET:{{ (index .Rules 0).Endpoint }}
    */
-  queryAllBalances = (
-    address: string,
-    query?: {
-      "pagination.key"?: string;
-      "pagination.offset"?: string;
-      "pagination.limit"?: string;
-      "pagination.count_total"?: boolean;
-      "pagination.reverse"?: boolean;
-    },
+  {{ camelCase .FullName }} = (
+    {{- if (index .Rules 0).Params }}
+    {{- range $i, $param := (index .Rules 0).Params }}{{ if $i }}, {{ end }}{{ $param }}: string{{- end }},
+    {{- end }}{{- if gt (len (index .Rules 0).QueryFields) 0 }}
+    query?: {{ mapToTypeScriptObject (index .Rules 0).QueryFields }},
+    // query should be typed as e.g.  Omit<FlattenObject<SnakeCasedPropertiesDeep<ChangeProtoToJSPrimitives<QueryAllBalancesRequest>>>,"address">
+    // i.e. the generated Request type as menioned above and omit the keys in Params as a union (key1 | key2 | key3 etc.)
+{{- else}}
+    query?: Record<string, any>,
+{{- end}}
     params: RequestParams = {},
   ) =>
-    this.request<QueryAllBalancesResponse>({
-      path: `/cosmos/bank/v1beta1/balances/${address}`,
+    this.request<SnakeCasedPropertiesDeep<ChangeProtoToJSPrimitives<{{ .ResponseType }}>>>({
+      path: `{{  transformPath (index .Rules 0).Endpoint }}`,
       method: "GET",
       query: query,
       format: "json",
       ...params,
     });
-
-  /**
-   * No description
-   *
-   * @tags Query
-   * @name QueryBalance
-   * @summary Balance queries the balance of a single coin for a single account.
-   * @request GET:/cosmos/bank/v1beta1/balances/{address}/by_denom
-   */
-  queryBalance = (address: string, query?: { denom?: string }, params: RequestParams = {}) =>
-    this.request<QueryBalanceResponse>({
-      path: `/cosmos/bank/v1beta1/balances/${address}/by_denom`,
-      method: "GET",
-      query: query,
-      format: "json",
-      ...params,
-    });
-
-  /**
- * @description Since: cosmos-sdk 0.46
- * 
- * @tags Query
- * @name QueryDenomOwners
- * @summary DenomOwners queries for all account addresses that own a particular token
-denomination.
- * @request GET:/cosmos/bank/v1beta1/denom_owners/{denom}
- */
-  queryDenomOwners = (
-    denom: string,
-    query?: {
-      "pagination.key"?: string;
-      "pagination.offset"?: string;
-      "pagination.limit"?: string;
-      "pagination.count_total"?: boolean;
-      "pagination.reverse"?: boolean;
-    },
-    params: RequestParams = {},
-  ) =>
-    this.request<QueryDenomOwnersResponse>({
-      path: `/cosmos/bank/v1beta1/denom_owners/${denom}`,
-      method: "GET",
-      query: query,
-      format: "json",
-      ...params,
-    });
-
-  /**
- * @description Since: cosmos-sdk 0.50.3
- * 
- * @tags Query
- * @name QueryDenomOwnersByQuery
- * @summary DenomOwners queries for all account addresses that own a particular token
-denomination.
- * @request GET:/cosmos/bank/v1beta1/denom_owners_by_query
- */
-  queryDenomOwnersByQuery = (
-    query?: {
-      "denom": string;
-      "pagination.key"?: string;
-      "pagination.offset"?: string;
-      "pagination.limit"?: string;
-      "pagination.count_total"?: boolean;
-      "pagination.reverse"?: boolean;
-    },
-    params: RequestParams = {},
-  ) =>
-    this.request<QueryDenomOwnersByQueryResponse>({
-      path: `/cosmos/bank/v1beta1/denom_owners_by_query`,
-      method: "GET",
-      query: query,
-      format: "json",
-      ...params,
-    });
-
-  /**
- * No description
- * 
- * @tags Query
- * @name QueryDenomsMetadata
- * @summary DenomsMetadata queries the client metadata for all registered coin
-denominations.
- * @request GET:/cosmos/bank/v1beta1/denoms_metadata
- */
-  queryDenomsMetadata = (
-    query?: {
-      "pagination.key"?: string;
-      "pagination.offset"?: string;
-      "pagination.limit"?: string;
-      "pagination.count_total"?: boolean;
-      "pagination.reverse"?: boolean;
-    },
-    params: RequestParams = {},
-  ) =>
-    this.request<QueryDenomsMetadataResponse>({
-      path: `/cosmos/bank/v1beta1/denoms_metadata`,
-      method: "GET",
-      query: query,
-      format: "json",
-      ...params,
-    });
-
-  /**
-   * No description
-   *
-   * @tags Query
-   * @name QueryDenomMetadata
-   * @summary DenomsMetadata queries the client metadata of a given coin denomination.
-   * @request GET:/cosmos/bank/v1beta1/denoms_metadata/{denom}
-   */
-  queryDenomMetadata = (denom: string, params: RequestParams = {}) =>
-    this.request<QueryDenomMetadataResponse>({
-      path: `/cosmos/bank/v1beta1/denoms_metadata/${denom}`,
-      method: "GET",
-      format: "json",
-      ...params,
-    });
-
-  /**
-   * No description
-   *
-   * @tags Query
-   * @name QueryDenomMetadataByQueryString
-   * @summary DenomsMetadata queries the client metadata of a given coin denomination.
-   * @request GET:/cosmos/bank/v1beta1/denoms_metadata_by_query_string
-   */
-  queryDenomMetadataByQueryString = (
-     query?: {
-      "denom": string;
-    },
-    params: RequestParams = {}) =>
-    this.request<QueryDenomMetadataByQueryStringResponse>({
-      path: `/cosmos/bank/v1beta1/denoms_metadata_by_query_string`,
-      method: "GET",
-      query: query,
-      format: "json",
-      ...params,
-    });
-
-  /**
-   * No description
-   *
-   * @tags Query
-   * @name QueryParams
-   * @summary Params queries the parameters of x/bank module.
-   * @request GET:/cosmos/bank/v1beta1/params
-   */
-  queryParams = (params: RequestParams = {}) =>
-    this.request<QueryParamsResponse>({
-      path: `/cosmos/bank/v1beta1/params`,
-      method: "GET",
-      format: "json",
-      ...params,
-    });
-
-  /**
- * @description Since: cosmos-sdk 0.46
- * 
- * @tags Query
- * @name QuerySpendableBalances
- * @summary SpendableBalances queries the spenable balance of all coins for a single
-account.
- * @request GET:/cosmos/bank/v1beta1/spendable_balances/{address}
- */
-  querySpendableBalances = (
-    address: string,
-    query?: {
-      "pagination.key"?: string;
-      "pagination.offset"?: string;
-      "pagination.limit"?: string;
-      "pagination.count_total"?: boolean;
-      "pagination.reverse"?: boolean;
-    },
-    params: RequestParams = {},
-  ) =>
-    this.request<QuerySpendableBalancesResponse>({
-      path: `/cosmos/bank/v1beta1/spendable_balances/${address}`,
-      method: "GET",
-      query: query,
-      format: "json",
-      ...params,
-    });
-
-  /**
-   * No description
-   *
-   * @tags Query
-   * @name QueryTotalSupply
-   * @summary TotalSupply queries the total supply of all coins.
-   * @request GET:/cosmos/bank/v1beta1/supply
-   */
-  queryTotalSupply = (
-    query?: {
-      "pagination.key"?: string;
-      "pagination.offset"?: string;
-      "pagination.limit"?: string;
-      "pagination.count_total"?: boolean;
-      "pagination.reverse"?: boolean;
-    },
-    params: RequestParams = {},
-  ) =>
-    this.request<QueryTotalSupplyResponse>({
-      path: `/cosmos/bank/v1beta1/supply`,
-      method: "GET",
-      query: query,
-      format: "json",
-      ...params,
-    });
-
-  /**
-   * No description
-   *
-   * @tags Query
-   * @name QuerySupplyOf
-   * @summary SupplyOf queries the supply of a single coin.
-   * @request GET:/cosmos/bank/v1beta1/supply/by_denom
-   */
-  querySupplyOf = (query?: { denom?: string }, params: RequestParams = {}) =>
-    this.request<QuerySupplyOfResponse>({
-      path: `/cosmos/bank/v1beta1/supply/by_denom`,
-      method: "GET",
-      query: query,
-      format: "json",
-      ...params,
-    });
+  {{ end }}
 }
