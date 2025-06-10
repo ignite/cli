@@ -46,7 +46,7 @@ func TestGenerateTypeScript(t *testing.T) {
 		},
 	})
 
-	err = g.generateModuleTemplate(t.Context(), appDir, m[0])
+	err = g.generateModuleTemplate(context.Background(), appDir, m[0])
 	require.NoError(err, "failed to generate TypeScript files")
 
 	// compare all generated files to golden files
