@@ -5,8 +5,9 @@ import (
 	"strings"
 
 	"github.com/buger/jsonparser"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/v29/ignite/templates/field"
@@ -41,7 +42,7 @@ func (a *App) assertJSONData(data []byte, msgName string, fields field.Fields) {
 		switch {
 		case f.DatatypeName == datatype.Coin:
 
-			c, err := sdk.ParseCoinNormalized(dt)
+			c, err := sdktypes.ParseCoinNormalized(dt)
 			require.NoError(a.env.T(), err)
 			amount, err := jsonparser.GetString(value, "amount")
 			require.NoError(a.env.T(), err)
@@ -52,7 +53,7 @@ func (a *App) assertJSONData(data []byte, msgName string, fields field.Fields) {
 
 		case f.DatatypeName == datatype.Coins || f.DatatypeName == datatype.CoinSliceAlias:
 
-			c, err := sdk.ParseCoinsNormalized(dt)
+			c, err := sdktypes.ParseCoinsNormalized(dt)
 			require.NoError(a.env.T(), err)
 			cJSON, err := c.MarshalJSON()
 			require.NoError(a.env.T(), err)
