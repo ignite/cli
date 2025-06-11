@@ -15,8 +15,6 @@
 
 ### Features
 
-- [#4509](https://github.com/ignite/cli/pull/4509) Upgrade to Go 1.24. Running `ignite doctor` migrates the scaffolded `tools.go` to the tool directive in the go.mod
-- [#4588](https://github.com/ignite/cli/pull/4588) Run `buf format after scaffold proto files.
 - [#4614](https://github.com/ignite/cli/pull/4614) Improve integration tests and add query tests.
 - [#4683](https://github.com/ignite/cli/pull/4683) Allow to change default denom via flag.
 - [#4687](https://github.com/ignite/cli/pull/4687) Add address type with `scalar` annotations, and add `scalar` type to signer field.
