@@ -80,7 +80,11 @@ func (a App) CLITx(chainRPC, module, method string, args ...string) TxResponse {
 			}),
 		))
 
-	if !a.env.Exec("sending chain request "+args[0], stepsTx, ExecRetry()) {
+	ctx, cancel := context.WithTimeout(a.env.Ctx(), defaultRequestTimeout)
+	defer cancel()
+
+	if !a.env.Exec("sending chain request "+args[0], stepsTx, ExecRetry(), ExecCtx(ctx)) {
+		cancel()
 		a.env.t.FailNow()
 	}
 

@@ -88,7 +88,7 @@ func TestGenerateAnAppWithListAndVerify(t *testing.T) {
 	app.Scaffold(
 		"should prevent creating a list with unrecognized field type",
 		true,
-		"list", "employee", "level:itn",
+		"list", "invalidField", "level:itn",
 	)
 
 	app.Scaffold(
@@ -122,6 +122,35 @@ func TestGenerateAnAppWithListAndVerify(t *testing.T) {
 	)
 
 	app.EnsureSteady()
+
+	app.RunChainAndSimulateTxs(servers)
+}
+
+func TestGenerateAnAppWithListAndVerifySimple(t *testing.T) {
+	var (
+		env     = envtest.New(t)
+		app     = env.ScaffoldApp("github.com/test/blog")
+		servers = app.RandomizeServerPorts()
+	)
+
+	app.Scaffold(
+		"create a custom type fields",
+		false,
+		"list",
+		"employee",
+		"numInt:int",
+		"numsInt:array.int",
+		"numsIntAlias:ints",
+		"numUint:uint",
+		"numsUint:array.uint",
+		"numsUintAlias:uints",
+		"textString:string",
+		"textStrings:array.string",
+		"textStringsAlias:strings",
+		"textCoin:coin",
+		"textCoins:array.coin",
+		"--no-simulation",
+	)
 
 	app.RunChainAndSimulateTxs(servers)
 }

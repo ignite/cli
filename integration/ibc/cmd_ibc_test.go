@@ -146,7 +146,7 @@ func TestCreateIBCPacket(t *testing.T) {
 	app.Scaffold(
 		"create a custom field type",
 		false,
-		"type", "custom-type", "customField:uint", "--module", "foo", "textCoinsAlias:coins",
+		"type", "custom-type", "customField:uint", "textCoinsAlias:coins", "--module", "foo",
 	)
 
 	app.Scaffold(
