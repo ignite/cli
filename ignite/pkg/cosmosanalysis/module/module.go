@@ -58,6 +58,9 @@ type HTTPQuery struct {
 	// Name of the RPC func.
 	Name string `json:"name,omitempty"`
 
+	// RequestType is the type of the request.
+	RequestType string `json:"request_type,omitempty"`
+
 	// ResponseType is the type of the response.
 	ResponseType string `json:"response_type,omitempty"`
 
@@ -303,6 +306,7 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 					Rules:        q.HTTPRules,
 					Paginated:    isPaginated,
 					FilePath:     pkgmsg.Path,
+					RequestType:  q.RequestType,
 					ResponseType: q.ReturnsType,
 				})
 			}
