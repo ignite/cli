@@ -9,7 +9,7 @@
 
 ### Fixes
 
-- [#4691](https://github.com/ignite/cli/pull/4691), [#4706](https://github.com/ignite/cli/pull/4706) Fix ts-client query template and solely Go template for `ts-client` generation.
+- [#4691](https://github.com/ignite/cli/pull/4691), [#4706](https://github.com/ignite/cli/pull/4706), [#4725](https://github.com/ignite/cli/pull/4725) Fix ts-client query template and solely Go template for `ts-client` generation.
 
 ## [`v29.0.0`](https://github.com/ignite/cli/releases/tag/v29.0.0)
 

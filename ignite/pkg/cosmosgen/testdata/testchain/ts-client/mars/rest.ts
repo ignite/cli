@@ -5,7 +5,12 @@ import { QueryWithPaginationResponse } from "./types/planet/mars/mars";
 import { QueryWithQueryParamsResponse } from "./types/planet/mars/mars";
 import { QueryWithQueryParamsWithPaginationResponse } from "./types/planet/mars/mars";
 
-// Import relevant Request types here
+import { QuerySimpleRequest } from "./types/planet/mars/mars";
+import { QuerySimpleParamsRequest } from "./types/planet/mars/mars";
+import { QueryWithPaginationRequest } from "./types/planet/mars/mars";
+import { QueryWithQueryParamsRequest } from "./types/planet/mars/mars";
+import { QueryWithQueryParamsWithPaginationRequest } from "./types/planet/mars/mars";
+
 
 import type {SnakeCasedPropertiesDeep} from 'type-fest';
 
@@ -241,15 +246,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request GET:/ignite/mars/query_with_params/{mytypefield}
    */
   queryQueryParamsWithPagination = (mytypefield: string,
-    query?: {
-      "pagination.key"?: string;
-      "pagination.offset"?: string;
-      "pagination.limit"?: string;
-      "pagination.count_total"?: boolean;
-      "pagination.reverse"?: boolean;
-    },
-    // query should be typed as e.g.  Omit<FlattenObject<SnakeCasedPropertiesDeep<ChangeProtoToJSPrimitives<QueryAllBalancesRequest>>>,"address">
-    // i.e. the generated Request type as menioned above and omit the keys in Params as a union (key1 | key2 | key3 etc.)
+    query?: Omit<FlattenObject<SnakeCasedPropertiesDeep<ChangeProtoToJSPrimitives<QueryWithPaginationRequest>>>,"mytypefield">,
     params: RequestParams = {},
   ) =>
     this.request<SnakeCasedPropertiesDeep<ChangeProtoToJSPrimitives<QueryWithPaginationResponse>>>({
@@ -265,20 +262,14 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    *
    * @tags Query
    * @name queryQueryWithQueryParams
-   * @request GET:/ignite/mars/query_with_query_params/{mytypefield}
+   * @request GET:/ignite/mars/query_with_query_params/{mytypefield}/{mybool}
    */
-  queryQueryWithQueryParams = (mytypefield: string,
-    query?: {
-      "mybool"?: boolean;
-      "myrepeatedbool"?: boolean[];
-      "query_param"?: string;
-    },
-    // query should be typed as e.g.  Omit<FlattenObject<SnakeCasedPropertiesDeep<ChangeProtoToJSPrimitives<QueryAllBalancesRequest>>>,"address">
-    // i.e. the generated Request type as menioned above and omit the keys in Params as a union (key1 | key2 | key3 etc.)
+  queryQueryWithQueryParams = (mytypefield: string, mybool: string,
+    query?: Omit<FlattenObject<SnakeCasedPropertiesDeep<ChangeProtoToJSPrimitives<QueryWithQueryParamsRequest>>>,"mytypefield" | "mybool">,
     params: RequestParams = {},
   ) =>
     this.request<SnakeCasedPropertiesDeep<ChangeProtoToJSPrimitives<QueryWithQueryParamsResponse>>>({
-      path: `/ignite/mars/query_with_query_params/${mytypefield}`,
+      path: `/ignite/mars/query_with_query_params/${mytypefield}/${mybool}`,
       method: "GET",
       query: query,
       format: "json",
@@ -293,16 +284,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    * @request GET:/ignite/mars/query_with_query_params/{mytypefield}
    */
   queryQueryWithQueryParamsWithPagination = (mytypefield: string,
-    query?: {
-      "pagination.key"?: string;
-      "pagination.offset"?: string;
-      "pagination.limit"?: string;
-      "pagination.count_total"?: boolean;
-      "pagination.reverse"?: boolean;
-      "query_param"?: string;
-    },
-    // query should be typed as e.g.  Omit<FlattenObject<SnakeCasedPropertiesDeep<ChangeProtoToJSPrimitives<QueryAllBalancesRequest>>>,"address">
-    // i.e. the generated Request type as menioned above and omit the keys in Params as a union (key1 | key2 | key3 etc.)
+    query?: Omit<FlattenObject<SnakeCasedPropertiesDeep<ChangeProtoToJSPrimitives<QueryWithQueryParamsWithPaginationRequest>>>,"mytypefield">,
     params: RequestParams = {},
   ) =>
     this.request<SnakeCasedPropertiesDeep<ChangeProtoToJSPrimitives<QueryWithQueryParamsWithPaginationResponse>>>({
