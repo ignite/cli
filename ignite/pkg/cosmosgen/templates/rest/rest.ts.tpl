@@ -204,7 +204,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     {{- if (index .Rules 0).Params }}
     {{- range $i, $param := (index .Rules 0).Params }}{{ if $i }}, {{ end }}{{ $param }}: string{{- end }},
     {{- end }}{{- if gt (len (index .Rules 0).QueryFields) 0 }}
-    query?: Omit<FlattenObject<SnakeCasedPropertiesDeep<ChangeProtoToJSPrimitives<{{ .RequestType }}>>>,"{{ transformParamsToUnion (index .Rules 0).Params }}">,
+    query?: Omit<FlattenObject<SnakeCasedPropertiesDeep<ChangeProtoToJSPrimitives<{{ .RequestType }}>>>,{{ transformParamsToUnion (index .Rules 0).Params }}>,
 {{- else}}
     query?: Record<string, any>,
 {{- end}}

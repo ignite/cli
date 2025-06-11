@@ -262,14 +262,14 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
    *
    * @tags Query
    * @name queryQueryWithQueryParams
-   * @request GET:/ignite/mars/query_with_query_params/{mytypefield}
+   * @request GET:/ignite/mars/query_with_query_params/{mytypefield}/{mybool}
    */
-  queryQueryWithQueryParams = (mytypefield: string,
-    query?: Omit<FlattenObject<SnakeCasedPropertiesDeep<ChangeProtoToJSPrimitives<QueryWithQueryParamsRequest>>>,"mytypefield">,
+  queryQueryWithQueryParams = (mytypefield: string, mybool: string,
+    query?: Omit<FlattenObject<SnakeCasedPropertiesDeep<ChangeProtoToJSPrimitives<QueryWithQueryParamsRequest>>>,"mytypefield" | "mybool">,
     params: RequestParams = {},
   ) =>
     this.request<SnakeCasedPropertiesDeep<ChangeProtoToJSPrimitives<QueryWithQueryParamsResponse>>>({
-      path: `/ignite/mars/query_with_query_params/${mytypefield}`,
+      path: `/ignite/mars/query_with_query_params/${mytypefield}/${mybool}`,
       method: "GET",
       query: query,
       format: "json",

@@ -86,7 +86,11 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 			return path
 		},
 		"transformParamsToUnion": func(params []string) string {
-			return strings.Join(params, " | ")
+			var quotedParams []string
+			for _, param := range params {
+				quotedParams = append(quotedParams, `"`+param+`"`)
+			}
+			return strings.Join(quotedParams, " | ")
 		},
 		"inc": func(i int) int {
 			return i + 1
