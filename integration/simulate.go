@@ -62,7 +62,7 @@ func (a *App) assertJSONData(data []byte, msgName string, fields field.Fields) {
 		case f.IsSlice():
 
 			var slice []string
-			_, err = jsonparser.ArrayEach(value, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
+			_, err = jsonparser.ArrayEach(value, func(value []byte, _ jsonparser.ValueType, _ int, _ error) {
 				slice = append(slice, string(value))
 			})
 			require.NoError(a.env.T(), err)
