@@ -77,18 +77,10 @@ func (a *App) assertJSONData(data []byte, msgName string, fields field.Fields) {
 
 // assertJSONList verifies that a JSON array contains expected values for the given fields.
 func (a *App) assertJSONList(data []byte, msgName string, fields field.Fields) {
-	value, _, _, err := jsonparser.Get(data, msgName, "[0]")
+	value, _, _, err := jsonparser.Get(data, msgName)
 	require.NoError(a.env.t, err)
 
-	for _, f := range fields {
-		dt := testValue(f.DatatypeName)
-		if dt == "{}" {
-			continue
-		}
-		value, _, _, err := jsonparser.Get(value, f.Name.Snake)
-		require.NoError(a.env.T(), err)
-		require.EqualValues(a.env.T(), dt, string(value))
-	}
+	a.assertJSONData(value, "[0]", fields)
 }
 
 // createTx sends a transaction to create a resource and verifies the response from the chain.
