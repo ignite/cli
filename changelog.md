@@ -15,6 +15,7 @@
 
 ### Features
 
+- [#4614](https://github.com/ignite/cli/pull/4614) Improve integration tests and add query tests.
 - [#4683](https://github.com/ignite/cli/pull/4683) Allow to change default denom via flag.
 - [#4687](https://github.com/ignite/cli/pull/4687) Add address type with `scalar` annotations, and add `scalar` type to signer field.
 

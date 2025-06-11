@@ -254,7 +254,7 @@ func runChain(
 	app.SetConfigPath(cfgPath)
 	app.SetHomePath(homePath)
 	go func() {
-		env.Must(app.Serve("should serve chain", envtest.ExecCtx(ctx)))
+		app.MustServe(ctx)
 	}()
 
 	genHTTPAddr := func(port uint) string {
@@ -266,7 +266,7 @@ func runChain(
 func TestBlogIBC(t *testing.T) {
 	var (
 		env         = envtest.New(t)
-		app         = env.Scaffold("github.com/apps/blog", "--no-module")
+		app         = env.ScaffoldApp("github.com/apps/blog", "--no-module")
 		tmpDir      = t.TempDir()
 		ctx, cancel = context.WithCancel(env.Ctx())
 	)
@@ -276,89 +276,64 @@ func TestBlogIBC(t *testing.T) {
 		require.NoError(t, os.RemoveAll(tmpDir))
 	})
 
-	env.Must(env.Exec("create an IBC module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
-				"s",
-				"module",
-				"blog",
-				"--ibc",
-				"--require-registration",
-				"--yes",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create an IBC module",
+		false,
+		"module",
+		"blog",
+		"--ibc",
+		"--require-registration",
+	)
 
-	env.Must(env.Exec("create a post type list in an IBC module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
-				"s",
-				"list",
-				"post",
-				"title",
-				"content",
-				"--no-message",
-				"--module",
-				"blog",
-				"--yes",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a post type list in an IBC module",
+		false,
+		"list",
+		"post",
+		"title",
+		"content",
+		"--no-message",
+		"--module",
+		"blog",
+	)
 
-	env.Must(env.Exec("create a sentPost type list in an IBC module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
-				"s",
-				"list",
-				"sentPost",
-				"postID:uint",
-				"title",
-				"chain",
-				"--no-message",
-				"--module",
-				"blog",
-				"--yes",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a sentPost type list in an IBC module",
+		false,
+		"list",
+		"sentPost",
+		"postID:uint",
+		"title",
+		"chain",
+		"--no-message",
+		"--module",
+		"blog",
+	)
 
-	env.Must(env.Exec("create a timeoutPost type list in an IBC module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
-				"s",
-				"list",
-				"timeoutPost",
-				"title",
-				"chain",
-				"--no-message",
-				"--module",
-				"blog",
-				"--yes",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a timeoutPost type list in an IBC module",
+		false,
+		"list",
+		"timeoutPost",
+		"title",
+		"chain",
+		"--no-message",
+		"--module",
+		"blog",
+	)
 
-	env.Must(env.Exec("create a ibcPost package in an IBC module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
-				"s",
-				"packet",
-				"ibcPost",
-				"title",
-				"content",
-				"--ack",
-				"postID:uint",
-				"--module",
-				"blog",
-				"--yes",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a ibcPost package in an IBC module",
+		false,
+		"packet",
+		"ibcPost",
+		"title",
+		"content",
+		"--ack",
+		"postID:uint",
+		"--module",
+		"blog",
+	)
 
 	blogKeeperPath := filepath.Join(app.SourcePath(), "x/blog/keeper")
 	require.NoError(t, goanalysis.ReplaceCode(
@@ -392,22 +367,8 @@ func TestBlogIBC(t *testing.T) {
 	refChainHome := refChainConfig.Validators[0].Home
 
 	// check the chains is up
-	stepsCheckChains := step.NewSteps(
-		step.New(
-			step.Exec(
-				app.Binary(),
-				"config",
-				"output", "json",
-			),
-			step.PreExec(func() error {
-				if err := env.IsAppServed(ctx, hostChainAPI); err != nil {
-					return err
-				}
-				return env.IsAppServed(ctx, refChainAPI)
-			}),
-		),
-	)
-	env.Exec("waiting the chain is up", stepsCheckChains, envtest.ExecRetry())
+	app.WaitChainUp(ctx, hostChainAPI)
+	app.WaitChainUp(ctx, refChainAPI)
 
 	// ibc relayer.
 	env.Must(env.Exec("install the hermes relayer app",

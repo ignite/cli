@@ -14,7 +14,7 @@ var (
 	DataCoin = DataType{
 		DataType:                func(string) string { return "sdk.Coin" },
 		CollectionsKeyValueName: func(string) string { return collectionValueComment },
-		DefaultTestValue:        "sdk.NewInt64Coin(`token`, 10)",
+		DefaultTestValue:        "10token",
 		ValueLoop:               "sdk.NewInt64Coin(`token`, int64(i+100))",
 		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("cosmos.base.v1beta1.Coin %s = %d [(gogoproto.nullable) = false]",
@@ -42,7 +42,7 @@ var (
 	DataCoinSlice = DataType{
 		DataType:                func(string) string { return "sdk.Coins" },
 		CollectionsKeyValueName: func(string) string { return collectionValueComment },
-		DefaultTestValue:        "sdk.NewCoins(sdk.NewInt64Coin(`token`, 10), sdk.NewInt64Coin(`stake`, 20))",
+		DefaultTestValue:        "20stake",
 		ValueLoop:               "sdk.NewCoins(sdk.NewInt64Coin(`token`, int64(i%1+100)), sdk.NewInt64Coin(`stake`, int64(i%2+100)))",
 		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("repeated cosmos.base.v1beta1.Coin %s = %d [(gogoproto.nullable) = false]",

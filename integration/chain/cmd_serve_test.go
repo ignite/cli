@@ -16,7 +16,7 @@ import (
 func TestServeWithCustomHome(t *testing.T) {
 	var (
 		env     = envtest.New(t)
-		app     = env.Scaffold("github.com/test/sgbloga")
+		app     = env.ScaffoldApp("github.com/test/sgbloga")
 		servers = app.RandomizeServerPorts()
 	)
 
@@ -28,7 +28,7 @@ func TestServeWithCustomHome(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers.API)
 	}()
-	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
+	app.MustServe(ctx)
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -36,7 +36,7 @@ func TestServeWithCustomHome(t *testing.T) {
 func TestServeWithConfigHome(t *testing.T) {
 	var (
 		env     = envtest.New(t)
-		app     = env.Scaffold("github.com/test/sgblogb")
+		app     = env.ScaffoldApp("github.com/test/sgblogb")
 		servers = app.RandomizeServerPorts()
 	)
 
@@ -48,7 +48,7 @@ func TestServeWithConfigHome(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers.API)
 	}()
-	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
+	app.MustServe(ctx)
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -58,7 +58,7 @@ func TestServeWithCustomConfigFile(t *testing.T) {
 
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/sgblogc")
+		app = env.ScaffoldApp("github.com/test/sgblogc")
 	)
 	// Move config
 	newConfig := "new_config.yml"
@@ -77,7 +77,7 @@ func TestServeWithCustomConfigFile(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers.API)
 	}()
-	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
+	app.MustServe(ctx)
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -86,7 +86,7 @@ func TestServeWithCustomConfigFile(t *testing.T) {
 func TestServeWithName(t *testing.T) {
 	var (
 		env     = envtest.New(t)
-		app     = env.Scaffold("sgblogd")
+		app     = env.ScaffoldApp("sgblogd")
 		servers = app.RandomizeServerPorts()
 	)
 
@@ -96,11 +96,9 @@ func TestServeWithName(t *testing.T) {
 
 	go func() {
 		defer cancel()
-
 		isBackendAliveErr = env.IsAppServed(ctx, servers.API)
 	}()
-
-	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
+	app.MustServe(ctx)
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }

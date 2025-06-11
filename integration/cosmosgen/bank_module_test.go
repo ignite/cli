@@ -20,7 +20,7 @@ func TestBankModule(t *testing.T) {
 
 	var (
 		env     = envtest.New(t)
-		app     = env.Scaffold("chain", "--no-module")
+		app     = env.ScaffoldApp("chain", "--no-module")
 		servers = app.RandomizeServerPorts()
 	)
 
@@ -75,8 +75,7 @@ func TestBankModule(t *testing.T) {
 	}()
 
 	// Wait for the server to be up before running the client tests
-	err = env.IsAppServed(ctx, servers.API)
-	require.NoError(t, err)
+	app.WaitChainUp(ctx, servers.API)
 
 	testAccounts, err := json.Marshal(accounts)
 	require.NoError(t, err)

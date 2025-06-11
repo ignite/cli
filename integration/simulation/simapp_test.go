@@ -5,66 +5,54 @@ package simulation_test
 import (
 	"testing"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	envtest "github.com/ignite/cli/v29/integration"
 )
 
 func TestGenerateAnAppAndSimulate(t *testing.T) {
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/blog")
+		app = env.ScaffoldApp("github.com/test/blog")
 	)
 
-	env.Must(env.Exec("create a list",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "foo", "foobar"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a list",
+		false,
+		"list", "foo", "foobar",
+	)
 
-	env.Must(env.Exec("create an singleton type",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "single", "--yes", "baz", "foobar"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create an singleton type",
+		false,
+		"single", "baz", "foobar",
+	)
 
-	env.Must(env.Exec("create an singleton type",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "noSimapp", "foobar", "--no-simulation"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create an singleton type",
+		false,
+		"list", "noSimapp", "foobar", "--no-simulation",
+	)
 
-	env.Must(env.Exec("create a message",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "message", "--yes", "msgFoo", "foobar"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a message",
+		false,
+		"message", "msgFoo", "foobar",
+	)
 
-	env.Must(env.Exec("scaffold a new module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "new_module"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"scaffold a new module",
+		false,
+		"module", "new_module",
+	)
 
-	env.Must(env.Exec("create a map",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"s",
-				"map",
-				"--yes",
-				"bar",
-				"foobar",
-				"--module",
-				"new_module",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a map",
+		false,
+		"map",
+		"bar",
+		"foobar",
+		"--module",
+		"new_module",
+	)
 
 	app.Simulate(100, 50)
 }
