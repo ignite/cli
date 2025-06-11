@@ -50,7 +50,7 @@ func (a *App) assertJSONData(data []byte, msgName string, fields field.Fields) {
 			require.NoError(a.env.T(), err)
 			require.EqualValues(a.env.T(), denom, c.Denom)
 
-		case f.DatatypeName == datatype.Coins:
+		case f.DatatypeName == datatype.Coins || f.DatatypeName == datatype.CoinSliceAlias:
 
 			c, err := sdk.ParseCoinsNormalized(dt)
 			require.NoError(a.env.T(), err)
