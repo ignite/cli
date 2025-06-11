@@ -40,6 +40,7 @@ func (a *App) assertJSONData(data []byte, msgName string, fields field.Fields) {
 		v := string(value)
 		switch {
 		case f.DatatypeName == datatype.Coin:
+
 			c, err := sdk.ParseCoinNormalized(dt)
 			require.NoError(a.env.T(), err)
 			amount, err := jsonparser.GetString(value, "amount")
@@ -48,14 +49,18 @@ func (a *App) assertJSONData(data []byte, msgName string, fields field.Fields) {
 			denom, err := jsonparser.GetString(value, "denom")
 			require.NoError(a.env.T(), err)
 			require.EqualValues(a.env.T(), denom, c.Denom)
+
 		case f.DatatypeName == datatype.Coins:
+
 			c, err := sdk.ParseCoinsNormalized(dt)
 			require.NoError(a.env.T(), err)
 			cJSON, err := c.MarshalJSON()
 			require.NoError(a.env.T(), err)
 			dt = string(cJSON)
 			require.JSONEq(a.env.T(), dt, v)
+
 		case f.IsSlice():
+
 			var slice []string
 			_, err = jsonparser.ArrayEach(value, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
 				slice = append(slice, string(value))
@@ -63,6 +68,7 @@ func (a *App) assertJSONData(data []byte, msgName string, fields field.Fields) {
 			require.NoError(a.env.T(), err)
 			v = strings.Join(slice, ",")
 			require.EqualValues(a.env.T(), dt, v)
+
 		default:
 			require.EqualValues(a.env.T(), dt, v)
 		}

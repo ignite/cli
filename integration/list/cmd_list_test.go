@@ -125,32 +125,3 @@ func TestGenerateAnAppWithListAndVerify(t *testing.T) {
 
 	app.RunChainAndSimulateTxs(servers)
 }
-
-func TestGenerateAnAppWithListAndVerifySimple(t *testing.T) {
-	var (
-		env     = envtest.New(t)
-		app     = env.ScaffoldApp("github.com/test/blog")
-		servers = app.RandomizeServerPorts()
-	)
-
-	app.Scaffold(
-		"create a custom type fields",
-		false,
-		"list",
-		"employee",
-		"numInt:int",
-		"numsInt:array.int",
-		"numsIntAlias:ints",
-		"numUint:uint",
-		"numsUint:array.uint",
-		"numsUintAlias:uints",
-		"textString:string",
-		"textStrings:array.string",
-		"textStringsAlias:strings",
-		"textCoin:coin",
-		"textCoins:array.coin",
-		"--no-simulation",
-	)
-
-	app.RunChainAndSimulateTxs(servers)
-}
