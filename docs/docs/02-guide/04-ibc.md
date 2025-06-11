@@ -201,7 +201,7 @@ To identify the creator of the post in the receiving blockchain, add the
 command because it would automatically become a parameter in the `SendIbcPost`
 CLI command.
 
-```protobuf title="proto/planet/blog/packet.proto"
+```protobuf title="proto/planet/blog/v1/packet.proto"
 message IbcPostPacketData {
   string title = 1;
   string content = 2;
@@ -338,6 +338,8 @@ from the packet.
 ```go title="x/blog/keeper/ibc_post.go"
 package keeper
 
+import transfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
+
 func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData, ack channeltypes.Acknowledgement) error {
 	switch dispatchedAck := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
@@ -346,7 +348,7 @@ func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channelty
 	case *channeltypes.Acknowledgement_Result:
 		// Decode the packet acknowledgment
 		var packetAck types.IbcPostPacketAck
-		if err := types.ModuleCdc.UnmarshalJSON(dispatchedAck.Result, &packetAck); err != nil {
+		if err := transfertypes.ModuleCdc.UnmarshalJSON(dispatchedAck.Result, &packetAck); err != nil {
 			// The counter-party module doesn't implement the correct acknowledgment format
 			return errors.New("cannot unmarshal acknowledgment")
 		}
@@ -410,6 +412,7 @@ The `earth.yml` and `mars.yml` files are required in the project directory:
 
 ```yaml title="earth.yml"
 version: 1
+validation: sovereign
 build:
   proto:
     path: proto
@@ -438,6 +441,7 @@ validators:
 
 ```yaml title="mars.yml"
 version: 1
+validation: sovereign
 build:
   proto:
     path: proto
