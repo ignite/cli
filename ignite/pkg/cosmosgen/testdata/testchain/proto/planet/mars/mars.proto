@@ -41,7 +41,7 @@ service Query {
   }
 
   rpc QueryWithQueryParams(QueryWithQueryParamsRequest) returns (QueryWithQueryParamsResponse) {
-    option (google.api.http).get = "/ignite/mars/query_with_query_params/{mytypefield}";
+    option (google.api.http).get = "/ignite/mars/query_with_query_params/{mytypefield}/{mybool}";
   }
 
   rpc QueryWithQueryParamsWithPagination(QueryWithQueryParamsWithPaginationRequest) returns (QueryWithQueryParamsWithPaginationResponse) {
