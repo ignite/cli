@@ -104,10 +104,10 @@ commit_parsers = [
     # above in the body template.
     { message = "^((?i)feature|(?i)feat)", group = "<!-- 0 -->Features" },
     { message = "^((?i)improvements|(?i)imp|(?i)impr|(?i)perf)", group = "<!-- 1 -->Improvements" },
-    { message = "^((?i)test|^revert|^ci|^chore|^refactor)", group = "<!-- 2 -->Changes" },
+    { message = "^((?i)test|^revert|^ci|^refactor)", group = "<!-- 2 -->Changes" },
     { message = "^((?i)fix|(?i)bug)", group = "<!-- 3 -->Fixes" },
     { message = "^((?i)doc|(?i)docs|(?i)documentation)", group = "<!-- 4 -->Docs" },
-    { message = "^((?i)deps|(?i)dep|(?i)build)", group = "<!-- 5 -->Dependencies" },
+    { message = "^((?i)deps|(?i)dep|(?i)build|(?i)chore)", skip = true },                            # explicitly skips changelog for dependencies updates
 ]
 # filter out the commits that are not matched by commit parsers
 filter_commits = true
