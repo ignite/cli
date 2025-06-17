@@ -43,7 +43,7 @@ Ref: https://github.com/commitizen/conventional-commit-types/blob/v3.0.0/index.j
 # template for the changelog body
 body = """
 {% if version %}\
-    ## [{{ version }}](https://github.com/cosmos/cosmos-sdk/releases/tag/{{version}}) - {{ timestamp | date(format="%Y-%m-%d") }}
+    ## [{{ version }}](https://github.com/ignite/cli/releases/tag/{{version}}) - {{ timestamp | date(format="%Y-%m-%d") }}
 {% else %}\
     ## [Unreleased]
 {% endif %}\
@@ -72,29 +72,29 @@ split_commits = true
 commit_preprocessors = [
     { pattern = '.*', replace_command = 'sed -E "s/^(\S+)\s(.+)\s\((#[0-9]+)\)$/\1 (\3) \2/"' },
     # A reference to an issue is append to commits that looks like "(#1234)", this will be replaced
-    # with a link to that issue, e.g. "[#$1234](https://github.com/cosmos/cosmos-sdk/issues/1234)".
-    { pattern = '\(#(\d+)\)', replace = "[#${1}](https://github.com/cosmos/cosmos-sdk/issues/${1})" },
+    # with a link to that issue, e.g. "[#$1234](https://github.com/ignite/cli/issues/1234)".
+    { pattern = '\(#(\d+)\)', replace = "[#${1}](https://github.com/ignite/cli/issues/${1})" },
     # replace multiple spaces with one space
-    { pattern = "  +", replace = " "},
+    { pattern = "  +", replace = " " },
 
     # the following patterns only exist because "split_commits" is set to true, and we are processesing
     # each line of the commit as a separate message.
     # these exist to filter out common messages that appear in commit messages that are technically
     # conventional, but we do not way to include in the changelog.
-    { pattern = '^Signed-off-by:.*', replace='' },
-    { pattern = '^Co-authored-by:.*', replace='' },
+    { pattern = '^Signed-off-by:.*', replace = '' },
+    { pattern = '^Co-authored-by:.*', replace = '' },
     # don't include references to issues as changelog entries.
-    { pattern = '^ref:.*', replace='' },
+    { pattern = '^ref:.*', replace = '' },
     # exclude CVSS format, CVE can still be included in regular conventinal commits.
-    { pattern = 'CVSS:.*', replace='' },
+    { pattern = 'CVSS:.*', replace = '' },
     # don't include dependabot auto merge entries.
-    { pattern = '.*dependabot-automerge-.*', replace='' },
+    { pattern = '.*dependabot-automerge-.*', replace = '' },
     # don't include statements saying which issue is closed.
-    { pattern = '^closes:.*|Closes:.*', replace='' },
+    { pattern = '^closes:.*|Closes:.*', replace = '' },
     # remove standalone links in the commit messages.
-    { pattern = '^https://.*', replace='' },
+    { pattern = '^https://.*', replace = '' },
     # remove lines with html.
-    { pattern = '^<.*', replace='' },
+    { pattern = '^<.*', replace = '' },
 ]
 
 # regex for parsing and grouping commits
@@ -104,20 +104,16 @@ commit_parsers = [
     # above in the body template.
     { message = "^((?i)feature|(?i)feat)", group = "<!-- 0 -->Features" },
     { message = "^((?i)improvements|(?i)imp|(?i)impr|(?i)perf)", group = "<!-- 1 -->Improvements" },
-    { message = "^((?i)fix|(?i)bug)", group = "<!-- 2 -->Bug Fixes" },
-    { message = '^.*\(api\)!', group = "<!-- 3 -->API Breaking" },
-    { message = '^.*\(statemachine\)!', group = "<!-- 4 -->State Machine Breaking" },
-    { message = "^((?i)test)", group = "<!-- 5 -->Testing" },
-    { message = "^((?i)doc|(?i)docs|(?i)documentation)", group = "<!-- 6 -->Documentation" },
-    { message = "^((?i)deprecated)", group = "<!-- 7 -->Deprecated" },
-    { message = "^((?i)deps|(?i)dep|(?i)build)", group = "<!-- 8 -->Dependencies" },
-    { message = "^revert|^ci|^chore|^refactor", skip = true} # explicitly skips changelog for reverts, CI, chore and refactor commits
+    { message = "^((?i)test|^revert|^ci|^chore|^refactor)", group = "<!-- 2 -->Changes" },
+    { message = "^((?i)fix|(?i)bug)", group = "<!-- 3 -->Fixes" },
+    { message = "^((?i)doc|(?i)docs|(?i)documentation)", group = "<!-- 4 -->Docs" },
+    { message = "^((?i)deps|(?i)dep|(?i)build)", group = "<!-- 5 -->Dependencies" },
 ]
 # filter out the commits that are not matched by commit parsers
 filter_commits = true
 # glob pattern for matching git tags
 # note SDK tags are purposely ignored, only submodules are included.
-tag_pattern = "**/v[0-9]*"
+tag_pattern = "v[0-9]*"
 # regex for skipping tags
 skip_tags = ""
 # regex for ignoring tags
