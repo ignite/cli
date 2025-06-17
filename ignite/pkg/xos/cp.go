@@ -47,7 +47,7 @@ func CopyFolder(srcPath, dstPath string) error {
 }
 
 // ValidateFolderCopy validates that all files in source folder exist in destination folder
-// with same name and relative path
+// with same name and relative path.
 func ValidateFolderCopy(srcPath, dstPath string) ([]string, error) {
 	if srcPath == dstPath {
 		return nil, errors.Errorf("source and destination paths are the same %s", srcPath)

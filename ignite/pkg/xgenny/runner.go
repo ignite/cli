@@ -46,7 +46,7 @@ func (r *Runner) Tracer() *placeholder.Tracer {
 }
 
 type (
-	OverwriteCallback func(created, modified, duplicated []string) error
+	OverwriteCallback func(_, _, duplicated []string) error
 
 	// ApplyOption holds the ApplyModifications options.
 	applyOptions struct {

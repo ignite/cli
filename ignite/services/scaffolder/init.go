@@ -1,11 +1,11 @@
 package scaffolder
 
 import (
-	"context"
 	"fmt"
 	"path/filepath"
 	"strings"
 
+	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
@@ -16,7 +16,7 @@ import (
 
 // Init initializes a new app with name and given options.
 func Init(
-	ctx context.Context,
+	session *cliui.Session,
 	runner *xgenny.Runner,
 	root, name, addressPrefix string,
 	coinType uint32,
@@ -52,7 +52,7 @@ func Init(
 	)
 	// create the project
 	_, err = generate(
-		ctx,
+		session,
 		runner,
 		pathInfo,
 		addressPrefix,
@@ -68,9 +68,8 @@ func Init(
 	return path, gomodule, err
 }
 
-//nolint:interfacer
 func generate(
-	_ context.Context,
+	session *cliui.Session,
 	runner *xgenny.Runner,
 	pathInfo gomodulepath.Path,
 	addressPrefix string,
@@ -117,7 +116,10 @@ func generate(
 
 	// generate module template
 	runner.Root = absRoot
-	smc, err := runner.RunAndApply(g)
+	smc, err := runner.RunAndApply(g, xgenny.ApplyPreRun(func(_, _, duplicated []string) error {
+		question := fmt.Sprintf("Do you want to overwrite the existing files? \n%s", strings.Join(duplicated, "\n"))
+		return session.AskConfirm(question)
+	}))
 	if err != nil {
 		return smc, err
 	}
@@ -147,7 +149,10 @@ func generate(
 			return smc, err
 		}
 		// generate module template
-		smm, err := runner.ApplyModifications()
+		smm, err := runner.ApplyModifications(xgenny.ApplyPreRun(func(_, _, duplicated []string) error {
+			question := fmt.Sprintf("Do you want to overwrite the existing files? \n%s", strings.Join(duplicated, "\n"))
+			return session.AskConfirm(question)
+		}))
 		if err != nil {
 			return smc, err
 		}

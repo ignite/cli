@@ -149,7 +149,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 
 	runner := xgenny.NewRunner(cmd.Context(), appPath)
 	appDir, goModule, err := scaffolder.Init(
-		cmd.Context(),
+		session,
 		runner,
 		appPath,
 		name,
@@ -171,7 +171,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if _, err := runner.ApplyModifications(xgenny.ApplyPreRun(func(created, modified, duplicated []string) error {
+	if _, err := runner.ApplyModifications(xgenny.ApplyPreRun(func(_, _, duplicated []string) error {
 		question := fmt.Sprintf("Do you want to overwrite the existing files? \n%s", strings.Join(duplicated, "\n"))
 		return session.AskConfirm(question)
 	})); err != nil {

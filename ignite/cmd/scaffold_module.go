@@ -11,6 +11,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/validation"
+	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
 	modulecreate "github.com/ignite/cli/v29/ignite/templates/module/create"
 )
@@ -187,7 +188,10 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	sm, err := sc.ApplyModifications()
+	sm, err := sc.ApplyModifications(xgenny.ApplyPreRun(func(_, _, duplicated []string) error {
+		question := fmt.Sprintf("Do you want to overwrite the existing files? \n%s", strings.Join(duplicated, "\n"))
+		return session.AskConfirm(question)
+	}))
 	if err != nil {
 		return err
 	}
