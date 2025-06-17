@@ -143,8 +143,11 @@ func generate(
 			return smc, err
 		}
 
+		if err := runner.Run(g, modulecreate.NewAppModify(runner.Tracer(), opts)); err != nil {
+			return smc, err
+		}
 		// generate module template
-		smm, err := runner.RunAndApply(g, modulecreate.NewAppModify(runner.Tracer(), opts))
+		smm, err := runner.ApplyModifications()
 		if err != nil {
 			return smc, err
 		}

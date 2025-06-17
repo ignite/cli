@@ -45,8 +45,40 @@ func (r *Runner) Tracer() *placeholder.Tracer {
 	return r.tracer
 }
 
+type (
+	OverwriteCallback func(created, modified, duplicated []string) error
+
+	// ApplyOption holds the ApplyModifications options.
+	applyOptions struct {
+		preRun  OverwriteCallback
+		postRun OverwriteCallback
+	}
+
+	// ApplyOption configures the ApplyModifications options.
+	ApplyOption func(r *applyOptions)
+)
+
+// ApplyPreRun sets pre-runner for the ApplyModifications function.
+func ApplyPreRun(preRun OverwriteCallback) ApplyOption {
+	return func(o *applyOptions) {
+		o.preRun = preRun
+	}
+}
+
+// ApplyPostRun sets pos-runner for the ApplyModifications function.
+func ApplyPostRun(postRun OverwriteCallback) ApplyOption {
+	return func(o *applyOptions) {
+		o.postRun = postRun
+	}
+}
+
 // ApplyModifications copy all modifications from the temporary folder to the target path.
-func (r *Runner) ApplyModifications() (SourceModification, error) {
+func (r *Runner) ApplyModifications(options ...ApplyOption) (SourceModification, error) {
+	opts := applyOptions{}
+	for _, apply := range options {
+		apply(&opts)
+	}
+
 	// fetch the source modification
 	sm := NewSourceModification()
 	for _, file := range r.results {
@@ -67,24 +99,37 @@ func (r *Runner) ApplyModifications() (SourceModification, error) {
 		return sm, nil
 	}
 
-	// Create the target path and copy the content from the temporary folder.
-	if err := os.MkdirAll(r.Root, os.ModePerm); err != nil {
-		return sm, nil
-	}
-	err := xos.CopyFolder(r.tmpPath, r.Root)
+	duplicatedFiles, err := xos.ValidateFolderCopy(r.tmpPath, r.Root)
 	if err != nil {
-		return sm, nil
+		return sm, err
 	}
 
-	return sm, os.RemoveAll(r.tmpPath)
+	if err := opts.preRun(sm.CreatedFiles(), sm.ModifiedFiles(), duplicatedFiles); err != nil {
+		return sm, err
+	}
+
+	// Create the target path and copy the content from the temporary folder.
+	if err := os.MkdirAll(r.Root, os.ModePerm); err != nil {
+		return sm, err
+	}
+
+	if err := xos.CopyFolder(r.tmpPath, r.Root); err != nil {
+		return sm, err
+	}
+
+	if err := os.RemoveAll(r.tmpPath); err != nil {
+		return sm, err
+	}
+
+	return sm, opts.postRun(sm.CreatedFiles(), sm.ModifiedFiles(), duplicatedFiles)
 }
 
 // RunAndApply run the generators and apply the modifications to the target path.
-func (r *Runner) RunAndApply(gens ...*genny.Generator) (SourceModification, error) {
-	if err := r.Run(gens...); err != nil {
+func (r *Runner) RunAndApply(gens *genny.Generator, options ...ApplyOption) (SourceModification, error) {
+	if err := r.Run(gens); err != nil {
 		return SourceModification{}, err
 	}
-	return r.ApplyModifications()
+	return r.ApplyModifications(options...)
 }
 
 // Run all generators into a temp folder for we can apply the modifications later.
