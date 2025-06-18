@@ -21,7 +21,7 @@ func Init(
 	root, name, addressPrefix string,
 	coinType uint32,
 	defaultDenom, protoDir string,
-	noDefaultModule, minimal bool,
+	skipUI, noDefaultModule, minimal bool,
 	params, moduleConfigs []string,
 ) (string, string, error) {
 	pathInfo, err := gomodulepath.Parse(name)
@@ -60,6 +60,7 @@ func Init(
 		defaultDenom,
 		protoDir,
 		path,
+		skipUI,
 		noDefaultModule,
 		minimal,
 		params,
@@ -77,7 +78,7 @@ func generate(
 	defaultDenom,
 	protoDir,
 	absRoot string,
-	noDefaultModule, minimal bool,
+	skipUI, noDefaultModule, minimal bool,
 	params, moduleConfigs []string,
 ) (xgenny.SourceModification, error) {
 	// Parse params with the associated type
@@ -150,6 +151,9 @@ func generate(
 		}
 		// generate module template
 		smm, err := runner.ApplyModifications(xgenny.ApplyPreRun(func(_, _, duplicated []string) error {
+			if skipUI {
+				return nil
+			}
 			question := fmt.Sprintf("Do you want to overwrite the existing files? \n%s", strings.Join(duplicated, "\n"))
 			return session.AskConfirm(question)
 		}))

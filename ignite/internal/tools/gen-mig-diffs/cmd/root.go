@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/spf13/cobra"
@@ -28,6 +29,7 @@ const (
 	flagRepoOutput     = "repo-output"
 	flagScaffoldOutput = "scaffold-output"
 	flagScaffoldCache  = "scaffold-cache"
+	flagYes            = "yes"
 
 	defaultDocPath = "docs/docs/06-migration"
 )
@@ -39,9 +41,6 @@ func NewRootCmd() *cobra.Command {
 		Short: "generate migration diffs from two different version",
 		Long:  "This tool is used to generate migration diff files for each of ignites scaffold commands",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			session := cliui.New()
-			defer session.End()
-
 			var (
 				from, _           = cmd.Flags().GetString(flagFrom)
 				to, _             = cmd.Flags().GetString(flagTo)
@@ -51,7 +50,11 @@ func NewRootCmd() *cobra.Command {
 				repoOutput, _     = cmd.Flags().GetString(flagRepoOutput)
 				scaffoldOutput, _ = cmd.Flags().GetString(flagScaffoldOutput)
 				scaffoldCache, _  = cmd.Flags().GetString(flagScaffoldCache)
+				yes, _            = cmd.Flags().GetBool(flagYes)
 			)
+			session := cliui.New(cliui.WithoutUserInteraction(yes))
+			defer session.End()
+
 			fromVer, err := semver.NewVersion(from)
 			if err != nil && from != "" {
 				return errors.Wrapf(err, "failed to parse from version %s", from)
@@ -163,7 +166,11 @@ func NewRootCmd() *cobra.Command {
 				return errors.Wrap(err, "failed to create the doc generator object")
 			}
 
-			sm, err := xgenny.NewRunner(cmd.Context(), output).RunAndApply(g)
+			runner := xgenny.NewRunner(cmd.Context(), output)
+			sm, err := runner.RunAndApply(g, xgenny.ApplyPreRun(func(_, _, duplicated []string) error {
+				question := fmt.Sprintf("Do you want to overwrite the existing files? \n%s", strings.Join(duplicated, "\n"))
+				return session.AskConfirm(question)
+			}))
 			if err != nil {
 				return err
 			}
@@ -189,6 +196,7 @@ func NewRootCmd() *cobra.Command {
 	cmd.Flags().String(flagRepoOutput, "", "Output path to clone the Ignite repository")
 	cmd.Flags().String(flagScaffoldOutput, "", "Output path to clone the Ignite repository")
 	cmd.Flags().String(flagScaffoldCache, "", "Path to cache directory")
+	cmd.Flags().BoolP(flagYes, "y", false, "answers interactive yes/no questions with yes")
 
 	return cmd
 }

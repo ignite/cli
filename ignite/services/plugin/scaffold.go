@@ -3,6 +3,7 @@ package plugin
 import (
 	"context"
 	"embed"
+	"fmt"
 	"io/fs"
 	"os"
 	"path"
@@ -14,6 +15,7 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
+	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
@@ -23,7 +25,7 @@ import (
 var fsPluginSource embed.FS
 
 // Scaffold generates a plugin structure under dir/path.Base(appName).
-func Scaffold(ctx context.Context, dir, appName string, sharedHost bool) (string, error) {
+func Scaffold(ctx context.Context, session *cliui.Session, dir, appName string, sharedHost bool) (string, error) {
 	subFs, err := fs.Sub(fsPluginSource, "template")
 	if err != nil {
 		return "", errors.WithStack(err)
@@ -52,7 +54,11 @@ func Scaffold(ctx context.Context, dir, appName string, sharedHost bool) (string
 
 	g.Transformer(xgenny.Transformer(pctx))
 	r := xgenny.NewRunner(ctx, finalDir)
-	if _, err := r.RunAndApply(g); err != nil {
+	_, err = r.RunAndApply(g, xgenny.ApplyPreRun(func(_, _, duplicated []string) error {
+		question := fmt.Sprintf("Do you want to overwrite the existing files? \n%s", strings.Join(duplicated, "\n"))
+		return session.AskConfirm(question)
+	}))
+	if err != nil {
 		return "", err
 	}
 

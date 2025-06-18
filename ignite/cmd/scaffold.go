@@ -153,7 +153,7 @@ func migrationPreRunHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	session := cliui.New()
+	session := cliui.New(cliui.WithoutUserInteraction(getYes(cmd)))
 	defer session.End()
 
 	appPath, err := goModulePath(cmd)
@@ -216,7 +216,10 @@ func scaffoldType(
 		}
 	}
 
-	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
+	session := cliui.New(
+		cliui.StartSpinnerWithText(statusScaffolding),
+		cliui.WithoutUserInteraction(getYes(cmd)),
+	)
 	defer session.End()
 
 	cfg, _, err := getChainConfig(cmd)
@@ -269,7 +272,7 @@ func gitChangesConfirmPreRunHandler(cmd *cobra.Command, _ []string) error {
 	}
 
 	appPath := flagGetPath(cmd)
-	session := cliui.New()
+	session := cliui.New(cliui.WithoutUserInteraction(getYes(cmd)))
 
 	defer session.End()
 
