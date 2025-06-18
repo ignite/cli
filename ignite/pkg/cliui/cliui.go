@@ -259,6 +259,10 @@ var ErrAbort = errors.New("aborted or not confirmed")
 
 // AskConfirm asks a yes/no question using a bubbletea dialog.
 func (s Session) AskConfirm(message string) error {
+	if s.skipUI {
+		return nil
+	}
+
 	defer s.PauseSpinner()()
 
 	// Create and run the bubbletea program

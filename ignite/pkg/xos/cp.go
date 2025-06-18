@@ -85,7 +85,9 @@ func ValidateFolderCopy(srcPath, dstPath string) ([]string, error) {
 
 		// Check if the destination path exists
 		destInfo, err := os.Stat(destPath)
-		if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		} else if err != nil {
 			return err
 		}
 
