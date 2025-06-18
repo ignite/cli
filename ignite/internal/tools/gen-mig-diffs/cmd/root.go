@@ -168,6 +168,9 @@ func NewRootCmd() *cobra.Command {
 
 			runner := xgenny.NewRunner(cmd.Context(), output)
 			sm, err := runner.RunAndApply(g, xgenny.ApplyPreRun(func(_, _, duplicated []string) error {
+				if len(duplicated) == 0 {
+					return nil
+				}
 				question := fmt.Sprintf("Do you want to overwrite the existing files? \n%s", strings.Join(duplicated, "\n"))
 				return session.AskConfirm(question)
 			}))

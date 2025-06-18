@@ -104,8 +104,10 @@ func (r *Runner) ApplyModifications(options ...ApplyOption) (SourceModification,
 		return sm, err
 	}
 
-	if err := opts.preRun(sm.CreatedFiles(), sm.ModifiedFiles(), duplicatedFiles); err != nil {
-		return sm, err
+	if opts.preRun != nil {
+		if err := opts.preRun(sm.CreatedFiles(), sm.ModifiedFiles(), duplicatedFiles); err != nil {
+			return sm, err
+		}
 	}
 
 	// Create the target path and copy the content from the temporary folder.
@@ -121,7 +123,12 @@ func (r *Runner) ApplyModifications(options ...ApplyOption) (SourceModification,
 		return sm, err
 	}
 
-	return sm, opts.postRun(sm.CreatedFiles(), sm.ModifiedFiles(), duplicatedFiles)
+	if opts.postRun != nil {
+		if err := opts.postRun(sm.CreatedFiles(), sm.ModifiedFiles(), duplicatedFiles); err != nil {
+			return sm, err
+		}
+	}
+	return sm, nil
 }
 
 // RunAndApply run the generators and apply the modifications to the target path.
@@ -144,6 +151,7 @@ func (r *Runner) Run(gens ...*genny.Generator) error {
 		}
 	}
 	r.results = append(r.results, r.Results().Files...)
+	r.Runner = genny.WetRunner(r.ctx)
 	return r.tracer.Err()
 }
 

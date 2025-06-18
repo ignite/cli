@@ -110,6 +110,12 @@ about Cosmos SDK on https://docs.cosmos.network
 }
 
 func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
+	session := cliui.New(
+		cliui.StartSpinnerWithText(statusScaffolding),
+		cliui.WithoutUserInteraction(getYes(cmd)),
+	)
+	defer session.End()
+
 	var (
 		name          = args[0]
 		addressPrefix = getAddressPrefix(cmd)
@@ -124,13 +130,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		skipProto, _       = cmd.Flags().GetBool(flagSkipProto)
 		protoDir, _        = cmd.Flags().GetString(flagProtoDir)
 		defaultDenom, _    = cmd.Flags().GetString(flagDefaultDenom)
-		skipUI             = getYes(cmd)
 	)
-	session := cliui.New(
-		cliui.StartSpinnerWithText(statusScaffolding),
-		cliui.WithoutUserInteraction(skipUI),
-	)
-	defer session.End()
 
 	if cmd.Flags().Changed(flagDefaultDenom) && len(defaultDenom) <= 2 {
 		return errors.New("default denom must be at least 3 characters and maximum 128 characters")
@@ -160,7 +160,6 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		coinType,
 		defaultDenom,
 		protoDir,
-		skipUI,
 		noDefaultModule,
 		minimal,
 		params,
@@ -176,7 +175,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if _, err := runner.ApplyModifications(xgenny.ApplyPreRun(func(_, _, duplicated []string) error {
-		if skipUI {
+		if len(duplicated) == 0 {
 			return nil
 		}
 		question := fmt.Sprintf("Do you want to overwrite the existing files? \n%s", strings.Join(duplicated, "\n"))
