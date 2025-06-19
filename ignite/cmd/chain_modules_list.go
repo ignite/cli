@@ -4,11 +4,12 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/spf13/cobra"
+
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/app"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodule"
 	"github.com/ignite/cli/v29/ignite/services/chain"
-	"github.com/spf13/cobra"
 )
 
 func NewChainModulesList() *cobra.Command {
@@ -71,14 +72,15 @@ func NewChainModulesList() *cobra.Command {
 				ver := depMap[m]
 				modName := m
 
-				if strings.HasPrefix(m, appModulePath+"/") {
+				switch {
+				case strings.HasPrefix(m, appModulePath+"/"):
 					ver = "main"
-				} else if strings.HasPrefix(m, cosmosSDKModulePrefix+"/") {
+				case strings.HasPrefix(m, cosmosSDKModulePrefix+"/"):
 					ver = depMap[cosmosSDKModulePrefix]
 					modName = strings.TrimPrefix(m, cosmosSDKModulePrefix+"/")
-				} else if strings.Contains(m, ibcModulePrefix+"/v") {
+				case strings.Contains(m, ibcModulePrefix+"/v"):
 					modName, ver = getIBCVersion(m, depMap)
-				} else if isModuleReplaced(m, replacedMap) {
+				case isModuleReplaced(m, replacedMap):
 					ver = "locally replaced"
 				}
 
@@ -112,7 +114,7 @@ var (
 	ibcModulePrefix       = "github.com/cosmos/ibc-go"
 )
 
-// isModuleReplaced checks if a module path (or its parent paths) is in the replaced map
+// isModuleReplaced checks if a module path (or its parent paths) is in the replaced map.
 func isModuleReplaced(modulePath string, replacedMap map[string]bool) bool {
 	checkPath := modulePath
 	for checkPath != "" && checkPath != "." {
@@ -129,8 +131,7 @@ func isModuleReplaced(modulePath string, replacedMap map[string]bool) bool {
 	return false
 }
 
-// findBestMatchingVersion tries to find the version of the best matching parent module
-// for a given module path by checking progressively shorter paths
+// for a given module path by checking progressively shorter paths.
 func findBestMatchingVersion(modulePath string, depMap map[string]string) string {
 	checkPath := modulePath
 	for checkPath != "" && checkPath != "." {
@@ -147,7 +148,7 @@ func findBestMatchingVersion(modulePath string, depMap map[string]string) string
 	return ""
 }
 
-// getIBCVersion tries to extract the ibc-go version from the module path or dependencies
+// getIBCVersion tries to extract the ibc-go version from the module path or dependencies.
 func getIBCVersion(modulePath string, depMap map[string]string) (string, string) {
 	// find the root ibc-go module path (with major version)
 	parts := strings.Split(modulePath, "/")
