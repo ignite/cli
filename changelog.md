@@ -4,7 +4,7 @@
 
 ### Features
 
-- []() Add `ignite chain modules list` command to list all modules in the chain.
+- [#4732](https://github.com/ignite/cli/pull/4732) Add `ignite chain modules list` command to list all modules in the chain.
 
 ### Changes
 
