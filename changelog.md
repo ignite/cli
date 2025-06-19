@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- []() Add `ignite chain modules list` command to list all modules in the chain.
+
 ### Changes
 
 - [#4717](https://github.com/ignite/cli/pull/4717) Bump Cosmos SDK to `v0.53.2`.
