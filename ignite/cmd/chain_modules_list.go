@@ -45,6 +45,7 @@ func NewChainModulesList() *cobra.Command {
 			if err != nil {
 				return err
 			}
+
 			deps, err := gomodule.ResolveDependencies(modFile, false)
 			if err != nil {
 				return err
@@ -55,20 +56,39 @@ func NewChainModulesList() *cobra.Command {
 				depMap[dep.Path] = dep.Version
 			}
 
+			// create a map of replaced modules for easy lookup
+			// check the original required modules, not the resolved ones
+			replacedMap := make(map[string]bool)
+			for _, replace := range modFile.Replace {
+				replacedMap[replace.Old.Path] = true
+			}
+
+			// get the app's module path to identify app modules
+			appModulePath := modFile.Module.Mod.Path
+
 			var entries [][]string
 			for _, m := range modules {
 				ver := depMap[m]
 				modName := m
-				if strings.HasPrefix(m, cosmosSDKModulePrefix+"/") {
+
+				if strings.HasPrefix(m, appModulePath+"/") {
+					ver = "main"
+				} else if strings.HasPrefix(m, cosmosSDKModulePrefix+"/") {
 					ver = depMap[cosmosSDKModulePrefix]
 					modName = strings.TrimPrefix(m, cosmosSDKModulePrefix+"/")
 				} else if strings.Contains(m, ibcModulePrefix+"/v") {
 					modName, ver = getIBCVersion(m, depMap)
+				} else if isModuleReplaced(m, replacedMap) {
+					ver = "locally replaced"
 				}
 
 				if ver == "" {
-					ver = "-"
+					ver = findBestMatchingVersion(m, depMap)
+					if ver == "" {
+						ver = "-"
+					}
 				}
+
 				entries = append(entries, []string{modName, ver})
 			}
 
@@ -91,6 +111,41 @@ var (
 	cosmosSDKModulePrefix = "github.com/cosmos/cosmos-sdk"
 	ibcModulePrefix       = "github.com/cosmos/ibc-go"
 )
+
+// isModuleReplaced checks if a module path (or its parent paths) is in the replaced map
+func isModuleReplaced(modulePath string, replacedMap map[string]bool) bool {
+	checkPath := modulePath
+	for checkPath != "" && checkPath != "." {
+		if replacedMap[checkPath] {
+			return true
+		}
+		// check parent path
+		if idx := strings.LastIndex(checkPath, "/"); idx > 0 {
+			checkPath = checkPath[:idx]
+		} else {
+			break
+		}
+	}
+	return false
+}
+
+// findBestMatchingVersion tries to find the version of the best matching parent module
+// for a given module path by checking progressively shorter paths
+func findBestMatchingVersion(modulePath string, depMap map[string]string) string {
+	checkPath := modulePath
+	for checkPath != "" && checkPath != "." {
+		if version, exists := depMap[checkPath]; exists {
+			return version
+		}
+		// check parent path
+		if idx := strings.LastIndex(checkPath, "/"); idx > 0 {
+			checkPath = checkPath[:idx]
+		} else {
+			break
+		}
+	}
+	return ""
+}
 
 // getIBCVersion tries to extract the ibc-go version from the module path or dependencies
 func getIBCVersion(modulePath string, depMap map[string]string) (string, string) {
