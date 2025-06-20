@@ -98,6 +98,7 @@ chain.
 		NewChainSimulate(),
 		NewChainDebug(),
 		NewChainLint(),
+		NewChainModules(),
 	)
 
 	return c
