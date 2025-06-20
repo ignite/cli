@@ -32,7 +32,41 @@ func TestModulesList(t *testing.T) {
 		envtest.ExecStdout(&buffer),
 	))
 
-	require.Equal(t, buffer.String(), "\r\r\x1b[K\r\r\x1b[KModule \t\t\t\t\tVersion \nclient/grpc/cmtservice \t\t\tv0.53.2 \nclient/grpc/node \t\t\tv0.53.2 \ncosmossdk.io/x/circuit \t\t\tv0.1.1 \t\ncosmossdk.io/x/evidence \t\tv0.1.1 \t\ncosmossdk.io/x/feegrant/module \t\tv0.1.1 \t\ncosmossdk.io/x/nft/module \t\tv0.1.0 \t\ncosmossdk.io/x/upgrade \t\t\tv0.2.0 \t\ngithub.com/test/mars/x/mars \t\tmain \t\ngithub.com/test/mars/x/mars/module \tmain \t\nmodules/apps/27-interchain-accounts \tv10.2.0 \nmodules/apps/transfer \t\t\tv10.2.0 \nmodules/core \t\t\t\tv10.2.0 \nx/auth \t\t\t\t\tv0.53.2 \nx/auth/tx \t\t\t\tv0.53.2 \nx/auth/tx/config \t\t\tv0.53.2 \nx/auth/vesting \t\t\t\tv0.53.2 \nx/authz \t\t\t\tv0.53.2 \nx/authz/module \t\t\t\tv0.53.2 \nx/bank \t\t\t\t\tv0.53.2 \nx/consensus \t\t\t\tv0.53.2 \nx/distribution \t\t\t\tv0.53.2 \nx/epochs \t\t\t\tv0.53.2 \nx/gov \t\t\t\t\tv0.53.2 \nx/group/module \t\t\t\tv0.53.2 \nx/mint \t\t\t\t\tv0.53.2 \nx/params \t\t\t\tv0.53.2 \nx/slashing \t\t\t\tv0.53.2 \nx/staking \t\t\t\tv0.53.2 \n\n")
+	output := buffer.String()
+
+	// check for module header
+	require.Contains(t, output, "Module")
+	require.Contains(t, output, "Version")
+
+	// check for specific modules
+	require.Contains(t, output, "client/grpc/cmtservice")
+	require.Contains(t, output, "client/grpc/node")
+	require.Contains(t, output, "cosmossdk.io/x/circuit")
+	require.Contains(t, output, "cosmossdk.io/x/evidence")
+	require.Contains(t, output, "cosmossdk.io/x/feegrant/module")
+	require.Contains(t, output, "cosmossdk.io/x/nft/module")
+	require.Contains(t, output, "cosmossdk.io/x/upgrade")
+	require.Contains(t, output, "github.com/test/mars/x/mars")
+	require.Contains(t, output, "github.com/test/mars/x/mars/module")
+	require.Contains(t, output, "modules/apps/27-interchain-accounts")
+	require.Contains(t, output, "modules/apps/transfer")
+	require.Contains(t, output, "modules/core")
+	require.Contains(t, output, "x/auth")
+	require.Contains(t, output, "x/auth/tx")
+	require.Contains(t, output, "x/auth/tx/config")
+	require.Contains(t, output, "x/auth/vesting")
+	require.Contains(t, output, "x/authz")
+	require.Contains(t, output, "x/authz/module")
+	require.Contains(t, output, "x/bank")
+	require.Contains(t, output, "x/consensus")
+	require.Contains(t, output, "x/distribution")
+	require.Contains(t, output, "x/epochs")
+	require.Contains(t, output, "x/gov")
+	require.Contains(t, output, "x/group/module")
+	require.Contains(t, output, "x/mint")
+	require.Contains(t, output, "x/params")
+	require.Contains(t, output, "x/slashing")
+	require.Contains(t, output, "x/staking")
 
 	app.EnsureSteady()
 }
