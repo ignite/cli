@@ -1,6 +1,9 @@
 package ignitecmd
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
@@ -107,7 +110,10 @@ about Cosmos SDK on https://docs.cosmos.network
 }
 
 func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
+	session := cliui.New(
+		cliui.StartSpinnerWithText(statusScaffolding),
+		cliui.WithoutUserInteraction(getYes(cmd)),
+	)
 	defer session.End()
 
 	var (
@@ -146,7 +152,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 
 	runner := xgenny.NewRunner(cmd.Context(), appPath)
 	appDir, goModule, err := scaffolder.Init(
-		cmd.Context(),
+		session,
 		runner,
 		appPath,
 		name,
@@ -168,7 +174,13 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if _, err := runner.ApplyModifications(); err != nil {
+	if _, err := runner.ApplyModifications(xgenny.ApplyPreRun(func(_, _, duplicated []string) error {
+		if len(duplicated) == 0 {
+			return nil
+		}
+		question := fmt.Sprintf("Do you want to overwrite the existing files? \n%s", strings.Join(duplicated, "\n"))
+		return session.AskConfirm(question)
+	})); err != nil {
 		return err
 	}
 

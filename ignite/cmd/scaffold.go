@@ -1,6 +1,9 @@
 package ignitecmd
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
@@ -9,6 +12,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/env"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
+	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/pkg/xgit"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
 	"github.com/ignite/cli/v29/ignite/version"
@@ -149,7 +153,7 @@ func migrationPreRunHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	session := cliui.New()
+	session := cliui.New(cliui.WithoutUserInteraction(getYes(cmd)))
 	defer session.End()
 
 	appPath, err := goModulePath(cmd)
@@ -212,7 +216,10 @@ func scaffoldType(
 		}
 	}
 
-	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
+	session := cliui.New(
+		cliui.StartSpinnerWithText(statusScaffolding),
+		cliui.WithoutUserInteraction(getYes(cmd)),
+	)
 	defer session.End()
 
 	cfg, _, err := getChainConfig(cmd)
@@ -235,7 +242,13 @@ func scaffoldType(
 		return err
 	}
 
-	sm, err := sc.ApplyModifications()
+	sm, err := sc.ApplyModifications(xgenny.ApplyPreRun(func(_, _, duplicated []string) error {
+		if len(duplicated) == 0 {
+			return nil
+		}
+		question := fmt.Sprintf("Do you want to overwrite the existing files? \n%s", strings.Join(duplicated, "\n"))
+		return session.AskConfirm(question)
+	}))
 	if err != nil {
 		return err
 	}
@@ -262,7 +275,7 @@ func gitChangesConfirmPreRunHandler(cmd *cobra.Command, _ []string) error {
 	}
 
 	appPath := flagGetPath(cmd)
-	session := cliui.New()
+	session := cliui.New(cliui.WithoutUserInteraction(getYes(cmd)))
 
 	defer session.End()
 

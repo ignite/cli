@@ -66,7 +66,10 @@ The debug server stops automatically when the client connection is closed.
 func chainDebugHandler(cmd *cobra.Command, _ []string) error {
 	// Prepare session options.
 	// Events are ignored by the session when the debug server UI is used.
-	options := []cliui.Option{cliui.StartSpinnerWithText("Initializing...")}
+	options := []cliui.Option{
+		cliui.StartSpinnerWithText("Initializing..."),
+		cliui.WithoutUserInteraction(getYes(cmd)),
+	}
 	server, _ := cmd.Flags().GetBool(flagServer)
 	if server {
 		options = append(options, cliui.IgnoreEvents())

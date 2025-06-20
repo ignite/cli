@@ -39,6 +39,7 @@ We can create a testnet from the local network state and mint additional coins f
 func testnetInPlaceHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New(
 		cliui.WithVerbosity(getVerbosity(cmd)),
+		cliui.WithoutUserInteraction(getYes(cmd)),
 	)
 	defer session.End()
 

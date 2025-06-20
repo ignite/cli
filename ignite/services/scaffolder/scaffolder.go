@@ -78,8 +78,8 @@ func New(context context.Context, appPath, protoDir string) (Scaffolder, error) 
 	return s, nil
 }
 
-func (s Scaffolder) ApplyModifications() (xgenny.SourceModification, error) {
-	return s.runner.ApplyModifications()
+func (s Scaffolder) ApplyModifications(options ...xgenny.ApplyOption) (xgenny.SourceModification, error) {
+	return s.runner.ApplyModifications(options...)
 }
 
 func (s Scaffolder) Tracer() *placeholder.Tracer {

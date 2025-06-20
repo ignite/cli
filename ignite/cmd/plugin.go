@@ -448,7 +448,10 @@ Respects key value pairs declared after the app path to be added to the generate
 		Example: "ignite app install github.com/org/my-app/ foo=bar baz=qux",
 		Args:    cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			session := cliui.New(cliui.WithStdout(os.Stdout))
+			session := cliui.New(
+				cliui.WithStdout(os.Stdout),
+				cliui.WithoutUserInteraction(getYes(cmd)),
+			)
 			defer session.End()
 
 			var (
@@ -601,7 +604,10 @@ A git repository will be created with the given module name, unless the current 
 		Example: "ignite app scaffold github.com/org/my-app/",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
+			session := cliui.New(
+				cliui.StartSpinnerWithText(statusScaffolding),
+				cliui.WithoutUserInteraction(getYes(cmd)),
+			)
 			defer session.End()
 
 			wd, err := os.Getwd()
@@ -609,7 +615,7 @@ A git repository will be created with the given module name, unless the current 
 				return err
 			}
 			moduleName := args[0]
-			path, err := plugin.Scaffold(cmd.Context(), wd, moduleName, false)
+			path, err := plugin.Scaffold(cmd.Context(), session, wd, moduleName, false)
 			if err != nil {
 				return err
 			}

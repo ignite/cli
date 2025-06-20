@@ -17,6 +17,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pluginsconfig "github.com/ignite/cli/v29/ignite/config/plugins"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodule"
@@ -546,7 +547,9 @@ func scaffoldPlugin(t *testing.T, dir, name string, sharedHost bool) string {
 	t.Helper()
 
 	require := require.New(t)
-	path, err := Scaffold(context.Background(), dir, name, sharedHost)
+
+	session := cliui.New(cliui.WithoutUserInteraction(true))
+	path, err := Scaffold(context.Background(), session, dir, name, sharedHost)
 	require.NoError(err)
 
 	// We want the scaffolded plugin to use the current version of ignite/cli,

@@ -79,7 +79,7 @@ func newPluginInstallCmd(dp defaultPlugin) *cobra.Command {
 				return err
 			}
 
-			session := cliui.New()
+			session := cliui.New(cliui.WithoutUserInteraction(getYes(cmd)))
 			defer session.End()
 
 			// load and link the plugin

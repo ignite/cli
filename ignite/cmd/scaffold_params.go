@@ -1,11 +1,13 @@
 package ignitecmd
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
+	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
 )
 
@@ -50,7 +52,10 @@ func scaffoldParamsHandler(cmd *cobra.Command, args []string) error {
 		moduleName = flagGetModule(cmd)
 	)
 
-	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
+	session := cliui.New(
+		cliui.StartSpinnerWithText(statusScaffolding),
+		cliui.WithoutUserInteraction(getYes(cmd)),
+	)
 	defer session.End()
 
 	cfg, _, err := getChainConfig(cmd)
@@ -73,7 +78,13 @@ func scaffoldParamsHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sm, err := sc.ApplyModifications()
+	sm, err := sc.ApplyModifications(xgenny.ApplyPreRun(func(_, _, duplicated []string) error {
+		if len(duplicated) == 0 {
+			return nil
+		}
+		question := fmt.Sprintf("Do you want to overwrite the existing files? \n%s", strings.Join(duplicated, "\n"))
+		return session.AskConfirm(question)
+	}))
 	if err != nil {
 		return err
 	}

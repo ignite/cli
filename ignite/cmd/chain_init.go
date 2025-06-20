@@ -98,6 +98,7 @@ func chainInitHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New(
 		cliui.WithVerbosity(getVerbosity(cmd)),
 		cliui.StartSpinner(),
+		cliui.WithoutUserInteraction(getYes(cmd)),
 	)
 	defer session.End()
 
