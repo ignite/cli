@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- [#4731](https://github.com/ignite/cli/pull/4731) Complete IBC v2 wiring.
+
 ### Changes
 
 - [#4717](https://github.com/ignite/cli/pull/4717) Bump Cosmos SDK to `v0.53.2`.
