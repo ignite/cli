@@ -8,7 +8,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/env"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/xfilepath"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/pkg/xgit"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
 )
@@ -147,10 +146,9 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	runner := xgenny.NewRunner(cmd.Context(), appPath)
 	appDir, goModule, err := scaffolder.Init(
+		cmd.Context(),
 		session,
-		runner,
 		appPath,
 		name,
 		addressPrefix,
@@ -168,10 +166,6 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 
 	path, err := xfilepath.RelativePath(appDir)
 	if err != nil {
-		return err
-	}
-
-	if _, err := runner.ApplyModifications(xgenny.ApplyPreRun(scaffolder.AskOverwriteFiles(session))); err != nil {
 		return err
 	}
 

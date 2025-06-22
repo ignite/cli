@@ -1,6 +1,7 @@
 package scaffolder
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -16,8 +17,8 @@ import (
 
 // Init initializes a new app with name and given options.
 func Init(
+	ctx context.Context,
 	session *cliui.Session,
-	runner *xgenny.Runner,
 	root, name, addressPrefix string,
 	coinType uint32,
 	defaultDenom, protoDir string,
@@ -52,8 +53,8 @@ func Init(
 	)
 	// create the project
 	_, err = generate(
+		ctx,
 		session,
-		runner,
 		pathInfo,
 		addressPrefix,
 		coinType,
@@ -69,8 +70,8 @@ func Init(
 }
 
 func generate(
+	ctx context.Context,
 	session *cliui.Session,
-	runner *xgenny.Runner,
 	pathInfo gomodulepath.Path,
 	addressPrefix string,
 	coinType uint32,
@@ -115,8 +116,7 @@ func generate(
 	}
 
 	// generate module template
-	runner.Root = absRoot
-	smc, err := runner.RunAndApply(g, xgenny.ApplyPreRun(AskOverwriteFiles(session)))
+	smc, err := xgenny.NewRunner(ctx, absRoot).RunAndApply(g, xgenny.ApplyPreRun(AskOverwriteFiles(session)))
 	if err != nil {
 		return smc, err
 	}
@@ -142,6 +142,7 @@ func generate(
 			return smc, err
 		}
 
+		runner := xgenny.NewRunner(ctx, absRoot)
 		if err := runner.Run(g, modulecreate.NewAppModify(runner.Tracer(), opts)); err != nil {
 			return smc, err
 		}

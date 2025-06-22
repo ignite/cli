@@ -35,9 +35,7 @@ func NewRunner(ctx context.Context, root string) *Runner {
 		tracer:  placeholder.New(),
 		results: make([]genny.File, 0),
 	}
-	runner.FileFn = func(f genny.File) (genny.File, error) {
-		return wetFileFn(r, f)
-	}
+	runner.FileFn = wetFileFn(r)
 	return r
 }
 
@@ -151,47 +149,48 @@ func (r *Runner) Run(gens ...*genny.Generator) error {
 		}
 	}
 	r.results = append(r.results, r.Results().Files...)
-	r.Runner = genny.WetRunner(r.ctx)
 	return r.tracer.Err()
 }
 
-func wetFileFn(runner *Runner, f genny.File) (genny.File, error) {
-	if d, ok := f.(genny.Dir); ok {
-		if err := os.MkdirAll(d.Name(), d.Perm); err != nil {
-			return f, err
+func wetFileFn(runner *Runner) func(genny.File) (genny.File, error) {
+	return func(f genny.File) (genny.File, error) {
+		if d, ok := f.(genny.Dir); ok {
+			if err := os.MkdirAll(d.Name(), d.Perm); err != nil {
+				return f, err
+			}
+			return d, nil
 		}
-		return d, nil
-	}
 
-	var err error
-	if !filepath.IsAbs(runner.Root) {
-		runner.Root, err = filepath.Abs(runner.Root)
+		var err error
+		if !filepath.IsAbs(runner.Root) {
+			runner.Root, err = filepath.Abs(runner.Root)
+			if err != nil {
+				return f, err
+			}
+		}
+
+		name := f.Name()
+		if !filepath.IsAbs(name) {
+			name = filepath.Join(runner.Root, name)
+		}
+		relPath, err := filepath.Rel(runner.Root, name)
 		if err != nil {
 			return f, err
 		}
-	}
 
-	name := f.Name()
-	if !filepath.IsAbs(name) {
-		name = filepath.Join(runner.Root, name)
+		dstPath := filepath.Join(runner.tmpPath, relPath)
+		dir := filepath.Dir(dstPath)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			return f, err
+		}
+		ff, err := os.Create(dstPath)
+		if err != nil {
+			return f, err
+		}
+		defer ff.Close()
+		if _, err := io.Copy(ff, f); err != nil {
+			return f, err
+		}
+		return f, nil
 	}
-	relPath, err := filepath.Rel(runner.Root, name)
-	if err != nil {
-		return f, err
-	}
-
-	dstPath := filepath.Join(runner.tmpPath, relPath)
-	dir := filepath.Dir(dstPath)
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return f, err
-	}
-	ff, err := os.Create(dstPath)
-	if err != nil {
-		return f, err
-	}
-	defer ff.Close()
-	if _, err := io.Copy(ff, f); err != nil {
-		return f, err
-	}
-	return f, nil
 }
