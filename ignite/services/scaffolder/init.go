@@ -116,13 +116,7 @@ func generate(
 
 	// generate module template
 	runner.Root = absRoot
-	smc, err := runner.RunAndApply(g, xgenny.ApplyPreRun(func(_, _, duplicated []string) error {
-		if len(duplicated) == 0 {
-			return nil
-		}
-		question := fmt.Sprintf("Do you want to overwrite the existing files? \n%s", strings.Join(duplicated, "\n"))
-		return session.AskConfirm(question)
-	}))
+	smc, err := runner.RunAndApply(g, xgenny.ApplyPreRun(AskOverwriteFiles(session)))
 	if err != nil {
 		return smc, err
 	}
@@ -152,13 +146,7 @@ func generate(
 			return smc, err
 		}
 		// generate module template
-		smm, err := runner.ApplyModifications(xgenny.ApplyPreRun(func(_, _, duplicated []string) error {
-			if len(duplicated) == 0 {
-				return nil
-			}
-			question := fmt.Sprintf("Do you want to overwrite the existing files? \n%s", strings.Join(duplicated, "\n"))
-			return session.AskConfirm(question)
-		}))
+		smm, err := runner.ApplyModifications(xgenny.ApplyPreRun(AskOverwriteFiles(session)))
 		if err != nil {
 			return smc, err
 		}
@@ -166,4 +154,14 @@ func generate(
 	}
 
 	return smc, err
+}
+
+func AskOverwriteFiles(session *cliui.Session) func(_, _, _ []string) error {
+	return func(_, _, duplicated []string) error {
+		if len(duplicated) == 0 {
+			return nil
+		}
+		question := fmt.Sprintf("Do you want to overwrite the existing files? \n%s", strings.Join(duplicated, "\n"))
+		return session.AskConfirm(question)
+	}
 }

@@ -191,13 +191,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	sm, err := sc.ApplyModifications(xgenny.ApplyPreRun(func(_, _, duplicated []string) error {
-		if len(duplicated) == 0 {
-			return nil
-		}
-		question := fmt.Sprintf("Do you want to overwrite the existing files? \n%s", strings.Join(duplicated, "\n"))
-		return session.AskConfirm(question)
-	}))
+	sm, err := sc.ApplyModifications(xgenny.ApplyPreRun(scaffolder.AskOverwriteFiles(session)))
 	if err != nil {
 		return err
 	}
