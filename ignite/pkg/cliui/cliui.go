@@ -36,6 +36,7 @@ type Session struct {
 	out     uilog.Output
 	wg      *sync.WaitGroup
 	ended   bool
+	skipUI  bool
 }
 
 // Option configures session options.
@@ -92,6 +93,12 @@ func StartSpinnerWithText(text string) Option {
 	return func(s *Session) {
 		s.options.spinnerStart = true
 		s.options.spinnerText = text
+	}
+}
+
+func WithoutUserInteraction(yes bool) Option {
+	return func(s *Session) {
+		s.skipUI = yes
 	}
 }
 
@@ -238,15 +245,24 @@ func (s Session) Print(messages ...interface{}) error {
 
 // Ask asks questions in the terminal and collect answers.
 func (s Session) Ask(questions ...bubbleconfirm.Question) error {
+	// If the flag yes was set true, we skip the user interaction
+	if s.skipUI {
+		return nil
+	}
 	defer s.PauseSpinner()()
 	// TODO provide writer from the session
 	return bubbleconfirm.Ask(questions...)
 }
 
-// AskConfirm asks a yes/no question using a bubbletea dialog.
+// ErrAbort is returned when the user aborts the operation.
 var ErrAbort = errors.New("aborted or not confirmed")
 
+// AskConfirm asks a yes/no question using a bubbletea dialog.
 func (s Session) AskConfirm(message string) error {
+	if s.skipUI {
+		return nil
+	}
+
 	defer s.PauseSpinner()()
 
 	// Create and run the bubbletea program

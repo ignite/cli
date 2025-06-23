@@ -47,7 +47,10 @@ changes when the blockchain is started with a flag:
 }
 
 func generateTSClientHandler(cmd *cobra.Command, _ []string) error {
-	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
+	session := cliui.New(
+		cliui.StartSpinnerWithText(statusGenerating),
+		cliui.WithoutUserInteraction(getYes(cmd)),
+	)
 	defer session.End()
 
 	if !getYes(cmd) {

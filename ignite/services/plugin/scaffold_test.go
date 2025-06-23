@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 
+	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
 	"github.com/ignite/cli/v29/ignite/services/plugin"
 )
@@ -21,7 +22,8 @@ func TestScaffold(t *testing.T) {
 	ctx := context.Background()
 
 	// Act
-	path, err := plugin.Scaffold(ctx, tmp, fooBarAppURI, false)
+	session := cliui.New(cliui.WithoutUserInteraction(true))
+	path, err := plugin.Scaffold(ctx, session, tmp, fooBarAppURI, false)
 
 	// Assert
 	require.NoError(t, err)
@@ -64,7 +66,8 @@ func TestScaffoldedTests(t *testing.T) {
 func scaffoldApp(ctx context.Context, t *testing.T, path string) string {
 	t.Helper()
 
-	path, err := plugin.Scaffold(ctx, t.TempDir(), path, false)
+	session := cliui.New(cliui.WithoutUserInteraction(true))
+	path, err := plugin.Scaffold(ctx, session, t.TempDir(), path, false)
 	require.NoError(t, err)
 	return path
 }

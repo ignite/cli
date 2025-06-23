@@ -18,7 +18,7 @@ func Test<%= Title %>(t *testing.T) {
 	var (
 		require = require.New(t)
 		env     = envtest.New(t)
-		app     = env.Scaffold("<%= AppName %>-app")
+		app     = env.ScaffoldApp("<%= AppName %>-app")
 	)
 
 	dir, err := os.Getwd()
