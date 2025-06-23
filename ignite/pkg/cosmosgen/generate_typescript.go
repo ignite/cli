@@ -61,9 +61,7 @@ func (g *generator) generateTS(ctx context.Context) error {
 
 	// add third party modules to for the root template.
 	for _, modules := range g.thirdModules {
-		for _, m := range modules {
-			data.Modules = append(data.Modules, m)
-		}
+		data.Modules = append(data.Modules, modules...)
 	}
 
 	return tsg.generateRootTemplates(data)
