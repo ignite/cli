@@ -1,6 +1,7 @@
 package cosmosgen
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -42,7 +43,7 @@ func TestGenerateTypeScript(t *testing.T) {
 			tsClientRootPath: tsClientDir,
 			useCache:         false,
 			jsOut: func(m module.Module) string {
-				return filepath.Join(tsClientDir, strcase.ToKebab(m.Name))
+				return filepath.Join(tsClientDir, fmt.Sprintf("%s.%s.%s", "ignite", "planet", strcase.ToKebab(m.Name)))
 			},
 		},
 	})
