@@ -97,7 +97,7 @@ func (r *Runner) ApplyModifications(options ...ApplyOption) (SourceModification,
 		return sm, nil
 	}
 
-	duplicatedFiles, err := xos.ValidateFolderCopy(r.tmpPath, r.Root)
+	duplicatedFiles, err := xos.ValidateFolderCopy(r.tmpPath, r.Root, sm.ModifiedFiles()...)
 	if err != nil {
 		return sm, err
 	}
@@ -141,7 +141,7 @@ func (r *Runner) RunAndApply(gens *genny.Generator, options ...ApplyOption) (Sou
 func (r *Runner) Run(gens ...*genny.Generator) error {
 	// execute the modification with a wet runner
 	for _, gen := range gens {
-		if err := r.With(gen); err != nil {
+		if err := r.Runner.With(gen); err != nil {
 			return err
 		}
 		if err := r.Runner.Run(); err != nil {

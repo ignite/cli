@@ -148,7 +148,6 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 
 	appDir, goModule, err := scaffolder.Init(
 		cmd.Context(),
-		session,
 		appPath,
 		name,
 		addressPrefix,

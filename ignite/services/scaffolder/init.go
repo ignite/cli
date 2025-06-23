@@ -18,7 +18,6 @@ import (
 // Init initializes a new app with name and given options.
 func Init(
 	ctx context.Context,
-	session *cliui.Session,
 	root, name, addressPrefix string,
 	coinType uint32,
 	defaultDenom, protoDir string,
@@ -54,7 +53,6 @@ func Init(
 	// create the project
 	_, err = generate(
 		ctx,
-		session,
 		pathInfo,
 		addressPrefix,
 		coinType,
@@ -71,7 +69,6 @@ func Init(
 
 func generate(
 	ctx context.Context,
-	session *cliui.Session,
 	pathInfo gomodulepath.Path,
 	addressPrefix string,
 	coinType uint32,
@@ -99,7 +96,7 @@ func generate(
 		githubPath = fmt.Sprintf("username/%s", githubPath)
 	}
 
-	g, err := app.NewGenerator(&app.Options{
+	appGen, err := app.NewGenerator(&app.Options{
 		// generate application template
 		ModulePath:       pathInfo.RawPath,
 		AppName:          pathInfo.Package,
@@ -116,7 +113,7 @@ func generate(
 	}
 
 	// generate module template
-	smc, err := xgenny.NewRunner(ctx, absRoot).RunAndApply(g, xgenny.ApplyPreRun(AskOverwriteFiles(session)))
+	smc, err := xgenny.NewRunner(ctx, absRoot).RunAndApply(appGen)
 	if err != nil {
 		return smc, err
 	}
@@ -137,17 +134,17 @@ func generate(
 			return smc, err
 		}
 
-		g, err = modulecreate.NewGenerator(opts)
+		moduleGen, err := modulecreate.NewGenerator(opts)
 		if err != nil {
 			return smc, err
 		}
 
 		runner := xgenny.NewRunner(ctx, absRoot)
-		if err := runner.Run(g, modulecreate.NewAppModify(runner.Tracer(), opts)); err != nil {
+		if err := runner.Run(moduleGen, modulecreate.NewAppModify(runner.Tracer(), opts)); err != nil {
 			return smc, err
 		}
 		// generate module template
-		smm, err := runner.ApplyModifications(xgenny.ApplyPreRun(AskOverwriteFiles(session)))
+		smm, err := runner.ApplyModifications()
 		if err != nil {
 			return smc, err
 		}

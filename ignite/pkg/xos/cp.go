@@ -48,7 +48,7 @@ func CopyFolder(srcPath, dstPath string) error {
 
 // ValidateFolderCopy validates that all files in source folder exist in destination folder
 // with same name and relative path.
-func ValidateFolderCopy(srcPath, dstPath string) ([]string, error) {
+func ValidateFolderCopy(srcPath, dstPath string, exclude ...string) ([]string, error) {
 	if srcPath == dstPath {
 		return nil, errors.Errorf("source and destination paths are the same %s", srcPath)
 	}
@@ -60,6 +60,11 @@ func ValidateFolderCopy(srcPath, dstPath string) ([]string, error) {
 		return nil, err
 	}
 
+	excludeMap := make(map[string]struct{}, len(exclude))
+	for _, ex := range exclude {
+		excludeMap[ex] = struct{}{}
+	}
+
 	var sameFiles []string
 	err := filepath.Walk(srcPath, func(path string, info os.FileInfo, err error) error {
 		if errors.Is(err, os.ErrNotExist) {
@@ -69,8 +74,8 @@ func ValidateFolderCopy(srcPath, dstPath string) ([]string, error) {
 			return err
 		}
 
-		// Skip the root folder
-		if path == srcPath {
+		// Skip dirs
+		if info.IsDir() {
 			return nil
 		}
 
@@ -78,6 +83,11 @@ func ValidateFolderCopy(srcPath, dstPath string) ([]string, error) {
 		relativePath, err := filepath.Rel(srcPath, path)
 		if err != nil {
 			return err
+		}
+
+		// Skip excluded files
+		if _, ok := excludeMap[relativePath]; ok {
+			return nil
 		}
 
 		// Create the corresponding destination path
