@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/v29/ignite/pkg/xos"
@@ -163,6 +165,100 @@ func TestCopyFile(t *testing.T) {
 			require.NoError(t, err)
 			require.NoError(t, destFile.Close())
 			require.Equal(t, tt.expectedBytes, destFileInfo.Size())
+		})
+	}
+}
+
+func TestValidateFolderCopy(t *testing.T) {
+	tempDir, err := os.MkdirTemp("", "TestValidateFolderCopy")
+	require.NoError(t, err)
+	t.Cleanup(func() {
+		require.NoError(t, os.RemoveAll(tempDir))
+	})
+
+	// Create source and destination directories and files
+	var (
+		srcPath         = filepath.Join(tempDir, "source")
+		srcFile         = filepath.Join(srcPath, "test.txt")
+		dstPath         = filepath.Join(tempDir, "destination")
+		dstFile         = filepath.Join(dstPath, "test.txt")
+		emptyPath       = filepath.Join(tempDir, "empty")
+		nonExistentPath = filepath.Join(tempDir, "nonexistent")
+	)
+
+	err = os.MkdirAll(srcPath, 0o755)
+	require.NoError(t, err)
+	err = os.MkdirAll(dstPath, 0o755)
+	require.NoError(t, err)
+	err = os.MkdirAll(emptyPath, 0o755)
+	require.NoError(t, err)
+	err = os.WriteFile(srcFile, []byte("source test"), 0o644)
+	require.NoError(t, err)
+	err = os.WriteFile(dstFile, []byte("destination test"), 0o644)
+	require.NoError(t, err)
+
+	type args struct {
+		srcPath string
+		dstPath string
+	}
+	tests := []struct {
+		name string
+		args args
+		want []string
+		err  error
+	}{
+		{
+			name: "valid paths",
+			args: args{
+				srcPath: srcPath,
+				dstPath: dstPath,
+			},
+			want: []string{"test.txt"},
+		},
+		{
+			name: "same source and destination",
+			args: args{
+				srcPath: srcPath,
+				dstPath: srcPath,
+			},
+			want: []string{},
+			err:  errors.Errorf("source and destination paths are the same %s", srcPath),
+		},
+		{
+			name: "empty directory",
+			args: args{
+				srcPath: emptyPath,
+				dstPath: dstPath,
+			},
+			want: []string{},
+		},
+		{
+			name: "non existent source",
+			args: args{
+				srcPath: nonExistentPath,
+				dstPath: dstPath,
+			},
+			err: errors.Errorf("source path does not exist: %s", nonExistentPath),
+		},
+		{
+			name: "non existent destination",
+			args: args{
+				srcPath: srcPath,
+				dstPath: nonExistentPath,
+			},
+			err: errors.Errorf("destination path does not exist: %s", nonExistentPath),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := xos.ValidateFolderCopy(tt.args.srcPath, tt.args.dstPath)
+			if tt.err != nil {
+				require.Error(t, err)
+				require.Equal(t, err.Error(), tt.err.Error())
+				return
+			}
+			require.NoError(t, err)
+			require.ElementsMatch(t, tt.want, got)
 		})
 	}
 }

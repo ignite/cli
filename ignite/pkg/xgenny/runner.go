@@ -35,9 +35,7 @@ func NewRunner(ctx context.Context, root string) *Runner {
 		tracer:  placeholder.New(),
 		results: make([]genny.File, 0),
 	}
-	runner.FileFn = func(f genny.File) (genny.File, error) {
-		return wetFileFn(r, f)
-	}
+	runner.FileFn = wetFileFn(r)
 	return r
 }
 
@@ -45,8 +43,40 @@ func (r *Runner) Tracer() *placeholder.Tracer {
 	return r.tracer
 }
 
+type (
+	OverwriteCallback func(_, _, duplicated []string) error
+
+	// ApplyOption holds the ApplyModifications options.
+	applyOptions struct {
+		preRun  OverwriteCallback
+		postRun OverwriteCallback
+	}
+
+	// ApplyOption configures the ApplyModifications options.
+	ApplyOption func(r *applyOptions)
+)
+
+// ApplyPreRun sets pre-runner for the ApplyModifications function.
+func ApplyPreRun(preRun OverwriteCallback) ApplyOption {
+	return func(o *applyOptions) {
+		o.preRun = preRun
+	}
+}
+
+// ApplyPostRun sets pos-runner for the ApplyModifications function.
+func ApplyPostRun(postRun OverwriteCallback) ApplyOption {
+	return func(o *applyOptions) {
+		o.postRun = postRun
+	}
+}
+
 // ApplyModifications copy all modifications from the temporary folder to the target path.
-func (r *Runner) ApplyModifications() (SourceModification, error) {
+func (r *Runner) ApplyModifications(options ...ApplyOption) (SourceModification, error) {
+	opts := applyOptions{}
+	for _, apply := range options {
+		apply(&opts)
+	}
+
 	// fetch the source modification
 	sm := NewSourceModification()
 	for _, file := range r.results {
@@ -67,31 +97,51 @@ func (r *Runner) ApplyModifications() (SourceModification, error) {
 		return sm, nil
 	}
 
-	// Create the target path and copy the content from the temporary folder.
-	if err := os.MkdirAll(r.Root, os.ModePerm); err != nil {
-		return sm, nil
-	}
-	err := xos.CopyFolder(r.tmpPath, r.Root)
+	duplicatedFiles, err := xos.ValidateFolderCopy(r.tmpPath, r.Root, sm.ModifiedFiles()...)
 	if err != nil {
-		return sm, nil
+		return sm, err
 	}
 
-	return sm, os.RemoveAll(r.tmpPath)
+	if opts.preRun != nil {
+		if err := opts.preRun(sm.CreatedFiles(), sm.ModifiedFiles(), duplicatedFiles); err != nil {
+			return sm, err
+		}
+	}
+
+	// Create the target path and copy the content from the temporary folder.
+	if err := os.MkdirAll(r.Root, os.ModePerm); err != nil {
+		return sm, err
+	}
+
+	if err := xos.CopyFolder(r.tmpPath, r.Root); err != nil {
+		return sm, err
+	}
+
+	if err := os.RemoveAll(r.tmpPath); err != nil {
+		return sm, err
+	}
+
+	if opts.postRun != nil {
+		if err := opts.postRun(sm.CreatedFiles(), sm.ModifiedFiles(), duplicatedFiles); err != nil {
+			return sm, err
+		}
+	}
+	return sm, nil
 }
 
 // RunAndApply run the generators and apply the modifications to the target path.
-func (r *Runner) RunAndApply(gens ...*genny.Generator) (SourceModification, error) {
-	if err := r.Run(gens...); err != nil {
+func (r *Runner) RunAndApply(gens *genny.Generator, options ...ApplyOption) (SourceModification, error) {
+	if err := r.Run(gens); err != nil {
 		return SourceModification{}, err
 	}
-	return r.ApplyModifications()
+	return r.ApplyModifications(options...)
 }
 
 // Run all generators into a temp folder for we can apply the modifications later.
 func (r *Runner) Run(gens ...*genny.Generator) error {
 	// execute the modification with a wet runner
 	for _, gen := range gens {
-		if err := r.With(gen); err != nil {
+		if err := r.Runner.With(gen); err != nil {
 			return err
 		}
 		if err := r.Runner.Run(); err != nil {
@@ -102,43 +152,45 @@ func (r *Runner) Run(gens ...*genny.Generator) error {
 	return r.tracer.Err()
 }
 
-func wetFileFn(runner *Runner, f genny.File) (genny.File, error) {
-	if d, ok := f.(genny.Dir); ok {
-		if err := os.MkdirAll(d.Name(), d.Perm); err != nil {
-			return f, err
+func wetFileFn(runner *Runner) func(genny.File) (genny.File, error) {
+	return func(f genny.File) (genny.File, error) {
+		if d, ok := f.(genny.Dir); ok {
+			if err := os.MkdirAll(d.Name(), d.Perm); err != nil {
+				return f, err
+			}
+			return d, nil
 		}
-		return d, nil
-	}
 
-	var err error
-	if !filepath.IsAbs(runner.Root) {
-		runner.Root, err = filepath.Abs(runner.Root)
+		var err error
+		if !filepath.IsAbs(runner.Root) {
+			runner.Root, err = filepath.Abs(runner.Root)
+			if err != nil {
+				return f, err
+			}
+		}
+
+		name := f.Name()
+		if !filepath.IsAbs(name) {
+			name = filepath.Join(runner.Root, name)
+		}
+		relPath, err := filepath.Rel(runner.Root, name)
 		if err != nil {
 			return f, err
 		}
-	}
 
-	name := f.Name()
-	if !filepath.IsAbs(name) {
-		name = filepath.Join(runner.Root, name)
+		dstPath := filepath.Join(runner.tmpPath, relPath)
+		dir := filepath.Dir(dstPath)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			return f, err
+		}
+		ff, err := os.Create(dstPath)
+		if err != nil {
+			return f, err
+		}
+		defer ff.Close()
+		if _, err := io.Copy(ff, f); err != nil {
+			return f, err
+		}
+		return f, nil
 	}
-	relPath, err := filepath.Rel(runner.Root, name)
-	if err != nil {
-		return f, err
-	}
-
-	dstPath := filepath.Join(runner.tmpPath, relPath)
-	dir := filepath.Dir(dstPath)
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return f, err
-	}
-	ff, err := os.Create(dstPath)
-	if err != nil {
-		return f, err
-	}
-	defer ff.Close()
-	if _, err := io.Copy(ff, f); err != nil {
-		return f, err
-	}
-	return f, nil
 }

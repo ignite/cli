@@ -83,7 +83,7 @@ production, you may want to run "appd start" manually.
 }
 
 func chainServeHandler(cmd *cobra.Command, _ []string) error {
-	var options []cliui.Option
+	options := []cliui.Option{cliui.WithoutUserInteraction(getYes(cmd))}
 
 	// Session must not handle events when the verbosity is the default
 	// to allow render of the UI and events using bubbletea. The custom

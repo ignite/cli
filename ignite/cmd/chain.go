@@ -105,7 +105,7 @@ chain.
 }
 
 func preRunHandler(cmd *cobra.Command, _ []string) error {
-	session := cliui.New()
+	session := cliui.New(cliui.WithoutUserInteraction(getYes(cmd)))
 	defer session.End()
 
 	appPath, err := goModulePath(cmd)
