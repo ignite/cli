@@ -3,6 +3,7 @@ package cosmosgen
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/ettle/strcase"
@@ -38,7 +39,8 @@ func TestGenerateTypeScript(t *testing.T) {
 		buf:          buf,
 		appModules:   m,
 		opts: &generateOptions{
-			useCache: false,
+			tsClientRootPath: tsClientDir,
+			useCache:         false,
 			jsOut: func(m module.Module) string {
 				return filepath.Join(tsClientDir, strcase.ToKebab(m.Name))
 			},
@@ -47,6 +49,12 @@ func TestGenerateTypeScript(t *testing.T) {
 
 	err = g.generateModuleTemplate(t.Context(), appDir, m[0])
 	require.NoError(err, "failed to generate TypeScript files")
+
+	err = g.generateRootTemplates(generatePayload{
+		Modules:   m,
+		PackageNS: strings.ReplaceAll(appDir, "/", "-"),
+	})
+	require.NoError(err)
 
 	// compare all generated files to golden files
 	goldenDir := filepath.Join(testdataDir, "expected_files", "ts-client")
