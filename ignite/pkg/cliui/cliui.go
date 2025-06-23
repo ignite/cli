@@ -254,7 +254,7 @@ func (s Session) Ask(questions ...bubbleconfirm.Question) error {
 	return bubbleconfirm.Ask(questions...)
 }
 
-// ErrAbort is returned when the user aborts the operation
+// ErrAbort is returned when the user aborts the operation.
 var ErrAbort = errors.New("aborted or not confirmed")
 
 // AskConfirm asks a yes/no question using a bubbletea dialog.
