@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// NewChainModules returns a the modules command.
+// NewChainModules returns the modules command.
 func NewChainModules() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "modules",

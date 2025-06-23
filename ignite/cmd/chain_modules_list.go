@@ -109,7 +109,7 @@ func NewChainModulesList() *cobra.Command {
 	return c
 }
 
-var (
+const (
 	cosmosSDKModulePrefix = "github.com/cosmos/cosmos-sdk"
 	ibcModulePrefix       = "github.com/cosmos/ibc-go"
 )
