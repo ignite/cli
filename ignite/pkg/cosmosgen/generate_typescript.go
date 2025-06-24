@@ -150,7 +150,6 @@ func (g *tsGenerator) generateModuleTemplate(
 		g.g.tsTemplate(),
 		cosmosbuf.IncludeWKT(),
 		cosmosbuf.WithModuleName(m.Pkg.Name),
-		// TODO: we should exclude folders that are irrelevant for the module.
 	); err != nil {
 		return err
 	}
