@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [`v29.1.0`](https://github.com/ignite/cli/releases/tag/v29.1.0)
+
 ### Features
 
 - [#4728](https://github.com/ignite/cli/pull/4728) Ask before overwriting a `xgenny` file.
