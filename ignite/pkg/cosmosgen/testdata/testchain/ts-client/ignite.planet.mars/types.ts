@@ -1,4 +1,4 @@
-import { AnotherType } from "./types/planet/mars/mars"
+import { AnotherType } from "./types/ignite/planet/mars/mars"
 
 
 export {     

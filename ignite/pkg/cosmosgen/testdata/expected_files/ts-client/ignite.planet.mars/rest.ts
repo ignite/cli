@@ -1,15 +1,15 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, ResponseType } from "axios";
-import { QuerySimpleResponse } from "./types/planet/mars/mars";
-import { QuerySimpleParamsResponse } from "./types/planet/mars/mars";
-import { QueryWithPaginationResponse } from "./types/planet/mars/mars";
-import { QueryWithQueryParamsResponse } from "./types/planet/mars/mars";
-import { QueryWithQueryParamsWithPaginationResponse } from "./types/planet/mars/mars";
+import { QuerySimpleResponse } from "./types/ignite/planet/mars/mars";
+import { QuerySimpleParamsResponse } from "./types/ignite/planet/mars/mars";
+import { QueryWithPaginationResponse } from "./types/ignite/planet/mars/mars";
+import { QueryWithQueryParamsResponse } from "./types/ignite/planet/mars/mars";
+import { QueryWithQueryParamsWithPaginationResponse } from "./types/ignite/planet/mars/mars";
 
-import { QuerySimpleRequest } from "./types/planet/mars/mars";
-import { QuerySimpleParamsRequest } from "./types/planet/mars/mars";
-import { QueryWithPaginationRequest } from "./types/planet/mars/mars";
-import { QueryWithQueryParamsRequest } from "./types/planet/mars/mars";
-import { QueryWithQueryParamsWithPaginationRequest } from "./types/planet/mars/mars";
+import { QuerySimpleRequest } from "./types/ignite/planet/mars/mars";
+import { QuerySimpleParamsRequest } from "./types/ignite/planet/mars/mars";
+import { QueryWithPaginationRequest } from "./types/ignite/planet/mars/mars";
+import { QueryWithQueryParamsRequest } from "./types/ignite/planet/mars/mars";
+import { QueryWithQueryParamsWithPaginationRequest } from "./types/ignite/planet/mars/mars";
 
 
 import type {SnakeCasedPropertiesDeep} from 'type-fest';
