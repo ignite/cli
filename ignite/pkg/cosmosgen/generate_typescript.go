@@ -59,6 +59,11 @@ func (g *generator) generateTS(ctx context.Context) error {
 		return err
 	}
 
+	// add third party modules to for the root template.
+	for _, modules := range g.thirdModules {
+		data.Modules = append(data.Modules, modules...)
+	}
+
 	return tsg.generateRootTemplates(data)
 }
 
@@ -132,6 +137,7 @@ func (g *tsGenerator) generateModuleTemplate(
 	// All "cosmossdk.io" module packages must use SDK's
 	// proto path which is where the proto files are stored.
 	protoPath := filepath.Join(appPath, g.g.protoDir) // use module app path
+
 	if module.IsCosmosSDKPackage(appPath) {
 		protoPath = filepath.Join(g.g.sdkDir, "proto")
 	}
@@ -144,7 +150,7 @@ func (g *tsGenerator) generateModuleTemplate(
 		g.g.tsTemplate(),
 		cosmosbuf.ExcludeFiles("module.proto"),
 		cosmosbuf.IncludeWKT(),
-		// TODO: we should exclude folders that are irrelevant for the module.
+		cosmosbuf.WithModuleName(m.Pkg.Name),
 	); err != nil {
 		return err
 	}
