@@ -17,6 +17,7 @@
 ### Fixes
 
 - [#4691](https://github.com/ignite/cli/pull/4691), [#4706](https://github.com/ignite/cli/pull/4706), [#4725](https://github.com/ignite/cli/pull/4725), [#4737](https://github.com/ignite/cli/pull/4737) Fix ts-client query template and solely Go template for `ts-client` generation.
+- [#4742](https://github.com/ignite/cli/pull/4742) Updates Vue composables template for new ts-client and tanstack/vue-query v5
 
 ## [`v29.0.0`](https://github.com/ignite/cli/releases/tag/v29.0.0)
 
