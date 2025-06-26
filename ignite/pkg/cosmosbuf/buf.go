@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	"github.com/gobwas/glob"
 	"golang.org/x/sync/errgroup"
@@ -212,11 +213,7 @@ func (b Buf) Generate(
 		modulePath = filepath.Join(path...)
 	}
 	// find all proto files into the path.
-<<<<<<< HEAD
-	foundFiles, err := xos.FindFilesExtension(protoPath, xos.ProtoFile)
-=======
-	foundFiles, err := xos.FindFiles(modulePath, xos.WithExtension(xos.ProtoFile))
->>>>>>> 842b3e94 (feat(cosmogen): implement 3rd party generation root template (#4737))
+	foundFiles, err := xos.FindFilesExtension(modulePath, xos.ProtoFile)
 	if err != nil || len(foundFiles) == 0 {
 		return err
 	}

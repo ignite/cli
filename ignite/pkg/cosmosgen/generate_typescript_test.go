@@ -1,11 +1,8 @@
 package cosmosgen
 
 import (
-<<<<<<< HEAD
 	"context"
-=======
 	"fmt"
->>>>>>> 842b3e94 (feat(cosmogen): implement 3rd party generation root template (#4737))
 	"os"
 	"path/filepath"
 	"strings"
