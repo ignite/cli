@@ -1,8 +1,15 @@
 package cosmosgen
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
+	"github.com/ignite/cli/v29/ignite/pkg/cache"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
+	"github.com/ignite/cli/v29/ignite/pkg/dirchange"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/stretchr/testify/require"
 )
 
@@ -54,4 +61,48 @@ func Test_extractRootModulePath(t *testing.T) {
 			require.Equal(t, tt.want, got)
 		})
 	}
+}
+
+func TestGenerateOpenAPI(t *testing.T) {
+	require := require.New(t)
+	testdataDir := "testdata"
+	appDir := filepath.Join(testdataDir, "testchain")
+	openAPIFile := filepath.Join(appDir, "docs", "static", "openapi.yml")
+
+	cacheStorage, err := cache.NewStorage(filepath.Join(t.TempDir(), "cache.db"))
+	require.NoError(err)
+
+	buf, err := cosmosbuf.New(cacheStorage, t.Name())
+	require.NoError(err)
+
+	// Use module discovery to collect test module proto.
+	m, err := module.Discover(t.Context(), appDir, appDir, module.WithProtoDir("proto"))
+	require.NoError(err, "failed to discover module")
+	require.Len(m, 1, "expected exactly one module to be discovered")
+
+	g := &generator{
+		appPath:      appDir,
+		protoDir:     "proto",
+		goModPath:    "go.mod",
+		cacheStorage: cacheStorage,
+		buf:          buf,
+		appModules:   m,
+		opts: &generateOptions{
+			specOut: openAPIFile,
+		},
+	}
+
+	err = g.generateOpenAPISpec(t.Context())
+	if err != nil && !errors.Is(err, dirchange.ErrNoFile) {
+		require.NoError(err, "failed to generate OpenAPI spec")
+	}
+
+	// compare generated OpenAPI spec with golden files
+	goldenFile := filepath.Join(testdataDir, "expected_files", "openapi", "openapi.yml")
+	gold, err := os.ReadFile(goldenFile)
+	require.NoError(err, "failed to read golden file: %s", goldenFile)
+
+	gotBytes, err := os.ReadFile(openAPIFile)
+	require.NoError(err, "failed to read generated file: %s", openAPIFile)
+	require.Equal(string(gold), string(gotBytes), "generated OpenAPI spec does not match golden file")
 }
