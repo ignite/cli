@@ -7,6 +7,7 @@
 ### Features
 
 - [#4728](https://github.com/ignite/cli/pull/4728) Ask before overwriting a `xgenny` file.
+- [#4731](https://github.com/ignite/cli/pull/4731) Complete IBC v2 wiring.
 - [#4732](https://github.com/ignite/cli/pull/4732) Add `ignite chain modules list` command to list all modules in the chain.
 
 ### Changes
