@@ -2,43 +2,14 @@
 
 ## Unreleased
 
-## [`v29.1.0`](https://github.com/ignite/cli/releases/tag/v29.1.0)
-
-### Features
-
-- [#4728](https://github.com/ignite/cli/pull/4728) Ask before overwriting a `xgenny` file.
-- [#4732](https://github.com/ignite/cli/pull/4732) Add `ignite chain modules list` command to list all modules in the chain.
-
 ### Changes
 
 - [#4718](https://github.com/ignite/cli/pull/4718) Bump default Ignite Apps.
 
 ### Fixes
 
-- [#4691](https://github.com/ignite/cli/pull/4691), [#4706](https://github.com/ignite/cli/pull/4706), [#4725](https://github.com/ignite/cli/pull/4725), [#4737](https://github.com/ignite/cli/pull/4737) Fix ts-client query template and solely Go template for `ts-client` generation.
-
-## [`v29.0.0`](https://github.com/ignite/cli/releases/tag/v29.0.0)
-
-### Features
-
-- [#4614](https://github.com/ignite/cli/pull/4614) Improve integration tests and add query tests.
-- [#4683](https://github.com/ignite/cli/pull/4683) Allow to change default denom via flag.
-- [#4687](https://github.com/ignite/cli/pull/4687) Add address type with `scalar` annotations, and add `scalar` type to signer field.
-
-### Changes
-
-- [#4689](https://github.com/ignite/cli/pull/4689) Revert `HasGenesis` implementation from retracted `core` v1 to SDK `HasGenesis` interface.
-- [#4701](https://github.com/ignite/cli/pull/4701) Improve `ignite doctor` by removing manual migration step. Additionally, remove protoc to buf migrations logic.
-- [#4703](https://github.com/ignite/cli/pull/4703) Remove testutil.Register function.
-- [#4702](https://github.com/ignite/cli/pull/4702) Improve app detection by checking for inheritance instead of interface implementation.
-- [#4707](https://github.com/ignite/cli/pull/4707) Show `buf` version in `ignite version` only when in a go module.
-- [#4709](https://github.com/ignite/cli/pull/4709) Remove legacy msgServer support
-- [#4710](https://github.com/ignite/cli/pull/4710) Remove the `nullify` pkg from the chain `testutil`
-
-### Fixes
-
 - [#4686](https://github.com/ignite/cli/pull/4686) Filter discovered protos to only messages.
-- [#4691](https://github.com/ignite/cli/pull/4691), [#4706](https://github.com/ignite/cli/pull/4706), [#4725](https://github.com/ignite/cli/pull/4725) Fix ts-client query template and solely Go template for `ts-client` generation.
+- [#4691](https://github.com/ignite/cli/pull/4691), [#4706](https://github.com/ignite/cli/pull/4706), [#4725](https://github.com/ignite/cli/pull/4725), [#4737](https://github.com/ignite/cli/pull/4737) Fix ts-client query template and solely Go template for `ts-client` generation.
 
 ## [`v28.10.0`](https://github.com/ignite/cli/releases/tag/v28.10.0)
 
