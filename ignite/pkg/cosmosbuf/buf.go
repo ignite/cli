@@ -76,6 +76,7 @@ type (
 		fileByFile     bool
 		includeImports bool
 		includeWKT     bool
+		moduleName     string
 	}
 
 	// GenOption configures code generation.
@@ -89,6 +90,7 @@ func newGenOptions() genOptions {
 		fileByFile:     false,
 		includeWKT:     false,
 		includeImports: false,
+		moduleName:     "",
 	}
 }
 
@@ -121,6 +123,13 @@ func IncludeWKT() GenOption {
 	return func(o *genOptions) {
 		o.includeImports = true
 		o.includeWKT = true
+	}
+}
+
+// WithModuleName sets the module name to filter protos for.
+func WithModuleName(value string) GenOption {
+	return func(o *genOptions) {
+		o.moduleName = value
 	}
 }
 
@@ -244,9 +253,13 @@ func (b Buf) Generate(
 	for _, apply := range options {
 		apply(&opts)
 	}
-
+	modulePath := protoPath
+	if opts.moduleName != "" {
+		path := append([]string{protoPath}, strings.Split(opts.moduleName, ".")...)
+		modulePath = filepath.Join(path...)
+	}
 	// find all proto files into the path.
-	foundFiles, err := xos.FindFiles(protoPath, xos.WithExtension(xos.ProtoFile))
+	foundFiles, err := xos.FindFiles(modulePath, xos.WithExtension(xos.ProtoFile))
 	if err != nil || len(foundFiles) == 0 {
 		return err
 	}

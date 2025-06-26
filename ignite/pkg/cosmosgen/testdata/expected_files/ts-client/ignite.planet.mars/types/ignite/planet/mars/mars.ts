@@ -2,11 +2,11 @@
 // versions:
 //   protoc-gen-ts_proto  v2.6.1
 //   protoc               unknown
-// source: planet/mars/mars.proto
+// source: ignite/planet/mars/mars.proto
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { PageRequest, PageResponse } from "../../cosmos/base/query/v1beta1/pagination";
+import { PageRequest, PageResponse } from "../../../cosmos/base/query/v1beta1/pagination";
 
 export const protobufPackage = "ignite.planet.mars";
 
