@@ -6,8 +6,8 @@ import { msgTypes } from './registry';
 import { IgniteClient } from "../client"
 import { MissingWalletError } from "../helpers"
 import { Api } from "./rest";
-import { MsgMyMessageRequest } from "./types/planet/mars/mars";
-import { MsgBarRequest } from "./types/planet/mars/mars";
+import { MsgMyMessageRequest } from "./types/ignite/planet/mars/mars";
+import { MsgBarRequest } from "./types/ignite/planet/mars/mars";
 
 import { AnotherType as typeAnotherType} from "./types"
 
