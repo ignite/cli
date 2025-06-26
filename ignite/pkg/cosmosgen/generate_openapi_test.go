@@ -67,7 +67,7 @@ func TestGenerateOpenAPI(t *testing.T) {
 	require := require.New(t)
 	testdataDir := "testdata"
 	appDir := filepath.Join(testdataDir, "testchain")
-	openAPIFile := filepath.Join(appDir, "docs", "static", "openapi.yml")
+	openAPIFile := filepath.Join(appDir, "docs", "static", "openapi.json")
 
 	cacheStorage, err := cache.NewStorage(filepath.Join(t.TempDir(), "cache.db"))
 	require.NoError(err)
@@ -98,7 +98,7 @@ func TestGenerateOpenAPI(t *testing.T) {
 	}
 
 	// compare generated OpenAPI spec with golden files
-	goldenFile := filepath.Join(testdataDir, "expected_files", "openapi", "openapi.yml")
+	goldenFile := filepath.Join(testdataDir, "expected_files", "openapi", "openapi.json")
 	gold, err := os.ReadFile(goldenFile)
 	require.NoError(err, "failed to read golden file: %s", goldenFile)
 

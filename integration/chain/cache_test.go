@@ -20,7 +20,7 @@ func TestCliWithCaching(t *testing.T) {
 		env               = envtest.New(t)
 		app               = env.ScaffoldApp("github.com/test/cacheblog")
 		vueGenerated      = filepath.Join(app.SourcePath(), "vue/src/store/generated")
-		openapiGenerated  = filepath.Join(app.SourcePath(), "docs/static/openapi.yml")
+		openapiGenerated  = filepath.Join(app.SourcePath(), "docs/static/openapi.json")
 		typesDir          = filepath.Join(app.SourcePath(), "x/cacheblog/types")
 		servers           = app.RandomizeServerPorts()
 		ctx, cancel       = context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
