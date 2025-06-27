@@ -15,7 +15,7 @@ export default function use{{ camelCaseUpperSta $.Module.Pkg.Name }}() {
         {{- $n = inc $i -}}
       {{- end }}
   type {{ $FullName }}{{ $n }}Method = typeof client.{{ camelCaseUpperSta $.Module.Pkg.Name }}.query.{{ camelCase $FullName -}};
-  type {{ $FullName }}{{ $n }}Data = Awaited<ReturnType<{{ $FullName }}{{ $n }}Method>>["data"];
+  type {{ $FullName }}{{ $n }}Data = Awaited<ReturnType<{{ $FullName }}{{ $n }}Method>>["data"] & { pageParam: number };
   const {{ $FullName }}{{ $n }} = (
       {{- if $rule.Params -}}
       {{- range $j,$a :=$rule.Params -}}
@@ -55,7 +55,7 @@ export default function use{{ camelCaseUpperSta $.Module.Pkg.Name }}() {
               {...key}
             {{- end -}}
             );
-        return res.data;
+        return { ...res.data, pageParam }; 
     }, ...options,
       initialPageParam: 1,
       getNextPageParam: (lastPage, allPages) => { if ((lastPage.pagination?.total ?? 0) >((lastPage.pageParam ?? 0) * perPage)) {return lastPage.pageParam+1 } else {return undefined}},
