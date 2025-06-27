@@ -24,7 +24,6 @@ type generateOptions struct {
 	isOpenAPIEnabled     bool
 	tsClientPath         string
 	composablesPath      string
-	hooksPath            string
 }
 
 // GenerateTarget is a target to generate code for from proto files.
