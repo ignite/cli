@@ -127,13 +127,7 @@ func (g *composablesGenerator) generateComposableTemplates(p generatePayload) er
 }
 
 func (g *composablesGenerator) generateComposableTemplate(m module.Module, p generatePayload) error {
-	var outDir string
-	if g.frontendType == "vue" {
-		outDir = g.g.opts.composablesOut(m)
-	} else {
-		outDir = g.g.opts.hooksOut(m)
-	}
-
+	outDir := g.g.opts.composablesRootPath
 	if err := os.MkdirAll(outDir, 0o766); err != nil {
 		return err
 	}
@@ -150,12 +144,7 @@ func (g *composablesGenerator) generateComposableTemplate(m module.Module, p gen
 }
 
 func (g *composablesGenerator) generateRootTemplates(p generatePayload) error {
-	var outDir string
-	if g.frontendType == "vue" {
-		outDir = g.g.opts.composablesRootPath
-	} else {
-		outDir = g.g.opts.hooksRootPath
-	}
+	outDir := g.g.opts.composablesRootPath
 	if err := os.MkdirAll(outDir, 0o766); err != nil {
 		return err
 	}

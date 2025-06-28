@@ -29,9 +29,6 @@ type generateOptions struct {
 	composablesOut      func(module.Module) string
 	composablesRootPath string
 
-	hooksOut      func(module.Module) string
-	hooksRootPath string
-
 	specOut string
 }
 
@@ -55,13 +52,6 @@ func WithComposablesGeneration(out ModulePathFunc, composablesRootPath string) O
 	return func(o *generateOptions) {
 		o.composablesOut = out
 		o.composablesRootPath = composablesRootPath
-	}
-}
-
-func WithHooksGeneration(out ModulePathFunc, hooksRootPath string) Option {
-	return func(o *generateOptions) {
-		o.hooksOut = out
-		o.hooksRootPath = hooksRootPath
 	}
 }
 
@@ -188,18 +178,6 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		// This update is required to link the "ts-client" folder so the
 		// package is available during development before publishing it.
 		if err := g.updateComposableDependencies("vue"); err != nil {
-			return err
-		}
-	}
-	if g.opts.hooksRootPath != "" {
-		if err := g.generateComposables("react"); err != nil {
-			return err
-		}
-
-		// Update React app dependencies when React hooks are generated.
-		// This update is required to link the "ts-client" folder so the
-		// package is available during development before publishing it.
-		if err := g.updateComposableDependencies("react"); err != nil {
 			return err
 		}
 	}

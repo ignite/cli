@@ -15,11 +15,10 @@ Your blockchain in development can be configured with `config.yml`. To learn mor
 
 ### Web Frontend
 
-Additionally, Ignite CLI offers both Vue and React options for frontend scaffolding:
+Additionally, Ignite CLI offers a frontend scaffolding feature (based on Vue) to help you quickly build a web frontend for your blockchain:
 
-For a Vue frontend, use: `ignite scaffold vue`
-For a React frontend, use: `ignite scaffold react`
-These commands can be run within your scaffolded blockchain project. 
+Use: `ignite scaffold vue`
+This command can be run within your scaffolded blockchain project.
 
 
 For more information see the [monorepo for Ignite front-end development](https://github.com/ignite/web).
