@@ -264,7 +264,7 @@ paths where the client-side code is generated.
 ```yml
 client:
   openapi:
-    path: "docs/static/openapi.yml"
+    path: "docs/static/openapi.json"
   typescript:
     path: "ts-client"
   composables:

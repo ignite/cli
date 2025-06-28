@@ -24,7 +24,7 @@ const (
 	flagDescription  = "desc"
 	flagProtoDir     = "proto-dir"
 
-	msgCommitPrefix = "Your saved project changes have not been committed.\nTo enable reverting to your current state, commit your saved changes."
+	msgCommitPrefix = "Your project changes have not been committed.\nTo enable reverting to your current state, commit your saved changes."
 	msgCommitPrompt = "Do you want to proceed without committing your saved changes"
 
 	statusScaffolding = "Scaffolding..."

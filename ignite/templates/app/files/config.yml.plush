@@ -12,7 +12,7 @@ accounts:
   - 100000000<%= DefaultDenom %>
 client:
   openapi:
-    path: docs/static/openapi.yml
+    path: docs/static/openapi.json
 faucet:
   name: bob
   coins:

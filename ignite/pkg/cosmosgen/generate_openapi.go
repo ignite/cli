@@ -127,21 +127,17 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 
 	doneMods := make(map[string]struct{})
 	for _, modules := range g.thirdModules {
-		if len(modules) == 0 {
-			continue
-		}
-		var (
-			m    = modules[0]
-			path = extractRootModulePath(m.Pkg.Path)
-		)
+		for _, m := range modules {
+			path := extractRootModulePath(m.Pkg.Path)
 
-		if _, ok := doneMods[path]; ok {
-			continue
-		}
-		doneMods[path] = struct{}{}
+			if _, ok := doneMods[path]; ok {
+				continue
+			}
+			doneMods[path] = struct{}{}
 
-		if err := gen(path, "", m.Name); err != nil {
-			return err
+			if err := gen(path, "proto", m.Name); err != nil {
+				return err
+			}
 		}
 	}
 
