@@ -6,6 +6,7 @@ import (
 	"os"
 	"sync"
 
+	"github.com/charmbracelet/fang"
 	"google.golang.org/grpc/status"
 
 	ignitecmd "github.com/ignite/cli/v29/ignite/cmd"
@@ -44,7 +45,8 @@ func run() int {
 	analytics.SendMetric(&wg, subCmd)
 	analytics.EnableSentry(ctx, &wg)
 
-	err = cmd.ExecuteContext(ctx)
+	// use charm's fang to improve CLI output
+	err = fang.Execute(ctx, cmd)
 	if err != nil {
 		err = ensureError(err)
 	}
