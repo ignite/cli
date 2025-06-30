@@ -3,9 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"image/color"
 	"os"
 	"sync"
 
+	"github.com/charmbracelet/fang"
+	"github.com/charmbracelet/lipgloss/v2"
 	"google.golang.org/grpc/status"
 
 	ignitecmd "github.com/ignite/cli/v29/ignite/cmd"
@@ -17,6 +20,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/validation"
 	"github.com/ignite/cli/v29/ignite/pkg/xstrings"
+	"github.com/ignite/cli/v29/ignite/version"
 )
 
 const exitCodeOK, exitCodeError = 0, 1
@@ -44,7 +48,11 @@ func run() int {
 	analytics.SendMetric(&wg, subCmd)
 	analytics.EnableSentry(ctx, &wg)
 
-	err = cmd.ExecuteContext(ctx)
+	// use charm's fang to improve CLI output
+	err = fang.Execute(ctx, cmd,
+		fang.WithColorSchemeFunc(cliColorScheme),
+		fang.WithVersion(version.Version),
+	)
 	if err != nil {
 		err = ensureError(err)
 	}
@@ -108,4 +116,26 @@ func ensureError(err error) error {
 	// Use the gRPC description as error to avoid printing
 	// extra gRPC error information like code or prefix.
 	return errors.New(cause)
+}
+
+// cliColorScheme returns a ColorScheme for the CLI.
+var cliColorScheme = func(c lipgloss.LightDarkFunc) fang.ColorScheme {
+	return fang.ColorScheme{
+		Base:           c(lipgloss.Color("#2F2E36"), lipgloss.Color(colors.White)),
+		Title:          lipgloss.Color(colors.HiBlue),
+		Codeblock:      c(lipgloss.Color("#F5F5F5"), lipgloss.Color("#2F2E36")),
+		Program:        c(lipgloss.Color(colors.Blue), lipgloss.Color(colors.Cyan)),
+		Command:        c(lipgloss.Color(colors.Magenta), lipgloss.Color(colors.HiBlue)),
+		DimmedArgument: c(lipgloss.Color(colors.Magenta), lipgloss.Color("#AAAAAA")),
+		Comment:        c(lipgloss.Color("#666666"), lipgloss.Color("#CCCCCC")),
+		Flag:           c(lipgloss.Color(colors.Green), lipgloss.Color(colors.Green)),
+		Argument:       c(lipgloss.Color("#2F2E36"), lipgloss.Color(colors.White)),
+		Description:    c(lipgloss.Color("#2F2E36"), lipgloss.Color(colors.White)),    // flag and command descriptions
+		FlagDefault:    c(lipgloss.Color(colors.Blue), lipgloss.Color(colors.HiBlue)), // flag default values in descriptions
+		QuotedString:   c(lipgloss.Color(colors.Yellow), lipgloss.Color(colors.Yellow)),
+		ErrorHeader: [2]color.Color{
+			lipgloss.Color(colors.Yellow),
+			lipgloss.Color(colors.Red),
+		},
+	}
 }
