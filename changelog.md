@@ -14,6 +14,7 @@
 
 - [#4717](https://github.com/ignite/cli/pull/4717) Bump Cosmos SDK to `v0.53.2`.
 - [#4718](https://github.com/ignite/cli/pull/4718) Bump default Ignite Apps.
+- [#4747](https://github.com/ignite/cli/pull/4747) Improve Ignite UI.
 
 ### Fixes
 
