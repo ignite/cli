@@ -57,12 +57,6 @@ type Composables struct {
 	Path string `yaml:"path" doc:"Relative path where the application's composable files are located."`
 }
 
-// Hooks configures code generation for react-query hooks.
-type Hooks struct {
-	// Path configures out location for generated vue-query hooks.
-	Path string `yaml:"path" doc:"Relative path where the application's hooks files are located."`
-}
-
 // OpenAPI configures OpenAPI spec generation for API.
 type OpenAPI struct {
 	Path string `yaml:"path" doc:"Relative path where the application's OpenAPI files are located."`
