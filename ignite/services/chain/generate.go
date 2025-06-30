@@ -212,6 +212,7 @@ func (c *Chain) Generate(
 		c.app.Path,
 		conf.Build.Proto.Path,
 		c.app.ImportPath,
+		chainconfig.DefaultVuePath,
 		options...,
 	); err != nil {
 		return &CannotBuildAppError{err}

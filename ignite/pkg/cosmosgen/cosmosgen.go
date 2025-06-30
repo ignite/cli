@@ -92,6 +92,7 @@ type generator struct {
 	appPath             string
 	protoDir            string
 	goModPath           string
+	frontendPath        string
 	opts                *generateOptions
 	sdkImport           string
 	sdkDir              string
@@ -112,7 +113,7 @@ func (g *generator) cleanup() {
 
 // Generate generates code from protoDir of an SDK app residing at appPath with given options.
 // protoDir must be relative to the projectPath.
-func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir, goModPath string, options ...Option) error {
+func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir, goModPath string, frontendPath string, options ...Option) error {
 	buf, err := cosmosbuf.New(cacheStorage, goModPath)
 	if err != nil {
 		return err
@@ -170,14 +171,14 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 	}
 
 	if g.opts.composablesRootPath != "" {
-		if err := g.generateComposables("vue"); err != nil {
+		if err := g.generateComposables(); err != nil {
 			return err
 		}
 
 		// Update Vue app dependencies when Vue composables are generated.
 		// This update is required to link the "ts-client" folder so the
 		// package is available during development before publishing it.
-		if err := g.updateComposableDependencies("vue"); err != nil {
+		if err := g.updateComposableDependencies(); err != nil {
 			return err
 		}
 	}

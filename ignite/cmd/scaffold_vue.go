@@ -1,6 +1,8 @@
 package ignitecmd
 
 import (
+	"path/filepath"
+
 	"github.com/spf13/cobra"
 
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
@@ -19,7 +21,6 @@ func NewScaffoldVue() *cobra.Command {
 	}
 
 	c.Flags().AddFlagSet(flagSetYes())
-	c.Flags().StringP(flagPath, "p", "./"+chainconfig.DefaultVuePath, "path to scaffold content of the Vue.js app")
 
 	return c
 }
@@ -31,7 +32,7 @@ func scaffoldVueHandler(cmd *cobra.Command, _ []string) error {
 	)
 	defer session.End()
 
-	path := flagGetPath(cmd)
+	path := filepath.Join(".", chainconfig.DefaultVuePath)
 	if err := cosmosgen.Vue(path); err != nil {
 		return err
 	}

@@ -15,18 +15,9 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 )
 
-type composablesGenerator struct {
-	g            *generator
-	frontendType string
-}
-
-func newComposablesGenerator(g *generator, frontendType string) *composablesGenerator {
-	return &composablesGenerator{g, frontendType}
-}
-
-func (g *generator) updateComposableDependencies(frontendType string) error {
+func (g *generator) updateComposableDependencies() error {
 	// Init the path to the appropriate frontend folder inside the app
-	frontendPath := filepath.Join(g.appPath, frontendType)
+	frontendPath := filepath.Join(g.appPath, g.frontendPath)
 	packagesPath := filepath.Join(frontendPath, "package.json")
 	if _, err := os.Stat(packagesPath); errors.Is(err, os.ErrNotExist) {
 		return nil
@@ -90,7 +81,7 @@ func (g *generator) updateComposableDependencies(frontendType string) error {
 	return nil
 }
 
-func (g *generator) generateComposables(frontendType string) error {
+func (g *generator) generateComposables() error {
 	chainPath, _, err := gomodulepath.Find(g.appPath)
 	if err != nil {
 		return err
@@ -106,12 +97,20 @@ func (g *generator) generateComposables(frontendType string) error {
 		data.Modules = append(data.Modules, modules...)
 	}
 
-	vsg := newComposablesGenerator(g, frontendType)
+	vsg := newComposablesGenerator(g)
 	if err := vsg.generateComposableTemplates(data); err != nil {
 		return err
 	}
 
 	return vsg.generateRootTemplates(data)
+}
+
+type composablesGenerator struct {
+	g *generator
+}
+
+func newComposablesGenerator(g *generator) *composablesGenerator {
+	return &composablesGenerator{g}
 }
 
 func (g *composablesGenerator) generateComposableTemplates(p generatePayload) error {
@@ -133,13 +132,11 @@ func (g *composablesGenerator) generateComposableTemplate(m module.Module, p gen
 	}
 
 	return templateTSClientComposable.Write(outDir, "", struct {
-		Module       module.Module
-		PackageNS    string
-		FrontendType string
+		Module    module.Module
+		PackageNS string
 	}{
-		Module:       m,
-		PackageNS:    p.PackageNS,
-		FrontendType: g.frontendType,
+		Module:    m,
+		PackageNS: p.PackageNS,
 	})
 }
 
