@@ -17,6 +17,7 @@ require (
 	github.com/charmbracelet/fang v0.2.0
 	github.com/charmbracelet/glow v1.5.1
 	github.com/charmbracelet/lipgloss v1.1.0
+	github.com/charmbracelet/lipgloss/v2 v2.0.0-beta.1
 	github.com/cockroachdb/errors v1.12.0
 	github.com/cometbft/cometbft v0.38.17
 	github.com/cosmos/cosmos-sdk v0.53.2
@@ -143,7 +144,6 @@ require (
 	github.com/charmbracelet/charm v0.8.7 // indirect
 	github.com/charmbracelet/colorprofile v0.3.0 // indirect
 	github.com/charmbracelet/glamour v0.6.0 // indirect
-	github.com/charmbracelet/lipgloss/v2 v2.0.0-beta.1 // indirect
 	github.com/charmbracelet/x/ansi v0.8.0 // indirect
 	github.com/charmbracelet/x/cellbuf v0.0.13 // indirect
 	github.com/charmbracelet/x/exp/charmtone v0.0.0-20250603201427-c31516f43444 // indirect
