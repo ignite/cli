@@ -124,6 +124,7 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		appPath:             appPath,
 		protoDir:            protoDir,
 		goModPath:           goModPath,
+		frontendPath:        frontendPath,
 		opts:                &generateOptions{},
 		thirdModules:        make(map[string][]module.Module),
 		thirdModuleIncludes: make(map[string]protoIncludes),
