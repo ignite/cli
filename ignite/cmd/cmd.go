@@ -248,18 +248,22 @@ func deprecated() []*cobra.Command {
 	return []*cobra.Command{
 		{
 			Use:        "build",
+			Hidden:     true,
 			Deprecated: "use `ignite chain build` instead.",
 		},
 		{
 			Use:        "serve",
+			Hidden:     true,
 			Deprecated: "use `ignite chain serve` instead.",
 		},
 		{
 			Use:        "faucet",
+			Hidden:     true,
 			Deprecated: "use `ignite chain faucet` instead.",
 		},
 		{
 			Use:        "node",
+			Hidden:     true,
 			Deprecated: "use ignite connect app instead (ignite app install -g github.com/ignite/apps/connect).",
 		},
 	}
