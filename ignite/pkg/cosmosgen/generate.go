@@ -353,7 +353,6 @@ func (g *generator) generateBufIncludeFolder(ctx context.Context, modpath string
 	return protoPath, nil
 }
 
-// Optimized include resolution with better caching and reduced redundancy
 func (g *generator) resolveIncludes(ctx context.Context, path, protoDir string) (protoIncludes, bool, error) {
 	// Use a cache key that includes both path and protoDir for better cache hits
 	cacheKey := path + ":" + protoDir
@@ -513,7 +512,6 @@ func (g generator) getBufDependencyName(bufPath string) (string, error) {
 	return cfg.Name, nil
 }
 
-// Optimized to handle multiple dependencies at once
 func (g generator) addBufDependencies(depNames []string) error {
 	if len(depNames) == 0 {
 		return nil
