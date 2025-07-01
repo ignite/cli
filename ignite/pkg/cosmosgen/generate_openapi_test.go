@@ -5,12 +5,13 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
 	"github.com/ignite/cli/v29/ignite/pkg/dirchange"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/stretchr/testify/require"
 )
 
 func Test_extractRootModulePath(t *testing.T) {
