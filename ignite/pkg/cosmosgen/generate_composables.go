@@ -138,7 +138,7 @@ func (g *composablesGenerator) generateComposableTemplates(p generatePayload) er
 }
 
 func (g *composablesGenerator) generateComposableTemplate(m module.Module, p generatePayload) error {
-	outDir := g.g.opts.composablesRootPath
+	outDir := g.g.opts.composablesOut(m)
 	if err := os.MkdirAll(outDir, 0o766); err != nil {
 		return err
 	}
