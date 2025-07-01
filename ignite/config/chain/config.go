@@ -35,7 +35,7 @@ var (
 
 	// DefaultOpenAPIPath defines the default relative path to use when generating an OpenAPI schema.
 	// The path is relative to the app's directory.
-	DefaultOpenAPIPath = "docs/static/openapi.yml"
+	DefaultOpenAPIPath = "docs/static/openapi.json"
 
 	// LatestVersion defines the latest version of the config.
 	LatestVersion version.Version = 1
