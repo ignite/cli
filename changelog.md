@@ -16,6 +16,7 @@
 - [#4718](https://github.com/ignite/cli/pull/4718) Bump default Ignite Apps.
 - [#4741](https://github.com/ignite/cli/pull/4741) Let `generate openapi` generate external modules OpenAPI spec.
 - [#4747](https://github.com/ignite/cli/pull/4747) Improve Ignite UI.
+- [#4751](https://github.com/ignite/cli/pull/4751) Improve cache speed and limit duplicate I/O.
 
 ### Fixes
 
