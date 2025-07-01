@@ -6,10 +6,9 @@
 
 # Ts templates
 
-*.js  @ilgooz @Pantani @julienrbrt @clockworkgr
-ignite/pkg/cosmosgen/templates/* @ilgooz @Pantani @julienrbrt @clockworkgr
+ignite/pkg/cosmosgen/* @ilgooz @Pantani @julienrbrt @clockworkgr
 
 # Docs
 
-*.md    @ilgooz @Pantani @julienrbrt @toschdev
-docs/*   @ilgooz @Pantani @julienrbrt @toschdev
+*.md    @ilgooz @Pantani @julienrbrt
+docs/*   @ilgooz @Pantani @julienrbrt
