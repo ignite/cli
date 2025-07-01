@@ -98,7 +98,6 @@ func TestCosmosGenScaffoldComposables(t *testing.T) {
 	}
 
 	for _, mod := range expectedQueryModules {
-
 		_, err := os.Stat(filepath.Join(composablesDirGenerated, mod))
 		if assert.False(t, os.IsNotExist(err), "missing composable %q in %s", mod, composablesDirGenerated) {
 			assert.NoError(t, err)

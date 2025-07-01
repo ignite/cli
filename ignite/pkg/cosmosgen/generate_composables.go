@@ -15,22 +15,30 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 )
 
-func (g *generator) updateComposableDependencies() error {
-	// Init the path to the appropriate frontend folder inside the app
-	frontendPath := filepath.Join(g.appPath, g.frontendPath)
-	packagesPath := filepath.Join(frontendPath, "package.json")
-	if _, err := os.Stat(packagesPath); errors.Is(err, os.ErrNotExist) {
-		return nil
+func (g *generator) checkVueExists() error {
+	_, err := os.Stat(filepath.Join(g.appPath, g.frontendPath))
+	if errors.Is(err, os.ErrNotExist) {
+		return errors.New("frontend does not exist, please run `ignite scaffold vue` first")
 	}
 
-	// Read the Vue app package file
+	return err
+}
+
+func (g *generator) updateComposableDependencies() error {
+	if err := g.checkVueExists(); err != nil {
+		return err
+	}
+
+	// Init the path to the appropriate frontend folder inside the app
+	frontendPath := filepath.Join(g.appPath, g.frontendPath)
+	packagesPath := filepath.Join(g.appPath, g.frontendPath, "package.json")
+
 	b, err := os.ReadFile(packagesPath)
 	if err != nil {
 		return err
 	}
 
-	var pkg map[string]interface{}
-
+	var pkg map[string]any
 	if err := json.Unmarshal(b, &pkg); err != nil {
 		return errors.Errorf("error parsing %s: %w", packagesPath, err)
 	}
@@ -82,6 +90,10 @@ func (g *generator) updateComposableDependencies() error {
 }
 
 func (g *generator) generateComposables() error {
+	if err := g.checkVueExists(); err != nil {
+		return err
+	}
+
 	chainPath, _, err := gomodulepath.Find(g.appPath)
 	if err != nil {
 		return err
