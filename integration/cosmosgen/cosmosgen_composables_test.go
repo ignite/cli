@@ -98,15 +98,25 @@ func TestCosmosGenScaffoldComposables(t *testing.T) {
 		"useCosmosUpgradeV1Beta1",
 		"useCosmosVestingV1Beta1",
 		// custom modules
-		"useTestBlogBlogv1",
-		"useTestBlogWithmsgv1",
-		"useTestBlogWithoutmsgv1",
+		"useBlogBlogV1",
+		"useBlogWithmsgV1",
+		"useBlogWithoutmsgV1",
 	}
 
 	for _, mod := range expectedQueryModules {
 		_, err := os.Stat(filepath.Join(composablesDirGenerated, mod))
 		if assert.False(t, os.IsNotExist(err), "missing composable %q in %s", mod, composablesDirGenerated) {
 			assert.NoError(t, err)
+		}
+	}
+
+	if t.Failed() {
+		// list composables files
+		composablesFiles, err := os.ReadDir(composablesDirGenerated)
+		require.NoError(t, err)
+		t.Log("Composables files:", len(composablesFiles))
+		for _, file := range composablesFiles {
+			t.Logf(" - %s", file.Name())
 		}
 	}
 }
