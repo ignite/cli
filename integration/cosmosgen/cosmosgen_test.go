@@ -13,8 +13,6 @@ import (
 )
 
 func TestCosmosGenScaffold(t *testing.T) {
-	t.Skip("skip till we add a buf token into the CI")
-
 	var (
 		env = envtest.New(t)
 		app = env.ScaffoldApp("github.com/test/blog")
@@ -145,6 +143,16 @@ func TestCosmosGenScaffold(t *testing.T) {
 		_, err := os.Stat(filepath.Join(tsDirGenerated, mod))
 		if assert.False(t, os.IsNotExist(err), "missing module %q in %s", mod, tsDirGenerated) {
 			assert.NoError(t, err)
+		}
+	}
+
+	if t.Failed() {
+		// list ts-client files
+		tsFiles, err := os.ReadDir(tsDirGenerated)
+		require.NoError(t, err)
+		t.Log("TS files:", len(tsFiles))
+		for _, file := range tsFiles {
+			t.Logf(" - %s", file.Name())
 		}
 	}
 }
