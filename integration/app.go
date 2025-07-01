@@ -376,8 +376,15 @@ func (a *App) addScaffoldCmd(typeName string, args ...string) {
 	index := ""
 	response := ""
 	params := ""
-	name := args[0]
-	args = args[1:]
+	name := typeName
+
+	// in the case of scaffolding commands that do no take arguments
+	// we can skip the argument parsing
+	if len(args) > 0 {
+		name = args[0]
+		args = args[1:]
+	}
+
 	filteredArgs := make([]string, 0)
 
 	// remove the flags from the args

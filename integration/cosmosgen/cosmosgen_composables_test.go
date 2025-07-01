@@ -65,6 +65,12 @@ func TestCosmosGenScaffoldComposables(t *testing.T) {
 	composablesDirGenerated := filepath.Join(app.SourcePath(), "vue/src/composables")
 	require.NoError(t, os.RemoveAll(composablesDirGenerated))
 
+	app.Scaffold(
+		"scaffold vue",
+		false,
+		"vue",
+	)
+
 	app.Generate(
 		"generate composables",
 		false,
@@ -92,9 +98,9 @@ func TestCosmosGenScaffoldComposables(t *testing.T) {
 		"useCosmosUpgradeV1Beta1",
 		"useCosmosVestingV1Beta1",
 		// custom modules
-		"useTestBlogBlog",
-		"useTestBlogWithmsg",
-		"useTestBlogWithoutmsg",
+		"useTestBlogBlogv1",
+		"useTestBlogWithmsgv1",
+		"useTestBlogWithoutmsgv1",
 	}
 
 	for _, mod := range expectedQueryModules {
