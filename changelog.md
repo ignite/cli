@@ -2,18 +2,48 @@
 
 ## Unreleased
 
+## [`v29.1.0`](https://github.com/ignite/cli/releases/tag/v29.1.0)
+
 ### Features
 
+- [#4728](https://github.com/ignite/cli/pull/4728) Ask before overwriting a `xgenny` file.
+- [#4731](https://github.com/ignite/cli/pull/4731) Complete IBC v2 wiring.
+- [#4732](https://github.com/ignite/cli/pull/4732) Add `ignite chain modules list` command to list all modules in the chain.
+
+### Changes
+
+- [#4717](https://github.com/ignite/cli/pull/4717) Bump Cosmos SDK to `v0.53.2`.
+- [#4718](https://github.com/ignite/cli/pull/4718) Bump default Ignite Apps.
+- [#4741](https://github.com/ignite/cli/pull/4741) Let `generate openapi` generate external modules OpenAPI spec.
+- [#4747](https://github.com/ignite/cli/pull/4747) Improve Ignite UI.
+
+### Fixes
+
+- [#4691](https://github.com/ignite/cli/pull/4691), [#4706](https://github.com/ignite/cli/pull/4706), [#4725](https://github.com/ignite/cli/pull/4725), [#4737](https://github.com/ignite/cli/pull/4737) Fix ts-client query template and solely Go template for `ts-client` generation.
+- [#4742](https://github.com/ignite/cli/pull/4742) Updates Vue composables template for new ts-client and tanstack/vue-query v5
+
+## [`v29.0.0`](https://github.com/ignite/cli/releases/tag/v29.0.0)
+
+### Features
+
+- [#4614](https://github.com/ignite/cli/pull/4614) Improve integration tests and add query tests.
 - [#4683](https://github.com/ignite/cli/pull/4683) Allow to change default denom via flag.
 - [#4687](https://github.com/ignite/cli/pull/4687) Add address type with `scalar` annotations, and add `scalar` type to signer field.
 
 ### Changes
 
 - [#4689](https://github.com/ignite/cli/pull/4689) Revert `HasGenesis` implementation from retracted `core` v1 to SDK `HasGenesis` interface.
+- [#4701](https://github.com/ignite/cli/pull/4701) Improve `ignite doctor` by removing manual migration step. Additionally, remove protoc to buf migrations logic.
+- [#4703](https://github.com/ignite/cli/pull/4703) Remove testutil.Register function.
+- [#4702](https://github.com/ignite/cli/pull/4702) Improve app detection by checking for inheritance instead of interface implementation.
+- [#4707](https://github.com/ignite/cli/pull/4707) Show `buf` version in `ignite version` only when in a go module.
+- [#4709](https://github.com/ignite/cli/pull/4709) Remove legacy msgServer support
+- [#4710](https://github.com/ignite/cli/pull/4710) Remove the `nullify` pkg from the chain `testutil`
 
-### Bug Fixes
+### Fixes
 
 - [#4686](https://github.com/ignite/cli/pull/4686) Filter discovered protos to only messages.
+- [#4694](https://github.com/ignite/cli/issues/4694) Install an app using the `.` as a current path show a wrong app name.
 
 ## [`v29.0.0-rc.1`](https://github.com/ignite/cli/releases/tag/v29.0.0-rc.1)
 
@@ -34,6 +64,7 @@
 - [#4624](https://github.com/ignite/cli/pull/4624) Fix autocli templates for variadics.
 - [#4644](https://github.com/ignite/cli/pull/4644) Improve UI and UX for `testnet multi-node` command.
 - [#4645](https://github.com/ignite/cli/pull/4645) Refactor the xast.ModifyFunction to improve the readability.
+- [#3393](https://github.com/ignite/cli/issues/3393) Remove xgenny embed walker
 - [#4664](https://github.com/ignite/cli/pull/4664) Add verbose flags on `scaffold` and `generate` commands.
   - The flag displays the steps Ignite is taking to generate the code.
   - The verbosity only applies to the command. For full verbosity use the `IGNT_DEBUG` environment variable instead.
@@ -199,7 +230,7 @@
 
 - [#4376](https://github.com/ignite/cli/pull/4376) Set different chain-id for in place testnet
 
-### Bug Fixes
+### Fixes
 
 - [#4421](https://github.com/ignite/cli/pull/4422) Fix typo in simulation template
 

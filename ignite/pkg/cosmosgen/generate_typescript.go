@@ -59,6 +59,11 @@ func (g *generator) generateTS(ctx context.Context) error {
 		return err
 	}
 
+	// add third party modules to for the root template.
+	for _, modules := range g.thirdModules {
+		data.Modules = append(data.Modules, modules...)
+	}
+
 	return tsg.generateRootTemplates(data)
 }
 
@@ -132,7 +137,8 @@ func (g *tsGenerator) generateModuleTemplate(
 	// All "cosmossdk.io" module packages must use SDK's
 	// proto path which is where the proto files are stored.
 	protoPath := filepath.Join(appPath, g.g.protoDir) // use module app path
-	if module.IsCosmosSDKModulePkg(appPath) {
+
+	if module.IsCosmosSDKPackage(appPath) {
 		protoPath = filepath.Join(g.g.sdkDir, "proto")
 	}
 
@@ -143,6 +149,7 @@ func (g *tsGenerator) generateModuleTemplate(
 		typesOut,
 		g.g.tsTemplate(),
 		cosmosbuf.IncludeWKT(),
+		cosmosbuf.WithModuleName(m.Pkg.Name),
 	); err != nil {
 		return err
 	}
@@ -158,7 +165,7 @@ func (g *tsGenerator) generateModuleTemplate(
 
 	// Generate the rest API template (using axios)
 	return templateTSClientRest.Write(out, protoPath, struct {
-		Module module.Module
+		module.Module
 	}{
 		Module: m,
 	})

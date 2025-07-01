@@ -9,6 +9,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/env"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
+	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/pkg/xgit"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
 	"github.com/ignite/cli/v29/ignite/version"
@@ -23,7 +24,7 @@ const (
 	flagDescription  = "desc"
 	flagProtoDir     = "proto-dir"
 
-	msgCommitPrefix = "Your saved project changes have not been committed.\nTo enable reverting to your current state, commit your saved changes."
+	msgCommitPrefix = "Your project changes have not been committed.\nTo enable reverting to your current state, commit your saved changes."
 	msgCommitPrompt = "Do you want to proceed without committing your saved changes"
 
 	statusScaffolding = "Scaffolding..."
@@ -149,13 +150,8 @@ func migrationPreRunHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	session := cliui.New()
+	session := cliui.New(cliui.WithoutUserInteraction(getYes(cmd)))
 	defer session.End()
-
-	cfg, _, err := getChainConfig(cmd)
-	if err != nil {
-		return err
-	}
 
 	appPath, err := goModulePath(cmd)
 	if err != nil {
@@ -172,10 +168,6 @@ func migrationPreRunHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if err := toolsMigrationPreRunHandler(cmd, session, appPath); err != nil {
-		return err
-	}
-
-	if err := bufMigrationPreRunHandler(cmd, session, appPath, cfg.Build.Proto.Path); err != nil {
 		return err
 	}
 
@@ -221,7 +213,10 @@ func scaffoldType(
 		}
 	}
 
-	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
+	session := cliui.New(
+		cliui.StartSpinnerWithText(statusScaffolding),
+		cliui.WithoutUserInteraction(getYes(cmd)),
+	)
 	defer session.End()
 
 	cfg, _, err := getChainConfig(cmd)
@@ -244,7 +239,7 @@ func scaffoldType(
 		return err
 	}
 
-	sm, err := sc.ApplyModifications()
+	sm, err := sc.ApplyModifications(xgenny.ApplyPreRun(scaffolder.AskOverwriteFiles(session)))
 	if err != nil {
 		return err
 	}
@@ -271,7 +266,7 @@ func gitChangesConfirmPreRunHandler(cmd *cobra.Command, _ []string) error {
 	}
 
 	appPath := flagGetPath(cmd)
-	session := cliui.New()
+	session := cliui.New(cliui.WithoutUserInteraction(getYes(cmd)))
 
 	defer session.End()
 

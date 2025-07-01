@@ -534,6 +534,7 @@ chain.
 * [ignite chain faucet](#ignite-chain-faucet)	 - Send coins to an account
 * [ignite chain init](#ignite-chain-init)	 - Initialize your chain
 * [ignite chain lint](#ignite-chain-lint)	 - Lint codebase using golangci-lint
+* [ignite chain modules](#ignite-chain-modules)	 - Manage modules
 * [ignite chain serve](#ignite-chain-serve)	 - Start a blockchain node in development
 * [ignite chain simulate](#ignite-chain-simulate)	 - Run simulation testing for the blockchain
 
@@ -843,6 +844,63 @@ ignite chain lint [flags]
 **SEE ALSO**
 
 * [ignite chain](#ignite-chain)	 - Build, init and start a blockchain node
+
+
+## ignite chain modules
+
+Manage modules
+
+**Synopsis**
+
+The modules command allows you to manage modules in the codebase.
+
+**Options**
+
+```
+  -h, --help   help for modules
+```
+
+**Options inherited from parent commands**
+
+```
+  -c, --config string   path to Ignite config file (default: ./config.yml)
+  -y, --yes             answers interactive yes/no questions with yes
+```
+
+**SEE ALSO**
+
+* [ignite chain](#ignite-chain)	 - Build, init and start a blockchain node
+* [ignite chain modules list](#ignite-chain-modules-list)	 - List all Cosmos SDK modules in the app
+
+
+## ignite chain modules list
+
+List all Cosmos SDK modules in the app
+
+**Synopsis**
+
+The list command lists all modules in the app.
+
+```
+ignite chain modules list [flags]
+```
+
+**Options**
+
+```
+  -h, --help   help for list
+```
+
+**Options inherited from parent commands**
+
+```
+  -c, --config string   path to Ignite config file (default: ./config.yml)
+  -y, --yes             answers interactive yes/no questions with yes
+```
+
+**SEE ALSO**
+
+* [ignite chain modules](#ignite-chain-modules)	 - Manage modules
 
 
 ## ignite chain serve

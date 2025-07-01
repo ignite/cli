@@ -6,19 +6,18 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/app"
 	"github.com/ignite/cli/v29/ignite/templates/field"
 	modulecreate "github.com/ignite/cli/v29/ignite/templates/module/create"
-	"github.com/ignite/cli/v29/ignite/templates/testutil"
 )
 
 // Init initializes a new app with name and given options.
 func Init(
 	ctx context.Context,
-	runner *xgenny.Runner,
 	root, name, addressPrefix string,
 	coinType uint32,
 	defaultDenom, protoDir string,
@@ -54,7 +53,6 @@ func Init(
 	// create the project
 	_, err = generate(
 		ctx,
-		runner,
 		pathInfo,
 		addressPrefix,
 		coinType,
@@ -69,10 +67,8 @@ func Init(
 	return path, gomodule, err
 }
 
-//nolint:interfacer
 func generate(
-	_ context.Context,
-	runner *xgenny.Runner,
+	ctx context.Context,
 	pathInfo gomodulepath.Path,
 	addressPrefix string,
 	coinType uint32,
@@ -100,11 +96,10 @@ func generate(
 		githubPath = fmt.Sprintf("username/%s", githubPath)
 	}
 
-	g, err := app.NewGenerator(&app.Options{
+	appGen, err := app.NewGenerator(&app.Options{
 		// generate application template
 		ModulePath:       pathInfo.RawPath,
 		AppName:          pathInfo.Package,
-		AppPath:          absRoot,
 		ProtoDir:         protoDir,
 		GitHubPath:       githubPath,
 		BinaryNamePrefix: pathInfo.Root,
@@ -116,14 +111,9 @@ func generate(
 	if err != nil {
 		return xgenny.SourceModification{}, err
 	}
-	// Create the 'testutil' package with the test helpers
-	if err := testutil.Register(g, absRoot); err != nil {
-		return xgenny.SourceModification{}, err
-	}
 
 	// generate module template
-	runner.Root = absRoot
-	smc, err := runner.RunAndApply(g)
+	smc, err := xgenny.NewRunner(ctx, absRoot).RunAndApply(appGen)
 	if err != nil {
 		return smc, err
 	}
@@ -133,7 +123,6 @@ func generate(
 			ModuleName: pathInfo.Package, // App name
 			ModulePath: pathInfo.RawPath,
 			AppName:    pathInfo.Package,
-			AppPath:    absRoot,
 			ProtoDir:   protoDir,
 			ProtoVer:   "v1", // TODO(@julienrbrt): possibly in the future add flag to specify custom proto version.
 			Params:     paramsFields,
@@ -145,13 +134,17 @@ func generate(
 			return smc, err
 		}
 
-		g, err = modulecreate.NewGenerator(opts)
+		moduleGen, err := modulecreate.NewGenerator(opts)
 		if err != nil {
 			return smc, err
 		}
 
+		runner := xgenny.NewRunner(ctx, absRoot)
+		if err := runner.Run(moduleGen, modulecreate.NewAppModify(runner.Tracer(), opts)); err != nil {
+			return smc, err
+		}
 		// generate module template
-		smm, err := runner.RunAndApply(g, modulecreate.NewAppModify(runner.Tracer(), opts))
+		smm, err := runner.ApplyModifications()
 		if err != nil {
 			return smc, err
 		}
@@ -159,4 +152,14 @@ func generate(
 	}
 
 	return smc, err
+}
+
+func AskOverwriteFiles(session *cliui.Session) func(_, _, _ []string) error {
+	return func(_, _, duplicated []string) error {
+		if len(duplicated) == 0 {
+			return nil
+		}
+		question := fmt.Sprintf("Do you want to overwrite the existing files? \n%s", strings.Join(duplicated, "\n"))
+		return session.AskConfirm(question)
+	}
 }

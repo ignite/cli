@@ -24,11 +24,11 @@ Ignite creates all the necessary boilerplate for collections in the `x/<module>/
 
 ```go
 type Keeper struct {
-    // ...
+	// ...
 
-    Params   collections.Item[Params]
-    Counters collections.Map[string, uint64]
-    Profiles collections.Map[sdk.AccAddress, Profile]
+	Params   collections.Item[Params]
+	Counters collections.Map[string, uint64]
+	Profiles collections.Map[sdk.AccAddress, Profile]
 }
 ```
 
@@ -42,14 +42,14 @@ To read values from state, use the `Get` method:
 // getting a single item
 params, err := k.Params.Get(ctx)
 if err != nil {
-    // handle error
-    // collections.ErrNotFound is returned when an item doesn't exist
+	// handle error
+	// collections.ErrNotFound is returned when an item doesn't exist
 }
 
 // getting a map entry
 counter, err := k.Counters.Get(ctx, "my-counter")
 if err != nil {
-    // handle error
+	// handle error
 }
 ```
 
@@ -61,13 +61,13 @@ To write values to state, use the `Set` method:
 // setting a single item
 err := k.Params.Set(ctx, params)
 if err != nil {
-    // handle error
+	// handle error
 }
 
 // setting a map entry
 err = k.Counters.Set(ctx, "my-counter", 42)
 if err != nil {
-    // handle error
+	// handle error
 }
 ```
 
@@ -78,10 +78,10 @@ Use the `Has` method to check if a value exists without retrieving it:
 ```go
 exists, err := k.Counters.Has(ctx, "my-counter")
 if err != nil {
-    // handle error
+	// handle error
 }
 if exists {
-    // value exists
+	// value exists
 }
 ```
 
@@ -92,7 +92,7 @@ To remove values from state, use the `Remove` method:
 ```go
 err := k.Counters.Remove(ctx, "my-counter")
 if err != nil {
-    // handle error
+	// handle error
 }
 ```
 
@@ -102,53 +102,53 @@ Messages in Cosmos SDK modules modify state based on user transactions. Here's h
 
 ```go
 func (k msgServer) CreateProfile(ctx context.Context, msg *types.MsgCreateProfile) (*types.MsgCreateProfileResponse, error) {
-    // validate message
-    if err := msg.ValidateBasic(); err != nil {
-        return nil, err
-    }
-    
-    // parse sender address
-    senderBz, err := k.addressCodec.StringToBytes(msg.Creator)
-    if err != nil {
-        return nil, err
-    }
-    sender := sdk.AccAddress(senderBz)
-    
-    // check if profile already exists
-    exists, err := k.Profiles.Has(ctx, sender)
-    if err != nil {
-        return nil, err
-    }
-    if exists {
-        return nil, sdkerrors.Wrap(types.ErrProfileExists, "profile already exists")
-    }
-    
-    // create new profile
-    sdkCtx := sdk.UnwrapSDKContext(ctx)
-    profile := types.Profile{
-        Name:        msg.Name,
-        Bio:         msg.Bio,
-        CreatedAt:   sdkCtx.BlockTime().Unix(),
-    }
-    
-    // store the profile
-    err = k.Profiles.Set(ctx, sender, profile)
-    if err != nil {
-        return nil, err
-    }
-    
-    // increment profile counter
-    counter, err := k.Counters.Get(ctx, "profiles")
-    if err != nil && !errors.Is(err, collections.ErrNotFound) {
-        return nil, err
-    }
-    // set the counter (adding 1)
-    err = k.Counters.Set(ctx, "profiles", counter+1)
-    if err != nil {
-        return nil, err
-    }
-    
-    return &types.MsgCreateProfileResponse{}, nil
+	// validate message
+	if err := msg.ValidateBasic(); err != nil {
+		return nil, err
+	}
+
+	// parse sender address
+	senderBz, err := k.addressCodec.StringToBytes(msg.Creator)
+	if err != nil {
+		return nil, err
+	}
+	sender := sdk.AccAddress(senderBz)
+
+	// check if profile already exists
+	exists, err := k.Profiles.Has(ctx, sender)
+	if err != nil {
+		return nil, err
+	}
+	if exists {
+		return nil, sdkerrors.Wrap(types.ErrProfileExists, "profile already exists")
+	}
+
+	// create new profile
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	profile := types.Profile{
+		Name:      msg.Name,
+		Bio:       msg.Bio,
+		CreatedAt: sdkCtx.BlockTime().Unix(),
+	}
+
+	// store the profile
+	err = k.Profiles.Set(ctx, sender, profile)
+	if err != nil {
+		return nil, err
+	}
+
+	// increment profile counter
+	counter, err := k.Counters.Get(ctx, "profiles")
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
+		return nil, err
+	}
+	// set the counter (adding 1)
+	err = k.Counters.Set(ctx, "profiles", counter+1)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgCreateProfileResponse{}, nil
 }
 ```
 
@@ -158,27 +158,27 @@ Queries allow users to read state without modifying it. Here's how to implement 
 
 ```go
 func (q queryServer) GetProfile(ctx context.Context, req *types.QueryGetProfileRequest) (*types.QueryGetProfileResponse, error) {
-    if req == nil {
-        return nil, status.Error(codes.InvalidArgument, "invalid request")
-    }
-    
-    // parse address
-    addressBz, err := k.addressCodec.StringToBytes(req.Address)
-    if err != nil {
-        return nil, status.Error(codes.InvalidArgument, "invalid address")
-    }
-    address := sdk.AccAddress(addressBz)
-    
-    // get profile
-    profile, err := q.k.Profiles.Get(ctx, address)
-    if err != nil {
-        if errors.Is(err, collections.ErrNotFound) {
-            return nil, status.Error(codes.NotFound, "profile not found")
-        }
-        return nil, status.Error(codes.Internal, "internal error")
-    }
-    
-    return &types.QueryGetProfileResponse{Profile: profile}, nil
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+
+	// parse address
+	addressBz, err := k.addressCodec.StringToBytes(req.Address)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid address")
+	}
+	address := sdk.AccAddress(addressBz)
+
+	// get profile
+	profile, err := q.k.Profiles.Get(ctx, address)
+	if err != nil {
+		if errors.Is(err, collections.ErrNotFound) {
+			return nil, status.Error(codes.NotFound, "profile not found")
+		}
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+
+	return &types.QueryGetProfileResponse{Profile: profile}, nil
 }
 ```
 
@@ -190,7 +190,7 @@ When working with collections, proper error handling is essential:
 // example from a query function
 params, err := q.k.Params.Get(ctx)
 if err != nil && !errors.Is(err, collections.ErrNotFound) {
-    return nil, status.Error(codes.Internal, "internal error")
+	return nil, status.Error(codes.Internal, "internal error")
 }
 ```
 
@@ -203,23 +203,23 @@ Collections also support iteration:
 ```go
 // iterate over all profiles
 err := k.Profiles.Walk(ctx, nil, func(key sdk.AccAddress, value types.Profile) (bool, error) {
-    // process each profile
-    // return true to stop iteration, false to continue
-    return false, nil
+	// process each profile
+	// return true to stop iteration, false to continue
+	return false, nil
 })
 if err != nil {
-    // handle error
+	// handle error
 }
 
 // iterate over a range of counters
 startKey := "a"
 endKey := "z"
 err = k.Counters.Walk(ctx, collections.NewPrefixedPairRange[string, uint64](startKey, endKey), func(key string, value uint64) (bool, error) {
-    // process each counter in the range
-    return false, nil
+	// process each counter in the range
+	return false, nil
 })
 if err != nil {
-    // handle error
+	// handle error
 }
 ```
 

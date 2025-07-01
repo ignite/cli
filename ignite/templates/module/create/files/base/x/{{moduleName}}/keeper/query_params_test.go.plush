@@ -7,7 +7,6 @@ import (
 
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
-	"<%= modulePath %>/x/<%= moduleName %>/keeper"
 )
 
 func TestParamsQuery(t *testing.T) {

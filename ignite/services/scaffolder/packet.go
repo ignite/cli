@@ -120,7 +120,6 @@ func (s Scaffolder) AddPacket(
 		g    *genny.Generator
 		opts = &ibc.PacketOptions{
 			AppName:    s.modpath.Package,
-			AppPath:    s.appPath,
 			ProtoDir:   s.protoDir,
 			ProtoVer:   "v1", // TODO(@julienrbrt): possibly in the future add flag to specify custom proto version.
 			ModulePath: s.modpath.RawPath,

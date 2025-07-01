@@ -3,6 +3,8 @@ package plugin
 import (
 	"context"
 	"embed"
+	"fmt"
+	"io/fs"
 	"os"
 	"path"
 	"path/filepath"
@@ -13,6 +15,7 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
+	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
@@ -22,25 +25,24 @@ import (
 var fsPluginSource embed.FS
 
 // Scaffold generates a plugin structure under dir/path.Base(appName).
-func Scaffold(ctx context.Context, dir, appName string, sharedHost bool) (string, error) {
+func Scaffold(ctx context.Context, session *cliui.Session, dir, appName string, sharedHost bool) (string, error) {
+	subFs, err := fs.Sub(fsPluginSource, "template")
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+
 	var (
 		name     = filepath.Base(appName)
 		title    = toTitle(name)
 		finalDir = path.Join(dir, name)
-		g        = genny.New()
-		template = xgenny.NewEmbedWalker(
-			fsPluginSource,
-			"template",
-			finalDir,
-		)
 	)
-
 	if _, err := os.Stat(finalDir); err == nil {
 		// finalDir already exists, don't overwrite stuff
 		return "", errors.Errorf("directory %q already exists, abort scaffolding", finalDir)
 	}
 
-	if err := g.Box(template); err != nil {
+	g := genny.New()
+	if err := g.OnlyFS(subFs, nil, nil); err != nil {
 		return "", errors.WithStack(err)
 	}
 
@@ -52,7 +54,14 @@ func Scaffold(ctx context.Context, dir, appName string, sharedHost bool) (string
 
 	g.Transformer(xgenny.Transformer(pctx))
 	r := xgenny.NewRunner(ctx, finalDir)
-	if _, err := r.RunAndApply(g); err != nil {
+	_, err = r.RunAndApply(g, xgenny.ApplyPreRun(func(_, _, duplicated []string) error {
+		if len(duplicated) == 0 {
+			return nil
+		}
+		question := fmt.Sprintf("Do you want to overwrite the existing files? \n%s", strings.Join(duplicated, "\n"))
+		return session.AskConfirm(question)
+	}))
+	if err != nil {
 		return "", err
 	}
 

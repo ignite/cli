@@ -105,9 +105,6 @@ func (f Field) ValueLoop() string {
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
-	if dt.NonIndex {
-		panic(fmt.Sprintf("non index type %s", f.DatatypeName))
-	}
 	return dt.ValueLoop
 }
 

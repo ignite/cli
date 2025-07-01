@@ -22,7 +22,7 @@ const registerRoutesMethod = "RegisterAPIRoutes"
 // CheckKeeper checks for the existence of the keeper with the provided name in the app structure.
 func CheckKeeper(path, keeperName string) error {
 	// find app type
-	appImpl, err := cosmosanalysis.FindImplementation(path, cosmosanalysis.AppImplementation)
+	appImpl, err := cosmosanalysis.FindEmbed(path, cosmosanalysis.AppEmbeddedTypes)
 	if err != nil {
 		return err
 	}
@@ -119,7 +119,7 @@ func FindRegisteredModules(chainRoot string) ([]string, error) {
 // DiscoverModules find a map of import modules based on the configured app.
 func DiscoverModules(file *ast.File, chainRoot string, fileImports map[string]string) ([]string, error) {
 	// find app type
-	appImpl := cosmosanalysis.FindImplementationInFile(file, cosmosanalysis.AppImplementation)
+	appImpl := cosmosanalysis.FindEmbedInFile(file, cosmosanalysis.AppEmbeddedTypes)
 	appTypeName := "App"
 	switch {
 	case len(appImpl) > 1:

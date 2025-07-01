@@ -114,12 +114,15 @@ func newModule(relChainPath, goImportPath string) module.Module {
 							ReturnsType: "QueryMyQueryResponse",
 							HTTPRules: []protoanalysis.HTTPRule{
 								{
+									Endpoint: "/tendermint/mars/my_query/{mytypefield}",
 									Params:   []string{"mytypefield"},
 									HasQuery: true,
-									HasBody:  false,
+									QueryFields: map[string]string{
+										"pagination": "cosmos.base.query.v1beta1.PageRequest",
+									},
+									HasBody: false,
 								},
 							},
-							Paginated: true,
 						},
 						{
 							Name:        "Foo",
@@ -127,6 +130,7 @@ func newModule(relChainPath, goImportPath string) module.Module {
 							ReturnsType: "QueryFooResponse",
 							HTTPRules: []protoanalysis.HTTPRule{
 								{
+									Endpoint: "/tendermint/mars/foo",
 									HasQuery: false,
 									HasBody:  false,
 								},
@@ -150,26 +154,37 @@ func newModule(relChainPath, goImportPath string) module.Module {
 		},
 		HTTPQueries: []module.HTTPQuery{
 			{
-				Name:     "MyQuery",
-				FullName: "QueryMyQuery",
+				Name:         "MyQuery",
+				FullName:     "QueryMyQuery",
+				RequestType:  "QueryMyQueryRequest",
+				ResponseType: "QueryMyQueryResponse",
 				Rules: []protoanalysis.HTTPRule{
 					{
+						Endpoint: "/tendermint/mars/my_query/{mytypefield}",
 						Params:   []string{"mytypefield"},
 						HasQuery: true,
-						HasBody:  false,
+						QueryFields: map[string]string{
+							"pagination": "cosmos.base.query.v1beta1.PageRequest",
+						},
+						HasBody: false,
 					},
 				},
 				Paginated: true,
+				FilePath:  filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
 			},
 			{
-				Name:     "Foo",
-				FullName: "QueryFoo",
+				Name:         "Foo",
+				FullName:     "QueryFoo",
+				RequestType:  "QueryFooRequest",
+				ResponseType: "QueryFooResponse",
 				Rules: []protoanalysis.HTTPRule{
 					{
+						Endpoint: "/tendermint/mars/foo",
 						HasQuery: false,
 						HasBody:  false,
 					},
 				},
+				FilePath: filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
 			},
 		},
 		Types: []module.Type(nil),

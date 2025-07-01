@@ -48,7 +48,8 @@ var (
 	DataIntSlice = DataType{
 		DataType:                func(string) string { return "[]int64" },
 		CollectionsKeyValueName: func(string) string { return collectionValueComment },
-		DefaultTestValue:        "1,2,3,4,5",
+		DefaultTestValue:        "5,4,3,2,1",
+		ValueLoop:               "[]int64{int64(i+i%1), int64(i+i%2), int64(i+i%3)}",
 		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("repeated int64 %s = %d", name, index)
 		},

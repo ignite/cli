@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"embed"
 	"fmt"
+	"io/fs"
 	"math/big"
 	"path/filepath"
 
@@ -15,7 +16,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/typed"
 )
 
@@ -27,31 +27,27 @@ var (
 	fsComponent embed.FS
 
 	//go:embed files/simapp/* files/simapp/**/*
-	fsimapp embed.FS
+	fsSimapp embed.FS
 )
 
 // NewGenerator returns the generator to scaffold a new indexed type in a module.
 func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
-	var (
-		g = genny.New()
+	subMessages, err := fs.Sub(fsMessages, "files/messages")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
 
-		messagesTemplate = xgenny.NewEmbedWalker(
-			fsMessages,
-			"files/messages/",
-			opts.AppPath,
-		)
-		componentTemplate = xgenny.NewEmbedWalker(
-			fsComponent,
-			"files/component/",
-			opts.AppPath,
-		)
-		simappTemplate = xgenny.NewEmbedWalker(
-			fsimapp,
-			"files/simapp/",
-			opts.AppPath,
-		)
-	)
+	subComponent, err := fs.Sub(fsComponent, "files/component")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
 
+	subSimapp, err := fs.Sub(fsSimapp, "files/simapp")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
+
+	g := genny.New()
 	g.RunFn(protoRPCModify(opts))
 	g.RunFn(typesKeyModify(opts))
 	g.RunFn(keeperModify(opts))
@@ -70,23 +66,23 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 
 		if !opts.NoSimulation {
 			g.RunFn(moduleSimulationModify(opts))
-			if err := typed.Box(simappTemplate, opts, g); err != nil {
+			if err := typed.Box(subSimapp, opts, g); err != nil {
 				return nil, err
 			}
 		}
 
-		if err := typed.Box(messagesTemplate, opts, g); err != nil {
+		if err := typed.Box(subMessages, opts, g); err != nil {
 			return nil, err
 		}
 	}
 
-	return g, typed.Box(componentTemplate, opts, g)
+	return g, typed.Box(subComponent, opts, g)
 }
 
 // typesKeyModify modifies the keys.go file to add a new collection prefix.
 func typesKeyModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/keys.go")
+		path := filepath.Join("x", opts.ModuleName, "types/keys.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -107,7 +103,7 @@ var (
 // keeperModify modifies the keeper to add a new collections item type.
 func keeperModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/keeper.go")
+		path := filepath.Join("x", opts.ModuleName, "keeper/keeper.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -209,7 +205,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 
 func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/autocli.go")
+		path := filepath.Join("x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -276,7 +272,7 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 
 func genesisTypesModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis.go")
+		path := filepath.Join("x", opts.ModuleName, "types/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -298,7 +294,7 @@ func genesisTypesModify(opts *typed.Options) genny.RunFn {
 
 func genesisTestsModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/genesis_test.go")
+		path := filepath.Join("x", opts.ModuleName, "keeper/genesis_test.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -323,7 +319,7 @@ func genesisTestsModify(opts *typed.Options) genny.RunFn {
 				fmt.Sprintf("&types.%[1]v{ %[2]v }", opts.TypeName.PascalCase, sampleFields),
 			),
 			xast.AppendFuncCode(
-				fmt.Sprintf("require.Equal(t, genesisState.%[1]v, got.%[1]v)", opts.TypeName.UpperCamel),
+				fmt.Sprintf("require.EqualExportedValues(t, genesisState.%[1]v, got.%[1]v)", opts.TypeName.UpperCamel),
 			),
 		)
 		if err != nil {
@@ -337,7 +333,7 @@ func genesisTestsModify(opts *typed.Options) genny.RunFn {
 
 func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis_test.go")
+		path := filepath.Join("x", opts.ModuleName, "types/genesis_test.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -374,7 +370,7 @@ func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 
 func genesisModuleModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/genesis.go")
+		path := filepath.Join("x", opts.ModuleName, "keeper/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -517,7 +513,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 
 func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/autocli.go")
+		path := filepath.Join("x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -560,7 +556,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 
 func typesCodecModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/codec.go")
+		path := filepath.Join("x", opts.ModuleName, "types/codec.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

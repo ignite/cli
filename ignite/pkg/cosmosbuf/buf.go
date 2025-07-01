@@ -33,7 +33,8 @@ const (
 	fmtJSON                   = "json"
 	bufGenPrefix              = "buf.gen."
 
-	// CMDGenerate generate command.
+	// CMD*** are the buf commands.
+	CMDBuf              = "buf"
 	CMDGenerate Command = "generate"
 	CMDExport   Command = "export"
 	CMDFormat   Command = "format"
@@ -75,6 +76,7 @@ type (
 		fileByFile     bool
 		includeImports bool
 		includeWKT     bool
+		moduleName     string
 	}
 
 	// GenOption configures code generation.
@@ -88,6 +90,7 @@ func newGenOptions() genOptions {
 		fileByFile:     false,
 		includeWKT:     false,
 		includeImports: false,
+		moduleName:     "",
 	}
 }
 
@@ -123,6 +126,13 @@ func IncludeWKT() GenOption {
 	}
 }
 
+// WithModuleName sets the module name to filter protos for.
+func WithModuleName(value string) GenOption {
+	return func(o *genOptions) {
+		o.moduleName = value
+	}
+}
+
 // FileByFile runs the generate command for each proto file.
 func FileByFile() GenOption {
 	return func(o *genOptions) {
@@ -132,7 +142,7 @@ func FileByFile() GenOption {
 
 // New creates a new Buf based on the installed binary.
 func New(cacheStorage cache.Storage, goModPath string) (Buf, error) {
-	bufCacheDir := filepath.Join("buf", goModPath)
+	bufCacheDir := filepath.Join(CMDBuf, goModPath)
 	c, err := dircache.New(cacheStorage, bufCacheDir, specCacheNamespace)
 	if err != nil {
 		return Buf{}, err
@@ -172,7 +182,11 @@ func (b Buf) Update(ctx context.Context, modDir string) error {
 
 // Migrate runs the buf Migrate command for the files in the app directory.
 func (b Buf) Migrate(ctx context.Context, protoDir string) error {
-	yamlFiles, err := xos.FindFiles(protoDir, xos.WithExtension(xos.YMLFile), xos.WithExtension(xos.YAMLFile), xos.WithPrefix(bufGenPrefix))
+	yamlFiles, err := xos.FindFiles(protoDir,
+		xos.WithExtension(xos.YMLFile),
+		xos.WithExtension(xos.YAMLFile),
+		xos.WithPrefix(bufGenPrefix),
+	)
 	if err != nil {
 		return err
 	}
@@ -239,9 +253,13 @@ func (b Buf) Generate(
 	for _, apply := range options {
 		apply(&opts)
 	}
-
+	modulePath := protoPath
+	if opts.moduleName != "" {
+		path := append([]string{protoPath}, strings.Split(opts.moduleName, ".")...)
+		modulePath = filepath.Join(path...)
+	}
 	// find all proto files into the path.
-	foundFiles, err := xos.FindFiles(protoPath, xos.WithExtension(xos.ProtoFile))
+	foundFiles, err := xos.FindFiles(modulePath, xos.WithExtension(xos.ProtoFile))
 	if err != nil || len(foundFiles) == 0 {
 		return err
 	}

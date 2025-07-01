@@ -6,6 +6,7 @@ import (
 
 	hplugin "github.com/hashicorp/go-plugin"
 
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/services/plugin"
 )
 
@@ -24,7 +25,7 @@ func (app) Execute(ctx context.Context, cmd *plugin.ExecutedCommand, api plugin.
 		cmd.Args, c.ChainId, c.AppPath, c.ConfigPath, c.Home, c.RpcAddress,
 	)
 	if err != nil {
-		return fmt.Errorf("failed to get chain info: %w", err)
+		return errors.Errorf("failed to get chain info: %w", err)
 	}
 
 	i, err := api.GetIgniteInfo(ctx)
@@ -35,7 +36,7 @@ func (app) Execute(ctx context.Context, cmd *plugin.ExecutedCommand, api plugin.
 		i.Os, i.Arch, i.BuildFromSource,
 	)
 	if err != nil {
-		return fmt.Errorf("failed to get ignite info: %w", err)
+		return errors.Errorf("failed to get ignite info: %w", err)
 	}
 	return nil
 }

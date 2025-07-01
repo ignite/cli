@@ -11,7 +11,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/templates/field"
 	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
-	modulecreate "github.com/ignite/cli/v29/ignite/templates/module/create"
 	"github.com/ignite/cli/v29/ignite/templates/typed"
 	"github.com/ignite/cli/v29/ignite/templates/typed/dry"
 	"github.com/ignite/cli/v29/ignite/templates/typed/list"
@@ -166,7 +165,6 @@ func (s Scaffolder) AddType(
 		g    *genny.Generator
 		opts = &typed.Options{
 			AppName:      s.modpath.Package,
-			AppPath:      s.appPath,
 			ProtoDir:     s.protoDir,
 			ProtoVer:     "v1", // TODO(@julienrbrt): possibly in the future add flag to specify custom proto version.
 			ModulePath:   s.modpath.RawPath,
@@ -180,22 +178,6 @@ func (s Scaffolder) AddType(
 		}
 		gens []*genny.Generator
 	)
-	// Check and support MsgServer convention
-	gens, err = supportMsgServer(
-		gens,
-		s.runner.Tracer(),
-		&modulecreate.MsgServerOptions{
-			ModuleName: opts.ModuleName,
-			ModulePath: opts.ModulePath,
-			AppName:    opts.AppName,
-			AppPath:    opts.AppPath,
-			ProtoDir:   opts.ProtoDir,
-			ProtoVer:   opts.ProtoVer,
-		},
-	)
-	if err != nil {
-		return err
-	}
 
 	// create the type generator depending on the model
 	switch {

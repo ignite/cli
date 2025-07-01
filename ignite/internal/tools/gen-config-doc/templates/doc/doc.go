@@ -2,16 +2,18 @@ package doc
 
 import (
 	"embed"
+	"io/fs"
 
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
 
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"
 )
 
 //go:embed files/*
-var fsFiles embed.FS
+var files embed.FS
 
 // Options represents the options to scaffold a migration document.
 type Options struct {
@@ -22,16 +24,13 @@ type Options struct {
 
 // NewGenerator returns the generator to scaffold a migration doc.
 func NewGenerator(opts Options) (*genny.Generator, error) {
-	var (
-		g           = genny.New()
-		docTemplate = xgenny.NewEmbedWalker(
-			fsFiles,
-			"files/",
-			opts.Path,
-		)
-	)
+	subFs, err := fs.Sub(files, "files")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
 
-	if err := g.Box(docTemplate); err != nil {
+	g := genny.New()
+	if err := g.OnlyFS(subFs, nil, nil); err != nil {
 		return g, err
 	}
 
