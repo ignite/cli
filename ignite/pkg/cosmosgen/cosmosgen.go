@@ -123,9 +123,6 @@ func (g *generator) cleanup() {
 	for _, path := range g.tmpDirs {
 		_ = os.RemoveAll(path)
 	}
-
-	// Clear caches that reference temporary directories
-	g.bufExportCache = nil
 }
 
 // Generate generates code from protoDir of an SDK app residing at appPath with given options.
