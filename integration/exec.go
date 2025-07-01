@@ -81,7 +81,7 @@ func (e Env) Exec(msg string, steps step.Steps, options ...ExecOption) (ok bool)
 		fmt.Printf("Executing %d step(s) for %q\n", len(steps), msg)
 		copts = append(copts, cmdrunner.EnableDebug())
 	}
-	if isCI {
+	if IsCI {
 		copts = append(copts, cmdrunner.EndSignal(os.Kill))
 	}
 	err := cmdrunner.

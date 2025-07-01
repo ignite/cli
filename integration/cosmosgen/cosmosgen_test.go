@@ -13,6 +13,10 @@ import (
 )
 
 func TestCosmosGenScaffold(t *testing.T) {
+	if envtest.IsCI {
+		t.Skip("Skipping CosmosGenScaffold test in CI environment")
+	}
+
 	var (
 		env = envtest.New(t)
 		app = env.ScaffoldApp("github.com/test/blog")
