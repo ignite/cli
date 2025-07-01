@@ -11,7 +11,7 @@
 
         <script src="//unpkg.com/swagger-ui-dist@3.40.0/swagger-ui-bundle.js"></script>
         <script>
-            // init Swagger for faucet's openapi.yml.
+            // init Swagger for faucet's openapi.json.
             window.onload = function() {
               window.ui = SwaggerUIBundle({
                 url: {{ .URL }},
