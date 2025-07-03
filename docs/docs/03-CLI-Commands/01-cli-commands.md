@@ -1087,7 +1087,6 @@ meant to be edited by hand.
 
 * [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 * [ignite generate composables](#ignite-generate-composables)	 - TypeScript frontend client and Vue 3 composables
-* [ignite generate hooks](#ignite-generate-hooks)	 - TypeScript frontend client and React hooks
 * [ignite generate openapi](#ignite-generate-openapi)	 - OpenAPI spec for your chain
 * [ignite generate proto-go](#ignite-generate-proto-go)	 - Compile protocol buffer files to Go source code required by Cosmos SDK
 * [ignite generate ts-client](#ignite-generate-ts-client)	 - TypeScript frontend client
@@ -1106,36 +1105,6 @@ ignite generate composables [flags]
 ```
   -h, --help            help for composables
   -o, --output string   Vue 3 composables output path
-  -y, --yes             answers interactive yes/no questions with yes
-```
-
-**Options inherited from parent commands**
-
-```
-      --clear-cache           clear the build cache (advanced)
-      --enable-proto-vendor   enable proto package vendor for missing Buf dependencies
-  -p, --path string           path of the app (default ".")
-  -v, --verbose               verbose output
-```
-
-**SEE ALSO**
-
-* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
-
-
-## ignite generate hooks
-
-TypeScript frontend client and React hooks
-
-```
-ignite generate hooks [flags]
-```
-
-**Options**
-
-```
-  -h, --help            help for hooks
-  -o, --output string   React hooks output path
   -y, --yes             answers interactive yes/no questions with yes
 ```
 
@@ -1365,6 +1334,7 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 * [ignite scaffold query](#ignite-scaffold-query)	 - Query for fetching data from a blockchain
 * [ignite scaffold single](#ignite-scaffold-single)	 - CRUD for data stored in a single location
 * [ignite scaffold type](#ignite-scaffold-type)	 - Type definition
+* [ignite scaffold vue](#ignite-scaffold-vue)	 - Vue 3 web app template
 
 
 ## ignite scaffold chain
@@ -2112,6 +2082,32 @@ ignite scaffold type NAME [field:type] ... [flags]
   -p, --path string     path of the app (default ".")
       --signer string   label for the message signer (default: creator)
   -y, --yes             answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
+```
+
+**SEE ALSO**
+
+* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+
+
+## ignite scaffold vue
+
+Vue 3 web app template
+
+```
+ignite scaffold vue [flags]
+```
+
+**Options**
+
+```
+  -h, --help   help for vue
+  -y, --yes    answers interactive yes/no questions with yes
 ```
 
 **Options inherited from parent commands**
