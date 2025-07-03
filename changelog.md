@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [`v28.11.0`](https://github.com/ignite/cli/releases/tag/v28.11.0)
+
 ### Changes
 
 - [#4718](https://github.com/ignite/cli/pull/4718) Bump default Ignite Apps.
@@ -10,7 +12,7 @@
 
 - [#4686](https://github.com/ignite/cli/pull/4686) Filter discovered protos to only messages.
 - [#4691](https://github.com/ignite/cli/pull/4691), [#4706](https://github.com/ignite/cli/pull/4706), [#4725](https://github.com/ignite/cli/pull/4725), [#4737](https://github.com/ignite/cli/pull/4737) Fix ts-client query template and solely Go template for `ts-client` generation.
-- [#4742](https://github.com/ignite/cli/pull/4742) Updates Vue composables template for new ts-client and tanstack/vue-query v5
+- [#4744](https://github.com/ignite/cli/pull/4744) Remove `react` frontend generation via `s react` command. Use the [Ignite CCA App](https://github.com/ignite/apps) instead.
 
 ## [`v28.10.0`](https://github.com/ignite/cli/releases/tag/v28.10.0)
 
