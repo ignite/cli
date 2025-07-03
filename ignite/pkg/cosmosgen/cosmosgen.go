@@ -65,18 +65,7 @@ func WithComposablesGeneration(out ModulePathFunc, composablesRootPath string) O
 	}
 }
 
-<<<<<<< HEAD
-func WithHooksGeneration(out ModulePathFunc, hooksRootPath string) Option {
-	return func(o *generateOptions) {
-		o.hooksOut = out
-		o.hooksRootPath = hooksRootPath
-	}
-}
-
-// WithGoGeneration adds protobuf (gogoproto and pulsar) code generation.
-=======
 // WithGoGeneration adds protobuf (gogoproto) code generation.
->>>>>>> d1bf508a (refactor!: remove react frontend + re-enable disabled integration tests (#4744))
 func WithGoGeneration() Option {
 	return func(o *generateOptions) {
 		o.generateProtobuf = true
@@ -134,13 +123,8 @@ func (g *generator) cleanup() {
 
 // Generate generates code from protoDir of an SDK app residing at appPath with given options.
 // protoDir must be relative to the projectPath.
-<<<<<<< HEAD
-func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir, goModPath string, options ...Option) error {
-	b, err := cosmosbuf.New(cacheStorage, goModPath)
-=======
 func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir, goModPath string, frontendPath string, options ...Option) error {
-	buf, err := cosmosbuf.New(cacheStorage, goModPath)
->>>>>>> d1bf508a (refactor!: remove react frontend + re-enable disabled integration tests (#4744))
+	b, err := cosmosbuf.New(cacheStorage, goModPath)
 	if err != nil {
 		return err
 	}

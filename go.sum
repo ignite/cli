@@ -833,15 +833,10 @@ github.com/iancoleman/strcase v0.3.0 h1:nTXanmYxhfFAMjZL34Ov6gkzEsSJZ5DbhxWjvSAS
 github.com/iancoleman/strcase v0.3.0/go.mod h1:iwCmte+B7n89clKwxIoIXy/HfoL7AsD47ZCWhYzw7ho=
 github.com/ianlancetaylor/demangle v0.0.0-20210905161508-09a460cdf81d/go.mod h1:aYm2/VgdVmcIU8iMfdMvDMsRAQjcfZSKFby6HOFvi/w=
 github.com/ianlancetaylor/demangle v0.0.0-20230524184225-eabc099b10ab/go.mod h1:gx7rwoVhcfuVKG5uya9Hs3Sxj7EIvldVofAWIUtGouw=
-<<<<<<< HEAD
 github.com/ignite/ignite-files/protoc v0.0.1 h1:wXxU1dzruUgSVl1diAuAOA+xv0NQKXJFsDWht2+tAP8=
 github.com/ignite/ignite-files/protoc v0.0.1/go.mod h1:cVCHJbEHPIeKHMPk3ZoPS0Xw4XQfUc76BAMAPU9Fwjg=
-github.com/ignite/web v0.6.1 h1:kHG+T7NnR8cCPjAGxEFQD+njVYM08toeG57iYRXzpwo=
-github.com/ignite/web v0.6.1/go.mod h1:WZWBaBYF8RazN7dE462BLpvXDY8ScacxcJ07BKwX/jY=
-=======
 github.com/ignite/web v1.0.8 h1:St3L6UJj70+h16+No5em8Vn2Hx93tS2G1MyWO/Kt1cc=
 github.com/ignite/web v1.0.8/go.mod h1:WZWBaBYF8RazN7dE462BLpvXDY8ScacxcJ07BKwX/jY=
->>>>>>> d1bf508a (refactor!: remove react frontend + re-enable disabled integration tests (#4744))
 github.com/imdario/mergo v0.3.12/go.mod h1:jmQim1M+e3UYxmgPu/WyfjB3N3VflVyUjjjwH0dnCYA=
 github.com/imdario/mergo v0.3.13 h1:lFzP57bqS/wsqKssCGmtLAb8A0wKjLGrve2q3PPVcBk=
 github.com/imdario/mergo v0.3.13/go.mod h1:4lJ1jqUDcsbIECGy0RUJAXNIhg+6ocWgb1ALK2O4oXg=

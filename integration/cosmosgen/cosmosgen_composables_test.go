@@ -105,7 +105,16 @@ func TestCosmosGenScaffoldComposables(t *testing.T) {
 	composablesDirGenerated := filepath.Join(app.SourcePath(), "vue/src/composables")
 	require.NoError(t, os.RemoveAll(composablesDirGenerated))
 
-<<<<<<< HEAD
+	env.Must(env.Exec("scaffold vue",
+		step.NewSteps(step.New(
+			step.Exec(
+				envtest.IgniteApp,
+				"s",
+				"vue",
+			),
+			step.Workdir(app.SourcePath()),
+		)),
+	))
 	env.Must(env.Exec("generate composables",
 		step.NewSteps(step.New(
 			step.Exec(
@@ -118,20 +127,6 @@ func TestCosmosGenScaffoldComposables(t *testing.T) {
 			step.Workdir(app.SourcePath()),
 		)),
 	))
-=======
-	app.Scaffold(
-		"scaffold vue",
-		false,
-		"vue",
-	)
-
-	app.Generate(
-		"generate composables",
-		false,
-		"composables",
-		"--clear-cache",
-	)
->>>>>>> d1bf508a (refactor!: remove react frontend + re-enable disabled integration tests (#4744))
 
 	expectedQueryModules := []string{
 		"useCosmosAuthV1Beta1",

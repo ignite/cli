@@ -26,29 +26,16 @@ var (
 	// The path is relative to the app's directory.
 	DefaultVuePath = "vue"
 
-<<<<<<< HEAD
-	// DefaultReactPath defines the default relative path to use when scaffolding a React app.
-	// The path is relative to the app's directory.
-	DefaultReactPath = "react"
-
 	// DefaultVuexPath defines the default relative path to use when generating Vuex stores for a Vue app.
 	// The path is relative to the app's directory.
 	DefaultVuexPath = "vue/src/store"
 
-=======
->>>>>>> d1bf508a (refactor!: remove react frontend + re-enable disabled integration tests (#4744))
 	// DefaultComposablesPath defines the default relative path to use when generating useQuery composables for a Vue app.
 	// The path is relative to the app's directory.
 	DefaultComposablesPath = "vue/src/composables"
 
-<<<<<<< HEAD
-	// DefaultHooksPath defines the default relative path to use when generating useQuery hooks for a React app.
-	// The path is relative to the app's directory.
-	DefaultHooksPath = "react/src/hooks"
-=======
 	// DefaultVueTypesPath defines the default vue types path.
 	DefaultVueTypesPath = "vue/src/views/Types.vue"
->>>>>>> d1bf508a (refactor!: remove react frontend + re-enable disabled integration tests (#4744))
 
 	// DefaultOpenAPIPath defines the default relative path to use when generating an OpenAPI schema.
 	// The path is relative to the app's directory.

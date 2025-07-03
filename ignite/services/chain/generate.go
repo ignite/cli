@@ -21,11 +21,7 @@ type generateOptions struct {
 	isGoEnabled          bool
 	isTSClientEnabled    bool
 	isComposablesEnabled bool
-<<<<<<< HEAD
-	isHooksEnabled       bool
 	isVuexEnabled        bool
-=======
->>>>>>> d1bf508a (refactor!: remove react frontend + re-enable disabled integration tests (#4744))
 	isOpenAPIEnabled     bool
 	tsClientPath         string
 	vuexPath             string
@@ -161,13 +157,8 @@ func (c *Chain) Generate(
 	}
 
 	var (
-<<<<<<< HEAD
-		openAPIPath, tsClientPath, vuexPath, composablesPath, hooksPath string
-		updateConfig                                                    bool
-=======
-		openAPIPath, tsClientPath, composablesPath string
-		updateConfig                               bool
->>>>>>> d1bf508a (refactor!: remove react frontend + re-enable disabled integration tests (#4744))
+		openAPIPath, tsClientPath, vuexPath, composablesPath string
+		updateConfig                                         bool
 	)
 
 	if targetOptions.isOpenAPIEnabled {
@@ -297,15 +288,6 @@ func (c *Chain) Generate(
 			)
 		}
 
-<<<<<<< HEAD
-		if targetOptions.isHooksEnabled {
-			c.ev.Send(
-				fmt.Sprintf("React hooks path: %s", hooksPath),
-				events.Icon(icons.Bullet),
-				events.ProgressFinish(),
-			)
-		}
-
 		if targetOptions.isVuexEnabled {
 			c.ev.Send(
 				fmt.Sprintf("Vuex stores path: %s", vuexPath),
@@ -314,8 +296,6 @@ func (c *Chain) Generate(
 			)
 		}
 
-=======
->>>>>>> d1bf508a (refactor!: remove react frontend + re-enable disabled integration tests (#4744))
 		if targetOptions.isOpenAPIEnabled {
 			c.ev.Send(
 				fmt.Sprintf("OpenAPI path: %s", openAPIPath),

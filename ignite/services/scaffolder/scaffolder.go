@@ -134,26 +134,5 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, gomodP
 		options = append(options, cosmosgen.WithOpenAPIGeneration(openAPIPath))
 	}
 
-<<<<<<< HEAD
-	return cosmosgen.Generate(ctx, cacheStorage, projectPath, conf.Build.Proto.Path, gomodPath, options...)
-=======
-	if err := cosmosgen.Generate(
-		ctx,
-		cacheStorage,
-		projectPath,
-		protoDir,
-		goModPath,
-		chainconfig.DefaultVuePath,
-		options...,
-	); err != nil {
-		return err
-	}
-
-	buf, err := cosmosbuf.New(cacheStorage, goModPath)
-	if err != nil {
-		return err
-	}
-
-	return buf.Format(ctx, projectPath)
->>>>>>> d1bf508a (refactor!: remove react frontend + re-enable disabled integration tests (#4744))
+	return cosmosgen.Generate(ctx, cacheStorage, projectPath, conf.Build.Proto.Path, gomodPath, chainconfig.DefaultVuePath, options...)
 }

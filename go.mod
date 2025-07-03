@@ -55,14 +55,10 @@ require (
 	github.com/hashicorp/go-hclog v1.6.3
 	github.com/hashicorp/go-plugin v1.6.0
 	github.com/iancoleman/strcase v0.3.0
-<<<<<<< HEAD
 	github.com/ignite/ignite-files/protoc v0.0.1
-	github.com/ignite/web v0.6.1
+	github.com/ignite/web v1.0.8
 	github.com/imdario/mergo v0.3.13
 	github.com/jpillora/chisel v1.9.1
-=======
-	github.com/ignite/web v1.0.8
->>>>>>> d1bf508a (refactor!: remove react frontend + re-enable disabled integration tests (#4744))
 	github.com/lib/pq v1.10.9
 	github.com/manifoldco/promptui v0.9.0
 	github.com/mitchellh/mapstructure v1.5.0
