@@ -102,6 +102,11 @@ type generator struct {
 	thirdModules        map[string][]module.Module
 	thirdModuleIncludes map[string]protoIncludes
 	tmpDirs             []string
+
+	// caches to avoid repeated operations
+	bufPathCache   map[string]string
+	bufExportCache map[string]string
+	bufConfigCache map[string]struct{ Name string }
 }
 
 func (g *generator) cleanup() {
@@ -129,6 +134,9 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		thirdModules:        make(map[string][]module.Module),
 		thirdModuleIncludes: make(map[string]protoIncludes),
 		cacheStorage:        cacheStorage,
+		bufPathCache:        make(map[string]string),
+		bufExportCache:      make(map[string]string),
+		bufConfigCache:      make(map[string]struct{ Name string }),
 	}
 
 	defer g.cleanup()
