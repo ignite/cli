@@ -33,7 +33,7 @@ var (
 	// invoked.
 	IgniteApp = path.Join(os.TempDir(), "ignite-tests", "ignite")
 
-	isCI, _           = strconv.ParseBool(os.Getenv("CI"))
+	IsCI, _           = strconv.ParseBool(os.Getenv("CI"))
 	compileBinaryOnce sync.Once
 )
 

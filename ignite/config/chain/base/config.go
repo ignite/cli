@@ -41,9 +41,6 @@ type Client struct {
 	// Composables configures code generation for Vue 3 composables.
 	Composables Composables `yaml:"composables,omitempty" doc:"Configures Vue 3 composables code generation."`
 
-	// Hooks configures code generation for React hooks.
-	Hooks Hooks `yaml:"hooks,omitempty" doc:"Configures React hooks code generation."`
-
 	// OpenAPI configures OpenAPI spec generation for API.
 	OpenAPI OpenAPI `yaml:"openapi,omitempty" doc:"Configures OpenAPI spec generation for the API."`
 }
@@ -58,12 +55,6 @@ type Typescript struct {
 type Composables struct {
 	// Path configures out location for generated vue-query hooks.
 	Path string `yaml:"path" doc:"Relative path where the application's composable files are located."`
-}
-
-// Hooks configures code generation for react-query hooks.
-type Hooks struct {
-	// Path configures out location for generated vue-query hooks.
-	Path string `yaml:"path" doc:"Relative path where the application's hooks files are located."`
 }
 
 // OpenAPI configures OpenAPI spec generation for API.
