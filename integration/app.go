@@ -295,3 +295,167 @@ func (a App) GenerateTSClient() bool {
 		),
 	))
 }
+<<<<<<< HEAD
+=======
+
+// MustServe serves the application and ensures success, failing the test if serving fails.
+// It uses the provided context to allow cancellation.
+func (a *App) MustServe(ctx context.Context) {
+	a.env.Must(a.Serve("should serve chain", ExecCtx(ctx)))
+}
+
+// Scaffold scaffolds a new module or component in the app and optionally
+// validates if it should fail.
+// - msg: description of the scaffolding operation.
+// - shouldFail: whether the scaffolding is expected to fail.
+// - typeName: the type of the scaffold (e.g., "map", "message").
+// - args: additional arguments for the scaffold command.
+func (a *App) Scaffold(msg string, shouldFail bool, typeName string, args ...string) {
+	a.generate(msg, "scaffold", shouldFail, append([]string{typeName}, args...)...)
+
+	if !shouldFail {
+		a.addScaffoldCmd(typeName, args...)
+	}
+}
+
+// Generate executes a code generation command in the app and optionally
+// validates if it should fail.
+// - msg: description of the generation operation.
+// - shouldFail: whether the generation is expected to fail.
+// - args: arguments for the generation command.
+func (a *App) Generate(msg string, shouldFail bool, args ...string) {
+	a.generate(msg, "generate", shouldFail, args...)
+}
+
+// generate is a helper method to execute a scaffolding or generation command with the specified options.
+// - msg: description of the operation.
+// - command: the command to execute (e.g., "scaffold", "generate").
+// - shouldFail: whether the command is expected to fail.
+// - args: arguments for the command.
+func (a *App) generate(msg, command string, shouldFail bool, args ...string) {
+	opts := make([]ExecOption, 0)
+	if shouldFail {
+		opts = append(opts, ExecShouldError())
+	}
+
+	args = append([]string{command}, args...)
+	a.env.Must(a.env.Exec(msg,
+		step.NewSteps(step.New(
+			step.Exec(IgniteApp, append(args, "--yes")...),
+			step.Workdir(a.SourcePath()),
+		)),
+		opts...,
+	))
+}
+
+// addScaffoldCmd processes the scaffold arguments and adds the scaffolded command metadata to the app.
+// - typeName: the type of the scaffold (e.g., "map", "message").
+// - args: arguments for the scaffold command.
+func (a *App) addScaffoldCmd(typeName string, args ...string) {
+	module := ""
+	index := ""
+	response := ""
+	params := ""
+	name := typeName
+
+	// in the case of scaffolding commands that do no take arguments
+	// we can skip the argument parsing
+	if len(args) > 0 {
+		name = args[0]
+		args = args[1:]
+	}
+
+	filteredArgs := make([]string, 0)
+
+	// remove the flags from the args
+	for _, arg := range args {
+		if strings.HasPrefix(arg, "-") {
+			break
+		}
+		filteredArgs = append(filteredArgs, arg)
+	}
+
+	// parse the arg flags
+	for i, arg := range args {
+		// skip tests if the type doesn't need a message
+		if arg == "--no-message" {
+			return
+		}
+		if i+1 >= len(args) {
+			break
+		}
+		switch arg {
+		case "--module":
+			module = args[i+1]
+		case "--index":
+			index = args[i+1]
+		case "--params":
+			params = args[i+1]
+		case "-r", "--response":
+			response = args[i+1]
+		}
+	}
+
+	argsFields, err := field.ParseFields(filteredArgs, func(string) error { return nil })
+	require.NoError(a.env.t, err)
+
+	s := scaffold{
+		fields:   argsFields,
+		module:   module,
+		typeName: typeName,
+		name:     name,
+	}
+
+	// Handle field specifics based on scaffold type
+	switch typeName {
+	case "map":
+		if index == "" {
+			index = "index:string"
+		}
+		indexFields, err := field.ParseFields(strings.Split(index, ","), func(string) error { return nil })
+		require.NoError(a.env.t, err)
+		require.Len(a.env.t, indexFields, 1)
+		s.index = indexFields[0]
+	case "query", "message":
+		if response == "" {
+			break
+		}
+		responseFields, err := field.ParseFields(strings.Split(response, ","), func(string) error { return nil })
+		require.NoError(a.env.t, err)
+		require.Greater(a.env.t, len(responseFields), 0)
+		s.response = responseFields
+	case "module":
+		s.module = name
+		if params == "" {
+			break
+		}
+		paramsFields, err := field.ParseFields(strings.Split(params, ","), func(string) error { return nil })
+		require.NoError(a.env.t, err)
+		require.Greater(a.env.t, len(paramsFields), 0)
+		s.params = paramsFields
+	case "params":
+		s.params = argsFields
+	}
+
+	a.scaffolded = append(a.scaffolded, s)
+}
+
+// WaitChainUp waits the chain is up.
+func (a *App) WaitChainUp(ctx context.Context, chainAPI string) {
+	// check the chains is up
+	env := a.env
+	stepsCheckChains := step.NewSteps(
+		step.New(
+			step.Exec(
+				a.Binary(),
+				"config",
+				"output", "json",
+			),
+			step.PreExec(func() error {
+				return env.IsAppServed(ctx, chainAPI)
+			}),
+		),
+	)
+	env.Exec(fmt.Sprintf("waiting the chain (%s) is up", chainAPI), stepsCheckChains, ExecRetry())
+}
+>>>>>>> d1bf508a (refactor!: remove react frontend + re-enable disabled integration tests (#4744))

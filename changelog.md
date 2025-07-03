@@ -5,6 +5,32 @@
 ### Changes
 
 - [#4718](https://github.com/ignite/cli/pull/4718) Bump default Ignite Apps.
+- [#4741](https://github.com/ignite/cli/pull/4741) Let `generate openapi` generate external modules OpenAPI spec.
+- [#4747](https://github.com/ignite/cli/pull/4747) Improve Ignite UI.
+
+### Fixes
+
+- [#4691](https://github.com/ignite/cli/pull/4691), [#4706](https://github.com/ignite/cli/pull/4706), [#4725](https://github.com/ignite/cli/pull/4725), [#4737](https://github.com/ignite/cli/pull/4737) Fix ts-client query template and solely Go template for `ts-client` generation.
+- [#4742](https://github.com/ignite/cli/pull/4742) Updates Vue composables template for new ts-client and tanstack/vue-query v5
+- [#4744](https://github.com/ignite/cli/pull/4744) Remove `react` frontend generation via `s react` command. Use the [Ignite CCA App](https://github.com/ignite/apps) instead.
+
+## [`v29.0.0`](https://github.com/ignite/cli/releases/tag/v29.0.0)
+
+### Features
+
+- [#4614](https://github.com/ignite/cli/pull/4614) Improve integration tests and add query tests.
+- [#4683](https://github.com/ignite/cli/pull/4683) Allow to change default denom via flag.
+- [#4687](https://github.com/ignite/cli/pull/4687) Add address type with `scalar` annotations, and add `scalar` type to signer field.
+
+### Changes
+
+- [#4689](https://github.com/ignite/cli/pull/4689) Revert `HasGenesis` implementation from retracted `core` v1 to SDK `HasGenesis` interface.
+- [#4701](https://github.com/ignite/cli/pull/4701) Improve `ignite doctor` by removing manual migration step. Additionally, remove protoc to buf migrations logic.
+- [#4703](https://github.com/ignite/cli/pull/4703) Remove testutil.Register function.
+- [#4702](https://github.com/ignite/cli/pull/4702) Improve app detection by checking for inheritance instead of interface implementation.
+- [#4707](https://github.com/ignite/cli/pull/4707) Show `buf` version in `ignite version` only when in a go module.
+- [#4709](https://github.com/ignite/cli/pull/4709) Remove legacy msgServer support
+- [#4710](https://github.com/ignite/cli/pull/4710) Remove the `nullify` pkg from the chain `testutil`
 
 ### Fixes
 

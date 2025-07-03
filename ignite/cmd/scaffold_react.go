@@ -2,28 +2,25 @@ package ignitecmd
 
 import (
 	"github.com/spf13/cobra"
+<<<<<<< HEAD
 
 	chainconfig "github.com/ignite/cli/v28/ignite/config/chain"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosgen"
+=======
+>>>>>>> d1bf508a (refactor!: remove react frontend + re-enable disabled integration tests (#4744))
 )
 
 // NewScaffoldReact scaffolds a React app for a chain.
 func NewScaffoldReact() *cobra.Command {
 	c := &cobra.Command{
-		Hidden:  true, // hidden util we have a better ts-client.
-		Use:     "react",
-		Short:   "React web app template",
-		Args:    cobra.NoArgs,
-		PreRunE: migrationPreRunHandler,
-		RunE:    scaffoldReactHandler,
+		Use:        "react",
+		Deprecated: "the React scaffolding feature is removed from Ignite CLI.\nPlease use the Ignite CCA app to create a React app.\nFor more information, visit: https://ignite.com/marketplace/CCA",
 	}
-
-	c.Flags().AddFlagSet(flagSetYes())
-	c.Flags().StringP(flagPath, "p", "./"+chainconfig.DefaultReactPath, "path to scaffold content of the React app")
 
 	return c
 }
+<<<<<<< HEAD
 
 func scaffoldReactHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
@@ -36,3 +33,5 @@ func scaffoldReactHandler(cmd *cobra.Command, _ []string) error {
 
 	return session.Printf("\n🎉 Scaffolded a React app in %s.\n\n", path)
 }
+=======
+>>>>>>> d1bf508a (refactor!: remove react frontend + re-enable disabled integration tests (#4744))

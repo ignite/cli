@@ -32,12 +32,21 @@ meant to be edited by hand.
 	flagSetPath(c)
 	flagSetClearCache(c)
 
+<<<<<<< HEAD
 	c.AddCommand(NewGenerateGo())
 	c.AddCommand(NewGenerateTSClient())
 	c.AddCommand(NewGenerateVuex())
 	c.AddCommand(NewGenerateComposables())
 	c.AddCommand(NewGenerateHooks())
 	c.AddCommand(NewGenerateOpenAPI())
+=======
+	c.AddCommand(
+		NewGenerateGo(),
+		NewGenerateTSClient(),
+		NewGenerateComposables(),
+		NewGenerateOpenAPI(),
+	)
+>>>>>>> d1bf508a (refactor!: remove react frontend + re-enable disabled integration tests (#4744))
 
 	return c
 }

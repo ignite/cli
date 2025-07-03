@@ -13,7 +13,9 @@ import (
 )
 
 func TestCosmosGenScaffoldComposables(t *testing.T) {
-	t.Skip()
+	if envtest.IsCI {
+		t.Skip("Skipping TestCosmosGenScaffoldComposables test in CI environment")
+	}
 
 	var (
 		env = envtest.New(t)
@@ -103,6 +105,7 @@ func TestCosmosGenScaffoldComposables(t *testing.T) {
 	composablesDirGenerated := filepath.Join(app.SourcePath(), "vue/src/composables")
 	require.NoError(t, os.RemoveAll(composablesDirGenerated))
 
+<<<<<<< HEAD
 	env.Must(env.Exec("generate composables",
 		step.NewSteps(step.New(
 			step.Exec(
@@ -115,6 +118,20 @@ func TestCosmosGenScaffoldComposables(t *testing.T) {
 			step.Workdir(app.SourcePath()),
 		)),
 	))
+=======
+	app.Scaffold(
+		"scaffold vue",
+		false,
+		"vue",
+	)
+
+	app.Generate(
+		"generate composables",
+		false,
+		"composables",
+		"--clear-cache",
+	)
+>>>>>>> d1bf508a (refactor!: remove react frontend + re-enable disabled integration tests (#4744))
 
 	expectedQueryModules := []string{
 		"useCosmosAuthV1Beta1",
@@ -137,16 +154,25 @@ func TestCosmosGenScaffoldComposables(t *testing.T) {
 		"useCosmosUpgradeV1Beta1",
 		"useCosmosVestingV1Beta1",
 		// custom modules
-		"useTestBlogBlog",
-		"useTestBlogWithmsg",
-		"useTestBlogWithoutmsg",
+		"useBlogBlogV1",
+		"useBlogWithmsgV1",
+		"useBlogWithoutmsgV1",
 	}
 
 	for _, mod := range expectedQueryModules {
-
 		_, err := os.Stat(filepath.Join(composablesDirGenerated, mod))
 		if assert.False(t, os.IsNotExist(err), "missing composable %q in %s", mod, composablesDirGenerated) {
 			assert.NoError(t, err)
+		}
+	}
+
+	if t.Failed() {
+		// list composables files
+		composablesFiles, err := os.ReadDir(composablesDirGenerated)
+		require.NoError(t, err)
+		t.Log("Composables files:", len(composablesFiles))
+		for _, file := range composablesFiles {
+			t.Logf(" - %s", file.Name())
 		}
 	}
 }
