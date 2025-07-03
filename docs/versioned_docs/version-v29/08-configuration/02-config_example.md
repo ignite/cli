@@ -37,8 +37,6 @@ client: # Configures client code generation.
     path: (string) # Relative path where the application&#39;s Typescript files are located.
   composables: # Configures Vue 3 composables code generation.
     path: (string) # Relative path where the application&#39;s composable files are located.
-  hooks: # Configures React hooks code generation.
-    path: (string) # Relative path where the application&#39;s hooks files are located.
   openapi: # Configures OpenAPI spec generation for the API.
     path: (string) # Relative path where the application&#39;s OpenAPI files are located.
 genesis: (key/value) # Custom genesis block modifications. Follow the nesting of the genesis file here to access all the parameters.
