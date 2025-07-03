@@ -31,7 +31,7 @@ import (
 const (
 	moduleCacheNamespace       = "generate.setup.module"
 	sdkModuleCacheNamespace    = "generate.setup.sdk_module"
-	includeProtoCacheNamespace = "generator.includes.proto"
+	includeProtoCacheNamespace = "generate.includes.proto"
 	bufYamlFilename            = "buf.yaml"
 )
 
@@ -173,8 +173,19 @@ func (g *generator) processThirdPartyModules(ctx context.Context) error {
 	semaphore := make(chan struct{}, 5) // Limit concurrent operations
 
 	for _, dep := range g.deps {
-		go func(dep gomodule.Version) {
-			semaphore <- struct{}{}        // Acquire
+		go func(ctx context.Context, dep gomodule.Version) {
+			// check for cancellation first
+			if err := ctx.Err(); err != nil {
+				results <- depResult{path: "", analysis: protoAnalysis{}, err: err}
+				return
+			}
+
+			select {
+			case semaphore <- struct{}{}: // Acquire
+			case <-ctx.Done():
+				results <- depResult{path: "", analysis: protoAnalysis{}, err: ctx.Err()}
+				return
+			}
 			defer func() { <-semaphore }() // Release
 
 			var depInfo protoAnalysis
@@ -197,6 +208,12 @@ func (g *generator) processThirdPartyModules(ctx context.Context) error {
 				depInfo, err = sdkModuleCache.Get(sdkCacheKey)
 
 				if errors.Is(err, cache.ErrorNotFound) {
+					// check for cancellation before expensive operation
+					if err := ctx.Err(); err != nil {
+						results <- depResult{path: "", analysis: protoAnalysis{}, err: err}
+						return
+					}
+
 					depInfo, err = g.processNewDependency(ctx, dep)
 					if err == nil && len(depInfo.Modules) > 0 && depInfo.Cacheable {
 						// Cache using the shared SDK key for all SDK modules
@@ -209,6 +226,12 @@ func (g *generator) processThirdPartyModules(ctx context.Context) error {
 				depInfo, err = moduleCache.Get(cacheKey)
 
 				if errors.Is(err, cache.ErrorNotFound) {
+					// check for cancellation before expensive operation
+					if err := ctx.Err(); err != nil {
+						results <- depResult{path: "", analysis: protoAnalysis{}, err: err}
+						return
+					}
+
 					depInfo, err = g.processNewDependency(ctx, dep)
 					if err == nil && len(depInfo.Modules) > 0 && depInfo.Cacheable {
 						// Cache the result only if it's safe to do so
@@ -218,19 +241,23 @@ func (g *generator) processThirdPartyModules(ctx context.Context) error {
 			}
 
 			results <- depResult{path: depInfo.Path, analysis: depInfo, err: err}
-		}(dep)
+		}(ctx, dep)
 	}
 
 	// Collect results
 	for i := 0; i < len(g.deps); i++ {
-		result := <-results
-		if result.err != nil && !errors.Is(result.err, cache.ErrorNotFound) {
-			return result.err
-		}
+		select {
+		case result := <-results:
+			if result.err != nil && !errors.Is(result.err, cache.ErrorNotFound) {
+				return result.err
+			}
 
-		if result.analysis.Path != "" {
-			g.thirdModules[result.path] = result.analysis.Modules
-			g.thirdModuleIncludes[result.path] = result.analysis.Includes
+			if result.analysis.Path != "" {
+				g.thirdModules[result.path] = result.analysis.Modules
+				g.thirdModuleIncludes[result.path] = result.analysis.Includes
+			}
+		case <-ctx.Done():
+			return ctx.Err()
 		}
 	}
 
