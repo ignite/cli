@@ -29,12 +29,12 @@ func (g *generator) openAPITemplate() string {
 
 func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 	var (
-		specDirs []string
+		specDirs = make([]string, 0)
 		conf     = swaggercombine.New("HTTP API Console", g.goModPath)
 	)
 	defer func() {
 		for _, dir := range specDirs {
-			os.RemoveAll(dir)
+			_ = os.RemoveAll(dir)
 		}
 	}()
 
@@ -52,6 +52,8 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
+
+		specDirs = append(specDirs, dir)
 
 		checksum, err := dirchange.ChecksumFromPaths(appPath, protoDir)
 		if err != nil {
@@ -111,7 +113,6 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 				return err
 			}
 		}
-		specDirs = append(specDirs, dir)
 
 		return nil
 	}
