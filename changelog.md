@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- [#4757](https://github.com/ignite/cli/pull/4757) Always delete temp folder from open api generation.
+
 ## [`v29.1.0`](https://github.com/ignite/cli/releases/tag/v29.1.0)
 
 ### Features
