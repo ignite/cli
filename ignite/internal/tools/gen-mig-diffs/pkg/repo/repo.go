@@ -141,7 +141,13 @@ func New(from, to *semver.Version, session *cliui.Session, options ...Options) (
 		session.StartSpinner("Cloning ignite repository...")
 
 		source = opts.output
-		repo, err = git.PlainClone(source, false, &git.CloneOptions{URL: opts.repoURL.String(), Depth: 1})
+		repo, err = git.PlainClone(source, false, &git.CloneOptions{
+			URL:             opts.repoURL.String(),
+			Depth:           1,
+			SingleBranch:    true,
+			NoCheckout:      true,
+			InsecureSkipTLS: true,
+		})
 		if errors.Is(err, git.ErrRepositoryAlreadyExists) {
 			repo, err = verifyRepoSource(source, opts.repoURL)
 		}
