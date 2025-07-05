@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- [#4676](https://github.com/ignite/cli/issues/4676) Add Decimal Coin Type.
+ 
 ### Fixes
 
 - [#4757](https://github.com/ignite/cli/pull/4757) Always delete temp folder from open api generation.
