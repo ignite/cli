@@ -176,7 +176,15 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, protoD
 		options = append(options, cosmosgen.WithOpenAPIGeneration(openAPIPath))
 	}
 
-	if err := cosmosgen.Generate(ctx, cacheStorage, projectPath, protoDir, goModPath, options...); err != nil {
+	if err := cosmosgen.Generate(
+		ctx,
+		cacheStorage,
+		projectPath,
+		protoDir,
+		goModPath,
+		chainconfig.DefaultVuePath,
+		options...,
+	); err != nil {
 		return err
 	}
 

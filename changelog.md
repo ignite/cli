@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- [#4757](https://github.com/ignite/cli/pull/4757) Always delete temp folder from open api generation.
+
 ## [`v29.1.0`](https://github.com/ignite/cli/releases/tag/v29.1.0)
 
 ### Features
@@ -16,11 +20,13 @@
 - [#4718](https://github.com/ignite/cli/pull/4718) Bump default Ignite Apps.
 - [#4741](https://github.com/ignite/cli/pull/4741) Let `generate openapi` generate external modules OpenAPI spec.
 - [#4747](https://github.com/ignite/cli/pull/4747) Improve Ignite UI.
+- [#4751](https://github.com/ignite/cli/pull/4751) Improve cache speed and limit duplicate I/O.
 
 ### Fixes
 
 - [#4691](https://github.com/ignite/cli/pull/4691), [#4706](https://github.com/ignite/cli/pull/4706), [#4725](https://github.com/ignite/cli/pull/4725), [#4737](https://github.com/ignite/cli/pull/4737) Fix ts-client query template and solely Go template for `ts-client` generation.
 - [#4742](https://github.com/ignite/cli/pull/4742) Updates Vue composables template for new ts-client and tanstack/vue-query v5
+- [#4744](https://github.com/ignite/cli/pull/4744) Remove `react` frontend generation via `s react` command. Use the [Ignite CCA App](https://github.com/ignite/apps) instead.
 
 ## [`v29.0.0`](https://github.com/ignite/cli/releases/tag/v29.0.0)
 
