@@ -70,6 +70,17 @@ func TestGenerateAnAppWithListAndVerify(t *testing.T) {
 	)
 
 	app.Scaffold(
+		"create a list with decimal coin",
+		false,
+		"list",
+		"decimal",
+		"deccointype:dec.coin",
+		"deccoins:dec.coins",
+		"--module",
+		"example",
+	)
+
+	app.Scaffold(
 		"create a list with custom field type",
 		false,
 		"list",

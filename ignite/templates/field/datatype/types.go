@@ -32,6 +32,10 @@ const (
 	Coin Name = "coin"
 	// Coins represents the coin array type name.
 	Coins Name = "array.coin"
+	// DecCoin represents the coin type name.
+	DecCoin Name = "dec.coin"
+	// DecCoins represents the decimal coin array type name.
+	DecCoins Name = "dec.coins"
 	// Bytes represents the bytes type name.
 	Bytes Name = "bytes"
 	// Address represents the address type name.
@@ -72,6 +76,8 @@ var supportedTypes = map[Name]DataType{
 	Coin:             DataCoin,
 	Coins:            DataCoinSlice,
 	CoinSliceAlias:   DataCoinSlice,
+	DecCoin:          DataDecCoin,
+	DecCoins:         DataDecCoinSlice,
 	Address:          DataAddress,
 	Custom:           DataCustom,
 }
