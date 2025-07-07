@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changes
+
+- [#4759](https://github.com/ignite/cli/pull/4759) Remove undocumented RPC address override in services chainer.
+
 ### Fixes
 
 - [#4757](https://github.com/ignite/cli/pull/4757) Always delete temp folder from open api generation.
