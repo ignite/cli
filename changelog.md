@@ -2,9 +2,12 @@
 
 ## Unreleased
 
+## [`v28.11.0`](https://github.com/ignite/cli/releases/tag/v28.11.0)
+
 ### Changes
 
 - [#4718](https://github.com/ignite/cli/pull/4718) Bump default Ignite Apps.
+- [#4761](https://github.com/ignite/cli/pull/4761) Bump Cosmos SDK to `v0.53.3`.
 
 ### Fixes
 
