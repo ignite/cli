@@ -4,6 +4,7 @@
 
 ### Changes
 
+- []() Bump Cosmos SDK to `v0.53.3`.
 - [#4759](https://github.com/ignite/cli/pull/4759) Remove undocumented RPC address override in services chainer.
 
 ### Fixes
