@@ -94,20 +94,22 @@ purposes, but you should not do this in production.
 
 In the `example` directory run the following command to start your blockchain:
 
-```
+```bash
 ignite chain serve
 ```
 
 To start your Vue application, go to the `vue` directory and run the following
 command in a separate terminal window:
 
-```
-npm install && npm run dev
+:::note
+Make sure you have [pnpm](https://pnpm.io/) installed.
+:::
+
+```bash
+pnpm install && pnpm dev
 ```
 
-It is recommended to run `npm install` before starting your app with `npm run
-dev` to ensure that all dependencies are installed (including the ones that the
-API client has, see `vue/postinstall.js`).
+It is recommended to run `pnpm install` before starting your app with `pnpm dev` to ensure that all dependencies are installed (including the ones that the API client has, see `vue/postinstall.js`).
 
 Open your browser and navigate to
 [http://localhost:5173/](http://localhost:5173/).
