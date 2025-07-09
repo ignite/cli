@@ -13,6 +13,7 @@ import (
 // NewScaffoldVue scaffolds a Vue.js app for a chain.
 func NewScaffoldVue() *cobra.Command {
 	c := &cobra.Command{
+		Hidden:  true,
 		Use:     "vue",
 		Short:   "Vue 3 web app template",
 		Args:    cobra.NoArgs,
