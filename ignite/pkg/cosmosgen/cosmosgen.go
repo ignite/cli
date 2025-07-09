@@ -32,9 +32,6 @@ type generateOptions struct {
 	composablesOut      func(module.Module) string
 	composablesRootPath string
 
-	hooksOut      func(module.Module) string
-	hooksRootPath string
-
 	specOut string
 }
 
@@ -68,14 +65,7 @@ func WithComposablesGeneration(out ModulePathFunc, composablesRootPath string) O
 	}
 }
 
-func WithHooksGeneration(out ModulePathFunc, hooksRootPath string) Option {
-	return func(o *generateOptions) {
-		o.hooksOut = out
-		o.hooksRootPath = hooksRootPath
-	}
-}
-
-// WithGoGeneration adds protobuf (gogoproto and pulsar) code generation.
+// WithGoGeneration adds protobuf (gogoproto) code generation.
 func WithGoGeneration() Option {
 	return func(o *generateOptions) {
 		o.generateProtobuf = true
@@ -112,6 +102,7 @@ type generator struct {
 	appPath             string
 	protoDir            string
 	goModPath           string
+	frontendPath        string
 	opts                *generateOptions
 	sdkImport           string
 	sdkDir              string
@@ -132,7 +123,7 @@ func (g *generator) cleanup() {
 
 // Generate generates code from protoDir of an SDK app residing at appPath with given options.
 // protoDir must be relative to the projectPath.
-func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir, goModPath string, options ...Option) error {
+func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir, goModPath string, frontendPath string, options ...Option) error {
 	b, err := cosmosbuf.New(cacheStorage, goModPath)
 	if err != nil {
 		return err
@@ -143,6 +134,7 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		appPath:             appPath,
 		protoDir:            protoDir,
 		goModPath:           goModPath,
+		frontendPath:        frontendPath,
 		opts:                &generateOptions{},
 		thirdModules:        make(map[string][]module.Module),
 		thirdModuleIncludes: make(map[string]protoIncludes),
@@ -215,26 +207,14 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 	}
 
 	if g.opts.composablesRootPath != "" {
-		if err := g.generateComposables("vue"); err != nil {
+		if err := g.generateComposables(); err != nil {
 			return err
 		}
 
 		// Update Vue app dependencies when Vue composables are generated.
 		// This update is required to link the "ts-client" folder so the
 		// package is available during development before publishing it.
-		if err := g.updateComposableDependencies("vue"); err != nil {
-			return err
-		}
-	}
-	if g.opts.hooksRootPath != "" {
-		if err := g.generateComposables("react"); err != nil {
-			return err
-		}
-
-		// Update React app dependencies when React hooks are generated.
-		// This update is required to link the "ts-client" folder so the
-		// package is available during development before publishing it.
-		if err := g.updateComposableDependencies("react"); err != nil {
+		if err := g.updateComposableDependencies(); err != nil {
 			return err
 		}
 	}

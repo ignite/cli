@@ -21,13 +21,11 @@ type generateOptions struct {
 	isGoEnabled          bool
 	isTSClientEnabled    bool
 	isComposablesEnabled bool
-	isHooksEnabled       bool
 	isVuexEnabled        bool
 	isOpenAPIEnabled     bool
 	tsClientPath         string
 	vuexPath             string
 	composablesPath      string
-	hooksPath            string
 }
 
 // GenerateTarget is a target to generate code for from proto files.
@@ -69,16 +67,6 @@ func GenerateComposables(path string) GenerateTarget {
 		o.isTSClientEnabled = true
 		o.isComposablesEnabled = true
 		o.composablesPath = path
-	}
-}
-
-// GenerateHooks enables generating proto based Typescript Client and React composables.
-func GenerateHooks(path string) GenerateTarget {
-	return func(o *generateOptions) {
-		o.isOpenAPIEnabled = true
-		o.isTSClientEnabled = true
-		o.isHooksEnabled = true
-		o.hooksPath = path
 	}
 }
 
@@ -128,10 +116,6 @@ func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Stora
 		if p := conf.Client.Composables.Path; p != "" {
 			targets = append(targets, GenerateComposables(p))
 		}
-
-		if p := conf.Client.Hooks.Path; p != "" {
-			targets = append(targets, GenerateHooks(p))
-		}
 	}
 
 	// Generate proto based code for Go and optionally for any optional targets
@@ -173,8 +157,8 @@ func (c *Chain) Generate(
 	}
 
 	var (
-		openAPIPath, tsClientPath, vuexPath, composablesPath, hooksPath string
-		updateConfig                                                    bool
+		openAPIPath, tsClientPath, vuexPath, composablesPath string
+		updateConfig                                         bool
 	)
 
 	if targetOptions.isOpenAPIEnabled {
@@ -268,36 +252,13 @@ func (c *Chain) Generate(
 		)
 	}
 
-	if targetOptions.isHooksEnabled {
-		hooksPath = targetOptions.hooksPath
-		if hooksPath == "" {
-			hooksPath = chainconfig.HooksPath(conf)
-
-			if conf.Client.Hooks.Path == "" {
-				conf.Client.Hooks.Path = hooksPath
-				updateConfig = true
-			}
-		}
-
-		// Non-absolute Hooks output paths must be treated as relative to the app directory
-		if !filepath.IsAbs(hooksPath) {
-			hooksPath = filepath.Join(c.app.Path, hooksPath)
-		}
-
-		options = append(options,
-			cosmosgen.WithHooksGeneration(
-				cosmosgen.ComposableModulePath(hooksPath),
-				hooksPath,
-			),
-		)
-	}
-
 	if err := cosmosgen.Generate(
 		ctx,
 		cacheStorage,
 		c.app.Path,
 		conf.Build.Proto.Path,
 		c.app.ImportPath,
+		chainconfig.DefaultVuePath,
 		options...,
 	); err != nil {
 		return &CannotBuildAppError{err}
@@ -322,14 +283,6 @@ func (c *Chain) Generate(
 		if targetOptions.isComposablesEnabled {
 			c.ev.Send(
 				fmt.Sprintf("Vue composables path: %s", composablesPath),
-				events.Icon(icons.Bullet),
-				events.ProgressFinish(),
-			)
-		}
-
-		if targetOptions.isHooksEnabled {
-			c.ev.Send(
-				fmt.Sprintf("React hooks path: %s", hooksPath),
 				events.Icon(icons.Bullet),
 				events.ProgressFinish(),
 			)

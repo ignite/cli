@@ -10,6 +10,7 @@ import (
 	"github.com/emicklei/proto"
 	"github.com/gobuffalo/genny/v2"
 
+	chaincfg "github.com/ignite/cli/v28/ignite/config/chain"
 	"github.com/ignite/cli/v28/ignite/pkg/errors"
 	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v28/ignite/pkg/placeholder"
@@ -413,7 +414,7 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 
 func frontendSrcStoreAppModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "vue/src/views/Types.vue")
+		path := filepath.Join(opts.AppPath, chaincfg.DefaultVueTypesPath)
 		f, err := r.Disk.Find(path)
 		if os.IsNotExist(err) {
 			// Skip modification if the app doesn't contain front-end
