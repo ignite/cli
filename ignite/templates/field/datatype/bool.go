@@ -11,6 +11,7 @@ import (
 
 // DataBool bool data type definition.
 var DataBool = DataType{
+	Name:                    Bool,
 	DataType:                func(string) string { return "bool" },
 	CollectionsKeyValueName: func(string) string { return "collections.BoolKey" },
 	DefaultTestValue:        "true",

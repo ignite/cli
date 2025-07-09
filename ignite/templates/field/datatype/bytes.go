@@ -11,6 +11,7 @@ import (
 
 // DataBytes is a string data type definition.
 var DataBytes = DataType{
+	Name:                    Bytes,
 	DataType:                func(string) string { return "[]byte" },
 	CollectionsKeyValueName: func(string) string { return "collections.BytesKey" },
 	DefaultTestValue:        "3,2,3,5",
