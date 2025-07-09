@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- [#4765](https://github.com/ignite/cli/pull/4765) Create `scaffold type-list` command.
+
 ### Fixes
 
 - [#4757](https://github.com/ignite/cli/pull/4757) Always delete temp folder from open api generation.
