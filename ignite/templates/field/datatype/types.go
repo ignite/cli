@@ -51,7 +51,7 @@ const (
 	CoinSliceAlias Name = "coins"
 
 	// TypeCustom represents the string type name id.
-	TypeCustom = "customIgniteType"
+	TypeCustom = "customignitetype"
 
 	collectionValueComment = "/* Add collection key value */"
 )
