@@ -40,6 +40,25 @@ func (a *App) assertJSONData(data []byte, msgName string, fields field.Fields) {
 		}
 		v := string(value)
 		switch {
+		case f.DatatypeName == datatype.DecCoin:
+
+			c, err := sdktypes.ParseDecCoin(dt)
+			require.NoError(a.env.T(), err)
+			amount, err := jsonparser.GetString(value, "amount")
+			require.NoError(a.env.T(), err)
+			require.EqualValues(a.env.T(), amount, c.Amount.String())
+			denom, err := jsonparser.GetString(value, "denom")
+			require.NoError(a.env.T(), err)
+			require.EqualValues(a.env.T(), denom, c.Denom)
+
+		case f.DatatypeName == datatype.DecCoins:
+
+			c, err := sdktypes.ParseDecCoins(dt)
+			require.NoError(a.env.T(), err)
+			require.NoError(a.env.T(), err)
+			dt = c.String()
+			require.JSONEq(a.env.T(), dt, v)
+
 		case f.DatatypeName == datatype.Coin:
 
 			c, err := sdktypes.ParseCoinNormalized(dt)
