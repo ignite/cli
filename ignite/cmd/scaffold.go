@@ -116,6 +116,7 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 	}
 
 	c.AddCommand(
+		NewScaffoldTypeList(),
 		NewScaffoldChain(),
 		NewScaffoldModule(),
 		NewScaffoldList(),

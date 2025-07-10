@@ -1,6 +1,8 @@
 package datatype
 
 import (
+	"fmt"
+
 	"github.com/emicklei/proto"
 
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
@@ -53,7 +55,7 @@ const (
 	CoinSliceAlias Name = "coins"
 
 	// TypeCustom represents the string type name id.
-	TypeCustom = "customstarporttype"
+	TypeCustom = "customignitetype"
 
 	collectionValueComment = "/* Add collection key value */"
 )
@@ -87,6 +89,7 @@ type Name string
 
 // DataType represents the data types for code replacement.
 type DataType struct {
+	Name                    Name
 	DataType                func(datatype string) string
 	ProtoType               func(datatype, name string, index int) string
 	CollectionsKeyValueName func(datatype string) string
@@ -104,6 +107,13 @@ type DataType struct {
 	NonIndex                bool
 }
 
+func (t DataType) Usage() string {
+	if t.Name == Custom {
+		return "use the custom type to scaffold already created chain types."
+	}
+	return fmt.Sprintf("use '<FIELD_NAME>:%s' to scaffold %s types (eg: %s).", t.Name, t.DataType(""), t.DefaultTestValue)
+}
+
 // GoImports represents a list of go import.
 type GoImports []GoImport
 
@@ -118,4 +128,16 @@ type GoImport struct {
 func IsSupportedType(typename Name) (dt DataType, ok bool) {
 	dt, ok = supportedTypes[typename]
 	return
+}
+
+// SupportedTypes return a list of supported types.
+func SupportedTypes() map[string]string {
+	supported := make(map[string]string)
+	for name, dataType := range supportedTypes {
+		if dataType.Name == Custom {
+			name = "custom"
+		}
+		supported[string(name)] = dataType.Usage()
+	}
+	return supported
 }
