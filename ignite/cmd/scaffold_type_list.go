@@ -22,7 +22,7 @@ func NewScaffoldTypeList() *cobra.Command {
 	return c
 }
 
-func scaffoldTypeListHandler(cmd *cobra.Command, args []string) error {
+func scaffoldTypeListHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New(
 		cliui.StartSpinnerWithText("printing..."),
 		cliui.WithoutUserInteraction(getYes(cmd)),

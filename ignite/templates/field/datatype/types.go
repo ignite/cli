@@ -103,7 +103,7 @@ type DataType struct {
 
 func (t DataType) Usage() string {
 	if t.Name == Custom {
-		return fmt.Sprintf("use the custom type to scaffold already created chain types.")
+		return "use the custom type to scaffold already created chain types."
 	}
 	return fmt.Sprintf("use '<FIELD_NAME>:%s' to scaffold %s types (eg: %s).", t.Name, t.DataType(""), t.DefaultTestValue)
 }
