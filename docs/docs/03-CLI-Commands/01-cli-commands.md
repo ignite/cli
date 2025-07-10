@@ -1334,6 +1334,7 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 * [ignite scaffold query](#ignite-scaffold-query)	 - Query for fetching data from a blockchain
 * [ignite scaffold single](#ignite-scaffold-single)	 - CRUD for data stored in a single location
 * [ignite scaffold type](#ignite-scaffold-type)	 - Type definition
+* [ignite scaffold type-list](#ignite-scaffold-type-list)	 - List scaffold types
 * [ignite scaffold vue](#ignite-scaffold-vue)	 - Vue 3 web app template
 
 
@@ -2082,6 +2083,35 @@ ignite scaffold type NAME [field:type] ... [flags]
   -p, --path string     path of the app (default ".")
       --signer string   label for the message signer (default: creator)
   -y, --yes             answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
+```
+
+**SEE ALSO**
+
+* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+
+
+## ignite scaffold type-list
+
+List scaffold types
+
+**Synopsis**
+
+List all available scaffold types
+
+```
+ignite scaffold type-list [flags]
+```
+
+**Options**
+
+```
+  -h, --help   help for type-list
 ```
 
 **Options inherited from parent commands**
