@@ -2,10 +2,15 @@
 
 ## Unreleased
 
+### Features
+
+- [#4765](https://github.com/ignite/cli/pull/4765) Create `scaffold type-list` command.
+
 ### Changes
 
 - [#4759](https://github.com/ignite/cli/pull/4759) Remove undocumented RPC address override in services chainer.
 - [#4760](https://github.com/ignite/cli/pull/4760) Bump Cosmos SDK to `v0.53.3`.
+
 
 ### Fixes
 

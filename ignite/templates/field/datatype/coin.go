@@ -12,6 +12,7 @@ import (
 var (
 	// DataCoin coin data type definition.
 	DataCoin = DataType{
+		Name:                    Coin,
 		DataType:                func(string) string { return "sdk.Coin" },
 		CollectionsKeyValueName: func(string) string { return collectionValueComment },
 		DefaultTestValue:        "10token",
@@ -40,6 +41,7 @@ var (
 
 	// DataCoinSlice is a coin array data type definition.
 	DataCoinSlice = DataType{
+		Name:                    Coins,
 		DataType:                func(string) string { return "sdk.Coins" },
 		CollectionsKeyValueName: func(string) string { return collectionValueComment },
 		DefaultTestValue:        "20stake",
