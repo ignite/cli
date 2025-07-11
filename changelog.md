@@ -4,6 +4,7 @@
 
 ### Features
 
+- [#4676](https://github.com/ignite/cli/issues/4676) Add Decimal Coin Type.
 - [#4765](https://github.com/ignite/cli/pull/4765) Create `scaffold type-list` command.
 
 ### Changes

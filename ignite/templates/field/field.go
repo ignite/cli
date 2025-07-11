@@ -39,6 +39,7 @@ func (f Field) IsSlice() bool {
 		datatype.IntSlice,
 		datatype.UintSlice,
 		datatype.Coins,
+		datatype.DecCoins,
 		datatype.StringSliceAlias,
 		datatype.IntSliceAlias,
 		datatype.UintSliceAlias,
@@ -53,6 +54,7 @@ func (f Field) IsSlice() bool {
 		datatype.Int64,
 		datatype.Uint,
 		datatype.Uint64,
+		datatype.DecCoin,
 		datatype.Coin,
 		datatype.Custom:
 		return false
