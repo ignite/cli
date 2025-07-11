@@ -12,6 +12,7 @@ import (
 var (
 	// DataInt is an int data type definition.
 	DataInt = DataType{
+		Name:                    Int,
 		DataType:                func(string) string { return "int64" },
 		CollectionsKeyValueName: func(string) string { return "collections.Int64Key" },
 		DefaultTestValue:        "111",
@@ -46,6 +47,7 @@ var (
 
 	// DataIntSlice is an int array data type definition.
 	DataIntSlice = DataType{
+		Name:                    IntSlice,
 		DataType:                func(string) string { return "[]int64" },
 		CollectionsKeyValueName: func(string) string { return collectionValueComment },
 		DefaultTestValue:        "5,4,3,2,1",

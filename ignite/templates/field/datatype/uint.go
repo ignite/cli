@@ -12,6 +12,7 @@ import (
 var (
 	// DataUint uint data type definition.
 	DataUint = DataType{
+		Name:                    Uint,
 		DataType:                func(string) string { return "uint64" },
 		CollectionsKeyValueName: func(string) string { return "collections.Uint64Key" },
 		DefaultTestValue:        "111",
@@ -46,6 +47,7 @@ var (
 
 	// DataUintSlice uint array data type definition.
 	DataUintSlice = DataType{
+		Name:                    UintSlice,
 		DataType:                func(string) string { return "[]uint64" },
 		CollectionsKeyValueName: func(string) string { return collectionValueComment },
 		DefaultTestValue:        "13,26,31,40",

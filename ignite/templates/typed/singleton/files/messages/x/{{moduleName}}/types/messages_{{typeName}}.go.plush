@@ -1,5 +1,10 @@
 package types
 
+import (
+    <%= for (import) in Fields.GoCLIImports() { %>
+    <%= import.Alias %> "<%= import.Name %>"<% } %>
+)
+
 func NewMsgCreate<%= TypeName.PascalCase %>(<%= MsgSigner.LowerCamel %> string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.DataType() %><% } %>) *MsgCreate<%= TypeName.PascalCase %> {
   return &MsgCreate<%= TypeName.PascalCase %>{
 		<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,<%= for (field) in Fields { %>

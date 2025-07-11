@@ -11,6 +11,7 @@ import (
 
 // DataAddress address (string) data type definition.
 var DataAddress = DataType{
+	Name:                    Address,
 	DataType:                func(string) string { return "string" },
 	CollectionsKeyValueName: func(string) string { return "collections.StringKey" },
 	DefaultTestValue:        "cosmos1abcdefghijklmnopqrstuvwxyz0123456",
