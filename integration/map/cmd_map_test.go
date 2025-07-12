@@ -52,6 +52,17 @@ func TestCreateMap(t *testing.T) {
 	)
 
 	app.Scaffold(
+		"create a map with decimal coin",
+		false,
+		"map",
+		"decimal",
+		"deccointype:dec.coin",
+		"deccoins:dec.coins",
+		"--module",
+		"example",
+	)
+
+	app.Scaffold(
 		"should prevent creating a map with a typename that already exist",
 		true,
 		"map", "user", "email", "--module", "example",

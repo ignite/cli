@@ -60,6 +60,14 @@ func (a *App) assertJSONData(data []byte, msgName string, fields field.Fields) {
 			dt = string(cJSON)
 			require.JSONEq(a.env.T(), dt, v)
 
+		case f.DatatypeName == datatype.DecCoin || f.DatatypeName == datatype.DecCoins:
+
+			c, err := sdktypes.ParseCoinNormalized(dt)
+			require.NoError(a.env.T(), err)
+			// TODO find a better way to compare DecCoins as they have a different result pattern from CLI and Query
+			require.Contains(a.env.T(), v, c.Denom)
+			require.Contains(a.env.T(), v, c.Amount.String())
+
 		case f.IsSlice():
 
 			var slice []string
