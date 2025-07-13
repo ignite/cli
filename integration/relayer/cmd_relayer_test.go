@@ -211,7 +211,6 @@ type (
 func runChain(
 	ctx context.Context,
 	t *testing.T,
-	env envtest.Env,
 	app envtest.App,
 	cfg v1.Config,
 	tmpDir string,
@@ -359,10 +358,10 @@ func TestBlogIBC(t *testing.T) {
 		availableport.WithMaxPort(5000),
 	)
 	require.NoError(t, err)
-	hostChainAPI, hostChainRPC, hostChainGRPC, hostChainFaucet := runChain(ctx, t, env, app, hostChainConfig, tmpDir, ports[:7])
+	hostChainAPI, hostChainRPC, hostChainGRPC, hostChainFaucet := runChain(ctx, t, app, hostChainConfig, tmpDir, ports[:7])
 	hostChainChainID := hostChainConfig.Genesis["chain_id"].(string)
 	hostChainHome := hostChainConfig.Validators[0].Home
-	refChainAPI, refChainRPC, refChainGRPC, refChainFaucet := runChain(ctx, t, env, app, refChainConfig, tmpDir, ports[7:])
+	refChainAPI, refChainRPC, refChainGRPC, refChainFaucet := runChain(ctx, t, app, refChainConfig, tmpDir, ports[7:])
 	refChainChainID := refChainConfig.Genesis["chain_id"].(string)
 	refChainHome := refChainConfig.Validators[0].Home
 
