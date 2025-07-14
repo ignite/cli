@@ -90,7 +90,7 @@ production, you may want to run "appd start" manually.
 }
 
 func chainServeHandler(cmd *cobra.Command, _ []string) error {
-	// check for daemon flag
+	// deamon mode: if -d/--daemon is set
 	daemonMode, _ := cmd.Flags().GetBool(flagDaemon)
 	if daemonMode {
 		return daemonCmd(cmd)
@@ -129,8 +129,13 @@ func chainServeHandler(cmd *cobra.Command, _ []string) error {
 }
 
 func daemonCmd(cmd *cobra.Command) error {
-	// check if the output file is set, if not use stdout
-	// get output file flag
+	// always yes, no user interaction
+	options := []cliui.Option{cliui.WithoutUserInteraction(true)}
+	options = append(options,
+		cliui.WithVerbosity(uilog.VerbosityVerbose),
+	)
+
+	// output file logic
 	outputFile, _ := cmd.Flags().GetString(flagOutputFile)
 	var output *os.File
 	var err error
@@ -140,24 +145,16 @@ func daemonCmd(cmd *cobra.Command) error {
 			return err
 		}
 		defer output.Close()
+		options = append(options, cliui.WithStdout(output), cliui.WithStderr(output))
 	} else {
-		output = os.Stdout
+		options = append(options, cliui.WithStdout(os.Stdout), cliui.WithStderr(os.Stderr))
 	}
 
-	// always yes, no user interaction
-	options := []cliui.Option{cliui.WithoutUserInteraction(true)}
-	options = append(options,
-		cliui.WithVerbosity(uilog.VerbosityVerbose),
-		cliui.WithStdout(output),
-		cliui.WithStderr(output),
-	)
 	session := cliui.New(options...)
 	defer session.End()
 
-	// run serve directly, listen for SIGTERM, do not expect stdin
-	ctx, stop := signal.NotifyContext(cmd.Context(), os.Interrupt, os.Kill, syscall.SIGTERM)
+	ctx, stop := signal.NotifyContext(cmd.Context(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-
 	cmd.SetContext(ctx)
 	return chainServe(cmd, session)
 }
