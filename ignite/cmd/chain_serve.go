@@ -83,7 +83,7 @@ production, you may want to run "appd start" manually.
 	c.Flags().Bool(flagGenerateClients, false, "generate code for the configured clients on reset or source code change")
 	c.Flags().Bool(flagQuitOnFail, false, "quit program if the app fails to start")
 	c.Flags().StringSlice(flagBuildTags, []string{}, "parameters to build the chain binary")
-	c.Flags().BoolP(flagDaemon, "d", false, "run in background (no UI, no stdin, listens for SIGTERM, implies --yes)")
+	c.Flags().BoolP(flagDaemon, "d", false, "prepare chain serve to run in background (no UI, no stdin, listens for SIGTERM, implies --yes)")
 	c.Flags().StringP(flagOutputFile, "o", "", "output file for the daemon logs (default: stdout)")
 
 	return c
