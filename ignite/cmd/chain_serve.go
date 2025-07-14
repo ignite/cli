@@ -90,7 +90,7 @@ production, you may want to run "appd start" manually.
 }
 
 func chainServeHandler(cmd *cobra.Command, _ []string) error {
-	// deamon mode: if -d/--daemon is set
+	// daemon mode: if -d/--daemon is set
 	daemonMode, _ := cmd.Flags().GetBool(flagDaemon)
 	if daemonMode {
 		return daemonCmd(cmd)
