@@ -8,7 +8,7 @@
 
 - [#4676](https://github.com/ignite/cli/issues/4676) Add Decimal Coin Type.
 - [#4765](https://github.com/ignite/cli/pull/4765) Create `scaffold type-list` command.
-- [#4766](https://github.com/ignite/cli/pull/4766) Add `--daemon` flag to `chain serve` command to allow running the chain in the background.
+- [#4770](https://github.com/ignite/cli/pull/4770) Add `--daemon` flag to `chain serve` command to allow running the chain in the background.
 
 ### Changes
 
