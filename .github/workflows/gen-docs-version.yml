@@ -48,24 +48,6 @@ jobs:
             DOCUSAURUS_VERSION=${MAJOR_VERSION:1}
           fi
 
-          # Check if this version is newer than existing versions
-          # Extract major version number for comparison
-          CURRENT_MAJOR=$(echo $DOCUSAURUS_VERSION | sed 's/^v//')
-
-          # Check if there's already a newer major version in versions.json
-          NEWER_EXISTS=$(jq -r --arg current "$CURRENT_MAJOR" '
-            map(select(. != ("v" + $current))) |
-            map(select(. | test("^v[0-9]+$"))) |
-            map(ltrimstr("v") | tonumber) |
-            map(select(. > ($current | tonumber))) |
-            length > 0
-          ' versions.json)
-
-          if [[ "$NEWER_EXISTS" == "true" ]]; then
-            echo "Skipping deployment for v$DOCUSAURUS_VERSION as newer major version already exists"
-            exit 0
-          fi
-
           jq --arg version "v$DOCUSAURUS_VERSION" 'del(.[] | select(. == $version))' versions.json > versions.json.tmp
           mv versions.json.tmp versions.json
           rm -rf versioned_docs/version-v$DOCUSAURUS_VERSION
