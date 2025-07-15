@@ -112,8 +112,14 @@ func resolveDevVersion(ctx context.Context) string {
 
 	// if the module version is higher than the latest tag, use the module version
 	if info, ok := debug.ReadBuildInfo(); ok {
-		if version := path.Base(info.Main.Path); version > tag {
-			tag = fmt.Sprintf("%s.0.0", version)
+		if version := path.Base(info.Main.Path); version != "" {
+			// Parse both versions for proper semantic comparison
+			moduleVer, err1 := semver.ParseTolerant(version + ".0.0")
+			tagVer, err2 := semver.ParseTolerant(tag)
+
+			if err1 == nil && err2 == nil && moduleVer.GT(tagVer) {
+				tag = fmt.Sprintf("%s.0.0", version)
+			}
 		}
 	}
 
