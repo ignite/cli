@@ -25,7 +25,6 @@ const (
 	flagGenerateClients = "generate-clients"
 	flagQuitOnFail      = "quit-on-fail"
 	flagResetOnce       = "reset-once"
-	flagDaemon          = "daemon"
 	flagOutputFile      = "output-file"
 )
 
@@ -83,17 +82,14 @@ production, you may want to run "appd start" manually.
 	c.Flags().Bool(flagGenerateClients, false, "generate code for the configured clients on reset or source code change")
 	c.Flags().Bool(flagQuitOnFail, false, "quit program if the app fails to start")
 	c.Flags().StringSlice(flagBuildTags, []string{}, "parameters to build the chain binary")
-	c.Flags().BoolP(flagDaemon, "d", false, "prepare chain serve to run in background (no UI, no stdin, listens for SIGTERM, implies --yes)")
-	c.Flags().StringP(flagOutputFile, "o", "", "output file for the daemon logs (default: stdout)")
+	c.Flags().StringP(flagOutputFile, "o", "", "output file logging the chain output (no UI, no stdin, listens for SIGTERM, implies --yes) (default: stdout)")
 
 	return c
 }
 
 func chainServeHandler(cmd *cobra.Command, _ []string) error {
-	// daemon mode: if -d/--daemon is set
-	daemonMode, _ := cmd.Flags().GetBool(flagDaemon)
-	if daemonMode {
-		return daemonCmd(cmd)
+	if cmd.Flags().Changed(flagOutputFile) {
+		return daemonMode(cmd)
 	}
 
 	options := []cliui.Option{cliui.WithoutUserInteraction(getYes(cmd))}
@@ -128,7 +124,8 @@ func chainServeHandler(cmd *cobra.Command, _ []string) error {
 	return chainServe(cmd, session)
 }
 
-func daemonCmd(cmd *cobra.Command) error {
+// daemonMode runs the chain serve command without user interaction, UI in verbose mode. Useful to be used as daemon.
+func daemonMode(cmd *cobra.Command) error {
 	// always yes, no user interaction
 	options := []cliui.Option{cliui.WithoutUserInteraction(true)}
 	options = append(options,
@@ -139,7 +136,7 @@ func daemonCmd(cmd *cobra.Command) error {
 	outputFile, _ := cmd.Flags().GetString(flagOutputFile)
 	var output *os.File
 	var err error
-	if outputFile != "" && outputFile != "-" {
+	if outputFile != "" {
 		output, err = os.OpenFile(outputFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
 		if err != nil {
 			return err
