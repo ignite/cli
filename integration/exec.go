@@ -19,6 +19,8 @@ type execOptions struct {
 	ctx                    context.Context
 	shouldErr, shouldRetry bool
 	stdout, stderr         io.Writer
+	stdin                  io.Reader
+	tty                    bool
 }
 
 type ExecOption func(*execOptions)
@@ -51,10 +53,24 @@ func ExecStderr(w io.Writer) ExecOption {
 	}
 }
 
+// ExecStdin captures stdin of an execution.
+func ExecStdin(r io.Reader) ExecOption {
+	return func(o *execOptions) {
+		o.stdin = r
+	}
+}
+
 // ExecRetry retries command until it is successful before context is canceled.
 func ExecRetry() ExecOption {
 	return func(o *execOptions) {
 		o.shouldRetry = true
+	}
+}
+
+// TTY simulates a TTY device.
+func TTY() ExecOption {
+	return func(o *execOptions) {
+		o.tty = true
 	}
 }
 
@@ -77,6 +93,13 @@ func (e Env) Exec(msg string, steps step.Steps, options ...ExecOption) (ok bool)
 		cmdrunner.DefaultStdout(io.MultiWriter(stdout, opts.stdout)),
 		cmdrunner.DefaultStderr(io.MultiWriter(stderr, opts.stderr)),
 	}
+	if opts.stdin != nil {
+		copts = append(copts, cmdrunner.DefaultStdin(opts.stdin))
+	}
+	if opts.tty {
+		copts = append(copts, cmdrunner.TTY())
+	}
+
 	if HasTestVerboseFlag() {
 		fmt.Printf("Executing %d step(s) for %q\n", len(steps), msg)
 		copts = append(copts, cmdrunner.EnableDebug())
@@ -89,21 +112,19 @@ func (e Env) Exec(msg string, steps step.Steps, options ...ExecOption) (ok bool)
 		Run(opts.ctx, steps...)
 	if errors.Is(err, context.Canceled) {
 		err = nil
-	}
-	if err != nil {
+	} else if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		if opts.shouldRetry && opts.ctx.Err() == nil {
 			time.Sleep(time.Second)
 			return e.Exec(msg, steps, options...)
 		}
-	}
 
-	if err != nil {
 		msg = fmt.Sprintf("%s\n\nLogs:\n\n%s\n\nError Logs:\n\n%s\n",
 			msg,
 			stdout.String(),
 			stderr.String())
 	}
+
 	if opts.shouldErr {
 		return assert.Error(e.t, err, msg)
 	}
