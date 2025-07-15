@@ -25,7 +25,7 @@ const (
 	flagGenerateClients = "generate-clients"
 	flagQuitOnFail      = "quit-on-fail"
 	flagResetOnce       = "reset-once"
-	flagDaemon  = "daemon"
+	flagDaemon          = "daemon"
 	flagOutputFile      = "output-file"
 )
 
