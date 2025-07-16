@@ -957,6 +957,7 @@ ignite chain serve [flags]
       --generate-clients     generate code for the configured clients on reset or source code change
   -h, --help                 help for serve
       --home string          directory where the blockchain node is initialized
+  -o, --output-file string   output file logging the chain output (no UI, no stdin, listens for SIGTERM, implies --yes) (default: stdout)
   -p, --path string          path of the app (default ".")
       --quit-on-fail         quit program if the app fails to start
   -r, --reset-once           reset the app state once on init
