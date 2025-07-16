@@ -177,7 +177,7 @@ const config = {
             items: [
               {
                 label: "Discord",
-                href: "https://discord.com/invite/ignite",
+                href: "https://discord.com/invite/ignitecli",
               },
               {
                 label: "Twitter",

@@ -47,4 +47,4 @@ curl https://get.ignite.com/<%= GitHubPath %>@latest! | sudo bash
 - [Tutorials](https://docs.ignite.com/guide)
 - [Ignite CLI docs](https://docs.ignite.com)
 - [Cosmos SDK docs](https://docs.cosmos.network)
-- [Developer Chat](https://discord.gg/ignite)
+- [Developer Chat](https://discord.com/invite/ignitecli)
