@@ -41,23 +41,6 @@ Run a command to start your blockchain node:
 ignite chain serve -r
 ```
 
-### Typescript Generation Rate Limits
-
-To avoid hitting [buf.build](https://buf.build/) rate limits, make sure to
-
-1. Create an account at [buf.build](https://buf.build/)
-2. Install the buf plugin:
-
-    ```bash
-    brew install bufbuild/buf/buf
-    ```
-
-3. Login in your terminal: 
-
-    ```bash
-    buf registry login
-    ```
-
 ## Setting up a TypeScript frontend client
 
 The best way to get started building with the TypeScript client is by using
