@@ -9,6 +9,6 @@ Our Ignite CLI bounty program provides incentives for your participation and pay
 
 Do your bounty hunting in our repo. Track new, in-progress, and completed bounties in the [GitHub Issues](https://github.com/ignite/cli/issues?q=is%3Aissue+is%3Aopen+label%3Abounty).
 
-For details on the Ignite CLI bounty program, join the #bounty channel in [Ignite Discord](https://discord.com/invite/ignite).
+For details on the Ignite CLI bounty program, join the #bounty channel in [Ignite Discord](https://discord.com/invite/ignitecli).
 
 New bounties are posted and claimed in Discord on the #bounty announcement channel.

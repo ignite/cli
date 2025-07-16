@@ -50,7 +50,7 @@ export default function Home() {
           <HomeCard
             title="Community"
             description="Join the Ignite community and connect with others"
-            to="https://discord.com/invite/ignite"
+            to="https://discord.com/invite/ignitecli"
           />
         </div>
       </main>
