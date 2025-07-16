@@ -30,7 +30,7 @@ Thank you for your contribution!
   sure to provide the relevant information, case study, or informative links as suggested by the Pull Request template.
 
 * We recommend using GitHub issues for issues and feedback. However, you can ask quick questions on the **#🛠️
-  build-chains** channel in the official [Ignite Discord](https://discord.gg/ignite).
+  build-chains** channel in the official [Ignite Discord](https://discord.com/invite/ignitecli).
 
 ## Opening pull requests (PRs)
 
