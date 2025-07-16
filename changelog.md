@@ -2,16 +2,18 @@
 
 ## Unreleased
 
+## [`v29.2.0`](https://github.com/ignite/cli/releases/tag/v29.2.0)
+
 ### Features
 
 - [#4676](https://github.com/ignite/cli/issues/4676) Add Decimal Coin Type.
 - [#4765](https://github.com/ignite/cli/pull/4765) Create `scaffold type-list` command.
+- [#4770](https://github.com/ignite/cli/pull/4770) Add `--output-file` flag to `chain serve` command to improve running `chain serve` in the background.
 
 ### Changes
 
 - [#4759](https://github.com/ignite/cli/pull/4759) Remove undocumented RPC address override in services chainer.
 - [#4760](https://github.com/ignite/cli/pull/4760) Bump Cosmos SDK to `v0.53.3`.
-
 
 ### Fixes
 

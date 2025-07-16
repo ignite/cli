@@ -2,6 +2,9 @@ package ignitecmd
 
 import (
 	"context"
+	"os"
+	"os/signal"
+	"syscall"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
@@ -22,6 +25,7 @@ const (
 	flagGenerateClients = "generate-clients"
 	flagQuitOnFail      = "quit-on-fail"
 	flagResetOnce       = "reset-once"
+	flagOutputFile      = "output-file"
 )
 
 // NewChainServe creates a new serve command to serve a blockchain.
@@ -78,11 +82,16 @@ production, you may want to run "appd start" manually.
 	c.Flags().Bool(flagGenerateClients, false, "generate code for the configured clients on reset or source code change")
 	c.Flags().Bool(flagQuitOnFail, false, "quit program if the app fails to start")
 	c.Flags().StringSlice(flagBuildTags, []string{}, "parameters to build the chain binary")
+	c.Flags().StringP(flagOutputFile, "o", "", "output file logging the chain output (no UI, no stdin, listens for SIGTERM, implies --yes) (default: stdout)")
 
 	return c
 }
 
 func chainServeHandler(cmd *cobra.Command, _ []string) error {
+	if cmd.Flags().Changed(flagOutputFile) {
+		return daemonMode(cmd)
+	}
+
 	options := []cliui.Option{cliui.WithoutUserInteraction(getYes(cmd))}
 
 	// Session must not handle events when the verbosity is the default
@@ -112,6 +121,38 @@ func chainServeHandler(cmd *cobra.Command, _ []string) error {
 	}
 
 	// Otherwise run the serve command directly
+	return chainServe(cmd, session)
+}
+
+// daemonMode runs the chain serve command without user interaction, UI in verbose mode. Useful to be used as daemon.
+func daemonMode(cmd *cobra.Command) error {
+	// always yes, no user interaction
+	options := []cliui.Option{cliui.WithoutUserInteraction(true)}
+	options = append(options,
+		cliui.WithVerbosity(uilog.VerbosityVerbose),
+	)
+
+	// output file logic
+	outputFile, _ := cmd.Flags().GetString(flagOutputFile)
+	var output *os.File
+	var err error
+	if outputFile != "" {
+		output, err = os.OpenFile(outputFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
+		if err != nil {
+			return err
+		}
+		defer output.Close()
+		options = append(options, cliui.WithStdout(output), cliui.WithStderr(output))
+	} else {
+		options = append(options, cliui.WithStdout(os.Stdout), cliui.WithStderr(os.Stderr))
+	}
+
+	session := cliui.New(options...)
+	defer session.End()
+
+	ctx, stop := signal.NotifyContext(cmd.Context(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	cmd.SetContext(ctx)
 	return chainServe(cmd, session)
 }
 
