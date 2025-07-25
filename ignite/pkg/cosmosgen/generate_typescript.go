@@ -2,6 +2,7 @@ package cosmosgen
 
 import (
 	"context"
+	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -144,8 +145,13 @@ func (g *tsGenerator) generateModuleTemplate(
 
 	// check if directory exists
 	if _, err := os.Stat(protoPath); os.IsNotExist(err) {
-		// if proto directory does not exist, we just skip it.
-		return nil
+		var err error
+		protoPath, err = findInnerProtoFolder(appPath)
+		if err != nil {
+			// if proto directory does not exist, we just skip it
+			log.Print(err.Error())
+			return nil
+		}
 	}
 
 	// code generate for each module.
