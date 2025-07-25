@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## [`v29.2.1`](https://github.com/ignite/cli/releases/tag/v29.2.1)
+
+### Changes
+
+- [#4780](https://github.com/ignite/cli/pull/4780) Fallback to local generation when possible in `generate ts-client` command.
+
 ## [`v29.2.0`](https://github.com/ignite/cli/releases/tag/v29.2.0)
 
 ### Features
