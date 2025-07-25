@@ -142,6 +142,12 @@ func (g *tsGenerator) generateModuleTemplate(
 		protoPath = filepath.Join(g.g.sdkDir, "proto")
 	}
 
+	// check if directory exists
+	if _, err := os.Stat(protoPath); os.IsNotExist(err) {
+		// if proto directory does not exist, we just skip it.
+		return nil
+	}
+
 	// code generate for each module.
 	if err := g.g.buf.Generate(
 		ctx,

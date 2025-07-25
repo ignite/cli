@@ -234,7 +234,7 @@ func (g *generator) processThirdPartyModules(ctx context.Context) error {
 
 					depInfo, err = g.processNewDependency(ctx, dep)
 					if err == nil && len(depInfo.Modules) > 0 && depInfo.Cacheable {
-						// Cache the result only if it's safe to do so
+						// Cache the result only if it's safe to do
 						_ = moduleCache.Put(cacheKey, depInfo)
 					}
 				}
@@ -404,7 +404,8 @@ func (g *generator) resolveIncludes(ctx context.Context, path, protoDir string) 
 	} else {
 		protoPath = filepath.Join(path, protoDir)
 		if fi, err := os.Stat(protoPath); os.IsNotExist(err) {
-			return protoIncludes{}, false, errors.Errorf("proto directory %s does not exist", protoPath)
+			// if proto directory does not exist, we just skip it.
+			return includes, false, nil
 		} else if err != nil {
 			return protoIncludes{}, false, err
 		} else if !fi.IsDir() {
