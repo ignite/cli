@@ -2,6 +2,7 @@ package cosmosgen
 
 import (
 	"context"
+	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -140,6 +141,17 @@ func (g *tsGenerator) generateModuleTemplate(
 
 	if module.IsCosmosSDKPackage(appPath) {
 		protoPath = filepath.Join(g.g.sdkDir, "proto")
+	}
+
+	// check if directory exists
+	if _, err := os.Stat(protoPath); os.IsNotExist(err) {
+		var err error
+		protoPath, err = findInnerProtoFolder(appPath)
+		if err != nil {
+			// if proto directory does not exist, we just skip it
+			log.Print(err.Error())
+			return nil
+		}
 	}
 
 	// code generate for each module.

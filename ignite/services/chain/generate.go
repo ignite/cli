@@ -41,7 +41,6 @@ func GenerateGo() GenerateTarget {
 // overriding the configured or default path. Path can be an empty string.
 func GenerateTSClient(path string, useCache bool) GenerateTarget {
 	return func(o *generateOptions) {
-		o.isOpenAPIEnabled = true
 		o.isTSClientEnabled = true
 		o.tsClientPath = path
 		o.useCache = useCache
@@ -51,7 +50,6 @@ func GenerateTSClient(path string, useCache bool) GenerateTarget {
 // GenerateComposables enables generating proto based Typescript Client and Vue 3 composables.
 func GenerateComposables(path string) GenerateTarget {
 	return func(o *generateOptions) {
-		o.isOpenAPIEnabled = true
 		o.isTSClientEnabled = true
 		o.isComposablesEnabled = true
 		o.composablesPath = path
