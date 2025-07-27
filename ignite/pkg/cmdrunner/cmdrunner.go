@@ -7,7 +7,9 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"syscall"
 
+	"github.com/creack/pty"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
@@ -24,6 +26,7 @@ type Runner struct {
 	workdir     string
 	runParallel bool
 	debug       bool
+	tty         bool
 }
 
 // Option defines option to run commands.
@@ -74,6 +77,13 @@ func EndSignal(s os.Signal) Option {
 func EnableDebug() Option {
 	return func(r *Runner) {
 		r.debug = true
+	}
+}
+
+// TTY simulates a TTY device.
+func TTY() Option {
+	return func(r *Runner) {
+		r.tty = true
 	}
 }
 
@@ -133,7 +143,15 @@ func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 			}
 			return err
 		}
-		command := r.newCommand(step)
+
+		command, err := r.newCommand(step)
+		if err != nil {
+			if runErr := runPostExecs(err); runErr != nil {
+				return runErr
+			}
+			continue
+		}
+
 		startErr := command.Start()
 		if startErr != nil {
 			if err := runPostExecs(startErr); err != nil {
@@ -205,11 +223,31 @@ func (e *cmdSignalWithWriter) Write(data []byte) (n int, err error) {
 	return e.w.Write(data)
 }
 
+type ptyExecutor struct {
+	*exec.Cmd
+	ptmx *os.File
+	tty  *os.File
+}
+
+func (e *ptyExecutor) Signal(s os.Signal) {
+	_ = e.Cmd.Process.Signal(s)
+}
+
+func (e *ptyExecutor) Write(data []byte) (n int, err error) {
+	return e.ptmx.Write(data)
+}
+
+func (e *ptyExecutor) Wait() error {
+	defer e.ptmx.Close()
+	defer e.tty.Close()
+	return e.Cmd.Wait()
+}
+
 // newCommand returns a new command to execute.
-func (r *Runner) newCommand(step *step.Step) Executor {
+func (r *Runner) newCommand(step *step.Step) (Executor, error) {
 	// Return a dummy executor in case of an empty command
 	if step.Exec.Command == "" {
-		return &dummyExecutor{}
+		return &dummyExecutor{}, nil
 	}
 	var (
 		stdout = step.Stdout
@@ -240,22 +278,45 @@ func (r *Runner) newCommand(step *step.Step) Executor {
 	command.Env = append(os.Environ(), step.Env...)
 	command.Env = append(command.Env, Env("PATH", goenv.Path()))
 
-	// If a custom stdin is provided it will be as the stdin for the command
+	// If TTY is requested, create a pseudo-terminal
+	if r.tty {
+		ptmx, tty, err := pty.Open()
+		if err != nil {
+			return nil, err
+		}
+
+		// Set up the command to use the PTY
+		command.Stdout = ptmx
+		command.Stderr = ptmx
+		command.Stdin = ptmx
+		command.SysProcAttr = &syscall.SysProcAttr{
+			Setctty: true,
+			Setsid:  true,
+		}
+
+		// Return a special executor that handles the PTY
+		return &ptyExecutor{
+			Cmd:  command,
+			ptmx: ptmx,
+			tty:  tty,
+		}, nil
+	}
+
+	// If custom stdin is provided, it will be as the stdin for the command
 	if stdin != nil {
 		command.Stdin = stdin
-		return &cmdSignal{command}
+		return &cmdSignal{command}, nil
 	}
 
 	// If no custom stdin, the executor can write into the stdin of the program
 	writer, err := command.StdinPipe()
 	if err != nil {
-		// TODO do not panic
-		panic(err)
+		return nil, err
 	}
-	return &cmdSignalWithWriter{command, writer}
+	return &cmdSignalWithWriter{command, writer}, nil
 }
 
-// Env returns a new env var value from key and val.
+// Env returns a new env var value from a key and val.
 func Env(key, val string) string {
 	return fmt.Sprintf("%s=%s", key, val)
 }
