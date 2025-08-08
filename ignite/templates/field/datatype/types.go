@@ -41,7 +41,7 @@ const (
 	// DecCoin represents the coin type name.
 	DecCoin Name = "dec.coin"
 	// DecCoins represents the decimal coin array type name.
-	DecCoins Name = "dec.coins"
+	DecCoins Name = "array.dec.coin"
 	// Bytes represents the bytes type name.
 	Bytes Name = "bytes"
 	// Address represents the address type name.
@@ -57,6 +57,8 @@ const (
 	UintSliceAlias Name = "uints"
 	// CoinSliceAlias represents the coin array type name alias.
 	CoinSliceAlias Name = "coins"
+	// DecCoinSliceAlias represents the coin array type name alias.
+	DecCoinSliceAlias Name = "dec.coins"
 
 	// TypeCustom represents the string type name id.
 	TypeCustom = "customignitetype"
@@ -66,26 +68,27 @@ const (
 
 // supportedTypes all support data types and definitions.
 var supportedTypes = map[Name]DataType{
-	Bytes:            DataBytes,
-	String:           DataString,
-	StringSlice:      DataStringSlice,
-	StringSliceAlias: DataStringSlice,
-	Bool:             DataBool,
-	Int:              DataInt,
-	Int64:            DataInt,
-	IntSlice:         DataIntSlice,
-	IntSliceAlias:    DataIntSlice,
-	Uint:             DataUint,
-	Uint64:           DataUint,
-	UintSlice:        DataUintSlice,
-	UintSliceAlias:   DataUintSlice,
-	Coin:             DataCoin,
-	Coins:            DataCoinSlice,
-	CoinSliceAlias:   DataCoinSlice,
-	DecCoin:          DataDecCoin,
-	DecCoins:         DataDecCoinSlice,
-	Address:          DataAddress,
-	Custom:           DataCustom,
+	Bytes:             DataBytes,
+	String:            DataString,
+	StringSlice:       DataStringSlice,
+	StringSliceAlias:  DataStringSlice,
+	Bool:              DataBool,
+	Int:               DataInt,
+	Int64:             DataInt,
+	IntSlice:          DataIntSlice,
+	IntSliceAlias:     DataIntSlice,
+	Uint:              DataUint,
+	Uint64:            DataUint,
+	UintSlice:         DataUintSlice,
+	UintSliceAlias:    DataUintSlice,
+	Coin:              DataCoin,
+	Coins:             DataCoinSlice,
+	CoinSliceAlias:    DataCoinSlice,
+	DecCoin:           DataDecCoin,
+	DecCoins:          DataDecCoinSlice,
+	DecCoinSliceAlias: DataDecCoinSlice,
+	Address:           DataAddress,
+	Custom:            DataCustom,
 }
 
 // Name represents the Alias Name for the data type.
@@ -118,7 +121,8 @@ func (t DataType) Usage() string {
 		return "use the custom type to scaffold already created chain types."
 	}
 	usage := fmt.Sprintf("use '<FIELD_NAME>:%s' to scaffold %s types (eg: %s).", t.Name, t.DataType(""), t.DefaultTestValue)
-	if t.Name == Coins || t.Name == DecCoins {
+	if t.Name == Coins || t.Name == DecCoins ||
+		t.Name == CoinSliceAlias || t.Name == DecCoinSliceAlias {
 		return usage + " Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations."
 	}
 	return usage

@@ -60,7 +60,7 @@ func (a *App) assertJSONData(data []byte, msgName string, fields field.Fields) {
 			dt = string(cJSON)
 			require.JSONEq(a.env.T(), dt, v)
 
-		case f.DatatypeName == datatype.DecCoin || f.DatatypeName == datatype.DecCoins:
+		case f.DatatypeName == datatype.DecCoin || f.DatatypeName == datatype.DecCoins || f.DatatypeName == datatype.DecCoinSliceAlias:
 
 			c, err := sdktypes.ParseCoinNormalized(dt)
 			require.NoError(a.env.T(), err)

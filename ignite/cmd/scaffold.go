@@ -5,6 +5,7 @@ import (
 	flag "github.com/spf13/pflag"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/v29/ignite/pkg/env"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
@@ -12,6 +13,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/pkg/xgit"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
+	"github.com/ignite/cli/v29/ignite/templates/field"
 	"github.com/ignite/cli/v29/ignite/version"
 )
 
@@ -27,7 +29,13 @@ const (
 	msgCommitPrefix = "Your project changes have not been committed.\nTo enable reverting to your current state, commit your saved changes."
 	msgCommitPrompt = "Do you want to proceed without committing your saved changes"
 
-	statusScaffolding = "Scaffolding..."
+	statusScaffolding      = "Scaffolding..."
+	multipleCoinDisclaimer = `**Disclaimer**  
+The 'coins' and 'dec.coins' argument types require special attention when used in CLI commands. 
+Due to current limitations in the AutoCLI, only one variadic (slice) argument is supported per command. 
+If a message contains more than one field of type 'coins' or 'dec.coins', only the last one will accept multiple values via the CLI. 
+For the best user experience, manual command handling or scaffolding is recommended when working with messages containing multiple 'coins' or 'dec.coins' fields.
+`
 )
 
 // NewScaffold returns a command that groups scaffolding related sub commands.
@@ -197,6 +205,18 @@ func scaffoldType(
 		cliui.WithoutUserInteraction(getYes(cmd)),
 	)
 	defer session.End()
+
+	if !withoutMessage {
+		hasMultipleCoinSlice, err := field.MultipleCoins(fields)
+		if err != nil {
+			return err
+		}
+		if hasMultipleCoinSlice {
+			session.PauseSpinner()
+			_ = session.Print(colors.Info(multipleCoinDisclaimer))
+			session.StartSpinner(statusScaffolding)
+		}
+	}
 
 	cfg, _, err := getChainConfig(cmd)
 	if err != nil {
