@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changes
+
+- [#4784](https://github.com/ignite/cli/pull/4784) Remove unused message initialization.
+
 ## [`v29.2.0`](https://github.com/ignite/cli/releases/tag/v29.2.0)
 
 ### Features
