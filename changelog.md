@@ -6,6 +6,16 @@
 
 - [#4784](https://github.com/ignite/cli/pull/4784) Remove unused message initialization.
 
+## [`v29.2.1`](https://github.com/ignite/cli/releases/tag/v29.2.1)
+
+### Changes
+
+- [#4779](https://github.com/ignite/cli/pull/4779) Do not re-gen openapi spec each time the `ts-client` or the `composables` are generated.
+
+### Fixes
+
+- [#4779](https://github.com/ignite/cli/pull/4779) Find proto dir in non conventional repo structure.
+
 ## [`v29.2.0`](https://github.com/ignite/cli/releases/tag/v29.2.0)
 
 ### Features
