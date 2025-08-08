@@ -16,7 +16,6 @@
 
 - [#4779](https://github.com/ignite/cli/pull/4779) Find proto dir in non conventional repo structure.
 
-
 ## [`v29.2.0`](https://github.com/ignite/cli/releases/tag/v29.2.0)
 
 ### Features
