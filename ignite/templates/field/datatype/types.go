@@ -8,6 +8,7 @@ import (
 	"github.com/emicklei/proto"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/entrywriter"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
 )
 
@@ -164,18 +165,16 @@ func PrintScaffoldTypeList(writer io.Writer) error {
 	})
 
 	if err := entrywriter.MustWrite(writer, []string{"types", "usage"}, entries...); err != nil {
-		return fmt.Errorf("failed to write scaffold types: %w", err)
+		return errors.Errorf("failed to write scaffold types: %w", err)
 	}
 
-	footer := `Field Usage:
+	const footer = `Field Usage:
     - fieldName
     - fieldName:fieldType
 
 If no :fieldType, default (string) is used
 `
 
-	if _, err := fmt.Fprintf(writer, footer); err != nil {
-		return err
-	}
-	return nil
+	_, err := fmt.Fprint(writer, footer)
+	return err
 }
