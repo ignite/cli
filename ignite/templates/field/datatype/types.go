@@ -2,9 +2,12 @@ package datatype
 
 import (
 	"fmt"
+	"io"
+	"sort"
 
 	"github.com/emicklei/proto"
 
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/entrywriter"
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
 )
 
@@ -107,11 +110,17 @@ type DataType struct {
 	NonIndex                bool
 }
 
+// Usage returns the usage of the data type.
+// It provides a description of how to use the data type in scaffolding.
 func (t DataType) Usage() string {
 	if t.Name == Custom {
 		return "use the custom type to scaffold already created chain types."
 	}
-	return fmt.Sprintf("use '<FIELD_NAME>:%s' to scaffold %s types (eg: %s).", t.Name, t.DataType(""), t.DefaultTestValue)
+	usage := fmt.Sprintf("use '<FIELD_NAME>:%s' to scaffold %s types (eg: %s).", t.Name, t.DataType(""), t.DefaultTestValue)
+	if t.Name == Coins || t.Name == DecCoins {
+		return usage + " Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations."
+	}
+	return usage
 }
 
 // GoImports represents a list of go import.
@@ -140,4 +149,33 @@ func SupportedTypes() map[string]string {
 		supported[string(name)] = dataType.Usage()
 	}
 	return supported
+}
+
+// PrintScaffoldTypeList prints the list of supported scaffold types to the given writer.
+func PrintScaffoldTypeList(writer io.Writer) error {
+	supported := SupportedTypes()
+	entries := make([][]string, 0, len(supported))
+	for name, usage := range supported {
+		entries = append(entries, []string{name, usage})
+	}
+
+	sort.Slice(entries, func(i, j int) bool {
+		return entries[i][0] < entries[j][0]
+	})
+
+	if err := entrywriter.MustWrite(writer, []string{"types", "usage"}, entries...); err != nil {
+		return fmt.Errorf("failed to write scaffold types: %w", err)
+	}
+
+	footer := `Field Usage:
+    - fieldName
+    - fieldName:fieldType
+
+If no :fieldType, default (string) is used
+`
+
+	if _, err := fmt.Fprintf(writer, footer); err != nil {
+		return err
+	}
+	return nil
 }

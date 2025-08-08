@@ -69,7 +69,18 @@ func (f Fields) CLIUsage() string {
 	return strings.TrimSpace(args)
 }
 
-// Custom return a list of custom fields.
+// MultipleCoins returns true if there are multiple coin fields in the slice.
+func (f Fields) MultipleCoins() bool {
+	coinsCount := 0
+	for _, field := range f {
+		if field.DatatypeName == datatype.Coins || field.DatatypeName == datatype.DecCoin {
+			coinsCount++
+		}
+	}
+	return coinsCount > 1
+}
+
+// Custom returns a list of custom fields.
 func (f Fields) Custom() []string {
 	fields := make([]string, 0)
 	for _, field := range f {
