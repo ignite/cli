@@ -197,6 +197,17 @@ func (g *tsGenerator) generateModuleTemplate(
 		protoPath = filepath.Join(g.g.sdkDir, "proto")
 	}
 
+	// check if directory exists
+	if _, err := os.Stat(protoPath); os.IsNotExist(err) {
+		var err error
+		protoPath, err = findInnerProtoFolder(appPath)
+		if err != nil {
+			// if proto directory does not exist, we just skip it
+			log.Print(err.Error())
+			return nil
+		}
+	}
+
 	tsTemplate, err := g.tsTemplate()
 	if err != nil {
 		return err
