@@ -54,7 +54,7 @@ func newTSGenerator(g *generator) *tsGenerator {
 	}
 
 	if !tsg.isLocalProto {
-		log.Printf("No '%s' binary found in PATH, using remote buf plugin for Typescript generation. %s", protocGenTSProtoBin, msgBufAuth)
+		log.Print("No '%s' binary found in PATH, using remote buf plugin for Typescript generation. %s\n", protocGenTSProtoBin, msgBufAuth)
 	}
 
 	return tsg
