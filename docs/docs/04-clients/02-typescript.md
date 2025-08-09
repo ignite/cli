@@ -2,7 +2,7 @@
 description: Information about the generated TypeScript client code.
 ---
 
-# TypeScript frontend
+# TypeScript library
 
 Ignite offers powerful functionality for generating client-side code for your
 blockchain. Think of this as a one-click client SDK generation tailored
@@ -34,6 +34,17 @@ SDK modules:
 ```
 ignite generate ts-client --clear-cache
 ```
+
+:::tip
+In order to not rely on the remote `buf.build` service, you can install the
+`protoc-gen-ts_proto` binary locally and Ignite will use it instead of the remote plugin.
+
+```sh
+npm install -g ts-proto
+```
+
+Learn more at <https://github.com/stephenh/ts-proto>
+:::
 
 Run a command to start your blockchain node:
 

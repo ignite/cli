@@ -2,12 +2,15 @@
 
 ## Unreleased
 
+## [`v29.3.0`](https://github.com/ignite/cli/releases/tag/v29.3.0)
+
 ### Features
 
 - [#4786](https://github.com/ignite/cli/pull/4786) Add all types to the documentation and disclaimer for multiple coin types.
 
 ### Changes
 
+- [#4780](https://github.com/ignite/cli/pull/4780) Fallback to local generation when possible in `generate ts-client` command.
 - [#4779](https://github.com/ignite/cli/pull/4779) Do not re-gen openapi spec each time the `ts-client` or the `composables` are generated.
 - [#4784](https://github.com/ignite/cli/pull/4784) Remove unused message initialization.
 
@@ -910,7 +913,6 @@ Our new name is **Ignite CLI**!
   in [PR 1971](https://github.com/ignite/cli/pull/1971/files)
 
   Updates are required if your chain uses these packages:
-
   - `spm/ibckeeper` is now `pkg/cosmosibckeeper`
   - `spm/cosmoscmd` is now `pkg/cosmoscmd`
   - `spm/openapiconsole` is now `pkg/openapiconsole`
