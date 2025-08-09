@@ -69,7 +69,7 @@ func (f Fields) CLIUsage() string {
 	return strings.TrimSpace(args)
 }
 
-// Custom return a list of custom fields.
+// Custom returns a list of custom fields.
 func (f Fields) Custom() []string {
 	fields := make([]string, 0)
 	for _, field := range f {
