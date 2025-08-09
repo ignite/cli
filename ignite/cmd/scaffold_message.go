@@ -4,8 +4,10 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
+	"github.com/ignite/cli/v29/ignite/templates/field"
 )
 
 const flagSigner = "signer"
@@ -94,6 +96,16 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		cliui.WithoutUserInteraction(getYes(cmd)),
 	)
 	defer session.End()
+
+	hasMultipleCoinSlice, err := field.MultipleCoins(resFields)
+	if err != nil {
+		return err
+	}
+	if hasMultipleCoinSlice {
+		session.PauseSpinner()
+		_ = session.Print(colors.Info(multipleCoinDisclaimer))
+		session.StartSpinner(statusScaffolding)
+	}
 
 	cfg, _, err := getChainConfig(cmd)
 	if err != nil {
