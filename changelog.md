@@ -6,11 +6,10 @@
 
 - [#4786](https://github.com/ignite/cli/pull/4786) Add all types to the documentation and disclaimer for multiple coin types.
 
-## [`v29.2.1`](https://github.com/ignite/cli/releases/tag/v29.2.1)
-
 ### Changes
 
 - [#4779](https://github.com/ignite/cli/pull/4779) Do not re-gen openapi spec each time the `ts-client` or the `composables` are generated.
+- [#4784](https://github.com/ignite/cli/pull/4784) Remove unused message initialization.
 
 ### Fixes
 
