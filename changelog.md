@@ -12,6 +12,7 @@
 
 - [#4780](https://github.com/ignite/cli/pull/4780) Fallback to local generation when possible in `generate ts-client` command.
 - [#4779](https://github.com/ignite/cli/pull/4779) Do not re-gen openapi spec each time the `ts-client` or the `composables` are generated.
+- [#4784](https://github.com/ignite/cli/pull/4784) Remove unused message initialization.
 
 ### Fixes
 
