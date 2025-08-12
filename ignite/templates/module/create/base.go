@@ -113,15 +113,17 @@ func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.R
 		for _, dep := range opts.Dependencies {
 			// If bank is a dependency, add account permissions to the module
 			if dep.Name == "Bank" {
-				template = `{Account: %[2]vmoduletypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner, authtypes.Staking}},
-%[1]v`
-
 				replacement = fmt.Sprintf(
-					template,
-					module.PlaceholderSgAppMaccPerms,
+					"{Account: %[1]vmoduletypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner, authtypes.Staking}}",
 					opts.ModuleName,
 				)
-				content = replacer.Replace(content, module.PlaceholderSgAppMaccPerms, replacement)
+
+				// Keeper definition
+				content, err = xast.ModifyGlobalArrayVar(content, "moduleAccPerms", xast.AppendGlobalArrayValue(replacement))
+				if err != nil {
+					return err
+				}
+
 			}
 		}
 

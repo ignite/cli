@@ -7,7 +7,6 @@ const (
 	PlaceholderSgAppInitGenesis       = "// this line is used by starport scaffolding # stargate/app/initGenesis"
 	PlaceholderSgAppBeginBlockers     = "// this line is used by starport scaffolding # stargate/app/beginBlockers"
 	PlaceholderSgAppEndBlockers       = "// this line is used by starport scaffolding # stargate/app/endBlockers"
-	PlaceholderSgAppMaccPerms         = "// this line is used by starport scaffolding # stargate/app/maccPerms"
 	PlaceholderSgAppModuleConfig      = "// this line is used by starport scaffolding # stargate/app/moduleConfig"
 
 	// Placeholders IBC
