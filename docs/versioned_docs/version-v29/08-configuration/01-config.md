@@ -14,6 +14,59 @@ to describe the development environment for your blockchain.
 Only a default set of parameters is provided. If more nuanced configuration is
 required, you can add these parameters to the `config.yml` file.
 
+## Genesis
+
+The genesis file is the initial block of your blockchain. It is required to launch a chain because it contains important
+information such as token balances and modules' state.
+By default, genesis is stored at `$DATA_DIR/config/genesis.json`.
+
+Since the genesis file is frequently reinitialized during development, you can persistently set options using the
+`genesis` property in your `config.yml`:
+
+```yml
+genesis:
+  app_state:
+    staking:
+      params:
+        bond_denom: "denom"
+```
+
+To discover which properties the genesis file supports, initialize a chain and inspect the generated genesis file in the
+data directory.
+
+### Overriding Genesis Parameters (e.g., chain_id, balances, etc.)
+
+You may need to customize specific parameters in the genesis file, such as `chain_id`, token balances, module
+parameters, or custom state.
+
+To override genesis values with Ignite CLI, persistently set overrides in the `genesis`property of your `config.yml`.
+Any YAML structure under `genesis` will be merged into the generated `genesis.json` during initialization.
+
+Eg: Changing `chain_id` and `staking` parameters
+
+```yml
+genesis:
+  chain_id: "my-custom-chain"
+  app_state:
+    staking:
+      params:
+        bond_denom: "mytoken"
+    bank:
+      balances:
+        - address: "cosmos1..."
+          coins:
+            - denom: "mytoken"
+              amount: "1000000"
+```
+
+- `chain_id`: Sets the chain ID for your blockchain.
+- `app_state`: Allows you to modify module states (e.g., staking, bank, etc.).
+
+> ⚠️ If you set `chain_id` in the `genesis`, it will persist across `ignite chain init` or `ignite chain serve` runs.
+
+The `genesis` property supports deep merging and can override any field present in the generated genesis file.
+For more complex setups, you can use the `include` field in `config.yml` to split overrides into multiple files.
+
 ## Validation
 
 Ignite uses the `validation` field to determine the kind of validation
@@ -41,9 +94,9 @@ A list of user accounts created during genesis of the blockchain.
 ```yml
 accounts:
   - name: alice
-    coins: ['20000token', '200000000stake']
+    coins: [ '20000token', '200000000stake' ]
   - name: bob
-    coins: ['10000token', '100000000stake']
+    coins: [ '10000token', '100000000stake' ]
 ```
 
 Ignite uses information from `accounts` when initializing the chain with `ignite
@@ -80,7 +133,7 @@ address of this key pair.
 ```yml
 accounts:
   - name: bob
-    coins: ['20000token', '200000000stake']
+    coins: [ '20000token', '200000000stake' ]
     address: cosmos1s39200s6v4c96ml2xzuh389yxpd0guk2mzn3mz
 ```
 
@@ -91,7 +144,7 @@ address will be derived from a mnemonic.
 ```yml
 accounts:
   - name: bob
-    coins: ['20000token', '200000000stake']
+    coins: [ '20000token', '200000000stake' ]
     mnemonic: cargo ramp supreme review change various throw air figure humble soft steel slam pole betray inhale already dentist enough away office apple sample glue
 ```
 
@@ -114,7 +167,7 @@ can use the `cointype` field to provide the integer value
 ```yml
 accounts:
   - name: bob
-    coins: ['20000token', '200000000stake']
+    coins: [ '20000token', '200000000stake' ]
     cointype: 7777777
 ```
 
@@ -212,7 +265,7 @@ The faucet service sends tokens to addresses.
 ```yml
 faucet:
   name: bob
-  coins: ["5token", "100000stake"]
+  coins: [ "5token", "100000stake" ]
 ```
 
 `name` refers to a key name in the `accounts` list. This is a required property.
