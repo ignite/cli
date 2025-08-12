@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -17,10 +18,28 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 )
 
-var dirchangeCacheNamespace = "generate.typescript.dirchange"
+var (
+	dirchangeCacheNamespace = "generate.typescript.dirchange"
+
+	protocGenTSProtoBin = "protoc-gen-ts_proto"
+
+	msgBufAuth = "Note: Buf is limits remote plugin requests from unauthenticated users on 'buf.build'. Intensively using this function will get you rate limited. Authenticate with 'buf registry login' to avoid this (https://buf.build/docs/generate/auth-required)."
+)
+
+const localTSProtoTmpl = `version: v1
+plugins:
+  - plugin: ts_proto
+    out: .
+    opt:
+      - "esModuleInterop=true"
+      - "forceLong=long"
+      - "useOptionals=true"
+`
 
 type tsGenerator struct {
-	g *generator
+	g              *generator
+	tsTemplateFile string
+	isLocalProto   bool
 }
 
 type generatePayload struct {
@@ -29,7 +48,41 @@ type generatePayload struct {
 }
 
 func newTSGenerator(g *generator) *tsGenerator {
-	return &tsGenerator{g}
+	tsg := &tsGenerator{g: g}
+	if _, err := exec.LookPath(protocGenTSProtoBin); err == nil {
+		tsg.isLocalProto = true
+	}
+
+	if !tsg.isLocalProto {
+		log.Printf("No '%s' binary found in PATH, using remote buf plugin for Typescript generation. %s\n", protocGenTSProtoBin, msgBufAuth)
+	}
+
+	return tsg
+}
+
+func (g *tsGenerator) tsTemplate() (string, error) {
+	if !g.isLocalProto {
+		return g.g.tsTemplate(), nil
+	}
+	if g.tsTemplateFile != "" {
+		return g.tsTemplateFile, nil
+	}
+	f, err := os.CreateTemp("", "buf-gen-ts-*.yaml")
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+	if _, err := f.WriteString(localTSProtoTmpl); err != nil {
+		return "", err
+	}
+	g.tsTemplateFile = f.Name()
+	return g.tsTemplateFile, nil
+}
+
+func (g *tsGenerator) cleanup() {
+	if g.tsTemplateFile != "" {
+		os.Remove(g.tsTemplateFile)
+	}
 }
 
 func (g *generator) tsTemplate() string {
@@ -56,6 +109,7 @@ func (g *generator) generateTS(ctx context.Context) error {
 	})
 
 	tsg := newTSGenerator(g)
+	defer tsg.cleanup()
 	if err := tsg.generateModuleTemplates(ctx); err != nil {
 		return err
 	}
@@ -154,12 +208,17 @@ func (g *tsGenerator) generateModuleTemplate(
 		}
 	}
 
+	tsTemplate, err := g.tsTemplate()
+	if err != nil {
+		return err
+	}
+
 	// code generate for each module.
 	if err := g.g.buf.Generate(
 		ctx,
 		protoPath,
 		typesOut,
-		g.g.tsTemplate(),
+		tsTemplate,
 		cosmosbuf.IncludeWKT(),
 		cosmosbuf.WithModuleName(m.Pkg.Name),
 	); err != nil {
