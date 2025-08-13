@@ -312,7 +312,7 @@ func newGlobalArrayOptions() globalArrayOpts {
 	}
 }
 
-// ModifyGlobalArrayVar modifies an array global array variable in the provided Go source code by appending new values
+// ModifyGlobalArrayVar modifies an array global array variable in the provided Go source code by appending new values.
 func ModifyGlobalArrayVar(fileContent, globalName string, options ...GlobalArrayOpts) (string, error) {
 	opts := newGlobalArrayOptions()
 	for _, o := range options {

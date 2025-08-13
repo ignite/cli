@@ -64,7 +64,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	g := genny.New()
 	g.RunFn(moduleModify(replacer, opts))
 	g.RunFn(protoModify(opts))
-	g.RunFn(eventModify(replacer, opts))
+	g.RunFn(eventModify(opts))
 	if err := g.OnlyFS(subPacketComponent, nil, nil); err != nil {
 		return g, err
 	}
@@ -261,7 +261,7 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 	}
 }
 
-func eventModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
+func eventModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join("x", opts.ModuleName, "types/events_ibc.go")
 		f, err := r.Disk.Find(path)

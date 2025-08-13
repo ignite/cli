@@ -59,7 +59,7 @@ func NewGenerator(opts *CreateOptions) (*genny.Generator, error) {
 // NewAppModify returns generator with modifications required to register a module in the app.
 func NewAppModify(replacer placeholder.Replacer, opts *CreateOptions) *genny.Generator {
 	g := genny.New()
-	g.RunFn(appModify(replacer, opts))
+	g.RunFn(appModify(opts))
 	g.RunFn(appConfigModify(replacer, opts))
 	if opts.IsIBC {
 		g.RunFn(appIBCModify(replacer, opts))
@@ -134,7 +134,7 @@ func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.R
 }
 
 // app.go modification when creating a module.
-func appModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+func appModify(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		appPath := module.PathAppGo
 		f, err := r.Disk.Find(appPath)
