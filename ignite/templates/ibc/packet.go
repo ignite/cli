@@ -269,15 +269,19 @@ func eventModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 			return err
 		}
 
-		template := `EventType%[2]vPacket       = "%[3]v_packet"
-%[1]v`
-		replacement := fmt.Sprintf(
-			template,
-			PlaceholderIBCPacketEvent,
-			opts.PacketName.UpperCamel,
-			opts.PacketName.LowerCamel,
+		// Keeper declaration
+		content, err := xast.InsertGlobal(
+			f.String(),
+			xast.GlobalTypeConst,
+			xast.WithGlobal(
+				fmt.Sprintf("EventType%[1]vPacket", opts.PacketName.UpperCamel),
+				"string",
+				fmt.Sprintf("%[1]v_packet", opts.PacketName.LowerCamel),
+			),
 		)
-		content := replacer.Replace(f.String(), PlaceholderIBCPacketEvent, replacement)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

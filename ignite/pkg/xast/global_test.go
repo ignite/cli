@@ -48,6 +48,30 @@ var myIntVar int = 42
 `,
 		},
 		{
+			name: "Insert global int var without type",
+			args: args{
+				fileContent: `package main
+
+import (
+	"fmt"
+)
+
+`,
+				globalType: GlobalTypeVar,
+				globals: []GlobalOptions{
+					WithGlobal("myIntVar", "", "42"),
+				},
+			},
+			want: `package main
+
+import (
+	"fmt"
+)
+
+var myIntVar = 42
+`,
+		},
+		{
 			name: "Insert global int const",
 			args: args{
 				fileContent: `package main
