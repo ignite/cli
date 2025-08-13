@@ -155,15 +155,17 @@ func appModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 		}
 
 		// Keeper declaration
-		template := `%[2]vKeeper %[3]vmodulekeeper.Keeper
-%[1]v`
-		replacement := fmt.Sprintf(
-			template,
-			module.PlaceholderSgAppKeeperDeclaration,
-			xstrings.Title(opts.ModuleName),
-			opts.ModuleName,
+		content, err = xast.ModifyStruct(
+			content,
+			"App",
+			xast.AppendStructValue(
+				fmt.Sprintf("%[1]vKeeper", xstrings.Title(opts.ModuleName)),
+				fmt.Sprintf("%[1]vmodulekeeper.Keeper", opts.ModuleName),
+			),
 		)
-		content = replacer.Replace(content, module.PlaceholderSgAppKeeperDeclaration, replacement)
+		if err != nil {
+			return err
+		}
 
 		// Keeper definition
 		content, err = xast.ModifyFunction(

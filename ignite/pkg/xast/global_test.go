@@ -610,6 +610,26 @@ var (
 )
 `,
 		},
+		{
+			name: "name not found",
+			args: args{
+				fileContent: `package app
+
+var (
+	blockAccAddrs = []string{
+		authtypes.FeeCollectorName,
+		distrtypes.ModuleName,
+		minttypes.ModuleName,
+		stakingtypes.BondedPoolName,
+		stakingtypes.NotBondedPoolName,
+	}
+)
+`,
+				globalName: "notFound",
+				options:    []GlobalArrayOpts{AppendGlobalArrayValue("nft.ModuleName")},
+			},
+			err: errors.New("global array \"notFound\" not found in file content"),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
