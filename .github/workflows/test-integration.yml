@@ -18,6 +18,7 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
+
       - name: Finding files and store to output
         id: set-matrix
         run: echo "matrix=$({ cd integration && find . -type d ! -name testdata -maxdepth 1 -print; } | tail -n +2 | cut -c 3- | jq -R . | jq -cs .)" >> $GITHUB_OUTPUT
@@ -26,21 +27,37 @@ jobs:
         with:
           go-version: "stable"
 
-      - name: Run go mod tidy
+      - name: Download Go modules
         run: go mod tidy
+
+      - name: Upload prepared workspace
+        uses: actions/upload-artifact@v4
+        with:
+          name: workspace
+          path: .
+          retention-days: 1
 
   integration:
     name: test ${{ matrix.test-path }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     needs: pre-test
     if: fromJSON(needs.pre-test.outputs.matrix)[0] != null
-    continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
         os: [ ubuntu-latest, macos-latest ]
-        test-path: ${{fromJson(needs.pre-test.outputs.matrix)}}
+        test-path: ${{ fromJson(needs.pre-test.outputs.matrix) }}
     steps:
+      - name: Download prepared workspace
+        uses: actions/download-artifact@v4
+        with:
+          name: workspace
+          path: .
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+
       - name: Run Integration Tests
         env:
           GOTOOLCHAIN: local+path
