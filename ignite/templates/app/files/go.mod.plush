@@ -10,7 +10,7 @@ replace (
 	// replace broken vanity url
 	nhooyr.io/websocket => github.com/coder/websocket v1.8.7
 	// replace broken sonic version
-	github.com/bytedance/sonic => github.com/bytedance/sonic v1.13.2
+	github.com/bytedance/sonic => github.com/bytedance/sonic v1.14.0
 )
 
 require (
