@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- [#4793](https://github.com/ignite/cli/pull/4793) Use latest `bytedance/sonic` version to support Go 1.25.
+
 ## [`v29.3.0`](https://github.com/ignite/cli/releases/tag/v29.3.0)
 
 ### Features
