@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io/fs"
+	"log"
 	"os"
 	"path/filepath"
 	"slices"
@@ -234,7 +235,7 @@ func (g *generator) processThirdPartyModules(ctx context.Context) error {
 
 					depInfo, err = g.processNewDependency(ctx, dep)
 					if err == nil && len(depInfo.Modules) > 0 && depInfo.Cacheable {
-						// Cache the result only if it's safe to do so
+						// Cache the result only if it's safe to do
 						_ = moduleCache.Put(cacheKey, depInfo)
 					}
 				}
@@ -404,7 +405,12 @@ func (g *generator) resolveIncludes(ctx context.Context, path, protoDir string) 
 	} else {
 		protoPath = filepath.Join(path, protoDir)
 		if fi, err := os.Stat(protoPath); os.IsNotExist(err) {
-			return protoIncludes{}, false, errors.Errorf("proto directory %s does not exist", protoPath)
+			protoPath, err = findInnerProtoFolder(path)
+			if err != nil {
+				// if proto directory does not exist, we just skip it
+				log.Print(err.Error())
+				return protoIncludes{}, false, nil
+			}
 		} else if err != nil {
 			return protoIncludes{}, false, err
 		} else if !fi.IsDir() {
@@ -684,4 +690,48 @@ func filterCosmosSDKModule(versions []gomodule.Version) (gomodule.Version, bool)
 		}
 	}
 	return gomodule.Version{}, false
+}
+
+// findInnerProtoFolder attempts to find the proto directory in a module.
+// it should be used as a fallback when the proto directory is not found in the expected location.
+func findInnerProtoFolder(path string) (string, error) {
+	// attempt to find proto directory in the module
+	protoFiles, err := xos.FindFiles(path, xos.WithExtension(xos.ProtoFile))
+	if err != nil {
+		return "", err
+	}
+	if len(protoFiles) == 0 {
+		return "", errors.Errorf("no proto folders found in %s", path)
+	}
+
+	var protoDirs []string
+	for _, p := range protoFiles {
+		dir := filepath.Dir(p)
+		for {
+			if filepath.Base(dir) == "proto" {
+				protoDirs = append(protoDirs, dir)
+				break
+			}
+			parent := filepath.Dir(dir)
+			if parent == dir { // reached root
+				break
+			}
+			dir = parent
+		}
+	}
+
+	if len(protoDirs) == 0 {
+		// Fallback to the parent of the first proto file found.
+		return filepath.Dir(protoFiles[0]), nil
+	}
+
+	// Find the highest level proto directory (shortest path)
+	highest := protoDirs[0]
+	for _, d := range protoDirs[1:] {
+		if len(d) < len(highest) {
+			highest = d
+		}
+	}
+
+	return highest, nil
 }

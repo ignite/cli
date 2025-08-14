@@ -33,7 +33,7 @@ We appreciate your contribution!
 * Before opening an issue, search for [existing open and closed issues](https://github.com/ignite/cli/issues) to check if your question has already been addressed. If a relevant issue exists, consider commenting on it instead of opening a duplicate issue.
 * For feedback, questions, or suggestions, open a [Discussion topic](https://github.com/ignite/cli/discussions/new) to share your thoughts. Providing detailed information, such as use cases and links, will make the discussion more productive and actionable.
 
-* For quick questions or informal feedback, join the **#🛠️ build-chains** channel in the official [Ignite Discord](https://discord.gg/ignite).
+* For quick questions or informal feedback, join the **#🛠️ build-chains** channel in the official [Ignite Discord](https://discord.com/invite/ignitecli).
 
 ## Opening Pull Requests (PRs)
 

@@ -39,7 +39,7 @@ To install the latest version of your blockchain node's binary, execute the foll
 ```
 curl https://get.ignite.com/<%= GitHubPath %>@latest! | sudo bash
 ```
-`<%= GitHubPath %>` should match the `username` and `repo_name` of the Github repository to which the source code was pushed. Learn more about [the install process](https://github.com/allinbits/starport-installer).
+`<%= GitHubPath %>` should match the `username` and `repo_name` of the Github repository to which the source code was pushed. Learn more about [the install process](https://github.com/ignite/installer).
 
 ## Learn more
 
@@ -47,4 +47,4 @@ curl https://get.ignite.com/<%= GitHubPath %>@latest! | sudo bash
 - [Tutorials](https://docs.ignite.com/guide)
 - [Ignite CLI docs](https://docs.ignite.com)
 - [Cosmos SDK docs](https://docs.cosmos.network)
-- [Developer Chat](https://discord.gg/ignite)
+- [Developer Chat](https://discord.com/invite/ignitecli)

@@ -195,3 +195,74 @@ func TestParseFields1(t *testing.T) {
 		})
 	}
 }
+
+func TestMultipleCoins(t *testing.T) {
+	tests := []struct {
+		name   string
+		fields []string
+		want   bool
+		err    error
+	}{
+		{
+			name:   "single coin field",
+			fields: []string{"amount:coin"},
+			want:   false,
+		},
+		{
+			name:   "multiple coin fields",
+			fields: []string{"amount:coin", "price:coin"},
+			want:   false,
+		},
+		{
+			name:   "coin and coins fields",
+			fields: []string{"amount:coin", "price:coins"},
+			want:   false,
+		},
+		{
+			name:   "multiple coins and decimal coins fields",
+			fields: []string{"amount:array.coin", "price:array.dec.coin"},
+			want:   true,
+		},
+		{
+			name:   "single coins field",
+			fields: []string{"amount:array.coin"},
+			want:   false,
+		},
+		{
+			name:   "multiple coins fields",
+			fields: []string{"amount:array.coin", "price:coins"},
+			want:   true,
+		},
+		{
+			name:   "mixed coin and coins fields",
+			fields: []string{"amount:coin", "price:dec.coins"},
+			want:   false,
+		},
+		{
+			name:   "no coin fields",
+			fields: []string{"name:string", "age:int"},
+			want:   false,
+		},
+		{
+			name:   "mixed types with single coin",
+			fields: []string{"name:string", "amount:coin", "age:int"},
+			want:   false,
+		},
+		{
+			name:   "mixed types with multiple coins",
+			fields: []string{"name:string", "amount:array.coin", "price:dec.coins", "age:int"},
+			want:   true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := MultipleCoins(tt.fields)
+			if tt.err != nil {
+				require.ErrorIs(t, err, tt.err)
+				return
+			}
+			require.NoError(t, err)
+			require.EqualValues(t, tt.want, got)
+		})
+	}
+}

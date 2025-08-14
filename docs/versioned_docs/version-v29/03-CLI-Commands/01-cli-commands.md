@@ -957,6 +957,7 @@ ignite chain serve [flags]
       --generate-clients     generate code for the configured clients on reset or source code change
   -h, --help                 help for serve
       --home string          directory where the blockchain node is initialized
+  -o, --output-file string   output file logging the chain output (no UI, no stdin, listens for SIGTERM, implies --yes) (default: stdout)
   -p, --path string          path of the app (default ".")
       --quit-on-fail         quit program if the app fails to start
   -r, --reset-once           reset the app state once on init
@@ -1334,6 +1335,7 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 * [ignite scaffold query](#ignite-scaffold-query)	 - Query for fetching data from a blockchain
 * [ignite scaffold single](#ignite-scaffold-single)	 - CRUD for data stored in a single location
 * [ignite scaffold type](#ignite-scaffold-type)	 - Type definition
+* [ignite scaffold type-list](#ignite-scaffold-type-list)	 - List scaffold types
 * [ignite scaffold vue](#ignite-scaffold-vue)	 - Vue 3 web app template
 
 
@@ -2039,19 +2041,28 @@ Type definition
 
 Type information
 
-Currently supports: 
-
-| Type         | Alias   | Index | Code Type | Description                     |
-|--------------|---------|-------|-----------|---------------------------------|
-| string       | -       | yes   | string    | Text type                       |
-| array.string | strings | no    | []string  | List of text type               |
-| bool         | -       | yes   | bool      | Boolean type                    |
-| int          | -       | yes   | int64     | Integer type                    |
-| array.int    | ints    | no    | []int64   | List of integers types          |
-| uint         | -       | yes   | uint64    | Unsigned integer type           |
-| array.uint   | uints   | no    | []uint64  | List of unsigned integers types |
-| coin         | -       | no    | sdk.Coin  | Cosmos SDK coin type            |
-| array.coin   | coins   | no    | sdk.Coins | List of Cosmos SDK coin types   |
+Types 		Usage 																										
+address 	use '<FIELD_NAME>:address' to scaffold string types (eg: cosmos1abcdefghijklmnopqrstuvwxyz0123456). 														
+array.coin 	use '<FIELD_NAME>:array.coin' to scaffold sdk.Coins types (eg: 20stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations. 		
+array.dec.coin 	use '<FIELD_NAME>:array.dec.coin' to scaffold sdk.DecCoins types (eg: 20000002stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations. 	
+array.int 	use '<FIELD_NAME>:array.int' to scaffold []int64 types (eg: 5,4,3,2,1). 																	
+array.string 	use '<FIELD_NAME>:array.string' to scaffold []string types (eg: abc,xyz). 																	
+array.uint 	use '<FIELD_NAME>:array.uint' to scaffold []uint64 types (eg: 13,26,31,40). 																	
+bool 		use '<FIELD_NAME>:bool' to scaffold bool types (eg: true). 																			
+bytes 		use '<FIELD_NAME>:bytes' to scaffold []byte types (eg: 3,2,3,5). 																		
+coin 		use '<FIELD_NAME>:coin' to scaffold sdk.Coin types (eg: 10token). 																		
+coins 		use '<FIELD_NAME>:array.coin' to scaffold sdk.Coins types (eg: 20stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations. 		
+custom 		use the custom type to scaffold already created chain types. 																			
+dec.coin 	use '<FIELD_NAME>:dec.coin' to scaffold sdk.DecCoin types (eg: 100001token). 																	
+dec.coins 	use '<FIELD_NAME>:array.dec.coin' to scaffold sdk.DecCoins types (eg: 20000002stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations. 	
+int 		use '<FIELD_NAME>:int' to scaffold int64 types (eg: 111). 																			
+int64 		use '<FIELD_NAME>:int' to scaffold int64 types (eg: 111). 																			
+ints 		use '<FIELD_NAME>:array.int' to scaffold []int64 types (eg: 5,4,3,2,1). 																	
+string 		use '<FIELD_NAME>:string' to scaffold string types (eg: xyz). 																			
+strings 	use '<FIELD_NAME>:array.string' to scaffold []string types (eg: abc,xyz). 																	
+uint 		use '<FIELD_NAME>:uint' to scaffold uint64 types (eg: 111). 																			
+uint64 		use '<FIELD_NAME>:uint' to scaffold uint64 types (eg: 111). 																			
+uints 		use '<FIELD_NAME>:array.uint' to scaffold []uint64 types (eg: 13,26,31,40). 																	
 
 Field Usage:
     - fieldName
@@ -2082,6 +2093,35 @@ ignite scaffold type NAME [field:type] ... [flags]
   -p, --path string     path of the app (default ".")
       --signer string   label for the message signer (default: creator)
   -y, --yes             answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
+```
+
+**SEE ALSO**
+
+* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+
+
+## ignite scaffold type-list
+
+List scaffold types
+
+**Synopsis**
+
+List all available scaffold types
+
+```
+ignite scaffold type-list [flags]
+```
+
+**Options**
+
+```
+  -h, --help   help for type-list
 ```
 
 **Options inherited from parent commands**
@@ -2281,3 +2321,42 @@ ignite version [flags]
 
 * [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 
+# Scaffold Type
+
+Ignites provides a set of scaffold types that can be used to generate code for your application.
+These types are used in the `ignite scaffold` command.
+
+## Available Scaffold Types
+
+| Type | Usage |
+| --- | --- |
+| address | use '<FIELD_NAME>:address' to scaffold string types (eg: cosmos1abcdefghijklmnopqrstuvwxyz0123456). |
+| array.coin | use '<FIELD_NAME>:array.coin' to scaffold sdk.Coins types (eg: 20stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations. |
+| array.dec.coin | use '<FIELD_NAME>:array.dec.coin' to scaffold sdk.DecCoins types (eg: 20000002stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations. |
+| array.int | use '<FIELD_NAME>:array.int' to scaffold []int64 types (eg: 5,4,3,2,1). |
+| array.string | use '<FIELD_NAME>:array.string' to scaffold []string types (eg: abc,xyz). |
+| array.uint | use '<FIELD_NAME>:array.uint' to scaffold []uint64 types (eg: 13,26,31,40). |
+| bool | use '<FIELD_NAME>:bool' to scaffold bool types (eg: true). |
+| bytes | use '<FIELD_NAME>:bytes' to scaffold []byte types (eg: 3,2,3,5). |
+| coin | use '<FIELD_NAME>:coin' to scaffold sdk.Coin types (eg: 10token). |
+| coins | use '<FIELD_NAME>:array.coin' to scaffold sdk.Coins types (eg: 20stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations. |
+| custom | use the custom type to scaffold already created chain types. |
+| dec.coin | use '<FIELD_NAME>:dec.coin' to scaffold sdk.DecCoin types (eg: 100001token). |
+| dec.coins | use '<FIELD_NAME>:array.dec.coin' to scaffold sdk.DecCoins types (eg: 20000002stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations. |
+| int | use '<FIELD_NAME>:int' to scaffold int64 types (eg: 111). |
+| int64 | use '<FIELD_NAME>:int' to scaffold int64 types (eg: 111). |
+| ints | use '<FIELD_NAME>:array.int' to scaffold []int64 types (eg: 5,4,3,2,1). |
+| string | use '<FIELD_NAME>:string' to scaffold string types (eg: xyz). |
+| strings | use '<FIELD_NAME>:array.string' to scaffold []string types (eg: abc,xyz). |
+| uint | use '<FIELD_NAME>:uint' to scaffold uint64 types (eg: 111). |
+| uint64 | use '<FIELD_NAME>:uint' to scaffold uint64 types (eg: 111). |
+| uints | use '<FIELD_NAME>:array.uint' to scaffold []uint64 types (eg: 13,26,31,40). |
+
+
+Field Usage:
+
+    - fieldName
+    - fieldName:fieldType
+
+
+If no :fieldType, default (string) is used

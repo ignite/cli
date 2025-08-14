@@ -2,16 +2,38 @@
 
 ## Unreleased
 
+### Fixes
+
+- [#4793](https://github.com/ignite/cli/pull/4793) Use latest `bytedance/sonic` version to support Go 1.25.
+
+## [`v29.3.0`](https://github.com/ignite/cli/releases/tag/v29.3.0)
+
+### Features
+
+- [#4786](https://github.com/ignite/cli/pull/4786) Add all types to the documentation and disclaimer for multiple coin types.
+
+### Changes
+
+- [#4780](https://github.com/ignite/cli/pull/4780) Fallback to local generation when possible in `generate ts-client` command.
+- [#4779](https://github.com/ignite/cli/pull/4779) Do not re-gen openapi spec each time the `ts-client` or the `composables` are generated.
+- [#4784](https://github.com/ignite/cli/pull/4784) Remove unused message initialization.
+
+### Fixes
+
+- [#4779](https://github.com/ignite/cli/pull/4779) Find proto dir in non conventional repo structure.
+
+## [`v29.2.0`](https://github.com/ignite/cli/releases/tag/v29.2.0)
+
 ### Features
 
 - [#4676](https://github.com/ignite/cli/issues/4676) Add Decimal Coin Type.
 - [#4765](https://github.com/ignite/cli/pull/4765) Create `scaffold type-list` command.
+- [#4770](https://github.com/ignite/cli/pull/4770) Add `--output-file` flag to `chain serve` command to improve running `chain serve` in the background.
 
 ### Changes
 
 - [#4759](https://github.com/ignite/cli/pull/4759) Remove undocumented RPC address override in services chainer.
 - [#4760](https://github.com/ignite/cli/pull/4760) Bump Cosmos SDK to `v0.53.3`.
-
 
 ### Fixes
 
@@ -895,7 +917,6 @@ Our new name is **Ignite CLI**!
   in [PR 1971](https://github.com/ignite/cli/pull/1971/files)
 
   Updates are required if your chain uses these packages:
-
   - `spm/ibckeeper` is now `pkg/cosmosibckeeper`
   - `spm/cosmoscmd` is now `pkg/cosmoscmd`
   - `spm/openapiconsole` is now `pkg/openapiconsole`

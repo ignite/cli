@@ -70,6 +70,7 @@ var (
 
 	// DataDecCoin decimal coin data type definition.
 	DataDecCoin = DataType{
+		Name:                    DecCoin,
 		DataType:                func(string) string { return "sdk.DecCoin" },
 		CollectionsKeyValueName: func(string) string { return collectionValueComment },
 		DefaultTestValue:        "100001token",
@@ -98,6 +99,7 @@ var (
 
 	// DataDecCoinSlice is a decimal coin array data type definition.
 	DataDecCoinSlice = DataType{
+		Name:                    DecCoins,
 		DataType:                func(string) string { return "sdk.DecCoins" },
 		CollectionsKeyValueName: func(string) string { return collectionValueComment },
 		DefaultTestValue:        "20000002stake",
