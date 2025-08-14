@@ -22,6 +22,13 @@ jobs:
         id: set-matrix
         run: echo "matrix=$({ cd integration && find . -type d ! -name testdata -maxdepth 1 -print; } | tail -n +2 | cut -c 3- | jq -R . | jq -cs .)" >> $GITHUB_OUTPUT
 
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+
+      - name: Run go mod tidy
+        run: go mod tidy
+
   integration:
     name: test ${{ matrix.test-path }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -31,15 +38,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ ubuntu-latest, macos-latest ]
         test-path: ${{fromJson(needs.pre-test.outputs.matrix)}}
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-go@v5
-        with:
-          go-version: "stable"
-
       - name: Run Integration Tests
         env:
           GOTOOLCHAIN: local+path
