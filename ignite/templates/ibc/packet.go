@@ -275,8 +275,8 @@ func eventModify(opts *PacketOptions) genny.RunFn {
 			xast.GlobalTypeConst,
 			xast.WithGlobal(
 				fmt.Sprintf("EventType%[1]vPacket", opts.PacketName.UpperCamel),
-				"string",
-				fmt.Sprintf("%[1]v_packet", opts.PacketName.LowerCamel),
+				"",
+				fmt.Sprintf(`"%[1]v_packet"`, opts.PacketName.LowerCamel),
 			),
 		)
 		if err != nil {
