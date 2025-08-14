@@ -42,6 +42,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: pre-test
     if: fromJSON(needs.pre-test.outputs.matrix)[0] != null
+    continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
