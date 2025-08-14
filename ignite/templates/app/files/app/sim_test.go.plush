@@ -58,7 +58,7 @@ func interBlockCacheOpt() func(*baseapp.BaseApp) {
 }
 
 // BenchmarkSimulation run the chain simulation
-// Running using ignite command:
+// Running using starport command:
 // `ignite chain simulate -v --numBlocks 200 --blockSize 50`
 // Running as go benchmark test:
 // `go test -benchmem -run=^$ -bench ^BenchmarkSimulation ./app -NumBlocks=200 -BlockSize 50 -Commit=true -Verbose=true -Enabled=true`
