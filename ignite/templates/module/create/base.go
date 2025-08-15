@@ -59,7 +59,7 @@ func NewGenerator(opts *CreateOptions) (*genny.Generator, error) {
 // NewAppModify returns generator with modifications required to register a module in the app.
 func NewAppModify(replacer placeholder.Replacer, opts *CreateOptions) *genny.Generator {
 	g := genny.New()
-	g.RunFn(appModify(replacer, opts))
+	g.RunFn(appModify(opts))
 	g.RunFn(appConfigModify(replacer, opts))
 	if opts.IsIBC {
 		g.RunFn(appIBCModify(replacer, opts))
@@ -113,15 +113,17 @@ func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.R
 		for _, dep := range opts.Dependencies {
 			// If bank is a dependency, add account permissions to the module
 			if dep.Name == "Bank" {
-				template = `{Account: %[2]vmoduletypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner, authtypes.Staking}},
-%[1]v`
-
 				replacement = fmt.Sprintf(
-					template,
-					module.PlaceholderSgAppMaccPerms,
+					"{Account: %[1]vmoduletypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner, authtypes.Staking}}",
 					opts.ModuleName,
 				)
-				content = replacer.Replace(content, module.PlaceholderSgAppMaccPerms, replacement)
+
+				// Keeper definition
+				content, err = xast.ModifyGlobalArrayVar(content, "moduleAccPerms", xast.AppendGlobalArrayValue(replacement))
+				if err != nil {
+					return err
+				}
+
 			}
 		}
 
@@ -132,7 +134,7 @@ func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.R
 }
 
 // app.go modification when creating a module.
-func appModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+func appModify(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		appPath := module.PathAppGo
 		f, err := r.Disk.Find(appPath)
@@ -153,15 +155,17 @@ func appModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 		}
 
 		// Keeper declaration
-		template := `%[2]vKeeper %[3]vmodulekeeper.Keeper
-%[1]v`
-		replacement := fmt.Sprintf(
-			template,
-			module.PlaceholderSgAppKeeperDeclaration,
-			xstrings.Title(opts.ModuleName),
-			opts.ModuleName,
+		content, err = xast.ModifyStruct(
+			content,
+			"App",
+			xast.AppendStructValue(
+				fmt.Sprintf("%[1]vKeeper", xstrings.Title(opts.ModuleName)),
+				fmt.Sprintf("%[1]vmodulekeeper.Keeper", opts.ModuleName),
+			),
 		)
-		content = replacer.Replace(content, module.PlaceholderSgAppKeeperDeclaration, replacement)
+		if err != nil {
+			return err
+		}
 
 		// Keeper definition
 		content, err = xast.ModifyFunction(
