@@ -64,7 +64,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	g := genny.New()
 	g.RunFn(moduleModify(replacer, opts))
 	g.RunFn(protoModify(opts))
-	g.RunFn(eventModify(replacer, opts))
+	g.RunFn(eventModify(opts))
 	if err := g.OnlyFS(subPacketComponent, nil, nil); err != nil {
 		return g, err
 	}
@@ -261,7 +261,7 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 	}
 }
 
-func eventModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
+func eventModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join("x", opts.ModuleName, "types/events_ibc.go")
 		f, err := r.Disk.Find(path)
@@ -269,15 +269,19 @@ func eventModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 			return err
 		}
 
-		template := `EventType%[2]vPacket       = "%[3]v_packet"
-%[1]v`
-		replacement := fmt.Sprintf(
-			template,
-			PlaceholderIBCPacketEvent,
-			opts.PacketName.UpperCamel,
-			opts.PacketName.LowerCamel,
+		// Keeper declaration
+		content, err := xast.InsertGlobal(
+			f.String(),
+			xast.GlobalTypeConst,
+			xast.WithGlobal(
+				fmt.Sprintf("EventType%[1]vPacket", opts.PacketName.UpperCamel),
+				"",
+				fmt.Sprintf(`"%[1]v_packet"`, opts.PacketName.LowerCamel),
+			),
 		)
-		content := replacer.Replace(f.String(), PlaceholderIBCPacketEvent, replacement)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
