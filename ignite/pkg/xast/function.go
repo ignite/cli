@@ -320,19 +320,19 @@ func appendSwitchCase(fileSet *token.FileSet, stmt ast.Node, fs functionSwitches
 		case *ast.SwitchStmt:
 			statement.Body.List = appendCaseToList(statement.Body.List, newCase)
 		default:
-			return fmt.Errorf("unsupported switch statement type: %T", stmt)
+			return errors.Errorf("unsupported switch statement type: %T", stmt)
 		}
 	}
 	return nil
 }
 
 // appendCaseToList handles inserting a case clause into a list of statements,
-// placing it before any default case if one exists
+// placing it before any default case if one exists.
 func appendCaseToList(list []ast.Stmt, newCase *ast.CaseClause) []ast.Stmt {
 	if len(list) > 0 {
 		lastCase, isDefault := list[len(list)-1].(*ast.CaseClause)
 		if isDefault && len(lastCase.List) == 0 {
-			// Insert before default
+			// Insert before default.
 			return append(list[:len(list)-1], newCase, list[len(list)-1])
 		}
 	}

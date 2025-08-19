@@ -12,7 +12,6 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
@@ -50,7 +49,7 @@ func (opts *PacketOptions) ProtoFile(fname string) string {
 }
 
 // NewPacket returns the generator to scaffold a packet in an IBC module.
-func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Generator, error) {
+func NewPacket(opts *PacketOptions) (*genny.Generator, error) {
 	subPacketComponent, err := fs.Sub(fsPacketComponent, "files/packet/component")
 	if err != nil {
 		return nil, errors.Errorf("fail to generate sub: %w", err)
@@ -62,7 +61,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 
 	// Add the component
 	g := genny.New()
-	g.RunFn(moduleModify(replacer, opts))
+	g.RunFn(moduleModify(opts))
 	g.RunFn(protoModify(opts))
 	g.RunFn(eventModify(opts))
 	if err := g.OnlyFS(subPacketComponent, nil, nil); err != nil {
@@ -100,7 +99,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	return g, nil
 }
 
-func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
+func moduleModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join("x", opts.ModuleName, "module/module_ibc.go")
 		f, err := r.Disk.Find(path)
