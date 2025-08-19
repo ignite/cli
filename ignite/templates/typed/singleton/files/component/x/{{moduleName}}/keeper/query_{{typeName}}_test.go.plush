@@ -7,9 +7,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"<%= ModulePath %>/testutil/nullify"
-	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 	"<%= ModulePath %>/x/<%= ModuleName %>/keeper"
+	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
 func Test<%= TypeName.UpperCamel %>Query(t *testing.T) {
@@ -42,10 +41,7 @@ func Test<%= TypeName.UpperCamel %>Query(t *testing.T) {
 				require.ErrorIs(t, err, tc.err)
 			} else {
 				require.NoError(t, err)
-				require.Equal(t,
-					nullify.Fill(tc.response),
-					nullify.Fill(response),
-				)
+				require.EqualExportedValues(t, tc.response, response)
 			}
 		})
 	}

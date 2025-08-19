@@ -28,15 +28,17 @@ meant to be edited by hand.
 	}
 
 	c.PersistentFlags().AddFlagSet(flagSetEnableProtoVendor())
+	c.PersistentFlags().AddFlagSet(flagSetVerbose())
 
 	flagSetPath(c)
 	flagSetClearCache(c)
 
-	c.AddCommand(NewGenerateGo())
-	c.AddCommand(NewGenerateTSClient())
-	c.AddCommand(NewGenerateComposables())
-	c.AddCommand(NewGenerateHooks())
-	c.AddCommand(NewGenerateOpenAPI())
+	c.AddCommand(
+		NewGenerateGo(),
+		NewGenerateTSClient(),
+		NewGenerateComposables(),
+		NewGenerateOpenAPI(),
+	)
 
 	return c
 }

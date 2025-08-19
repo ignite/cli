@@ -1,8 +1,0 @@
-package types
-
-func NewMsg<%= MsgName.PascalCase %>(<%= MsgSigner.LowerCamel %> string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.DataType() %><% } %>) *Msg<%= MsgName.PascalCase %> {
-  return &Msg<%= MsgName.PascalCase %>{
-		<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,<%= for (field) in Fields { %>
-    <%= field.Name.UpperCamel %>: <%= field.Name.LowerCamel %>,<% } %>
-	}
-}

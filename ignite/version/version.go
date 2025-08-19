@@ -149,7 +149,7 @@ func Long(ctx context.Context) (string, error) {
 	write("Ignite CLI source hash", info.SourceHash)
 	write("Ignite CLI config version", info.ConfigVersion)
 	write("Cosmos SDK version", info.SDKVersion)
-	write("Buf.Build version", info.BufVersion)
+	write("Buf.build version", info.BufVersion)
 
 	write("Your OS", info.OS)
 	write("Your arch", info.Arch)
@@ -219,9 +219,18 @@ func GetInfo(ctx context.Context) (Info, error) {
 		uname = strings.TrimSpace(unameBuf.String())
 	}
 
-	bufVersion, err := cosmosbuf.Version(ctx)
-	if err != nil {
-		return info, err
+	if cwd, err := os.Getwd(); err == nil {
+		info.CWD = cwd
+	}
+
+	// buf version can only be determined within a go.mod because of go tool.
+	// no global version is used in ignite since v29.
+	bufVersion := "undefined"
+	if _, err := os.Stat(path.Join(info.CWD, "go.mod")); !os.IsNotExist(err) {
+		bufVersion, err = cosmosbuf.Version(ctx)
+		if err != nil {
+			return info, err
+		}
 	}
 
 	info.Uname = uname
@@ -236,17 +245,14 @@ func GetInfo(ctx context.Context) (Info, error) {
 	info.GoVersion = strings.TrimSpace(goVersionBuf.String())
 	info.BuildFromSource = fromSource()
 
-	if cwd, err := os.Getwd(); err == nil {
-		info.CWD = cwd
-	}
-
 	return info, nil
 }
 
 // AssertSupportedCosmosSDKVersion asserts that a Cosmos SDK version is supported by Ignite CLI.
 func AssertSupportedCosmosSDKVersion(v cosmosver.Version) error {
-	if v.LT(cosmosver.StargateFortySevenTwoVersion) {
+	if v.LT(cosmosver.StargateFiftyVersion) {
 		return errors.Errorf(errOldCosmosSDKVersionStr, v)
 	}
+
 	return nil
 }

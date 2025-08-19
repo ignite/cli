@@ -17,6 +17,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pluginsconfig "github.com/ignite/cli/v29/ignite/config/plugins"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodule"
@@ -60,16 +61,6 @@ func TestNewPlugin(t *testing.T) {
 		{
 			name:      "ok: local plugin",
 			pluginCfg: pluginsconfig.Plugin{Path: path.Join(wd, "testdata")},
-			expectedPlugin: Plugin{
-				srcPath: path.Join(wd, "testdata"),
-				name:    "testdata",
-				stdout:  os.Stdout,
-				stderr:  os.Stderr,
-			},
-		},
-		{
-			name:      "ok: relative local plugin",
-			pluginCfg: pluginsconfig.Plugin{Path: "./testdata"},
 			expectedPlugin: Plugin{
 				srcPath: path.Join(wd, "testdata"),
 				name:    "testdata",
@@ -224,6 +215,10 @@ type TestClientAPI struct{ ClientAPI }
 
 func (TestClientAPI) GetChainInfo(context.Context) (*ChainInfo, error) {
 	return &ChainInfo{}, nil
+}
+
+func (TestClientAPI) GetIgniteInfo(context.Context) (*IgniteInfo, error) {
+	return &IgniteInfo{}, nil
 }
 
 func TestPluginLoad(t *testing.T) {
@@ -552,7 +547,9 @@ func scaffoldPlugin(t *testing.T, dir, name string, sharedHost bool) string {
 	t.Helper()
 
 	require := require.New(t)
-	path, err := Scaffold(context.Background(), dir, name, sharedHost)
+
+	session := cliui.New(cliui.WithoutUserInteraction(true))
+	path, err := Scaffold(context.Background(), session, dir, name, sharedHost)
 	require.NoError(err)
 
 	// We want the scaffolded plugin to use the current version of ignite/cli,
@@ -579,10 +576,10 @@ func assertPlugin(t *testing.T, want, have Plugin) {
 	t.Helper()
 
 	if want.Error != nil {
-		require.Error(t, have.Error)
+		require.Errorf(t, have.Error, "expected error %q", want.Error)
 		assert.Regexp(t, want.Error.Error(), have.Error.Error())
 	} else {
-		require.NoError(t, have.Error)
+		require.NoErrorf(t, have.Error, "expected no error, got %v", have.Error)
 	}
 
 	// Errors aren't comparable with assert.Equal, because of the different stacks

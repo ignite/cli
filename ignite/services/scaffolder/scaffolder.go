@@ -12,6 +12,7 @@ import (
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis"
+	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
@@ -77,8 +78,8 @@ func New(context context.Context, appPath, protoDir string) (Scaffolder, error) 
 	return s, nil
 }
 
-func (s Scaffolder) ApplyModifications() (xgenny.SourceModification, error) {
-	return s.runner.ApplyModifications()
+func (s Scaffolder) ApplyModifications(options ...xgenny.ApplyOption) (xgenny.SourceModification, error) {
+	return s.runner.ApplyModifications(options...)
 }
 
 func (s Scaffolder) Tracer() *placeholder.Tracer {
@@ -93,7 +94,7 @@ func (s Scaffolder) PostScaffold(ctx context.Context, cacheStorage cache.Storage
 	return PostScaffold(ctx, cacheStorage, s.appPath, s.protoDir, s.modpath.RawPath, skipProto)
 }
 
-func PostScaffold(ctx context.Context, cacheStorage cache.Storage, path, protoDir, gomodPath string, skipProto bool) error {
+func PostScaffold(ctx context.Context, cacheStorage cache.Storage, path, protoDir, goModPath string, skipProto bool) error {
 	wd, err := os.Getwd()
 	if err != nil {
 		return errors.Errorf("failed to get current working directory: %w", err)
@@ -105,11 +106,12 @@ func PostScaffold(ctx context.Context, cacheStorage cache.Storage, path, protoDi
 	}
 
 	if !skipProto {
+		// go mod tidy prior and after the proto generation is required.
 		if err := gocmd.ModTidy(ctx, path); err != nil {
 			return err
 		}
 
-		if err := protoc(ctx, cacheStorage, path, protoDir, gomodPath); err != nil {
+		if err := protoc(ctx, cacheStorage, path, protoDir, goModPath); err != nil {
 			return err
 		}
 	}
@@ -134,7 +136,7 @@ func PostScaffold(ctx context.Context, cacheStorage cache.Storage, path, protoDi
 	return nil
 }
 
-func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, protoDir, gomodPath string) error {
+func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, protoDir, goModPath string) error {
 	confpath, err := chainconfig.LocateDefault(projectPath)
 	if err != nil {
 		return err
@@ -174,5 +176,22 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, protoD
 		options = append(options, cosmosgen.WithOpenAPIGeneration(openAPIPath))
 	}
 
-	return cosmosgen.Generate(ctx, cacheStorage, projectPath, protoDir, gomodPath, options...)
+	if err := cosmosgen.Generate(
+		ctx,
+		cacheStorage,
+		projectPath,
+		protoDir,
+		goModPath,
+		chainconfig.DefaultVuePath,
+		options...,
+	); err != nil {
+		return err
+	}
+
+	buf, err := cosmosbuf.New(cacheStorage, goModPath)
+	if err != nil {
+		return err
+	}
+
+	return buf.Format(ctx, projectPath)
 }

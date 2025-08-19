@@ -19,6 +19,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -63,13 +64,14 @@ type App struct {
 	StakingKeeper  *stakingkeeper.Keeper
 	DistrKeeper    distrkeeper.Keeper
 
-	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
-
 	// simulation manager
 	sm *module.SimulationManager
 }
 
 func init() {
+	<%= if (DefaultDenom) { %>
+	sdk.DefaultBondDenom = "<%= DefaultDenom %>"
+	<% } %>
 	var err error
 	clienthelpers.EnvPrefix = Name
 	DefaultNodeHome, err = clienthelpers.GetNodeHomeDirectory("." + Name)

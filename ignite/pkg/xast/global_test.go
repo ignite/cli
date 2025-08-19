@@ -29,6 +29,7 @@ import (
 	"fmt"
 )
 
+// This is a comment
 `,
 				globalType: GlobalTypeVar,
 				globals: []GlobalOptions{
@@ -42,6 +43,32 @@ import (
 )
 
 var myIntVar int = 42
+
+// This is a comment
+`,
+		},
+		{
+			name: "Insert global int var without type",
+			args: args{
+				fileContent: `package main
+
+import (
+	"fmt"
+)
+
+`,
+				globalType: GlobalTypeVar,
+				globals: []GlobalOptions{
+					WithGlobal("myIntVar", "", "42"),
+				},
+			},
+			want: `package main
+
+import (
+	"fmt"
+)
+
+var myIntVar = 42
 `,
 		},
 		{
@@ -53,6 +80,7 @@ import (
 	"fmt"
 )
 
+// This is a comment
 `,
 				globalType: GlobalTypeConst,
 				globals: []GlobalOptions{
@@ -66,6 +94,8 @@ import (
 )
 
 const myIntConst int = 42
+
+// This is a comment
 `,
 		},
 		{
@@ -77,6 +107,7 @@ import (
     "fmt"
 )
 
+// This is a comment
 `,
 				globalType: GlobalTypeConst,
 				globals: []GlobalOptions{
@@ -90,6 +121,41 @@ import (
 )
 
 const myStringConst string = "hello"
+
+// This is a comment
+`,
+		},
+		{
+			name: "Insert string const when already exist one",
+			args: args{
+				fileContent: `package main
+
+import (
+    "fmt"
+)
+
+// myIntConst is my const int
+const myIntConst int = 42
+
+// This is a comment
+`,
+				globalType: GlobalTypeConst,
+				globals: []GlobalOptions{
+					WithGlobal("myStringConst", "string", `"hello"`),
+				},
+			},
+			want: `package main
+
+import (
+	"fmt"
+)
+
+const myStringConst string = "hello"
+
+// myIntConst is my const int
+const myIntConst int = 42
+
+// This is a comment
 `,
 		},
 		{
@@ -101,6 +167,7 @@ import (
 	"fmt"
 )
 
+// This is a comment
 `,
 				globalType: GlobalTypeConst,
 				globals: []GlobalOptions{
@@ -118,12 +185,16 @@ import (
 const myStringConst string = "hello"
 const myBoolConst bool = true
 const myUintConst uint64 = 40
+
+// This is a comment
 `,
 		},
 		{
 			name: "Insert global int var with not imports",
 			args: args{
 				fileContent: `package main
+
+// This is a comment
 `,
 				globalType: GlobalTypeVar,
 				globals: []GlobalOptions{
@@ -133,6 +204,8 @@ const myUintConst uint64 = 40
 			want: `package main
 
 var myIntVar int = 42
+
+// This is a comment
 `,
 		},
 		{
@@ -481,6 +554,110 @@ type MyStruct struct {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := ModifyStruct(tt.args.fileContent, tt.args.structName, tt.args.options...)
+			if tt.err != nil {
+				require.Error(t, err)
+				require.Equal(t, tt.err.Error(), err.Error())
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestModifyGlobalArrayVar(t *testing.T) {
+	type args struct {
+		fileContent string
+		globalName  string
+		options     []GlobalArrayOpts
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+		err  error
+	}{
+		{
+			name: "Add field to custom variable array",
+			args: args{
+				fileContent: `package app
+var (
+	moduleAccPerms = []*authmodulev1.ModuleAccountPermission{
+		{Account: nft.ModuleName},
+		{Account: ibctransfertypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
+	}
+)
+`,
+				globalName: "moduleAccPerms",
+				options:    []GlobalArrayOpts{AppendGlobalArrayValue("{Account: icatypes.ModuleName}")},
+			},
+			want: `package app
+
+var (
+	moduleAccPerms = []*authmodulev1.ModuleAccountPermission{
+		{Account: nft.ModuleName},
+		{Account: ibctransfertypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
+		{Account: icatypes.ModuleName},
+	}
+)
+`,
+		},
+		{
+			name: "Add field to string variable array",
+			args: args{
+				fileContent: `package app
+
+var (
+	blockAccAddrs = []string{
+		authtypes.FeeCollectorName,
+		distrtypes.ModuleName,
+		minttypes.ModuleName,
+		stakingtypes.BondedPoolName,
+		stakingtypes.NotBondedPoolName,
+	}
+)
+`,
+				globalName: "blockAccAddrs",
+				options:    []GlobalArrayOpts{AppendGlobalArrayValue("nft.ModuleName")},
+			},
+			want: `package app
+
+var (
+	blockAccAddrs = []string{
+		authtypes.FeeCollectorName,
+		distrtypes.ModuleName,
+		minttypes.ModuleName,
+		stakingtypes.BondedPoolName,
+		stakingtypes.NotBondedPoolName,
+		nft.ModuleName,
+	}
+)
+`,
+		},
+		{
+			name: "name not found",
+			args: args{
+				fileContent: `package app
+
+var (
+	blockAccAddrs = []string{
+		authtypes.FeeCollectorName,
+		distrtypes.ModuleName,
+		minttypes.ModuleName,
+		stakingtypes.BondedPoolName,
+		stakingtypes.NotBondedPoolName,
+	}
+)
+`,
+				globalName: "notFound",
+				options:    []GlobalArrayOpts{AppendGlobalArrayValue("nft.ModuleName")},
+			},
+			err: errors.New("global array \"notFound\" not found in file content"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ModifyGlobalArrayVar(tt.args.fileContent, tt.args.globalName, tt.args.options...)
 			if tt.err != nil {
 				require.Error(t, err)
 				require.Equal(t, tt.err.Error(), err.Error())

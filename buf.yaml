@@ -4,7 +4,7 @@ modules:
     name: buf.build/ignitehq/cli
 lint:
   use:
-    - DEFAULT
+    - STANDARD
     - FILE_LOWER_SNAKE_CASE
   except:
     - COMMENT_FIELD

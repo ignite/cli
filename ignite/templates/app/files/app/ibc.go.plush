@@ -19,9 +19,11 @@ import (
 	icahosttypes "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/host/types"
 	icatypes "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/types"
 	ibctransfer "github.com/cosmos/ibc-go/v10/modules/apps/transfer"
+	ibctransferv2 "github.com/cosmos/ibc-go/v10/modules/apps/transfer/v2"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v10/modules/apps/transfer/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
 	ibc "github.com/cosmos/ibc-go/v10/modules/core"
+	ibcapi "github.com/cosmos/ibc-go/v10/modules/core/api"
 	ibcclienttypes "github.com/cosmos/ibc-go/v10/modules/core/02-client/types" // nolint:staticcheck // Deprecated: params key table is needed for params migration
 	ibcconnectiontypes "github.com/cosmos/ibc-go/v10/modules/core/03-connection/types"
 	porttypes "github.com/cosmos/ibc-go/v10/modules/core/05-port/types"
@@ -101,23 +103,34 @@ func (app *App) registerIBCModules(appOpts servertypes.AppOptions) error {
 	// create IBC module from bottom to top of stack
 	var (
 		transferStack porttypes.IBCModule = ibctransfer.NewIBCModule(app.TransferKeeper)
+		transferStackV2    ibcapi.IBCModule    = ibctransferv2.NewIBCModule(app.TransferKeeper)
 		icaControllerStack porttypes.IBCModule = icacontroller.NewIBCMiddleware(app.ICAControllerKeeper)
 		icaHostStack porttypes.IBCModule = icahost.NewIBCModule(app.ICAHostKeeper)
 	)
 
-	// create static IBC router, add transfer route, then set it on the keeper
+	// create IBC v1 router, add transfer route, then set it on the keeper
 	ibcRouter := porttypes.NewRouter().
 		AddRoute(ibctransfertypes.ModuleName, transferStack).
 		AddRoute(icacontrollertypes.SubModuleName, icaControllerStack).
 		AddRoute(icahosttypes.SubModuleName, icaHostStack)
 
+	// create IBC v2 router, add transfer route, then set it on the keeper
+	ibcv2Router := ibcapi.NewRouter().
+		AddRoute(ibctransfertypes.PortID, transferStackV2)
+
 	// this line is used by starport scaffolding # ibc/app/module
 
 	app.IBCKeeper.SetRouter(ibcRouter)
+	app.IBCKeeper.SetRouterV2(ibcv2Router)
 
-	storeProvider := app.IBCKeeper.ClientKeeper.GetStoreProvider()
+	clientKeeper := app.IBCKeeper.ClientKeeper
+	storeProvider := clientKeeper.GetStoreProvider()
+
 	tmLightClientModule := ibctm.NewLightClientModule(app.appCodec, storeProvider)
+	clientKeeper.AddRoute(ibctm.ModuleName, &tmLightClientModule)
+
 	soloLightClientModule := solomachine.NewLightClientModule(app.appCodec, storeProvider)
+	clientKeeper.AddRoute(solomachine.ModuleName, &soloLightClientModule)
 
 	// register IBC modules
 	if err := app.RegisterModules(
@@ -136,7 +149,7 @@ func (app *App) registerIBCModules(appOpts servertypes.AppOptions) error {
 // RegisterIBC Since the IBC modules don't support dependency injection,
 // we need to manually register the modules on the client side.
 // This needs to be removed after IBC supports App Wiring.
-func RegisterIBC(cdc codec.Codec, registry cdctypes.InterfaceRegistry) map[string]appmodule.AppModule {
+func RegisterIBC(cdc codec.Codec) map[string]appmodule.AppModule {
 	modules := map[string]appmodule.AppModule{
 		ibcexported.ModuleName:      ibc.NewAppModule(&ibckeeper.Keeper{}),
 		ibctransfertypes.ModuleName: ibctransfer.NewAppModule(ibctransferkeeper.Keeper{}),
@@ -147,7 +160,7 @@ func RegisterIBC(cdc codec.Codec, registry cdctypes.InterfaceRegistry) map[strin
 
 	for _, m := range modules {
 		if mr, ok := m.(module.AppModuleBasic); ok {
-			mr.RegisterInterfaces(registry)
+			mr.RegisterInterfaces(cdc.InterfaceRegistry())
 		}
 	}
 

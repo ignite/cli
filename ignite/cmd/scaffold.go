@@ -1,16 +1,19 @@
 package ignitecmd
 
 import (
-	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v29/ignite/pkg/env"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
+	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/pkg/xgit"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
+	"github.com/ignite/cli/v29/ignite/templates/field"
 	"github.com/ignite/cli/v29/ignite/version"
 )
 
@@ -23,31 +26,15 @@ const (
 	flagDescription  = "desc"
 	flagProtoDir     = "proto-dir"
 
-	msgCommitPrefix = "Your saved project changes have not been committed.\nTo enable reverting to your current state, commit your saved changes."
+	msgCommitPrefix = "Your project changes have not been committed.\nTo enable reverting to your current state, commit your saved changes."
 	msgCommitPrompt = "Do you want to proceed without committing your saved changes"
 
-	statusScaffolding = "Scaffolding..."
-
-	supportFieldTypes = `
-Currently supports: 
-
-| Type         | Alias   | Index | Code Type | Description                     |
-|--------------|---------|-------|-----------|---------------------------------|
-| string       | -       | yes   | string    | Text type                       |
-| array.string | strings | no    | []string  | List of text type               |
-| bool         | -       | yes   | bool      | Boolean type                    |
-| int          | -       | yes   | int64     | Integer type                    |
-| array.int    | ints    | no    | []int64   | List of integers types          |
-| uint         | -       | yes   | uint64    | Unsigned integer type           |
-| array.uint   | uints   | no    | []uint64  | List of unsigned integers types |
-| coin         | -       | no    | sdk.Coin  | Cosmos SDK coin type            |
-| array.coin   | coins   | no    | sdk.Coins | List of Cosmos SDK coin types   |
-
-Field Usage:
-    - fieldName
-    - fieldName:fieldType
-
-If no :fieldType, default (string) is used
+	statusScaffolding      = "Scaffolding..."
+	multipleCoinDisclaimer = `**Disclaimer**  
+The 'coins' and 'dec.coins' argument types require special attention when used in CLI commands. 
+Due to current limitations in the AutoCLI, only one variadic (slice) argument is supported per command. 
+If a message contains more than one field of type 'coins' or 'dec.coins', only the last one will accept multiple values via the CLI. 
+For the best user experience, manual command handling or scaffolding is recommended when working with messages containing multiple 'coins' or 'dec.coins' fields.
 `
 )
 
@@ -115,6 +102,7 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 	}
 
 	c.AddCommand(
+		NewScaffoldTypeList(),
 		NewScaffoldChain(),
 		NewScaffoldModule(),
 		NewScaffoldList(),
@@ -131,21 +119,26 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 		NewScaffoldChainRegistry(),
 	)
 
+	// same flag as for chain serve but different behavior
+	// the verbose flag on scaffold sets the IGNT_DEBUG env var
+	// while on serve it bypass the session logger for the app default
+	c.PersistentFlags().AddFlagSet(flagSetVerbose())
+
 	return c
 }
 
 func migrationPreRunHandler(cmd *cobra.Command, args []string) error {
+	if verbose := flagGetVerbose(cmd); verbose {
+		// sets the IGNT_DEBUG env var to enable verbose logging
+		env.SetDebug()
+	}
+
 	if err := gitChangesConfirmPreRunHandler(cmd, args); err != nil {
 		return err
 	}
 
-	session := cliui.New()
+	session := cliui.New(cliui.WithoutUserInteraction(getYes(cmd)))
 	defer session.End()
-
-	cfg, _, err := getChainConfig(cmd)
-	if err != nil {
-		return err
-	}
 
 	appPath, err := goModulePath(cmd)
 	if err != nil {
@@ -162,10 +155,6 @@ func migrationPreRunHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if err := toolsMigrationPreRunHandler(cmd, session, appPath); err != nil {
-		return err
-	}
-
-	if err := bufMigrationPreRunHandler(cmd, session, appPath, cfg.Build.Proto.Path); err != nil {
 		return err
 	}
 
@@ -211,8 +200,23 @@ func scaffoldType(
 		}
 	}
 
-	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
+	session := cliui.New(
+		cliui.StartSpinnerWithText(statusScaffolding),
+		cliui.WithoutUserInteraction(getYes(cmd)),
+	)
 	defer session.End()
+
+	if !withoutMessage {
+		hasMultipleCoinSlice, err := field.MultipleCoins(fields)
+		if err != nil {
+			return err
+		}
+		if hasMultipleCoinSlice {
+			session.PauseSpinner()
+			_ = session.Print(colors.Info(multipleCoinDisclaimer))
+			session.StartSpinner(statusScaffolding)
+		}
+	}
 
 	cfg, _, err := getChainConfig(cmd)
 	if err != nil {
@@ -234,7 +238,7 @@ func scaffoldType(
 		return err
 	}
 
-	sm, err := sc.ApplyModifications()
+	sm, err := sc.ApplyModifications(xgenny.ApplyPreRun(scaffolder.AskOverwriteFiles(session)))
 	if err != nil {
 		return err
 	}
@@ -261,7 +265,7 @@ func gitChangesConfirmPreRunHandler(cmd *cobra.Command, _ []string) error {
 	}
 
 	appPath := flagGetPath(cmd)
-	session := cliui.New()
+	session := cliui.New(cliui.WithoutUserInteraction(getYes(cmd)))
 
 	defer session.End()
 
@@ -277,7 +281,7 @@ func confirmWhenUncommittedChanges(session *cliui.Session, appPath string) error
 	if !cleanState {
 		session.Println(msgCommitPrefix)
 		if err := session.AskConfirm(msgCommitPrompt); err != nil {
-			if errors.Is(err, promptui.ErrAbort) {
+			if errors.Is(err, cliui.ErrAbort) {
 				return errors.New("No")
 			}
 
@@ -315,4 +319,9 @@ func flagGetNoMessage(cmd *cobra.Command) bool {
 func flagGetSigner(cmd *cobra.Command) string {
 	signer, _ := cmd.Flags().GetString(flagSigner)
 	return signer
+}
+
+func flagGetVerbose(cmd *cobra.Command) bool {
+	verbose, _ := cmd.Flags().GetBool(flagVerbose)
+	return verbose
 }

@@ -20,7 +20,7 @@ func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
 	var (
 		env               = envtest.New(t)
 		appname           = randstr.Runes(10)
-		app               = env.Scaffold(fmt.Sprintf("github.com/test/%s", appname))
+		app               = env.ScaffoldApp(fmt.Sprintf("github.com/test/%s", appname))
 		servers           = app.RandomizeServerPorts()
 		ctx, cancel       = context.WithCancel(env.Ctx())
 		isBackendAliveErr error
@@ -38,11 +38,10 @@ func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
 
 	go func() {
 		defer cancel()
-
 		isBackendAliveErr = env.IsAppServed(ctx, servers.API)
 	}()
 
-	env.Must(app.Serve("should serve", envtest.ExecCtx(ctx)))
+	app.MustServe(ctx)
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 
 	cases := []struct {

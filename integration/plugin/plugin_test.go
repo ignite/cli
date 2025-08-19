@@ -18,7 +18,7 @@ func TestAddRemovePlugin(t *testing.T) {
 		require = require.New(t)
 		assert  = assert.New(t)
 		env     = envtest.New(t)
-		app     = env.Scaffold("github.com/test/blog")
+		app     = env.ScaffoldApp("github.com/test/blog")
 
 		assertPlugins = func(expectedLocalPlugins, expectedGlobalPlugins []pluginsconfig.Plugin) {
 			localCfg, err := pluginsconfig.ParseDir(app.SourcePath())

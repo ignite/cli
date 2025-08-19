@@ -12,7 +12,7 @@ import (
 
 func moduleSimulationModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/simulation.go")
+		path := filepath.Join("x", opts.ModuleName, "module/simulation.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -34,13 +34,11 @@ func moduleSimulationModify(opts *typed.Options) genny.RunFn {
 					opts.TypeName.PascalCase,
 					msgField,
 				),
-				-1,
 			),
 			xast.AppendFuncStruct(
 				"GenesisState",
 				fmt.Sprintf("%[1]vCount", opts.TypeName.UpperCamel),
 				"2",
-				-1,
 			),
 		)
 		if err != nil {

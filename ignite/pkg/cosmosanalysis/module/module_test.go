@@ -30,6 +30,38 @@ func newModule(relChainPath, goImportPath string) module.Module {
 			GoImportName: "github.com/tendermint/planet/x/mars/types",
 			Messages: []protoanalysis.Message{
 				{
+					Name:               "MsgMyMessageRequest",
+					Path:               filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
+					HighestFieldNumber: 1,
+					Fields: map[string]string{
+						"mytypefield": "string",
+					},
+				},
+				{
+					Name:               "MsgMyMessageResponse",
+					Path:               filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
+					HighestFieldNumber: 1,
+					Fields: map[string]string{
+						"mytypefield": "string",
+					},
+				},
+				{
+					Name:               "MsgBarRequest",
+					Path:               filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
+					HighestFieldNumber: 1,
+					Fields: map[string]string{
+						"mytypefield": "string",
+					},
+				},
+				{
+					Name:               "MsgBarResponse",
+					Path:               filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
+					HighestFieldNumber: 1,
+					Fields: map[string]string{
+						"mytypefield": "string",
+					},
+				},
+				{
 					Name:               "QueryMyQueryRequest",
 					Path:               filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
 					HighestFieldNumber: 2,
@@ -59,6 +91,21 @@ func newModule(relChainPath, goImportPath string) module.Module {
 			},
 			Services: []protoanalysis.Service{
 				{
+					Name: "Msg",
+					RPCFuncs: []protoanalysis.RPCFunc{
+						{
+							Name:        "MyMessage",
+							RequestType: "MsgMyMessageRequest",
+							ReturnsType: "MsgMyMessageResponse",
+						},
+						{
+							Name:        "Bar",
+							RequestType: "MsgBarRequest",
+							ReturnsType: "MsgBarResponse",
+						},
+					},
+				},
+				{
 					Name: "Query",
 					RPCFuncs: []protoanalysis.RPCFunc{
 						{
@@ -67,12 +114,15 @@ func newModule(relChainPath, goImportPath string) module.Module {
 							ReturnsType: "QueryMyQueryResponse",
 							HTTPRules: []protoanalysis.HTTPRule{
 								{
+									Endpoint: "/tendermint/mars/my_query/{mytypefield}",
 									Params:   []string{"mytypefield"},
 									HasQuery: true,
-									HasBody:  false,
+									QueryFields: map[string]string{
+										"pagination": "cosmos.base.query.v1beta1.PageRequest",
+									},
+									HasBody: false,
 								},
 							},
-							Paginated: true,
 						},
 						{
 							Name:        "Foo",
@@ -80,6 +130,7 @@ func newModule(relChainPath, goImportPath string) module.Module {
 							ReturnsType: "QueryFooResponse",
 							HTTPRules: []protoanalysis.HTTPRule{
 								{
+									Endpoint: "/tendermint/mars/foo",
 									HasQuery: false,
 									HasBody:  false,
 								},
@@ -89,29 +140,51 @@ func newModule(relChainPath, goImportPath string) module.Module {
 				},
 			},
 		},
-		Msgs: []module.Msg(nil),
+		Msgs: []module.Msg{
+			{
+				Name:     "MsgMyMessageRequest",
+				URI:      "tendermint.planet.mars.MsgMyMessageRequest",
+				FilePath: filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
+			},
+			{
+				Name:     "MsgBarRequest",
+				URI:      "tendermint.planet.mars.MsgBarRequest",
+				FilePath: filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
+			},
+		},
 		HTTPQueries: []module.HTTPQuery{
 			{
-				Name:     "MyQuery",
-				FullName: "QueryMyQuery",
+				Name:         "MyQuery",
+				FullName:     "QueryMyQuery",
+				RequestType:  "QueryMyQueryRequest",
+				ResponseType: "QueryMyQueryResponse",
 				Rules: []protoanalysis.HTTPRule{
 					{
+						Endpoint: "/tendermint/mars/my_query/{mytypefield}",
 						Params:   []string{"mytypefield"},
 						HasQuery: true,
-						HasBody:  false,
+						QueryFields: map[string]string{
+							"pagination": "cosmos.base.query.v1beta1.PageRequest",
+						},
+						HasBody: false,
 					},
 				},
 				Paginated: true,
+				FilePath:  filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
 			},
 			{
-				Name:     "Foo",
-				FullName: "QueryFoo",
+				Name:         "Foo",
+				FullName:     "QueryFoo",
+				RequestType:  "QueryFooRequest",
+				ResponseType: "QueryFooResponse",
 				Rules: []protoanalysis.HTTPRule{
 					{
+						Endpoint: "/tendermint/mars/foo",
 						HasQuery: false,
 						HasBody:  false,
 					},
 				},
+				FilePath: filepath.Join(relChainPath, "proto/planet/mars/mars.proto"),
 			},
 		},
 		Types: []module.Type(nil),

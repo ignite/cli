@@ -3,12 +3,11 @@ package message
 import (
 	"embed"
 	"fmt"
+	"io/fs"
 	"path/filepath"
-	"strings"
 
 	"github.com/emicklei/proto"
 	"github.com/gobuffalo/genny/v2"
-	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
@@ -17,7 +16,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"
-	"github.com/ignite/cli/v29/ignite/templates/testutil"
 	"github.com/ignite/cli/v29/ignite/templates/typed"
 )
 
@@ -29,8 +27,8 @@ var (
 	fsSimapp embed.FS
 )
 
-func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
-	if err := g.Box(box); err != nil {
+func Box(box fs.FS, opts *Options, g *genny.Generator) error {
+	if err := g.OnlyFS(box, nil, nil); err != nil {
 		return err
 	}
 	ctx := plush.NewContext()
@@ -52,8 +50,7 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	g.Transformer(genny.Replace("{{protoVer}}", opts.ProtoVer))
 	g.Transformer(genny.Replace("{{msgName}}", opts.MsgName.Snake))
 
-	// Create the 'testutil' package with the test helpers
-	return testutil.Register(g, opts.AppPath)
+	return nil
 }
 
 // NewGenerator returns the generator to scaffold a empty message in a module.
@@ -65,24 +62,22 @@ func NewGenerator(replacer placeholder.Replacer, opts *Options) (*genny.Generato
 	g.RunFn(typesCodecModify(opts))
 	g.RunFn(clientCliTxModify(replacer, opts))
 
-	template := xgenny.NewEmbedWalker(
-		fsMessage,
-		"files/message",
-		opts.AppPath,
-	)
+	subMessage, err := fs.Sub(fsMessage, "files/message")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
 
 	if !opts.NoSimulation {
 		g.RunFn(moduleSimulationModify(opts))
-		simappTemplate := xgenny.NewEmbedWalker(
-			fsSimapp,
-			"files/simapp",
-			opts.AppPath,
-		)
-		if err := Box(simappTemplate, opts, g); err != nil {
+		subSimapp, err := fs.Sub(fsSimapp, "files/simapp")
+		if err != nil {
+			return nil, errors.Errorf("fail to generate sub: %w", err)
+		}
+		if err := Box(subSimapp, opts, g); err != nil {
 			return nil, err
 		}
 	}
-	return g, Box(template, opts, g)
+	return g, Box(subMessage, opts, g)
 }
 
 // protoTxRPCModify modifies the tx.proto file to add the required RPCs and messages.
@@ -133,6 +128,7 @@ func protoTxMessageModify(opts *Options) genny.RunFn {
 		}
 		// Prepare the fields and create the messages.
 		creator := protoutil.NewField(opts.MsgSigner.Snake, "string", 1)
+		creator.Options = append(creator.Options, protoutil.NewOption("cosmos_proto.scalar", "cosmos.AddressString", protoutil.Custom())) // set the scalar annotation
 		creatorOpt := protoutil.NewOption(typed.MsgSignerOption, opts.MsgSigner.Snake)
 		msgFields := []*proto.NormalField{creator}
 		for i, field := range opts.Fields {
@@ -172,14 +168,14 @@ func protoTxMessageModify(opts *Options) genny.RunFn {
 
 func typesCodecModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/codec.go")
+		path := filepath.Join("x", opts.ModuleName, "types/codec.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
 		// Import
-		content, err := xast.AppendImports(f.String(), xast.WithLastNamedImport("sdk", "github.com/cosmos/cosmos-sdk/types"))
+		content, err := xast.AppendImports(f.String(), xast.WithNamedImport("sdk", "github.com/cosmos/cosmos-sdk/types"))
 		if err != nil {
 			return err
 		}
@@ -208,15 +204,10 @@ func typesCodecModify(opts *Options) genny.RunFn {
 
 func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/autocli.go")
+		path := filepath.Join("x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
-		}
-
-		var positionalArgs string
-		for _, field := range opts.Fields {
-			positionalArgs += fmt.Sprintf(`{ProtoField: "%s"}, `, field.ProtoFieldName())
 		}
 
 		template := `{
@@ -233,7 +224,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn
 			opts.MsgName.PascalCase,
 			fmt.Sprintf("%s %s", opts.MsgName.Kebab, opts.Fields.CLIUsage()),
 			opts.MsgName.Original,
-			strings.TrimSpace(positionalArgs),
+			opts.Fields.ProtoFieldNameAutoCLI(),
 		)
 
 		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLITx, replacement)
@@ -244,7 +235,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn
 
 func moduleSimulationModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/simulation.go")
+		path := filepath.Join("x", opts.ModuleName, "module/simulation.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

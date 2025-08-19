@@ -16,6 +16,7 @@ import (
 )
 
 func main() {
+	// print hello world
 	fmt.Println("Hello, world!")
 }`
 
@@ -34,7 +35,7 @@ func main() {
 			args: args{
 				fileContent: existingContent,
 				imports: []ImportOptions{
-					WithImport("strings", -1),
+					WithImport("strings"),
 				},
 			},
 			want: `package main
@@ -45,6 +46,7 @@ import (
 )
 
 func main() {
+	// print hello world
 	fmt.Println("Hello, world!")
 }
 `,
@@ -54,9 +56,9 @@ func main() {
 			args: args{
 				fileContent: existingContent,
 				imports: []ImportOptions{
-					WithNamedImport("st", "strings", -1),
-					WithImport("strconv", -1),
-					WithLastImport("os"),
+					WithNamedImport("st", "strings"),
+					WithImport("strconv"),
+					WithImport("os"),
 				},
 			},
 			want: `package main
@@ -69,6 +71,7 @@ import (
 )
 
 func main() {
+	// print hello world
 	fmt.Println("Hello, world!")
 }
 `,
@@ -78,10 +81,9 @@ func main() {
 			args: args{
 				fileContent: existingContent,
 				imports: []ImportOptions{
-					WithNamedImport("st", "strings", -1),
-					WithImport("strconv", -1),
-					WithImport("os", -1),
-					WithLastImport("fmt"),
+					WithNamedImport("st", "strings"),
+					WithImport("strconv"),
+					WithImport("os"),
 				},
 			},
 			want: `package main
@@ -94,6 +96,7 @@ import (
 )
 
 func main() {
+	// print hello world
 	fmt.Println("Hello, world!")
 }
 `,
@@ -109,7 +112,7 @@ import (
 	st "strings"
 )`,
 				imports: []ImportOptions{
-					WithImport("strconv", 1),
+					WithImport("strconv"),
 				},
 			},
 			want: `package main
@@ -133,9 +136,9 @@ import (
 	st "strings"
 )`,
 				imports: []ImportOptions{
-					WithImport("strconv", 0),
-					WithNamedImport("", "testing", 3),
-					WithLastImport("bytes"),
+					WithImport("strconv"),
+					WithNamedImport("", "testing"),
+					WithImport("bytes"),
 				},
 			},
 			want: `package main
@@ -155,10 +158,18 @@ import (
 			args: args{
 				fileContent: existingContent,
 				imports: []ImportOptions{
-					WithLastImport("fmt"),
+					WithImport("fmt"),
 				},
 			},
-			want: existingContent + "\n",
+			want: `package main
+
+import "fmt"
+
+func main() {
+	// print hello world
+	fmt.Println("Hello, world!")
+}
+`,
 		},
 		{
 			name: "no import statement",
@@ -166,17 +177,19 @@ import (
 				fileContent: `package main
 
 func main() {
+	// print hello world
 	fmt.Println("Hello, world!")
 }`,
 				imports: []ImportOptions{
-					WithImport("fmt", -1),
+					WithImport("fmt"),
 				},
 			},
 			want: `package main
 
-import  "fmt"
+import "fmt"
 
 func main() {
+	// print hello world
 	fmt.Println("Hello, world!")
 }
 `,
@@ -187,41 +200,33 @@ func main() {
 				fileContent: `package main
 
 func main() {
+	// print hello world
 	fmt.Println("Hello, world!")
 }`,
 				imports: []ImportOptions{
-					WithImport("fmt", -1),
-					WithLastImport("os"),
+					WithImport("fmt"),
+					WithImport("os"),
 				},
 			},
 			want: `package main
 
 import (
-	 "fmt"
-	 "os"
+	"fmt"
+	"os"
 )
 
 func main() {
+	// print hello world
 	fmt.Println("Hello, world!")
 }
 `,
-		},
-		{
-			name: "invalid index",
-			args: args{
-				fileContent: existingContent,
-				imports: []ImportOptions{
-					WithImport("strings", 10),
-				},
-			},
-			err: errors.New("index out of range"),
 		},
 		{
 			name: "add invalid import name",
 			args: args{
 				fileContent: existingContent,
 				imports: []ImportOptions{
-					WithNamedImport("fmt\"", "fmt\"", -1),
+					WithNamedImport("fmt\"", "fmt\""),
 				},
 			},
 			err: errors.New("format.Node internal error (5:8: expected ';', found fmt (and 2 more errors))"),
@@ -231,7 +236,7 @@ func main() {
 			args: args{
 				fileContent: "",
 				imports: []ImportOptions{
-					WithImport("fmt", -1),
+					WithImport("fmt"),
 				},
 			},
 			err: errors.New("1:1: expected 'package', found 'EOF'"),

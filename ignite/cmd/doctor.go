@@ -14,7 +14,9 @@ func NewDoctor() *cobra.Command {
 		Short:  "Fix chain configuration",
 		Hidden: true,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			session := cliui.New()
+			session := cliui.New(
+				cliui.WithoutUserInteraction(getYes(cmd)),
+			)
 			defer session.End()
 			appPath := flagGetPath(cmd)
 

@@ -12,6 +12,7 @@ import (
 var (
 	// DataUint uint data type definition.
 	DataUint = DataType{
+		Name:                    Uint,
 		DataType:                func(string) string { return "uint64" },
 		CollectionsKeyValueName: func(string) string { return "collections.Uint64Key" },
 		DefaultTestValue:        "111",
@@ -46,9 +47,11 @@ var (
 
 	// DataUintSlice uint array data type definition.
 	DataUintSlice = DataType{
+		Name:                    UintSlice,
 		DataType:                func(string) string { return "[]uint64" },
 		CollectionsKeyValueName: func(string) string { return collectionValueComment },
-		DefaultTestValue:        "1,2,3,4,5",
+		DefaultTestValue:        "13,26,31,40",
+		ValueLoop:               "[]uint64{uint64(i+i%1), uint64(i+i%2), uint64(i+i%3)}",
 		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("repeated uint64 %s = %d", name, index)
 		},

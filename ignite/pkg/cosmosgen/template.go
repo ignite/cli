@@ -20,6 +20,7 @@ var (
 
 	templateTSClientRoot           = newTemplateWriter("root")
 	templateTSClientModule         = newTemplateWriter("module")
+	templateTSClientRest           = newTemplateWriter("rest")
 	templateTSClientComposable     = newTemplateWriter("composable")
 	templateTSClientComposableRoot = newTemplateWriter("composable-root")
 )
@@ -28,7 +29,7 @@ type templateWriter struct {
 	templateDir string
 }
 
-// tpl returns a func for template residing at templatePath to initialize a text template
+// newTemplateWriter returns a func for template residing at templatePath to initialize a text template
 // with given protoPath.
 func newTemplateWriter(templateDir string) templateWriter {
 	return templateWriter{
@@ -68,10 +69,33 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 
 			return xstrcase.UpperCamel(replacer.Replace(word))
 		},
-		"resolveFile": func(fullPath string) string { // TODO to check
-			rel, _ := filepath.Rel(protoPath, fullPath)
+		"resolveFile": func(fullPath string) string {
+			_ = protoPath // eventually, we should use the proto folder name of this, for the application (but not for the other modules)
+
+			res := strings.Split(fullPath, "proto/")
+			rel := res[len(res)-1] // get path after proto/
 			rel = strings.TrimSuffix(rel, ".proto")
-			return rel
+
+			return "./types/" + rel
+		},
+		"transformPath": func(path string) string {
+			// transformPath converts a endpoint path to a valid JS substring path.
+			// e.g. /cosmos/bank/v1beta1/spendable_balances/{address}/by_denom -> /cosmos/bank/v1beta1/spendable_balances/${address}/by_denom
+			path = strings.ReplaceAll(path, "{", "${")
+			path = strings.ReplaceAll(path, "=**}", "}")
+			return path
+		},
+		"transformParamsToUnion": func(params []string) string {
+			if len(params) == 0 {
+				return `""`
+			}
+
+			var quotedParams []string
+			for _, param := range params {
+				quotedParams = append(quotedParams, `"`+param+`"`)
+			}
+
+			return strings.Join(quotedParams, " | ")
 		},
 		"inc": func(i int) int {
 			return i + 1

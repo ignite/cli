@@ -32,7 +32,7 @@ var (
 func TestRequestCoinsFromFaucet(t *testing.T) {
 	var (
 		env          = envtest.New(t)
-		app          = env.Scaffold("github.com/test/faucetapp")
+		app          = env.ScaffoldApp("github.com/test/faucetapp")
 		servers      = app.RandomizeServerPorts()
 		faucetURL    = app.EnableFaucet(defaultCoins, maxCoins)
 		ctx, cancel  = context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
@@ -51,10 +51,9 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 
 	// wait servers to be online
 	defer cancel()
-	err := env.IsAppServed(ctx, servers.API)
-	require.NoError(t, err)
+	app.WaitChainUp(ctx, servers.API)
 
-	err = env.IsFaucetServed(ctx, faucetClient)
+	err := env.IsFaucetServed(ctx, faucetClient)
 	require.NoError(t, err)
 
 	// error "account doesn't have any balances" occurs if a sleep is not included

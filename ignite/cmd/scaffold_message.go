@@ -4,7 +4,10 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
+	"github.com/ignite/cli/v29/ignite/templates/field"
 )
 
 const flagSigner = "signer"
@@ -88,8 +91,21 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		withoutSimulation = flagGetNoSimulation(cmd)
 	)
 
-	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
+	session := cliui.New(
+		cliui.StartSpinnerWithText(statusScaffolding),
+		cliui.WithoutUserInteraction(getYes(cmd)),
+	)
 	defer session.End()
+
+	hasMultipleCoinSlice, err := field.MultipleCoins(resFields)
+	if err != nil {
+		return err
+	}
+	if hasMultipleCoinSlice {
+		session.PauseSpinner()
+		_ = session.Print(colors.Info(multipleCoinDisclaimer))
+		session.StartSpinner(statusScaffolding)
+	}
 
 	cfg, _, err := getChainConfig(cmd)
 	if err != nil {
@@ -128,7 +144,7 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sm, err := sc.ApplyModifications()
+	sm, err := sc.ApplyModifications(xgenny.ApplyPreRun(scaffolder.AskOverwriteFiles(session)))
 	if err != nil {
 		return err
 	}

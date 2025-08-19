@@ -12,7 +12,7 @@ import (
 
 func moduleSimulationModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/simulation.go")
+		path := filepath.Join("x", opts.ModuleName, "module/simulation.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -38,7 +38,6 @@ func moduleSimulationModify(opts *typed.Options) genny.RunFn {
 					sampleIndexes[0],
 					sampleIndexes[1],
 				),
-				-1,
 			),
 		)
 		if err != nil {

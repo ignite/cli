@@ -19,7 +19,7 @@ import (
 func TestGenerateAnApp(t *testing.T) {
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/blog")
+		app = env.ScaffoldApp("github.com/test/blog")
 	)
 
 	_, statErr := os.Stat(filepath.Join(app.SourcePath(), "x", "blog"))
@@ -32,7 +32,7 @@ func TestGenerateAnApp(t *testing.T) {
 func TestGenerateAnAppMinimal(t *testing.T) {
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("blog", "--minimal")
+		app = env.ScaffoldApp("blog", "--minimal")
 	)
 
 	_, statErr := os.Stat(filepath.Join(app.SourcePath(), "x", "blog"))
@@ -45,7 +45,7 @@ func TestGenerateAnAppMinimal(t *testing.T) {
 func TestGenerateAnAppWithName(t *testing.T) {
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("blog")
+		app = env.ScaffoldApp("blog")
 	)
 
 	_, statErr := os.Stat(filepath.Join(app.SourcePath(), "x", "blog"))
@@ -74,7 +74,7 @@ func TestGenerateAnAppWithInvalidName(t *testing.T) {
 func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/blog", "--no-module")
+		app = env.ScaffoldApp("github.com/test/blog", "--no-module")
 	)
 
 	_, statErr := os.Stat(filepath.Join(app.SourcePath(), "x", "blog"))
@@ -86,121 +86,89 @@ func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
 func TestGenerateAnAppWithNoDefaultModuleAndCreateAModule(t *testing.T) {
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/blog", "--no-module")
+		app = env.ScaffoldApp("github.com/test/blog", "--no-module")
 	)
 
 	defer app.EnsureSteady()
 
-	env.Must(env.Exec("should scaffold a new module into a chain that never had modules before",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "first_module"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"should scaffold a new module into a chain that never had modules before",
+		false,
+		"module", "first_module",
+	)
 }
 
 func TestGenerateAppWithEmptyModule(t *testing.T) {
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/blog")
+		app = env.ScaffoldApp("github.com/test/blog")
 	)
 
-	env.Must(env.Exec("create a module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "example", "--require-registration"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a module",
+		false,
+		"module", "example", "--require-registration",
+	)
 
-	env.Must(env.Exec("should prevent creating an existing module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "example", "--require-registration"),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"should prevent creating an existing module",
+		true,
+		"module", "example", "--require-registration",
+	)
 
-	env.Must(env.Exec("should prevent creating a module with an invalid name",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "example1", "--require-registration"),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"should prevent creating a module with an invalid name",
+		true,
+		"module", "example1", "--require-registration",
+	)
 
-	env.Must(env.Exec("should prevent creating a module with a reserved name",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "tx", "--require-registration"),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"should prevent creating a module with a reserved name",
+		true,
+		"module", "tx", "--require-registration",
+	)
 
-	env.Must(env.Exec("should prevent creating a module with a forbidden prefix",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "ibcfoo", "--require-registration"),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"should prevent creating a module with a forbidden prefix",
+		true,
+		"module", "ibcfoo", "--require-registration",
+	)
 
-	env.Must(env.Exec("should prevent creating a module prefixed with an existing module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "examplefoo", "--require-registration"),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"should prevent creating a module prefixed with an existing module",
+		true,
+		"module", "examplefoo", "--require-registration",
+	)
 
-	env.Must(env.Exec("create a module with dependencies",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"s",
-				"module",
-				"--yes",
-				"with_dep",
-				"--dep",
-				"auth,bank,staking,slashing,example",
-				"--require-registration",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a module with dependencies",
+		false,
+		"module",
+		"with_dep",
+		"--dep",
+		"auth,bank,staking,slashing,example",
+		"--require-registration",
+	)
 
-	env.Must(env.Exec("should prevent creating a module with invalid dependencies",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"s",
-				"module",
-				"--yes",
-				"with_wrong_dep",
-				"--dep",
-				"dup,dup",
-				"--require-registration",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"should prevent creating a module with invalid dependencies",
+		true,
+		"module",
+		"with_wrong_dep",
+		"--dep",
+		"dup,dup",
+		"--require-registration",
+	)
 
-	env.Must(env.Exec("should prevent creating a module with a non registered dependency",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"s",
-				"module",
-				"--yes",
-				"with_no_dep",
-				"--dep",
-				"inexistent",
-				"--require-registration",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"should prevent creating a module with a non registered dependency",
+		true,
+		"module",
+		"with_no_dep",
+		"--dep",
+		"inexistent",
+		"--require-registration",
+	)
 
 	app.EnsureSteady()
 }
@@ -208,7 +176,7 @@ func TestGenerateAppWithEmptyModule(t *testing.T) {
 func TestGenerateAnAppWithAddressPrefix(t *testing.T) {
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/blog", "--address-prefix=gm", "--coin-type=60")
+		app = env.ScaffoldApp("github.com/test/blog", "--address-prefix=gm", "--coin-type=60")
 	)
 
 	_, statErr := os.Stat(filepath.Join(app.SourcePath(), "x", "blog"))
@@ -225,6 +193,26 @@ func TestGenerateAnAppWithAddressPrefix(t *testing.T) {
 	coinType, err := c.CoinType()
 	require.NoError(t, err, "failed to get coin type")
 	require.Equal(t, coinType, uint32(60))
+
+	app.EnsureSteady()
+}
+
+func TestGenerateAnAppWithDefaultDenom(t *testing.T) {
+	var (
+		env = envtest.New(t)
+		app = env.ScaffoldApp("github.com/test/blog", "--default-denom=good")
+	)
+
+	_, statErr := os.Stat(filepath.Join(app.SourcePath(), "x", "blog"))
+	require.False(t, os.IsNotExist(statErr), "the default module should be scaffolded")
+
+	c, err := chain.New(app.SourcePath())
+	require.NoError(t, err, "failed to get new chain")
+
+	cfg, err := c.Config()
+	require.NoError(t, err)
+
+	require.Equal(t, cfg.DefaultDenom, "good")
 
 	app.EnsureSteady()
 }

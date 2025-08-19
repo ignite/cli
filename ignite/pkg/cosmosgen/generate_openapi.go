@@ -3,6 +3,7 @@ package cosmosgen
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -29,12 +30,12 @@ func (g *generator) openAPITemplate() string {
 
 func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 	var (
-		specDirs []string
+		specDirs = make([]string, 0)
 		conf     = swaggercombine.New("HTTP API Console", g.goModPath)
 	)
 	defer func() {
 		for _, dir := range specDirs {
-			os.RemoveAll(dir)
+			_ = os.RemoveAll(dir)
 		}
 	}()
 
@@ -48,27 +49,46 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 		name = strcase.ToCamel(name)
 		protoPath := filepath.Join(appPath, protoDir)
 
+		// check if directory exists
+		if _, err := os.Stat(protoPath); os.IsNotExist(err) {
+			var err error
+			protoPath, err = findInnerProtoFolder(appPath)
+			if err != nil {
+				// if proto directory does not exist, we just skip it
+				log.Print(err.Error())
+				return nil
+			}
+		}
+
 		dir, err := os.MkdirTemp("", "gen-openapi-module-spec")
 		if err != nil {
 			return err
 		}
 
+		specDirs = append(specDirs, dir)
+
+		var noChecksum bool
 		checksum, err := dirchange.ChecksumFromPaths(appPath, protoDir)
-		if err != nil {
-			return err
-		}
-		cacheKey := fmt.Sprintf("%x", checksum)
-		existingSpec, err := specCache.Get(cacheKey)
-		if err != nil && !errors.Is(err, cache.ErrorNotFound) {
+		if errors.Is(err, dirchange.ErrNoFile) {
+			noChecksum = true
+		} else if err != nil {
 			return err
 		}
 
-		if !errors.Is(err, cache.ErrorNotFound) {
-			specPath := filepath.Join(dir, specFilename)
-			if err := os.WriteFile(specPath, existingSpec, 0o600); err != nil {
+		cacheKey := fmt.Sprintf("%x", checksum)
+		if !noChecksum {
+			existingSpec, err := specCache.Get(cacheKey)
+			if err != nil && !errors.Is(err, cache.ErrorNotFound) {
 				return err
 			}
-			return conf.AddSpec(name, specPath, true)
+
+			if !errors.Is(err, cache.ErrorNotFound) {
+				specPath := filepath.Join(dir, specFilename)
+				if err := os.WriteFile(specPath, existingSpec, 0o600); err != nil {
+					return err
+				}
+				return conf.AddSpec(name, specPath, true)
+			}
 		}
 
 		hasAnySpecChanged = true
@@ -91,7 +111,7 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 			),
 			cosmosbuf.FileByFile(),
 		); err != nil {
-			return errors.Wrapf(err, "failed to generate openapi spec %s, probally you need to exclude some proto files", protoPath)
+			return errors.Wrapf(err, "failed to generate openapi spec %s, probably you need to exclude some proto files", protoPath)
 		}
 
 		specs, err := xos.FindFiles(dir, xos.WithExtension(xos.JSONFile))
@@ -104,14 +124,18 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 			if err != nil {
 				return err
 			}
-			if err := specCache.Put(cacheKey, f); err != nil {
-				return err
+
+			// if no checksum, the cacheKey is wrong, so we do not save it
+			if !noChecksum {
+				if err := specCache.Put(cacheKey, f); err != nil {
+					return err
+				}
 			}
+
 			if err := conf.AddSpec(name, spec, true); err != nil {
 				return err
 			}
 		}
-		specDirs = append(specDirs, dir)
 
 		return nil
 	}
@@ -127,21 +151,17 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 
 	doneMods := make(map[string]struct{})
 	for _, modules := range g.thirdModules {
-		if len(modules) == 0 {
-			continue
-		}
-		var (
-			m    = modules[0]
-			path = extractRootModulePath(m.Pkg.Path)
-		)
+		for _, m := range modules {
+			path := extractRootModulePath(m.Pkg.Path)
 
-		if _, ok := doneMods[path]; ok {
-			continue
-		}
-		doneMods[path] = struct{}{}
+			if _, ok := doneMods[path]; ok {
+				continue
+			}
+			doneMods[path] = struct{}{}
 
-		if err := gen(path, "", m.Name); err != nil {
-			return err
+			if err := gen(path, "proto", m.Name); err != nil {
+				return err
+			}
 		}
 	}
 

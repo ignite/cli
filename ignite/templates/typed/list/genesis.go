@@ -67,13 +67,13 @@ func genesisProtoModify(opts *typed.Options) genny.RunFn {
 
 func genesisTypesModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis.go")
+		path := filepath.Join("x", opts.ModuleName, "types/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
-		content, err := xast.AppendImports(f.String(), xast.WithLastImport("fmt"))
+		content, err := xast.AppendImports(f.String(), xast.WithImport("fmt"))
 		if err != nil {
 			return err
 		}
@@ -83,7 +83,6 @@ func genesisTypesModify(opts *typed.Options) genny.RunFn {
 			"GenesisState",
 			fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
 			fmt.Sprintf("[]%[1]v{}", opts.TypeName.PascalCase),
-			-1,
 		))
 		if err != nil {
 			return err
@@ -122,7 +121,7 @@ for _, elem := range gs.%[2]vList {
 
 func genesisModuleModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/genesis.go")
+		path := filepath.Join("x", opts.ModuleName, "keeper/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -187,13 +186,13 @@ if err != nil {
 
 func genesisTestsModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/genesis_test.go")
+		path := filepath.Join("x", opts.ModuleName, "keeper/genesis_test.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
-		replacementAssert := fmt.Sprintf(`require.ElementsMatch(t, genesisState.%[1]vList, got.%[1]vList)
+		replacementAssert := fmt.Sprintf(`require.EqualExportedValues(t, genesisState.%[1]vList, got.%[1]vList)
 require.Equal(t, genesisState.%[1]vCount, got.%[1]vCount)`, opts.TypeName.UpperCamel)
 
 		// add parameter to the struct into the new method.
@@ -204,13 +203,11 @@ require.Equal(t, genesisState.%[1]vCount, got.%[1]vCount)`, opts.TypeName.UpperC
 				"GenesisState",
 				fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
 				fmt.Sprintf("[]types.%[1]v{{ Id: 0 }, { Id: 1 }}", opts.TypeName.PascalCase),
-				-1,
 			),
 			xast.AppendFuncStruct(
 				"GenesisState",
 				fmt.Sprintf("%[1]vCount", opts.TypeName.UpperCamel),
 				"2",
-				-1,
 			),
 			xast.AppendFuncCode(replacementAssert),
 		)
@@ -225,7 +222,7 @@ require.Equal(t, genesisState.%[1]vCount, got.%[1]vCount)`, opts.TypeName.UpperC
 
 func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis_test.go")
+		path := filepath.Join("x", opts.ModuleName, "types/genesis_test.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -279,13 +276,11 @@ func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 				"GenesisState",
 				fmt.Sprintf("%[1]vList", opts.TypeName.UpperCamel),
 				fmt.Sprintf("[]types.%[1]v{{ Id: 0 }, { Id: 1 }}", opts.TypeName.PascalCase),
-				-1,
 			),
 			xast.AppendFuncStruct(
 				"GenesisState",
 				fmt.Sprintf("%[1]vCount", opts.TypeName.UpperCamel),
 				"2",
-				-1,
 			),
 			xast.AppendFuncTestCase(replacementTestDuplicated),
 			xast.AppendFuncTestCase(replacementInvalidCount),

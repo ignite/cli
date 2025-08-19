@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"golang.org/x/mod/modfile"
 
@@ -18,22 +17,15 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosgen"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/goanalysis"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
-	"github.com/ignite/cli/v29/ignite/services/chain"
 )
 
 const (
-	msgMigration             = "Migrating blockchain config file from v%d to v%d..."
-	msgMigrationPrefix       = "Your blockchain config version is v%d and the latest is v%d."
-	msgMigrationPrompt       = "Would you like to upgrade your config file to v%d"
-	msgMigrationBuf          = "Now ignite supports the `buf.build` (https://buf.build) registry to manage the protobuf dependencies. The embed protoc binary was deprecated and, your blockchain is still using it. Would you like to upgrade and add the `buf.build` config files to `proto/` folder"
-	msgMigrationBufProtoDir  = "Ignite proto directory path from the chain config doesn't match the proto directory path from the chain `buf.work.yaml`. Do you want to add the proto path `%[1]v` to the directories list from the buf work file"
-	msgMigrationBufProtoDirs = "Chain `buf.work.yaml` file contains directories that don't exist anymore (%[1]v). Do you want to delete them"
-	msgMigrationAddTools     = "Some required imports are missing in %s file: %s. Would you like to add them"
-	msgMigrationRemoveTools  = "File %s contains deprecated imports: %s. Would you like to remove them"
+	msgMigration            = "Migrating blockchain config file from v%d to v%d..."
+	msgMigrationPrefix      = "Your blockchain config version is v%d and the latest is v%d."
+	msgMigrationPrompt      = "Would you like to upgrade your config file to v%d"
+	msgMigrationAddTools    = "Some required imports are missing in %s file: %s. Would you like to add them"
+	msgMigrationRemoveTools = "File %s contains deprecated imports: %s. Would you like to remove them"
 )
-
-var ErrProtocUnsupported = errors.New("code generation using protoc is only supported by Ignite CLI v0.26.1 or older")
 
 // NewChain returns a command that groups sub commands related to compiling, serving
 // blockchains and so on.
@@ -106,13 +98,14 @@ chain.
 		NewChainSimulate(),
 		NewChainDebug(),
 		NewChainLint(),
+		NewChainModules(),
 	)
 
 	return c
 }
 
 func preRunHandler(cmd *cobra.Command, _ []string) error {
-	session := cliui.New()
+	session := cliui.New(cliui.WithoutUserInteraction(getYes(cmd)))
 	defer session.End()
 
 	appPath, err := goModulePath(cmd)
@@ -120,7 +113,7 @@ func preRunHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	cfg, cfgPath, err := getChainConfig(cmd)
+	_, cfgPath, err := getChainConfig(cmd)
 	if err != nil {
 		return err
 	}
@@ -133,7 +126,7 @@ func preRunHandler(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	return bufMigrationPreRunHandler(cmd, session, appPath, cfg.Build.Proto.Path)
+	return nil
 }
 
 func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPath string) error {
@@ -190,63 +183,6 @@ func toolsMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, app
 	return os.WriteFile(goModPath, buf.Bytes(), 0o600)
 }
 
-func bufMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPath, protoDir string) error {
-	// check if the buf files exist.
-	hasFiles, err := chain.CheckBufFiles(appPath, protoDir)
-	if err != nil {
-		return err
-	}
-
-	if !hasFiles {
-		if !getYes(cmd) {
-			if err := session.AskConfirm(msgMigrationBuf); err != nil {
-				return ErrProtocUnsupported
-			}
-		}
-
-		runner := xgenny.NewRunner(cmd.Context(), appPath)
-		sm, err := chain.BoxBufFiles(runner, appPath, protoDir)
-		if err != nil {
-			return err
-		}
-
-		session.Print("\n🎉 buf.build files added: \n\n")
-		session.Printf("%s\n\n", strings.Join(sm.CreatedFiles(), "\n"))
-	}
-
-	// check if the buf.work.yaml has the same proto path from the config file.
-	hasProtoPath, missingPaths, err := chain.CheckBufProtoDir(appPath, protoDir)
-	if err != nil {
-		return err
-	}
-
-	if !hasProtoPath {
-		if !getYes(cmd) {
-			if err := session.AskConfirm(fmt.Sprintf(msgMigrationBufProtoDir, protoDir)); err != nil {
-				return nil
-			}
-		}
-
-		if err := chain.AddBufProtoDir(appPath, protoDir); err != nil {
-			return err
-		}
-	}
-
-	if len(missingPaths) > 0 {
-		if !getYes(cmd) {
-			if err := session.AskConfirm(fmt.Sprintf(msgMigrationBufProtoDirs, strings.Join(missingPaths, ", "))); err != nil {
-				return nil
-			}
-		}
-
-		if err := chain.RemoveBufProtoDirs(appPath, missingPaths...); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func configMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, appPath, cfgPath string) error {
 	rawCfg, err := os.ReadFile(cfgPath)
 	if err != nil {
@@ -267,7 +203,7 @@ func configMigrationPreRunHandler(cmd *cobra.Command, session *cliui.Session, ap
 			// Confirm before overwriting the config file
 			session.Println(prefix)
 			if err := session.AskConfirm(question); err != nil {
-				if errors.Is(err, promptui.ErrAbort) {
+				if errors.Is(err, cliui.ErrAbort) {
 					return errors.Errorf("stopping because config version v%d is required to run the command", chainconfig.LatestVersion)
 				}
 

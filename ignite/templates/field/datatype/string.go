@@ -12,6 +12,7 @@ import (
 var (
 	// DataString is a string data type definition.
 	DataString = DataType{
+		Name:                    String,
 		DataType:                func(string) string { return "string" },
 		CollectionsKeyValueName: func(string) string { return "collections.StringKey" },
 		DefaultTestValue:        "xyz",
@@ -40,9 +41,11 @@ var (
 
 	// DataStringSlice is a string array data type definition.
 	DataStringSlice = DataType{
+		Name:                    StringSlice,
 		DataType:                func(string) string { return "[]string" },
 		CollectionsKeyValueName: func(string) string { return collectionValueComment },
 		DefaultTestValue:        "abc,xyz",
+		ValueLoop:               "[]string{`abc`+strconv.Itoa(i), `xyz`+strconv.Itoa(i)}",
 		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("repeated string %s = %d", name, index)
 		},

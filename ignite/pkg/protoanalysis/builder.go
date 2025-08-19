@@ -3,6 +3,7 @@ package protoanalysis
 import (
 	"fmt"
 	"regexp"
+	"slices"
 	"strings"
 
 	"github.com/emicklei/proto"
@@ -169,15 +170,15 @@ func (b builder) constantToHTTPRules(requestMessage *proto.Message, constant pro
 	endpoint := constant.Source
 
 	if endpoint == "" {
-		for key, val := range constant.Map {
-			switch key {
+		for _, each := range constant.OrderedMap {
+			switch each.Name {
 			case
 				"get",
 				"post",
 				"put",
 				"patch",
 				"delete":
-				endpoint = val.Source
+				endpoint = each.Source
 			}
 			if endpoint != "" {
 				break
@@ -195,12 +196,12 @@ func (b builder) constantToHTTPRules(requestMessage *proto.Message, constant pro
 
 	// calculate url params, query params and body fields counts.
 	var (
-		messageFieldsCount = b.messageFieldsCount(requestMessage)
-		paramsCount        = len(params)
-		bodyFieldsCount    int
+		messageFields, messageFieldsCount = b.messageFieldsCount(requestMessage)
+		paramsCount                       = len(params)
+		bodyFieldsCount                   int
 	)
 
-	if body, ok := constant.Map["body"]; ok { // check if body is specified.
+	if body, ok := constant.OrderedMap.Get("body"); ok { // check if body is specified.
 		if body.Source == "*" { // means there should be no query params per the spec.
 			bodyFieldsCount = messageFieldsCount - paramsCount
 		} else if body.Source != "" {
@@ -210,31 +211,70 @@ func (b builder) constantToHTTPRules(requestMessage *proto.Message, constant pro
 
 	queryParamsCount := messageFieldsCount - paramsCount - bodyFieldsCount
 
+	var (
+		queryFields map[string]string
+		bodyFields  map[string]string
+	)
+	for name, t := range messageFields {
+		if slices.Contains(params, name) {
+			// this is a URL parameter, skip it
+			continue
+		}
+
+		// If there are body fields, we need to add them to the bodyFields map.
+		// There are no known post requests that contain body fields and query params
+		if bodyFieldsCount > 0 {
+			if len(bodyFields) == 0 {
+				bodyFields = make(map[string]string)
+			}
+			bodyFields[name] = t
+		} else {
+			if len(queryFields) == 0 {
+				queryFields = make(map[string]string)
+			}
+
+			queryFields[name] = t
+		}
+	}
+
 	// create and add the HTTP rule to the list.
 	httpRule := HTTPRule{
-		Params:   params,
-		HasQuery: queryParamsCount > 0,
-		HasBody:  bodyFieldsCount > 0,
+		Endpoint:    endpoint,
+		Params:      params,
+		HasQuery:    queryParamsCount > 0,
+		QueryFields: queryFields,
+		HasBody:     bodyFieldsCount > 0,
+		BodyFields:  bodyFields,
 	}
 
 	httpRules = append(httpRules, httpRule)
 
 	// search for nested HTTP rules.
-	if constant, ok := constant.Map["additional_bindings"]; ok {
+	if constant, ok := constant.OrderedMap.Get("additional_bindings"); ok {
 		httpRules = append(httpRules, b.constantToHTTPRules(requestMessage, *constant)...)
 	}
 
 	return httpRules
 }
 
-func (b builder) messageFieldsCount(message *proto.Message) (count int) {
+func (b builder) messageFieldsCount(message *proto.Message) (messageFields map[string]string, count int) {
+	messageFields = make(map[string]string)
+
 	for _, el := range message.Elements {
-		switch el.(type) {
-		case
-			*proto.NormalField,
-			*proto.MapField,
-			*proto.OneOfField:
+		switch el := el.(type) {
+		case *proto.NormalField:
 			count++
+			if el.Repeated {
+				messageFields[el.Name] = fmt.Sprintf("repeated %s", el.Type)
+			} else {
+				messageFields[el.Name] = el.Type
+			}
+		case *proto.MapField:
+			count++
+			messageFields[el.Name] = fmt.Sprintf("map<%s, %s>", el.KeyType, el.Type)
+		case *proto.OneOfField:
+			count++
+			messageFields[el.Name] = el.Type
 		}
 	}
 

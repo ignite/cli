@@ -17,6 +17,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodule"
+	"github.com/ignite/cli/v29/ignite/pkg/xfilepath"
 	"github.com/ignite/cli/v29/ignite/pkg/xgit"
 	"github.com/ignite/cli/v29/ignite/services/chain"
 	"github.com/ignite/cli/v29/ignite/services/plugin"
@@ -33,11 +34,8 @@ var plugins []*plugin.Plugin
 // LoadPlugins tries to load all the plugins found in configurations.
 // If no configurations found, it returns w/o error.
 func LoadPlugins(ctx context.Context, cmd *cobra.Command, session *cliui.Session) error {
-	var (
-		rootCmd        = cmd.Root()
-		pluginsConfigs []pluginsconfig.Plugin
-	)
-	localCfg, err := parseLocalPlugins(rootCmd)
+	var pluginsConfigs []pluginsconfig.Plugin
+	localCfg, err := parseLocalPlugins()
 	if err != nil && !errors.As(err, &cosmosanalysis.ErrPathNotChain{}) {
 		return err
 	} else if err == nil {
@@ -63,23 +61,19 @@ func LoadPlugins(ctx context.Context, cmd *cobra.Command, session *cliui.Session
 		return nil
 	}
 
-	return linkPlugins(ctx, rootCmd, plugins)
+	return linkPlugins(ctx, cmd.Root(), plugins)
 }
 
-func parseLocalPlugins(cmd *cobra.Command) (*pluginsconfig.Config, error) {
-	// FIXME(tb): like other commands that works on a chain directory,
-	// parseLocalPlugins should rely on `-p` flag to guess that chain directory.
-	// Unfortunately parseLocalPlugins is invoked before flags are parsed, so
-	// we cannot rely on `-p` flag. As a workaround, we use the working dir.
-	// The drawback is we cannot load chain's plugin when using `-p`.
-	_ = cmd
+func parseLocalPlugins() (*pluginsconfig.Config, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return nil, errors.Errorf("parse local apps: %w", err)
 	}
+
 	if err := cosmosanalysis.IsChainPath(wd); err != nil {
 		return nil, err
 	}
+
 	return pluginsconfig.ParseDir(wd)
 }
 
@@ -428,13 +422,18 @@ If no path is specified all declared apps are updated.`,
 				// update all plugins
 				return plugin.Update(plugins...)
 			}
+			pluginPath, err := getAppPath(args[0])
+			if err != nil {
+				return err
+			}
+
 			// find the plugin to update
 			for _, p := range plugins {
-				if p.HasPath(args[0]) {
+				if p.HasPath(pluginPath) {
 					return plugin.Update(p)
 				}
 			}
-			return errors.Errorf("App %q not found", args[0])
+			return errors.Errorf("App %q not found", pluginPath)
 		},
 	}
 }
@@ -449,7 +448,10 @@ Respects key value pairs declared after the app path to be added to the generate
 		Example: "ignite app install github.com/org/my-app/ foo=bar baz=qux",
 		Args:    cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			session := cliui.New(cliui.WithStdout(os.Stdout))
+			session := cliui.New(
+				cliui.WithStdout(os.Stdout),
+				cliui.WithoutUserInteraction(getYes(cmd)),
+			)
 			defer session.End()
 
 			var (
@@ -461,20 +463,25 @@ Respects key value pairs declared after the app path to be added to the generate
 			if global {
 				conf, err = parseGlobalPlugins()
 			} else {
-				conf, err = parseLocalPlugins(cmd)
+				conf, err = parseLocalPlugins()
 			}
 			if err != nil {
 				return err
 			}
 
+			pluginPath, err := getAppPath(args[0])
+			if err != nil {
+				return err
+			}
+
 			for _, p := range conf.Apps {
-				if p.HasPath(args[0]) {
-					return errors.Errorf("app %s is already installed", args[0])
+				if p.HasPath(pluginPath) {
+					return errors.Errorf("app %s is already installed", pluginPath)
 				}
 			}
 
 			p := pluginsconfig.Plugin{
-				Path:   args[0],
+				Path:   pluginPath,
 				With:   make(map[string]string),
 				Global: global,
 			}
@@ -504,10 +511,10 @@ Respects key value pairs declared after the app path to be added to the generate
 
 			if err := plugins[0].Error; err != nil {
 				if strings.Contains(err.Error(), "go.mod file not found in current directory") {
-					return errors.Errorf("unable to find an App at the root of this repository (%s). Please ensure your repository URL is correct. If you're trying to install an App under a subfolder, include the path at the end of your repository URL, e.g., github.com/ignite/apps/appregistry", args[0])
+					return errors.Errorf("unable to find an App at the root of this repository (%s). Please ensure your repository URL is correct. If you're trying to install an App under a subfolder, include the path at the end of your repository URL, e.g., github.com/ignite/apps/appregistry", pluginPath)
 				}
 
-				return errors.Errorf("error while loading app %q: %w", args[0], plugins[0].Error)
+				return errors.Errorf("error while loading app %q: %w", pluginPath, plugins[0].Error)
 			}
 			session.Println(icons.OK, "Done loading apps")
 			conf.Apps = append(conf.Apps, p)
@@ -516,7 +523,7 @@ Respects key value pairs declared after the app path to be added to the generate
 				return err
 			}
 
-			session.Printf("%s Installed %s\n", icons.Tada, args[0])
+			session.Printf("%s Installed %s\n", icons.Tada, pluginPath)
 			return nil
 		},
 	}
@@ -546,15 +553,20 @@ func NewAppUninstall() *cobra.Command {
 			if global {
 				conf, err = parseGlobalPlugins()
 			} else {
-				conf, err = parseLocalPlugins(cmd)
+				conf, err = parseLocalPlugins()
 			}
+			if err != nil {
+				return err
+			}
+
+			pluginPath, err := getAppPath(args[0])
 			if err != nil {
 				return err
 			}
 
 			removed := false
 			for i, cp := range conf.Apps {
-				if cp.HasPath(args[0]) {
+				if cp.HasPath(pluginPath) {
 					conf.Apps = append(conf.Apps[:i], conf.Apps[i+1:]...)
 					removed = true
 					break
@@ -563,14 +575,14 @@ func NewAppUninstall() *cobra.Command {
 
 			if !removed {
 				// return if no matching plugin path found
-				return errors.Errorf("app %s not found", args[0])
+				return errors.Errorf("app %s not found", pluginPath)
 			}
 
 			if err := conf.Save(); err != nil {
 				return err
 			}
 
-			s.Printf("%s %s uninstalled\n", icons.OK, args[0])
+			s.Printf("%s %s uninstalled\n", icons.OK, pluginPath)
 			s.Printf("\t%s updated\n", conf.Path())
 
 			return nil
@@ -592,7 +604,10 @@ A git repository will be created with the given module name, unless the current 
 		Example: "ignite app scaffold github.com/org/my-app/",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
+			session := cliui.New(
+				cliui.StartSpinnerWithText(statusScaffolding),
+				cliui.WithoutUserInteraction(getYes(cmd)),
+			)
 			defer session.End()
 
 			wd, err := os.Getwd()
@@ -600,7 +615,7 @@ A git repository will be created with the given module name, unless the current 
 				return err
 			}
 			moduleName := args[0]
-			path, err := plugin.Scaffold(cmd.Context(), wd, moduleName, false)
+			path, err := plugin.Scaffold(cmd.Context(), session, wd, moduleName, false)
 			if err != nil {
 				return err
 			}
@@ -636,11 +651,18 @@ func NewAppDescribe() *cobra.Command {
 		Example: "ignite app describe github.com/org/my-app/",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			s := cliui.New(cliui.WithStdout(os.Stdout))
-			ctx := cmd.Context()
+			var (
+				s   = cliui.New(cliui.WithStdout(os.Stdout))
+				ctx = cmd.Context()
+			)
+
+			pluginPath, err := getAppPath(args[0])
+			if err != nil {
+				return err
+			}
 
 			for _, p := range plugins {
-				if p.HasPath(args[0]) {
+				if p.HasPath(pluginPath) {
 					manifest, err := p.Interface.Manifest(ctx)
 					if err != nil {
 						return errors.Errorf("error while loading app manifest: %w", err)
@@ -726,4 +748,16 @@ func flagSetPluginsGlobal() *flag.FlagSet {
 func flagGetPluginsGlobal(cmd *cobra.Command) bool {
 	global, _ := cmd.Flags().GetBool(flagPluginsGlobal)
 	return global
+}
+
+func getAppPath(path string) (string, error) {
+	if xfilepath.IsDir(path) {
+		// if directory is relative, make it absolute
+		pluginPathAbs, err := xfilepath.MustAbs(path)
+		if err != nil {
+			return "", errors.Wrapf(err, "failed to get absolute path of %s", path)
+		}
+		path = pluginPathAbs
+	}
+	return path, nil
 }

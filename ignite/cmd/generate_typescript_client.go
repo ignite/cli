@@ -1,25 +1,19 @@
 package ignitecmd
 
 import (
-	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/services/chain"
 )
 
-const (
-	flagUseCache = "use-cache"
-	msgBufAuth   = "Generate ts-client depends on a 'buf.build' remote plugin, and as of August 1, 2024, Buf will begin limiting remote plugin requests from unauthenticated users on 'buf.build'. If you send more than ten unauthenticated requests per hour using remote plugins, you’ll start to see rate limit errors. Please authenticate before running ts-client command using 'buf registry login' command and follow the instructions. For more info, check https://buf.build/docs/generate/auth-required."
-)
+const flagDisableCache = "disable-cache"
 
 func NewGenerateTSClient() *cobra.Command {
 	c := &cobra.Command{
-		Hidden: true, // hidden util we have a better ts-client.
-		Use:    "ts-client",
-		Short:  "TypeScript frontend client",
+		Use:   "ts-client",
+		Short: "TypeScript frontend client",
 		Long: `Generate a framework agnostic TypeScript client for your blockchain project.
 
 By default the TypeScript client is generated in the "ts-client/" directory. You
@@ -43,21 +37,17 @@ changes when the blockchain is started with a flag:
 
 	c.Flags().AddFlagSet(flagSetYes())
 	c.Flags().StringP(flagOutput, "o", "", "TypeScript client output path")
-	c.Flags().Bool(flagUseCache, false, "use build cache to speed-up generation")
+	c.Flags().Bool(flagDisableCache, false, "disable build cache")
 
 	return c
 }
 
 func generateTSClientHandler(cmd *cobra.Command, _ []string) error {
-	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
+	session := cliui.New(
+		cliui.StartSpinnerWithText(statusGenerating),
+		cliui.WithoutUserInteraction(getYes(cmd)),
+	)
 	defer session.End()
-
-	if err := session.AskConfirm(msgBufAuth); err != nil {
-		if errors.Is(err, promptui.ErrAbort) {
-			return errors.New("buf not auth")
-		}
-		return err
-	}
 
 	c, err := chain.NewWithHomeFlags(
 		cmd,
@@ -75,14 +65,14 @@ func generateTSClientHandler(cmd *cobra.Command, _ []string) error {
 	}
 
 	output, _ := cmd.Flags().GetString(flagOutput)
-	useCache, _ := cmd.Flags().GetBool(flagUseCache)
+	disableCache, _ := cmd.Flags().GetBool(flagDisableCache)
 
 	var opts []chain.GenerateTarget
 	if flagGetEnableProtoVendor(cmd) {
 		opts = append(opts, chain.GenerateProtoVendor())
 	}
 
-	err = c.Generate(cmd.Context(), cacheStorage, chain.GenerateTSClient(output, useCache), opts...)
+	err = c.Generate(cmd.Context(), cacheStorage, chain.GenerateTSClient(output, !disableCache), opts...)
 	if err != nil {
 		return err
 	}

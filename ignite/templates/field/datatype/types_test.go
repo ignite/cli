@@ -90,6 +90,11 @@ func TestIsSupportedType(t *testing.T) {
 			ok:       true,
 		},
 		{
+			name:     "address",
+			typename: datatype.Address,
+			ok:       true,
+		},
+		{
 			name:     "invalid type name",
 			typename: datatype.Name("invalid"),
 			ok:       false,

@@ -10,6 +10,21 @@ import (
 
 // validateField validates the field Name and type, and checks the name is not forbidden by Ignite CLI.
 func validateField(field string, isForbiddenField func(string) error) (multiformatname.Name, datatype.Name, error) {
+	name, dataTypeName, err := parseField(field)
+	if err != nil {
+		return name, "", err
+	}
+
+	// Ensure the field Name is not a Go reserved Name, it would generate an incorrect code
+	if err := isForbiddenField(name.LowerCamel); err != nil {
+		return name, "", errors.Errorf("%s can't be used as a field Name: %w", name, err)
+	}
+
+	return name, dataTypeName, nil
+}
+
+// parseField parses the field string and returns the multiformat name and datatype name.
+func parseField(field string) (multiformatname.Name, datatype.Name, error) {
 	fieldSplit := strings.Split(field, datatype.Separator)
 	if len(fieldSplit) > 2 {
 		return multiformatname.Name{}, "", errors.Errorf("invalid field format: %s, should be 'Name' or 'Name:type'", field)
@@ -20,11 +35,6 @@ func validateField(field string, isForbiddenField func(string) error) (multiform
 		return name, "", err
 	}
 
-	// Ensure the field Name is not a Go reserved Name, it would generate an incorrect code
-	if err := isForbiddenField(name.LowerCamel); err != nil {
-		return name, "", errors.Errorf("%s can't be used as a field Name: %w", name, err)
-	}
-
 	// Check if the object has an explicit type. The default is a string
 	dataTypeName := datatype.String
 	isTypeSpecified := len(fieldSplit) == 2
@@ -32,6 +42,22 @@ func validateField(field string, isForbiddenField func(string) error) (multiform
 		dataTypeName = datatype.Name(fieldSplit[1])
 	}
 	return name, dataTypeName, nil
+}
+
+// MultipleCoins checks if the provided fields contain more than one coin type.
+func MultipleCoins(fields []string) (bool, error) {
+	coinsCount := 0
+	for _, field := range fields {
+		_, datatypeName, err := parseField(field)
+		if err != nil {
+			return false, err
+		}
+		if datatypeName == datatype.Coins || datatypeName == datatype.DecCoins ||
+			datatypeName == datatype.CoinSliceAlias || datatypeName == datatype.DecCoinSliceAlias {
+			coinsCount++
+		}
+	}
+	return coinsCount > 1, nil
 }
 
 // ParseFields parses the provided fields, analyses the types

@@ -3,8 +3,6 @@ package app
 import (
 	"time"
 
-	"google.golang.org/protobuf/types/known/durationpb"
-
 	runtimev1alpha1 "cosmossdk.io/api/cosmos/app/runtime/v1alpha1"
 	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
 	authmodulev1 "cosmossdk.io/api/cosmos/auth/module/v1"
@@ -13,6 +11,7 @@ import (
 	circuitmodulev1 "cosmossdk.io/api/cosmos/circuit/module/v1"
 	consensusmodulev1 "cosmossdk.io/api/cosmos/consensus/module/v1"
 	distrmodulev1 "cosmossdk.io/api/cosmos/distribution/module/v1"
+	epochsmodulev1 "cosmossdk.io/api/cosmos/epochs/module/v1"
 	evidencemodulev1 "cosmossdk.io/api/cosmos/evidence/module/v1"
 	feegrantmodulev1 "cosmossdk.io/api/cosmos/feegrant/module/v1"
 	genutilmodulev1 "cosmossdk.io/api/cosmos/genutil/module/v1"
@@ -27,46 +26,48 @@ import (
 	upgrademodulev1 "cosmossdk.io/api/cosmos/upgrade/module/v1"
 	vestingmodulev1 "cosmossdk.io/api/cosmos/vesting/module/v1"
 	"cosmossdk.io/depinject/appconfig"
-	_ "github.com/cosmos/cosmos-sdk/x/auth/vesting" // import for side-effects
-	"github.com/cosmos/cosmos-sdk/x/authz"
-	_ "github.com/cosmos/cosmos-sdk/x/authz/module" // import for side-effects
-	_ "github.com/cosmos/cosmos-sdk/x/bank"         // import for side-effects
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	_ "cosmossdk.io/x/circuit" // import for side-effects
 	circuittypes "cosmossdk.io/x/circuit/types"
-	_ "github.com/cosmos/cosmos-sdk/x/consensus" // import for side-effects
-	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
-	_ "github.com/cosmos/cosmos-sdk/x/distribution" // import for side-effects
-	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	_ "cosmossdk.io/x/evidence" // import for side-effects
 	evidencetypes "cosmossdk.io/x/evidence/types"
 	"cosmossdk.io/x/feegrant"
 	_ "cosmossdk.io/x/feegrant/module" // import for side-effects
-	_ "github.com/cosmos/cosmos-sdk/x/gov"             // import for side-effects
+	"cosmossdk.io/x/nft"
+	_ "cosmossdk.io/x/nft/module" // import for side-effects
+	_ "cosmossdk.io/x/upgrade"    // import for side-effects
+	upgradetypes "cosmossdk.io/x/upgrade/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
+	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	_ "github.com/cosmos/cosmos-sdk/x/auth/vesting" // import for side-effects
+	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
+	_ "github.com/cosmos/cosmos-sdk/x/authz/module" // import for side-effects
+	_ "github.com/cosmos/cosmos-sdk/x/bank"         // import for side-effects
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	_ "github.com/cosmos/cosmos-sdk/x/consensus" // import for side-effects
+	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
+	_ "github.com/cosmos/cosmos-sdk/x/distribution" // import for side-effects
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	_ "github.com/cosmos/cosmos-sdk/x/epochs" // import for side-effects
+	epochstypes "github.com/cosmos/cosmos-sdk/x/epochs/types"
+	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	_ "github.com/cosmos/cosmos-sdk/x/gov" // import for side-effects
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/cosmos/cosmos-sdk/x/group"
 	_ "github.com/cosmos/cosmos-sdk/x/group/module" // import for side-effects
 	_ "github.com/cosmos/cosmos-sdk/x/mint"         // import for side-effects
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	"cosmossdk.io/x/nft"
-	_ "cosmossdk.io/x/nft/module" // import for side-effects
-	_ "github.com/cosmos/cosmos-sdk/x/params"     // import for side-effects
+	_ "github.com/cosmos/cosmos-sdk/x/params" // import for side-effects
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	_ "github.com/cosmos/cosmos-sdk/x/slashing" // import for side-effects
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	_ "github.com/cosmos/cosmos-sdk/x/staking" // import for side-effects
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	_ "cosmossdk.io/x/upgrade" // import for side-effects
-	upgradetypes "cosmossdk.io/x/upgrade/types"
-
-	"github.com/cosmos/cosmos-sdk/runtime"
-	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config"   // import for side-effects
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	icatypes "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
 	ibcexported "github.com/cosmos/ibc-go/v10/modules/core/exported"
+	"google.golang.org/protobuf/types/known/durationpb"
 )
 
 var (
@@ -80,7 +81,6 @@ var (
 		{Account: nft.ModuleName},
 		{Account: ibctransfertypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
 		{Account: icatypes.ModuleName},
-		// this line is used by starport scaffolding # stargate/app/maccPerms
 	}
 
 	// blocked account addresses
@@ -105,6 +105,7 @@ var (
 					// NOTE: upgrade module is required to be prioritized
 					PreBlockers: []string{
 						upgradetypes.ModuleName,
+						authtypes.ModuleName,
 						// this line is used by starport scaffolding # stargate/app/preBlockers
 					},
 					// During begin block slashing happens after distr.BeginBlocker so that
@@ -118,6 +119,7 @@ var (
 						evidencetypes.ModuleName,
 						stakingtypes.ModuleName,
 						authz.ModuleName,
+						epochstypes.ModuleName,
 						// ibc modules
 						ibcexported.ModuleName,
 						// chain modules
@@ -159,6 +161,7 @@ var (
 						group.ModuleName,
 						upgradetypes.ModuleName,
 						circuittypes.ModuleName,
+						epochstypes.ModuleName,
 						// ibc modules
 						ibcexported.ModuleName,
 						ibctransfertypes.ModuleName,
@@ -173,6 +176,7 @@ var (
 				Config: appconfig.WrapAny(&authmodulev1.Module{
 					Bech32Prefix:             AccountAddressPrefix,
 					ModuleAccountPermissions: moduleAccPerms,
+					EnableUnorderedTransactions: true,
 					// By default modules authority is the governance module. This is configurable with the following:
 					// Authority: "group", // A custom module authority can be set using a module name
 					// Authority: "cosmos1cwwv22j5ca08ggdv9c2uky355k908694z577tv", // or a specific address
@@ -254,6 +258,10 @@ var (
 			{
 				Name:   paramstypes.ModuleName,
 				Config: appconfig.WrapAny(&paramsmodulev1.Module{}),
+			},
+			{
+				Name:   epochstypes.ModuleName,
+				Config: appconfig.WrapAny(&epochsmodulev1.Module{}),
 			},
 			// this line is used by starport scaffolding # stargate/app/moduleConfig
 		},

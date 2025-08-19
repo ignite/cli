@@ -15,11 +15,10 @@ Your blockchain in development can be configured with `config.yml`. To learn mor
 
 ### Web Frontend
 
-Additionally, Ignite CLI offers both Vue and React options for frontend scaffolding:
+Additionally, Ignite CLI offers a frontend scaffolding feature (based on Vue) to help you quickly build a web frontend for your blockchain:
 
-For a Vue frontend, use: `ignite scaffold vue`
-For a React frontend, use: `ignite scaffold react`
-These commands can be run within your scaffolded blockchain project. 
+Use: `ignite scaffold vue`
+This command can be run within your scaffolded blockchain project.
 
 
 For more information see the [monorepo for Ignite front-end development](https://github.com/ignite/web).
@@ -40,7 +39,7 @@ To install the latest version of your blockchain node's binary, execute the foll
 ```
 curl https://get.ignite.com/<%= GitHubPath %>@latest! | sudo bash
 ```
-`<%= GitHubPath %>` should match the `username` and `repo_name` of the Github repository to which the source code was pushed. Learn more about [the install process](https://github.com/allinbits/starport-installer).
+`<%= GitHubPath %>` should match the `username` and `repo_name` of the Github repository to which the source code was pushed. Learn more about [the install process](https://github.com/ignite/installer).
 
 ## Learn more
 
@@ -48,4 +47,4 @@ curl https://get.ignite.com/<%= GitHubPath %>@latest! | sudo bash
 - [Tutorials](https://docs.ignite.com/guide)
 - [Ignite CLI docs](https://docs.ignite.com)
 - [Cosmos SDK docs](https://docs.cosmos.network)
-- [Developer Chat](https://discord.gg/ignite)
+- [Developer Chat](https://discord.com/invite/ignitecli)

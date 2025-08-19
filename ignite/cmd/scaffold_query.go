@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
+	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
 )
 
@@ -39,7 +40,10 @@ For detailed type information use ignite scaffold type --help.`,
 }
 
 func queryHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
+	session := cliui.New(
+		cliui.StartSpinnerWithText(statusScaffolding),
+		cliui.WithoutUserInteraction(getYes(cmd)),
+	)
 	defer session.End()
 
 	cfg, _, err := getChainConfig(cmd)
@@ -80,7 +84,7 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sm, err := sc.ApplyModifications()
+	sm, err := sc.ApplyModifications(xgenny.ApplyPreRun(scaffolder.AskOverwriteFiles(session)))
 	if err != nil {
 		return err
 	}

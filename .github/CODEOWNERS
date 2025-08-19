@@ -1,9 +1,14 @@
-# CODEOWNERS: https://help.github.com/articles/about-codeowners/
+# CODEOWNERS: <https://help.github.com/articles/about-codeowners/>
 
 # Primary repo maintainers
-*       @ilgooz @jeronimoalbi @Pantani @julienrbrt
+
+*       @ilgooz @Pantani @julienrbrt
+
+# Ts templates
+
+ignite/pkg/cosmosgen/* @ilgooz @Pantani @julienrbrt @clockworkgr
 
 # Docs
-*.md    @salmad3 @toschdev @ilgooz
-docs/*   @salmad3 @toschdev @ilgooz
-changelog.md @ilgooz @salmad3 @toschdev @jeronimoalbi @Pantani @julienrbrt
+
+*.md    @ilgooz @Pantani @julienrbrt
+docs/*   @ilgooz @Pantani @julienrbrt

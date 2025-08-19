@@ -2,12 +2,13 @@ package modulecreate
 
 import (
 	"fmt"
-	"path/filepath"
+	"io/fs"
 
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
 	"github.com/iancoleman/strcase"
 
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
@@ -19,25 +20,13 @@ import (
 
 // NewGenerator returns the generator to scaffold a module inside an app.
 func NewGenerator(opts *CreateOptions) (*genny.Generator, error) {
-	var (
-		g = genny.New()
-
-		msgServerTemplate = xgenny.NewEmbedWalker(
-			fsMsgServer,
-			"files/msgserver/",
-			opts.AppPath,
-		)
-		baseTemplate = xgenny.NewEmbedWalker(
-			fsBase,
-			"files/base/",
-			opts.AppPath,
-		)
-	)
-
-	if err := g.Box(msgServerTemplate); err != nil {
-		return g, err
+	subBase, err := fs.Sub(fsBase, "files/base")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
 	}
-	if err := g.Box(baseTemplate); err != nil {
+
+	g := genny.New()
+	if err := g.OnlyFS(subBase, nil, nil); err != nil {
 		return g, err
 	}
 
@@ -70,7 +59,7 @@ func NewGenerator(opts *CreateOptions) (*genny.Generator, error) {
 // NewAppModify returns generator with modifications required to register a module in the app.
 func NewAppModify(replacer placeholder.Replacer, opts *CreateOptions) *genny.Generator {
 	g := genny.New()
-	g.RunFn(appModify(replacer, opts))
+	g.RunFn(appModify(opts))
 	g.RunFn(appConfigModify(replacer, opts))
 	if opts.IsIBC {
 		g.RunFn(appIBCModify(replacer, opts))
@@ -80,7 +69,7 @@ func NewAppModify(replacer placeholder.Replacer, opts *CreateOptions) *genny.Gen
 
 func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		configPath := filepath.Join(opts.AppPath, module.PathAppConfigGo)
+		configPath := module.PathAppConfigGo
 		fConfig, err := r.Disk.Find(configPath)
 		if err != nil {
 			return err
@@ -89,11 +78,11 @@ func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.R
 		// Import
 		content, err := xast.AppendImports(
 			fConfig.String(),
-			xast.WithLastNamedImport(
+			xast.WithNamedImport(
 				"_",
 				fmt.Sprintf("%[1]v/x/%[2]v/module", opts.ModulePath, opts.ModuleName),
 			),
-			xast.WithLastNamedImport(
+			xast.WithNamedImport(
 				fmt.Sprintf("%[1]vmoduletypes", opts.ModuleName),
 				fmt.Sprintf("%[1]v/x/%[2]v/types", opts.ModulePath, opts.ModuleName),
 			),
@@ -124,15 +113,17 @@ func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.R
 		for _, dep := range opts.Dependencies {
 			// If bank is a dependency, add account permissions to the module
 			if dep.Name == "Bank" {
-				template = `{Account: %[2]vmoduletypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner, authtypes.Staking}},
-%[1]v`
-
 				replacement = fmt.Sprintf(
-					template,
-					module.PlaceholderSgAppMaccPerms,
+					"{Account: %[1]vmoduletypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner, authtypes.Staking}}",
 					opts.ModuleName,
 				)
-				content = replacer.Replace(content, module.PlaceholderSgAppMaccPerms, replacement)
+
+				// Keeper definition
+				content, err = xast.ModifyGlobalArrayVar(content, "moduleAccPerms", xast.AppendGlobalArrayValue(replacement))
+				if err != nil {
+					return err
+				}
+
 			}
 		}
 
@@ -143,9 +134,9 @@ func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.R
 }
 
 // app.go modification when creating a module.
-func appModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+func appModify(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		appPath := filepath.Join(opts.AppPath, module.PathAppGo)
+		appPath := module.PathAppGo
 		f, err := r.Disk.Find(appPath)
 		if err != nil {
 			return err
@@ -154,7 +145,7 @@ func appModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 		// Import
 		content, err := xast.AppendImports(
 			f.String(),
-			xast.WithLastNamedImport(
+			xast.WithNamedImport(
 				fmt.Sprintf("%[1]vmodulekeeper", opts.ModuleName),
 				fmt.Sprintf("%[1]v/x/%[2]v/keeper", opts.ModulePath, opts.ModuleName),
 			),
@@ -164,15 +155,17 @@ func appModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 		}
 
 		// Keeper declaration
-		template := `%[2]vKeeper %[3]vmodulekeeper.Keeper
-%[1]v`
-		replacement := fmt.Sprintf(
-			template,
-			module.PlaceholderSgAppKeeperDeclaration,
-			xstrings.Title(opts.ModuleName),
-			opts.ModuleName,
+		content, err = xast.ModifyStruct(
+			content,
+			"App",
+			xast.AppendStructValue(
+				fmt.Sprintf("%[1]vKeeper", xstrings.Title(opts.ModuleName)),
+				fmt.Sprintf("%[1]vmodulekeeper.Keeper", opts.ModuleName),
+			),
 		)
-		content = replacer.Replace(content, module.PlaceholderSgAppKeeperDeclaration, replacement)
+		if err != nil {
+			return err
+		}
 
 		// Keeper definition
 		content, err = xast.ModifyFunction(

@@ -5,136 +5,105 @@ package other_components_test
 import (
 	"testing"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	envtest "github.com/ignite/cli/v29/integration"
 )
 
 func TestGenerateAnAppWithMessage(t *testing.T) {
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/blog")
+		app = env.ScaffoldApp("github.com/test/blog")
 	)
 
-	env.Must(env.Exec("create a message",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"s",
-				"message",
-				"--yes",
-				"do-foo",
-				"text",
-				"vote:int",
-				"like:bool",
-				"-r",
-				"foo,bar:int,foobar:bool",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a message",
+		false,
+		"message",
+		"do-foo",
+		"text",
+		"vote:int",
+		"like:bool",
+		"from:address",
+		"-r",
+		"foo,bar:int,foobar:bool",
+	)
 
-	env.Must(env.Exec("create a message with custom path",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"s",
-				"message",
-				"--yes",
-				"app-path",
-				"text",
-				"vote:int",
-				"like:bool",
-				"-r",
-				"foo,bar:int,foobar:bool",
-				"--path",
-				"blog",
-				"--no-simulation",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a message with custom path",
+		false,
+		"message",
+		"app-path",
+		"text",
+		"vote:int",
+		"like:bool",
+		"-r",
+		"foo,bar:int,foobar:bool",
+		"--path",
+		"blog",
+		"--no-simulation",
+	)
 
-	env.Must(env.Exec("should prevent creating an existing message",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "message", "--yes", "do-foo", "bar"),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"should prevent creating an existing message",
+		true,
+		"message", "do-foo", "bar",
+	)
 
-	env.Must(env.Exec("should prevent creating a message whose name only differs in capitalization",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "message", "--yes", "do-Foo", "bar"),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"should prevent creating a message whose name only differs in capitalization",
+		true,
+		"message", "do-Foo", "bar",
+	)
 
-	env.Must(env.Exec("create a message with a custom signer name",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "message", "--yes", "do-bar", "bar", "--signer", "bar-doer"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a message with a custom signer name",
+		false,
+		"message", "--yes", "do-bar", "bar", "--signer", "bar-doer",
+	)
 
-	env.Must(env.Exec("create a custom field type",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
-				"s",
-				"type",
-				"--yes",
-				"custom-type",
-				"numInt:int",
-				"numsInt:array.int",
-				"numsIntAlias:ints",
-				"numUint:uint",
-				"numsUint:array.uint",
-				"numsUintAlias:uints",
-				"textString:string",
-				"textStrings:array.string",
-				"textStringsAlias:strings",
-				"textCoin:coin",
-				"textCoins:array.coin",
-				"textCoinsAlias:coins",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a custom field type",
+		false,
+		"type",
+		"custom-type",
+		"numInt:int",
+		"numsInt:array.int",
+		"numsIntAlias:ints",
+		"numUint:uint",
+		"numsUint:array.uint",
+		"numsUintAlias:uints",
+		"textString:string",
+		"textStrings:array.string",
+		"textStringsAlias:strings",
+		"textCoin:coin",
+		"textCoins:array.coin",
+	)
 
-	env.Must(env.Exec("create a message with the custom field type",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "message", "--yes", "foo-baz", "customField:CustomType"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a message with the custom field type",
+		false,
+		"message", "foo-baz", "customField:CustomType", "textCoinsAlias:coins",
+	)
 
-	env.Must(env.Exec("create a module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "foo", "--require-registration"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a module",
+		false,
+		"module", "foo", "--require-registration",
+	)
 
-	env.Must(env.Exec("create a message in a module",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"s",
-				"message",
-				"--yes",
-				"do-foo",
-				"text",
-				"userIds:array.uint",
-				"--module",
-				"foo",
-				"--desc",
-				"foo bar foobar",
-				"--response",
-				"foo,bar:int,foobar:bool",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a message in a module",
+		false,
+		"message",
+		"do-foo",
+		"text",
+		"userIds:array.uint",
+		"--module",
+		"foo",
+		"--desc",
+		"foo bar foobar",
+		"--response",
+		"foo,bar:int,foobar:bool",
+	)
 
 	app.EnsureSteady()
 }

@@ -16,10 +16,10 @@ type defaultPlugin struct {
 }
 
 const (
-	PluginNetworkVersion = "v0.2.2"
-	PluginNetworkPath    = "github.com/ignite/cli-plugin-network@" + PluginNetworkVersion
-	PluginRelayerVersion = "hermes/v0.2.4"
-	PluginRelayerPath    = "github.com/ignite/apps/hermes@" + PluginRelayerVersion
+	PluginRelayerVersion     = "hermes/v0.3.0"
+	PluginRelayerPath        = "github.com/ignite/apps/hermes@" + PluginRelayerVersion
+	PluginAppRegistryVersion = "appregistry/v0.1.3"
+	PluginAppRegistryPath    = "github.com/ignite/apps/appregistry@" + PluginAppRegistryVersion
 )
 
 // defaultPlugins holds the plugin that are considered trustable and for which
@@ -27,16 +27,16 @@ const (
 // When the user executes that command, the plugin is automatically installed.
 var defaultPlugins = []defaultPlugin{
 	{
-		use:     "network",
-		short:   "Launch a blockchain in production",
-		aliases: []string{"n"},
-		path:    PluginNetworkPath,
-	},
-	{
 		use:     "relayer",
 		short:   "Connect blockchains with an IBC relayer",
 		aliases: []string{"r"},
 		path:    PluginRelayerPath,
+	},
+	{
+		use:     "appregistry",
+		short:   "Browse the Ignite App Registry App",
+		aliases: []string{"mp"},
+		path:    PluginAppRegistryPath,
 	},
 }
 
@@ -79,7 +79,7 @@ func newPluginInstallCmd(dp defaultPlugin) *cobra.Command {
 				return err
 			}
 
-			session := cliui.New()
+			session := cliui.New(cliui.WithoutUserInteraction(getYes(cmd)))
 			defer session.End()
 
 			// load and link the plugin

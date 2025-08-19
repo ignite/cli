@@ -18,17 +18,25 @@ import (
 	"fmt"
 )
 
+// main function
 func main() {
+	// print hello world
 	fmt.Println("Hello, world!")
+	// call new param function
 	New(param1, param2)
 }
 
+// anotherFunction another function
 func anotherFunction() bool {
+	// init param
 	p := bla.NewParam()
+	// start to call something
 	p.CallSomething("Another call")
+	// return always true
 	return true
 }
 
+// TestValidate test the validations
 func TestValidate(t *testing.T) {
 	tests := []struct {
 		desc     string
@@ -72,13 +80,19 @@ func TestValidate(t *testing.T) {
 					ReplaceFuncBody(`return false`),
 					AppendFuncAtLine(`fmt.Println("Appended at line 0.")`, 0),
 					AppendFuncAtLine(`SimpleCall(foo, bar)`, 1),
+					AppendFuncAtLine(`if param1 == "" {
+						return false
+					}`, 2),
 					AppendFuncCode(`fmt.Println("Appended code.")`),
-					AppendFuncCode(`Param{Baz: baz, Foo: foo}`),
+					AppendFuncCode(`Param{
+						Baz: baz, 
+						Foo: foo,
+					}`),
 					NewFuncReturn("1"),
 					AppendInsideFuncCall("SimpleCall", "baz", 0),
 					AppendInsideFuncCall("SimpleCall", "bla", -1),
 					AppendInsideFuncCall("Println", strconv.Quote("test"), -1),
-					AppendFuncStruct("Param", "Bar", strconv.Quote("bar"), -1),
+					AppendFuncStruct("Param", "Bar", strconv.Quote("bar")),
 					AppendFuncTestCase(`{
 								desc:     "valid first genesis state",
 								genState: GenesisState{},
@@ -91,19 +105,31 @@ import (
 	"fmt"
 )
 
+// main function
 func main() {
+	// print hello world
 	fmt.Println("Hello, world!")
+	// call new param function
 	New(param1, param2)
 }
 
+// anotherFunction another function
 func anotherFunction(param1 string) bool {
 	fmt.Println("Appended at line 0.", "test")
 	SimpleCall(baz, foo, bar, bla)
+	if param1 == "" {
+		return false
+	}
 	fmt.Println("Appended code.", "test")
-	Param{Baz: baz, Foo: foo, Bar: "bar"}
+	Param{
+		Baz: baz,
+		Foo: foo,
+		Bar: "bar",
+	}
 	return 1
 }
 
+// TestValidate test the validations
 func TestValidate(t *testing.T) {
 	tests := []struct {
 		desc     string
@@ -140,13 +166,18 @@ import (
 	"fmt"
 )
 
+// main function
 func main() {
+	// print hello world
 	fmt.Println("Hello, world!")
+	// call new param function
 	New(param1, param2)
 }
 
+// anotherFunction another function
 func anotherFunction() bool { return false }
 
+// TestValidate test the validations
 func TestValidate(t *testing.T) {
 	tests := []struct {
 		desc     string
@@ -177,9 +208,9 @@ func TestValidate(t *testing.T) {
 				functionName: "TestValidate",
 				functions: []FunctionOptions{
 					AppendFuncTestCase(`{
-								desc:     "valid genesis state",
-								genState: GenesisState{},
-					}`),
+	desc: "valid genesis state", 
+	genState: GenesisState{},
+}`),
 				},
 			},
 			want: `package main
@@ -188,17 +219,25 @@ import (
 	"fmt"
 )
 
+// main function
 func main() {
+	// print hello world
 	fmt.Println("Hello, world!")
+	// call new param function
 	New(param1, param2)
 }
 
+// anotherFunction another function
 func anotherFunction() bool {
+	// init param
 	p := bla.NewParam()
+	// start to call something
 	p.CallSomething("Another call")
+	// return always true
 	return true
 }
 
+// TestValidate test the validations
 func TestValidate(t *testing.T) {
 	tests := []struct {
 		desc     string
@@ -212,10 +251,9 @@ func TestValidate(t *testing.T) {
 			desc:     "valid genesis state",
 			genState: types.GenesisState{},
 		}, {
-
-			desc: "valid genesis state",
-
-			genState: GenesisState{}},
+			desc:     "valid genesis state",
+			genState: GenesisState{},
+		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
@@ -232,14 +270,17 @@ func TestValidate(t *testing.T) {
 				fileContent:  existingContent,
 				functionName: "TestValidate",
 				functions: []FunctionOptions{
-					AppendFuncTestCase(`{
-								desc:     "valid first genesis state",
-								genState: GenesisState{},
-					}`),
-					AppendFuncTestCase(`{
-								desc:     "valid second genesis state",
-								genState: GenesisState{},
-					}`),
+					AppendFuncTestCase(`
+{
+	desc:     "valid first genesis state",
+	genState: GenesisState{},
+}`),
+					AppendFuncTestCase(`
+{
+	desc:     "valid second genesis state",
+	genState: GenesisState{},
+}
+`),
 				},
 			},
 			want: `package main
@@ -248,17 +289,25 @@ import (
 	"fmt"
 )
 
+// main function
 func main() {
+	// print hello world
 	fmt.Println("Hello, world!")
+	// call new param function
 	New(param1, param2)
 }
 
+// anotherFunction another function
 func anotherFunction() bool {
+	// init param
 	p := bla.NewParam()
+	// start to call something
 	p.CallSomething("Another call")
+	// return always true
 	return true
 }
 
+// TestValidate test the validations
 func TestValidate(t *testing.T) {
 	tests := []struct {
 		desc     string
@@ -272,14 +321,10 @@ func TestValidate(t *testing.T) {
 			desc:     "valid genesis state",
 			genState: types.GenesisState{},
 		}, {
-
-			desc: "valid first genesis state",
-
+			desc:     "valid first genesis state",
 			genState: GenesisState{},
 		}, {
-
-			desc: "valid second genesis state",
-
+			desc:     "valid second genesis state",
 			genState: GenesisState{},
 		},
 	}
@@ -309,22 +354,30 @@ import (
 	"fmt"
 )
 
+// main function
 func main() {
+	// print hello world
 	fmt.Println("Hello, world!")
+	// call new param function
 	New(param1, param2)
 }
 
+// anotherFunction another function
 func anotherFunction() bool {
 	fmt.Println("Appended at line 0.")
 	SimpleCall(foo, bar)
 
+	// init param
 	p := bla.NewParam()
+	// start to call something
 	p.CallSomething("Another call")
 	fmt.Println("Appended code.")
 
+	// return always true
 	return true
 }
 
+// TestValidate test the validations
 func TestValidate(t *testing.T) {
 	tests := []struct {
 		desc     string
@@ -375,17 +428,25 @@ import (
 	"fmt"
 )
 
+// main function
 func main() {
+	// print hello world
 	fmt.Println("Hello, world!")
+	// call new param function
 	New(param1, param2)
 }
 
+// anotherFunction another function
 func anotherFunction() bool {
+	// init param
 	p := bla.NewParam(baz, bla)
+	// start to call something
 	p.CallSomething("test2", "Another call", "test1")
+	// return always true
 	return true
 }
 
+// TestValidate test the validations
 func TestValidate(t *testing.T) {
 	tests := []struct {
 		desc     string
@@ -418,12 +479,18 @@ import (
 	"fmt"
 )
 
+// anotherFunction another function
 func anotherFunction() bool {
-	Param{Baz: baz, Foo: foo}
+	Param{
+		Baz: baz, 
+		Foo: foo, 
+	}
 	Client{baz, foo}
+	// return always true
 	return true
 }
 
+// TestValidate test the validations
 func TestValidate(t *testing.T) {
 	tests := []struct {
 		desc     string
@@ -448,9 +515,9 @@ func TestValidate(t *testing.T) {
 `,
 				functionName: "anotherFunction",
 				functions: []FunctionOptions{
-					AppendFuncStruct("Param", "Bar", "bar", -1),
-					AppendFuncStruct("Param", "Bla", "bla", 1),
-					AppendFuncStruct("Client", "", "bar", 0),
+					AppendFuncStruct("Param", "Bar", "bar"),
+					AppendFuncStruct("Param", "Bla", "bla"),
+					AppendFuncStruct("Client", "", "bar"),
 				},
 			},
 			want: `package main
@@ -459,12 +526,20 @@ import (
 	"fmt"
 )
 
+// anotherFunction another function
 func anotherFunction() bool {
-	Param{Baz: baz, Bla: bla, Foo: foo, Bar: bar}
-	Client{bar, baz, foo}
+	Param{
+		Baz: baz,
+		Foo: foo,
+		Bar: bar,
+		Bla: bla,
+	}
+	Client{baz, foo, bar}
+	// return always true
 	return true
 }
 
+// TestValidate test the validations
 func TestValidate(t *testing.T) {
 	tests := []struct {
 		desc     string
@@ -518,7 +593,7 @@ func TestValidate(t *testing.T) {
 				functionName: "anotherFunction",
 				functions:    []FunctionOptions{AppendFuncParams("9#.(c", "string", 0)},
 			},
-			err: errors.New("format.Node internal error (12:22: expected ')', found 9 (and 1 more errors))"),
+			err: errors.New("format.Node internal error (16:22: expected ')', found 9 (and 1 more errors))"),
 		},
 		{
 			name: "invalid content for replace body",
@@ -545,7 +620,7 @@ func TestValidate(t *testing.T) {
 				functionName: "anotherFunction",
 				functions:    []FunctionOptions{AppendFuncAtLine("9#.(c", 0)},
 			},
-			err: errors.New("1:2: illegal character U+0023 '#'"),
+			err: errors.New("1:24: illegal character U+0023 '#'"),
 		},
 		{
 			name: "invalid code append",
@@ -581,7 +656,7 @@ func TestValidate(t *testing.T) {
 				functionName: "anotherFunction",
 				functions:    []FunctionOptions{AppendInsideFuncCall("NewParam", "9#.(c", 0)},
 			},
-			err: errors.New("format.Node internal error (13:21: illegal character U+0023 '#' (and 4 more errors))"),
+			err: errors.New("format.Node internal error (18:21: illegal character U+0023 '#' (and 4 more errors))"),
 		},
 		{
 			name: "call params out of range",
@@ -612,6 +687,228 @@ func TestValidate(t *testing.T) {
 			}
 			require.NoError(t, err)
 			require.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestModifyCaller(t *testing.T) {
+	existingContent := `package main
+
+import (
+	"context"
+	"fmt"
+)
+
+// main function
+func main() {
+	// Simple function call
+	// print hello world
+	fmt.Println("Hello, world!")
+	
+	// Call with multiple arguments
+	server.Foo(param1, param2, 42)
+	
+	// Call with no arguments
+	EmptyFunc()
+	
+	// Call with complex arguments
+	ComplexFunc([]string{"a", "b"}, map[string]int{"a": 1})
+	
+	// Multiple calls to the same function
+	fmt.Println("First call")
+	fmt.Println("Second call")
+}
+`
+
+	tests := []struct {
+		name          string
+		content       string
+		callerExpr    string
+		modifierFunc  func([]string) ([]string, error)
+		expected      string
+		expectedError string
+	}{
+		{
+			name:       "replace arguments in fmt.Println",
+			content:    existingContent,
+			callerExpr: "fmt.Println",
+			modifierFunc: func(args []string) ([]string, error) {
+				return []string{`"Modified output"`}, nil
+			},
+			expected: `package main
+
+import (
+	"context"
+	"fmt"
+)
+
+// main function
+func main() {
+	// Simple function call
+	// print hello world
+	fmt.Println("Modified output")
+	
+	// Call with multiple arguments
+	server.Foo(param1, param2, 42)
+	
+	// Call with no arguments
+	EmptyFunc()
+	
+	// Call with complex arguments
+	ComplexFunc([]string{"a", "b"}, map[string]int{"a": 1})
+	
+	// Multiple calls to the same function
+	fmt.Println("Modified output")
+	fmt.Println("Modified output")
+}
+`,
+		},
+		{
+			name:       "replace server.Foo arguments",
+			content:    existingContent,
+			callerExpr: "server.Foo",
+			modifierFunc: func(args []string) ([]string, error) {
+				return []string{"context.Background()", "newParam", "123"}, nil
+			},
+			expected: `package main
+
+import (
+	"context"
+	"fmt"
+)
+
+// main function
+func main() {
+	// Simple function call
+	// print hello world
+	fmt.Println("Hello, world!")
+	
+	// Call with multiple arguments
+	server.Foo(context.Background(), newParam, 123)
+	
+	// Call with no arguments
+	EmptyFunc()
+	
+	// Call with complex arguments
+	ComplexFunc([]string{"a", "b"}, map[string]int{"a": 1})
+	
+	// Multiple calls to the same function
+	fmt.Println("First call")
+	fmt.Println("Second call")
+}
+`,
+		},
+		{
+			name:       "add argument to EmptyFunc",
+			content:    existingContent,
+			callerExpr: "EmptyFunc",
+			modifierFunc: func(args []string) ([]string, error) {
+				return []string{`"new argument"`}, nil
+			},
+			expected: `package main
+
+import (
+	"context"
+	"fmt"
+)
+
+// main function
+func main() {
+	// Simple function call
+	// print hello world
+	fmt.Println("Hello, world!")
+	
+	// Call with multiple arguments
+	server.Foo(param1, param2, 42)
+	
+	// Call with no arguments
+	EmptyFunc("new argument")
+	
+	// Call with complex arguments
+	ComplexFunc([]string{"a", "b"}, map[string]int{"a": 1})
+	
+	// Multiple calls to the same function
+	fmt.Println("First call")
+	fmt.Println("Second call")
+}
+`,
+		},
+		{
+			name:       "modify complex arguments",
+			content:    existingContent,
+			callerExpr: "ComplexFunc",
+			modifierFunc: func(args []string) ([]string, error) {
+				return []string{`[]string{"x", "y", "z"}`, `map[string]int{"x": 10}`}, nil
+			},
+			expected: `package main
+
+import (
+	"context"
+	"fmt"
+)
+
+// main function
+func main() {
+	// Simple function call
+	// print hello world
+	fmt.Println("Hello, world!")
+	
+	// Call with multiple arguments
+	server.Foo(param1, param2, 42)
+	
+	// Call with no arguments
+	EmptyFunc()
+	
+	// Call with complex arguments
+	ComplexFunc([]string{"x", "y", "z"}, map[string]int{"x": 10})
+	
+	// Multiple calls to the same function
+	fmt.Println("First call")
+	fmt.Println("Second call")
+}
+`,
+		},
+		{
+			name:       "function not found",
+			content:    existingContent,
+			callerExpr: "NonExistentFunc",
+			modifierFunc: func(args []string) ([]string, error) {
+				return []string{`"test"`}, nil
+			},
+			expectedError: "function call NonExistentFunc not found in file content",
+		},
+		{
+			name:       "error in modifier function",
+			content:    existingContent,
+			callerExpr: "fmt.Println",
+			modifierFunc: func(args []string) ([]string, error) {
+				return nil, errors.New("custom error in modifier")
+			},
+			expectedError: "custom error in modifier",
+		},
+		{
+			name:       "invalid caller expression",
+			content:    existingContent,
+			callerExpr: "pkg.sub.Function",
+			modifierFunc: func(args []string) ([]string, error) {
+				return []string{`"test"`}, nil
+			},
+			expectedError: "invalid caller expression format, use 'pkgname.FuncName' or 'FuncName'",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := ModifyCaller(tt.content, tt.callerExpr, tt.modifierFunc)
+
+			if tt.expectedError != "" {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), tt.expectedError)
+				return
+			}
+
+			require.NoError(t, err)
+			require.Equal(t, tt.expected, result)
 		})
 	}
 }

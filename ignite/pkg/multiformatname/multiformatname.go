@@ -23,6 +23,15 @@ type Name struct {
 
 type Checker func(name string) error
 
+// MustNewName returns a new multi-format name from a name.
+func MustNewName(name string, additionalChecks ...Checker) Name {
+	n, err := NewName(name, additionalChecks...)
+	if err != nil {
+		panic(err)
+	}
+	return n
+}
+
 // NewName returns a new multi-format name from a name.
 func NewName(name string, additionalChecks ...Checker) (Name, error) {
 	checks := append([]Checker{basicCheckName}, additionalChecks...)

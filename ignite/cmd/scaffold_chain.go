@@ -5,17 +5,20 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
+	"github.com/ignite/cli/v29/ignite/pkg/env"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/xfilepath"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/pkg/xgit"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
 )
+
+const defaultIgniteDenom = "stake"
 
 const (
 	flagMinimal         = "minimal"
 	flagNoDefaultModule = "no-module"
 	flagSkipGit         = "skip-git"
+	flagDefaultDenom    = "default-denom"
 
 	tplScaffoldChainSuccess = `
 ⭐️ Successfully created a new blockchain '%[1]v'.
@@ -75,12 +78,18 @@ The blockchain is using the Cosmos SDK modular blockchain framework. Learn more
 about Cosmos SDK on https://docs.cosmos.network
 `,
 		Args: cobra.ExactArgs(1),
+		PersistentPreRun: func(cmd *cobra.Command, _ []string) {
+			if verbose := flagGetVerbose(cmd); verbose {
+				env.SetDebug()
+			}
+		},
 		RunE: scaffoldChainHandler,
 	}
 
 	flagSetClearCache(c)
 	c.Flags().AddFlagSet(flagSetAccountPrefixes())
 	c.Flags().AddFlagSet(flagSetCoinType())
+	c.Flags().String(flagDefaultDenom, defaultIgniteDenom, "default staking denom")
 	c.Flags().StringP(flagPath, "p", "", "create a project in a specific path")
 	c.Flags().Bool(flagNoDefaultModule, false, "create a project without a default module")
 	c.Flags().StringSlice(flagParams, []string{}, "add default module parameters")
@@ -97,7 +106,10 @@ about Cosmos SDK on https://docs.cosmos.network
 }
 
 func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
-	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
+	session := cliui.New(
+		cliui.StartSpinnerWithText(statusScaffolding),
+		cliui.WithoutUserInteraction(getYes(cmd)),
+	)
 	defer session.End()
 
 	var (
@@ -113,7 +125,12 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		moduleConfigs, _   = cmd.Flags().GetStringSlice(flagModuleConfigs)
 		skipProto, _       = cmd.Flags().GetBool(flagSkipProto)
 		protoDir, _        = cmd.Flags().GetString(flagProtoDir)
+		defaultDenom, _    = cmd.Flags().GetString(flagDefaultDenom)
 	)
+
+	if cmd.Flags().Changed(flagDefaultDenom) && len(defaultDenom) <= 2 {
+		return errors.New("default denom must be at least 3 characters and maximum 128 characters")
+	}
 
 	if noDefaultModule {
 		if len(params) > 0 {
@@ -121,6 +138,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		} else if len(moduleConfigs) > 0 {
 			return errors.New("module configs flag is only supported if the default module is enabled")
 		}
+		skipProto = true
 	}
 
 	cacheStorage, err := newCache(cmd)
@@ -128,14 +146,13 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	runner := xgenny.NewRunner(cmd.Context(), appPath)
 	appDir, goModule, err := scaffolder.Init(
 		cmd.Context(),
-		runner,
 		appPath,
 		name,
 		addressPrefix,
 		coinType,
+		defaultDenom,
 		protoDir,
 		noDefaultModule,
 		minimal,
@@ -148,10 +165,6 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 
 	path, err := xfilepath.RelativePath(appDir)
 	if err != nil {
-		return err
-	}
-
-	if _, err := runner.ApplyModifications(); err != nil {
 		return err
 	}
 

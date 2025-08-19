@@ -1,0 +1,99 @@
+syntax = "proto3";
+package ignite.planet.mars;
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "google/api/annotations.proto";
+
+option go_package = "github.com/ignite/planet/x/mars/types";
+
+service Msg {
+  rpc MyMessage(MsgMyMessageRequest) returns (MsgMyMessageResponse);
+
+  rpc Bar(MsgBarRequest) returns (MsgBarResponse);
+}
+
+message MsgMyMessageRequest {
+  string mytypefield = 1;
+}
+
+message MsgMyMessageResponse {
+  string mytypefield = 1;
+}
+
+message MsgBarRequest {
+  string mytypefield = 1;
+}
+
+message MsgBarResponse {
+  string mytypefield = 1;
+}
+
+service Query {
+  rpc QuerySimple(QuerySimpleRequest) returns (QuerySimpleResponse) {
+    option (google.api.http).get = "/ignite/mars/query_simple";
+  }
+
+  rpc QuerySimpleParams(QuerySimpleParamsRequest) returns (QuerySimpleParamsResponse) {
+    option (google.api.http).get = "/ignite/mars/query_simple/{mytypefield}";
+  }
+
+  rpc QueryParamsWithPagination(QueryWithPaginationRequest) returns (QueryWithPaginationResponse) {
+    option (google.api.http).get = "/ignite/mars/query_with_params/{mytypefield}";
+  }
+
+  rpc QueryWithQueryParams(QueryWithQueryParamsRequest) returns (QueryWithQueryParamsResponse) {
+    option (google.api.http).get = "/ignite/mars/query_with_query_params/{mytypefield}/{mybool}";
+  }
+
+  rpc QueryWithQueryParamsWithPagination(QueryWithQueryParamsWithPaginationRequest) returns (QueryWithQueryParamsWithPaginationResponse) {
+    option (google.api.http).get = "/ignite/mars/query_with_query_params/{mytypefield}";
+  }
+}
+
+message QuerySimpleRequest {}
+
+message QuerySimpleResponse {
+	string bar = 1;
+}
+
+message QuerySimpleParamsRequest {
+  string mytypefield = 1;
+}
+
+message QuerySimpleParamsResponse {
+	string bar = 1;
+}
+
+message QueryWithPaginationRequest {
+  string mytypefield = 1;
+	cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+message QueryWithPaginationResponse {
+	cosmos.base.query.v1beta1.PageResponse pagination = 1;
+}
+
+message QueryWithQueryParamsRequest {
+  string mytypefield = 1;
+  string query_param = 2;
+  bool mybool = 3;
+  repeated bool myrepeatedbool = 4;
+}
+
+message QueryWithQueryParamsResponse {
+  string bar = 1;
+}
+
+message QueryWithQueryParamsWithPaginationRequest {
+  string mytypefield = 1;
+  string query_param = 2;
+  cosmos.base.query.v1beta1.PageRequest pagination = 3;
+}
+
+message QueryWithQueryParamsWithPaginationResponse {
+  string bar = 1;
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message AnotherType {
+  string mytypefield = 1;
+}

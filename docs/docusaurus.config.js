@@ -61,7 +61,7 @@ const config = {
 
   presets: [
     [
-      "classic",
+      "@docusaurus/preset-classic",
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
@@ -157,12 +157,12 @@ const config = {
             title: "Products",
             items: [
               {
-                label: "CLI",
+                label: "Ignite CLI",
                 href: "https://ignite.com/cli",
               },
               {
-                label: "Accelerator",
-                href: "https://ignite.com/accelerator",
+                label: "Ignite Apps",
+                href: "https://ignite.com/marketplace",
               },
             ],
           },
@@ -181,10 +181,6 @@ const config = {
                 label: "Blog",
                 href: "https://ignite.com/blog",
               },
-              {
-                label: "Press",
-                href: "https://ignite.com/press",
-              },
             ],
           },
           {
@@ -201,7 +197,7 @@ const config = {
             items: [
               {
                 label: "Discord",
-                href: "https://discord.com/invite/ignite",
+                href: "https://discord.com/invite/ignitecli",
               },
               {
                 label: "Twitter",

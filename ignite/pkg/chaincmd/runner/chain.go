@@ -28,8 +28,8 @@ func (r Runner) Start(ctx context.Context, args ...string) error {
 }
 
 // Init inits the blockchain.
-func (r Runner) Init(ctx context.Context, moniker string) error {
-	return r.run(ctx, runOptions{}, r.chainCmd.InitCommand(moniker))
+func (r Runner) Init(ctx context.Context, moniker string, args ...string) error {
+	return r.run(ctx, runOptions{}, r.chainCmd.InitCommand(moniker, args...))
 }
 
 // KV holds a key, value pair.

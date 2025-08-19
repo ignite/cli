@@ -8,16 +8,17 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	envtest "github.com/ignite/cli/v29/integration"
 )
 
 func TestCosmosGenScaffoldComposables(t *testing.T) {
-	t.Skip()
+	if envtest.IsCI {
+		t.Skip("Skipping TestCosmosGenScaffoldComposables test in CI environment")
+	}
 
 	var (
 		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/blog")
+		app = env.ScaffoldApp("github.com/test/blog")
 	)
 
 	const (
@@ -25,96 +26,61 @@ func TestCosmosGenScaffoldComposables(t *testing.T) {
 		withoutMsgModuleName = "withoutmsg"
 	)
 
-	env.Must(env.Exec("add custom module with message",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"s",
-				"module",
-				"--yes",
-				withMsgModuleName,
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold("add custom module with message", false, "module", withMsgModuleName)
 
-	env.Must(env.Exec("create a message",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"s",
-				"message",
-				"--yes",
-				"mymessage",
-				"myfield1",
-				"myfield2:bool",
-				"--module",
-				withMsgModuleName,
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a message",
+		false,
+		"message",
+		"mymessage",
+		"myfield1",
+		"myfield2:bool",
+		"--module",
+		withMsgModuleName,
+	)
 
-	env.Must(env.Exec("add custom module without message",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"s",
-				"module",
-				"--yes",
-				withoutMsgModuleName,
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"add custom module without message",
+		false,
+		"module",
+		withoutMsgModuleName,
+	)
 
-	env.Must(env.Exec("create a type",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"s",
-				"type",
-				"--yes",
-				"mytype",
-				"mytypefield",
-				"--module",
-				withoutMsgModuleName,
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a type",
+		false,
+		"type",
+		"mytype",
+		"mytypefield",
+		"--module",
+		withoutMsgModuleName,
+	)
 
-	env.Must(env.Exec("create a query",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"s",
-				"query",
-				"--yes",
-				"myQuery",
-				"mytypefield",
-				"--module",
-				withoutMsgModuleName,
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a query",
+		false,
+		"query",
+		"myQuery",
+		"mytypefield",
+		"--module",
+		withoutMsgModuleName,
+	)
 
 	composablesDirGenerated := filepath.Join(app.SourcePath(), "vue/src/composables")
 	require.NoError(t, os.RemoveAll(composablesDirGenerated))
 
-	env.Must(env.Exec("generate composables",
-		step.NewSteps(step.New(
-			step.Exec(
-				envtest.IgniteApp,
-				"g",
-				"composables",
-				"--yes",
-				"--clear-cache",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"scaffold vue",
+		false,
+		"vue",
+	)
+
+	app.Generate(
+		"generate composables",
+		false,
+		"composables",
+		"--clear-cache",
+	)
 
 	expectedQueryModules := []string{
 		"useCosmosAuthV1Beta1",
@@ -136,16 +102,25 @@ func TestCosmosGenScaffoldComposables(t *testing.T) {
 		"useCosmosUpgradeV1Beta1",
 		"useCosmosVestingV1Beta1",
 		// custom modules
-		"useTestBlogBlog",
-		"useTestBlogWithmsg",
-		"useTestBlogWithoutmsg",
+		"useBlogBlogV1",
+		"useBlogWithmsgV1",
+		"useBlogWithoutmsgV1",
 	}
 
 	for _, mod := range expectedQueryModules {
-
 		_, err := os.Stat(filepath.Join(composablesDirGenerated, mod))
 		if assert.False(t, os.IsNotExist(err), "missing composable %q in %s", mod, composablesDirGenerated) {
 			assert.NoError(t, err)
+		}
+	}
+
+	if t.Failed() {
+		// list composables files
+		composablesFiles, err := os.ReadDir(composablesDirGenerated)
+		require.NoError(t, err)
+		t.Log("Composables files:", len(composablesFiles))
+		for _, file := range composablesFiles {
+			t.Logf(" - %s", file.Name())
 		}
 	}
 }

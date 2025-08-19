@@ -10,10 +10,9 @@ import (
 
 func NewGenerateComposables() *cobra.Command {
 	c := &cobra.Command{
-		Hidden: true, // hidden util we have a better ts-client.
-		Use:    "composables",
-		Short:  "TypeScript frontend client and Vue 3 composables",
-		RunE:   generateComposablesHandler,
+		Use:   "composables",
+		Short: "TypeScript frontend client and Vue 3 composables",
+		RunE:  generateComposablesHandler,
 	}
 
 	c.Flags().AddFlagSet(flagSetYes())
@@ -23,7 +22,10 @@ func NewGenerateComposables() *cobra.Command {
 }
 
 func generateComposablesHandler(cmd *cobra.Command, _ []string) error {
-	session := cliui.New(cliui.StartSpinnerWithText(statusGenerating))
+	session := cliui.New(
+		cliui.StartSpinnerWithText(statusGenerating),
+		cliui.WithoutUserInteraction(getYes(cmd)),
+	)
 	defer session.End()
 
 	c, err := chain.NewWithHomeFlags(

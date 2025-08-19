@@ -11,6 +11,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -20,9 +21,28 @@ import (
 	pluginsconfig "github.com/ignite/cli/v29/ignite/config/plugins"
 	"github.com/ignite/cli/v29/ignite/pkg/env"
 	"github.com/ignite/cli/v29/ignite/services/plugin"
+	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
 )
 
 const (
+	scaffoldTypeFooter = `
+
+Field Usage:
+
+    - fieldName
+    - fieldName:fieldType
+
+
+If no :fieldType, default (string) is used
+`
+	scaffoldTypeHead = `# Scaffold Type
+
+Ignites provides a set of scaffold types that can be used to generate code for your application.
+These types are used in the ` + "`ignite scaffold`" + ` command.
+
+## Available Scaffold Types
+
+`
 	head = `---
 description: Ignite CLI docs.
 ---
@@ -58,10 +78,6 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	cfg.Apps = append(cfg.Apps, pluginsconfig.Plugin{
-		// Add network plugin
-		Path: ignitecmd.PluginNetworkPath,
-	})
 	if err := cfg.Save(); err != nil {
 		return err
 	}
@@ -71,7 +87,8 @@ func run() error {
 		return err
 	}
 	defer cleanUp()
-	cmd.Flags().String(outFlag, ".", ".md file path to place Ignite CLI docs inside")
+
+	cmd.Flags().String(outFlag, "output.md", ".md file path to place Ignite CLI docs inside")
 	if err := cmd.Flags().MarkHidden(outFlag); err != nil {
 		return err
 	}
@@ -87,10 +104,10 @@ func run() error {
 		return nil
 	}
 
-	return generate(cmd, outPath)
+	return generateUsage(cmd, outPath)
 }
 
-func generate(cmd *cobra.Command, outPath string) error {
+func generateUsage(cmd *cobra.Command, outPath string) error {
 	if err := os.MkdirAll(filepath.Dir(outPath), 0o755); err != nil {
 		return err
 	}
@@ -104,7 +121,47 @@ func generate(cmd *cobra.Command, outPath string) error {
 		return err
 	}
 
-	return generateCmd(cmd, f)
+	if err := generateCmd(cmd, f); err != nil {
+		return err
+	}
+
+	return generateScaffoldTypes(f)
+}
+
+func generateScaffoldTypes(w io.Writer) error {
+	if _, err := fmt.Fprint(w, scaffoldTypeHead); err != nil {
+		return err
+	}
+
+	supported := datatype.SupportedTypes()
+	entries := make([][]string, 0, len(supported))
+	for name, usage := range supported {
+		entries = append(entries, []string{name, usage})
+	}
+
+	sort.Slice(entries, func(i, j int) bool {
+		return entries[i][0] < entries[j][0]
+	})
+
+	// Write table header
+	if _, err := fmt.Fprintf(w, "| Type | Usage |\n"); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(w, "| --- | --- |\n"); err != nil {
+		return err
+	}
+
+	// Write table rows
+	for _, entry := range entries {
+		if _, err := fmt.Fprintf(w, "| %s | %s |\n", entry[0], entry[1]); err != nil {
+			return err
+		}
+	}
+
+	if _, err := fmt.Fprint(w, scaffoldTypeFooter); err != nil {
+		return err
+	}
+	return nil
 }
 
 func generateCmd(cmd *cobra.Command, w io.Writer) error {

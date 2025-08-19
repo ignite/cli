@@ -56,7 +56,7 @@ func paramsProtoModify(opts ParamsOptions) genny.RunFn {
 
 func paramsTypesModify(opts ParamsOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/params.go")
+		path := filepath.Join("x", opts.ModuleName, "types/params.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -85,7 +85,6 @@ func paramsTypesModify(opts ParamsOptions) genny.RunFn {
 					"Params",
 					param.Name.UpperCamel,
 					param.ProtoFieldName(),
-					-1,
 				),
 			)
 

@@ -10,7 +10,6 @@ import (
 // Options ...
 type Options struct {
 	AppName     string
-	AppPath     string
 	ProtoDir    string
 	ProtoVer    string
 	ModuleName  string
@@ -24,5 +23,5 @@ type Options struct {
 
 // ProtoFile returns the path to the proto folder.
 func (opts *Options) ProtoFile(fname string) string {
-	return filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, opts.ProtoVer, fname)
+	return filepath.Join(opts.ProtoDir, opts.AppName, opts.ModuleName, opts.ProtoVer, fname)
 }

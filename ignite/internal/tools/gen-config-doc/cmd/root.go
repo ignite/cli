@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -20,9 +21,10 @@ const (
 	flagVersion  = "version"
 	flagOutput   = "output"
 	flagFilename = "filename"
+	flagYes      = "yes"
 
-	defaultFilename = "03-config.md"
-	defaultDocPath  = "docs/docs/08-references"
+	defaultFilename = "02-config_example.md"
+	defaultDocPath  = "docs/docs/08-configuration"
 )
 
 // NewRootCmd creates a new root command.
@@ -32,14 +34,14 @@ func NewRootCmd() *cobra.Command {
 		Short: "generate configuration file documentation",
 		Long:  "This tool is used to generate the chain configuration file documentation",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			session := cliui.New()
-			defer session.End()
-
 			var (
 				version, _  = cmd.Flags().GetString(flagVersion)
 				output, _   = cmd.Flags().GetString(flagOutput)
 				fileName, _ = cmd.Flags().GetString(flagFilename)
+				yes, _      = cmd.Flags().GetBool(flagYes)
 			)
+			session := cliui.New(cliui.WithoutUserInteraction(yes))
+			defer session.End()
 
 			output, err = filepath.Abs(output)
 			if err != nil {
@@ -69,7 +71,14 @@ func NewRootCmd() *cobra.Command {
 				return errors.Wrap(err, "failed to create the doc generator object")
 			}
 
-			sm, err := xgenny.NewRunner(cmd.Context(), output).RunAndApply(g)
+			runner := xgenny.NewRunner(cmd.Context(), output)
+			sm, err := runner.RunAndApply(g, xgenny.ApplyPreRun(func(_, _, duplicated []string) error {
+				if len(duplicated) == 0 {
+					return nil
+				}
+				question := fmt.Sprintf("Do you want to overwrite the existing files? \n%s", strings.Join(duplicated, "\n"))
+				return session.AskConfirm(question)
+			}))
 			if err != nil {
 				return err
 			}
@@ -89,6 +98,7 @@ func NewRootCmd() *cobra.Command {
 	cmd.Flags().StringP(flagVersion, "v", "v1", "Version of Ignite config file")
 	cmd.Flags().StringP(flagOutput, "o", defaultDocPath, "Output directory to save the config document")
 	cmd.Flags().StringP(flagFilename, "f", defaultFilename, "Document file name")
+	cmd.Flags().BoolP(flagYes, "y", false, "answers interactive yes/no questions with yes")
 
 	return cmd
 }

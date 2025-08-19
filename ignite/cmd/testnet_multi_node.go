@@ -4,7 +4,6 @@ import (
 	"os"
 	"path"
 	"strconv"
-	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
@@ -61,13 +60,13 @@ func NewTestnetMultiNode() *cobra.Command {
 	c.Flags().BoolP(flagResetOnce, "r", false, "reset the app state once on init")
 	c.Flags().String(flagNodeDirPrefix, "validator", "prefix of dir node")
 
-	c.Flags().Bool(flagQuitOnFail, false, "quit program if the app fails to start")
 	return c
 }
 
 func testnetMultiNodeHandler(cmd *cobra.Command, _ []string) error {
 	session := cliui.New(
 		cliui.WithVerbosity(getVerbosity(cmd)),
+		cliui.WithoutUserInteraction(getYes(cmd)),
 	)
 	defer session.End()
 
@@ -128,18 +127,14 @@ func testnetMultiNode(cmd *cobra.Command, session *cliui.Session) error {
 	resetOnce, _ := cmd.Flags().GetBool(flagResetOnce)
 	if resetOnce {
 		// If resetOnce is true, the app state will be reset by deleting the output directory.
-		err := os.RemoveAll(outputDir)
-		if err != nil {
+		if err := os.RemoveAll(outputDir); err != nil {
 			return err
 		}
 	}
 
-	err = c.TestnetMultiNode(cmd.Context(), args)
-	if err != nil {
+	if err = c.TestnetMultiNode(cmd.Context(), args); err != nil {
 		return err
 	}
-
-	time.Sleep(2 * time.Second)
 
 	model, err := cmdmodel.NewModel(cmd.Context(), c.Name(), args)
 	if err != nil {

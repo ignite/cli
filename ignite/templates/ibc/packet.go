@@ -3,6 +3,7 @@ package ibc
 import (
 	"embed"
 	"fmt"
+	"io/fs"
 	"path/filepath"
 
 	"github.com/emicklei/proto"
@@ -18,7 +19,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/xstrings"
 	"github.com/ignite/cli/v29/ignite/templates/field"
 	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"
-	"github.com/ignite/cli/v29/ignite/templates/testutil"
 	"github.com/ignite/cli/v29/ignite/templates/typed"
 )
 
@@ -33,7 +33,6 @@ var (
 // PacketOptions are options to scaffold a packet in a IBC module.
 type PacketOptions struct {
 	AppName    string
-	AppPath    string
 	ProtoDir   string
 	ProtoVer   string
 	ModuleName string
@@ -47,31 +46,26 @@ type PacketOptions struct {
 
 // ProtoFile returns the path to the proto folder.
 func (opts *PacketOptions) ProtoFile(fname string) string {
-	return filepath.Join(opts.AppPath, opts.ProtoDir, opts.AppName, opts.ModuleName, opts.ProtoVer, fname)
+	return filepath.Join(opts.ProtoDir, opts.AppName, opts.ModuleName, opts.ProtoVer, fname)
 }
 
 // NewPacket returns the generator to scaffold a packet in an IBC module.
 func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Generator, error) {
-	var (
-		g = genny.New()
-
-		componentTemplate = xgenny.NewEmbedWalker(
-			fsPacketComponent,
-			"files/packet/component/",
-			opts.AppPath,
-		)
-		messagesTemplate = xgenny.NewEmbedWalker(
-			fsPacketMessages,
-			"files/packet/messages/",
-			opts.AppPath,
-		)
-	)
+	subPacketComponent, err := fs.Sub(fsPacketComponent, "files/packet/component")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
+	subPacketMessages, err := fs.Sub(fsPacketMessages, "files/packet/messages")
+	if err != nil {
+		return nil, errors.Errorf("fail to generate sub: %w", err)
+	}
 
 	// Add the component
+	g := genny.New()
 	g.RunFn(moduleModify(replacer, opts))
 	g.RunFn(protoModify(opts))
-	g.RunFn(eventModify(replacer, opts))
-	if err := g.Box(componentTemplate); err != nil {
+	g.RunFn(eventModify(opts))
+	if err := g.OnlyFS(subPacketComponent, nil, nil); err != nil {
 		return g, err
 	}
 
@@ -80,7 +74,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 		g.RunFn(protoTxModify(opts))
 		g.RunFn(clientCliTxModify(opts))
 		g.RunFn(codecModify(opts))
-		if err := g.Box(messagesTemplate); err != nil {
+		if err := g.OnlyFS(subPacketMessages, nil, nil); err != nil {
 			return g, err
 		}
 	}
@@ -103,17 +97,12 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	g.Transformer(genny.Replace("{{protoVer}}", opts.ProtoVer))
 	g.Transformer(genny.Replace("{{packetName}}", opts.PacketName.Snake))
 
-	// Create the 'testutil' package with the test helpers
-	if err := testutil.Register(g, opts.AppPath); err != nil {
-		return g, err
-	}
-
 	return g, nil
 }
 
 func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module/module_ibc.go")
+		path := filepath.Join("x", opts.ModuleName, "module/module_ibc.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -272,23 +261,27 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 	}
 }
 
-func eventModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
+func eventModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/events_ibc.go")
+		path := filepath.Join("x", opts.ModuleName, "types/events_ibc.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
-		template := `EventType%[2]vPacket       = "%[3]v_packet"
-%[1]v`
-		replacement := fmt.Sprintf(
-			template,
-			PlaceholderIBCPacketEvent,
-			opts.PacketName.UpperCamel,
-			opts.PacketName.LowerCamel,
+		// Keeper declaration
+		content, err := xast.InsertGlobal(
+			f.String(),
+			xast.GlobalTypeConst,
+			xast.WithGlobal(
+				fmt.Sprintf("EventType%[1]vPacket", opts.PacketName.UpperCamel),
+				"",
+				fmt.Sprintf(`"%[1]v_packet"`, opts.PacketName.LowerCamel),
+			),
 		)
-		content := replacer.Replace(f.String(), PlaceholderIBCPacketEvent, replacement)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -330,8 +323,13 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 		for i, field := range opts.Fields {
 			sendFields = append(sendFields, field.ToProtoField(i+5))
 		}
+
+		// set address options on signer field
+		signerField := protoutil.NewField(opts.MsgSigner.Snake, "string", 1)
+		signerField.Options = append(signerField.Options, protoutil.NewOption("cosmos_proto.scalar", "cosmos.AddressString", protoutil.Custom()))
+
 		sendFields = append(sendFields,
-			protoutil.NewField(opts.MsgSigner.Snake, "string", 1),
+			signerField,
 			protoutil.NewField("port", "string", 2),
 			protoutil.NewField("channelID", "string", 3),
 			protoutil.NewField("timeoutTimestamp", "uint64", 4),
@@ -368,7 +366,7 @@ func protoTxModify(opts *PacketOptions) genny.RunFn {
 // clientCliTxModify does not use AutoCLI here, because it as a better UX as it is.
 func clientCliTxModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		filePath := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/tx.go")
+		filePath := filepath.Join("x", opts.ModuleName, "client/cli/tx.go")
 		f, err := r.Disk.Find(filePath)
 		if err != nil {
 			return err
@@ -390,14 +388,14 @@ func clientCliTxModify(opts *PacketOptions) genny.RunFn {
 
 func codecModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/codec.go")
+		path := filepath.Join("x", opts.ModuleName, "types/codec.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
 		// Set import if not set yet
-		content, err := xast.AppendImports(f.String(), xast.WithLastNamedImport("sdk", "github.com/cosmos/cosmos-sdk/types"))
+		content, err := xast.AppendImports(f.String(), xast.WithNamedImport("sdk", "github.com/cosmos/cosmos-sdk/types"))
 		if err != nil {
 			return err
 		}

@@ -5,156 +5,134 @@ package list_test
 import (
 	"testing"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
 	envtest "github.com/ignite/cli/v29/integration"
 )
 
 func TestGenerateAnAppWithListAndVerify(t *testing.T) {
 	var (
-		env = envtest.New(t)
-		app = env.Scaffold("github.com/test/blog")
+		env     = envtest.New(t)
+		app     = env.ScaffoldApp("github.com/test/blog")
+		servers = app.RandomizeServerPorts()
 	)
 
-	env.Must(env.Exec("create a module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "module", "--yes", "example", "--require-registration"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a module",
+		false,
+		"module", "example", "--require-registration",
+	)
 
-	env.Must(env.Exec("create a list",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "user", "email"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a list",
+		false,
+		"list", "user", "email",
+	)
 
-	env.Must(env.Exec("create a list with custom path and module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
-				"s",
-				"list",
-				"--yes",
-				"AppPath",
-				"email",
-				"--path",
-				"blog",
-				"--module",
-				"example",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a list with custom path and module",
+		false,
+		"list",
+		"AppPath",
+		"email",
+		"--path",
+		"blog",
+		"--module",
+		"example",
+	)
 
-	env.Must(env.Exec("create a custom type fields",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
-				"s",
-				"list",
-				"--yes",
-				"employee",
-				"numInt:int",
-				"numsInt:array.int",
-				"numsIntAlias:ints",
-				"numUint:uint",
-				"numsUint:array.uint",
-				"numsUintAlias:uints",
-				"textString:string",
-				"textStrings:array.string",
-				"textStringsAlias:strings",
-				"textCoin:coin",
-				"textCoins:array.coin",
-				"textCoinsAlias:coins",
-				"--no-simulation",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a custom type fields",
+		false,
+		"list",
+		"employee",
+		"numInt:int",
+		"numsInt:array.int",
+		"numsIntAlias:ints",
+		"numUint:uint",
+		"numsUint:array.uint",
+		"numsUintAlias:uints",
+		"textString:string",
+		"textStrings:array.string",
+		"textStringsAlias:strings",
+		"textCoin:coin",
+		"textCoins:array.coin",
+		"--no-simulation",
+	)
 
-	env.Must(env.Exec("create a list with bool",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
-				"s",
-				"list",
-				"--yes",
-				"document",
-				"signed:bool",
-				"--module",
-				"example",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a list with bool",
+		false,
+		"list",
+		"document",
+		"signed:bool",
+		"textCoinsAlias:coins",
+		"--module",
+		"example",
+	)
 
-	env.Must(env.Exec("create a list with custom field type",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp,
-				"s",
-				"list",
-				"--yes",
-				"custom",
-				"document:Document",
-				"--module",
-				"example",
-			),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"create a list with decimal coin",
+		false,
+		"list",
+		"decimal",
+		"deccointype:dec.coin",
+		"deccoins:dec.coins",
+		"--module",
+		"example",
+	)
 
-	env.Must(env.Exec("should prevent creating a list with duplicated fields",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "company", "name", "name"),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"create a list with custom field type",
+		false,
+		"list",
+		"custom",
+		"document:Document",
+		"--module",
+		"example",
+	)
 
-	env.Must(env.Exec("should prevent creating a list with unrecognized field type",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "employee", "level:itn"),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"should prevent creating a list with duplicated fields",
+		true,
+		"list", "company", "name", "name",
+	)
 
-	env.Must(env.Exec("should prevent creating an existing list",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "user", "email"),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"should prevent creating a list with unrecognized field type",
+		true,
+		"list", "invalidField", "level:itn",
+	)
 
-	env.Must(env.Exec("should prevent creating a list whose name is a reserved word",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "map", "size:int"),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"should prevent creating an existing list",
+		true,
+		"list", "user", "email",
+	)
 
-	env.Must(env.Exec("should prevent creating a list containing a field with a reserved word",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "document", "type:int"),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"should prevent creating a list whose name is a reserved word",
+		true,
+		"list", "map", "size:int",
+	)
 
-	env.Must(env.Exec("create a list with no interaction message",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "nomessage", "email", "--no-message"),
-			step.Workdir(app.SourcePath()),
-		)),
-	))
+	app.Scaffold(
+		"should prevent creating a list containing a field with a reserved word",
+		true,
+		"list", "document", "type:int",
+	)
 
-	env.Must(env.Exec("should prevent creating a list in a non existent module",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "list", "--yes", "user", "email", "--module", "idontexist"),
-			step.Workdir(app.SourcePath()),
-		)),
-		envtest.ExecShouldError(),
-	))
+	app.Scaffold(
+		"create a list with no interaction message",
+		false,
+		"list", "nomessage", "email", "--no-message",
+	)
+
+	app.Scaffold(
+		"should prevent creating a list in a non existent module",
+		true,
+		"list", "user", "email", "--module", "idontexist",
+	)
 
 	app.EnsureSteady()
+
+	app.RunChainAndSimulateTxs(servers)
 }

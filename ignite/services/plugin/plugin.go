@@ -148,18 +148,8 @@ func newPlugin(pluginsDir string, cp pluginsconfig.Plugin, options ...Option) *P
 		apply(p)
 	}
 
-	// This is a local plugin, check if the file exists
-	if pluginsconfig.IsLocalPath(pluginPath) {
-		// if directory is relative, make it absolute
-		if !filepath.IsAbs(pluginPath) {
-			pluginPathAbs, err := filepath.Abs(pluginPath)
-			if err != nil {
-				p.Error = errors.Errorf("failed to get absolute path of %s: %w", pluginPath, err)
-				return p
-			}
-
-			pluginPath = pluginPathAbs
-		}
+	// This is a local plugin, check if the directory exists
+	if filepath.IsAbs(pluginPath) {
 
 		st, err := os.Stat(pluginPath)
 		if err != nil {
@@ -275,7 +265,7 @@ func (p *Plugin) load(ctx context.Context) {
 	}
 	// Create an hclog.Logger
 	logLevel := hclog.Error
-	if env.DebugEnabled() {
+	if env.IsDebug() {
 		logLevel = hclog.Trace
 	}
 	logger := hclog.New(&hclog.LoggerOptions{

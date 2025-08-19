@@ -1,6 +1,8 @@
 package ignitecmd
 
 import (
+	"path/filepath"
+
 	"github.com/spf13/cobra"
 
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
@@ -11,7 +13,6 @@ import (
 // NewScaffoldVue scaffolds a Vue.js app for a chain.
 func NewScaffoldVue() *cobra.Command {
 	c := &cobra.Command{
-		Hidden:  true, // hidden util we have a better ts-client.
 		Use:     "vue",
 		Short:   "Vue 3 web app template",
 		Args:    cobra.NoArgs,
@@ -20,16 +21,18 @@ func NewScaffoldVue() *cobra.Command {
 	}
 
 	c.Flags().AddFlagSet(flagSetYes())
-	c.Flags().StringP(flagPath, "p", "./"+chainconfig.DefaultVuePath, "path to scaffold content of the Vue.js app")
 
 	return c
 }
 
 func scaffoldVueHandler(cmd *cobra.Command, _ []string) error {
-	session := cliui.New(cliui.StartSpinnerWithText(statusScaffolding))
+	session := cliui.New(
+		cliui.StartSpinnerWithText(statusScaffolding),
+		cliui.WithoutUserInteraction(getYes(cmd)),
+	)
 	defer session.End()
 
-	path := flagGetPath(cmd)
+	path := filepath.Join(".", chainconfig.DefaultVuePath)
 	if err := cosmosgen.Vue(path); err != nil {
 		return err
 	}
