@@ -1213,9 +1213,9 @@ ignite generate ts-client [flags]
 **Options**
 
 ```
+      --disable-cache   disable build cache
   -h, --help            help for ts-client
   -o, --output string   TypeScript client output path
-      --use-cache       use build cache to speed-up generation
   -y, --yes             answers interactive yes/no questions with yes
 ```
 
