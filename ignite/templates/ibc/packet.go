@@ -12,7 +12,6 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
@@ -50,7 +49,7 @@ func (opts *PacketOptions) ProtoFile(fname string) string {
 }
 
 // NewPacket returns the generator to scaffold a packet in an IBC module.
-func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Generator, error) {
+func NewPacket(opts *PacketOptions) (*genny.Generator, error) {
 	subPacketComponent, err := fs.Sub(fsPacketComponent, "files/packet/component")
 	if err != nil {
 		return nil, errors.Errorf("fail to generate sub: %w", err)
@@ -62,7 +61,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 
 	// Add the component
 	g := genny.New()
-	g.RunFn(moduleModify(replacer, opts))
+	g.RunFn(moduleModify(opts))
 	g.RunFn(protoModify(opts))
 	g.RunFn(eventModify(opts))
 	if err := g.OnlyFS(subPacketComponent, nil, nil); err != nil {
@@ -100,7 +99,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	return g, nil
 }
 
-func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
+func moduleModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join("x", opts.ModuleName, "module/module_ibc.go")
 		f, err := r.Disk.Find(path)
@@ -109,8 +108,7 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 		}
 
 		// Recv packet dispatch
-		templateRecv := `case *types.%[2]vPacketData_%[3]vPacket:
-	packetAck, err := im.keeper.OnRecv%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket)
+		templateRecv := `packetAck, err := im.keeper.OnRecv%[1]vPacket(ctx, modulePacket, *packet.%[1]vPacket)
 	if err != nil {
 		ack = channeltypes.NewErrorAcknowledgement(err)
 	} else {
@@ -126,51 +124,72 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
     sdkCtx.EventManager().EmitEvent(
         sdk.NewEvent(
-			types.EventType%[3]vPacket,
+			types.EventType%[1]vPacket,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
 			sdk.NewAttribute(types.AttributeKeyAckSuccess, fmt.Sprintf("%%t", err != nil)),
         ),
-    )
-
-%[1]v`
+    )`
 		replacementRecv := fmt.Sprintf(
 			templateRecv,
-			PlaceholderIBCPacketModuleRecv,
-			xstrings.Title(opts.ModuleName),
 			opts.PacketName.UpperCamel,
 		)
-		content := replacer.Replace(f.String(), PlaceholderIBCPacketModuleRecv, replacementRecv)
+		content, err := xast.ModifyFunction(
+			f.String(),
+			"OnRecvPacket",
+			xast.AppendSwitchCase(
+				"packet := modulePacketData.Packet.(type)",
+				fmt.Sprintf("*types.%[1]vPacketData_%[2]vPacket", xstrings.Title(opts.ModuleName), opts.PacketName.UpperCamel),
+				replacementRecv,
+			),
+		)
+		if err != nil {
+			return err
+		}
 
 		// Ack packet dispatch
-		templateAck := `case *types.%[2]vPacketData_%[3]vPacket:
-	err := im.keeper.OnAcknowledgement%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket, ack)
+		templateAck := `err := im.keeper.OnAcknowledgement%[1]vPacket(ctx, modulePacket, *packet.%[1]vPacket, ack)
 	if err != nil {
 		return err
 	}
-	eventType = types.EventType%[3]vPacket
-%[1]v`
+	eventType = types.EventType%[1]vPacket`
 		replacementAck := fmt.Sprintf(
 			templateAck,
-			PlaceholderIBCPacketModuleAck,
-			xstrings.Title(opts.ModuleName),
 			opts.PacketName.UpperCamel,
 		)
-		content = replacer.Replace(content, PlaceholderIBCPacketModuleAck, replacementAck)
+		content, err = xast.ModifyFunction(
+			content,
+			"OnAcknowledgementPacket",
+			xast.AppendSwitchCase(
+				"packet := modulePacketData.Packet.(type)",
+				fmt.Sprintf("*types.%[1]vPacketData_%[2]vPacket", xstrings.Title(opts.ModuleName), opts.PacketName.UpperCamel),
+				replacementAck,
+			),
+		)
+		if err != nil {
+			return err
+		}
 
 		// Timeout packet dispatch
-		templateTimeout := `case *types.%[2]vPacketData_%[3]vPacket:
-	err := im.keeper.OnTimeout%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket)
+		templateTimeout := `err := im.keeper.OnTimeout%[1]vPacket(ctx, modulePacket, *packet.%[1]vPacket)
 	if err != nil {
 		return err
-	}
-%[1]v`
+	}`
 		replacementTimeout := fmt.Sprintf(
 			templateTimeout,
-			PlaceholderIBCPacketModuleTimeout,
-			xstrings.Title(opts.ModuleName),
 			opts.PacketName.UpperCamel,
 		)
-		content = replacer.Replace(content, PlaceholderIBCPacketModuleTimeout, replacementTimeout)
+		content, err = xast.ModifyFunction(
+			content,
+			"OnTimeoutPacket",
+			xast.AppendSwitchCase(
+				"packet := modulePacketData.Packet.(type)",
+				fmt.Sprintf("*types.%[1]vPacketData_%[2]vPacket", xstrings.Title(opts.ModuleName), opts.PacketName.UpperCamel),
+				replacementTimeout,
+			),
+		)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

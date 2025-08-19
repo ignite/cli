@@ -5,6 +5,7 @@
 ### Features
 
 - [#4790](https://github.com/ignite/cli/pull/4790) Remove global vars and struct placeholders.
+- [#4797](https://github.com/ignite/cli/pull/4797) Add `xast` function to append new switch clause.
 
 ## [`v29.3.1`](https://github.com/ignite/cli/releases/tag/v29.3.1)
 

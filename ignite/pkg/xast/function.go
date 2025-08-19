@@ -16,19 +16,29 @@ import (
 type (
 	// functionOpts represent the options for functions.
 	functionOpts struct {
-		funcName       string          // Name of the function to modify.
-		newParams      []functionParam // Parameters to add to the function.
-		body           string          // New function body content.
-		newLines       []functionLine  // Lines to insert at specific positions.
-		insideCall     functionCalls   // Function calls to modify.
-		insideStruct   functionStructs // Struct literals to modify.
-		appendTestCase []string        // Test cases to append.
-		appendCode     []string        // Code to append at the end.
-		returnVars     []string        // Return variables to modify.
+		newParams      []functionParam  // Parameters to add to the function.
+		body           string           // New function body content.
+		newLines       []functionLine   // Lines to insert at specific positions.
+		insideCall     functionCalls    // Function calls to modify.
+		insideStruct   functionStructs  // Struct literals to modify.
+		appendTestCase []string         // Test cases to append.
+		appendCode     []string         // Code to append at the end.
+		returnVars     []string         // Return variables to modify.
+		appendSwitch   functionSwitches // Switch cases to append.
 	}
 
 	// FunctionOptions configures code generation.
 	FunctionOptions func(*functionOpts)
+
+	// functionStruct represents a struct literal to modify.
+	functionSwitch struct {
+		condition  string // Condition to find.
+		switchCase string // Switch case to insert.
+		switchBody string // Code to insert.
+	}
+
+	functionSwitches    []functionSwitch
+	functionSwitchesMap map[string]functionSwitches
 
 	// functionStruct represents a struct literal to modify.
 	functionStruct struct {
@@ -81,6 +91,19 @@ func (s functionStructs) Map() functionStructsMap {
 		structMap[c.name] = append(structs, c)
 	}
 	return structMap
+}
+
+// Map converts a slice of functionStructs to a map keyed by struct name.
+func (s functionSwitches) Map() functionSwitchesMap {
+	switchesMap := make(functionSwitchesMap)
+	for _, c := range s {
+		switches, ok := switchesMap[c.condition]
+		if !ok {
+			switches = make(functionSwitches, 0)
+		}
+		switchesMap[c.condition] = append(switches, c)
+	}
+	return switchesMap
 }
 
 // Map converts a slice of functionCalls to a map keyed by function name.
@@ -173,10 +196,20 @@ func NewFuncReturn(returnVars ...string) FunctionOptions {
 	}
 }
 
+// AppendSwitchCase inserts a new case with the code at a specific switch condition statement.
+func AppendSwitchCase(condition, switchCase, switchBody string) FunctionOptions {
+	return func(c *functionOpts) {
+		c.appendSwitch = append(c.appendSwitch, functionSwitch{
+			condition:  condition,
+			switchCase: switchCase,
+			switchBody: switchBody,
+		})
+	}
+}
+
 // newFunctionOptions creates a new functionOpts with defaults.
-func newFunctionOptions(funcName string) functionOpts {
+func newFunctionOptions() functionOpts {
 	return functionOpts{
-		funcName:       funcName,
 		newParams:      make([]functionParam, 0),
 		body:           "",
 		newLines:       make([]functionLine, 0),
@@ -191,7 +224,7 @@ func newFunctionOptions(funcName string) functionOpts {
 // ModifyFunction modifies a function in Go source code using functional options.
 func ModifyFunction(content string, funcName string, functions ...FunctionOptions) (string, error) {
 	// Collect all function options.
-	opts := newFunctionOptions(funcName)
+	opts := newFunctionOptions()
 	for _, fn := range functions {
 		fn(&opts)
 	}
@@ -254,6 +287,55 @@ func modifyReturnVars(fileSet *token.FileSet, returnVars []string) ([]ast.Expr, 
 		stmts = append(stmts, newRetExpr)
 	}
 	return stmts, nil
+}
+
+// appendSwitchCase appends a new case to a switch statement.
+func appendSwitchCase(fileSet *token.FileSet, stmt ast.Node, fs functionSwitches) error {
+	for _, f := range fs {
+		// Parse the new case code
+		newRetExpr, err := parser.ParseExprFrom(fileSet, "", []byte(f.switchCase), parser.ParseComments)
+		if err != nil {
+			return err
+		}
+
+		bodyStmt, err := codeToBlockStmt(fileSet, f.switchBody)
+		if err != nil {
+			return err
+		}
+
+		// Create a new case clause
+		newCase := &ast.CaseClause{
+			List:  []ast.Expr{newRetExpr},
+			Body:  bodyStmt.List,
+			Case:  token.NoPos, // Keep first item aligned with case keyword
+			Colon: token.NoPos, // Keep colon aligned with case keyword
+		}
+
+		// Handle different types of switch statements
+		switch statement := stmt.(type) {
+		case *ast.TypeSwitchStmt:
+			statement.Body.List = appendCaseToList(statement.Body.List, newCase)
+		case *ast.SwitchStmt:
+			statement.Body.List = appendCaseToList(statement.Body.List, newCase)
+		default:
+			return errors.Errorf("unsupported switch statement type: %T", stmt)
+		}
+	}
+	return nil
+}
+
+// appendCaseToList handles inserting a case clause into a list of statements,
+// placing it before any default case if one exists.
+func appendCaseToList(list []ast.Stmt, newCase *ast.CaseClause) []ast.Stmt {
+	if len(list) > 0 {
+		lastCase, isDefault := list[len(list)-1].(*ast.CaseClause)
+		if isDefault && len(lastCase.List) == 0 {
+			// Insert before default.
+			return append(list[:len(list)-1], newCase, list[len(list)-1])
+		}
+	}
+
+	return append(list, newCase)
 }
 
 // addParams adds new parameters to a function declaration.
@@ -371,7 +453,7 @@ func addTestCase(fSet *token.FileSet, funcDecl *ast.FuncDecl, testCase []string)
 // structToBlockStmt parses struct literal code into AST expression.
 func structToBlockStmt(fSet *token.FileSet, code string) (ast.Expr, error) {
 	newFuncContent := toStruct(code)
-	newContent, err := parser.ParseExprFrom(fSet, "temp.go", newFuncContent, parser.AllErrors)
+	newContent, err := parser.ParseExprFrom(fSet, "", newFuncContent, parser.AllErrors)
 	if err != nil {
 		return nil, err
 	}
@@ -498,7 +580,8 @@ func formatNode(fileSet *token.FileSet, n ast.Node) (string, error) {
 		return "", err
 	}
 
-	return buf.String(), nil
+	node := strings.TrimSpace(buf.String())
+	return node, nil
 }
 
 // applyFunctionOptions applies all modifications to a function.
@@ -526,20 +609,19 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 
 	// Create maps for tracking modifications.
 	var (
-		callMap        = opts.insideCall.Map()
-		callMapCheck   = opts.insideCall.Map()
-		structMap      = opts.insideStruct.Map()
-		structMapCheck = opts.insideStruct.Map()
+		callMap               = opts.insideCall.Map()
+		callMapCheck          = opts.insideCall.Map()
+		structMap             = opts.insideStruct.Map()
+		structMapCheck        = opts.insideStruct.Map()
+		switchesCasesMap      = opts.appendSwitch.Map()
+		switchesCasesMapCheck = opts.appendSwitch.Map()
 	)
 
 	// Apply all modifications.
-	var (
-		found      bool
-		errInspect error
-	)
+	var errInspect error
 	ast.Inspect(f, func(n ast.Node) bool {
 		funcDecl, ok := n.(*ast.FuncDecl)
-		if !ok || funcDecl.Name.Name != opts.funcName {
+		if !ok {
 			return true
 		}
 
@@ -565,6 +647,39 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 		if err := modifyReturn(funcDecl, returnStmts, appendCode); err != nil {
 			errInspect = err
 			return false
+		}
+
+		for _, bodyList := range funcDecl.Body.List {
+			var stmt ast.Stmt
+			var buf bytes.Buffer
+			switch expr := bodyList.(type) {
+			case *ast.TypeSwitchStmt:
+				stmt = expr
+				if err := format.Node(&buf, fileSet, expr.Assign); err != nil {
+					errInspect = err
+					return false
+				}
+			case *ast.SwitchStmt:
+				stmt = expr
+				if err := format.Node(&buf, fileSet, expr.Tag); err != nil {
+					errInspect = err
+					return false
+				}
+			default:
+				continue
+			}
+
+			switchCase, ok := switchesCasesMap[buf.String()]
+			if !ok {
+				continue
+			}
+
+			if err := appendSwitchCase(fileSet, stmt, switchCase); err != nil {
+				errInspect = err
+				return false
+			}
+
+			delete(switchesCasesMapCheck, buf.String())
 		}
 
 		// Modify function calls and struct literals.
@@ -610,31 +725,28 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 			return false
 		}
 
-		// Verify all modifications were applied.
-		if len(callMapCheck) > 0 {
-			errInspect = errors.Errorf("function calls not found: %v", callMapCheck)
-			return false
-		}
-		if len(structMapCheck) > 0 {
-			errInspect = errors.Errorf("function structs not found: %v", structMapCheck)
-			return false
-		}
-
 		// Add test cases.
 		if err := addTestCase(fileSet, funcDecl, opts.appendTestCase); err != nil {
 			errInspect = err
 			return false
 		}
 
-		found = true
 		return false
 	})
 
 	if errInspect != nil {
 		return errInspect
 	}
-	if !found {
-		return errors.Errorf("function %s not found in file content", opts.funcName)
+
+	// Verify all modifications were applied.
+	if len(callMapCheck) > 0 {
+		return errors.Errorf("function calls not found: %v", callMapCheck)
+	}
+	if len(structMapCheck) > 0 {
+		return errors.Errorf("function structs not found: %v", structMapCheck)
+	}
+	if len(switchesCasesMapCheck) > 0 {
+		return errors.Errorf("function switch not found: %v", switchesCasesMapCheck)
 	}
 
 	return nil

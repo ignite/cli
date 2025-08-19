@@ -1,7 +1,6 @@
 package xast
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 	"testing"
@@ -70,6 +69,164 @@ func TestValidate(t *testing.T) {
 		want string
 		err  error
 	}{
+		{
+			name: "add a case to switch statement",
+			args: args{
+				fileContent: `package test
+
+func processPacket(packet interface{}) error {
+    switch packet := packet.(type) {
+    default:
+        return fmt.Errorf("unknown packet type: %T", packet)
+    }
+}`,
+				functionName: "processPacket",
+				functions: []FunctionOptions{
+					AppendSwitchCase(
+						"packet := packet.(type)",
+						"*types.FooPacket",
+						"return handleFooPacket(packet)",
+					),
+				},
+			},
+			want: `package test
+
+func processPacket(packet interface{}) error {
+	switch packet := packet.(type) {
+	case *types.FooPacket:
+		return handleFooPacket(packet)
+
+	default:
+		return fmt.Errorf("unknown packet type: %T", packet)
+	}
+}`,
+		},
+		{
+			name: "add multiple cases to switch statement",
+			args: args{
+				fileContent: `package test
+
+func handlePacket(data interface{}) error {
+    switch v := data.(type) {
+    case string:
+        return processString(v)
+    default:
+        return fmt.Errorf("unsupported type: %T", v)
+    }
+}`,
+				functionName: "handlePacket",
+				functions: []FunctionOptions{
+					AppendSwitchCase(
+						"v := data.(type)",
+						"int",
+						"return processInt(v)",
+					),
+					AppendSwitchCase(
+						"v := data.(type)",
+						"bool",
+						"return processBool(v)",
+					),
+				},
+			},
+			want: `package test
+
+func handlePacket(data interface{}) error {
+	switch v := data.(type) {
+	case string:
+		return processString(v)
+	case int:
+		return processInt(v)
+	case bool:
+		return processBool(v)
+
+	default:
+		return fmt.Errorf("unsupported type: %T", v)
+	}
+}`,
+		},
+		{
+			name: "add multiple cases to two switch statement",
+			args: args{
+				fileContent: `package test
+
+func handlePacket(data interface{}) error {
+    switch v := data.(type) {
+    case string:
+        return processString(v)
+    default:
+        return fmt.Errorf("unsupported type: %T", v)
+    }
+
+    switch x {
+    case 1:
+        return "one"
+    default:
+        return "unknown"
+    }
+}`,
+				functionName: "handlePacket",
+				functions: []FunctionOptions{
+					AppendSwitchCase(
+						"v := data.(type)",
+						"int",
+						"return processInt(v)",
+					),
+					AppendSwitchCase(
+						"x",
+						"2",
+						`return "two"`,
+					),
+				},
+			},
+			want: `package test
+
+func handlePacket(data interface{}) error {
+	switch v := data.(type) {
+	case string:
+		return processString(v)
+	case int:
+		return processInt(v)
+
+	default:
+		return fmt.Errorf("unsupported type: %T", v)
+	}
+
+	switch x {
+	case 1:
+		return "one"
+	case 2:
+		return "two"
+
+	default:
+		return "unknown"
+	}
+}`,
+		},
+		{
+			name: "add case to switch with non-matching condition",
+			args: args{
+				fileContent: `package test
+
+func process(x int) string {
+    switch x {
+    case 1:
+        return "one"
+    default:
+        return "unknown"
+    }
+}`,
+				functionName: "process",
+				functions: []FunctionOptions{
+					AppendSwitchCase(
+						"wrongCondition",
+						"2",
+						`return "two"`,
+					),
+				},
+			},
+			err: errors.New("function switch not found: map[wrongCondition:[{wrongCondition 2 return \"two\"}]]"),
+		},
+
 		{
 			name: "add all modifications type",
 			args: args{
@@ -150,8 +307,7 @@ func TestValidate(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
-}
-`,
+}`,
 		},
 		{
 			name: "add the replace body",
@@ -198,8 +354,7 @@ func TestValidate(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
-}
-`,
+}`,
 		},
 		{
 			name: "add a new test case",
@@ -261,8 +416,7 @@ func TestValidate(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
-}
-`,
+}`,
 		},
 		{
 			name: "add two test cases",
@@ -279,8 +433,7 @@ func TestValidate(t *testing.T) {
 {
 	desc:     "valid second genesis state",
 	genState: GenesisState{},
-}
-`),
+}`),
 				},
 			},
 			want: `package main
@@ -334,8 +487,7 @@ func TestValidate(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
-}
-`,
+}`,
 		},
 		{
 			name: "add append line and code modification",
@@ -398,8 +550,7 @@ func TestValidate(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
-}
-`,
+}`,
 		},
 		{
 			name: "add all modifications type",
@@ -408,7 +559,7 @@ func TestValidate(t *testing.T) {
 				functionName: "anotherFunction",
 				functions:    []FunctionOptions{NewFuncReturn("1")},
 			},
-			want: strings.ReplaceAll(existingContent, "return true", "return 1\n") + "\n",
+			want: strings.ReplaceAll(existingContent, "return true", "return 1\n"),
 		},
 		{
 			name: "add inside call modifications",
@@ -467,8 +618,7 @@ func TestValidate(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
-}
-`,
+}`,
 		},
 		{
 			name: "add inside struct modifications",
@@ -511,8 +661,7 @@ func TestValidate(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
-}
-`,
+}`,
 				functionName: "anotherFunction",
 				functions: []FunctionOptions{
 					AppendFuncStruct("Param", "Bar", "bar"),
@@ -560,8 +709,7 @@ func TestValidate(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
-}
-`,
+}`,
 		},
 		{
 			name: "function without test case assertion",
@@ -575,7 +723,7 @@ func TestValidate(t *testing.T) {
 					}`),
 				},
 			},
-			want: fmt.Sprintln(existingContent),
+			want: existingContent,
 		},
 		{
 			name: "params out of range",
@@ -674,7 +822,7 @@ func TestValidate(t *testing.T) {
 				functionName: "anotherFunction",
 				functions:    []FunctionOptions{},
 			},
-			want: existingContent + "\n",
+			want: existingContent,
 		},
 	}
 	for _, tt := range tests {
