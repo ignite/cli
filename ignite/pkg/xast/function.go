@@ -16,7 +16,6 @@ import (
 type (
 	// functionOpts represent the options for functions.
 	functionOpts struct {
-		funcName       string           // Name of the function to modify.
 		newParams      []functionParam  // Parameters to add to the function.
 		body           string           // New function body content.
 		newLines       []functionLine   // Lines to insert at specific positions.
@@ -209,9 +208,8 @@ func AppendSwitchCase(condition, switchCase, switchBody string) FunctionOptions 
 }
 
 // newFunctionOptions creates a new functionOpts with defaults.
-func newFunctionOptions(funcName string) functionOpts {
+func newFunctionOptions() functionOpts {
 	return functionOpts{
-		funcName:       funcName,
 		newParams:      make([]functionParam, 0),
 		body:           "",
 		newLines:       make([]functionLine, 0),
@@ -226,7 +224,7 @@ func newFunctionOptions(funcName string) functionOpts {
 // ModifyFunction modifies a function in Go source code using functional options.
 func ModifyFunction(content string, funcName string, functions ...FunctionOptions) (string, error) {
 	// Collect all function options.
-	opts := newFunctionOptions(funcName)
+	opts := newFunctionOptions()
 	for _, fn := range functions {
 		fn(&opts)
 	}
@@ -620,16 +618,12 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 	)
 
 	// Apply all modifications.
-	var (
-		found      bool
-		errInspect error
-	)
+	var errInspect error
 	ast.Inspect(f, func(n ast.Node) bool {
 		funcDecl, ok := n.(*ast.FuncDecl)
-		if !ok || funcDecl.Name.Name != opts.funcName {
+		if !ok {
 			return true
 		}
-		found = true
 
 		// Add parameters.
 		if err := addParams(funcDecl, opts.newParams); err != nil {
@@ -742,9 +736,6 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 
 	if errInspect != nil {
 		return errInspect
-	}
-	if !found {
-		return errors.Errorf("function %s not found in file content", opts.funcName)
 	}
 
 	// Verify all modifications were applied.
