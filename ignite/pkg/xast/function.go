@@ -731,20 +731,6 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 			return false
 		}
 
-		// Verify all modifications were applied.
-		if len(callMapCheck) > 0 {
-			errInspect = errors.Errorf("function calls not found: %v", callMapCheck)
-			return false
-		}
-		if len(structMapCheck) > 0 {
-			errInspect = errors.Errorf("function structs not found: %v", structMapCheck)
-			return false
-		}
-		if len(switchesCasesMapCheck) > 0 {
-			errInspect = errors.Errorf("function switch not found: %v", switchesCasesMapCheck)
-			return false
-		}
-
 		// Add test cases.
 		if err := addTestCase(fileSet, funcDecl, opts.appendTestCase); err != nil {
 			errInspect = err
@@ -759,6 +745,17 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 	}
 	if !found {
 		return errors.Errorf("function %s not found in file content", opts.funcName)
+	}
+
+	// Verify all modifications were applied.
+	if len(callMapCheck) > 0 {
+		return errors.Errorf("function calls not found: %v", callMapCheck)
+	}
+	if len(structMapCheck) > 0 {
+		return errors.Errorf("function structs not found: %v", structMapCheck)
+	}
+	if len(switchesCasesMapCheck) > 0 {
+		return errors.Errorf("function switch not found: %v", switchesCasesMapCheck)
 	}
 
 	return nil
