@@ -11,6 +11,10 @@
 
 - [#4794](https://github.com/ignite/cli/pull/4794) Update `cosmossdk.io/log` version to `v1.6.1` and remove `bytedance/sonic` version override from template.
 
+### Fixes
+
+- [#4803](https://github.com/ignite/cli/pull/4803) Fix simulations for custom address prefix.
+
 ## [`v29.3.1`](https://github.com/ignite/cli/releases/tag/v29.3.1)
 
 ### Fixes

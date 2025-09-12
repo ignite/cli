@@ -14,10 +14,10 @@ require (
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/charmbracelet/bubbles v0.21.0
 	github.com/charmbracelet/bubbletea v1.3.5
-	github.com/charmbracelet/fang v0.3.0
+	github.com/charmbracelet/fang v0.4.0
 	github.com/charmbracelet/glow v1.5.1
 	github.com/charmbracelet/lipgloss v1.1.0
-	github.com/charmbracelet/lipgloss/v2 v2.0.0-beta.2
+	github.com/charmbracelet/lipgloss/v2 v2.0.0-beta.3
 	github.com/cockroachdb/errors v1.12.0
 	github.com/cometbft/cometbft v0.38.17
 	github.com/cosmos/cosmos-sdk v0.53.3

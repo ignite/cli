@@ -11,7 +11,7 @@ import (
 	circuitkeeper "cosmossdk.io/x/circuit/keeper"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
 	storetypes "cosmossdk.io/store/types"
-	
+
 	abci "github.com/cometbft/cometbft/abci/types"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -103,9 +103,6 @@ type App struct {
 }
 
 func init() {
-	<%= if (DefaultDenom) { %>
-	sdk.DefaultBondDenom = "<%= DefaultDenom %>"
-	<% } %>
 	var err error
 	clienthelpers.EnvPrefix = Name
 	DefaultNodeHome, err = clienthelpers.GetNodeHomeDirectory("." + Name)
