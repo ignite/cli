@@ -2,12 +2,16 @@ package cosmosgen
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"golang.org/x/sync/errgroup"
 
@@ -19,11 +23,15 @@ import (
 )
 
 var (
+	bufTokenEnvName = "BUF_TOKEN"
+
 	dirchangeCacheNamespace = "generate.typescript.dirchange"
 
 	protocGenTSProtoBin = "protoc-gen-ts_proto"
 
 	msgBufAuth = "Note: Buf is limits remote plugin requests from unauthenticated users on 'buf.build'. Intensively using this function will get you rate limited. Authenticate with 'buf registry login' to avoid this (https://buf.build/docs/generate/auth-required)."
+
+	bufTokenEndpoint = "https://api.ignite.com/v1/buf/token"
 )
 
 const localTSProtoTmpl = `version: v1
@@ -54,7 +62,15 @@ func newTSGenerator(g *generator) *tsGenerator {
 	}
 
 	if !tsg.isLocalProto {
-		log.Printf("No '%s' binary found in PATH, using remote buf plugin for Typescript generation. %s\n", protocGenTSProtoBin, msgBufAuth)
+		if os.Getenv(bufTokenEnvName) == "" {
+			// fetch ignite buf.build token
+			token, err := fetchBufToken()
+			if err != nil {
+				log.Printf("No '%s' binary found in PATH, using remote buf plugin for Typescript generation. %s\n", protocGenTSProtoBin, msgBufAuth)
+			} else {
+				os.Setenv(bufTokenEnvName, token)
+			}
+		}
 	}
 
 	return tsg
@@ -249,4 +265,32 @@ func (g *tsGenerator) generateRootTemplates(p generatePayload) error {
 	}
 
 	return templateTSClientRoot.Write(outDir, "", p)
+}
+
+// fetchBufToken fetches the buf token from the ignite API
+func fetchBufToken() (string, error) {
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+
+	resp, err := client.Get(bufTokenEndpoint)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("HTTP request failed with status code: %d", resp.StatusCode)
+	}
+
+	type tokenResponse struct {
+		Token string `json:"token"`
+	}
+	var tokenResp tokenResponse
+
+	if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
+		return "", err
+	}
+
+	return tokenResp.Token, nil
 }
