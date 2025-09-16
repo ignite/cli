@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [`v29.4.0`](https://github.com/ignite/cli/releases/tag/v29.4.0)
+
 ### Features
 
 - [#4790](https://github.com/ignite/cli/pull/4790) Remove global vars and struct placeholders.
