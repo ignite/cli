@@ -23,12 +23,8 @@ func (s TxService) Gas() uint64 {
 	return s.txBuilder.GetTx().GetGas()
 }
 
-// Broadcast signs and broadcasts this tx.
-// If faucet is enabled and if the "from" account doesn't have enough funds, is
-// it automatically filled with the default amount, and the tx is broadcasted
-// again. Note that this may still end with the same error if the amount is
-// greater than the amount dumped by the faucet.
-func (s TxService) Broadcast(ctx context.Context) (Response, error) {
+// broadcast signs and broadcasts the transaction returning the initial broadcast response.
+func (s TxService) broadcast(ctx context.Context) (*sdktypes.TxResponse, error) {
 	defer s.client.lockBech32Prefix()()
 
 	// validate msgs.
@@ -38,22 +34,36 @@ func (s TxService) Broadcast(ctx context.Context) (Response, error) {
 			continue
 		}
 		if err := msg.ValidateBasic(); err != nil {
-			return Response{}, errors.WithStack(err)
+			return nil, errors.WithStack(err)
 		}
 	}
 
 	accountName := s.clientContext.FromName
 	if err := s.client.signer.Sign(ctx, s.txFactory, accountName, s.txBuilder, true); err != nil {
-		return Response{}, errors.WithStack(err)
+		return nil, errors.WithStack(err)
 	}
 
 	txBytes, err := s.clientContext.TxConfig.TxEncoder()(s.txBuilder.GetTx())
 	if err != nil {
-		return Response{}, errors.WithStack(err)
+		return nil, errors.WithStack(err)
 	}
 
 	resp, err := s.clientContext.BroadcastTx(txBytes)
 	if err := handleBroadcastResult(resp, err); err != nil {
+		return nil, err
+	}
+
+	return resp, nil
+}
+
+// Broadcast signs and broadcasts this tx.
+// If faucet is enabled and if the "from" account doesn't have enough funds, is
+// it automatically filled with the default amount, and the tx is broadcasted
+// again. Note that this may still end with the same error if the amount is
+// greater than the amount dumped by the faucet.
+func (s TxService) Broadcast(ctx context.Context) (Response, error) {
+	resp, err := s.broadcast(ctx)
+	if err != nil {
 		return Response{}, err
 	}
 
@@ -79,31 +89,8 @@ func (s TxService) Broadcast(ctx context.Context) (Response, error) {
 // BroadcastAsync signs and broadcasts this tx.
 // It is similar to Broadcast but it does not wait for the transaction to be included in a block.
 func (s TxService) BroadcastAsync(ctx context.Context) (Response, error) {
-	defer s.client.lockBech32Prefix()()
-
-	// validate msgs.
-	for _, msg := range s.txBuilder.GetTx().GetMsgs() {
-		msg, ok := msg.(sdktypes.HasValidateBasic)
-		if !ok {
-			continue
-		}
-		if err := msg.ValidateBasic(); err != nil {
-			return Response{}, errors.WithStack(err)
-		}
-	}
-
-	accountName := s.clientContext.FromName
-	if err := s.client.signer.Sign(ctx, s.txFactory, accountName, s.txBuilder, true); err != nil {
-		return Response{}, errors.WithStack(err)
-	}
-
-	txBytes, err := s.clientContext.TxConfig.TxEncoder()(s.txBuilder.GetTx())
+	resp, err := s.broadcast(ctx)
 	if err != nil {
-		return Response{}, errors.WithStack(err)
-	}
-
-	resp, err := s.clientContext.BroadcastTx(txBytes)
-	if err := handleBroadcastResult(resp, err); err != nil {
 		return Response{}, err
 	}
 
