@@ -10,6 +10,30 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
+// BroadcastOption configures broadcast behavior.
+type BroadcastOption func(*broadcastConfig)
+
+// broadcastConfig holds configuration for broadcast operations.
+type broadcastConfig struct {
+	sequence  uint64
+	unordered bool
+}
+
+// WithSequence overrides the account sequence for the transaction.
+func WithSequence(sequence uint64) BroadcastOption {
+	return func(cfg *broadcastConfig) {
+		cfg.sequence = sequence
+	}
+}
+
+// WithUnordered sets the unordered flag for the transaction.
+// NOTE: This is only supported for Cosmos SDK versions >= v0.53.
+func WithUnordered(unordered bool) BroadcastOption {
+	return func(cfg *broadcastConfig) {
+		cfg.unordered = unordered
+	}
+}
+
 type TxService struct {
 	client        Client
 	clientContext client.Context
@@ -24,7 +48,7 @@ func (s TxService) Gas() uint64 {
 }
 
 // broadcast signs and broadcasts the transaction returning the initial broadcast response.
-func (s TxService) broadcast(ctx context.Context) (*sdktypes.TxResponse, error) {
+func (s TxService) broadcast(ctx context.Context, opts ...BroadcastOption) (*sdktypes.TxResponse, error) {
 	defer s.client.lockBech32Prefix()()
 
 	// validate msgs.
@@ -37,6 +61,18 @@ func (s TxService) broadcast(ctx context.Context) (*sdktypes.TxResponse, error) 
 			return nil, errors.WithStack(err)
 		}
 	}
+
+	// Apply broadcast options
+	cfg := &broadcastConfig{}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+
+	// Override sequence if specified
+	if cfg.sequence != 0 {
+		s.txFactory = s.txFactory.WithSequence(cfg.sequence)
+	}
+	s.txFactory = s.txFactory.WithUnordered(cfg.unordered)
 
 	accountName := s.clientContext.FromName
 	if err := s.client.signer.Sign(ctx, s.txFactory, accountName, s.txBuilder, true); err != nil {
@@ -61,8 +97,8 @@ func (s TxService) broadcast(ctx context.Context) (*sdktypes.TxResponse, error) 
 // it automatically filled with the default amount, and the tx is broadcasted
 // again. Note that this may still end with the same error if the amount is
 // greater than the amount dumped by the faucet.
-func (s TxService) Broadcast(ctx context.Context) (Response, error) {
-	resp, err := s.broadcast(ctx)
+func (s TxService) Broadcast(ctx context.Context, opts ...BroadcastOption) (Response, error) {
+	resp, err := s.broadcast(ctx, opts...)
 	if err != nil {
 		return Response{}, err
 	}
@@ -88,8 +124,8 @@ func (s TxService) Broadcast(ctx context.Context) (Response, error) {
 
 // BroadcastAsync signs and broadcasts this tx.
 // It is similar to Broadcast but it does not wait for the transaction to be included in a block.
-func (s TxService) BroadcastAsync(ctx context.Context) (Response, error) {
-	resp, err := s.broadcast(ctx)
+func (s TxService) BroadcastAsync(ctx context.Context, opts ...BroadcastOption) (Response, error) {
+	resp, err := s.broadcast(ctx, opts...)
 	if err != nil {
 		return Response{}, err
 	}
