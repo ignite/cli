@@ -76,6 +76,43 @@ func (s TxService) Broadcast(ctx context.Context) (Response, error) {
 	}, handleBroadcastResult(resp, err)
 }
 
+// BroadcastAsync signs and broadcasts this tx.
+// It is similar to Broadcast but it does not wait for the transaction to be included in a block.
+func (s TxService) BroadcastAsync(ctx context.Context) (Response, error) {
+	defer s.client.lockBech32Prefix()()
+
+	// validate msgs.
+	for _, msg := range s.txBuilder.GetTx().GetMsgs() {
+		msg, ok := msg.(sdktypes.HasValidateBasic)
+		if !ok {
+			continue
+		}
+		if err := msg.ValidateBasic(); err != nil {
+			return Response{}, errors.WithStack(err)
+		}
+	}
+
+	accountName := s.clientContext.FromName
+	if err := s.client.signer.Sign(ctx, s.txFactory, accountName, s.txBuilder, true); err != nil {
+		return Response{}, errors.WithStack(err)
+	}
+
+	txBytes, err := s.clientContext.TxConfig.TxEncoder()(s.txBuilder.GetTx())
+	if err != nil {
+		return Response{}, errors.WithStack(err)
+	}
+
+	resp, err := s.clientContext.BroadcastTx(txBytes)
+	if err := handleBroadcastResult(resp, err); err != nil {
+		return Response{}, err
+	}
+
+	return Response{
+		Codec:      s.clientContext.Codec,
+		TxResponse: resp,
+	}, handleBroadcastResult(resp, err)
+}
+
 // EncodeJSON encodes the transaction as a json string.
 func (s TxService) EncodeJSON() ([]byte, error) {
 	return s.client.context.TxConfig.TxJSONEncoder()(s.txBuilder.GetTx())

@@ -6,6 +6,7 @@
 
 - [#4790](https://github.com/ignite/cli/pull/4790) Remove global vars and struct placeholders.
 - [#4797](https://github.com/ignite/cli/pull/4797) Add `xast` function to append new switch clause.
+- []() Add `BroadcastAsync` to `cosmosclient` package.
 
 ### Changes
 
