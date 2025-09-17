@@ -42,7 +42,9 @@ func WithStack(err error) error {
 // Wrap wraps an error with a message prefix. A stack trace is retained.
 func Wrap(err error, msg string) error {
 	errWrap := errors.Wrap(err, msg)
-	sentry.CaptureException(errWrap)
+	if err != nil {
+		sentry.CaptureException(errWrap)
+	}
 	return errWrap
 }
 
@@ -51,7 +53,9 @@ func Wrap(err error, msg string) error {
 // but the extra arguments are still processed for reportable strings.
 func Wrapf(err error, format string, args ...any) error {
 	errWrap := errors.Wrapf(err, format, args...)
-	sentry.CaptureException(errWrap)
+	if err != nil {
+		sentry.CaptureException(errWrap)
+	}
 	return errWrap
 }
 
