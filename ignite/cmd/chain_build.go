@@ -9,6 +9,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/v29/ignite/pkg/goenv"
 	"github.com/ignite/cli/v29/ignite/services/chain"
 )
 
@@ -155,7 +156,9 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 	}
 
 	if output == "" {
-		return session.Printf("🗃  Installed. Use with: %s\n", colors.Info(binaryName))
+		binaryPath := filepath.Join(goenv.Bin(), binaryName)
+		session.Printf("🗃  Installed. Use with: %s\n", colors.Info(binaryPath))
+		return session.Printf("   To run from anywhere: export PATH=$PATH:%s\n", colors.Info(goenv.Bin()))
 	}
 
 	binaryPath := filepath.Join(output, binaryName)
