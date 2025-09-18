@@ -157,8 +157,7 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 	}
 
 	if output == "" {
-		binaryPath := filepath.Join(goenv.Bin(), binaryName)
-		session.Printf("🗃  Installed. Use with: %s\n", colors.Info(binaryPath))
+		session.Printf("🗃  Installed. Use with: %s\n", colors.Info(binaryName))
 
 		if _, err := exec.LookPath(binaryName); err != nil {
 			session.Printf("⚠️  Warning: Binary not found in PATH\n")
