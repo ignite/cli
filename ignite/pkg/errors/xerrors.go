@@ -26,7 +26,7 @@ func New(msg string) error {
 }
 
 // Errorf aliases Newf().
-func Errorf(format string, args ...interface{}) error {
+func Errorf(format string, args ...any) error {
 	err := errors.Errorf(format, args...)
 	sentry.CaptureException(err)
 	return err
@@ -42,16 +42,20 @@ func WithStack(err error) error {
 // Wrap wraps an error with a message prefix. A stack trace is retained.
 func Wrap(err error, msg string) error {
 	errWrap := errors.Wrap(err, msg)
-	sentry.CaptureException(errWrap)
+	if err != nil {
+		sentry.CaptureException(errWrap)
+	}
 	return errWrap
 }
 
 // Wrapf wraps an error with a formatted message prefix. A stack
 // trace is also retained. If the format is empty, no prefix is added,
 // but the extra arguments are still processed for reportable strings.
-func Wrapf(err error, format string, args ...interface{}) error {
+func Wrapf(err error, format string, args ...any) error {
 	errWrap := errors.Wrapf(err, format, args...)
-	sentry.CaptureException(errWrap)
+	if err != nil {
+		sentry.CaptureException(errWrap)
+	}
 	return errWrap
 }
 
@@ -73,4 +77,4 @@ func Is(err, reference error) bool { return errors.Is(err, reference) }
 // matches a type if it is assignable to the target type, or if it has a method
 // As(interface{}) bool such that As(target) returns true. As will panic if target
 // is not a non-nil pointer to a type which implements error or is of interface type.
-func As(err error, target interface{}) bool { return errors.As(err, target) }
+func As(err error, target any) bool { return errors.As(err, target) }
