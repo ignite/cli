@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-### Features
+### Changes
 
 - [#4807](https://github.com/ignite/cli/pull/4807) Improve unconfigured path message when building a chain.
 
