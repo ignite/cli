@@ -18,7 +18,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/validation"
 	"github.com/ignite/cli/v29/ignite/pkg/xstrings"
 	"github.com/ignite/cli/v29/ignite/version"
 )
@@ -64,7 +63,7 @@ func run() int {
 
 	if err != nil {
 		var (
-			validationErr validation.Error
+			validationErr errors.ValidationError
 			versionErr    chainconfig.VersionError
 			msg           string
 		)

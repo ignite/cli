@@ -10,7 +10,6 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/validation"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/services/scaffolder"
 	modulecreate "github.com/ignite/cli/v29/ignite/templates/module/create"
@@ -182,7 +181,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if err := sc.CreateModule(name, options...); err != nil {
-		var validationErr validation.Error
+		var validationErr errors.ValidationError
 		if !requireRegistration && errors.As(err, &validationErr) {
 			fmt.Fprintf(&msg, "Can't register module '%s'.\n", name)
 			fmt.Fprintln(&msg, validationErr.ValidationInfo())
