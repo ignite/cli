@@ -2,12 +2,13 @@ package buf
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
-var BufTokenURL = "https://api.ignite.com/v1/buf/token"
+var BufTokenURL = "https://buf.ignite.com" //nolint:gosec // URL is hardcoded and not user-provided
 
 // FetchToken fetches the buf token from the Ignite API.
 func FetchToken() (string, error) {
@@ -22,7 +23,7 @@ func FetchToken() (string, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("HTTP request failed with status code: %d", resp.StatusCode)
+		return "", errors.Errorf("HTTP request failed with status code: %d", resp.StatusCode)
 	}
 
 	type tokenResponse struct {
