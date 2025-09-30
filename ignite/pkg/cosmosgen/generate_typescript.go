@@ -46,6 +46,9 @@ type tsGenerator struct {
 	g              *generator
 	tsTemplateFile string
 	isLocalProto   bool
+
+	// hasLocalBufToken indicates whether the user had already a local Buf token.
+	hasLocalBufToken bool
 }
 
 type generatePayload struct {
@@ -67,6 +70,8 @@ func newTSGenerator(g *generator) *tsGenerator {
 			} else {
 				os.Setenv(bufTokenEnvName, token)
 			}
+		} else {
+			tsg.hasLocalBufToken = true
 		}
 	}
 
@@ -95,6 +100,11 @@ func (g *tsGenerator) tsTemplate() (string, error) {
 func (g *tsGenerator) cleanup() {
 	if g.tsTemplateFile != "" {
 		os.Remove(g.tsTemplateFile)
+	}
+
+	// unset ignite buf token from env
+	if !g.hasLocalBufToken {
+		os.Unsetenv(bufTokenEnvName)
 	}
 }
 
