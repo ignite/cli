@@ -12,12 +12,22 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
+<<<<<<< HEAD
 	"github.com/ignite/cli/v28/ignite/config"
 	"github.com/ignite/cli/v28/ignite/pkg/gitpod"
 	"github.com/ignite/cli/v28/ignite/pkg/matomo"
 	"github.com/ignite/cli/v28/ignite/pkg/randstr"
 	"github.com/ignite/cli/v28/ignite/pkg/sentry"
 	"github.com/ignite/cli/v28/ignite/version"
+=======
+	"github.com/ignite/cli/v29/ignite/config"
+	"github.com/ignite/cli/v29/ignite/internal/sentry"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v29/ignite/pkg/matomo"
+	"github.com/ignite/cli/v29/ignite/pkg/randstr"
+	"github.com/ignite/cli/v29/ignite/version"
+>>>>>>> 3919d6bb (feat(cosmosgen): fetch fallback buf token (#4805))
 )
 
 const (
