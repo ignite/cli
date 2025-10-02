@@ -11,6 +11,7 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
+	"github.com/ignite/cli/v29/ignite/internal/buf"
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
@@ -19,6 +20,8 @@ import (
 )
 
 var (
+	bufTokenEnvName = "BUF_TOKEN"
+
 	dirchangeCacheNamespace = "generate.typescript.dirchange"
 
 	protocGenTSProtoBin = "protoc-gen-ts_proto"
@@ -31,15 +34,21 @@ plugins:
   - plugin: ts_proto
     out: .
     opt:
-      - "esModuleInterop=true"
-      - "forceLong=long"
-      - "useOptionals=true"
+    	- logtostderr=true
+    	- allow_merge=true
+    	- json_names_for_fields=false
+    	- ts_proto_opt=snakeToCamel=true
+    	- ts_proto_opt=esModuleInterop=true
+    	- ts_proto_out=.
 `
 
 type tsGenerator struct {
 	g              *generator
 	tsTemplateFile string
 	isLocalProto   bool
+
+	// hasLocalBufToken indicates whether the user had already a local Buf token.
+	hasLocalBufToken bool
 }
 
 type generatePayload struct {
@@ -54,7 +63,16 @@ func newTSGenerator(g *generator) *tsGenerator {
 	}
 
 	if !tsg.isLocalProto {
-		log.Printf("No '%s' binary found in PATH, using remote buf plugin for Typescript generation. %s\n", protocGenTSProtoBin, msgBufAuth)
+		if os.Getenv(bufTokenEnvName) == "" {
+			token, err := buf.FetchToken()
+			if err != nil {
+				log.Printf("No '%s' binary found in PATH, using remote buf plugin for Typescript generation. %s\n", protocGenTSProtoBin, msgBufAuth)
+			} else {
+				os.Setenv(bufTokenEnvName, token)
+			}
+		} else {
+			tsg.hasLocalBufToken = true
+		}
 	}
 
 	return tsg
@@ -82,6 +100,11 @@ func (g *tsGenerator) tsTemplate() (string, error) {
 func (g *tsGenerator) cleanup() {
 	if g.tsTemplateFile != "" {
 		os.Remove(g.tsTemplateFile)
+	}
+
+	// unset ignite buf token from env
+	if !g.hasLocalBufToken {
+		os.Unsetenv(bufTokenEnvName)
 	}
 }
 

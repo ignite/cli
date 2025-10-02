@@ -2,9 +2,10 @@
 
 ## Unreleased
 
-### Features
+### Changes
 
 - [#4807](https://github.com/ignite/cli/pull/4807) Improve unconfigured path message when building a chain.
+- [#4805](https://github.com/ignite/cli/pull/4805) Fetch fallback buf token.
 
 ## [`v29.4.0`](https://github.com/ignite/cli/releases/tag/v29.4.0)
 

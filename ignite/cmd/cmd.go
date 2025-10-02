@@ -14,7 +14,7 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/config"
 	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
-	"github.com/ignite/cli/v29/ignite/pkg/announcements"
+	"github.com/ignite/cli/v29/ignite/internal/announcements"
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	uilog "github.com/ignite/cli/v29/ignite/pkg/cliui/log"
