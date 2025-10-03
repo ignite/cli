@@ -4,7 +4,7 @@
 PROJECT_NAME = ignite
 DATE := $(shell date '+%Y-%m-%dT%H:%M:%S')
 HEAD = $(shell git rev-parse HEAD)
-LD_FLAGS = 
+LD_FLAGS =
 BUILD_FLAGS = -mod=readonly -ldflags='$(LD_FLAGS)'
 BUILD_FOLDER = ./dist
 
@@ -19,10 +19,6 @@ build:
 	@echo Building Ignite CLI...
 	@-mkdir -p $(BUILD_FOLDER) 2> /dev/null
 	@go build $(BUILD_FLAGS) -o $(BUILD_FOLDER) ./...
-
-## prepare snapcraft config for release
-snapcraft:
-	@sed -i 's/{{version}}/'$(version)'/' packaging/snap/snapcraft.yaml
 
 ## mocks: generate mocks
 mocks:

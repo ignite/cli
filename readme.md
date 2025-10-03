@@ -48,12 +48,6 @@ Install Ignite using [Homebrew](https://formulae.brew.sh/formula/ignite) on macO
 brew install ignite
 ```
 
-Or using Snap on GNU/Linux:
-
-```sh
-snap install ignite --classic
-```
-
 Or manually using the following command:
 
 ```sh
