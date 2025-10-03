@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Informational
+
+From this version on, Snapcraft support has been removed. Please migrate to [Homebrew](https://brew.sh/) for a better experience. Homebrew works for both macOS and GNU/Linux.
+
 ### Changes
 
 - [#4807](https://github.com/ignite/cli/pull/4807) Improve unconfigured path message when building a chain.
