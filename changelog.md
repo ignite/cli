@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [`v29.4.1`](https://github.com/ignite/cli/releases/tag/v29.4.1)
+
 ### Changes
 
 - [#4805](https://github.com/ignite/cli/pull/4805) Fetch fallback buf token.
