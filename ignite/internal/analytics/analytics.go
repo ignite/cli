@@ -15,7 +15,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/internal/sentry"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/matomo"
 	"github.com/ignite/cli/v29/ignite/pkg/randstr"
 	"github.com/ignite/cli/v29/ignite/version"
 )
@@ -28,7 +27,7 @@ const (
 	igniteAnonIdentity = "anon_identity.json"
 )
 
-var matomoClient matomo.Client
+var matomoClient MatomoClient
 
 // anonIdentity represents an analytics identity file.
 type anonIdentity struct {
@@ -39,10 +38,10 @@ type anonIdentity struct {
 }
 
 func init() {
-	matomoClient = matomo.New(
+	matomoClient = NewMatomoClient(
 		telemetryEndpoint,
-		matomo.WithIDSite(4),
-		matomo.WithSource("https://cli.ignite.com"),
+		WithIDSite(4),
+		WithSource("https://cli.ignite.com"),
 	)
 }
 
@@ -73,7 +72,7 @@ func SendMetric(wg *sync.WaitGroup, cmd *cobra.Command) {
 		}
 	}
 
-	met := matomo.Metric{
+	met := Metric{
 		Name:            cmd.Name(),
 		Cmd:             path,
 		ScaffoldType:    scaffoldType,

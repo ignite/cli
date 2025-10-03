@@ -2,10 +2,13 @@
 
 ## Unreleased
 
+## [`v29.4.1`](https://github.com/ignite/cli/releases/tag/v29.4.1)
+
 ### Changes
 
-- [#4807](https://github.com/ignite/cli/pull/4807) Improve unconfigured path message when building a chain.
 - [#4805](https://github.com/ignite/cli/pull/4805) Fetch fallback buf token.
+- [#4807](https://github.com/ignite/cli/pull/4807) Improve unconfigured path message when building a chain.
+- [#4808](https://github.com/ignite/cli/pull/4808) Remove unused packages.
 
 ## [`v29.4.0`](https://github.com/ignite/cli/releases/tag/v29.4.0)
 

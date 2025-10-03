@@ -1,5 +1,4 @@
-// Package matomo is a client for Matomo to send data points for hint-type=event.
-package matomo
+package analytics
 
 import (
 	"crypto/rand"
@@ -17,8 +16,8 @@ import (
 )
 
 type (
-	// Client is an analytics client.
-	Client struct {
+	// MatomoClient is a matomo client.
+	MatomoClient struct {
 		endpoint   string
 		idSite     uint   // Matomo ID Site.
 		tokenAuth  string // Matomo Token Auth.
@@ -26,8 +25,8 @@ type (
 		httpClient http.Client
 	}
 
-	// Params analytics metrics body.
-	Params struct {
+	// MatomoParams analytics metrics body.
+	MatomoParams struct {
 		IDSite      uint   `url:"idsite"`
 		Rec         uint   `url:"rec"`
 		ActionName  string `url:"action_name"`
@@ -121,32 +120,32 @@ type (
 )
 
 // Option configures code generation.
-type Option func(*Client)
+type Option func(*MatomoClient)
 
 // WithIDSite adds an id site.
 func WithIDSite(idSite uint) Option {
-	return func(c *Client) {
+	return func(c *MatomoClient) {
 		c.idSite = idSite
 	}
 }
 
 // WithTokenAuth adds a matomo token authentication.
 func WithTokenAuth(tokenAuth string) Option {
-	return func(c *Client) {
+	return func(c *MatomoClient) {
 		c.tokenAuth = tokenAuth
 	}
 }
 
 // WithSource adds a matomo URL source.
 func WithSource(source string) Option {
-	return func(c *Client) {
+	return func(c *MatomoClient) {
 		c.source = source
 	}
 }
 
-// New creates a new Matomo client.
-func New(endpoint string, opts ...Option) Client {
-	c := Client{
+// NewMatomoClient creates a new Matomo client.
+func NewMatomoClient(endpoint string, opts ...Option) MatomoClient {
+	c := MatomoClient{
 		endpoint: endpoint,
 		source:   endpoint,
 		httpClient: http.Client{
@@ -161,7 +160,7 @@ func New(endpoint string, opts ...Option) Client {
 }
 
 // Send sends metric event to analytics.
-func (c Client) Send(params Params) error {
+func (c MatomoClient) Send(params MatomoParams) error {
 	requestURL, err := url.Parse(c.endpoint)
 	if err != nil {
 		return err
@@ -189,7 +188,7 @@ func (c Client) Send(params Params) error {
 }
 
 // SendMetric build the metrics and send to analytics.
-func (c Client) SendMetric(sessionID string, metric Metric) error {
+func (c MatomoClient) SendMetric(sessionID string, metric Metric) error {
 	var (
 		now       = time.Now()
 		r, _      = rand.Int(rand.Reader, big.NewInt(math.MaxInt64))
@@ -201,7 +200,7 @@ func (c Client) SendMetric(sessionID string, metric Metric) error {
 
 	cmd := splitCommand(metric.Cmd)
 
-	return c.Send(Params{
+	return c.Send(MatomoParams{
 		IDSite:      c.idSite,
 		Rec:         1,
 		APIVersion:  1,
@@ -261,6 +260,6 @@ func splitCommand(cmd string) []string {
 }
 
 // metricURL build the metric URL.
-func (c Client) metricURL(cmd string) string {
+func (c MatomoClient) metricURL(cmd string) string {
 	return fmt.Sprintf("%s/%s", c.source, strings.ReplaceAll(cmd, " ", "_"))
 }
