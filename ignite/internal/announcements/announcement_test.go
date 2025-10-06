@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ignite/cli/v28/ignite/pkg/announcements"
+	"github.com/ignite/cli/v28/ignite/internal/announcements"
 )
 
 func TestFetchAnnouncements(t *testing.T) {
@@ -52,9 +52,9 @@ func TestFetchAnnouncements(t *testing.T) {
 			}))
 			defer server.Close()
 
-			originalAPI := announcements.APIURL
-			announcements.APIURL = server.URL
-			defer func() { announcements.APIURL = originalAPI }()
+			originalAPI := announcements.AnnouncementURL
+			announcements.AnnouncementURL = server.URL
+			defer func() { announcements.AnnouncementURL = originalAPI }()
 
 			result := announcements.Fetch()
 			if result != tt.expected {

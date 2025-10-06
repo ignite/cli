@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## [`v28.11.1`](https://github.com/ignite/cli/releases/tag/v28.11.1)
+
+- [#4813](https://github.com/ignite/cli/pull/4813) Fetch fallback buf token.
+
 ## [`v28.11.0`](https://github.com/ignite/cli/releases/tag/v28.11.0)
 
 ### Changes

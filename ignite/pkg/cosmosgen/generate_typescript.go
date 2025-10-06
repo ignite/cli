@@ -7,19 +7,25 @@ import (
 	"sort"
 	"strings"
 
-	"golang.org/x/sync/errgroup"
-
+	"github.com/ignite/cli/v28/ignite/internal/buf"
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosbuf"
 	"github.com/ignite/cli/v28/ignite/pkg/dirchange"
 	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
+	"golang.org/x/sync/errgroup"
 )
 
-var dirchangeCacheNamespace = "generate.typescript.dirchange"
+var (
+	bufTokenEnvName = "BUF_TOKEN"
+
+	dirchangeCacheNamespace = "generate.typescript.dirchange"
+)
 
 type tsGenerator struct {
 	g *generator
+	// hasLocalBufToken indicates whether the user had already a local Buf token.
+	hasLocalBufToken bool
 }
 
 type generatePayload struct {
@@ -28,7 +34,18 @@ type generatePayload struct {
 }
 
 func newTSGenerator(g *generator) *tsGenerator {
-	return &tsGenerator{g}
+	tsg := &tsGenerator{g: g}
+
+	if os.Getenv(bufTokenEnvName) == "" {
+		token, err := buf.FetchToken()
+		if err == nil {
+			os.Setenv(bufTokenEnvName, token)
+		}
+	} else {
+		tsg.hasLocalBufToken = true
+	}
+
+	return tsg
 }
 
 func (g *generator) tsTemplate() string {
@@ -55,6 +72,12 @@ func (g *generator) generateTS(ctx context.Context) error {
 	})
 
 	tsg := newTSGenerator(g)
+	defer func() {
+		// unset ignite buf token from env
+		if !tsg.hasLocalBufToken {
+			os.Unsetenv(bufTokenEnvName)
+		}
+	}()
 	if err := tsg.generateModuleTemplates(ctx); err != nil {
 		return err
 	}

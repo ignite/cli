@@ -13,7 +13,7 @@ import (
 	flag "github.com/spf13/pflag"
 
 	"github.com/ignite/cli/v28/ignite/config"
-	"github.com/ignite/cli/v28/ignite/pkg/announcements"
+	"github.com/ignite/cli/v28/ignite/internal/announcements"
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
 	uilog "github.com/ignite/cli/v28/ignite/pkg/cliui/log"

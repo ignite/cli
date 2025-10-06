@@ -13,10 +13,10 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/ignite/cli/v28/ignite/config"
+	"github.com/ignite/cli/v28/ignite/internal/sentry"
 	"github.com/ignite/cli/v28/ignite/pkg/gitpod"
 	"github.com/ignite/cli/v28/ignite/pkg/matomo"
 	"github.com/ignite/cli/v28/ignite/pkg/randstr"
-	"github.com/ignite/cli/v28/ignite/pkg/sentry"
 	"github.com/ignite/cli/v28/ignite/version"
 )
 
