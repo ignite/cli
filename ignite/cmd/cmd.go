@@ -12,9 +12,8 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
-<<<<<<< HEAD
 	"github.com/ignite/cli/v28/ignite/config"
-	"github.com/ignite/cli/v28/ignite/pkg/announcements"
+	"github.com/ignite/cli/v28/ignite/internal/announcements"
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui"
 	uilog "github.com/ignite/cli/v28/ignite/pkg/cliui/log"
@@ -23,26 +22,6 @@ import (
 	"github.com/ignite/cli/v28/ignite/pkg/gitpod"
 	"github.com/ignite/cli/v28/ignite/pkg/goenv"
 	"github.com/ignite/cli/v28/ignite/version"
-=======
-	"github.com/ignite/cli/v29/ignite/config"
-	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
-	"github.com/ignite/cli/v29/ignite/internal/announcements"
-	"github.com/ignite/cli/v29/ignite/pkg/cache"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui"
-	uilog "github.com/ignite/cli/v29/ignite/pkg/cliui/log"
-	"github.com/ignite/cli/v29/ignite/pkg/dircache"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/goenv"
-	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/v29/ignite/version"
-)
-
-type key int
-
-const (
-	keyChainConfig     key = iota
-	keyChainConfigPath key = iota
->>>>>>> 3919d6bb (feat(cosmosgen): fetch fallback buf token (#4805))
 )
 
 const (

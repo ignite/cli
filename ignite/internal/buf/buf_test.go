@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ignite/cli/v29/ignite/internal/buf"
+	"github.com/ignite/cli/v28/ignite/internal/buf"
 	"github.com/stretchr/testify/require"
 )
 

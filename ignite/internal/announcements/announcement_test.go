@@ -6,11 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-<<<<<<< HEAD:ignite/pkg/announcements/announcement_test.go
-	"github.com/ignite/cli/v28/ignite/pkg/announcements"
-=======
-	"github.com/ignite/cli/v29/ignite/internal/announcements"
->>>>>>> 3919d6bb (feat(cosmosgen): fetch fallback buf token (#4805)):ignite/internal/announcements/announcement_test.go
+	"github.com/ignite/cli/v28/ignite/internal/announcements"
 )
 
 func TestFetchAnnouncements(t *testing.T) {

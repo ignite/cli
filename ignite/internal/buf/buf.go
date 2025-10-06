@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v28/ignite/pkg/errors"
 )
 
 var BufTokenURL = "https://buf.ignite.com" //nolint:gosec // URL is hardcoded and not user-provided

@@ -7,37 +7,18 @@ import (
 	"sort"
 	"strings"
 
-	"golang.org/x/sync/errgroup"
-
-<<<<<<< HEAD
 	"github.com/ignite/cli/v28/ignite/pkg/cache"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/v28/ignite/pkg/cosmosbuf"
 	"github.com/ignite/cli/v28/ignite/pkg/dirchange"
 	"github.com/ignite/cli/v28/ignite/pkg/gomodulepath"
-)
-
-var dirchangeCacheNamespace = "generate.typescript.dirchange"
-
-type tsGenerator struct {
-	g *generator
-=======
-	"github.com/ignite/cli/v29/ignite/internal/buf"
-	"github.com/ignite/cli/v29/ignite/pkg/cache"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
-	"github.com/ignite/cli/v29/ignite/pkg/dirchange"
-	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
+	"golang.org/x/sync/errgroup"
 )
 
 var (
 	bufTokenEnvName = "BUF_TOKEN"
 
 	dirchangeCacheNamespace = "generate.typescript.dirchange"
-
-	protocGenTSProtoBin = "protoc-gen-ts_proto"
-
-	msgBufAuth = "Note: Buf is limits remote plugin requests from unauthenticated users on 'buf.build'. Intensively using this function will get you rate limited. Authenticate with 'buf registry login' to avoid this (https://buf.build/docs/generate/auth-required)."
 )
 
 const localTSProtoTmpl = `version: v1
@@ -54,13 +35,9 @@ plugins:
 `
 
 type tsGenerator struct {
-	g              *generator
-	tsTemplateFile string
-	isLocalProto   bool
-
+	g *generator
 	// hasLocalBufToken indicates whether the user had already a local Buf token.
 	hasLocalBufToken bool
->>>>>>> 3919d6bb (feat(cosmosgen): fetch fallback buf token (#4805))
 }
 
 type generatePayload struct {
@@ -69,59 +46,7 @@ type generatePayload struct {
 }
 
 func newTSGenerator(g *generator) *tsGenerator {
-<<<<<<< HEAD
-	return &tsGenerator{g}
-=======
-	tsg := &tsGenerator{g: g}
-	if _, err := exec.LookPath(protocGenTSProtoBin); err == nil {
-		tsg.isLocalProto = true
-	}
-
-	if !tsg.isLocalProto {
-		if os.Getenv(bufTokenEnvName) == "" {
-			token, err := buf.FetchToken()
-			if err != nil {
-				log.Printf("No '%s' binary found in PATH, using remote buf plugin for Typescript generation. %s\n", protocGenTSProtoBin, msgBufAuth)
-			} else {
-				os.Setenv(bufTokenEnvName, token)
-			}
-		} else {
-			tsg.hasLocalBufToken = true
-		}
-	}
-
-	return tsg
-}
-
-func (g *tsGenerator) tsTemplate() (string, error) {
-	if !g.isLocalProto {
-		return g.g.tsTemplate(), nil
-	}
-	if g.tsTemplateFile != "" {
-		return g.tsTemplateFile, nil
-	}
-	f, err := os.CreateTemp("", "buf-gen-ts-*.yaml")
-	if err != nil {
-		return "", err
-	}
-	defer f.Close()
-	if _, err := f.WriteString(localTSProtoTmpl); err != nil {
-		return "", err
-	}
-	g.tsTemplateFile = f.Name()
-	return g.tsTemplateFile, nil
-}
-
-func (g *tsGenerator) cleanup() {
-	if g.tsTemplateFile != "" {
-		os.Remove(g.tsTemplateFile)
-	}
-
-	// unset ignite buf token from env
-	if !g.hasLocalBufToken {
-		os.Unsetenv(bufTokenEnvName)
-	}
->>>>>>> 3919d6bb (feat(cosmosgen): fetch fallback buf token (#4805))
+	return &tsGenerator{g: g}
 }
 
 func (g *generator) tsTemplate() string {

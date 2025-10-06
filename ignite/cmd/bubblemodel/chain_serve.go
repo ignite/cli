@@ -7,19 +7,11 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-<<<<<<< HEAD
-	"github.com/ignite/cli/v28/ignite/pkg/announcements"
+	"github.com/ignite/cli/v28/ignite/internal/announcements"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
 	cliuimodel "github.com/ignite/cli/v28/ignite/pkg/cliui/model"
 	"github.com/ignite/cli/v28/ignite/pkg/events"
-=======
-	"github.com/ignite/cli/v29/ignite/internal/announcements"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
-	cliuimodel "github.com/ignite/cli/v29/ignite/pkg/cliui/model"
-	"github.com/ignite/cli/v29/ignite/pkg/events"
->>>>>>> 3919d6bb (feat(cosmosgen): fetch fallback buf token (#4805))
 )
 
 const (
