@@ -5,7 +5,6 @@
 ## [`v28.11.1`](https://github.com/ignite/cli/releases/tag/v28.11.1)
 
 - [#4813](https://github.com/ignite/cli/pull/4813) Fetch fallback buf token.
-- [#4813](https://github.com/ignite/cli/pull/4813) Disable Sentry for v28. v29 is the best supported version.
 
 ## [`v28.11.0`](https://github.com/ignite/cli/releases/tag/v28.11.0)
 
