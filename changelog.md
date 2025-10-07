@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Informational
+
+From this version on, Snapcraft support has been removed. Please migrate to [Homebrew](https://brew.sh/) for a better experience. Homebrew works for both macOS and GNU/Linux.
+
 ## [`v29.4.1`](https://github.com/ignite/cli/releases/tag/v29.4.1)
 
 ### Changes
