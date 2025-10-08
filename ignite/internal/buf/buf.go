@@ -8,7 +8,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
-var BufTokenURL = "https://buf.ignite.com" //nolint:gosec // URL is hardcoded and not user-provided
+var BufTokenURL = "https://api.ignite.com/v1/buf" //nolint:gosec // URL is hardcoded and not user-provided
 
 // FetchToken fetches the buf token from the Ignite API.
 func FetchToken() (string, error) {
