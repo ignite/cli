@@ -20,7 +20,7 @@ import (
 )
 
 const (
-	telemetryEndpoint  = "https://matomo-cli.ignite.com"
+	telemetryEndpoint  = "https://api.ignite.com/v1/telemetry"
 	envDoNotTrack      = "DO_NOT_TRACK"
 	envCI              = "CI"
 	envGitHubActions   = "GITHUB_ACTIONS"

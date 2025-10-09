@@ -2,9 +2,12 @@
 
 ## Unreleased
 
-### Informational
+## [`v29.4.2`](https://github.com/ignite/cli/releases/tag/v29.4.2)
 
-From this version on, Snapcraft support has been removed. Please migrate to [Homebrew](https://brew.sh/) for a better experience. Homebrew works for both macOS and GNU/Linux.
+### Changes
+
+- [#4811](https://github.com/ignite/cli/pull/4811) From this version on, Snapcraft support has been removed. Please migrate to [Homebrew](https://brew.sh/) for a better experience. Homebrew works for both macOS and GNU/Linux.
+- [#4816](https://github.com/ignite/cli/pull/4816) Improve announcements UI.
 
 ## [`v29.4.1`](https://github.com/ignite/cli/releases/tag/v29.4.1)
 
