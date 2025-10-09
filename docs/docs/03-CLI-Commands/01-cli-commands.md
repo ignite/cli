@@ -21,8 +21,7 @@ $ ignite scaffold chain example
 
 Announcements:
 
-💬 Survey: https://bit.ly/3WZS2uS
-
+⋆ A new tutorial has been published! Learn more on https://tutorials.ignite.com 📖
 
 
 **Options**
