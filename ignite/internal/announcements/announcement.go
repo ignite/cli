@@ -43,7 +43,7 @@ func Fetch() string {
 	}
 
 	var out strings.Builder
-	fmt.Fprintf(&out, "\n%s %s\n", icons.Announcement, "Announcements")
+	fmt.Fprintf(&out, "%s\n\n", "Announcements:")
 
 	for _, msg := range data.Announcements {
 		fmt.Fprintf(&out, "%s %s\n", icons.Bullet, msg.Text)

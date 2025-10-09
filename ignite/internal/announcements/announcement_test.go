@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/ignite/cli/v28/ignite/internal/announcements"
+	"github.com/ignite/cli/v28/ignite/pkg/cliui/icons"
 )
 
 func TestFetchAnnouncements(t *testing.T) {
@@ -22,7 +23,7 @@ func TestFetchAnnouncements(t *testing.T) {
 			name:         "successful retrieval",
 			mockResponse: `{"version":1,"announcements":[{"id":"1744230503810","text":"New Ignite announcement: v1.0.0 released!","timestamp":"2025-04-09T20:28:23.810Z","user":"announcement-bot"}]}`,
 			statusCode:   http.StatusOK,
-			expected:     "\n🗣️ Announcements\n⋆ New Ignite announcement: v1.0.0 released!\n",
+			expected:     fmt.Sprintf("Announcements:\n\n%s New Ignite announcement: v1.0.0 released!\n", icons.Bullet),
 		},
 		{
 			name:         "empty announcements",

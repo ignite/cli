@@ -2,7 +2,15 @@
 
 ## Unreleased
 
+## [`v28.11.2`](https://github.com/ignite/cli/releases/tag/v28.11.2)
+
+### Changes
+
+- [#4816](https://github.com/ignite/cli/pull/4816) Improve announcements UI.
+
 ## [`v28.11.1`](https://github.com/ignite/cli/releases/tag/v28.11.1)
+
+### Changes
 
 - [#4813](https://github.com/ignite/cli/pull/4813) Fetch fallback buf token.
 
