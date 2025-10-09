@@ -59,9 +59,7 @@ To get started, create a blockchain:
 
 $ ignite scaffold chain example
 
-Announcements:
-%s
-`, announcements.Fetch()),
+%s`, announcements.Fetch()),
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		Args:          cobra.MinimumNArgs(0), // note(@julienrbrt): without this, ignite __complete(noDesc) hidden commands are not working.
