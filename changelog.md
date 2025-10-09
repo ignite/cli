@@ -218,6 +218,18 @@
 - [#4552](https://github.com/ignite/cli/pull/4552) Avoid direct access to proto field `perms.Account` and `perms.Permissions`
 - [#4555](https://github.com/ignite/cli/pull/4555) Fix buf lint issues into the chain code
 
+## [`v28.11.2`](https://github.com/ignite/cli/releases/tag/v28.11.2)
+
+### Changes
+
+- [#4816](https://github.com/ignite/cli/pull/4816) Improve announcements UI.
+
+## [`v28.11.1`](https://github.com/ignite/cli/releases/tag/v28.11.1)
+
+### Changes
+
+- [#4813](https://github.com/ignite/cli/pull/4813) Fetch fallback buf token.
+
 ## [`v28.11.0`](https://github.com/ignite/cli/releases/tag/v28.11.0)
 
 ### Changes
