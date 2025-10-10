@@ -363,7 +363,7 @@ func addNewLine(fileSet *token.FileSet, funcDecl *ast.FuncDecl, newLines []funct
 	for _, newLine := range newLines {
 		// Validate line number
 		if newLine.number > uint64(len(funcDecl.Body.List))-1 {
-			return errors.Errorf("line number %d out of range", newLine.number)
+			return errors.Errorf("line number %d out of range (max %d)", newLine.number, len(funcDecl.Body.List)-1)
 		}
 
 		// Parse insertion code

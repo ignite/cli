@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## [`v29.5.0`](https://github.com/ignite/cli/releases/tag/v29.5.0)
+
+### Changes
+
+- []() Add more functions in `xast` package and import its debuggability.
+
 ## [`v29.4.2`](https://github.com/ignite/cli/releases/tag/v29.4.2)
 
 ### Changes
