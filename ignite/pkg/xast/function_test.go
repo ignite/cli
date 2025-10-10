@@ -876,7 +876,7 @@ func TestValidate(t *testing.T) {
 				functionName: "anotherFunction",
 				functions:    []FunctionOptions{AppendFuncAtLine(`fmt.Println("")`, 4)},
 			},
-			err: errors.New("line number 4 out of range"),
+			err: errors.New("line number 4 out of range (max 2)"),
 		},
 		{
 			name: "invalid code for append at line",
