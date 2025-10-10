@@ -6,7 +6,7 @@
 
 ### Changes
 
-- []() Add more functions in `xast` package and import its debuggability.
+- [#4822](https://github.com/ignite/cli/pull/4822) Add more functions in `xast` package and import its debuggability.
 
 ## [`v29.4.2`](https://github.com/ignite/cli/releases/tag/v29.4.2)
 
