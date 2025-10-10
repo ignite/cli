@@ -166,6 +166,14 @@ func AppendFuncAtLine(code string, lineNumber uint64) FunctionOptions {
 
 // AppendInsideFuncCall adds an argument to a function call. For instances, the method have a parameter a
 // // call 'New(param1, param2)' and we want to add the param3 the result will be 'New(param1, param2, param3)'.
+// AppendInsideFuncCall appends code inside a function call.
+// The callName parameter can be either:
+//   - Simple name: "NewKeeper" matches any call to NewKeeper regardless of package/receiver
+//   - Qualified name: "foo.NewKeeper" matches only calls to NewKeeper with foo as the package/receiver
+//
+// The code parameter is the argument to insert, and index specifies the position:
+//   - index >= 0: insert at the specified position
+//   - index == -1: append at the end
 func AppendInsideFuncCall(callName, code string, index int) FunctionOptions {
 	return func(c *functionOpts) {
 		c.insideCall = append(c.insideCall, functionCall{
@@ -177,8 +185,12 @@ func AppendInsideFuncCall(callName, code string, index int) FunctionOptions {
 }
 
 // AppendFuncStruct adds a field to a struct literal. For instance,
-// // the struct has only one parameter 'Params{Param1: param1}' and we want to add
-// // the param2 the result will be 'Params{Param1: param1, Param2: param2}'.
+// the struct has only one parameter 'Params{Param1: param1}' and we want to add
+// the param2 the result will be 'Params{Param1: param1, Param2: param2}'.
+//
+// The name parameter can be either:
+//   - Simple name: "Keeper" matches any struct literal of type Keeper regardless of package
+//   - Qualified name: "keeper.Keeper" matches only struct literals with keeper as the package
 func AppendFuncStruct(name, param, code string) FunctionOptions {
 	return func(c *functionOpts) {
 		c.insideStruct = append(c.insideStruct, functionStruct{
@@ -233,7 +245,7 @@ func ModifyFunction(content string, funcName string, functions ...FunctionOption
 	fset := token.NewFileSet()
 	file, err := parser.ParseFile(fset, "", content, parser.ParseComments)
 	if err != nil {
-		return "", errors.Errorf("failed to parse file: %w", err)
+		return "", errors.Errorf("failed to parse file (%s): %w", funcName, err)
 	}
 
 	cmap := ast.NewCommentMap(fset, file, file.Comments)
@@ -363,7 +375,7 @@ func addNewLine(fileSet *token.FileSet, funcDecl *ast.FuncDecl, newLines []funct
 	for _, newLine := range newLines {
 		// Validate line number
 		if newLine.number > uint64(len(funcDecl.Body.List))-1 {
-			return errors.Errorf("line number %d out of range", newLine.number)
+			return errors.Errorf("line number %d out of range (max %d)", newLine.number, len(funcDecl.Body.List)-1)
 		}
 
 		// Parse insertion code
@@ -484,6 +496,12 @@ func exprName(expr ast.Expr) (string, bool) {
 	case *ast.Ident:
 		return exp.Name, true
 	case *ast.SelectorExpr:
+		// Check if X is an identifier to get the package name
+		if ident, ok := exp.X.(*ast.Ident); ok {
+			// Return qualified name: package.Function
+			return ident.Name + "." + exp.Sel.Name, true
+		}
+		// Fallback to just the selector name if X is not an identifier
 		return exp.Sel.Name, true
 	default:
 		return "", false
@@ -691,16 +709,30 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 					return true
 				}
 
-				calls, ok := callMap[name]
-				if !ok {
+				// Collect all matching calls (both qualified and unqualified names)
+				var allCalls functionCalls
+				if calls, ok := callMap[name]; ok {
+					allCalls = append(allCalls, calls...)
+					delete(callMapCheck, name)
+				}
+
+				// Also check for unqualified name if this is a selector expression
+				if sel, isSel := expr.Fun.(*ast.SelectorExpr); isSel {
+					simpleName := sel.Sel.Name
+					if calls, ok := callMap[simpleName]; ok {
+						allCalls = append(allCalls, calls...)
+						delete(callMapCheck, simpleName)
+					}
+				}
+
+				if len(allCalls) == 0 {
 					return true
 				}
 
-				if err := addFunctionCall(expr, calls); err != nil {
+				if err := addFunctionCall(expr, allCalls); err != nil {
 					errInspect = err
 					return false
 				}
-				delete(callMapCheck, name)
 
 			case *ast.CompositeLit:
 				name, exist := exprName(expr.Type)
@@ -708,13 +740,27 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 					return true
 				}
 
-				structs, ok := structMap[name]
-				if !ok {
+				// Collect all matching structs (both qualified and unqualified names)
+				var allStructs functionStructs
+				if structs, ok := structMap[name]; ok {
+					allStructs = append(allStructs, structs...)
+					delete(structMapCheck, name)
+				}
+
+				// Also check for unqualified name if this is a selector expression
+				if sel, isSel := expr.Type.(*ast.SelectorExpr); isSel {
+					simpleName := sel.Sel.Name
+					if structs, ok := structMap[simpleName]; ok {
+						allStructs = append(allStructs, structs...)
+						delete(structMapCheck, simpleName)
+					}
+				}
+
+				if len(allStructs) == 0 {
 					return true
 				}
 
-				addStructs(fileSet, expr, structs)
-				delete(structMapCheck, name)
+				addStructs(fileSet, expr, allStructs)
 
 			default:
 				return true
