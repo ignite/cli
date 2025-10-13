@@ -25,6 +25,7 @@ type (
 		appendCode     []string         // Code to append at the end.
 		returnVars     []string         // Return variables to modify.
 		appendSwitch   functionSwitches // Switch cases to append.
+		removeCalls    []string         // Function calls to remove.
 	}
 
 	// FunctionOptions configures code generation.
@@ -219,6 +220,15 @@ func AppendSwitchCase(condition, switchCase, switchBody string) FunctionOptions 
 	}
 }
 
+// RemoveFuncCall removes function calls with the specified name from within a function.
+// The callName can be either a simple function name like "doSomething" or a qualified
+// name like "pkg.DoSomething".
+func RemoveFuncCall(callName string) FunctionOptions {
+	return func(c *functionOpts) {
+		c.removeCalls = append(c.removeCalls, callName)
+	}
+}
+
 // newFunctionOptions creates a new functionOpts with defaults.
 func newFunctionOptions() functionOpts {
 	return functionOpts{
@@ -230,6 +240,7 @@ func newFunctionOptions() functionOpts {
 		appendTestCase: make([]string, 0),
 		appendCode:     make([]string, 0),
 		returnVars:     make([]string, 0),
+		removeCalls:    make([]string, 0),
 	}
 }
 
@@ -635,6 +646,13 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 		switchesCasesMapCheck = opts.appendSwitch.Map()
 	)
 
+	// Remove function calls if specified.
+	if len(opts.removeCalls) > 0 {
+		if err := removeFunctionCalls(f, opts.removeCalls); err != nil {
+			return err
+		}
+	}
+
 	// Apply all modifications.
 	var errInspect error
 	ast.Inspect(f, func(n ast.Node) bool {
@@ -919,4 +937,147 @@ func ModifyCaller(content, callerExpr string, modifiers func([]string) ([]string
 	}
 
 	return string(result), nil
+}
+
+// RemoveFunction removes a function declaration from the file content.
+func RemoveFunction(content, funcName string) (string, error) {
+	// Parse source into AST.
+	fset := token.NewFileSet()
+	file, err := parser.ParseFile(fset, "", content, parser.ParseComments)
+	if err != nil {
+		return "", errors.Errorf("failed to parse file: %w", err)
+	}
+
+	cmap := ast.NewCommentMap(fset, file, file.Comments)
+
+	// Find the function to remove.
+	var found bool
+	var newDecls []ast.Decl
+	for _, decl := range file.Decls {
+		if fd, ok := decl.(*ast.FuncDecl); ok && fd.Name.Name == funcName {
+			found = true
+			// Remove comments associated with this function.
+			delete(cmap, decl)
+			continue // Skip this declaration to remove it.
+		}
+		newDecls = append(newDecls, decl)
+	}
+
+	if !found {
+		return "", errors.Errorf("function %q not found", funcName)
+	}
+
+	// Update file declarations and comments.
+	file.Decls = newDecls
+	file.Comments = cmap.Filter(file).Comments()
+
+	return formatNode(fset, file)
+}
+
+// removeFunctionCalls removes all function calls matching the specified names from a function.
+func removeFunctionCalls(f *ast.FuncDecl, callNames []string) error {
+	if f.Body == nil {
+		return nil
+	}
+
+	// Create a map for faster lookup.
+	callMap := make(map[string]bool)
+	for _, name := range callNames {
+		callMap[name] = true
+	}
+
+	// Helper to check if a call expression matches any of the names to remove.
+	matchesCall := func(callExpr *ast.CallExpr) bool {
+		switch fun := callExpr.Fun.(type) {
+		case *ast.Ident:
+			// Simple function call like doSomething().
+			return callMap[fun.Name]
+		case *ast.SelectorExpr:
+			// Qualified function call like pkg.DoSomething().
+			if ident, ok := fun.X.(*ast.Ident); ok {
+				qualified := ident.Name + "." + fun.Sel.Name
+				return callMap[qualified]
+			}
+		}
+		return false
+	}
+
+	// Filter statements to remove matching function calls.
+	var filterStmts func([]ast.Stmt) []ast.Stmt
+	filterStmts = func(stmts []ast.Stmt) []ast.Stmt {
+		var filtered []ast.Stmt
+		for _, stmt := range stmts {
+			keep := true
+
+			// Check if this is an expression statement with a call expression.
+			if exprStmt, ok := stmt.(*ast.ExprStmt); ok {
+				if callExpr, ok := exprStmt.X.(*ast.CallExpr); ok {
+					if matchesCall(callExpr) {
+						keep = false
+					}
+				}
+			}
+
+			// Recursively handle block statements.
+			if blockStmt, ok := stmt.(*ast.BlockStmt); ok {
+				blockStmt.List = filterStmts(blockStmt.List)
+			}
+
+			// Recursively handle if statements.
+			if ifStmt, ok := stmt.(*ast.IfStmt); ok {
+				if ifStmt.Body != nil {
+					ifStmt.Body.List = filterStmts(ifStmt.Body.List)
+				}
+				if ifStmt.Else != nil {
+					if elseBlock, ok := ifStmt.Else.(*ast.BlockStmt); ok {
+						elseBlock.List = filterStmts(elseBlock.List)
+					}
+				}
+			}
+
+			// Recursively handle for statements.
+			if forStmt, ok := stmt.(*ast.ForStmt); ok {
+				if forStmt.Body != nil {
+					forStmt.Body.List = filterStmts(forStmt.Body.List)
+				}
+			}
+
+			// Recursively handle range statements.
+			if rangeStmt, ok := stmt.(*ast.RangeStmt); ok {
+				if rangeStmt.Body != nil {
+					rangeStmt.Body.List = filterStmts(rangeStmt.Body.List)
+				}
+			}
+
+			// Recursively handle switch statements.
+			if switchStmt, ok := stmt.(*ast.SwitchStmt); ok {
+				if switchStmt.Body != nil {
+					for _, caseClause := range switchStmt.Body.List {
+						if cc, ok := caseClause.(*ast.CaseClause); ok {
+							cc.Body = filterStmts(cc.Body)
+						}
+					}
+				}
+			}
+
+			// Recursively handle type switch statements.
+			if typeSwitchStmt, ok := stmt.(*ast.TypeSwitchStmt); ok {
+				if typeSwitchStmt.Body != nil {
+					for _, caseClause := range typeSwitchStmt.Body.List {
+						if cc, ok := caseClause.(*ast.CaseClause); ok {
+							cc.Body = filterStmts(cc.Body)
+						}
+					}
+				}
+			}
+
+			if keep {
+				filtered = append(filtered, stmt)
+			}
+		}
+		return filtered
+	}
+
+	f.Body.List = filterStmts(f.Body.List)
+	return nil
 }

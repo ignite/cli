@@ -1177,3 +1177,223 @@ func main() {
 		})
 	}
 }
+
+func TestRemoveFunction(t *testing.T) {
+	tests := []struct {
+		name        string
+		content     string
+		funcName    string
+		expected    string
+		expectError bool
+	}{
+		{
+			name: "remove a simple function",
+			content: `package main
+
+func main() {
+	println("hello")
+}
+
+func anotherFunction() {
+	println("another")
+}
+
+func thirdFunction() {
+	println("third")
+}
+`,
+			funcName: "anotherFunction",
+			expected: `package main
+
+func main() {
+	println("hello")
+}
+
+func thirdFunction() {
+	println("third")
+}`,
+		},
+		{
+			name: "remove first function",
+			content: `package main
+
+func first() {
+	println("first")
+}
+
+func second() {
+	println("second")
+}
+`,
+			funcName: "first",
+			expected: `package main
+
+func second() {
+	println("second")
+}`,
+		},
+		{
+			name: "remove last function",
+			content: `package main
+
+func first() {
+	println("first")
+}
+
+func second() {
+	println("second")
+}
+`,
+			funcName: "second",
+			expected: `package main
+
+func first() {
+	println("first")
+}`,
+		},
+		{
+			name: "remove function with comments",
+			content: `package main
+
+// main is the entry point
+func main() {
+	println("main")
+}
+
+// helperFunc does something
+func helperFunc() {
+	println("helper")
+}
+`,
+			funcName: "helperFunc",
+			expected: `package main
+
+// main is the entry point
+func main() {
+	println("main")
+}`,
+		},
+		{
+			name: "function not found",
+			content: `package main
+
+func main() {
+	println("hello")
+}
+`,
+			funcName:    "notFound",
+			expectError: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := RemoveFunction(tt.content, tt.funcName)
+
+			if tt.expectError {
+				require.Error(t, err)
+				return
+			}
+
+			require.NoError(t, err)
+			require.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func TestRemoveFuncCall(t *testing.T) {
+	tests := []struct {
+		name     string
+		content  string
+		funcName string
+		callName string
+		expected string
+	}{
+		{
+			name: "remove a function call",
+			content: `package main
+
+func main() {
+	fmt.Println("before")
+	doSomething()
+	fmt.Println("after")
+}
+`,
+			funcName: "main",
+			callName: "doSomething",
+			expected: `package main
+
+func main() {
+	fmt.Println("before")
+
+	fmt.Println("after")
+}`,
+		},
+		{
+			name: "remove qualified function call",
+			content: `package main
+
+func main() {
+	fmt.Println("hello")
+	pkg.DoSomething()
+	fmt.Println("world")
+}
+`,
+			funcName: "main",
+			callName: "pkg.DoSomething",
+			expected: `package main
+
+func main() {
+	fmt.Println("hello")
+
+	fmt.Println("world")
+}`,
+		},
+		{
+			name: "remove multiple calls to same function",
+			content: `package main
+
+func main() {
+	doSomething()
+	fmt.Println("middle")
+	doSomething()
+}
+`,
+			funcName: "main",
+			callName: "doSomething",
+			expected: `package main
+
+func main() {
+
+	fmt.Println("middle")
+
+}`,
+		},
+		{
+			name: "remove call with arguments",
+			content: `package main
+
+func process() {
+	validate(arg1, arg2)
+	execute()
+}
+`,
+			funcName: "process",
+			callName: "validate",
+			expected: `package main
+
+func process() {
+
+	execute()
+}`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := ModifyFunction(tt.content, tt.funcName, RemoveFuncCall(tt.callName))
+			require.NoError(t, err)
+			require.Equal(t, tt.expected, result)
+		})
+	}
+}
