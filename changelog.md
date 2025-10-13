@@ -2,9 +2,12 @@
 
 ## Unreleased
 
+## [`v29.6.0`](https://github.com/ignite/cli/releases/tag/v29.6.0)
+
 ### Changes
 
 - [#4825](https://github.com/ignite/cli/pull/4825) Bump `cosmos-sdk` version to `v0.53.4` and `ibc-go` version to `v10.4.0`.
+- [#4828](https://github.com/ignite/cli/pull/4828) Add remove func call in `xast` package.
 
 ## [`v29.5.0`](https://github.com/ignite/cli/releases/tag/v29.5.0)
 
