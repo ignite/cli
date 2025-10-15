@@ -21,7 +21,7 @@ $ ignite scaffold chain example
 
 Announcements:
 
-⋆ A new tutorial has been published! Learn more on https://tutorials.ignite.com 📖
+⋆ Check out how to integrate the EVM or POA in our latest tutorials: https://tutorials.ignite.com 📖
 ⋆ Satisfied with Ignite? Or totally fed-up with it? Tell us: https://bit.ly/3WZS2uS
 
 
