@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## [`v29.6.1`](https://github.com/ignite/cli/releases/tag/v29.6.1)
+
+### Changes
+
+- [#4830](https://github.com/ignite/cli/pull/4830) Bump `cometbft` version to `v0.38.19` that fixes a [security issue in CometBFT](https://github.com/cometbft/cometbft/security/advisories/GHSA-hrhf-2vcr-ghch).
+
 ## [`v29.6.0`](https://github.com/ignite/cli/releases/tag/v29.6.0)
 
 ### Changes
