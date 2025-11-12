@@ -2,15 +2,15 @@
 
 ## Unreleased
 
+### Fixes
+
+- [#4833](https://github.com/ignite/cli/pull/4833) IBC consensus state not found.
+
 ## [`v29.6.1`](https://github.com/ignite/cli/releases/tag/v29.6.1)
 
 ### Changes
 
 - [#4830](https://github.com/ignite/cli/pull/4830) Bump `cometbft` version to `v0.38.19` that fixes a [security issue in CometBFT](https://github.com/cometbft/cometbft/security/advisories/GHSA-hrhf-2vcr-ghch).
-
-### Fixes
-
-- [#4833](https://github.com/ignite/cli/pull/4833) IBC consensus state not found.
 
 ## [`v29.6.0`](https://github.com/ignite/cli/releases/tag/v29.6.0)
 
