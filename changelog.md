@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- [#4833](https://github.com/ignite/cli/pull/4833) IBC consensus state not found.
+
 ## [`v29.6.1`](https://github.com/ignite/cli/releases/tag/v29.6.1)
 
 ### Changes

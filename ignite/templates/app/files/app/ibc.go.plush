@@ -166,3 +166,9 @@ func RegisterIBC(cdc codec.Codec) map[string]appmodule.AppModule {
 
 	return modules
 }
+
+// GetIBCKeeper returns the IBC keeper.
+// Used for supply with IBC keeper getter for the IBC modules with App Wiring.
+func (app *App) GetIBCKeeper() *ibckeeper.Keeper {
+	return app.IBCKeeper
+}
