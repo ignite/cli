@@ -26,7 +26,7 @@ const (
 )
 
 var DefaultRepoURL = url.URL{
-	Protocol: "ssh",
+	Protocol: "https",
 	Host:     "github.com",
 	Path:     "ignite/cli",
 }
