@@ -20,15 +20,21 @@ type URL struct {
 }
 
 var (
-	isSchemeRegExp   = regexp.MustCompile(`^[^:]+://`)
-	scpLikeUrlRegExp = regexp.MustCompile(`^(?:(?P<user>[^@]+)@)?(?P<host>[^:\s]+):(?:(?P<port>[0-9]{1,5}):)?(?P<path>[^\\].*)$`)
+	scpLikeUrlRegExp  = regexp.MustCompile(`^[^@]+@[^:]+:.+`)
+	scpSubMatchRegExp = regexp.MustCompile(`^(?:(?P<user>[^@]+)@)?(?P<host>[^:\s]+):(?:(?P<port>[0-9]{1,5}):)?(?P<path>[^\\].*)$`)
 )
 
 // New creates a new URL object.
 func New(endpoint string) (URL, error) {
-	if e, ok := parseSCPLike(endpoint); ok {
-		return e, nil
+	if scpLikeUrlRegExp.MatchString(endpoint) {
+		return parseSCPLike(endpoint), nil
 	}
+
+	u, err := url.Parse(endpoint)
+	if err == nil && u.Scheme == "ssh" {
+		return parseSCPLike(endpoint), nil
+	}
+
 	return parseURL(endpoint)
 }
 
@@ -51,33 +57,24 @@ func (u URL) String() string {
 }
 
 // parseSCPLike returns an URL object from SCP git URL.
-func parseSCPLike(endpoint string) (URL, bool) {
-	if matchesScheme(endpoint) || !matchesScpLike(endpoint) {
-		return URL{}, false
-	}
-
+func parseSCPLike(endpoint string) URL {
 	_, host, _, path := findScpLikeComponents(endpoint)
-
 	return URL{
 		Protocol: "ssh",
 		Host:     host,
 		Path:     strings.TrimSuffix(path, ".git"),
-	}, true
+	}
 }
 
 // parseURL returns an URL object from an endpoint.
 func parseURL(endpoint string) (URL, error) {
-	if !matchesScheme(endpoint) || matchesScpLike(endpoint) {
-		return URL{}, errors.Errorf("invalid endpoint scheme: %s", endpoint)
-	}
-
 	u, err := url.Parse(endpoint)
 	if err != nil {
-		return URL{}, err
+		return URL{}, errors.Errorf("failed to parse URL: %v", err)
 	}
 
 	if !u.IsAbs() {
-		return URL{}, errors.Errorf("invalid endpoint URL: %s", endpoint)
+		return URL{}, errors.Errorf("URL must be absolute with scheme and host: %s", endpoint)
 	}
 
 	return URL{
@@ -87,19 +84,9 @@ func parseURL(endpoint string) (URL, error) {
 	}, nil
 }
 
-// matchesScheme returns true if the given string matches a URL-like format scheme.
-func matchesScheme(url string) bool {
-	return isSchemeRegExp.MatchString(url)
-}
-
-// matchesScpLike returns true if the given string matches an SCP-like format scheme.
-func matchesScpLike(url string) bool {
-	return scpLikeUrlRegExp.MatchString(url)
-}
-
 // findScpLikeComponents returns the user, host, port and path of the given SCP-like URL.
 func findScpLikeComponents(url string) (user, host, port, path string) {
-	m := scpLikeUrlRegExp.FindStringSubmatch(url)
+	m := scpSubMatchRegExp.FindStringSubmatch(url)
 	user = m[1]
 	host = m[2]
 	port = m[3]
