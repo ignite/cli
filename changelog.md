@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changes
+
+- [#4838](https://github.com/ignite/cli/pull/4838) Bump minimum Go version to 1.24.1.
+
 ### Fixes
 
 - [#4833](https://github.com/ignite/cli/pull/4833) IBC consensus state not found.
