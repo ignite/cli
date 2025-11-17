@@ -1,6 +1,6 @@
 module github.com/ignite/cli/v29
 
-go 1.24.0
+go 1.24.1
 
 require (
 	cosmossdk.io/core v0.11.3
