@@ -587,8 +587,8 @@ func (c *Chain) parseAddressPrefix() (string, error) {
 	}
 
 	// try to find the AccountAddressPrefix constant
-	lines := strings.Split(string(content), "\n")
-	for _, line := range lines {
+	lines := strings.SplitSeq(string(content), "\n")
+	for line := range lines {
 		// match both formats:
 		// AccountAddressPrefix = "cosmos"
 		// AccountAddressPrefix string = "cosmos"
@@ -631,8 +631,8 @@ func (c *Chain) parseCoinType() (uint32, error) {
 	}
 
 	// try to find the ChainCoinType constant
-	lines := strings.Split(string(content), "\n")
-	for _, line := range lines {
+	lines := strings.SplitSeq(string(content), "\n")
+	for line := range lines {
 		if strings.Contains(line, "ChainCoinType") && strings.Contains(line, "=") {
 			parts := strings.Split(line, "=")
 			if len(parts) < 2 {
