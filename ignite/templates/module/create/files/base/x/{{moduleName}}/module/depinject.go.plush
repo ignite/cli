@@ -39,7 +39,7 @@ type ModuleInputs struct {
 	BankKeeper types.BankKeeper<%= for (dependency) in dependencies { %><%= if (dependency.Name != "Bank" && dependency.Name != "Auth") { %>
     <%= dependency.KeeperName() %> types.<%= dependency.KeeperName() %><% } %><% } %>
 
-    <%= if (isIBC) { %>IBCKeeperFn func() *ibckeeper.Keeper `optional:"true"` <% } %>
+    <%= if (isIBC) { %>IBCKeeperFn func() *ibckeeper.Keeper <% } %>
 }
 
 type ModuleOutputs struct {
