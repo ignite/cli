@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [`v29.6.2`](https://github.com/ignite/cli/releases/tag/v29.6.2)
+
 ### Changes
 
 - [#4838](https://github.com/ignite/cli/pull/4838) Bump minimum Go version to 1.24.1.
@@ -9,6 +11,7 @@
 ### Fixes
 
 - [#4833](https://github.com/ignite/cli/pull/4833) IBC consensus state not found.
+- [#4844](https://github.com/ignite/cli/pull/4844) Fix tabs in proto impl YAML.
 
 ## [`v29.6.1`](https://github.com/ignite/cli/releases/tag/v29.6.1)
 
