@@ -2,13 +2,13 @@
 
 # Primary repo maintainers
 
-*       @ilgooz @Pantani @julienrbrt
+*       @Pantani @julienrbrt
 
 # Ts templates
 
-ignite/pkg/cosmosgen/* @ilgooz @Pantani @julienrbrt @clockworkgr
+ignite/pkg/cosmosgen/* @Pantani @julienrbrt @clockworkgr
 
 # Docs
 
-*.md    @ilgooz @Pantani @julienrbrt
-docs/*   @ilgooz @Pantani @julienrbrt
+*.md    @Pantani @julienrbrt
+docs/*   @Pantani @julienrbrt
