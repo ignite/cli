@@ -4,7 +4,8 @@
 
 ## Changes
 
-- []() Bump `cosmos-sdk` version to `v0.53.5` and minimum Go version to `1.25`.
+- [#4850](https://github.com/ignite/cli/pull/4850) Add default GitHub Actions for linting and testing.
+- [#4849](https://github.com/ignite/cli/pull/4849) Bump `cosmos-sdk` version to `v0.53.5` and minimum Go version to `1.25`.
 
 ## [`v29.6.2`](https://github.com/ignite/cli/releases/tag/v29.6.2)
 
