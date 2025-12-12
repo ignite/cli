@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## Changes
+
+- []() Bump `cosmos-sdk` version to `v0.53.5` and minimum Go version to `1.25`.
+
 ## [`v29.6.2`](https://github.com/ignite/cli/releases/tag/v29.6.2)
 
 ### Changes
