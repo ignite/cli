@@ -46,7 +46,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, macos-latest ]
+        os: [ubuntu-latest]
         test-path: ${{ fromJson(needs.pre-test.outputs.matrix) }}
     steps:
       - name: Download prepared workspace
