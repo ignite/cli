@@ -22,6 +22,7 @@ type generateOptions struct {
 	isTSClientEnabled    bool
 	isComposablesEnabled bool
 	isOpenAPIEnabled     bool
+	openAPIExcludeList   []string
 	tsClientPath         string
 	composablesPath      string
 }
@@ -57,9 +58,10 @@ func GenerateComposables(path string) GenerateTarget {
 }
 
 // GenerateOpenAPI enables generating OpenAPI spec for your chain.
-func GenerateOpenAPI() GenerateTarget {
+func GenerateOpenAPI(excludeList []string) GenerateTarget {
 	return func(o *generateOptions) {
 		o.isOpenAPIEnabled = true
+		o.openAPIExcludeList = excludeList
 	}
 }
 
@@ -86,7 +88,7 @@ func (c *Chain) generateFromConfig(ctx context.Context, cacheStorage cache.Stora
 	var targets []GenerateTarget
 
 	if conf.Client.OpenAPI.Path != "" {
-		targets = append(targets, GenerateOpenAPI())
+		targets = append(targets, GenerateOpenAPI(conf.Client.OpenAPI.ExcludeList))
 	}
 
 	if generateClients {
@@ -149,7 +151,7 @@ func (c *Chain) Generate(
 			openAPIPath = filepath.Join(c.app.Path, openAPIPath)
 		}
 
-		options = append(options, cosmosgen.WithOpenAPIGeneration(openAPIPath))
+		options = append(options, cosmosgen.WithOpenAPIGeneration(openAPIPath, targetOptions.openAPIExcludeList))
 	}
 
 	if targetOptions.isTSClientEnabled {

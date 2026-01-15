@@ -173,7 +173,7 @@ func protoc(ctx context.Context, cacheStorage cache.Storage, projectPath, protoD
 			openAPIPath = filepath.Join(projectPath, openAPIPath)
 		}
 
-		options = append(options, cosmosgen.WithOpenAPIGeneration(openAPIPath))
+		options = append(options, cosmosgen.WithOpenAPIGeneration(openAPIPath, conf.Client.OpenAPI.ExcludeList))
 	}
 
 	if err := cosmosgen.Generate(
