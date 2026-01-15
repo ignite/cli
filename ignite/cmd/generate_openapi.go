@@ -8,6 +8,8 @@ import (
 	"github.com/ignite/cli/v29/ignite/services/chain"
 )
 
+var excludeFlag = "exclude"
+
 func NewGenerateOpenAPI() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "openapi",
@@ -16,6 +18,7 @@ func NewGenerateOpenAPI() *cobra.Command {
 	}
 
 	c.Flags().AddFlagSet(flagSetYes())
+	c.Flags().StringSlice(excludeFlag, []string{}, "List of proto files or directories to exclude from the OpenAPI spec generation")
 
 	return c
 }
@@ -47,7 +50,9 @@ func generateOpenAPIHandler(cmd *cobra.Command, _ []string) error {
 		opts = append(opts, chain.GenerateProtoVendor())
 	}
 
-	err = c.Generate(cmd.Context(), cacheStorage, chain.GenerateOpenAPI(), opts...)
+	excludeList, _ := cmd.Flags().GetStringArray(excludeFlag)
+
+	err = c.Generate(cmd.Context(), cacheStorage, chain.GenerateOpenAPI(excludeList), opts...)
 	if err != nil {
 		return err
 	}
