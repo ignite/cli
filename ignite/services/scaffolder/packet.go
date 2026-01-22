@@ -131,7 +131,7 @@ func (s Scaffolder) AddPacket(
 			MsgSigner:  mfSigner,
 		}
 	)
-	g, err = ibc.NewPacket(s.Tracer(), opts)
+	g, err = ibc.NewPacket(opts)
 	if err != nil {
 		return err
 	}

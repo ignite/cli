@@ -11,13 +11,9 @@ import (
 )
 
 var (
-	SurveyLink = "https://bit.ly/3WZS2uS"
-	APIURL     = "http://announcements.ignite.com/v1/announcements"
+	SurveyLink      = "https://bit.ly/3WZS2uS"
+	AnnouncementURL = "https://api.ignite.com/v1/announcements"
 )
-
-type api struct {
-	Announcements []announcement `json:"announcements"`
-}
 
 type announcement struct {
 	ID        string    `json:"id"`
@@ -28,13 +24,16 @@ type announcement struct {
 
 // Fetch fetches the latest announcements from the API.
 func Fetch() string {
-	resp, err := http.Get(APIURL) //nolint:gosec
+	resp, err := http.Get(AnnouncementURL) //nolint:gosec
 	if err != nil || resp.StatusCode != 200 {
 		return fallbackData()
 	}
 	defer resp.Body.Close()
 
-	var data api
+	type response struct {
+		Announcements []announcement `json:"announcements"`
+	}
+	var data response
 	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
 		return fallbackData()
 	}
@@ -44,7 +43,7 @@ func Fetch() string {
 	}
 
 	var out strings.Builder
-	fmt.Fprintf(&out, "\n%s %s\n", icons.Announcement, "Announcements")
+	fmt.Fprintf(&out, "%s\n\n", "Announcements:")
 
 	for _, msg := range data.Announcements {
 		fmt.Fprintf(&out, "%s %s\n", icons.Bullet, msg.Text)

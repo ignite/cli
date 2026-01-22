@@ -16,19 +16,30 @@ import (
 type (
 	// functionOpts represent the options for functions.
 	functionOpts struct {
-		funcName       string          // Name of the function to modify.
-		newParams      []functionParam // Parameters to add to the function.
-		body           string          // New function body content.
-		newLines       []functionLine  // Lines to insert at specific positions.
-		insideCall     functionCalls   // Function calls to modify.
-		insideStruct   functionStructs // Struct literals to modify.
-		appendTestCase []string        // Test cases to append.
-		appendCode     []string        // Code to append at the end.
-		returnVars     []string        // Return variables to modify.
+		newParams      []functionParam  // Parameters to add to the function.
+		body           string           // New function body content.
+		newLines       []functionLine   // Lines to insert at specific positions.
+		insideCall     functionCalls    // Function calls to modify.
+		insideStruct   functionStructs  // Struct literals to modify.
+		appendTestCase []string         // Test cases to append.
+		appendCode     []string         // Code to append at the end.
+		returnVars     []string         // Return variables to modify.
+		appendSwitch   functionSwitches // Switch cases to append.
+		removeCalls    []string         // Function calls to remove.
 	}
 
 	// FunctionOptions configures code generation.
 	FunctionOptions func(*functionOpts)
+
+	// functionStruct represents a struct literal to modify.
+	functionSwitch struct {
+		condition  string // Condition to find.
+		switchCase string // Switch case to insert.
+		switchBody string // Code to insert.
+	}
+
+	functionSwitches    []functionSwitch
+	functionSwitchesMap map[string]functionSwitches
 
 	// functionStruct represents a struct literal to modify.
 	functionStruct struct {
@@ -81,6 +92,19 @@ func (s functionStructs) Map() functionStructsMap {
 		structMap[c.name] = append(structs, c)
 	}
 	return structMap
+}
+
+// Map converts a slice of functionStructs to a map keyed by struct name.
+func (s functionSwitches) Map() functionSwitchesMap {
+	switchesMap := make(functionSwitchesMap)
+	for _, c := range s {
+		switches, ok := switchesMap[c.condition]
+		if !ok {
+			switches = make(functionSwitches, 0)
+		}
+		switchesMap[c.condition] = append(switches, c)
+	}
+	return switchesMap
 }
 
 // Map converts a slice of functionCalls to a map keyed by function name.
@@ -143,6 +167,14 @@ func AppendFuncAtLine(code string, lineNumber uint64) FunctionOptions {
 
 // AppendInsideFuncCall adds an argument to a function call. For instances, the method have a parameter a
 // // call 'New(param1, param2)' and we want to add the param3 the result will be 'New(param1, param2, param3)'.
+// AppendInsideFuncCall appends code inside a function call.
+// The callName parameter can be either:
+//   - Simple name: "NewKeeper" matches any call to NewKeeper regardless of package/receiver
+//   - Qualified name: "foo.NewKeeper" matches only calls to NewKeeper with foo as the package/receiver
+//
+// The code parameter is the argument to insert, and index specifies the position:
+//   - index >= 0: insert at the specified position
+//   - index == -1: append at the end
 func AppendInsideFuncCall(callName, code string, index int) FunctionOptions {
 	return func(c *functionOpts) {
 		c.insideCall = append(c.insideCall, functionCall{
@@ -154,8 +186,12 @@ func AppendInsideFuncCall(callName, code string, index int) FunctionOptions {
 }
 
 // AppendFuncStruct adds a field to a struct literal. For instance,
-// // the struct has only one parameter 'Params{Param1: param1}' and we want to add
-// // the param2 the result will be 'Params{Param1: param1, Param2: param2}'.
+// the struct has only one parameter 'Params{Param1: param1}' and we want to add
+// the param2 the result will be 'Params{Param1: param1, Param2: param2}'.
+//
+// The name parameter can be either:
+//   - Simple name: "Keeper" matches any struct literal of type Keeper regardless of package
+//   - Qualified name: "keeper.Keeper" matches only struct literals with keeper as the package
 func AppendFuncStruct(name, param, code string) FunctionOptions {
 	return func(c *functionOpts) {
 		c.insideStruct = append(c.insideStruct, functionStruct{
@@ -173,10 +209,29 @@ func NewFuncReturn(returnVars ...string) FunctionOptions {
 	}
 }
 
+// AppendSwitchCase inserts a new case with the code at a specific switch condition statement.
+func AppendSwitchCase(condition, switchCase, switchBody string) FunctionOptions {
+	return func(c *functionOpts) {
+		c.appendSwitch = append(c.appendSwitch, functionSwitch{
+			condition:  condition,
+			switchCase: switchCase,
+			switchBody: switchBody,
+		})
+	}
+}
+
+// RemoveFuncCall removes function calls with the specified name from within a function.
+// The callName can be either a simple function name like "doSomething" or a qualified
+// name like "pkg.DoSomething".
+func RemoveFuncCall(callName string) FunctionOptions {
+	return func(c *functionOpts) {
+		c.removeCalls = append(c.removeCalls, callName)
+	}
+}
+
 // newFunctionOptions creates a new functionOpts with defaults.
-func newFunctionOptions(funcName string) functionOpts {
+func newFunctionOptions() functionOpts {
 	return functionOpts{
-		funcName:       funcName,
 		newParams:      make([]functionParam, 0),
 		body:           "",
 		newLines:       make([]functionLine, 0),
@@ -185,13 +240,14 @@ func newFunctionOptions(funcName string) functionOpts {
 		appendTestCase: make([]string, 0),
 		appendCode:     make([]string, 0),
 		returnVars:     make([]string, 0),
+		removeCalls:    make([]string, 0),
 	}
 }
 
 // ModifyFunction modifies a function in Go source code using functional options.
 func ModifyFunction(content string, funcName string, functions ...FunctionOptions) (string, error) {
 	// Collect all function options.
-	opts := newFunctionOptions(funcName)
+	opts := newFunctionOptions()
 	for _, fn := range functions {
 		fn(&opts)
 	}
@@ -200,7 +256,7 @@ func ModifyFunction(content string, funcName string, functions ...FunctionOption
 	fset := token.NewFileSet()
 	file, err := parser.ParseFile(fset, "", content, parser.ParseComments)
 	if err != nil {
-		return "", errors.Errorf("failed to parse file: %w", err)
+		return "", errors.Errorf("failed to parse file (%s): %w", funcName, err)
 	}
 
 	cmap := ast.NewCommentMap(fset, file, file.Comments)
@@ -256,6 +312,55 @@ func modifyReturnVars(fileSet *token.FileSet, returnVars []string) ([]ast.Expr, 
 	return stmts, nil
 }
 
+// appendSwitchCase appends a new case to a switch statement.
+func appendSwitchCase(fileSet *token.FileSet, stmt ast.Node, fs functionSwitches) error {
+	for _, f := range fs {
+		// Parse the new case code
+		newRetExpr, err := parser.ParseExprFrom(fileSet, "", []byte(f.switchCase), parser.ParseComments)
+		if err != nil {
+			return err
+		}
+
+		bodyStmt, err := codeToBlockStmt(fileSet, f.switchBody)
+		if err != nil {
+			return err
+		}
+
+		// Create a new case clause
+		newCase := &ast.CaseClause{
+			List:  []ast.Expr{newRetExpr},
+			Body:  bodyStmt.List,
+			Case:  token.NoPos, // Keep first item aligned with case keyword
+			Colon: token.NoPos, // Keep colon aligned with case keyword
+		}
+
+		// Handle different types of switch statements
+		switch statement := stmt.(type) {
+		case *ast.TypeSwitchStmt:
+			statement.Body.List = appendCaseToList(statement.Body.List, newCase)
+		case *ast.SwitchStmt:
+			statement.Body.List = appendCaseToList(statement.Body.List, newCase)
+		default:
+			return errors.Errorf("unsupported switch statement type: %T", stmt)
+		}
+	}
+	return nil
+}
+
+// appendCaseToList handles inserting a case clause into a list of statements,
+// placing it before any default case if one exists.
+func appendCaseToList(list []ast.Stmt, newCase *ast.CaseClause) []ast.Stmt {
+	if len(list) > 0 {
+		lastCase, isDefault := list[len(list)-1].(*ast.CaseClause)
+		if isDefault && len(lastCase.List) == 0 {
+			// Insert before default.
+			return append(list[:len(list)-1], newCase, list[len(list)-1])
+		}
+	}
+
+	return append(list, newCase)
+}
+
 // addParams adds new parameters to a function declaration.
 func addParams(funcDecl *ast.FuncDecl, newParams []functionParam) error {
 	for _, p := range newParams {
@@ -281,7 +386,7 @@ func addNewLine(fileSet *token.FileSet, funcDecl *ast.FuncDecl, newLines []funct
 	for _, newLine := range newLines {
 		// Validate line number
 		if newLine.number > uint64(len(funcDecl.Body.List))-1 {
-			return errors.Errorf("line number %d out of range", newLine.number)
+			return errors.Errorf("line number %d out of range (max %d)", newLine.number, len(funcDecl.Body.List)-1)
 		}
 
 		// Parse insertion code
@@ -371,7 +476,7 @@ func addTestCase(fSet *token.FileSet, funcDecl *ast.FuncDecl, testCase []string)
 // structToBlockStmt parses struct literal code into AST expression.
 func structToBlockStmt(fSet *token.FileSet, code string) (ast.Expr, error) {
 	newFuncContent := toStruct(code)
-	newContent, err := parser.ParseExprFrom(fSet, "temp.go", newFuncContent, parser.AllErrors)
+	newContent, err := parser.ParseExprFrom(fSet, "", newFuncContent, parser.AllErrors)
 	if err != nil {
 		return nil, err
 	}
@@ -402,6 +507,12 @@ func exprName(expr ast.Expr) (string, bool) {
 	case *ast.Ident:
 		return exp.Name, true
 	case *ast.SelectorExpr:
+		// Check if X is an identifier to get the package name
+		if ident, ok := exp.X.(*ast.Ident); ok {
+			// Return qualified name: package.Function
+			return ident.Name + "." + exp.Sel.Name, true
+		}
+		// Fallback to just the selector name if X is not an identifier
 		return exp.Sel.Name, true
 	default:
 		return "", false
@@ -498,7 +609,8 @@ func formatNode(fileSet *token.FileSet, n ast.Node) (string, error) {
 		return "", err
 	}
 
-	return buf.String(), nil
+	node := strings.TrimSpace(buf.String())
+	return node, nil
 }
 
 // applyFunctionOptions applies all modifications to a function.
@@ -526,20 +638,26 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 
 	// Create maps for tracking modifications.
 	var (
-		callMap        = opts.insideCall.Map()
-		callMapCheck   = opts.insideCall.Map()
-		structMap      = opts.insideStruct.Map()
-		structMapCheck = opts.insideStruct.Map()
+		callMap               = opts.insideCall.Map()
+		callMapCheck          = opts.insideCall.Map()
+		structMap             = opts.insideStruct.Map()
+		structMapCheck        = opts.insideStruct.Map()
+		switchesCasesMap      = opts.appendSwitch.Map()
+		switchesCasesMapCheck = opts.appendSwitch.Map()
 	)
 
+	// Remove function calls if specified.
+	if len(opts.removeCalls) > 0 {
+		if err := removeFunctionCalls(f, opts.removeCalls); err != nil {
+			return err
+		}
+	}
+
 	// Apply all modifications.
-	var (
-		found      bool
-		errInspect error
-	)
+	var errInspect error
 	ast.Inspect(f, func(n ast.Node) bool {
 		funcDecl, ok := n.(*ast.FuncDecl)
-		if !ok || funcDecl.Name.Name != opts.funcName {
+		if !ok {
 			return true
 		}
 
@@ -567,6 +685,39 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 			return false
 		}
 
+		for _, bodyList := range funcDecl.Body.List {
+			var stmt ast.Stmt
+			var buf bytes.Buffer
+			switch expr := bodyList.(type) {
+			case *ast.TypeSwitchStmt:
+				stmt = expr
+				if err := format.Node(&buf, fileSet, expr.Assign); err != nil {
+					errInspect = err
+					return false
+				}
+			case *ast.SwitchStmt:
+				stmt = expr
+				if err := format.Node(&buf, fileSet, expr.Tag); err != nil {
+					errInspect = err
+					return false
+				}
+			default:
+				continue
+			}
+
+			switchCase, ok := switchesCasesMap[buf.String()]
+			if !ok {
+				continue
+			}
+
+			if err := appendSwitchCase(fileSet, stmt, switchCase); err != nil {
+				errInspect = err
+				return false
+			}
+
+			delete(switchesCasesMapCheck, buf.String())
+		}
+
 		// Modify function calls and struct literals.
 		ast.Inspect(funcDecl, func(n ast.Node) bool {
 			switch expr := n.(type) {
@@ -576,16 +727,30 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 					return true
 				}
 
-				calls, ok := callMap[name]
-				if !ok {
+				// Collect all matching calls (both qualified and unqualified names)
+				var allCalls functionCalls
+				if calls, ok := callMap[name]; ok {
+					allCalls = append(allCalls, calls...)
+					delete(callMapCheck, name)
+				}
+
+				// Also check for unqualified name if this is a selector expression
+				if sel, isSel := expr.Fun.(*ast.SelectorExpr); isSel {
+					simpleName := sel.Sel.Name
+					if calls, ok := callMap[simpleName]; ok {
+						allCalls = append(allCalls, calls...)
+						delete(callMapCheck, simpleName)
+					}
+				}
+
+				if len(allCalls) == 0 {
 					return true
 				}
 
-				if err := addFunctionCall(expr, calls); err != nil {
+				if err := addFunctionCall(expr, allCalls); err != nil {
 					errInspect = err
 					return false
 				}
-				delete(callMapCheck, name)
 
 			case *ast.CompositeLit:
 				name, exist := exprName(expr.Type)
@@ -593,13 +758,27 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 					return true
 				}
 
-				structs, ok := structMap[name]
-				if !ok {
+				// Collect all matching structs (both qualified and unqualified names)
+				var allStructs functionStructs
+				if structs, ok := structMap[name]; ok {
+					allStructs = append(allStructs, structs...)
+					delete(structMapCheck, name)
+				}
+
+				// Also check for unqualified name if this is a selector expression
+				if sel, isSel := expr.Type.(*ast.SelectorExpr); isSel {
+					simpleName := sel.Sel.Name
+					if structs, ok := structMap[simpleName]; ok {
+						allStructs = append(allStructs, structs...)
+						delete(structMapCheck, simpleName)
+					}
+				}
+
+				if len(allStructs) == 0 {
 					return true
 				}
 
-				addStructs(fileSet, expr, structs)
-				delete(structMapCheck, name)
+				addStructs(fileSet, expr, allStructs)
 
 			default:
 				return true
@@ -610,31 +789,28 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 			return false
 		}
 
-		// Verify all modifications were applied.
-		if len(callMapCheck) > 0 {
-			errInspect = errors.Errorf("function calls not found: %v", callMapCheck)
-			return false
-		}
-		if len(structMapCheck) > 0 {
-			errInspect = errors.Errorf("function structs not found: %v", structMapCheck)
-			return false
-		}
-
 		// Add test cases.
 		if err := addTestCase(fileSet, funcDecl, opts.appendTestCase); err != nil {
 			errInspect = err
 			return false
 		}
 
-		found = true
 		return false
 	})
 
 	if errInspect != nil {
 		return errInspect
 	}
-	if !found {
-		return errors.Errorf("function %s not found in file content", opts.funcName)
+
+	// Verify all modifications were applied.
+	if len(callMapCheck) > 0 {
+		return errors.Errorf("function calls not found: %v", callMapCheck)
+	}
+	if len(structMapCheck) > 0 {
+		return errors.Errorf("function structs not found: %v", structMapCheck)
+	}
+	if len(switchesCasesMapCheck) > 0 {
+		return errors.Errorf("function switch not found: %v", switchesCasesMapCheck)
 	}
 
 	return nil
@@ -761,4 +937,147 @@ func ModifyCaller(content, callerExpr string, modifiers func([]string) ([]string
 	}
 
 	return string(result), nil
+}
+
+// RemoveFunction removes a function declaration from the file content.
+func RemoveFunction(content, funcName string) (string, error) {
+	// Parse source into AST.
+	fset := token.NewFileSet()
+	file, err := parser.ParseFile(fset, "", content, parser.ParseComments)
+	if err != nil {
+		return "", errors.Errorf("failed to parse file: %w", err)
+	}
+
+	cmap := ast.NewCommentMap(fset, file, file.Comments)
+
+	// Find the function to remove.
+	var found bool
+	var newDecls []ast.Decl
+	for _, decl := range file.Decls {
+		if fd, ok := decl.(*ast.FuncDecl); ok && fd.Name.Name == funcName {
+			found = true
+			// Remove comments associated with this function.
+			delete(cmap, decl)
+			continue // Skip this declaration to remove it.
+		}
+		newDecls = append(newDecls, decl)
+	}
+
+	if !found {
+		return "", errors.Errorf("function %q not found", funcName)
+	}
+
+	// Update file declarations and comments.
+	file.Decls = newDecls
+	file.Comments = cmap.Filter(file).Comments()
+
+	return formatNode(fset, file)
+}
+
+// removeFunctionCalls removes all function calls matching the specified names from a function.
+func removeFunctionCalls(f *ast.FuncDecl, callNames []string) error {
+	if f.Body == nil {
+		return nil
+	}
+
+	// Create a map for faster lookup.
+	callMap := make(map[string]bool)
+	for _, name := range callNames {
+		callMap[name] = true
+	}
+
+	// Helper to check if a call expression matches any of the names to remove.
+	matchesCall := func(callExpr *ast.CallExpr) bool {
+		switch fun := callExpr.Fun.(type) {
+		case *ast.Ident:
+			// Simple function call like doSomething().
+			return callMap[fun.Name]
+		case *ast.SelectorExpr:
+			// Qualified function call like pkg.DoSomething().
+			if ident, ok := fun.X.(*ast.Ident); ok {
+				qualified := ident.Name + "." + fun.Sel.Name
+				return callMap[qualified]
+			}
+		}
+		return false
+	}
+
+	// Filter statements to remove matching function calls.
+	var filterStmts func([]ast.Stmt) []ast.Stmt
+	filterStmts = func(stmts []ast.Stmt) []ast.Stmt {
+		var filtered []ast.Stmt
+		for _, stmt := range stmts {
+			keep := true
+
+			// Check if this is an expression statement with a call expression.
+			if exprStmt, ok := stmt.(*ast.ExprStmt); ok {
+				if callExpr, ok := exprStmt.X.(*ast.CallExpr); ok {
+					if matchesCall(callExpr) {
+						keep = false
+					}
+				}
+			}
+
+			// Recursively handle block statements.
+			if blockStmt, ok := stmt.(*ast.BlockStmt); ok {
+				blockStmt.List = filterStmts(blockStmt.List)
+			}
+
+			// Recursively handle if statements.
+			if ifStmt, ok := stmt.(*ast.IfStmt); ok {
+				if ifStmt.Body != nil {
+					ifStmt.Body.List = filterStmts(ifStmt.Body.List)
+				}
+				if ifStmt.Else != nil {
+					if elseBlock, ok := ifStmt.Else.(*ast.BlockStmt); ok {
+						elseBlock.List = filterStmts(elseBlock.List)
+					}
+				}
+			}
+
+			// Recursively handle for statements.
+			if forStmt, ok := stmt.(*ast.ForStmt); ok {
+				if forStmt.Body != nil {
+					forStmt.Body.List = filterStmts(forStmt.Body.List)
+				}
+			}
+
+			// Recursively handle range statements.
+			if rangeStmt, ok := stmt.(*ast.RangeStmt); ok {
+				if rangeStmt.Body != nil {
+					rangeStmt.Body.List = filterStmts(rangeStmt.Body.List)
+				}
+			}
+
+			// Recursively handle switch statements.
+			if switchStmt, ok := stmt.(*ast.SwitchStmt); ok {
+				if switchStmt.Body != nil {
+					for _, caseClause := range switchStmt.Body.List {
+						if cc, ok := caseClause.(*ast.CaseClause); ok {
+							cc.Body = filterStmts(cc.Body)
+						}
+					}
+				}
+			}
+
+			// Recursively handle type switch statements.
+			if typeSwitchStmt, ok := stmt.(*ast.TypeSwitchStmt); ok {
+				if typeSwitchStmt.Body != nil {
+					for _, caseClause := range typeSwitchStmt.Body.List {
+						if cc, ok := caseClause.(*ast.CaseClause); ok {
+							cc.Body = filterStmts(cc.Body)
+						}
+					}
+				}
+			}
+
+			if keep {
+				filtered = append(filtered, stmt)
+			}
+		}
+		return filtered
+	}
+
+	f.Body.List = filterStmts(f.Body.List)
+	return nil
 }

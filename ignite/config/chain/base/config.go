@@ -59,7 +59,8 @@ type Composables struct {
 
 // OpenAPI configures OpenAPI spec generation for API.
 type OpenAPI struct {
-	Path string `yaml:"path" doc:"Relative path where the application's OpenAPI files are located."`
+	Path        string   `yaml:"path" doc:"Relative path where the application's OpenAPI files are located."`
+	ExcludeList []string `yaml:"exclude_list" doc:"List of proto paths to exclude OpenAPI from generation (supports wildcards)."`
 }
 
 // Faucet configuration.

@@ -255,3 +255,194 @@ func main() {
 		})
 	}
 }
+
+func TestRemoveImports(t *testing.T) {
+	type args struct {
+		fileContent string
+		imports     []ImportOptions
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+		err  error
+	}{
+		{
+			name: "remove single import statement",
+			args: args{
+				fileContent: `package main
+
+import (
+	"fmt"
+	"strings"
+)
+
+func main() {
+	fmt.Println("Hello, world!")
+}`,
+				imports: []ImportOptions{
+					WithImport("strings"),
+				},
+			},
+			want: `package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	fmt.Println("Hello, world!")
+}
+`,
+		},
+		{
+			name: "remove multiple import statements",
+			args: args{
+				fileContent: `package main
+
+import (
+	"fmt"
+	"os"
+	"strconv"
+	st "strings"
+)
+
+func main() {
+	fmt.Println("Hello, world!")
+}`,
+				imports: []ImportOptions{
+					WithNamedImport("st", "strings"),
+					WithImport("strconv"),
+					WithImport("os"),
+				},
+			},
+			want: `package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	fmt.Println("Hello, world!")
+}
+`,
+		},
+		{
+			name: "remove all imports",
+			args: args{
+				fileContent: `package main
+
+import (
+	"fmt"
+	"strings"
+)
+
+func main() {
+	fmt.Println("Hello, world!")
+}`,
+				imports: []ImportOptions{
+					WithImport("fmt"),
+					WithImport("strings"),
+				},
+			},
+			want: `package main
+
+func main() {
+	fmt.Println("Hello, world!")
+}
+`,
+		},
+		{
+			name: "remove non-existent import",
+			args: args{
+				fileContent: `package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("Hello, world!")
+}`,
+				imports: []ImportOptions{
+					WithImport("strings"),
+				},
+			},
+			want: `package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("Hello, world!")
+}
+`,
+		},
+		{
+			name: "remove named import",
+			args: args{
+				fileContent: `package main
+
+import (
+	"fmt"
+	st "strings"
+)
+
+func main() {
+	fmt.Println("Hello, world!")
+}`,
+				imports: []ImportOptions{
+					WithNamedImport("st", "strings"),
+				},
+			},
+			want: `package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	fmt.Println("Hello, world!")
+}
+`,
+		},
+		{
+			name: "remove import from file with no imports",
+			args: args{
+				fileContent: `package main
+
+func main() {
+	fmt.Println("Hello, world!")
+}`,
+				imports: []ImportOptions{
+					WithImport("fmt"),
+				},
+			},
+			want: `package main
+
+func main() {
+	fmt.Println("Hello, world!")
+}
+`,
+		},
+		{
+			name: "remove empty file content",
+			args: args{
+				fileContent: "",
+				imports: []ImportOptions{
+					WithImport("fmt"),
+				},
+			},
+			err: errors.New("1:1: expected 'package', found 'EOF'"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := RemoveImports(tt.args.fileContent, tt.args.imports...)
+			if tt.err != nil {
+				require.Error(t, err)
+				require.Equal(t, tt.err.Error(), err.Error())
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, tt.want, got)
+		})
+	}
+}

@@ -23,7 +23,7 @@ Ignite CLI is supported for the following operating systems:
 
 Ignite CLI is written in the Go programming language. To use Ignite CLI on a local system:
 
-- Install [Go](https://golang.org/doc/install) (**version 1.24** or higher)
+- Install [Go](https://golang.org/doc/install) (**version 1.24.1** or higher)
 - Ensure the Go environment variables are [set properly](https://golang.org/doc/gopath_code#GOPATH) on your system
 
 ## Verify your Ignite CLI version
@@ -42,12 +42,6 @@ To install the latest version of Ignite use [HomeBrew](https://formulae.brew.sh/
 brew install ignite
 ```
 
-Or use Snap on GNU/Linux:
-
-```sh
-snap install ignite --classic
-```
-
 ### Install manually
 
 Alternatively, you can install the latest version of the `ignite` binary use the following command:
@@ -57,7 +51,7 @@ curl https://get.ignite.com/cli! | bash
 ```
 
 This command invokes `curl` to download the installation script and pipes the output to `bash` to perform the
-installation.  The `ignite` binary is installed in `/usr/local/bin`.
+installation. The `ignite` binary is installed in `/usr/local/bin`.
 
 Ignite CLI installation requires write permission to the `/usr/local/bin/` directory. If the installation fails because
 you do not have write permission to `/usr/local/bin/`, run the following command:
@@ -100,7 +94,7 @@ To remove the current Ignite CLI installation:
    Depending on your user permissions, run the command with or without `sudo`.
 3. Repeat this step until all `ignite` installations are removed from your system.
 
-After all existing Ignite CLI installations are removed, follow the  [Installing Ignite CLI](#installing-ignite-cli)
+After all existing Ignite CLI installations are removed, follow the [Installing Ignite CLI](#installing-ignite-cli)
 instructions.
 
 For details on version features and changes, see

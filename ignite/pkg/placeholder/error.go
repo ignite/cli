@@ -5,10 +5,9 @@ import (
 	"strings"
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/validation"
 )
 
-var _ validation.Error = (*MissingPlaceholdersError)(nil)
+var _ errors.ValidationError = (*MissingPlaceholdersError)(nil)
 
 // MissingPlaceholdersError is used as an error when a source file is missing placeholder.
 type MissingPlaceholdersError struct {
@@ -70,7 +69,7 @@ func (e *MissingPlaceholdersError) ValidationInfo() string {
 	return b.String()
 }
 
-var _ validation.Error = (*ValidationMiscError)(nil)
+var _ errors.ValidationError = (*ValidationMiscError)(nil)
 
 // ValidationMiscError is used as a miscellaneous error related to validation.
 type ValidationMiscError struct {
@@ -82,7 +81,7 @@ func (e *ValidationMiscError) Error() string {
 	return fmt.Sprintf("validation errors: %v", e.errors)
 }
 
-// ValidationInfo implements validation.Error interface.
+// ValidationInfo implements errors.ValidationError interface.
 func (e *ValidationMiscError) ValidationInfo() string {
 	return fmt.Sprintf("Validation errors:\n\n%v", strings.Join(e.errors, "\n"))
 }

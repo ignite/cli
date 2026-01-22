@@ -1,6 +1,7 @@
 package ignitecmd
 
 import (
+	"os/exec"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
@@ -9,6 +10,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/chaincmd"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/v29/ignite/pkg/goenv"
 	"github.com/ignite/cli/v29/ignite/services/chain"
 )
 
@@ -155,7 +157,14 @@ func chainBuildHandler(cmd *cobra.Command, _ []string) error {
 	}
 
 	if output == "" {
-		return session.Printf("🗃  Installed. Use with: %s\n", colors.Info(binaryName))
+		session.Printf("🗃  Installed. Use with: %s\n", colors.Info(binaryName))
+
+		if _, err := exec.LookPath(binaryName); err != nil {
+			session.Printf("⚠️  Warning: Binary not found in PATH\n")
+			return session.Printf("   To run from anywhere, add Go bin to your PATH: export PATH=$PATH:%s\n", colors.Info(goenv.Bin()))
+		}
+
+		return nil
 	}
 
 	binaryPath := filepath.Join(output, binaryName)

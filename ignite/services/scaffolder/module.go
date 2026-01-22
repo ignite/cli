@@ -11,7 +11,6 @@ import (
 	appanalysis "github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/app"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/v29/ignite/pkg/validation"
 	"github.com/ignite/cli/v29/ignite/templates/field"
 	"github.com/ignite/cli/v29/ignite/templates/module"
 	modulecreate "github.com/ignite/cli/v29/ignite/templates/module/create"
@@ -232,7 +231,7 @@ func (s Scaffolder) CreateModule(
 	gens = append(gens, modulecreate.NewAppModify(s.Tracer(), opts))
 
 	err = s.Run(gens...)
-	var validationErr validation.Error
+	var validationErr errors.ValidationError
 	if err != nil && !errors.As(err, &validationErr) {
 		return err
 	}

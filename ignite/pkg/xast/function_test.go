@@ -1,7 +1,6 @@
 package xast
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 	"testing"
@@ -71,6 +70,164 @@ func TestValidate(t *testing.T) {
 		err  error
 	}{
 		{
+			name: "add a case to switch statement",
+			args: args{
+				fileContent: `package test
+
+func processPacket(packet interface{}) error {
+    switch packet := packet.(type) {
+    default:
+        return fmt.Errorf("unknown packet type: %T", packet)
+    }
+}`,
+				functionName: "processPacket",
+				functions: []FunctionOptions{
+					AppendSwitchCase(
+						"packet := packet.(type)",
+						"*types.FooPacket",
+						"return handleFooPacket(packet)",
+					),
+				},
+			},
+			want: `package test
+
+func processPacket(packet interface{}) error {
+	switch packet := packet.(type) {
+	case *types.FooPacket:
+		return handleFooPacket(packet)
+
+	default:
+		return fmt.Errorf("unknown packet type: %T", packet)
+	}
+}`,
+		},
+		{
+			name: "add multiple cases to switch statement",
+			args: args{
+				fileContent: `package test
+
+func handlePacket(data interface{}) error {
+    switch v := data.(type) {
+    case string:
+        return processString(v)
+    default:
+        return fmt.Errorf("unsupported type: %T", v)
+    }
+}`,
+				functionName: "handlePacket",
+				functions: []FunctionOptions{
+					AppendSwitchCase(
+						"v := data.(type)",
+						"int",
+						"return processInt(v)",
+					),
+					AppendSwitchCase(
+						"v := data.(type)",
+						"bool",
+						"return processBool(v)",
+					),
+				},
+			},
+			want: `package test
+
+func handlePacket(data interface{}) error {
+	switch v := data.(type) {
+	case string:
+		return processString(v)
+	case int:
+		return processInt(v)
+	case bool:
+		return processBool(v)
+
+	default:
+		return fmt.Errorf("unsupported type: %T", v)
+	}
+}`,
+		},
+		{
+			name: "add multiple cases to two switch statement",
+			args: args{
+				fileContent: `package test
+
+func handlePacket(data interface{}) error {
+    switch v := data.(type) {
+    case string:
+        return processString(v)
+    default:
+        return fmt.Errorf("unsupported type: %T", v)
+    }
+
+    switch x {
+    case 1:
+        return "one"
+    default:
+        return "unknown"
+    }
+}`,
+				functionName: "handlePacket",
+				functions: []FunctionOptions{
+					AppendSwitchCase(
+						"v := data.(type)",
+						"int",
+						"return processInt(v)",
+					),
+					AppendSwitchCase(
+						"x",
+						"2",
+						`return "two"`,
+					),
+				},
+			},
+			want: `package test
+
+func handlePacket(data interface{}) error {
+	switch v := data.(type) {
+	case string:
+		return processString(v)
+	case int:
+		return processInt(v)
+
+	default:
+		return fmt.Errorf("unsupported type: %T", v)
+	}
+
+	switch x {
+	case 1:
+		return "one"
+	case 2:
+		return "two"
+
+	default:
+		return "unknown"
+	}
+}`,
+		},
+		{
+			name: "add case to switch with non-matching condition",
+			args: args{
+				fileContent: `package test
+
+func process(x int) string {
+    switch x {
+    case 1:
+        return "one"
+    default:
+        return "unknown"
+    }
+}`,
+				functionName: "process",
+				functions: []FunctionOptions{
+					AppendSwitchCase(
+						"wrongCondition",
+						"2",
+						`return "two"`,
+					),
+				},
+			},
+			err: errors.New("function switch not found: map[wrongCondition:[{wrongCondition 2 return \"two\"}]]"),
+		},
+
+		{
 			name: "add all modifications type",
 			args: args{
 				fileContent:  existingContent,
@@ -85,7 +242,7 @@ func TestValidate(t *testing.T) {
 					}`, 2),
 					AppendFuncCode(`fmt.Println("Appended code.")`),
 					AppendFuncCode(`Param{
-						Baz: baz, 
+						Baz: baz,
 						Foo: foo,
 					}`),
 					NewFuncReturn("1"),
@@ -150,8 +307,7 @@ func TestValidate(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
-}
-`,
+}`,
 		},
 		{
 			name: "add the replace body",
@@ -198,8 +354,7 @@ func TestValidate(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
-}
-`,
+}`,
 		},
 		{
 			name: "add a new test case",
@@ -208,7 +363,7 @@ func TestValidate(t *testing.T) {
 				functionName: "TestValidate",
 				functions: []FunctionOptions{
 					AppendFuncTestCase(`{
-	desc: "valid genesis state", 
+	desc: "valid genesis state",
 	genState: GenesisState{},
 }`),
 				},
@@ -261,8 +416,7 @@ func TestValidate(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
-}
-`,
+}`,
 		},
 		{
 			name: "add two test cases",
@@ -279,8 +433,7 @@ func TestValidate(t *testing.T) {
 {
 	desc:     "valid second genesis state",
 	genState: GenesisState{},
-}
-`),
+}`),
 				},
 			},
 			want: `package main
@@ -334,8 +487,7 @@ func TestValidate(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
-}
-`,
+}`,
 		},
 		{
 			name: "add append line and code modification",
@@ -398,8 +550,7 @@ func TestValidate(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
-}
-`,
+}`,
 		},
 		{
 			name: "add all modifications type",
@@ -408,7 +559,7 @@ func TestValidate(t *testing.T) {
 				functionName: "anotherFunction",
 				functions:    []FunctionOptions{NewFuncReturn("1")},
 			},
-			want: strings.ReplaceAll(existingContent, "return true", "return 1\n") + "\n",
+			want: strings.ReplaceAll(existingContent, "return true", "return 1\n"),
 		},
 		{
 			name: "add inside call modifications",
@@ -467,8 +618,124 @@ func TestValidate(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
+}`,
+		},
+		{
+			name: "add inside call modifications with qualified package name",
+			args: args{
+				fileContent:  existingContent,
+				functionName: "anotherFunction",
+				functions: []FunctionOptions{
+					AppendInsideFuncCall("bla.NewParam", "baz", 0),
+					AppendInsideFuncCall("bla.NewParam", "bla", -1),
+					AppendInsideFuncCall("CallSomething", strconv.Quote("test1"), -1),
+				},
+			},
+			want: `package main
+
+import (
+	"fmt"
+)
+
+// main function
+func main() {
+	// print hello world
+	fmt.Println("Hello, world!")
+	// call new param function
+	New(param1, param2)
 }
-`,
+
+// anotherFunction another function
+func anotherFunction() bool {
+	// init param
+	p := bla.NewParam(baz, bla)
+	// start to call something
+	p.CallSomething("Another call", "test1")
+	// return always true
+	return true
+}
+
+// TestValidate test the validations
+func TestValidate(t *testing.T) {
+	tests := []struct {
+		desc     string
+		genState types.GenesisState
+	}{
+		{
+			desc:     "default is valid",
+			genState: types.DefaultGenesis(),
+		},
+		{
+			desc:     "valid genesis state",
+			genState: types.GenesisState{},
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.desc, func(t *testing.T) {
+			err := tc.genState.Validate()
+			require.NoError(t, err)
+		})
+	}
+}`,
+		},
+		{
+			name: "add inside call modifications with mixed qualified and unqualified names",
+			args: args{
+				fileContent:  existingContent,
+				functionName: "anotherFunction",
+				functions: []FunctionOptions{
+					AppendInsideFuncCall("bla.NewParam", "ctx", 0),
+					AppendInsideFuncCall("NewParam", "baz", -1),
+					AppendInsideFuncCall("p.CallSomething", strconv.Quote("test1"), 0),
+					AppendInsideFuncCall("CallSomething", strconv.Quote("test2"), -1),
+				},
+			},
+			want: `package main
+
+import (
+	"fmt"
+)
+
+// main function
+func main() {
+	// print hello world
+	fmt.Println("Hello, world!")
+	// call new param function
+	New(param1, param2)
+}
+
+// anotherFunction another function
+func anotherFunction() bool {
+	// init param
+	p := bla.NewParam(ctx, baz)
+	// start to call something
+	p.CallSomething("test1", "Another call", "test2")
+	// return always true
+	return true
+}
+
+// TestValidate test the validations
+func TestValidate(t *testing.T) {
+	tests := []struct {
+		desc     string
+		genState types.GenesisState
+	}{
+		{
+			desc:     "default is valid",
+			genState: types.DefaultGenesis(),
+		},
+		{
+			desc:     "valid genesis state",
+			genState: types.GenesisState{},
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.desc, func(t *testing.T) {
+			err := tc.genState.Validate()
+			require.NoError(t, err)
+		})
+	}
+}`,
 		},
 		{
 			name: "add inside struct modifications",
@@ -482,8 +749,8 @@ import (
 // anotherFunction another function
 func anotherFunction() bool {
 	Param{
-		Baz: baz, 
-		Foo: foo, 
+		Baz: baz,
+		Foo: foo,
 	}
 	Client{baz, foo}
 	// return always true
@@ -511,8 +778,7 @@ func TestValidate(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
-}
-`,
+}`,
 				functionName: "anotherFunction",
 				functions: []FunctionOptions{
 					AppendFuncStruct("Param", "Bar", "bar"),
@@ -560,8 +826,7 @@ func TestValidate(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
-}
-`,
+}`,
 		},
 		{
 			name: "function without test case assertion",
@@ -575,7 +840,7 @@ func TestValidate(t *testing.T) {
 					}`),
 				},
 			},
-			want: fmt.Sprintln(existingContent),
+			want: existingContent,
 		},
 		{
 			name: "params out of range",
@@ -611,7 +876,7 @@ func TestValidate(t *testing.T) {
 				functionName: "anotherFunction",
 				functions:    []FunctionOptions{AppendFuncAtLine(`fmt.Println("")`, 4)},
 			},
-			err: errors.New("line number 4 out of range"),
+			err: errors.New("line number 4 out of range (max 2)"),
 		},
 		{
 			name: "invalid code for append at line",
@@ -674,7 +939,7 @@ func TestValidate(t *testing.T) {
 				functionName: "anotherFunction",
 				functions:    []FunctionOptions{},
 			},
-			want: existingContent + "\n",
+			want: existingContent,
 		},
 	}
 	for _, tt := range tests {
@@ -704,16 +969,16 @@ func main() {
 	// Simple function call
 	// print hello world
 	fmt.Println("Hello, world!")
-	
+
 	// Call with multiple arguments
 	server.Foo(param1, param2, 42)
-	
+
 	// Call with no arguments
 	EmptyFunc()
-	
+
 	// Call with complex arguments
 	ComplexFunc([]string{"a", "b"}, map[string]int{"a": 1})
-	
+
 	// Multiple calls to the same function
 	fmt.Println("First call")
 	fmt.Println("Second call")
@@ -747,16 +1012,16 @@ func main() {
 	// Simple function call
 	// print hello world
 	fmt.Println("Modified output")
-	
+
 	// Call with multiple arguments
 	server.Foo(param1, param2, 42)
-	
+
 	// Call with no arguments
 	EmptyFunc()
-	
+
 	// Call with complex arguments
 	ComplexFunc([]string{"a", "b"}, map[string]int{"a": 1})
-	
+
 	// Multiple calls to the same function
 	fmt.Println("Modified output")
 	fmt.Println("Modified output")
@@ -782,16 +1047,16 @@ func main() {
 	// Simple function call
 	// print hello world
 	fmt.Println("Hello, world!")
-	
+
 	// Call with multiple arguments
 	server.Foo(context.Background(), newParam, 123)
-	
+
 	// Call with no arguments
 	EmptyFunc()
-	
+
 	// Call with complex arguments
 	ComplexFunc([]string{"a", "b"}, map[string]int{"a": 1})
-	
+
 	// Multiple calls to the same function
 	fmt.Println("First call")
 	fmt.Println("Second call")
@@ -817,16 +1082,16 @@ func main() {
 	// Simple function call
 	// print hello world
 	fmt.Println("Hello, world!")
-	
+
 	// Call with multiple arguments
 	server.Foo(param1, param2, 42)
-	
+
 	// Call with no arguments
 	EmptyFunc("new argument")
-	
+
 	// Call with complex arguments
 	ComplexFunc([]string{"a", "b"}, map[string]int{"a": 1})
-	
+
 	// Multiple calls to the same function
 	fmt.Println("First call")
 	fmt.Println("Second call")
@@ -852,16 +1117,16 @@ func main() {
 	// Simple function call
 	// print hello world
 	fmt.Println("Hello, world!")
-	
+
 	// Call with multiple arguments
 	server.Foo(param1, param2, 42)
-	
+
 	// Call with no arguments
 	EmptyFunc()
-	
+
 	// Call with complex arguments
 	ComplexFunc([]string{"x", "y", "z"}, map[string]int{"x": 10})
-	
+
 	// Multiple calls to the same function
 	fmt.Println("First call")
 	fmt.Println("Second call")
@@ -907,6 +1172,226 @@ func main() {
 				return
 			}
 
+			require.NoError(t, err)
+			require.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func TestRemoveFunction(t *testing.T) {
+	tests := []struct {
+		name        string
+		content     string
+		funcName    string
+		expected    string
+		expectError bool
+	}{
+		{
+			name: "remove a simple function",
+			content: `package main
+
+func main() {
+	println("hello")
+}
+
+func anotherFunction() {
+	println("another")
+}
+
+func thirdFunction() {
+	println("third")
+}
+`,
+			funcName: "anotherFunction",
+			expected: `package main
+
+func main() {
+	println("hello")
+}
+
+func thirdFunction() {
+	println("third")
+}`,
+		},
+		{
+			name: "remove first function",
+			content: `package main
+
+func first() {
+	println("first")
+}
+
+func second() {
+	println("second")
+}
+`,
+			funcName: "first",
+			expected: `package main
+
+func second() {
+	println("second")
+}`,
+		},
+		{
+			name: "remove last function",
+			content: `package main
+
+func first() {
+	println("first")
+}
+
+func second() {
+	println("second")
+}
+`,
+			funcName: "second",
+			expected: `package main
+
+func first() {
+	println("first")
+}`,
+		},
+		{
+			name: "remove function with comments",
+			content: `package main
+
+// main is the entry point
+func main() {
+	println("main")
+}
+
+// helperFunc does something
+func helperFunc() {
+	println("helper")
+}
+`,
+			funcName: "helperFunc",
+			expected: `package main
+
+// main is the entry point
+func main() {
+	println("main")
+}`,
+		},
+		{
+			name: "function not found",
+			content: `package main
+
+func main() {
+	println("hello")
+}
+`,
+			funcName:    "notFound",
+			expectError: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := RemoveFunction(tt.content, tt.funcName)
+
+			if tt.expectError {
+				require.Error(t, err)
+				return
+			}
+
+			require.NoError(t, err)
+			require.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func TestRemoveFuncCall(t *testing.T) {
+	tests := []struct {
+		name     string
+		content  string
+		funcName string
+		callName string
+		expected string
+	}{
+		{
+			name: "remove a function call",
+			content: `package main
+
+func main() {
+	fmt.Println("before")
+	doSomething()
+	fmt.Println("after")
+}
+`,
+			funcName: "main",
+			callName: "doSomething",
+			expected: `package main
+
+func main() {
+	fmt.Println("before")
+
+	fmt.Println("after")
+}`,
+		},
+		{
+			name: "remove qualified function call",
+			content: `package main
+
+func main() {
+	fmt.Println("hello")
+	pkg.DoSomething()
+	fmt.Println("world")
+}
+`,
+			funcName: "main",
+			callName: "pkg.DoSomething",
+			expected: `package main
+
+func main() {
+	fmt.Println("hello")
+
+	fmt.Println("world")
+}`,
+		},
+		{
+			name: "remove multiple calls to same function",
+			content: `package main
+
+func main() {
+	doSomething()
+	fmt.Println("middle")
+	doSomething()
+}
+`,
+			funcName: "main",
+			callName: "doSomething",
+			expected: `package main
+
+func main() {
+
+	fmt.Println("middle")
+
+}`,
+		},
+		{
+			name: "remove call with arguments",
+			content: `package main
+
+func process() {
+	validate(arg1, arg2)
+	execute()
+}
+`,
+			funcName: "process",
+			callName: "validate",
+			expected: `package main
+
+func process() {
+
+	execute()
+}`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := ModifyFunction(tt.content, tt.funcName, RemoveFuncCall(tt.callName))
 			require.NoError(t, err)
 			require.Equal(t, tt.expected, result)
 		})

@@ -2,16 +2,78 @@
 
 ## Unreleased
 
+## Changes
+
+- [#4855](https://github.com/ignite/cli/pull/4855) Implement openapi excludes.
+- [#4850](https://github.com/ignite/cli/pull/4850) Add default GitHub Actions for linting and testing.
+- [#4849](https://github.com/ignite/cli/pull/4849) Bump `cosmos-sdk` version to `v0.53.5` and minimum Go version to `1.25`.
+
+## [`v29.6.2`](https://github.com/ignite/cli/releases/tag/v29.6.2)
+
+### Changes
+
+- [#4838](https://github.com/ignite/cli/pull/4838) Bump minimum Go version to 1.24.1.
+
+### Fixes
+
+- [#4833](https://github.com/ignite/cli/pull/4833) IBC consensus state not found.
+- [#4844](https://github.com/ignite/cli/pull/4844) Fix tabs in proto impl YAML.
+
+## [`v29.6.1`](https://github.com/ignite/cli/releases/tag/v29.6.1)
+
+### Changes
+
+- [#4830](https://github.com/ignite/cli/pull/4830) Bump `cometbft` version to `v0.38.19` that fixes a [security issue in CometBFT](https://github.com/cometbft/cometbft/security/advisories/GHSA-hrhf-2vcr-ghch).
+
+## [`v29.6.0`](https://github.com/ignite/cli/releases/tag/v29.6.0)
+
+### Changes
+
+- [#4825](https://github.com/ignite/cli/pull/4825) Bump `cosmos-sdk` version to `v0.53.4` and `ibc-go` version to `v10.4.0`.
+- [#4828](https://github.com/ignite/cli/pull/4828) Add remove func call in `xast` package.
+
+## [`v29.5.0`](https://github.com/ignite/cli/releases/tag/v29.5.0)
+
+### Changes
+
+- [#4822](https://github.com/ignite/cli/pull/4822) Add more functions in `xast` package and import its debuggability.
+
+## [`v29.4.2`](https://github.com/ignite/cli/releases/tag/v29.4.2)
+
+### Changes
+
+- [#4811](https://github.com/ignite/cli/pull/4811) From this version on, Snapcraft support has been removed. Please migrate to [Homebrew](https://brew.sh/) for a better experience. Homebrew works for both macOS and GNU/Linux.
+- [#4816](https://github.com/ignite/cli/pull/4816) Improve announcements UI.
+
+## [`v29.4.1`](https://github.com/ignite/cli/releases/tag/v29.4.1)
+
+### Changes
+
+- [#4805](https://github.com/ignite/cli/pull/4805) Fetch fallback buf token.
+- [#4807](https://github.com/ignite/cli/pull/4807) Improve unconfigured path message when building a chain.
+- [#4808](https://github.com/ignite/cli/pull/4808) Remove unused packages.
+
+## [`v29.4.0`](https://github.com/ignite/cli/releases/tag/v29.4.0)
+
 ### Features
 
 - [#4790](https://github.com/ignite/cli/pull/4790) Remove global vars and struct placeholders.
+- [#4797](https://github.com/ignite/cli/pull/4797) Add `xast` function to append new switch clause.
+- [#4804](https://github.com/ignite/cli/pull/4804) Add `BroadcastAsync` to `cosmosclient` package.
+
+### Changes
+
+- [#4794](https://github.com/ignite/cli/pull/4794) Update `cosmossdk.io/log` version to `v1.6.1` and remove `bytedance/sonic` version override from template.
+
+### Fixes
+
+- [#4803](https://github.com/ignite/cli/pull/4803) Fix simulations for custom address prefix.
 
 ## [`v29.3.1`](https://github.com/ignite/cli/releases/tag/v29.3.1)
 
 ### Fixes
 
 - [#4793](https://github.com/ignite/cli/pull/4793) Use latest `bytedance/sonic` version to support Go 1.25.
-
 
 ## [`v29.3.0`](https://github.com/ignite/cli/releases/tag/v29.3.0)
 
@@ -191,6 +253,18 @@
 - [#4402](https://github.com/ignite/cli/pull/4402) Fix gentx parser into the cosmosutil package
 - [#4552](https://github.com/ignite/cli/pull/4552) Avoid direct access to proto field `perms.Account` and `perms.Permissions`
 - [#4555](https://github.com/ignite/cli/pull/4555) Fix buf lint issues into the chain code
+
+## [`v28.11.2`](https://github.com/ignite/cli/releases/tag/v28.11.2)
+
+### Changes
+
+- [#4816](https://github.com/ignite/cli/pull/4816) Improve announcements UI.
+
+## [`v28.11.1`](https://github.com/ignite/cli/releases/tag/v28.11.1)
+
+### Changes
+
+- [#4813](https://github.com/ignite/cli/pull/4813) Fetch fallback buf token.
 
 ## [`v28.11.0`](https://github.com/ignite/cli/releases/tag/v28.11.0)
 

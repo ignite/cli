@@ -348,7 +348,7 @@ func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channelty
 	case *channeltypes.Acknowledgement_Result:
 		// Decode the packet acknowledgment
 		var packetAck types.IbcPostPacketAck
-		if err := transfertypes.ModuleCdc.UnmarshalJSON(dispatchedAck.Result, &packetAck); err != nil {
+		if err := k.cdc.UnmarshalJSON(dispatchedAck.Result, &packetAck); err != nil {
 			// The counter-party module doesn't implement the correct acknowledgment format
 			return errors.New("cannot unmarshal acknowledgment")
 		}
@@ -494,18 +494,6 @@ Open a different terminal window and run the following command to start the
 ```bash
 ignite chain serve -c mars.yml
 ```
-
-### Remove Existing Relayer and Ignite CLI Configurations
-
-If you previously used the relayer, follow these steps to remove exiting relayer
-and Ignite CLI configurations:
-
-- Stop your blockchains and delete previous configuration files:
-
-  ```bash
-  rm -rf ~/.ignite/relayer
-  ```
-
 If existing relayer configurations do not exist, the command returns `no matches
 found` and no action is taken.
 
@@ -517,10 +505,20 @@ First, add the Hermes relayer app.
 ignite app install -g github.com/ignite/apps/hermes
 ```
 
+If you previously used the relayer, follow these steps to remove exiting relayer
+and Ignite CLI configurations:
+
+- Stop your blockchains and delete previous configuration files:
+
+```bash
+ignite relayer hermes clear binaries
+ignite relayer hermes clear configs
+```
+
 and after configure the relayer.
 
 ```bash
-ignite relayer hermes configure \                        
+ignite relayer hermes configure \
 "earth" "http://localhost:26657" "http://localhost:9090" \
 "mars" "http://localhost:26659" "http://localhost:9092" \
 --chain-a-faucet "http://0.0.0.0:4500" \

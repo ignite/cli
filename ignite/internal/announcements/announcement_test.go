@@ -6,7 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ignite/cli/v29/ignite/pkg/announcements"
+	"github.com/ignite/cli/v29/ignite/internal/announcements"
+	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
 )
 
 func TestFetchAnnouncements(t *testing.T) {
@@ -22,7 +23,7 @@ func TestFetchAnnouncements(t *testing.T) {
 			name:         "successful retrieval",
 			mockResponse: `{"version":1,"announcements":[{"id":"1744230503810","text":"New Ignite announcement: v1.0.0 released!","timestamp":"2025-04-09T20:28:23.810Z","user":"announcement-bot"}]}`,
 			statusCode:   http.StatusOK,
-			expected:     "\n🗣️ Announcements\n⋆ New Ignite announcement: v1.0.0 released!\n",
+			expected:     fmt.Sprintf("Announcements:\n\n%s New Ignite announcement: v1.0.0 released!\n", icons.Bullet),
 		},
 		{
 			name:         "empty announcements",
@@ -52,9 +53,9 @@ func TestFetchAnnouncements(t *testing.T) {
 			}))
 			defer server.Close()
 
-			originalAPI := announcements.APIURL
-			announcements.APIURL = server.URL
-			defer func() { announcements.APIURL = originalAPI }()
+			originalAPI := announcements.AnnouncementURL
+			announcements.AnnouncementURL = server.URL
+			defer func() { announcements.AnnouncementURL = originalAPI }()
 
 			result := announcements.Fetch()
 			if result != tt.expected {

@@ -28,7 +28,7 @@ func (g *generator) openAPITemplate() string {
 	return filepath.Join(g.appPath, g.protoDir, "buf.gen.swagger.yaml")
 }
 
-func (g *generator) generateOpenAPISpec(ctx context.Context) error {
+func (g *generator) generateOpenAPISpec(ctx context.Context, excludeList ...string) error {
 	var (
 		specDirs = make([]string, 0)
 		conf     = swaggercombine.New("HTTP API Console", g.goModPath)
@@ -98,16 +98,19 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 			dir,
 			g.openAPITemplate(),
 			cosmosbuf.ExcludeFiles(
-				"*/osmosis-labs/fee-abstraction/*",
-				"*/module.proto",
-				"*/testutil/*",
-				"*/testdata/*",
-				"*/cosmos/orm/*",
-				"*/cosmos/reflection/*",
-				"*/cosmos/app/v1alpha1/*",
-				"*/cosmos/tx/config/v1/config.proto",
-				"*/cosmos/msg/textual/v1/textual.proto",
-				"*/cosmos/vesting/v1beta1/vesting.proto",
+				append(excludeList, []string{
+					"*/strangelove_ventures/poa/*",
+					"*/osmosis-labs/fee-abstraction/*",
+					"*/module.proto",
+					"*/testutil/*",
+					"*/testdata/*",
+					"*/cosmos/orm/*",
+					"*/cosmos/reflection/*",
+					"*/cosmos/app/v1alpha1/*",
+					"*/cosmos/tx/config/v1/config.proto",
+					"*/cosmos/msg/textual/v1/textual.proto",
+					"*/cosmos/vesting/v1beta1/vesting.proto",
+				}...)...,
 			),
 			cosmosbuf.FileByFile(),
 		); err != nil {
@@ -165,7 +168,7 @@ func (g *generator) generateOpenAPISpec(ctx context.Context) error {
 		}
 	}
 
-	out := g.opts.specOut
+	out := g.opts.openAPISpecOut
 
 	if !hasAnySpecChanged {
 		// In case the generated output has been changed

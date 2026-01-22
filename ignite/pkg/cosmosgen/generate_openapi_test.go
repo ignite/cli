@@ -89,7 +89,7 @@ func TestGenerateOpenAPI(t *testing.T) {
 		buf:          buf,
 		appModules:   m,
 		opts: &generateOptions{
-			specOut: openAPIFile,
+			openAPISpecOut: openAPIFile,
 		},
 	}
 
