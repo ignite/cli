@@ -2,8 +2,11 @@
 
 ## Unreleased
 
+## [`v29.7.0`](https://github.com/ignite/cli/releases/tag/v29.7.0)
+
 ## Changes
 
+- [#4861](https://github.com/ignite/cli/pull/4861) Bump CometBFT to `v0.38.21`
 - [#4855](https://github.com/ignite/cli/pull/4855) Implement openapi excludes.
 - [#4850](https://github.com/ignite/cli/pull/4850) Add default GitHub Actions for linting and testing.
 - [#4849](https://github.com/ignite/cli/pull/4849) Bump `cosmos-sdk` version to `v0.53.5` and minimum Go version to `1.25`.
