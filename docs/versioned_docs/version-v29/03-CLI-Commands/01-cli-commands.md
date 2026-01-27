@@ -1134,8 +1134,9 @@ ignite generate openapi [flags]
 **Options**
 
 ```
-  -h, --help   help for openapi
-  -y, --yes    answers interactive yes/no questions with yes
+      --exclude strings   List of proto files or directories to exclude from the OpenAPI spec generation
+  -h, --help              help for openapi
+  -y, --yes               answers interactive yes/no questions with yes
 ```
 
 **Options inherited from parent commands**
