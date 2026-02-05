@@ -139,13 +139,13 @@ func protoTxMessageModify(opts *Options) genny.RunFn {
 			resFields = append(resFields, field.ToProtoField(i+1))
 		}
 
-		typenameUpper := opts.MsgName.UpperCamel
+		typenamePascal := opts.MsgName.PascalCase
 		msg := protoutil.NewMessage(
-			"Msg"+typenameUpper,
+			"Msg"+typenamePascal,
 			protoutil.WithFields(msgFields...),
 			protoutil.WithMessageOptions(creatorOpt),
 		)
-		msgResp := protoutil.NewMessage("Msg"+typenameUpper+"Response", protoutil.WithFields(resFields...))
+		msgResp := protoutil.NewMessage("Msg"+typenamePascal+"Response", protoutil.WithFields(resFields...))
 		protoutil.Append(protoFile, msg, msgResp)
 
 		// Ensure custom types are imported
