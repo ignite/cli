@@ -3,6 +3,7 @@ package cosmosgen
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -17,6 +18,10 @@ import (
 
 func TestGenerateTypeScript(t *testing.T) {
 	require := require.New(t)
+	t.Setenv("IGNT_CONFIG_DIR", t.TempDir())
+	if _, err := exec.LookPath(protocGenTSProtoBin); err != nil {
+		t.Skipf("%s not found in PATH", protocGenTSProtoBin)
+	}
 	testdataDir := "testdata"
 	appDir := filepath.Join(testdataDir, "testchain")
 	tsClientDir := filepath.Join(appDir, "ts-client")

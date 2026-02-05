@@ -66,6 +66,7 @@ func Test_extractRootModulePath(t *testing.T) {
 
 func TestGenerateOpenAPI(t *testing.T) {
 	require := require.New(t)
+	t.Setenv("IGNT_CONFIG_DIR", t.TempDir())
 	testdataDir := "testdata"
 	appDir := filepath.Join(testdataDir, "testchain")
 	openAPIFile := filepath.Join(appDir, "docs", "static", "openapi.json")
