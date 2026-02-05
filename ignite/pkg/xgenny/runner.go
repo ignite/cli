@@ -19,6 +19,7 @@ type Runner struct {
 	tracer  *placeholder.Tracer
 	results []genny.File
 	tmpPath string
+	root    string
 }
 
 // NewRunner is a xgenny Runner with a logger.
@@ -34,9 +35,19 @@ func NewRunner(ctx context.Context, root string) *Runner {
 		tmpPath: tmpPath,
 		tracer:  placeholder.New(),
 		results: make([]genny.File, 0),
+		root:    root,
 	}
 	runner.FileFn = wetFileFn(r)
 	return r
+}
+
+// cleanup clears the underlying genny runner state so previously executed
+// generators are not re-run on subsequent calls.
+func (r *Runner) cleanup() {
+	runner := genny.WetRunner(r.ctx)
+	runner.Root = r.root
+	runner.FileFn = wetFileFn(r)
+	r.Runner = runner
 }
 
 func (r *Runner) Tracer() *placeholder.Tracer {
@@ -139,16 +150,24 @@ func (r *Runner) RunAndApply(gens *genny.Generator, options ...ApplyOption) (Sou
 
 // Run all generators into a temp folder for we can apply the modifications later.
 func (r *Runner) Run(gens ...*genny.Generator) error {
-	// execute the modification with a wet runner
+	// ensure the underlying genny runner starts clean to avoid re-running previous generators
+	r.cleanup()
+
 	for _, gen := range gens {
 		if err := r.Runner.With(gen); err != nil {
 			return err
 		}
-		if err := r.Runner.Run(); err != nil {
-			return err
-		}
 	}
+
+	if err := r.Runner.Run(); err != nil {
+		return err
+	}
+
 	r.results = append(r.results, r.Results().Files...)
+
+	// reset again so a future Run call starts fresh
+	r.cleanup()
+
 	return r.tracer.Err()
 }
 
