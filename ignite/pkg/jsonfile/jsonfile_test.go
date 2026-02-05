@@ -5,8 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
-	"net/http/httptest"
 	"os"
 	"reflect"
 	"testing"
@@ -18,6 +18,26 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/tarball"
 )
+
+type roundTripperFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripperFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	return f(req)
+}
+
+func newTestClient(statusCode int, body []byte) *http.Client {
+	return &http.Client{
+		Transport: roundTripperFunc(func(req *http.Request) (*http.Response, error) {
+			return &http.Response{
+				StatusCode:    statusCode,
+				Body:          io.NopCloser(bytes.NewReader(body)),
+				Header:        make(http.Header),
+				ContentLength: int64(len(body)),
+				Request:       req,
+			}, nil
+		}),
+	}
+}
 
 func TestJSONFile_Field(t *testing.T) {
 	type (
@@ -356,17 +376,24 @@ func TestFromURL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			url := tt.args.url
 			if url == "" {
-				ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					file, err := os.ReadFile(tt.args.filepath)
-					require.NoError(t, err)
-					_, err = w.Write(file)
-					require.NoError(t, err)
-				}))
-				url = ts.URL
+				url = "https://example.com/testdata"
 			}
 
+			var body []byte
+			if tt.args.filepath != "" {
+				var err error
+				body, err = os.ReadFile(tt.args.filepath)
+				require.NoError(t, err)
+			}
+
+			statusCode := http.StatusOK
+			if tt.err == ErrInvalidURL {
+				statusCode = http.StatusNotFound
+			}
+			client := newTestClient(statusCode, body)
+
 			filepath := fmt.Sprintf("%s/jsonfile.json", t.TempDir())
-			got, err := FromURL(context.TODO(), url, filepath, tt.args.tarballFileName)
+			got, err := FromURLWithClient(context.TODO(), url, filepath, tt.args.tarballFileName, client)
 			if tt.err != nil {
 				require.Error(t, err)
 				require.ErrorIs(t, err, tt.err)

@@ -1,13 +1,25 @@
 package httpstatuschecker
 
 import (
+	"bytes"
 	"context"
+	"errors"
+	"io"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
+
+type roundTripperFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripperFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	return f(req)
+}
+
+func newTestClient(fn roundTripperFunc) *http.Client {
+	return &http.Client{Transport: fn}
+}
 
 func TestCheckStatus(t *testing.T) {
 	cases := []struct {
@@ -21,12 +33,17 @@ func TestCheckStatus(t *testing.T) {
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-				w.WriteHeader(tt.returnedStatus)
-			}))
-			defer ts.Close()
+			client := newTestClient(func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode:    tt.returnedStatus,
+					Body:          io.NopCloser(bytes.NewReader(nil)),
+					Header:        make(http.Header),
+					ContentLength: 0,
+					Request:       req,
+				}, nil
+			})
 
-			isAvailable, err := Check(context.Background(), ts.URL)
+			isAvailable, err := Check(context.Background(), "http://example.com", Client(client))
 			require.NoError(t, err)
 			require.Equal(t, tt.isAvaiable, isAvailable)
 		})
@@ -34,7 +51,10 @@ func TestCheckStatus(t *testing.T) {
 }
 
 func TestCheckServerUnreachable(t *testing.T) {
-	isAvailable, err := Check(context.Background(), "http://localhost:63257")
+	client := newTestClient(func(*http.Request) (*http.Response, error) {
+		return nil, errors.New("dial tcp: connection refused")
+	})
+	isAvailable, err := Check(context.Background(), "http://example.com", Client(client))
 	require.NoError(t, err)
 	require.False(t, isAvailable)
 }
