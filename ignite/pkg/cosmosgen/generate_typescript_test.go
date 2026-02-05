@@ -14,11 +14,12 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
+	"github.com/ignite/cli/v29/ignite/pkg/env"
 )
 
 func TestGenerateTypeScript(t *testing.T) {
 	require := require.New(t)
-	t.Setenv("IGNT_CONFIG_DIR", t.TempDir())
+	t.Setenv(env.ConfigDirEnvVar, t.TempDir())
 	if _, err := exec.LookPath(protocGenTSProtoBin); err != nil {
 		t.Skipf("%s not found in PATH", protocGenTSProtoBin)
 	}
