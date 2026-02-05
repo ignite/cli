@@ -1,5 +1,9 @@
 # Changelog
 
+### Fixes
+
+- [#4866](https://github.com/ignite/cli/pull/4866) protoc template version
+
 ## Unreleased
 
 ## [`v29.7.0`](https://github.com/ignite/cli/releases/tag/v29.7.0)
