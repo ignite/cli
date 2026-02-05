@@ -9,27 +9,27 @@ import (
 )
 
 const (
-	debug     = "IGNT_DEBUG"
-	configDir = "IGNT_CONFIG_DIR"
+	DebugEnvVar     = "IGNT_DEBUG"
+	ConfigDirEnvVar = "IGNT_CONFIG_DIR"
 )
 
 // SetDebug sets the debug environment variable to "1".
 // This is used to enable debug mode in the application.
 func SetDebug() {
-	_ = os.Setenv(debug, "1")
+	_ = os.Setenv(DebugEnvVar, "1")
 }
 
 // IsDebug checks if the debug environment variable is set to "1".
 // This is used to determine if the application is running in debug mode.
 func IsDebug() bool {
-	return os.Getenv(debug) == "1"
+	return os.Getenv(DebugEnvVar) == "1"
 }
 
 func ConfigDir() xfilepath.PathRetriever {
 	return func() (string, error) {
-		if dir := os.Getenv(configDir); dir != "" {
+		if dir := os.Getenv(ConfigDirEnvVar); dir != "" {
 			if !path.IsAbs(dir) {
-				panic(fmt.Sprintf("%s must be an absolute path", configDir))
+				panic(fmt.Sprintf("%s must be an absolute path", ConfigDirEnvVar))
 			}
 			return dir, nil
 		}
@@ -38,7 +38,7 @@ func ConfigDir() xfilepath.PathRetriever {
 }
 
 func SetConfigDir(dir string) {
-	err := os.Setenv(configDir, dir)
+	err := os.Setenv(ConfigDirEnvVar, dir)
 	if err != nil {
 		panic(fmt.Sprintf("set config dir env: %v", err))
 	}
