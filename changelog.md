@@ -6,6 +6,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- [#4735](https://github.com/ignite/cli/issues/4735) Cleanup `xgenny` runner to avoid duplicated generators.
+
 ## [`v29.7.0`](https://github.com/ignite/cli/releases/tag/v29.7.0)
 
 ## Changes
