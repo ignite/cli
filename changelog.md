@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- [#4864](https://github.com/ignite/cli/pull/4864) Mismatch for message names.
+
 ## [`v29.7.0`](https://github.com/ignite/cli/releases/tag/v29.7.0)
 
 ## Changes
