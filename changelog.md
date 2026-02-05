@@ -1,9 +1,5 @@
 # Changelog
 
-### Fixes
-
-- [#4866](https://github.com/ignite/cli/pull/4866) protoc template version
-
 ## Unreleased
 
 ### Fixes
