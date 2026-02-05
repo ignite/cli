@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- [#4865](https://github.com/ignite/cli/pull/4865) Use temp config dirs for tests.
+
 ## [`v29.7.0`](https://github.com/ignite/cli/releases/tag/v29.7.0)
 
 ## Changes
