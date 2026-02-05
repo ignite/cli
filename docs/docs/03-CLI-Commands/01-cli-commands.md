@@ -19,8 +19,10 @@ To get started, create a blockchain:
 
 $ ignite scaffold chain example
 
+Announcements:
 
-💬 Survey: https://bit.ly/3WZS2uS
+⋆ Check out how to integrate the EVM or POA in our latest tutorials: https://tutorials.ignite.com 📖
+⋆ Satisfied with Ignite? Or totally fed-up with it? Tell us: https://bit.ly/3WZS2uS
 
 
 **Options**
