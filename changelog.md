@@ -7,6 +7,10 @@
 - [#4864](https://github.com/ignite/cli/pull/4864) Mismatch for message names.
 - [#4735](https://github.com/ignite/cli/issues/4735) Cleanup `xgenny` runner to avoid duplicated generators.
 
+## Features
+
+- [#4869](https://github.com/ignite/cli/pull/4869) Improve the httpstatuschecker by injecting clients.
+
 ## [`v29.7.0`](https://github.com/ignite/cli/releases/tag/v29.7.0)
 
 ## Changes
