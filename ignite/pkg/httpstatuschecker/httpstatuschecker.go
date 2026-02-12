@@ -22,6 +22,15 @@ func Method(name string) Option {
 	}
 }
 
+// Client configures http client.
+func Client(client *http.Client) Option {
+	return func(cr *checker) {
+		if client != nil {
+			cr.c = client
+		}
+	}
+}
+
 // Check checks if given http addr is alive by applying options.
 func Check(ctx context.Context, addr string, options ...Option) (isAvailable bool, err error) {
 	cr := &checker{

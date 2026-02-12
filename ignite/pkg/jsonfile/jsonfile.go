@@ -87,6 +87,19 @@ func FromPath(path string) (*JSONFile, error) {
 // tarballFileName is extracted from it and is returned instead of the URL
 // content.
 func FromURL(ctx context.Context, url, destPath, tarballFileName string) (*JSONFile, error) {
+	return fromURL(ctx, url, destPath, tarballFileName, http.DefaultClient)
+}
+
+// FromURLWithClient fetches the file using the provided HTTP client.
+// If client is nil, http.DefaultClient is used.
+func FromURLWithClient(ctx context.Context, url, destPath, tarballFileName string, client *http.Client) (*JSONFile, error) {
+	if client == nil {
+		client = http.DefaultClient
+	}
+	return fromURL(ctx, url, destPath, tarballFileName, client)
+}
+
+func fromURL(ctx context.Context, url, destPath, tarballFileName string, client *http.Client) (*JSONFile, error) {
 	// TODO create a cache system to avoid download genesis with the same hash again
 
 	// Download the file from URL
@@ -95,7 +108,7 @@ func FromURL(ctx context.Context, url, destPath, tarballFileName string) (*JSONF
 		return nil, err
 	}
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
