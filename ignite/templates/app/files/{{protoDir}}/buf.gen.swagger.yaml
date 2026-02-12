@@ -16,4 +16,4 @@ plugins:
       - logtostderr=true
       - openapi_naming_strategy=fqn
       - json_names_for_fields=false
-      - generate_unbound_methods=true
+      - generate_unbound_methods=false
