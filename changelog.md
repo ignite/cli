@@ -2,21 +2,21 @@
 
 ## Unreleased
 
-## [`v29.7.1`](https://github.com/ignite/cli/releases/tag/v29.7.1)
+## [`v29.8.0`](https://github.com/ignite/cli/releases/tag/v29.8.0)
+
+## Features
+
+- [#4869](https://github.com/ignite/cli/pull/4869) Improve the httpstatuschecker by injecting clients.
 
 ### Changes
 
-- []() Bump `cosmos-sdk` version to `v0.53.6`.
-- []() Do not generate unannotated OpenAPI methods.
+- [#4874](https://github.com/ignite/cli/pull/4874) Bump `cosmos-sdk` version to `v0.53.6`.
+- [#4874](https://github.com/ignite/cli/pull/4874) Do not generate unannotated OpenAPI methods.
 
 ### Fixes
 
 - [#4864](https://github.com/ignite/cli/pull/4864) Mismatch for message names.
 - [#4735](https://github.com/ignite/cli/issues/4735) Cleanup `xgenny` runner to avoid duplicated generators.
-
-## Features
-
-- [#4869](https://github.com/ignite/cli/pull/4869) Improve the httpstatuschecker by injecting clients.
 
 ## [`v29.7.0`](https://github.com/ignite/cli/releases/tag/v29.7.0)
 
