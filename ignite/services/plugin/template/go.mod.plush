@@ -9,4 +9,5 @@ require (
 )
 
 replace github.com/ignite/cli/v29 => github.com/ignite/cli/v29 main
-replace github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.50.12
+replace github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.53.6
+replace github.com/bytedance/sonic => github.com/bytedance/sonic v1.15.0 // TODO: remove when cosmossdk.io/log is updated.
