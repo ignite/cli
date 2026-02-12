@@ -15,8 +15,9 @@
 
 ### Fixes
 
-- [#4864](https://github.com/ignite/cli/pull/4864) Mismatch for message names.
 - [#4735](https://github.com/ignite/cli/issues/4735) Cleanup `xgenny` runner to avoid duplicated generators.
+- [#4864](https://github.com/ignite/cli/pull/4864) Mismatch for message names.
+- [#4874](https://github.com/ignite/cli/pull/4874) Use latest `bytedance/sonic` version to support Go 1.26.
 
 ## [`v29.7.0`](https://github.com/ignite/cli/releases/tag/v29.7.0)
 
