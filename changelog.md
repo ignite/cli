@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## [`v29.7.1`](https://github.com/ignite/cli/releases/tag/v29.7.1)
+
+### Changes
+
+- []() Bump `cosmos-sdk` version to `v0.53.6`.
+- []() Do not generate unannotated OpenAPI methods.
+
 ### Fixes
 
 - [#4864](https://github.com/ignite/cli/pull/4864) Mismatch for message names.
