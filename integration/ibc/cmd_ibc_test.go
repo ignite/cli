@@ -10,8 +10,9 @@ import (
 
 func TestCreateModuleWithIBC(t *testing.T) {
 	var (
-		env = envtest.New(t)
-		app = env.ScaffoldApp("github.com/test/blogibc")
+		env     = envtest.New(t)
+		app     = env.ScaffoldApp("github.com/test/blogibc")
+		servers = app.RandomizeServerPorts()
 	)
 
 	app.Scaffold(
@@ -77,12 +78,14 @@ func TestCreateModuleWithIBC(t *testing.T) {
 	)
 
 	app.EnsureSteady()
+	app.RunChainAndSimulateTxs(servers)
 }
 
 func TestCreateIBCPacket(t *testing.T) {
 	var (
-		env = envtest.New(t)
-		app = env.ScaffoldApp("github.com/test/blogibcb")
+		env     = envtest.New(t)
+		app     = env.ScaffoldApp("github.com/test/blogibcb")
+		servers = app.RandomizeServerPorts()
 	)
 
 	app.Scaffold(
@@ -175,4 +178,5 @@ func TestCreateIBCPacket(t *testing.T) {
 	)
 
 	app.EnsureSteady()
+	app.RunChainAndSimulateTxs(servers)
 }
