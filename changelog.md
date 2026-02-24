@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changes
+
+- [#4878](https://github.com/ignite/cli/pull/4878) Improve the `xast` package readability.
+
 ## [`v29.8.0`](https://github.com/ignite/cli/releases/tag/v29.8.0)
 
 ## Features
