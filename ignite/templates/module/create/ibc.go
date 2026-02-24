@@ -14,7 +14,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
-	"github.com/ignite/cli/v29/ignite/pkg/xstrings"
 	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"
 	"github.com/ignite/cli/v29/ignite/templates/module"
 )
@@ -203,7 +202,7 @@ PortID = "%[1]v"`
 	}
 }
 
-func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+func appIBCModify(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := module.PathIBCConfigGo
 		f, err := r.Disk.Find(path)
@@ -227,17 +226,10 @@ func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunF
 			return err
 		}
 
-		// create IBC module
-		templateIBCModule := `%[2]vIBCModule := %[2]vmodule.NewIBCModule(app.appCodec, app.%[3]vKeeper)
-		ibcRouter.AddRoute(%[2]vmoduletypes.ModuleName, %[2]vIBCModule)
-%[1]v`
-		replacementIBCModule := fmt.Sprintf(
-			templateIBCModule,
-			module.PlaceholderIBCNewModule,
-			opts.ModuleName,
-			xstrings.Title(opts.ModuleName),
-		)
-		content = replacer.Replace(content, module.PlaceholderIBCNewModule, replacementIBCModule)
+		content, err = addIBCModuleRoute(content, opts.ModuleName)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
