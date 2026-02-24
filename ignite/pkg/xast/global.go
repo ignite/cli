@@ -60,6 +60,14 @@ func InsertGlobal(fileContent string, globalType GlobalType, globals ...GlobalOp
 	for _, o := range globals {
 		o(&opts)
 	}
+	if len(opts.globals) == 0 {
+		return fileContent, nil
+	}
+
+	tok, err := globalTypeToken(globalType)
+	if err != nil {
+		return "", err
+	}
 
 	fileSet := token.NewFileSet()
 
@@ -85,49 +93,22 @@ func InsertGlobal(fileContent string, globalType GlobalType, globals ...GlobalOp
 		}
 	}
 
-	// Create global variable/constant declarations.
 	for _, global := range opts.globals {
-		// Create an identifier for the global.
-		ident := ast.NewIdent(global.name)
-
-		// Create a value expression if provided.
-		var valueExpr ast.Expr
-		if global.value != "" {
-			valueExpr, err = parser.ParseExprFrom(fileSet, "", []byte(global.value), parser.ParseComments)
-			if err != nil {
-				return "", err
-			}
+		spec, err := newGlobalValueSpec(fileSet, global)
+		if err != nil {
+			return "", err
 		}
 
-		// Create a declaration based on the global type.
-		var spec ast.Spec
-		switch globalType {
-		case GlobalTypeVar:
-			spec = &ast.ValueSpec{
-				Names:  []*ast.Ident{ident},
-				Type:   ast.NewIdent(global.varType),
-				Values: []ast.Expr{valueExpr},
-			}
-		case GlobalTypeConst:
-			spec = &ast.ValueSpec{
-				Names:  []*ast.Ident{ident},
-				Type:   ast.NewIdent(global.varType),
-				Values: []ast.Expr{valueExpr},
-			}
-		default:
-			return "", errors.Errorf("unsupported global type: %s", string(globalType))
-		}
-
-		// Insert the declaration after the import section or package declaration if no imports.
 		f.Decls = append(
 			f.Decls[:insertIndex],
 			append([]ast.Decl{
 				&ast.GenDecl{
 					TokPos: 1,
-					Tok:    token.Lookup(string(globalType)),
+					Tok:    tok,
 					Specs:  []ast.Spec{spec},
 				},
-			}, f.Decls[insertIndex:]...)...)
+			}, f.Decls[insertIndex:]...)...,
+		)
 		insertIndex++
 	}
 
@@ -237,42 +218,42 @@ func ModifyStruct(fileContent, structName string, options ...StructOpts) (string
 	cmap := ast.NewCommentMap(fileSet, f, f.Comments)
 
 	// Locate and modify the struct declaration.
-	var found bool
-	ast.Inspect(f, func(n ast.Node) bool {
-		genDecl, ok := n.(*ast.GenDecl)
-		if !ok {
-			return true // Not a general declaration, continue searching.
+	var (
+		found      bool
+		structType *ast.StructType
+	)
+	for _, decl := range f.Decls {
+		genDecl, ok := decl.(*ast.GenDecl)
+		if !ok || genDecl.Tok != token.TYPE {
+			continue
 		}
 
 		for _, spec := range genDecl.Specs {
-			// Check for type specification.
 			typeSpec, ok := spec.(*ast.TypeSpec)
 			if !ok || typeSpec.Name.Name != structName {
 				continue
 			}
 
-			// Check if the type is a struct.
-			structType, ok := typeSpec.Type.(*ast.StructType)
+			structType, ok = typeSpec.Type.(*ast.StructType)
 			if !ok {
 				continue
 			}
 
-			for _, v := range opts.values {
-				// Add the new field to the struct.
-				newField := &ast.Field{
-					Names: []*ast.Ident{ast.NewIdent(v.value)},
-					Type:  ast.NewIdent(v.valueType),
-				}
-				structType.Fields.List = append(structType.Fields.List, newField)
-			}
-
 			found = true
-			return false // Stop searching once we modify the struct.
+			break
 		}
-		return true
-	})
+		if found {
+			break
+		}
+	}
 	if !found {
 		return "", errors.Errorf("struct %q not found in file content", structName)
+	}
+	for _, v := range opts.values {
+		structType.Fields.List = append(structType.Fields.List, &ast.Field{
+			Names: []*ast.Ident{ast.NewIdent(v.value)},
+			Type:  ast.NewIdent(v.valueType),
+		})
 	}
 
 	f.Comments = cmap.Filter(f).Comments()
@@ -318,6 +299,9 @@ func ModifyGlobalArrayVar(fileContent, globalName string, options ...GlobalArray
 	for _, o := range options {
 		o(&opts)
 	}
+	if len(opts.values) == 0 {
+		return fileContent, nil
+	}
 
 	fileSet := token.NewFileSet()
 
@@ -327,70 +311,39 @@ func ModifyGlobalArrayVar(fileContent, globalName string, options ...GlobalArray
 	}
 	cmap := ast.NewCommentMap(fileSet, f, f.Comments)
 
-	var found bool
-	ast.Inspect(f, func(n ast.Node) bool {
-		genDecl, ok := n.(*ast.GenDecl)
+	var (
+		found   bool
+		compLit *ast.CompositeLit
+	)
+	for _, decl := range f.Decls {
+		genDecl, ok := decl.(*ast.GenDecl)
 		if !ok || genDecl.Tok != token.VAR {
-			return true
+			continue
 		}
 
 		for _, spec := range genDecl.Specs {
 			valueSpec, ok := spec.(*ast.ValueSpec)
-			if !ok || len(valueSpec.Names) == 0 || valueSpec.Names[0].Name != globalName {
+			if !ok || len(valueSpec.Names) == 0 || valueSpec.Names[0].Name != globalName || len(valueSpec.Values) == 0 {
 				continue
 			}
 
-			if len(valueSpec.Values) == 0 {
-				continue
-			}
-
-			compLit, ok := valueSpec.Values[0].(*ast.CompositeLit)
+			compLit, ok = valueSpec.Values[0].(*ast.CompositeLit)
 			if !ok {
 				continue
 			}
 
-			file := fileSet.File(compLit.Pos())
-			maxOffset := file.Offset(compLit.Rbrace)
-			for _, elt := range compLit.Elts {
-				if pos := elt.End(); pos.IsValid() {
-					offset := file.Offset(pos)
-					if offset > maxOffset {
-						maxOffset = offset
-					}
-				}
-			}
-
-			for i, v := range opts.values {
-				// Advance position
-				insertOffset := maxOffset + i
-				insertPos := file.Pos(insertOffset)
-
-				value := ast.NewIdent(v)
-				value.NamePos = insertPos
-
-				compLit.Elts = append(compLit.Elts, value)
-				compLit.Rbrace += token.Pos(i + 1)
-			}
-
-			// Ensure closing brace is on a new line and add comma after last element
-			if len(compLit.Elts) > 0 {
-				last := compLit.Elts[len(compLit.Elts)-1]
-				if file.Line(compLit.Rbrace) == file.Line(last.End())-1 {
-					// Add comma after last element
-					file.AddLine(file.Offset(compLit.Rbrace))
-					compLit.Rbrace += token.Pos(1)
-				}
-			}
-
 			found = true
-			return false // Stop searching once we modify the struct.
+			break
 		}
-		return true
-	})
+		if found {
+			break
+		}
+	}
 
 	if !found {
 		return "", errors.Errorf("global array %q not found in file content", globalName)
 	}
+	appendCompositeLiteralValues(fileSet, compLit, opts.values)
 
 	f.Comments = cmap.Filter(f).Comments()
 
@@ -400,4 +353,65 @@ func ModifyGlobalArrayVar(fileContent, globalName string, options ...GlobalArray
 	}
 
 	return buf.String(), nil
+}
+
+func globalTypeToken(globalType GlobalType) (token.Token, error) {
+	switch globalType {
+	case GlobalTypeVar:
+		return token.VAR, nil
+	case GlobalTypeConst:
+		return token.CONST, nil
+	default:
+		return token.ILLEGAL, errors.Errorf("unsupported global type: %s", string(globalType))
+	}
+}
+
+func newGlobalValueSpec(fileSet *token.FileSet, global global) (*ast.ValueSpec, error) {
+	spec := &ast.ValueSpec{
+		Names: []*ast.Ident{ast.NewIdent(global.name)},
+	}
+	if global.varType != "" {
+		spec.Type = ast.NewIdent(global.varType)
+	}
+	if global.value == "" {
+		return spec, nil
+	}
+
+	valueExpr, err := parser.ParseExprFrom(fileSet, "", []byte(global.value), parser.ParseComments)
+	if err != nil {
+		return nil, err
+	}
+	spec.Values = []ast.Expr{valueExpr}
+	return spec, nil
+}
+
+func appendCompositeLiteralValues(fileSet *token.FileSet, compLit *ast.CompositeLit, values []string) {
+	file := fileSet.File(compLit.Pos())
+	maxOffset := file.Offset(compLit.Rbrace)
+	for _, elt := range compLit.Elts {
+		if pos := elt.End(); pos.IsValid() {
+			if offset := file.Offset(pos); offset > maxOffset {
+				maxOffset = offset
+			}
+		}
+	}
+
+	for i, valueName := range values {
+		insertPos := file.Pos(maxOffset + i)
+		value := ast.NewIdent(valueName)
+		value.NamePos = insertPos
+
+		compLit.Elts = append(compLit.Elts, value)
+		compLit.Rbrace += token.Pos(i + 1)
+	}
+
+	if len(compLit.Elts) == 0 {
+		return
+	}
+
+	last := compLit.Elts[len(compLit.Elts)-1]
+	if file.Line(compLit.Rbrace) == file.Line(last.End())-1 {
+		file.AddLine(file.Offset(compLit.Rbrace))
+		compLit.Rbrace += token.Pos(1)
+	}
 }

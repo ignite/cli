@@ -60,6 +60,9 @@ func AppendImports(fileContent string, imports ...ImportOptions) (string, error)
 	for _, o := range imports {
 		o(&opts)
 	}
+	if len(opts.imports) == 0 {
+		return fileContent, nil
+	}
 
 	fileSet := token.NewFileSet()
 
@@ -73,15 +76,14 @@ func AppendImports(fileContent string, imports ...ImportOptions) (string, error)
 	// Add new import statements.
 	for _, importPath := range opts.imports {
 		if astutil.UsesImport(f, importPath.path) {
-			astutil.DeleteNamedImport(fileSet, f, importPath.name, importPath.path)
+			astutil.DeleteImport(fileSet, f, importPath.path)
 		}
 
 		if !astutil.AddNamedImport(fileSet, f, importPath.name, importPath.path) {
 			return "", errors.Errorf("failed to add import %s - %s", importPath.name, importPath.path)
 		}
-
-		ast.SortImports(fileSet, f)
 	}
+	ast.SortImports(fileSet, f)
 
 	f.Comments = cmap.Filter(f).Comments()
 
@@ -100,6 +102,9 @@ func RemoveImports(fileContent string, imports ...ImportOptions) (string, error)
 	opts := newImportOptions()
 	for _, o := range imports {
 		o(&opts)
+	}
+	if len(opts.imports) == 0 {
+		return fileContent, nil
 	}
 
 	fileSet := token.NewFileSet()
