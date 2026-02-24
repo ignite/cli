@@ -172,6 +172,50 @@ func main() {
 `,
 		},
 		{
+			name: "add duplicate named import statement",
+			args: args{
+				fileContent: `package main
+
+import sdk "github.com/cosmos/cosmos-sdk/types"
+
+func main() {}
+`,
+				imports: []ImportOptions{
+					WithNamedImport("sdk", "github.com/cosmos/cosmos-sdk/types"),
+				},
+			},
+			want: `package main
+
+import sdk "github.com/cosmos/cosmos-sdk/types"
+
+func main() {}
+`,
+		},
+		{
+			name: "replace import alias",
+			args: args{
+				fileContent: `package main
+
+import types "github.com/cosmos/cosmos-sdk/types"
+
+func main() {
+	_ = types.AccAddress{}
+}
+`,
+				imports: []ImportOptions{
+					WithNamedImport("sdk", "github.com/cosmos/cosmos-sdk/types"),
+				},
+			},
+			want: `package main
+
+import sdk "github.com/cosmos/cosmos-sdk/types"
+
+func main() {
+	_ = types.AccAddress{}
+}
+`,
+		},
+		{
 			name: "no import statement",
 			args: args{
 				fileContent: `package main
