@@ -408,9 +408,9 @@ func addParams(funcDecl *ast.FuncDecl, newParams []functionParam) error {
 // addNewLine inserts code at specific line numbers in a function body.
 func addNewLine(fileSet *token.FileSet, funcDecl *ast.FuncDecl, newLines []functionLine) error {
 	for _, newLine := range newLines {
-		maxLine := len(funcDecl.Body.List) - 1
+		maxLine := uint64(len(funcDecl.Body.List)) - 1
 		// Validate line number
-		if int(newLine.number) > maxLine {
+		if newLine.number > maxLine {
 			return errors.Errorf("line number %d out of range (max %d)", newLine.number, maxLine)
 		}
 
@@ -666,9 +666,7 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 	switchesCasesMapCheck := cloneFunctionSwitchesMap(switchesCasesMap)
 
 	if len(opts.removeCalls) > 0 {
-		if err := removeFunctionCalls(f, opts.removeCalls); err != nil {
-			return err
-		}
+		removeFunctionCalls(f, opts.removeCalls)
 	}
 
 	if err := addParams(f, opts.newParams); err != nil {
@@ -955,9 +953,9 @@ func RemoveFunction(content, funcName string) (string, error) {
 }
 
 // removeFunctionCalls removes all function calls matching the specified names from a function.
-func removeFunctionCalls(f *ast.FuncDecl, callNames []string) error {
+func removeFunctionCalls(f *ast.FuncDecl, callNames []string) {
 	if f.Body == nil {
-		return nil
+		return
 	}
 
 	callMap := make(map[string]bool, len(callNames))
@@ -1034,5 +1032,4 @@ func removeFunctionCalls(f *ast.FuncDecl, callNames []string) error {
 	}
 
 	f.Body.List = filterStmts(f.Body.List)
-	return nil
 }
