@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## Features
+
+- [#4877](https://github.com/ignite/cli/pull/4877) Remove app config and ibc add route placeholders.
+
 ## [`v29.8.0`](https://github.com/ignite/cli/releases/tag/v29.8.0)
 
 ## Features

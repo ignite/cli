@@ -1,6 +1,5 @@
 package module
 
-//nolint:godot
 const (
 	// Placeholders in IBC module files.
 	PlaceholderIBCKeysName = "// this line is used by starport scaffolding # ibc/keys/name"
