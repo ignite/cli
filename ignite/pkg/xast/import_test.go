@@ -1,6 +1,9 @@
 package xast
 
 import (
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -489,4 +492,60 @@ func main() {
 			require.Equal(t, tt.want, got)
 		})
 	}
+}
+
+func TestAppendImportsNoOptions(t *testing.T) {
+	content := `package main
+
+func main() {}
+`
+
+	got, err := AppendImports(content)
+	require.NoError(t, err)
+	require.Equal(t, content, got)
+}
+
+func TestRemoveImportsNoOptions(t *testing.T) {
+	content := `package main
+
+import "fmt"
+
+func main() {}
+`
+
+	got, err := RemoveImports(content)
+	require.NoError(t, err)
+	require.Equal(t, content, got)
+}
+
+func TestImportHelpers(t *testing.T) {
+	fileSet := token.NewFileSet()
+	content := `package main
+
+import (
+	"fmt"
+	types "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+func main() {}
+`
+	file, err := parser.ParseFile(fileSet, "", content, parser.ParseComments)
+	require.NoError(t, err)
+
+	deleteImportsByPath(fileSet, file, "github.com/cosmos/cosmos-sdk/types")
+	require.Len(t, file.Imports, 1)
+	require.Equal(t, "fmt", importPath(file.Imports[0]))
+	require.Equal(t, "", importName(file.Imports[0]))
+
+	require.True(t, hasImport(file, "", "fmt"))
+	require.False(t, hasImport(file, "sdk", "fmt"))
+	require.False(t, hasImport(file, "", "strings"))
+
+	invalidSpec := &ast.ImportSpec{
+		Name: ast.NewIdent("broken"),
+		Path: &ast.BasicLit{Value: "\"unterminated"},
+	}
+	require.Equal(t, "broken", importName(invalidSpec))
+	require.Equal(t, "", importPath(invalidSpec))
 }

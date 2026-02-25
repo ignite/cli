@@ -4,6 +4,8 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -68,4 +70,36 @@ func TestParseDir(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, fileSet)
 	require.Equal(t, "file", pkg.Name)
+}
+
+func TestParseFile(t *testing.T) {
+	dir := t.TempDir()
+
+	t.Run("parse valid file", func(t *testing.T) {
+		filePath := filepath.Join(dir, "valid.go")
+		content := `package sample
+
+func hello() {}
+`
+		require.NoError(t, os.WriteFile(filePath, []byte(content), 0o644))
+
+		file, fileSet, err := xast.ParseFile(filePath)
+		require.NoError(t, err)
+		require.NotNil(t, fileSet)
+		require.Equal(t, "sample", file.Name.Name)
+		require.Len(t, file.Decls, 1)
+	})
+
+	t.Run("invalid file path", func(t *testing.T) {
+		_, _, err := xast.ParseFile(filepath.Join(dir, "missing.go"))
+		require.Error(t, err)
+	})
+
+	t.Run("invalid go file", func(t *testing.T) {
+		filePath := filepath.Join(dir, "invalid.go")
+		require.NoError(t, os.WriteFile(filePath, []byte("package sample\nfunc"), 0o644))
+
+		_, _, err := xast.ParseFile(filePath)
+		require.Error(t, err)
+	})
 }
