@@ -4,14 +4,11 @@ import (
 	"embed"
 	"fmt"
 	"io/fs"
-	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/emicklei/proto"
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/v29/ignite/config/chain"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
@@ -73,8 +70,6 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 			return nil, err
 		}
 	}
-
-	g.RunFn(frontendSrcStoreAppModify(replacer, opts))
 
 	return g, typed.Box(subComponent, opts, g)
 }
@@ -463,31 +458,6 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 			opts.TypeName.Original,
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLIQuery, replacement)
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
-func frontendSrcStoreAppModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := chain.DefaultVueTypesPath
-		f, err := r.Disk.Find(path)
-		if os.IsNotExist(err) {
-			// Skip modification if the app doesn't contain front-end
-			return nil
-		}
-		if err != nil {
-			return err
-		}
-		appModulePath := gomodulepath.ExtractAppPath(opts.ModulePath)
-		replacement := fmt.Sprintf(`%[1]v
-		<SpType modulePath="%[2]v.%[3]v" moduleType="%[4]v"  />`,
-			typed.Placeholder4,
-			strings.ReplaceAll(appModulePath, "/", "."),
-			opts.ModuleName,
-			opts.TypeName.UpperCamel,
-		)
-		content := replacer.Replace(f.String(), typed.Placeholder4, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
