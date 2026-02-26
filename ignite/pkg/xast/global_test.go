@@ -1,6 +1,8 @@
 package xast
 
 import (
+	"go/ast"
+	"go/token"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -667,4 +669,84 @@ var (
 			require.Equal(t, tt.want, got)
 		})
 	}
+}
+
+func TestInsertGlobalNoOptions(t *testing.T) {
+	content := "not valid go source"
+
+	got, err := InsertGlobal(content, GlobalTypeVar)
+	require.NoError(t, err)
+	require.Equal(t, content, got)
+}
+
+func TestModifyGlobalArrayVarNoOptions(t *testing.T) {
+	content := "not valid go source"
+
+	got, err := ModifyGlobalArrayVar(content, "moduleAccPerms")
+	require.NoError(t, err)
+	require.Equal(t, content, got)
+}
+
+func TestModifyGlobalArrayVarWithNonArrayValue(t *testing.T) {
+	content := `package app
+
+var moduleAccPerms = 1
+`
+
+	_, err := ModifyGlobalArrayVar(content, "moduleAccPerms", AppendGlobalArrayValue("newValue"))
+	require.EqualError(t, err, `global array "moduleAccPerms" not found in file content`)
+}
+
+func TestModifyStructWithTypeAlias(t *testing.T) {
+	content := `package main
+
+type MyStruct = string
+`
+
+	_, err := ModifyStruct(content, "MyStruct", AppendStructValue("NewField", "string"))
+	require.EqualError(t, err, `struct "MyStruct" not found in file content`)
+}
+
+func TestGlobalTypeToken(t *testing.T) {
+	tok, err := globalTypeToken(GlobalTypeVar)
+	require.NoError(t, err)
+	require.Equal(t, token.VAR, tok)
+
+	tok, err = globalTypeToken(GlobalTypeConst)
+	require.NoError(t, err)
+	require.Equal(t, token.CONST, tok)
+
+	tok, err = globalTypeToken("invalid")
+	require.Error(t, err)
+	require.Equal(t, token.ILLEGAL, tok)
+	require.Equal(t, "unsupported global type: invalid", err.Error())
+}
+
+func TestNewGlobalValueSpec(t *testing.T) {
+	fileSet := token.NewFileSet()
+
+	spec, err := newGlobalValueSpec(fileSet, global{
+		name:    "myVar",
+		varType: "int",
+		value:   "",
+	})
+	require.NoError(t, err)
+	require.Len(t, spec.Names, 1)
+	require.Equal(t, "myVar", spec.Names[0].Name)
+	require.NotNil(t, spec.Type)
+	require.Equal(t, "int", spec.Type.(*ast.Ident).Name)
+	require.Len(t, spec.Values, 0)
+
+	spec, err = newGlobalValueSpec(fileSet, global{
+		name:  "myExprVar",
+		value: "1 + 2",
+	})
+	require.NoError(t, err)
+	require.Len(t, spec.Values, 1)
+
+	_, err = newGlobalValueSpec(fileSet, global{
+		name:  "badVar",
+		value: "1 + #",
+	})
+	require.Error(t, err)
 }

@@ -6,6 +6,7 @@ import (
 	"go/format"
 	"go/parser"
 	"go/token"
+	"strconv"
 
 	"golang.org/x/tools/go/ast/astutil"
 
@@ -60,6 +61,9 @@ func AppendImports(fileContent string, imports ...ImportOptions) (string, error)
 	for _, o := range imports {
 		o(&opts)
 	}
+	if len(opts.imports) == 0 {
+		return fileContent, nil
+	}
 
 	fileSet := token.NewFileSet()
 
@@ -72,16 +76,16 @@ func AppendImports(fileContent string, imports ...ImportOptions) (string, error)
 
 	// Add new import statements.
 	for _, importPath := range opts.imports {
-		if astutil.UsesImport(f, importPath.path) {
-			astutil.DeleteNamedImport(fileSet, f, importPath.name, importPath.path)
-		}
+		deleteImportsByPath(fileSet, f, importPath.path)
 
 		if !astutil.AddNamedImport(fileSet, f, importPath.name, importPath.path) {
+			if hasImport(f, importPath.name, importPath.path) {
+				continue
+			}
 			return "", errors.Errorf("failed to add import %s - %s", importPath.name, importPath.path)
 		}
-
-		ast.SortImports(fileSet, f)
 	}
+	ast.SortImports(fileSet, f)
 
 	f.Comments = cmap.Filter(f).Comments()
 
@@ -100,6 +104,9 @@ func RemoveImports(fileContent string, imports ...ImportOptions) (string, error)
 	opts := newImportOptions()
 	for _, o := range imports {
 		o(&opts)
+	}
+	if len(opts.imports) == 0 {
+		return fileContent, nil
 	}
 
 	fileSet := token.NewFileSet()
@@ -125,4 +132,41 @@ func RemoveImports(fileContent string, imports ...ImportOptions) (string, error)
 	}
 
 	return buf.String(), nil
+}
+
+func deleteImportsByPath(fileSet *token.FileSet, file *ast.File, path string) {
+	names := make([]string, 0, len(file.Imports))
+	for _, spec := range file.Imports {
+		if importPath(spec) == path {
+			names = append(names, importName(spec))
+		}
+	}
+
+	for _, name := range names {
+		astutil.DeleteNamedImport(fileSet, file, name, path)
+	}
+}
+
+func hasImport(file *ast.File, name, path string) bool {
+	for _, spec := range file.Imports {
+		if importName(spec) == name && importPath(spec) == path {
+			return true
+		}
+	}
+	return false
+}
+
+func importName(spec *ast.ImportSpec) string {
+	if spec.Name == nil {
+		return ""
+	}
+	return spec.Name.Name
+}
+
+func importPath(spec *ast.ImportSpec) string {
+	value, err := strconv.Unquote(spec.Path.Value)
+	if err != nil {
+		return ""
+	}
+	return value
 }
