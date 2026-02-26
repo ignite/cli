@@ -227,7 +227,7 @@ func TestScaffoldModuleWithUnderscoreAppName(t *testing.T) {
 		"create a module in app with underscore name",
 		false,
 		"module",
-		"foo",
+		"f_o_o",
 	)
 
 	app.EnsureSteady()
