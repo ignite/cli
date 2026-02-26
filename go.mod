@@ -155,7 +155,7 @@ require (
 	github.com/chigopher/pathlib v0.19.1 // indirect
 	github.com/cilium/ebpf v0.16.0 // indirect
 	github.com/ckaznocha/intrange v0.3.0 // indirect
-	github.com/cloudflare/circl v1.6.1 // indirect
+	github.com/cloudflare/circl v1.6.3 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
 	github.com/cockroachdb/fifo v0.0.0-20240606204812-0bbfbd93a7ce // indirect
 	github.com/cockroachdb/logtags v0.0.0-20241215232642-bb51bb14a506 // indirect
