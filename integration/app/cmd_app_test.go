@@ -216,3 +216,19 @@ func TestGenerateAnAppWithDefaultDenom(t *testing.T) {
 
 	app.EnsureSteady()
 }
+
+func TestScaffoldModuleWithUnderscoreAppName(t *testing.T) {
+	var (
+		env = envtest.New(t)
+		app = env.ScaffoldApp("github.com/test/space_chain")
+	)
+
+	app.Scaffold(
+		"create a module in app with underscore name",
+		false,
+		"module",
+		"foo",
+	)
+
+	app.EnsureSteady()
+}
