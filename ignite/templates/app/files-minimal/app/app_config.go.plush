@@ -57,7 +57,6 @@ var (
 					// NOTE: upgrade module is required to be prioritized
 					PreBlockers: []string{
 						 authtypes.ModuleName,
-						// this line is used by starport scaffolding # stargate/app/preBlockers
 					},
 					// During begin block slashing happens after distr.BeginBlocker so that
 					// there is nothing left over in the validator fee pool, so as to keep the
@@ -67,12 +66,10 @@ var (
 						distrtypes.ModuleName,
 						stakingtypes.ModuleName,
 						// chain modules
-						// this line is used by starport scaffolding # stargate/app/beginBlockers
 					},
 					EndBlockers: []string{
 						stakingtypes.ModuleName,
 						// chain modules
-						// this line is used by starport scaffolding # stargate/app/endBlockers
 					},
 					// The following is mostly only needed when ModuleName != StoreKey name.
 					OverrideStoreKeys: []*runtimev1alpha1.StoreKeyConfig{
@@ -92,7 +89,6 @@ var (
 						stakingtypes.ModuleName,
 						genutiltypes.ModuleName,
 						// chain modules
-						// this line is used by starport scaffolding # stargate/app/initGenesis
 					},
 				}),
 			},
@@ -138,7 +134,6 @@ var (
 				Name:   consensustypes.ModuleName,
 				Config: appconfig.WrapAny(&consensusmodulev1.Module{}),
 			},
-			// this line is used by starport scaffolding # stargate/app/moduleConfig
 		},
 	})
 )

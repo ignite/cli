@@ -118,8 +118,6 @@ func (app *App) registerIBCModules(appOpts servertypes.AppOptions) error {
 	ibcv2Router := ibcapi.NewRouter().
 		AddRoute(ibctransfertypes.PortID, transferStackV2)
 
-	// this line is used by starport scaffolding # ibc/app/module
-
 	app.IBCKeeper.SetRouter(ibcRouter)
 	app.IBCKeeper.SetRouterV2(ibcv2Router)
 

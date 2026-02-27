@@ -146,7 +146,7 @@ func generate(
 		}
 
 		runner := xgenny.NewRunner(ctx, absRoot)
-		if err := runner.Run(moduleGen, modulecreate.NewAppModify(runner.Tracer(), opts)); err != nil {
+		if err := runner.Run(moduleGen, modulecreate.NewAppModify(opts)); err != nil {
 			return smc, err
 		}
 		// generate module template

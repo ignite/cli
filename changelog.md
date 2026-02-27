@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## Features
+
+- [#4877](https://github.com/ignite/cli/pull/4877) Remove app config and ibc add route placeholders.
+
 ### Changes
 
 - [#4880](https://github.com/ignite/cli/pull/4880) Add possibility to scaffold underscore package.
