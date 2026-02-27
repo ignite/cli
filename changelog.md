@@ -10,6 +10,7 @@
 
 - [#4880](https://github.com/ignite/cli/pull/4880) Add possibility to scaffold underscore package.
 - [#4878](https://github.com/ignite/cli/pull/4878) Improve the `xast` package readability.
+- [#4883](https://github.com/ignite/cli/pull/4883) Remove ibc keys placeholders.
 
 ## [`v29.8.0`](https://github.com/ignite/cli/releases/tag/v29.8.0)
 
