@@ -15,7 +15,6 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
@@ -25,7 +24,7 @@ import (
 )
 
 // NewIBC returns the generator to scaffold the implementation of the IBCModule interface inside a module.
-func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generator, error) {
+func NewIBC(opts *CreateOptions) (*genny.Generator, error) {
 	subFs, err := fs.Sub(fsIBC, "files/ibc")
 	if err != nil {
 		return nil, errors.Errorf("fail to generate sub: %w", err)
@@ -35,7 +34,6 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 	g.RunFn(genesisModify(opts))
 	g.RunFn(genesisTypesModify(opts))
 	g.RunFn(genesisProtoModify(opts))
-	g.RunFn(keysModify(replacer, opts))
 
 	if err := g.OnlyFS(subFs, nil, nil); err != nil {
 		return g, errors.Errorf("generator fs: %w", err)
@@ -174,36 +172,6 @@ func genesisProtoModify(opts *CreateOptions) genny.RunFn {
 		protoutil.Append(genesisState, field)
 
 		newFile := genny.NewFileS(path, protoutil.Print(protoFile))
-		return r.File(newFile)
-	}
-}
-
-func keysModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := filepath.Join("x", opts.ModuleName, "types/keys.go")
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		// Append version and the port ID in keys
-		templateName := `// Version defines the current version the IBC module supports
-Version = "%[1]v-1"
-
-// PortID is the default port id that module binds to
-PortID = "%[1]v"`
-		replacementName := fmt.Sprintf(templateName, opts.ModuleName)
-		content := replacer.Replace(f.String(), module.PlaceholderIBCKeysName, replacementName)
-
-		// PlaceholderIBCKeysPort
-		templatePort := `var (
-	// PortKey defines the key to store the port ID in store
-	PortKey = collections.NewPrefix("%[1]v-port-")
-)`
-		replacementPort := fmt.Sprintf(templatePort, opts.ModuleName)
-		content = replacer.Replace(content, module.PlaceholderIBCKeysPort, replacementPort)
-
-		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }

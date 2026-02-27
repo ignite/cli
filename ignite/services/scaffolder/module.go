@@ -222,7 +222,7 @@ func (s Scaffolder) CreateModule(
 
 	// Scaffold IBC module
 	if opts.IsIBC {
-		g, err = modulecreate.NewIBC(s.Tracer(), opts)
+		g, err = modulecreate.NewIBC(opts)
 		if err != nil {
 			return err
 		}
