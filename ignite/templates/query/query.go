@@ -12,8 +12,8 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
+	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"
 )
@@ -47,7 +47,7 @@ func Box(box fs.FS, opts *Options, g *genny.Generator) error {
 }
 
 // NewGenerator returns the generator to scaffold a empty query in a module.
-func NewGenerator(replacer placeholder.Replacer, opts *Options) (*genny.Generator, error) {
+func NewGenerator(opts *Options) (*genny.Generator, error) {
 	subFs, err := fs.Sub(files, "files")
 	if err != nil {
 		return nil, errors.Errorf("fail to generate sub: %w", err)
@@ -55,7 +55,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *Options) (*genny.Generato
 
 	g := genny.New()
 	g.RunFn(protoQueryModify(opts))
-	g.RunFn(cliQueryModify(replacer, opts))
+	g.RunFn(cliQueryModify(opts))
 
 	return g, Box(subFs, opts, g)
 }
@@ -147,7 +147,7 @@ func protoQueryModify(opts *Options) genny.RunFn {
 	}
 }
 
-func cliQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+func cliQueryModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join("x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
@@ -155,23 +155,23 @@ func cliQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 			return err
 		}
 
-		template := `{
-					RpcMethod: "%[2]v",
-					Use: "%[3]v",
-					Short: "%[4]v",
-					PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
-				},
-
-				%[1]v`
+		template := `&autocliv1.RpcCommandOptions{
+			RpcMethod: "%[1]v",
+			Use: "%[2]v",
+			Short: "%[3]v",
+			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[4]s},
+		}`
 		replacement := fmt.Sprintf(
 			template,
-			PlaceholderAutoCLIQuery,
 			opts.QueryName.PascalCase,
 			fmt.Sprintf("%s %s", opts.QueryName.Kebab, opts.ReqFields.CLIUsage()),
 			opts.Description,
 			opts.ReqFields.ProtoFieldNameAutoCLI(),
 		)
-		content := replacer.Replace(f.String(), PlaceholderAutoCLIQuery, replacement)
+		content, err := xast.AppendAutoCLIRPCCommand(f.String(), "Query", replacement)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

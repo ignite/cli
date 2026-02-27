@@ -15,7 +15,6 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
@@ -25,7 +24,7 @@ import (
 )
 
 // NewIBC returns the generator to scaffold the implementation of the IBCModule interface inside a module.
-func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generator, error) {
+func NewIBC(opts *CreateOptions) (*genny.Generator, error) {
 	subFs, err := fs.Sub(fsIBC, "files/ibc")
 	if err != nil {
 		return nil, errors.Errorf("fail to generate sub: %w", err)
@@ -35,7 +34,6 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 	g.RunFn(genesisModify(opts))
 	g.RunFn(genesisTypesModify(opts))
 	g.RunFn(genesisProtoModify(opts))
-	g.RunFn(keysModify(replacer, opts))
 
 	if err := g.OnlyFS(subFs, nil, nil); err != nil {
 		return g, errors.Errorf("generator fs: %w", err)
@@ -178,34 +176,43 @@ func genesisProtoModify(opts *CreateOptions) genny.RunFn {
 	}
 }
 
-func keysModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := filepath.Join("x", opts.ModuleName, "types/keys.go")
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		// Append version and the port ID in keys
-		templateName := `// Version defines the current version the IBC module supports
-Version = "%[1]v-1"
-
-// PortID is the default port id that module binds to
-PortID = "%[1]v"`
-		replacementName := fmt.Sprintf(templateName, opts.ModuleName)
-		content := replacer.Replace(f.String(), module.PlaceholderIBCKeysName, replacementName)
-
-		// PlaceholderIBCKeysPort
-		templatePort := `var (
-	// PortKey defines the key to store the port ID in store
-	PortKey = collections.NewPrefix("%[1]v-port-")
-)`
-		replacementPort := fmt.Sprintf(templatePort, opts.ModuleName)
-		content = replacer.Replace(content, module.PlaceholderIBCKeysPort, replacementPort)
-
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
+func ensureGlobalValue(content string, globalType xast.GlobalType, name, value string) (string, error) {
+	exists, err := globalExists(content, name)
+	if err != nil {
+		return "", err
 	}
+	if exists {
+		return content, nil
+	}
+	return xast.InsertGlobal(content, globalType, xast.WithGlobal(name, "", value))
+}
+
+func globalExists(content, globalName string) (bool, error) {
+	fileSet := token.NewFileSet()
+	file, err := parser.ParseFile(fileSet, "", content, parser.ParseComments)
+	if err != nil {
+		return false, err
+	}
+
+	for _, decl := range file.Decls {
+		genDecl, ok := decl.(*ast.GenDecl)
+		if !ok {
+			continue
+		}
+		for _, spec := range genDecl.Specs {
+			valueSpec, ok := spec.(*ast.ValueSpec)
+			if !ok {
+				continue
+			}
+			for _, name := range valueSpec.Names {
+				if name.Name == globalName {
+					return true, nil
+				}
+			}
+		}
+	}
+
+	return false, nil
 }
 
 func appIBCModify(opts *CreateOptions) genny.RunFn {
