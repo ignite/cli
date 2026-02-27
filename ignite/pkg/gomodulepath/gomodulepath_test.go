@@ -63,7 +63,7 @@ func TestParse(t *testing.T) {
 		{
 			name:    "with underscore",
 			rawpath: "github.com/a/b_c",
-			path:    Path{RawPath: "github.com/a/b_c", Root: "b_c", Package: "bc"},
+			path:    Path{RawPath: "github.com/a/b_c", Root: "b_c", Package: "b_c"},
 		},
 		{
 			name:    "with mixed case",
@@ -78,7 +78,7 @@ func TestParse(t *testing.T) {
 		{
 			name:    "with a name containing underscore",
 			rawpath: "a_b",
-			path:    Path{RawPath: "a_b", Root: "a_b", Package: "ab"},
+			path:    Path{RawPath: "a_b", Root: "a_b", Package: "a_b"},
 		},
 		{
 			name:    "with a name containing dash",
@@ -93,7 +93,7 @@ func TestParse(t *testing.T) {
 		{
 			name:    "with a path containing underscore",
 			rawpath: "a/b_c",
-			path:    Path{RawPath: "a/b_c", Root: "b_c", Package: "bc"},
+			path:    Path{RawPath: "a/b_c", Root: "b_c", Package: "b_c"},
 		},
 		{
 			name:    "with a path containing dash",

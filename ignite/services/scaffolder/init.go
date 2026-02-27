@@ -9,6 +9,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/app"
 	"github.com/ignite/cli/v29/ignite/templates/field"
@@ -119,8 +120,13 @@ func generate(
 	}
 
 	if !noDefaultModule {
+		moduleName, err := multiformatname.NewName(pathInfo.Package, multiformatname.NoNumber)
+		if err != nil {
+			return smc, err
+		}
+
 		opts := &modulecreate.CreateOptions{
-			ModuleName: pathInfo.Package, // App name
+			ModuleName: moduleName.LowerCase, // App module
 			ModulePath: pathInfo.RawPath,
 			AppName:    pathInfo.Package,
 			ProtoDir:   protoDir,
