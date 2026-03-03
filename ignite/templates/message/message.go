@@ -210,7 +210,7 @@ func clientCliTxModify(opts *Options) genny.RunFn {
 		}
 
 		option := fmt.Sprintf(
-			`&autocliv1.RpcCommandOptions{
+			`{
 				RpcMethod: "%[1]v",
 				Use: "%[2]v",
 				Short: "Send a %[3]v tx",

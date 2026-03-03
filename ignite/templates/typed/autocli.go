@@ -1,7 +1,7 @@
 package typed
 
 import (
-	"bytes"
+	"fmt"
 	"go/ast"
 	"go/format"
 	"go/parser"
@@ -33,7 +33,6 @@ func appendAutoCLIOptions(content, service string, options ...string) (string, e
 	if err != nil {
 		return "", err
 	}
-	commentMap := ast.NewCommentMap(fileSet, file, file.Comments)
 
 	autoCLIOptionsFunc := findFunctionByName(file, "AutoCLIOptions")
 	if autoCLIOptionsFunc == nil {
@@ -72,14 +71,14 @@ func appendAutoCLIOptions(content, service string, options ...string) (string, e
 		existingRPCMethods[method] = struct{}{}
 	}
 
+	optionsToInsert := make([]string, 0, len(options))
 	for _, option := range options {
-		if strings.TrimSpace(option) == "" {
-			continue
-		}
-
-		optionExpr, parseErr := parser.ParseExpr(option)
+		optionExpr, optionText, parseErr := parseRPCOption(option)
 		if parseErr != nil {
-			return "", errors.Errorf("failed to parse autocli option expression: %w", parseErr)
+			return "", parseErr
+		}
+		if optionExpr == nil {
+			continue
 		}
 
 		method, ok := rpcMethod(optionExpr)
@@ -90,22 +89,169 @@ func appendAutoCLIOptions(content, service string, options ...string) (string, e
 			existingRPCMethods[method] = struct{}{}
 		}
 
-		rpcCommandOptionsLit.Elts = append(rpcCommandOptionsLit.Elts, optionExpr)
+		optionsToInsert = append(optionsToInsert, optionText)
 	}
 
-	file.Comments = commentMap.Filter(file).Comments()
+	if len(optionsToInsert) == 0 {
+		return content, nil
+	}
 
-	var buf bytes.Buffer
-	if err := format.Node(&buf, fileSet, file); err != nil {
+	content, err = insertAutoCLIOptions(content, fileSet, rpcCommandOptionsLit, optionsToInsert)
+	if err != nil {
 		return "", err
 	}
 
-	formatted, err := format.Source(buf.Bytes())
+	formatted, err := format.Source([]byte(content))
 	if err != nil {
 		return "", err
 	}
 
 	return string(formatted), nil
+}
+
+func parseRPCOption(option string) (ast.Expr, string, error) {
+	option = normalizeOption(option)
+	if option == "" {
+		return nil, "", nil
+	}
+
+	code := fmt.Sprintf("package p\nvar _ = []*autocliv1.RpcCommandOptions{\n%s,\n}\n", option)
+	file, err := parser.ParseFile(token.NewFileSet(), "", code, 0)
+	if err != nil {
+		return nil, "", errors.Errorf("failed to parse autocli option expression: %w", err)
+	}
+
+	genDecl, ok := file.Decls[0].(*ast.GenDecl)
+	if !ok || len(genDecl.Specs) == 0 {
+		return nil, "", errors.New("failed to parse autocli option expression: generated declaration is invalid")
+	}
+	valueSpec, ok := genDecl.Specs[0].(*ast.ValueSpec)
+	if !ok || len(valueSpec.Values) == 0 {
+		return nil, "", errors.New("failed to parse autocli option expression: generated value spec is invalid")
+	}
+	optionsLit, ok := valueSpec.Values[0].(*ast.CompositeLit)
+	if !ok || len(optionsLit.Elts) == 0 {
+		return nil, "", errors.New("failed to parse autocli option expression: generated options literal is invalid")
+	}
+
+	return optionsLit.Elts[0], option, nil
+}
+
+func normalizeOption(option string) string {
+	option = strings.TrimSpace(option)
+	option = strings.TrimSuffix(option, ",")
+	return strings.TrimSpace(option)
+}
+
+func insertAutoCLIOptions(
+	content string,
+	fileSet *token.FileSet,
+	optionsLiteral *ast.CompositeLit,
+	optionsToInsert []string,
+) (string, error) {
+	file := fileSet.File(optionsLiteral.Rbrace)
+	if file == nil {
+		return "", errors.New(`failed to find token file for "RpcCommandOptions"`)
+	}
+
+	insertOffset := file.Offset(optionsLiteral.Rbrace)
+	if insertOffset < 0 || insertOffset > len(content) {
+		return "", errors.New(`invalid insertion offset for "RpcCommandOptions"`)
+	}
+
+	closingIndentOffset := insertOffset
+	for closingIndentOffset > 0 {
+		char := content[closingIndentOffset-1]
+		if char != '\t' && char != ' ' {
+			break
+		}
+		closingIndentOffset--
+	}
+
+	closingIndent := content[closingIndentOffset:insertOffset]
+	optionIndent := closingIndent + "\t"
+
+	var insertion strings.Builder
+	for _, option := range optionsToInsert {
+		insertion.WriteString(indentOption(option, optionIndent))
+		insertion.WriteString(",\n")
+	}
+
+	return content[:closingIndentOffset] + insertion.String() + content[closingIndentOffset:], nil
+}
+
+func indentOption(option, baseIndent string) string {
+	lines := strings.Split(option, "\n")
+	lines = trimEmptyLines(lines)
+	minIndent := minIndentation(lines)
+
+	indented := make([]string, 0, len(lines))
+	for _, line := range lines {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+		trimmedLine := strings.TrimRight(line, " \t")
+		indented = append(indented, baseIndent+removeIndent(trimmedLine, minIndent))
+	}
+
+	return strings.Join(indented, "\n")
+}
+
+func trimEmptyLines(lines []string) []string {
+	start := 0
+	for start < len(lines) && strings.TrimSpace(lines[start]) == "" {
+		start++
+	}
+
+	end := len(lines)
+	for end > start && strings.TrimSpace(lines[end-1]) == "" {
+		end--
+	}
+
+	return lines[start:end]
+}
+
+func minIndentation(lines []string) int {
+	minIndent := -1
+	for _, line := range lines {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+
+		indent := 0
+		for indent < len(line) {
+			if line[indent] != ' ' && line[indent] != '\t' {
+				break
+			}
+			indent++
+		}
+
+		if minIndent == -1 || indent < minIndent {
+			minIndent = indent
+		}
+	}
+
+	if minIndent < 0 {
+		return 0
+	}
+
+	return minIndent
+}
+
+func removeIndent(line string, indent int) string {
+	if indent <= 0 {
+		return line
+	}
+
+	i := 0
+	for i < len(line) && i < indent {
+		if line[i] != ' ' && line[i] != '\t' {
+			break
+		}
+		i++
+	}
+
+	return line[i:]
 }
 
 func findModuleOptionsLiteral(autoCLIOptionsFunc *ast.FuncDecl) (*ast.CompositeLit, error) {

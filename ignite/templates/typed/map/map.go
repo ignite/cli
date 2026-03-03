@@ -275,7 +275,7 @@ func clientCliQueryModify(opts *typed.Options) genny.RunFn {
 		}
 
 		listOption := fmt.Sprintf(
-			`&autocliv1.RpcCommandOptions{
+			`{
 				RpcMethod: "List%[1]v",
 				Use: "list-%[2]v",
 				Short: "List all %[3]v",
@@ -285,7 +285,7 @@ func clientCliQueryModify(opts *typed.Options) genny.RunFn {
 			opts.TypeName.Original,
 		)
 		getOption := fmt.Sprintf(
-			`&autocliv1.RpcCommandOptions{
+			`{
 				RpcMethod: "Get%[1]v",
 				Use: "get-%[2]v [id]",
 				Short: "Gets a %[3]v",
@@ -665,7 +665,7 @@ func clientCliTxModify(opts *typed.Options) genny.RunFn {
 		positionalArgsStr := indexStr + opts.Fields.CLIUsage()
 
 		createOption := fmt.Sprintf(
-			`&autocliv1.RpcCommandOptions{
+			`{
 				RpcMethod: "Create%[1]v",
 				Use: "create-%[2]v %[5]s",
 				Short: "Create a new %[3]v",
@@ -678,7 +678,7 @@ func clientCliTxModify(opts *typed.Options) genny.RunFn {
 			strings.TrimSpace(positionalArgsStr),
 		)
 		updateOption := fmt.Sprintf(
-			`&autocliv1.RpcCommandOptions{
+			`{
 				RpcMethod: "Update%[1]v",
 				Use: "update-%[2]v %[5]s",
 				Short: "Update %[3]v",
@@ -691,7 +691,7 @@ func clientCliTxModify(opts *typed.Options) genny.RunFn {
 			strings.TrimSpace(positionalArgsStr),
 		)
 		deleteOption := fmt.Sprintf(
-			`&autocliv1.RpcCommandOptions{
+			`{
 				RpcMethod: "Delete%[1]v",
 				Use: "delete-%[2]v %[5]s",
 				Short: "Delete %[3]v",
