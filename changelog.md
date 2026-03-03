@@ -15,6 +15,7 @@
 ### Fixes
 
 - [#4886](https://github.com/ignite/cli/pull/4886) Fix chain scaffolding checks.
+- [#4889](https://github.com/ignite/cli/pull/4889) Plugin data race.
 
 ## [`v29.8.0`](https://github.com/ignite/cli/releases/tag/v29.8.0)
 
