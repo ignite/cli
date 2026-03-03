@@ -16,6 +16,7 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"
+	"github.com/ignite/cli/v29/ignite/templates/typed"
 )
 
 //go:embed files/* files/**/*
@@ -155,23 +156,22 @@ func cliQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 			return err
 		}
 
-		template := `{
-					RpcMethod: "%[2]v",
-					Use: "%[3]v",
-					Short: "%[4]v",
-					PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
-				},
-
-				%[1]v`
-		replacement := fmt.Sprintf(
-			template,
-			PlaceholderAutoCLIQuery,
+		option := fmt.Sprintf(
+			`&autocliv1.RpcCommandOptions{
+				RpcMethod: "%[1]v",
+				Use: "%[2]v",
+				Short: "%[3]v",
+				PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[4]s},
+			}`,
 			opts.QueryName.PascalCase,
 			fmt.Sprintf("%s %s", opts.QueryName.Kebab, opts.ReqFields.CLIUsage()),
 			opts.Description,
 			opts.ReqFields.ProtoFieldNameAutoCLI(),
 		)
-		content := replacer.Replace(f.String(), PlaceholderAutoCLIQuery, replacement)
+		content, err := typed.AppendAutoCLIQueryOptions(f.String(), option)
+		if err != nil {
+			return err
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

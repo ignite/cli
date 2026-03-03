@@ -210,24 +210,22 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn
 			return err
 		}
 
-		template := `{
-			RpcMethod: "%[2]v",
-			Use: "%[3]v",
-			Short: "Send a %[4]v tx",
-			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
-		},
-		%[1]v`
-
-		replacement := fmt.Sprintf(
-			template,
-			typed.PlaceholderAutoCLITx,
+		option := fmt.Sprintf(
+			`&autocliv1.RpcCommandOptions{
+				RpcMethod: "%[1]v",
+				Use: "%[2]v",
+				Short: "Send a %[3]v tx",
+				PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[4]s},
+			}`,
 			opts.MsgName.PascalCase,
 			fmt.Sprintf("%s %s", opts.MsgName.Kebab, opts.Fields.CLIUsage()),
 			opts.MsgName.Original,
 			opts.Fields.ProtoFieldNameAutoCLI(),
 		)
-
-		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLITx, replacement)
+		content, err := typed.AppendAutoCLITxOptions(f.String(), option)
+		if err != nil {
+			return err
+		}
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

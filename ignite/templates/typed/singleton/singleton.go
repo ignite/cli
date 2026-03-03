@@ -211,21 +211,21 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 			return err
 		}
 
-		template := `{
-			RpcMethod: "Get%[2]v",
-			Use: "get-%[3]v",
-			Short: "Gets a %[4]v",
-			Alias: []string{"show-%[3]v"},
-		},
-		%[1]v`
-		replacement := fmt.Sprintf(
-			template,
-			typed.PlaceholderAutoCLIQuery,
+		getOption := fmt.Sprintf(
+			`&autocliv1.RpcCommandOptions{
+				RpcMethod: "Get%[1]v",
+				Use: "get-%[2]v",
+				Short: "Gets a %[3]v",
+				Alias: []string{"show-%[2]v"},
+			}`,
 			opts.TypeName.PascalCase,
 			opts.TypeName.Kebab,
 			opts.TypeName.Original,
 		)
-		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLIQuery, replacement)
+		content, err := typed.AppendAutoCLIQueryOptions(f.String(), getOption)
+		if err != nil {
+			return err
+		}
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
@@ -519,36 +519,46 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 			return err
 		}
 
-		template := `{
-			RpcMethod: "Create%[2]v",
-			Use: "create-%[3]v %[6]s",
-			Short: "Create %[4]v",
-			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
-		},
-		{
-			RpcMethod: "Update%[2]v",
-			Use: "update-%[3]v %[6]s",
-			Short: "Update %[4]v",
-			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
-		},
-		{
-			RpcMethod: "Delete%[2]v",
-			Use: "delete-%[3]v",
-			Short: "Delete %[4]v",
-		},
-		%[1]v`
-
-		replacement := fmt.Sprintf(
-			template,
-			typed.PlaceholderAutoCLITx,
+		createOption := fmt.Sprintf(
+			`&autocliv1.RpcCommandOptions{
+				RpcMethod: "Create%[1]v",
+				Use: "create-%[2]v %[4]s",
+				Short: "Create %[3]v",
+				PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
+			}`,
 			opts.TypeName.PascalCase,
 			opts.TypeName.Kebab,
 			opts.TypeName.Original,
-			opts.Fields.ProtoFieldNameAutoCLI(),
 			opts.Fields.CLIUsage(),
+			opts.Fields.ProtoFieldNameAutoCLI(),
 		)
-
-		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLITx, replacement)
+		updateOption := fmt.Sprintf(
+			`&autocliv1.RpcCommandOptions{
+				RpcMethod: "Update%[1]v",
+				Use: "update-%[2]v %[4]s",
+				Short: "Update %[3]v",
+				PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
+			}`,
+			opts.TypeName.PascalCase,
+			opts.TypeName.Kebab,
+			opts.TypeName.Original,
+			opts.Fields.CLIUsage(),
+			opts.Fields.ProtoFieldNameAutoCLI(),
+		)
+		deleteOption := fmt.Sprintf(
+			`&autocliv1.RpcCommandOptions{
+				RpcMethod: "Delete%[1]v",
+				Use: "delete-%[2]v",
+				Short: "Delete %[3]v",
+			}`,
+			opts.TypeName.PascalCase,
+			opts.TypeName.Kebab,
+			opts.TypeName.Original,
+		)
+		content, err := typed.AppendAutoCLITxOptions(f.String(), createOption, updateOption, deleteOption)
+		if err != nil {
+			return err
+		}
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
