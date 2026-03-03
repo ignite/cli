@@ -18,7 +18,6 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/version"
 )
@@ -80,10 +79,6 @@ func New(context context.Context, appPath, protoDir string) (Scaffolder, error) 
 
 func (s Scaffolder) ApplyModifications(options ...xgenny.ApplyOption) (xgenny.SourceModification, error) {
 	return s.runner.ApplyModifications(options...)
-}
-
-func (s Scaffolder) Tracer() *placeholder.Tracer {
-	return s.runner.Tracer()
 }
 
 func (s Scaffolder) Run(gens ...*genny.Generator) error {
