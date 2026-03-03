@@ -145,6 +145,9 @@ func (s Scaffolder) AddType(
 	if err := checkComponentValidity(s.appPath, moduleName, name, o.withoutMessage); err != nil {
 		return err
 	}
+	if err := checkTypeProtoCreated(ctx, s.appPath, s.modpath.Package, s.protoDir, moduleName, name); err != nil {
+		return err
+	}
 
 	// Check and parse provided fields
 	if err := checkCustomTypes(ctx, s.appPath, s.modpath.Package, s.protoDir, moduleName, o.fields); err != nil {
