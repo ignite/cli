@@ -141,7 +141,7 @@ func (s Scaffolder) AddMessage(
 	)
 
 	// Scaffold
-	g, err = message.NewGenerator(s.Tracer(), opts)
+	g, err = message.NewGenerator(opts)
 	if err != nil {
 		return err
 	}
