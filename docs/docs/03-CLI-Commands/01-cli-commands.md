@@ -1,18 +1,18 @@
 ---
-description: IGNITE® CLI docs.
+description: Ignite CLI docs.
 ---
 
 # CLI commands
 
-Documentation for IGNITE® CLI.
+Documentation for Ignite CLI.
 ## ignite
 
-IGNITE® CLI offers everything you need to scaffold, test, build, and launch your blockchain
+Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 
 **Synopsis**
 
-IGNITE® CLI is a tool for creating sovereign blockchains built with Cosmos SDK, the world's
-most popular modular blockchain framework. IGNITE® CLI offers everything you need to scaffold,
+Ignite CLI is a tool for creating sovereign blockchains built with Cosmos SDK, the world's
+most popular modular blockchain framework. Ignite CLI offers everything you need to scaffold,
 test, build, and launch your blockchain.
 
 To get started, create a blockchain:
@@ -22,7 +22,7 @@ $ ignite scaffold chain example
 Announcements:
 
 ⋆ A new release has appeared! v29.8.0 has just been released :)
-⋆ Satisfied with IGNITE®? Or totally fed-up with it? Tell us: https://bit.ly/3WZS2uS
+⋆ Satisfied with Ignite? Or totally fed-up with it? Tell us: https://bit.ly/3WZS2uS
 
 
 **Options**
@@ -33,12 +33,12 @@ Announcements:
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Create, delete, and show IGNITE® accounts
-* [ignite app](#ignite-app)	 - Create and manage IGNITE® Apps
-* [ignite appregistry](#ignite-appregistry)	 - Browse the IGNITE® App Registry App
+* [ignite account](#ignite-account)	 - Create, delete, and show Ignite accounts
+* [ignite app](#ignite-app)	 - Create and manage Ignite Apps
+* [ignite appregistry](#ignite-appregistry)	 - Browse the Ignite App Registry App
 * [ignite chain](#ignite-chain)	 - Build, init and start a blockchain node
 * [ignite completion](#ignite-completion)	 - Generates shell completion script.
-* [ignite docs](#ignite-docs)	 - Show IGNITE® CLI docs
+* [ignite docs](#ignite-docs)	 - Show Ignite CLI docs
 * [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
 * [ignite relayer](#ignite-relayer)	 - Connect blockchains with an IBC relayer
 * [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
@@ -48,15 +48,15 @@ Announcements:
 
 ## ignite account
 
-Create, delete, and show IGNITE® accounts
+Create, delete, and show Ignite accounts
 
 **Synopsis**
 
-Commands for managing IGNITE® accounts. An IGNITE® account is a private/public
-keypair stored in a keyring. Currently IGNITE® accounts are used when interacting
-with IGNITE® Apps (namely ignite relayer, ignite network and ignite connect).
+Commands for managing Ignite accounts. An Ignite account is a private/public
+keypair stored in a keyring. Currently Ignite accounts are used when interacting
+with Ignite Apps (namely ignite relayer, ignite network and ignite connect).
 
-Note: IGNITE® account commands are not for managing your chain's keys and accounts. Use
+Note: Ignite account commands are not for managing your chain's keys and accounts. Use
 you chain's binary to manage accounts from "config.yml". For example, if your
 blockchain is called "mychain", use "mychaind keys" to manage keys for the
 chain.
@@ -72,7 +72,7 @@ chain.
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - IGNITE® CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 * [ignite account create](#ignite-account-create)	 - Create a new account
 * [ignite account delete](#ignite-account-delete)	 - Delete an account by name
 * [ignite account export](#ignite-account-export)	 - Export an account as a private key
@@ -105,7 +105,7 @@ ignite account create [name] [flags]
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Create, delete, and show IGNITE® accounts
+* [ignite account](#ignite-account)	 - Create, delete, and show Ignite accounts
 
 
 ## ignite account delete
@@ -131,7 +131,7 @@ ignite account delete [name] [flags]
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Create, delete, and show IGNITE® accounts
+* [ignite account](#ignite-account)	 - Create, delete, and show Ignite accounts
 
 
 ## ignite account export
@@ -160,7 +160,7 @@ ignite account export [name] [flags]
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Create, delete, and show IGNITE® accounts
+* [ignite account](#ignite-account)	 - Create, delete, and show Ignite accounts
 
 
 ## ignite account import
@@ -190,7 +190,7 @@ ignite account import [name] [flags]
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Create, delete, and show IGNITE® accounts
+* [ignite account](#ignite-account)	 - Create, delete, and show Ignite accounts
 
 
 ## ignite account list
@@ -217,7 +217,7 @@ ignite account list [flags]
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Create, delete, and show IGNITE® accounts
+* [ignite account](#ignite-account)	 - Create, delete, and show Ignite accounts
 
 
 ## ignite account show
@@ -244,12 +244,12 @@ ignite account show [name] [flags]
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Create, delete, and show IGNITE® accounts
+* [ignite account](#ignite-account)	 - Create, delete, and show Ignite accounts
 
 
 ## ignite app
 
-Create and manage IGNITE® Apps
+Create and manage Ignite Apps
 
 **Options**
 
@@ -259,11 +259,11 @@ Create and manage IGNITE® Apps
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - IGNITE® CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 * [ignite app describe](#ignite-app-describe)	 - Print information about installed apps
 * [ignite app install](#ignite-app-install)	 - Install app
 * [ignite app list](#ignite-app-list)	 - List installed apps
-* [ignite app scaffold](#ignite-app-scaffold)	 - Scaffold a new IGNITE® App
+* [ignite app scaffold](#ignite-app-scaffold)	 - Scaffold a new Ignite App
 * [ignite app uninstall](#ignite-app-uninstall)	 - Uninstall app
 * [ignite app update](#ignite-app-update)	 - Update app
 
@@ -274,7 +274,7 @@ Print information about installed apps
 
 **Synopsis**
 
-Print information about an installed IGNITE® App commands and hooks.
+Print information about an installed Ignite App commands and hooks.
 
 ```
 ignite app describe [path] [flags]
@@ -294,7 +294,7 @@ ignite app describe github.com/org/my-app/
 
 **SEE ALSO**
 
-* [ignite app](#ignite-app)	 - Create and manage IGNITE® Apps
+* [ignite app](#ignite-app)	 - Create and manage Ignite Apps
 
 
 ## ignite app install
@@ -303,7 +303,7 @@ Install app
 
 **Synopsis**
 
-Installs an IGNITE® App.
+Installs an Ignite App.
 
 Respects key value pairs declared after the app path to be added to the generated configuration definition.
 
@@ -326,7 +326,7 @@ ignite app install github.com/org/my-app/ foo=bar baz=qux
 
 **SEE ALSO**
 
-* [ignite app](#ignite-app)	 - Create and manage IGNITE® Apps
+* [ignite app](#ignite-app)	 - Create and manage Ignite Apps
 
 
 ## ignite app list
@@ -335,7 +335,7 @@ List installed apps
 
 **Synopsis**
 
-Prints status and information of all installed IGNITE® Apps.
+Prints status and information of all installed Ignite Apps.
 
 ```
 ignite app list [flags]
@@ -349,16 +349,16 @@ ignite app list [flags]
 
 **SEE ALSO**
 
-* [ignite app](#ignite-app)	 - Create and manage IGNITE® Apps
+* [ignite app](#ignite-app)	 - Create and manage Ignite Apps
 
 
 ## ignite app scaffold
 
-Scaffold a new IGNITE® App
+Scaffold a new Ignite App
 
 **Synopsis**
 
-Scaffolds a new IGNITE® App in the current directory.
+Scaffolds a new Ignite App in the current directory.
 
 A git repository will be created with the given module name, unless the current directory is already a git repository.
 
@@ -380,7 +380,7 @@ ignite app scaffold github.com/org/my-app/
 
 **SEE ALSO**
 
-* [ignite app](#ignite-app)	 - Create and manage IGNITE® Apps
+* [ignite app](#ignite-app)	 - Create and manage Ignite Apps
 
 
 ## ignite app uninstall
@@ -389,7 +389,7 @@ Uninstall app
 
 **Synopsis**
 
-Uninstalls an IGNITE® App specified by path.
+Uninstalls an Ignite App specified by path.
 
 ```
 ignite app uninstall [path] [flags]
@@ -410,7 +410,7 @@ ignite app uninstall github.com/org/my-app/
 
 **SEE ALSO**
 
-* [ignite app](#ignite-app)	 - Create and manage IGNITE® Apps
+* [ignite app](#ignite-app)	 - Create and manage Ignite Apps
 
 
 ## ignite app update
@@ -419,7 +419,7 @@ Update app
 
 **Synopsis**
 
-Updates an IGNITE® App specified by path.
+Updates an Ignite App specified by path.
 
 If no path is specified all declared apps are updated.
 
@@ -441,12 +441,12 @@ ignite app update github.com/org/my-app/
 
 **SEE ALSO**
 
-* [ignite app](#ignite-app)	 - Create and manage IGNITE® Apps
+* [ignite app](#ignite-app)	 - Create and manage Ignite Apps
 
 
 ## ignite appregistry
 
-Browse the IGNITE® App Registry App
+Browse the Ignite App Registry App
 
 ```
 ignite appregistry [flags]
@@ -460,7 +460,7 @@ ignite appregistry [flags]
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - IGNITE® CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 
 
 ## ignite chain
@@ -473,7 +473,7 @@ Commands in this namespace let you to build, initialize, and start your
 blockchain node locally for development purposes.
 
 To run these commands you should be inside the project's directory so that
-IGNITE® can find the source code. To ensure that you are, run "ls", you should
+Ignite can find the source code. To ensure that you are, run "ls", you should
 see the following files in the output: "go.mod", "x", "proto", "app", etc.
 
 By default the "build" command will identify the "main" package of the project,
@@ -521,14 +521,14 @@ chain.
 **Options**
 
 ```
-  -c, --config string   path to IGNITE® config file (default: ./config.yml)
+  -c, --config string   path to Ignite config file (default: ./config.yml)
   -h, --help            help for chain
   -y, --yes             answers interactive yes/no questions with yes
 ```
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - IGNITE® CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 * [ignite chain build](#ignite-chain-build)	 - Build a node binary
 * [ignite chain debug](#ignite-chain-debug)	 - Launch a debugger for a blockchain app
 * [ignite chain faucet](#ignite-chain-faucet)	 - Send coins to an account
@@ -553,24 +553,24 @@ You can customize the output directory for the binary using a flag:
 
 	ignite chain build --output dist
 
-To compile the binary IGNITE® first compiles protocol buffer (proto) files into
+To compile the binary Ignite first compiles protocol buffer (proto) files into
 Go source code. Proto files contain required type and services definitions. If
 you're using another program to compile proto files, you can use a flag to tell
-IGNITE® to skip the proto compilation step:
+Ignite to skip the proto compilation step:
 
 	ignite chain build --skip-proto
 
-Afterwards, IGNITE® install dependencies specified in the go.mod file. By default
-IGNITE® doesn't check that dependencies of the main module stored in the module
+Afterwards, Ignite install dependencies specified in the go.mod file. By default
+Ignite doesn't check that dependencies of the main module stored in the module
 cache have not been modified since they were downloaded. To enforce dependency
 checking (essentially, running "go mod verify") use a flag:
 
 	ignite chain build --check-dependencies
 
-Next, IGNITE® identifies the "main" package of the project. By default the "main"
+Next, Ignite identifies the "main" package of the project. By default the "main"
 package is located in "cmd/{app}d" directory, where "{app}" is the name of the
 scaffolded project and "d" stands for daemon. If your project contains more
-than one "main" package, specify the path to the one that IGNITE® should compile
+than one "main" package, specify the path to the one that Ignite should compile
 in config.yml:
 
 	build:
@@ -622,7 +622,7 @@ ignite chain build [flags]
 **Options inherited from parent commands**
 
 ```
-  -c, --config string   path to IGNITE® config file (default: ./config.yml)
+  -c, --config string   path to Ignite config file (default: ./config.yml)
   -y, --yes             answers interactive yes/no questions with yes
 ```
 
@@ -639,7 +639,7 @@ Launch a debugger for a blockchain app
 
 The debug command starts a debug server and launches a debugger.
 
-IGNITE® uses the Delve debugger by default. Delve enables you to interact with
+Ignite uses the Delve debugger by default. Delve enables you to interact with
 your program by controlling the execution of the process, evaluating variables,
 and providing information of thread / goroutine state, CPU register state and
 more.
@@ -676,7 +676,7 @@ ignite chain debug [flags]
 **Options inherited from parent commands**
 
 ```
-  -c, --config string   path to IGNITE® config file (default: ./config.yml)
+  -c, --config string   path to Ignite config file (default: ./config.yml)
   -y, --yes             answers interactive yes/no questions with yes
 ```
 
@@ -705,7 +705,7 @@ ignite chain faucet [address] [coin<,...>] [flags]
 **Options inherited from parent commands**
 
 ```
-  -c, --config string   path to IGNITE® config file (default: ./config.yml)
+  -c, --config string   path to Ignite config file (default: ./config.yml)
   -y, --yes             answers interactive yes/no questions with yes
 ```
 
@@ -757,7 +757,7 @@ default the gas price is set to 0 to allow "free" transactions), sets the block
 time to 5s, and changes the output format to JSON. To see what kind of values
 this configuration accepts see the generated TOML files in the data directory.
 
-As part of the initialization process IGNITE® creates on-chain accounts with
+As part of the initialization process Ignite creates on-chain accounts with
 token balances. By default, config.yml has two accounts in the top-level
 "accounts" property. You can add more accounts and change their token balances.
 Refer to config.yml guide to see which values you can set.
@@ -807,7 +807,7 @@ ignite chain init [flags]
 **Options inherited from parent commands**
 
 ```
-  -c, --config string   path to IGNITE® config file (default: ./config.yml)
+  -c, --config string   path to Ignite config file (default: ./config.yml)
   -y, --yes             answers interactive yes/no questions with yes
 ```
 
@@ -837,7 +837,7 @@ ignite chain lint [flags]
 **Options inherited from parent commands**
 
 ```
-  -c, --config string   path to IGNITE® config file (default: ./config.yml)
+  -c, --config string   path to Ignite config file (default: ./config.yml)
   -y, --yes             answers interactive yes/no questions with yes
 ```
 
@@ -863,7 +863,7 @@ The modules command allows you to manage modules in the codebase.
 **Options inherited from parent commands**
 
 ```
-  -c, --config string   path to IGNITE® config file (default: ./config.yml)
+  -c, --config string   path to Ignite config file (default: ./config.yml)
   -y, --yes             answers interactive yes/no questions with yes
 ```
 
@@ -894,7 +894,7 @@ ignite chain modules list [flags]
 **Options inherited from parent commands**
 
 ```
-  -c, --config string   path to IGNITE® config file (default: ./config.yml)
+  -c, --config string   path to Ignite config file (default: ./config.yml)
   -y, --yes             answers interactive yes/no questions with yes
 ```
 
@@ -914,24 +914,24 @@ uses that binary to initialize the blockchain's data directory for one validator
 (like "ignite chain init"), and starts the node locally for development purposes
 with automatic code reloading.
 
-Automatic code reloading means IGNITE® starts watching the project directory.
-Whenever a file change is detected, IGNITE® automatically rebuilds, reinitializes
+Automatic code reloading means Ignite starts watching the project directory.
+Whenever a file change is detected, Ignite automatically rebuilds, reinitializes
 and restarts the node.
 
-Whenever possible IGNITE® will try to keep the current state of the chain by
+Whenever possible Ignite will try to keep the current state of the chain by
 exporting and importing the genesis file.
 
-To force IGNITE® to start from a clean slate even if a genesis file exists, use
+To force Ignite to start from a clean slate even if a genesis file exists, use
 the following flag:
 
 	ignite chain serve --reset-once
 
-To force IGNITE® to reset the state every time the source code is modified, use
+To force Ignite to reset the state every time the source code is modified, use
 the following flag:
 
 	ignite chain serve --force-reset
 
-With IGNITE® it's possible to start more than one blockchain from the same source
+With Ignite it's possible to start more than one blockchain from the same source
 code using different config files. This is handy if you're building
 inter-blockchain functionality and, for example, want to try sending packets
 from one blockchain to another. To start a node using a specific config file:
@@ -969,7 +969,7 @@ ignite chain serve [flags]
 **Options inherited from parent commands**
 
 ```
-  -c, --config string   path to IGNITE® config file (default: ./config.yml)
+  -c, --config string   path to Ignite config file (default: ./config.yml)
   -y, --yes             answers interactive yes/no questions with yes
 ```
 
@@ -1012,7 +1012,7 @@ ignite chain simulate [flags]
 **Options inherited from parent commands**
 
 ```
-  -c, --config string   path to IGNITE® config file (default: ./config.yml)
+  -c, --config string   path to Ignite config file (default: ./config.yml)
   -y, --yes             answers interactive yes/no questions with yes
 ```
 
@@ -1037,12 +1037,12 @@ ignite completion [bash|zsh|fish|powershell] [flags]
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - IGNITE® CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 
 
 ## ignite docs
 
-Show IGNITE® CLI docs
+Show Ignite CLI docs
 
 ```
 ignite docs [flags]
@@ -1056,7 +1056,7 @@ ignite docs [flags]
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - IGNITE® CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 
 
 ## ignite generate
@@ -1086,7 +1086,7 @@ meant to be edited by hand.
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - IGNITE® CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 * [ignite generate composables](#ignite-generate-composables)	 - TypeScript frontend client and Vue 3 composables
 * [ignite generate openapi](#ignite-generate-openapi)	 - OpenAPI spec for your chain
 * [ignite generate proto-go](#ignite-generate-proto-go)	 - Compile protocol buffer files to Go source code required by Cosmos SDK
@@ -1250,7 +1250,7 @@ ignite relayer [flags]
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - IGNITE® CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 
 
 ## ignite scaffold
@@ -1266,7 +1266,7 @@ For details on each scaffolding target (chain, module, message, etc.) run the
 corresponding command with a "--help" flag, for example, "ignite scaffold chain
 --help".
 
-The IGNITE® team strongly recommends committing the code to a version control
+The Ignite team strongly recommends committing the code to a version control
 system before running scaffolding commands. This will make it easier to see the
 changes to the source code as well as undo the command if you've decided to roll
 back the changes.
@@ -1323,7 +1323,7 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - IGNITE® CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 * [ignite scaffold chain](#ignite-scaffold-chain)	 - New Cosmos SDK blockchain
 * [ignite scaffold chain-registry](#ignite-scaffold-chain-registry)	 - Configs for the chain registry
 * [ignite scaffold configs](#ignite-scaffold-configs)	 - Configs for a custom Cosmos SDK module
@@ -1367,7 +1367,7 @@ To use a different path use the "--path" flag.
 Most of the logic of your blockchain is written in custom modules. Each module
 effectively encapsulates an independent piece of functionality. Following the
 Cosmos SDK convention, custom modules are stored inside the "x/" directory. By
-default, IGNITE® creates a module with a name that matches the name of the
+default, Ignite creates a module with a name that matches the name of the
 project. To create a blockchain without a default module use the "--no-module"
 flag. Additional modules can be added after a project is created with "ignite
 scaffold module" command.
@@ -1379,7 +1379,7 @@ use a custom address prefix use the "--address-prefix" flag. For example:
 
 	ignite scaffold chain foo --address-prefix bar
 
-By default when compiling a blockchain's source code IGNITE® creates a cache to
+By default when compiling a blockchain's source code Ignite creates a cache to
 speed up the build process. To clear the cache when building a blockchain use
 the "--clear-cache" flag. It is very unlikely you will ever need to use this
 flag.
@@ -1560,13 +1560,13 @@ For detailed type information use ignite scaffold type --help
 "Index" indicates whether the type can be used as an index in
 "ignite scaffold map".
 
-IGNITE® also supports custom types:
+Ignite also supports custom types:
 
 	ignite scaffold list product-details name desc
 	ignite scaffold list product price:coin details:ProductDetails
 
 In the example above the "ProductDetails" type was defined first, and then used
-as a custom type for the "details" field. IGNITE® doesn't support arrays of
+as a custom type for the "details" field. Ignite doesn't support arrays of
 custom types yet.
 
 Your chain will accept custom types in JSON-notation:
@@ -1714,7 +1714,7 @@ accounts. The send message has three fields: from address (sender), to address
 the token amount will be deducted from the sender's account and added to the
 recipient's account.
 
-IGNITE®'s message scaffolding lets you create new types of messages and add them
+Ignite's message scaffolding lets you create new types of messages and add them
 to your chain. For example:
 
 	ignite scaffold message add-pool amount:coins denom active:bool --module dex
@@ -1728,10 +1728,10 @@ For detailed type information use ignite scaffold type --help
 By default, the message is defined as a proto message in the
 "proto/{app}/{module}/tx.proto" and registered in the "Msg" service. A CLI command to
 create and broadcast a transaction with MsgAddPool is created in the module's
-"cli" package. Additionally, IGNITE® scaffolds a message constructor and the code
+"cli" package. Additionally, Ignite scaffolds a message constructor and the code
 to satisfy the sdk.Msg interface and register the message in the module.
 
-Most importantly in the "keeper" package IGNITE® scaffolds an "AddPool" function.
+Most importantly in the "keeper" package Ignite scaffolds an "AddPool" function.
 Inside this function, you can implement message handling logic.
 
 When successfully processed a message can return data. Use the —response flag to
@@ -2178,7 +2178,7 @@ Comprehensive toolset for managing and simulating blockchain test networks. It a
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - IGNITE® CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 * [ignite testnet in-place](#ignite-testnet-in-place)	 - Create and start a testnet from current local net state
 * [ignite testnet multi-node](#ignite-testnet-multi-node)	 - Initialize and provide multi-node on/off functionality
 * [ignite testnet simulate](#ignite-testnet-simulate)	 - Run simulation testing for the blockchain
@@ -2320,7 +2320,7 @@ ignite version [flags]
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - IGNITE® CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
 
 # Scaffold Type
 
