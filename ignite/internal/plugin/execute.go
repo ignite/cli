@@ -12,10 +12,28 @@ import (
 	"github.com/ignite/cli/v29/ignite/services/plugin"
 )
 
+type synchronizedBuffer struct {
+	mu  sync.Mutex
+	buf bytes.Buffer
+}
+
+func (b *synchronizedBuffer) Write(p []byte) (int, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	return b.buf.Write(p)
+}
+
+func (b *synchronizedBuffer) String() string {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	return b.buf.String()
+}
+
 // Execute starts and executes a plugin, then shutdowns it.
 func Execute(ctx context.Context, path string, args []string, options ...plugin.APIOption) (string, error) {
-	var buf bytes.Buffer
-	var mu sync.Mutex
+	var buf synchronizedBuffer
 	plugins, err := plugin.Load(
 		ctx,
 		[]pluginsconfig.Plugin{{Path: path}},
@@ -40,7 +58,5 @@ func Execute(ctx context.Context, path string, args []string, options ...plugin.
 	}
 
 	plugins[0].KillClient()
-	mu.Lock()
-	defer mu.Unlock()
 	return buf.String(), err
 }
