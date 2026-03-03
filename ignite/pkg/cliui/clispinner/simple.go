@@ -94,29 +94,30 @@ func (s *SimpleSpinner) Start() Spinner {
 	}
 	s.active = true
 	s.stopChan = make(chan struct{})
+	stop := s.stopChan
 
-	// Extract spinner data safely within the mutex
-	prefix := s.prefix
-	text := s.text
 	writer := s.writer
-	charset := s.charset
 	s.mu.Unlock()
 
 	// Start the animation loop in a separate goroutine
-	go func() {
+	go func(stop <-chan struct{}) {
 		ticker := time.NewTicker(simpleRefreshRate)
 		defer ticker.Stop()
 
 		index := 0
 		for {
 			select {
-			case <-s.stopChan: // Stop the spinner
+			case <-stop: // Stop the spinner
 				_, _ = fmt.Fprintf(writer, "\r\033[K") // Clear the spinner's line
 				return
 			case <-ticker.C: // Update the spinner on each tick
 				s.mu.Lock()
+				charset := s.charset
+				if len(charset) == 0 {
+					charset = simpleCharset
+				}
 				frame := charset[index]
-				str := fmt.Sprintf("\r%s%s %s", prefix, simpleColor(frame), text)
+				str := fmt.Sprintf("\r%s%s %s", s.prefix, simpleColor(frame), s.text)
 				_, _ = fmt.Fprint(writer, str) // Update the spinner in the same line
 				index++
 				if index >= len(charset) {
@@ -125,7 +126,7 @@ func (s *SimpleSpinner) Start() Spinner {
 				s.mu.Unlock()
 			}
 		}
-	}()
+	}(stop)
 	return s
 }
 
@@ -136,11 +137,15 @@ func (s *SimpleSpinner) Stop() Spinner {
 		s.mu.Unlock()
 		return s // Do nothing if already inactive
 	}
-	close(s.stopChan)
+	stop := s.stopChan
 	s.active = false
 	s.stopChan = nil
-	fmt.Print("\r") // Clear spinner line on stop
 	s.mu.Unlock()
+
+	if stop != nil {
+		close(stop)
+	}
+	fmt.Print("\r") // Clear spinner line on stop
 	return s
 }
 
