@@ -6,7 +6,7 @@ title: Go client
 # A client in the Go programming language
 
 In this tutorial, we will show you how to create a standalone Go program that
-serves as a client for a blockchain. We will use the Ignite CLI to set up a
+serves as a client for a blockchain. We will use the IGNITE® CLI to set up a
 standard blockchain. To communicate with the blockchain, we will utilize the
 `cosmosclient` package, which provides an easy-to-use interface for interacting
 with the blockchain. You will learn how to use the `cosmosclient` package to
@@ -16,7 +16,7 @@ Go and the `cosmosclient` package.
 
 ## Create a blockchain
 
-To create a blockchain using the Ignite CLI, use the following command:
+To create a blockchain using the IGNITE® CLI, use the following command:
 
 ```
 ignite scaffold chain blog

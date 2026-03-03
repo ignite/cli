@@ -11,7 +11,7 @@ and documentation.
 
 ## Using this repo
 
-Review existing [Ignite CLI issues](https://github.com/ignite/cli/issues) to see
+Review existing [IGNITE® CLI issues](https://github.com/ignite/cli/issues) to see
 if your question has already been asked and answered.
 
 - To provide feedback, file an issue and provide generous details to help us
@@ -68,7 +68,7 @@ Other useful resources:
 
 Technical content includes knowledge base articles and interactive tutorials.
 
-- The Ignite CLI Developer Tutorials content is in the `docs/guide` folder.
+- The IGNITE® CLI Developer Tutorials content is in the `docs/guide` folder.
 - The Knowledge Base content is in the `docs/kb` folder.
 - Upgrade information is in the `docs/migration` folder.
 
@@ -84,11 +84,11 @@ repos.
 
 ## Who works on the tutorials?
 
-The Ignite product team developers are focused on building Ignite CLI and
-improving the developer experience. The Ignite Ecosystem Development team owns
+The IGNITE® product team developers are focused on building IGNITE® CLI and
+improving the developer experience. The IGNITE® Ecosystem Development team owns
 the technical content and tutorials and manages developer onboarding.
 
-Meet the [people behind Ignite CLI and our
+Meet the [people behind IGNITE® CLI and our
 contributors](https://github.com/ignite/cli/graphs/contributors).
 
 ## Viewing docs builds
