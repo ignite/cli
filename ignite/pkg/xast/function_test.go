@@ -1284,6 +1284,12 @@ func main() {
 			funcName:    "notFound",
 			expectError: true,
 		},
+		{
+			name:        "invalid source file",
+			content:     `package main func`,
+			funcName:    "main",
+			expectError: true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -1396,4 +1402,86 @@ func process() {
 			require.Equal(t, tt.expected, result)
 		})
 	}
+}
+
+func TestModifyFunctionMissingTargets(t *testing.T) {
+	t.Run("invalid source content", func(t *testing.T) {
+		_, err := ModifyFunction("package main\nfunc", "anotherFunction")
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "failed to parse file (anotherFunction)")
+	})
+
+	t.Run("function not found", func(t *testing.T) {
+		_, err := ModifyFunction(`package main
+
+func main() {}
+`, "anotherFunction")
+		require.EqualError(t, err, `function "anotherFunction" not found`)
+	})
+}
+
+func TestModifyFunctionReturnStatementNotFound(t *testing.T) {
+	t.Run("non-empty body without return", func(t *testing.T) {
+		_, err := ModifyFunction(`package main
+
+func noReturn() {
+	doSomething()
+}
+`, "noReturn", NewFuncReturn("1"))
+		require.EqualError(t, err, "return statement not found")
+	})
+
+	t.Run("empty body without return", func(t *testing.T) {
+		_, err := ModifyFunction(`package main
+
+func empty() {}
+`, "empty", NewFuncReturn("1"))
+		require.EqualError(t, err, "return statement not found")
+	})
+}
+
+func TestRemoveFuncCallNestedStatements(t *testing.T) {
+	content := `package main
+
+func process(values []int, anyValue interface{}) int {
+	if len(values) > 0 {
+		doRemove()
+	} else if len(values) == 0 {
+		doRemove()
+	} else {
+		doRemove()
+	}
+
+	for i := 0; i < len(values); i++ {
+		doRemove()
+	}
+
+	for _, v := range values {
+		_ = v
+		doRemove()
+	}
+
+	switch value := anyValue.(type) {
+	case int:
+		_ = value
+		doRemove()
+	default:
+		doKeep()
+	}
+
+	switch len(values) {
+	case 1:
+		doRemove()
+	default:
+		doKeep()
+	}
+
+	return 1
+}
+`
+	got, err := ModifyFunction(content, "process", RemoveFuncCall("doRemove"))
+	require.NoError(t, err)
+	require.NotContains(t, got, "doRemove(")
+	require.Contains(t, got, "doKeep()")
+	require.Contains(t, got, "return 1")
 }

@@ -2,8 +2,38 @@
 
 ## Unreleased
 
+## Features
+
+- [#4877](https://github.com/ignite/cli/pull/4877) Remove app config and ibc add route placeholders.
+
+### Changes
+
+- [#4880](https://github.com/ignite/cli/pull/4880) Add possibility to scaffold underscore package.
+- [#4878](https://github.com/ignite/cli/pull/4878) Improve the `xast` package readability.
+- [#4883](https://github.com/ignite/cli/pull/4883) Remove ibc keys placeholders.
+
+## [`v29.8.0`](https://github.com/ignite/cli/releases/tag/v29.8.0)
+
+## Features
+
+- [#4869](https://github.com/ignite/cli/pull/4869) Improve the httpstatuschecker by injecting clients.
+
+### Changes
+
+- [#4874](https://github.com/ignite/cli/pull/4874) Bump `cosmos-sdk` version to `v0.53.6`.
+- [#4874](https://github.com/ignite/cli/pull/4874) Do not generate unannotated OpenAPI methods.
+
+### Fixes
+
+- [#4735](https://github.com/ignite/cli/issues/4735) Cleanup `xgenny` runner to avoid duplicated generators.
+- [#4864](https://github.com/ignite/cli/pull/4864) Mismatch for message names.
+- [#4874](https://github.com/ignite/cli/pull/4874) Use latest `bytedance/sonic` version to support Go 1.26.
+
+## [`v29.7.0`](https://github.com/ignite/cli/releases/tag/v29.7.0)
+
 ## Changes
 
+- [#4861](https://github.com/ignite/cli/pull/4861) Bump CometBFT to `v0.38.21`
 - [#4855](https://github.com/ignite/cli/pull/4855) Implement openapi excludes.
 - [#4850](https://github.com/ignite/cli/pull/4850) Add default GitHub Actions for linting and testing.
 - [#4849](https://github.com/ignite/cli/pull/4849) Bump `cosmos-sdk` version to `v0.53.5` and minimum Go version to `1.25`.

@@ -104,7 +104,6 @@ var (
 		// icatypes.ModuleName,
 		// chain modules
 		marsmoduletypes.ModuleName,
-		// this line is used by starport scaffolding # stargate/app/initGenesis
 	}
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -129,7 +128,6 @@ var (
 		ibcfeetypes.ModuleName,
 		// chain modules
 		marsmoduletypes.ModuleName,
-		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	}
 
 	endBlockers = []string{
@@ -146,7 +144,6 @@ var (
 		ibcfeetypes.ModuleName,
 		// chain modules
 		marsmoduletypes.ModuleName,
-		// this line is used by starport scaffolding # stargate/app/endBlockers
 	}
 
 	// module account permissions
@@ -288,7 +285,6 @@ var (
 				Name:   marsmoduletypes.ModuleName,
 				Config: appconfig.WrapAny(&marsmoduletypes.Module{}),
 			},
-			// this line is used by starport scaffolding # stargate/app/moduleConfig
 		},
 	}),
 		depinject.Supply(

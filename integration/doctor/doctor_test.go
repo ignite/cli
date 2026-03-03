@@ -8,6 +8,7 @@ import (
 	"github.com/rogpeppe/go-internal/testscript"
 
 	"github.com/ignite/cli/v29/ignite/config"
+	"github.com/ignite/cli/v29/ignite/pkg/env"
 	"github.com/ignite/cli/v29/ignite/pkg/xfilepath"
 	envtest "github.com/ignite/cli/v29/integration"
 )
@@ -19,15 +20,15 @@ func TestDoctor(t *testing.T) {
 	envtest.New(t)
 	// Prepare params
 	params := testscript.Params{
-		Setup: func(env *testscript.Env) error {
-			env.Vars = append(env.Vars,
+		Setup: func(testEnv *testscript.Env) error {
+			testEnv.Vars = append(testEnv.Vars,
 				envDoNotTrack+"=true",
 				// Pass ignite binary path
 				"IGNITE="+envtest.IgniteApp,
 				// Pass ignite config dir
 				// (testscript resets envs so even if envtest.New has properly set
 				// IGNT_CONFIG_DIR, we need to set it again)
-				"IGNT_CONFIG_DIR="+xfilepath.MustInvoke(config.DirPath),
+				env.ConfigDirEnvVar+"="+xfilepath.MustInvoke(config.DirPath),
 			)
 			return nil
 		},

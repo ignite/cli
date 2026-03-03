@@ -10,7 +10,6 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
 	"github.com/ignite/cli/v29/ignite/pkg/xstrings"
@@ -57,17 +56,17 @@ func NewGenerator(opts *CreateOptions) (*genny.Generator, error) {
 }
 
 // NewAppModify returns generator with modifications required to register a module in the app.
-func NewAppModify(replacer placeholder.Replacer, opts *CreateOptions) *genny.Generator {
+func NewAppModify(opts *CreateOptions) *genny.Generator {
 	g := genny.New()
 	g.RunFn(appModify(opts))
-	g.RunFn(appConfigModify(replacer, opts))
+	g.RunFn(appConfigModify(opts))
 	if opts.IsIBC {
-		g.RunFn(appIBCModify(replacer, opts))
+		g.RunFn(appIBCModify(opts))
 	}
 	return g
 }
 
-func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+func appConfigModify(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		configPath := module.PathAppConfigGo
 		fConfig, err := r.Disk.Find(configPath)
@@ -91,29 +90,16 @@ func appConfigModify(replacer placeholder.Replacer, opts *CreateOptions) genny.R
 			return err
 		}
 
-		// Init genesis
-		template := `%[2]vmoduletypes.ModuleName,
-%[1]v`
-		replacement := fmt.Sprintf(template, module.PlaceholderSgAppInitGenesis, opts.ModuleName)
-		content = replacer.Replace(content, module.PlaceholderSgAppInitGenesis, replacement)
-		replacement = fmt.Sprintf(template, module.PlaceholderSgAppBeginBlockers, opts.ModuleName)
-		content = replacer.Replace(content, module.PlaceholderSgAppBeginBlockers, replacement)
-		replacement = fmt.Sprintf(template, module.PlaceholderSgAppEndBlockers, opts.ModuleName)
-		content = replacer.Replace(content, module.PlaceholderSgAppEndBlockers, replacement)
-
-		template = `{
-				Name:   %[2]vmoduletypes.ModuleName,
-				Config: appconfig.WrapAny(&%[2]vmoduletypes.Module{}),
-			},
-%[1]v`
-		replacement = fmt.Sprintf(template, module.PlaceholderSgAppModuleConfig, opts.ModuleName)
-		content = replacer.Replace(content, module.PlaceholderSgAppModuleConfig, replacement)
+		content, err = addModuleToAppConfig(content, opts.ModuleName)
+		if err != nil {
+			return err
+		}
 
 		// Module dependencies
 		for _, dep := range opts.Dependencies {
 			// If bank is a dependency, add account permissions to the module
 			if dep.Name == "Bank" {
-				replacement = fmt.Sprintf(
+				replacement := fmt.Sprintf(
 					"{Account: %[1]vmoduletypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner, authtypes.Staking}}",
 					opts.ModuleName,
 				)

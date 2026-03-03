@@ -11,7 +11,7 @@ import (
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
-func SimulateMsg<%= MsgName.UpperCamel %>(
+func SimulateMsg<%= MsgName.PascalCase %>(
 	ak types.AuthKeeper,
 	bk types.BankKeeper,
 	k keeper.Keeper,
@@ -20,12 +20,12 @@ func SimulateMsg<%= MsgName.UpperCamel %>(
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		simAccount, _ := simtypes.RandomAcc(r, accs)
-		msg := &types.Msg<%= MsgName.UpperCamel %>{
+		msg := &types.Msg<%= MsgName.PascalCase %>{
 			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),
 		}
 
-		// TODO: Handle the <%= MsgName.UpperCamel %> simulation
+		// TODO: Handle the <%= MsgName.PascalCase %> simulation
 
-		return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= MsgName.UpperCamel %> simulation not implemented"), nil, nil
+		return simtypes.NoOpMsg(types.ModuleName, sdk.MsgTypeURL(msg), "<%= MsgName.PascalCase %> simulation not implemented"), nil, nil
 	}
 }

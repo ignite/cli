@@ -154,6 +154,6 @@ func root(path string) string {
 }
 
 func stripNonAlphaNumeric(name string) string {
-	reg := regexp.MustCompile(`[^a-zA-Z0-9]+`)
+	reg := regexp.MustCompile(`[^a-zA-Z0-9_]+`)
 	return strings.ToLower(reg.ReplaceAllString(name, ""))
 }
