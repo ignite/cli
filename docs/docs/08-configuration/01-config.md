@@ -6,7 +6,7 @@ title: Configuration File Documentation
 
 # Configuration File Reference
 
-After scaffolding a blockchain with Ignite CLI, you will find a configuration file at the root of your newly created directory.
+After scaffolding a blockchain with IGNITE® CLI, you will find a configuration file at the root of your newly created directory.
 
 The `config.yml` file generated in your blockchain folder uses key-value pairs
 to describe the development environment for your blockchain.
@@ -39,7 +39,7 @@ data directory.
 You may need to customize specific parameters in the genesis file, such as `chain_id`, token balances, module
 parameters, or custom state.
 
-To override genesis values with Ignite CLI, persistently set overrides in the `genesis`property of your `config.yml`.
+To override genesis values with IGNITE® CLI, persistently set overrides in the `genesis`property of your `config.yml`.
 Any YAML structure under `genesis` will be merged into the generated `genesis.json` during initialization.
 
 Eg: Changing `chain_id` and `staking` parameters
@@ -69,7 +69,7 @@ For more complex setups, you can use the `include` field in `config.yml` to spli
 
 ## Validation
 
-Ignite uses the `validation` field to determine the kind of validation
+IGNITE® uses the `validation` field to determine the kind of validation
 of your blockchain. There are currently two supported kinds of validation:
 
 - `sovereign` which is the standard kind of validation where your blockchain
@@ -83,7 +83,7 @@ While the `sovereign` chain is the default validation when you run the `ignite s
 chain`, to scaffold a consumer chain, you have to run `ignite scaffold chain
 --consumer`.
 
-This field is, at this time of writing, only used by Ignite at the genesis
+This field is, at this time of writing, only used by IGNITE® at the genesis
 generation step, because the genesis of a sovereign chain and a consumer chain
 are different.
 
@@ -99,8 +99,8 @@ accounts:
     coins: [ '10000token', '100000000stake' ]
 ```
 
-Ignite uses information from `accounts` when initializing the chain with `ignite
-chain init` and `ignite chain start`. In the example above Ignite will add two
+IGNITE® uses information from `accounts` when initializing the chain with `ignite
+chain init` and `ignite chain start`. In the example above IGNITE® will add two
 accounts to the `genesis.json` file of the chain.
 
 `name` is a local name of a key pair associated with an account. Once the chain
@@ -115,7 +115,7 @@ When initialized with the config file above, a chain will only have two accounts
 at genesis (Alice and Bob) and two native tokens (with denominations `token` and
 `stake`).
 
-By default, every time a chain is re-initialized, Ignite will create a new key
+By default, every time a chain is re-initialized, IGNITE® will create a new key
 pair for each account. So even though the account name can remain the same
 (`bob`), every chain reinitialize it will have a different mnemonic and address.
 
@@ -126,7 +126,7 @@ pair will not be generated, because it's impossible to derive a key from an
 address. An account with a given address will be added to the genesis file (with
 an associated token balance), but because there is no key pair, you will not be
 able to broadcast transactions from that address. This is useful when you have
-generated a key pair outside of Ignite (for example, using your chain's CLI or
+generated a key pair outside of IGNITE® (for example, using your chain's CLI or
 in an extension wallet) and want to have a token balance associated with the
 address of this key pair.
 
@@ -151,7 +151,7 @@ accounts:
 You cannot have both `address` and `mnemonic` defined for a single account.
 
 Some accounts are used as validator accounts (see `validators` section).
-Validator accounts cannot have an `address` field, because Ignite needs to be
+Validator accounts cannot have an `address` field, because IGNITE® needs to be
 able to derive a private key (either from a random mnemonic or from a specific
 one provided in the `mnemonic` field). Validator accounts should have enough
 tokens of the staking denomination for self-delegation.
@@ -189,11 +189,11 @@ should not be lower than `1000000` nor higher than the account's
 balance in the `account` list.
 
 Validators store their node configuration files in the data directory. By
-default, Ignite uses the name of the project as the name of the data directory,
+default, IGNITE® uses the name of the project as the name of the data directory,
 for example, `$HOME/.example/`. To use a different path for the data directory
 you can customize the `home` property.
 
-Configuration in the data directory is reset frequently by Ignite. To persist
+Configuration in the data directory is reset frequently by IGNITE®. To persist
 some changes to configuration files you can use `app`, `config` and `client`
 properties that correspond to `$HOME/.example/config/app.toml`,
 `$HOME/.example/config/config.toml` and `$HOME/.example/config/client.toml`.
@@ -215,15 +215,15 @@ To see which properties are available for `config.toml`, `app.toml` and
 `client.toml`, initialize a chain with `ignite chain init` and open the file you
 want to know more about.
 
-Currently, Ignite starts only one validator node, so the first item in the
+Currently, IGNITE® starts only one validator node, so the first item in the
 `validators` list is used (the rest is ignored). Support for multiple validators
 is in progress.
 
 ## Build
 
-The `build` property lets you customize how Ignite builds your chain's binary.
+The `build` property lets you customize how IGNITE® builds your chain's binary.
 
-By default, Ignite builds the `main` package from `cmd/PROJECT_NAME/main.go`. If
+By default, IGNITE® builds the `main` package from `cmd/PROJECT_NAME/main.go`. If
 you more than one `main` package in your project, or you have renamed the
 directory, use the `main` property to provide the path to the `main` Go package:
 
@@ -232,7 +232,7 @@ build:
   main: cmd/hello/cmd
 ```
 
-Ignite compiles your project into a binary and uses the project's name with a
+IGNITE® compiles your project into a binary and uses the project's name with a
 `d` suffix as name for the binary. To customize the binary name use the `binary`
 property:
 
@@ -250,7 +250,7 @@ build:
 
 By default, custom protocol buffer (proto) files are located in the `proto`
 directory. If your project keeps proto files in a different directory, you
-should tell Ignite about this:
+should tell IGNITE® about this:
 
 ```yml
 build:
@@ -310,7 +310,7 @@ the genesis file in the data directory.
 
 ## Client code generation
 
-Ignite can generate client-side code for interacting with your chain with the
+IGNITE® can generate client-side code for interacting with your chain with the
 `ignite generate` set of commands. Use the following properties to customize the
 paths where the client-side code is generated.
 
