@@ -13,6 +13,10 @@
 - [#4883](https://github.com/ignite/cli/pull/4883) Remove ibc keys placeholders.
 - [#4884](https://github.com/ignite/cli/pull/4884) Remove autocli placeholders.
 
+### Fixes
+
+- [#4889](https://github.com/ignite/cli/pull/4889) Plugin data race.
+
 ## [`v29.8.0`](https://github.com/ignite/cli/releases/tag/v29.8.0)
 
 ## Features
