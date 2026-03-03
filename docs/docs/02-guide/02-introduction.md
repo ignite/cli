@@ -4,29 +4,29 @@ sidebar_position: 2
 
 # Introduction
 
-In this guide, we will be using Ignite CLI to create a new blockchain. Ignite
+In this guide, we will be using IGNITE® CLI to create a new blockchain. IGNITE®
 CLI is a command line interface that allows users to quickly and easily create
-blockchain networks. By using Ignite CLI, we can quickly create a new blockchain
+blockchain networks. By using IGNITE® CLI, we can quickly create a new blockchain
 without having to manually set up all the necessary components.
 
-Once we have created our blockchain with Ignite CLI, we will take a look at the
+Once we have created our blockchain with IGNITE® CLI, we will take a look at the
 directory structure and files that were created. This will give us an
 understanding of how the blockchain is organized and how the different
 components of the blockchain interact with each other.
 
 By the end of this guide, you will have a basic understanding of how to use
-Ignite CLI to create a new blockchain, and you will have a high-level
+IGNITE® CLI to create a new blockchain, and you will have a high-level
 understanding of the directory structure and files that make up a blockchain.
 This knowledge will be useful as you continue to explore the world of blockchain
 development.
 
 If you are looking for more tutorials and hands-on experience, check out our tutorials website:
 
-[Ignite Tutorials](https://tutorials.ignite.com)
+[IGNITE® Tutorials](https://tutorials.ignite.com)
 
 ## Creating a new blockchain
 
-To create a new blockchain project with Ignite, you will need to run the
+To create a new blockchain project with IGNITE®, you will need to run the
 following command:
 
 ```
@@ -49,7 +49,7 @@ the chain's configuration, application logic, and tests, among others. It
 provides a starting point for developers to quickly set up a new Cosmos SDK
 blockchain and build their desired functionality on top of it.
 
-By default, Ignite creates a new empty custom module with the same name as the
+By default, IGNITE® creates a new empty custom module with the same name as the
 blockchain being created (in this case, `example`) in the `x/` directory. This
 module doesn't have any functionality by itself, but can serve as a starting
 point for building out the features of your application. If you don't want to
@@ -57,7 +57,7 @@ create this module, you can use the `--no-module` flag to skip it.
 
 ## Directory structure
 
-In order to understand what the Ignite CLI has generated for your project, you
+In order to understand what the IGNITE® CLI has generated for your project, you
 can inspect the contents of the `example/` directory.
 
 The `app/` directory contains the files that connect the different parts of the
@@ -145,7 +145,7 @@ the code can be reflected in the running blockchain without having to restart
 the node. This allows for faster development and testing of the blockchain.
 
 **Congratulations!** 🥳 You have successfully created a brand-new Cosmos blockchain
-using the Ignite CLI. This blockchain uses the delegated proof of stake (DPoS)
+using the IGNITE® CLI. This blockchain uses the delegated proof of stake (DPoS)
 consensus algorithm, and comes with a set of standard modules for token
 transfers, governance, and inflation. Now that you have a basic understanding of
 your Cosmos blockchain, it's time to start building custom functionality. In the
