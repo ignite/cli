@@ -79,9 +79,23 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 	)
 
 	app.Scaffold(
+		"create a custom type with custom array field type",
+		false,
+		"type",
+		"custom-type-array",
+		"customFields:array.CustomType",
+	)
+
+	app.Scaffold(
 		"create a message with the custom field type",
 		false,
 		"message", "foo-baz", "customField:CustomType", "textCoinsAlias:coins",
+	)
+
+	app.Scaffold(
+		"create a message with custom array field type",
+		false,
+		"message", "foo-baz-array", "customFields:array.CustomType",
 	)
 
 	app.Scaffold(

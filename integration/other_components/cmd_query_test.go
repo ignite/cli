@@ -78,9 +78,21 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 	)
 
 	app.Scaffold(
+		"create a query with the custom array field type as a response",
+		false,
+		"query", "foobaz-array", "-r", "bars:array.CustomType",
+	)
+
+	app.Scaffold(
 		"should prevent using custom type in request params",
 		true,
 		"query", "bur", "bar:CustomType",
+	)
+
+	app.Scaffold(
+		"should prevent using custom array type in request params",
+		true,
+		"query", "bur-array", "bar:array.CustomType",
 	)
 
 	app.Scaffold(
