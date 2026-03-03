@@ -5,7 +5,7 @@ description: Test different scenarios for your chain.
 
 # Chain simulation
 
-The Ignite CLI chain simulator can help you to run your chain based in
+The IGNITE® CLI chain simulator can help you to run your chain based in
 randomized inputs for you can make fuzz testing and also benchmark test for your
 chain, simulating the messages, blocks, and accounts. You can scaffold a
 template to perform simulation testing in each module along with a boilerplate
@@ -13,7 +13,7 @@ simulation methods for each scaffolded message.
 
 ## Module simulation
 
-Every new module that is scaffolded with Ignite CLI implements the Cosmos SDK
+Every new module that is scaffolded with IGNITE® CLI implements the Cosmos SDK
 [Module
 Simulation](https://docs.cosmos.network/main/building-modules/simulator).
 

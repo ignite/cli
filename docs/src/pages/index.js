@@ -20,12 +20,12 @@ export default function Home() {
   return (
     <Layout
       title={`${siteConfig.title} - Welcome`}
-      description="Welcome to Ignite Documentation Portal"
+      description="Welcome to IGNITE® Documentation Portal"
     >
       <div className={styles.hero}>
-        <h1 className={styles.heroTitle}>Welcome to Ignite Knowledge Hub</h1>
+        <h1 className={styles.heroTitle}>Welcome to IGNITE® Knowledge Hub</h1>
         <p className={styles.heroSubtitle}>
-          Your one-stop portal for Ignite documentation, tutorials, and
+          Your one-stop portal for IGNITE® documentation, tutorials, and
           resources
         </p>
       </div>
@@ -33,23 +33,23 @@ export default function Home() {
       <main className={styles.main}>
         <div className={styles.cardsContainer}>
           <HomeCard
-            title="Ignite Docs"
-            description="Comprehensive documentation for Ignite CLI"
+            title="IGNITE® Docs"
+            description="Comprehensive documentation for IGNITE® CLI"
             to="/welcome"
           />
           <HomeCard
-            title="Ignite Tutorials"
+            title="IGNITE® Tutorials"
             description="Step-by-step guides and learning resources"
             to="https://tutorials.ignite.com"
           />
           <HomeCard
-            title="Ignite Apps"
-            description="Explore recommended Ignite Apps"
+            title="IGNITE® Apps"
+            description="Explore recommended IGNITE® Apps"
             to="https://ignite.com/marketplace"
           />
           <HomeCard
             title="Community"
-            description="Join the Ignite community and connect with others"
+            description="Join the IGNITE® community and connect with others"
             to="https://discord.com/invite/ignitecli"
           />
         </div>

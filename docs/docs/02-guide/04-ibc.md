@@ -15,7 +15,7 @@ between blockchains with the Cosmos SDK.
 **You will learn how to**
 
 - Use IBC to create and send packets between blockchains.
-- Navigate between blockchains using the Cosmos SDK and the Ignite CLI Relayer.
+- Navigate between blockchains using the Cosmos SDK and the IGNITE® CLI Relayer.
 - Create a basic blog post and save the post on another blockchain.
 
 ## What is IBC?
@@ -33,7 +33,7 @@ blockchain.
 
 The IBC relayer lets you connect between sets of IBC-enabled chains. This
 tutorial teaches you how to create two blockchains and then start and use the
-relayer with Ignite CLI to connect two blockchains.
+relayer with IGNITE® CLI to connect two blockchains.
 
 This tutorial covers essentials like modules, IBC packets, relayer, and the
 lifecycle of packets routed through IBC.
@@ -68,7 +68,7 @@ post is saved on both blockchains.
 
 ## Build your blockchain app
 
-Use Ignite CLI to scaffold the blockchain app and the blog module.
+Use IGNITE® CLI to scaffold the blockchain app and the blog module.
 
 ### Build a new blockchain
 
@@ -84,7 +84,7 @@ directory contains a working blockchain app.
 
 ### Scaffold the blog module inside your blockchain
 
-Next, use Ignite CLI to scaffold a blog module with IBC capabilities. The blog
+Next, use IGNITE® CLI to scaffold a blog module with IBC capabilities. The blog
 module contains the logic for creating blog posts and routing them through IBC
 to the second blockchain.
 
@@ -129,7 +129,7 @@ ignite scaffold list timeoutPost title chain creator --no-message --module blog
 The scaffolded code includes proto files for defining data structures, messages,
 messages handlers, keepers for modifying the state, and CLI commands.
 
-### Ignite CLI Scaffold List Command Overview
+### IGNITE® CLI Scaffold List Command Overview
 
 ```
 ignite scaffold list [typeName] [field1] [field2] ... [flags]
@@ -143,7 +143,7 @@ The next arguments define the fields that are associated with the type. For the
 blog app, you created `title`, `content`, `postID`, and `chain` fields.
 
 The `--module` flag defines which module the new transaction type is added to.
-This optional flag lets you manage multiple modules within your Ignite CLI app.
+This optional flag lets you manage multiple modules within your IGNITE® CLI app.
 When the flag is not present, the type is scaffolded in the module that matches
 the name of the repo.
 
@@ -295,7 +295,7 @@ created the message, use an identifier in the following format:
 
 `<portID>-<channelID>-<creatorAddress>`
 
-Finally, the Ignite CLI-generated AppendPost function returns the ID of the new
+Finally, the IGNITE® CLI-generated AppendPost function returns the ID of the new
 appended post. You can return this value to the source chain through
 acknowledgment.
 
@@ -506,7 +506,7 @@ ignite app install -g github.com/ignite/apps/hermes
 ```
 
 If you previously used the relayer, follow these steps to remove exiting relayer
-and Ignite CLI configurations:
+and IGNITE® CLI configurations:
 
 - Stop your blockchains and delete previous configuration files:
 
@@ -664,6 +664,6 @@ Here's what you accomplished in this tutorial:
 
 - Built two Hello blockchain apps as IBC modules
 - Modified the generated code to add CRUD action logic
-- Configured and used the Ignite CLI relayer to connect two blockchains with
+- Configured and used the IGNITE® CLI relayer to connect two blockchains with
   each other
 - Transferred IBC packets from one blockchain to another
