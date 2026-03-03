@@ -11,7 +11,6 @@ import (
 	"github.com/gobuffalo/plush/v4"
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
@@ -54,13 +53,13 @@ func Box(box fs.FS, opts *Options, g *genny.Generator) error {
 }
 
 // NewGenerator returns the generator to scaffold a empty message in a module.
-func NewGenerator(replacer placeholder.Replacer, opts *Options) (*genny.Generator, error) {
+func NewGenerator(opts *Options) (*genny.Generator, error) {
 	g := genny.New()
 
 	g.RunFn(protoTxRPCModify(opts))
 	g.RunFn(protoTxMessageModify(opts))
 	g.RunFn(typesCodecModify(opts))
-	g.RunFn(clientCliTxModify(replacer, opts))
+	g.RunFn(clientCliTxModify(opts))
 
 	subMessage, err := fs.Sub(fsMessage, "files/message")
 	if err != nil {
@@ -202,7 +201,7 @@ func typesCodecModify(opts *Options) genny.RunFn {
 	}
 }
 
-func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+func clientCliTxModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join("x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)

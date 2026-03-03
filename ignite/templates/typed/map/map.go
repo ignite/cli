@@ -12,7 +12,6 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
@@ -37,7 +36,7 @@ var (
 )
 
 // NewGenerator returns the generator to scaffold a new map type in a module.
-func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
+func NewGenerator(opts *typed.Options) (*genny.Generator, error) {
 	// Tests are not generated for map with a custom index that contains only booleans
 	// because we can't generate reliable tests for this type
 	var generateTest bool
@@ -69,7 +68,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 	g := genny.New()
 	g.RunFn(protoRPCModify(opts))
 	g.RunFn(keeperModify(opts))
-	g.RunFn(clientCliQueryModify(replacer, opts))
+	g.RunFn(clientCliQueryModify(opts))
 	g.RunFn(genesisProtoModify(opts))
 	g.RunFn(genesisTypesModify(opts))
 	g.RunFn(genesisModuleModify(opts))
@@ -79,7 +78,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 	// Modifications for new messages
 	if !opts.NoMessage {
 		g.RunFn(protoTxModify(opts))
-		g.RunFn(clientCliTxModify(replacer, opts))
+		g.RunFn(clientCliTxModify(opts))
 		g.RunFn(typesCodecModify(opts))
 
 		if !opts.NoSimulation {
@@ -267,7 +266,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 	}
 }
 
-func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+func clientCliQueryModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join("x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
@@ -652,7 +651,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 	}
 }
 
-func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+func clientCliTxModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join("x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)

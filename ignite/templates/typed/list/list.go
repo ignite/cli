@@ -11,7 +11,6 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/templates/typed"
@@ -29,7 +28,7 @@ var (
 )
 
 // NewGenerator returns the generator to scaffold a new type in a module.
-func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
+func NewGenerator(opts *typed.Options) (*genny.Generator, error) {
 	subMessages, err := fs.Sub(fsMessages, "files/messages")
 	if err != nil {
 		return nil, errors.Errorf("fail to generate sub: %w", err)
@@ -47,7 +46,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 	g.RunFn(protoQueryModify(opts))
 	g.RunFn(typesKeyModify(opts))
 	g.RunFn(keeperModify(opts))
-	g.RunFn(clientCliQueryModify(replacer, opts))
+	g.RunFn(clientCliQueryModify(opts))
 
 	// Genesis modifications
 	genesisModify(opts, g)
@@ -56,7 +55,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 		// Modifications for new messages
 		g.RunFn(protoTxModify(opts))
 		g.RunFn(typesCodecModify(opts))
-		g.RunFn(clientCliTxModify(replacer, opts))
+		g.RunFn(clientCliTxModify(opts))
 
 		if !opts.NoSimulation {
 			g.RunFn(moduleSimulationModify(opts))
@@ -385,7 +384,7 @@ func typesCodecModify(opts *typed.Options) genny.RunFn {
 	}
 }
 
-func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+func clientCliTxModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join("x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
@@ -439,7 +438,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 	}
 }
 
-func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+func clientCliQueryModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join("x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
