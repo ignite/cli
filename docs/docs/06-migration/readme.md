@@ -4,20 +4,20 @@ sidebar_position: 0
 
 # Migration Guides
 
-Welcome to the section on upgrading to a newer version of Ignite CLI! If you're
+Welcome to the section on upgrading to a newer version of IGNITE® CLI! If you're
 looking to update to the latest version, you'll want to start by checking the
 documentation to see if there are any special considerations or instructions you
 need to follow.
 
-If there is no documentation for the latest version of Ignite CLI, it's
+If there is no documentation for the latest version of IGNITE® CLI, it's
 generally safe to assume that there were no breaking changes, and you can
 proceed with using the latest version with your project.
 
 ## Create your own Migration Guide
 
-The `gen-mig-diffs` tool helps developers manage and visualize code changes across multiple major versions of Ignite. With each major upgrade, the codebase might undergo significant changes, making it challenging for developers to track these differences after several updates. The `gen-mig-diffs` tool simplifies this process by scaffolding blockchains with both the old and new versions and displaying the differences.
+The `gen-mig-diffs` tool helps developers manage and visualize code changes across multiple major versions of IGNITE®. With each major upgrade, the codebase might undergo significant changes, making it challenging for developers to track these differences after several updates. The `gen-mig-diffs` tool simplifies this process by scaffolding blockchains with both the old and new versions and displaying the differences.
 
-It is located in the [Ignite CLI GitHub repository](https://github.com/ignite/cli/tree/main/ignite/internal/tools/gen-mig-diffs)
+It is located in the [IGNITE® CLI GitHub repository](https://github.com/ignite/cli/tree/main/ignite/internal/tools/gen-mig-diffs)
 directory and has been made into a standalone project.
 
 To set up this tool in your development environment:
@@ -26,11 +26,11 @@ To set up this tool in your development environment:
 gen-mig-diffs [flags]
 ```
 
-This tool generates migration diff files for each of Ignite's scaffold commands. It compares two specified versions of Ignite and provides a clear, organized view of the changes.
+This tool generates migration diff files for each of IGNITE®'s scaffold commands. It compares two specified versions of IGNITE® and provides a clear, organized view of the changes.
 
 ## How to Get Started
 
-1. Clone the Ignite CLI repository:
+1. Clone the IGNITE® CLI repository:
 
 ```shell
 git clone https://github.com/ignite/cli.git --depth=1 && \
@@ -62,13 +62,13 @@ Usage:
   gen-mig-diffs [flags]
 
 Flags:
-  -f, --from string              Version of Ignite or path to Ignite source code to generate the diff from
+  -f, --from string              Version of IGNITE® or path to IGNITE® source code to generate the diff from
   -h, --help                     help for gen-mig-diffs
   -o, --output string            Output directory to save the migration document (default "docs/docs/06-migration")
-      --repo-output string       Output path to clone the Ignite repository
-  -s, --repo-source string       Path to Ignite source code repository. Set the source automatically set the cleanup to false
-      --repo-url string          Git URL for the Ignite repository (default "https://github.com/ignite/cli.git")
+      --repo-output string       Output path to clone the IGNITE® repository
+  -s, --repo-source string       Path to IGNITE® source code repository. Set the source automatically set the cleanup to false
+      --repo-url string          Git URL for the IGNITE® repository (default "https://github.com/ignite/cli.git")
       --scaffold-cache string    Path to cache directory
-      --scaffold-output string   Output path to clone the Ignite repository
-  -t, --to string                Version of Ignite or path to Ignite source code to generate the diff to
+      --scaffold-output string   Output path to clone the IGNITE® repository
+  -t, --to string                Version of IGNITE® or path to IGNITE® source code to generate the diff to
 ```

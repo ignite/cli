@@ -4,7 +4,7 @@ description: Information about the generated TypeScript client code.
 
 # TypeScript library
 
-Ignite offers powerful functionality for generating client-side code for your
+IGNITE® offers powerful functionality for generating client-side code for your
 blockchain. Think of this as a one-click client SDK generation tailored
 specifically for your blockchain.
 
@@ -37,7 +37,7 @@ ignite generate ts-client --clear-cache
 
 :::tip
 In order to not rely on the remote `buf.build` service, you can install the
-`protoc-gen-ts_proto` binary locally and Ignite will use it instead of the remote plugin.
+`protoc-gen-ts_proto` binary locally and IGNITE® will use it instead of the remote plugin.
 
 ```sh
 npm install -g ts-proto
@@ -201,7 +201,7 @@ const tx_result = await client.CosmosBankV1Beta1.tx.sendMsgSend({
 ## Broadcasting a transaction with a custom message
 
 If your chain already has custom messages defined, you can use those. If not,
-we'll be using Ignite's scaffolded code as an example. Create a post with CRUD
+we'll be using IGNITE®'s scaffolded code as an example. Create a post with CRUD
 messages:
 
 ```
