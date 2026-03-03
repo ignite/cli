@@ -1,10 +1,10 @@
 ---
 sidebar_position: 27
-title: Dirchange (dirchange)
+title: Directory Change Detection (dirchange)
 slug: /packages/dirchange
 ---
 
-# Dirchange (dirchange)
+# Directory Change Detection (dirchange)
 
 The `dirchange` package computes and compares directory checksums so callers can skip expensive work when inputs have not changed.
 

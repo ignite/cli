@@ -1,10 +1,10 @@
 ---
 sidebar_position: 32
-title: Goenv (goenv)
+title: Go Environment (goenv)
 slug: /packages/goenv
 ---
 
-# Goenv (goenv)
+# Go Environment (goenv)
 
 The `goenv` package provides helpers around Go-related environment values (`GOPATH`, `GOBIN`, module cache, and tool PATH configuration).
 

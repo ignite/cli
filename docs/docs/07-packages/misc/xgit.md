@@ -1,10 +1,10 @@
 ---
 sidebar_position: 51
-title: Xgit (xgit)
+title: Git Helpers (xgit)
 slug: /packages/xgit
 ---
 
-# Xgit (xgit)
+# Git Helpers (xgit)
 
 The `xgit` package wraps common git repository operations used by Ignite scaffolding and upgrade workflows.
 

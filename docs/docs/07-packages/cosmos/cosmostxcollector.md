@@ -1,10 +1,10 @@
 ---
 sidebar_position: 0
-title: Indexer (cosmostxcollector)
+title: Cosmos TX Collector (cosmostxcollector)
 slug: /packages/cosmostxcollector
 ---
 
-# Indexer (cosmostxcollector)
+# Cosmos TX Collector (cosmostxcollector)
 
 The `cosmostxcollector` package streams transactions from a Cosmos client and persists them through a storage adapter.
 

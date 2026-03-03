@@ -1,10 +1,10 @@
 ---
 sidebar_position: 31
-title: Goanalysis (goanalysis)
+title: Go Analysis (goanalysis)
 slug: /packages/goanalysis
 ---
 
-# Goanalysis (goanalysis)
+# Go Analysis (goanalysis)
 
 The `goanalysis` package provides static analysis helpers for Go source code. It is used in Ignite to inspect imports, discover binaries, and apply targeted source rewrites.
 

@@ -1,10 +1,10 @@
 ---
 sidebar_position: 59
-title: Xurl (xurl)
+title: URL Helpers (xurl)
 slug: /packages/xurl
 ---
 
-# Xurl (xurl)
+# URL Helpers (xurl)
 
 The `xurl` package normalizes and validates URL/address values across HTTP, HTTPS, WS, and TCP forms.
 
