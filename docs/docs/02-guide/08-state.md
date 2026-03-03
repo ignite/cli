@@ -9,7 +9,7 @@ In blockchain applications, state refers to the current data stored on the block
 
 ## Collections Package
 
-IGNITE® scaffolds using the [`collections`](http://pkg.go.dev/cosmossdk.io/collections) package for module code. This package provides a type-safe and efficient way to set and query values from the module store.
+IGNITE® scaffolds using the [`collections`](https://pkg.go.dev/cosmossdk.io/collections) package for module code. This package provides a type-safe and efficient way to set and query values from the module store.
 
 ### Key Features of Collections
 
