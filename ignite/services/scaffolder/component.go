@@ -116,8 +116,9 @@ func checkCustomTypes(ctx context.Context, appPath, appName, protoDir, module st
 			continue
 		}
 
-		if _, ok := datatype.IsSupportedType(datatype.Name(ft)); !ok {
-			customFieldTypes = append(customFieldTypes, ft)
+		customType, ok := customFieldType(ft)
+		if ok {
+			customFieldTypes = append(customFieldTypes, customType)
 		}
 	}
 	return protoanalysis.HasMessages(ctx, path, customFieldTypes...)
@@ -204,7 +205,7 @@ func containsCustomTypes(fields []string) bool {
 			continue
 		}
 
-		if _, ok := datatype.IsSupportedType(datatype.Name(ft)); !ok {
+		if _, ok := customFieldType(ft); ok {
 			return true
 		}
 	}
@@ -219,4 +220,17 @@ func fieldType(field string) (fieldType string, isCustom bool) {
 	}
 
 	return fieldSplit[1], true
+}
+
+// customFieldType checks whether a field type is a custom type and returns its normalized message name.
+func customFieldType(fieldType string) (name string, isCustom bool) {
+	if _, ok := datatype.IsSupportedType(datatype.Name(fieldType)); ok {
+		return "", false
+	}
+
+	if strings.HasPrefix(fieldType, datatype.ArrayPrefix) {
+		return strings.TrimPrefix(fieldType, datatype.ArrayPrefix), true
+	}
+
+	return fieldType, true
 }

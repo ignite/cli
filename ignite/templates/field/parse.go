@@ -97,6 +97,18 @@ func ParseFields(
 			continue
 		}
 
+		if strings.HasPrefix(string(datatypeName), datatype.ArrayPrefix) {
+			customArrayType := strings.TrimPrefix(string(datatypeName), datatype.ArrayPrefix)
+			if _, ok := datatype.IsSupportedType(datatype.Name(customArrayType)); !ok {
+				parsedFields = append(parsedFields, Field{
+					Name:         name,
+					Datatype:     customArrayType,
+					DatatypeName: datatype.CustomSlice,
+				})
+				continue
+			}
+		}
+
 		parsedFields = append(parsedFields, Field{
 			Name:         name,
 			Datatype:     string(datatypeName),

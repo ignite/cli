@@ -70,6 +70,15 @@ func TestField_IsSlice(t *testing.T) {
 			},
 			expected: false,
 		},
+		{
+			name: "custom array type should be slice",
+			field: Field{
+				Name:         multiformatname.Name{},
+				DatatypeName: datatype.CustomSlice,
+				Datatype:     "Bar",
+			},
+			expected: true,
+		},
 	}
 
 	for _, tc := range testCases {
