@@ -75,7 +75,7 @@ func (s Scaffolder) AddQuery(
 	)
 
 	// Scaffold
-	g, err = query.NewGenerator(s.Tracer(), opts)
+	g, err = query.NewGenerator(opts)
 	if err != nil {
 		return err
 	}
