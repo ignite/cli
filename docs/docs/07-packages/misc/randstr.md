@@ -6,10 +6,14 @@ slug: /packages/randstr
 
 # Randstr (randstr)
 
-The `randstr` package provides utilities used by Ignite CLI.
+The `randstr` package contains reusable utilities used by Ignite CLI internals.
 
 For full API details, see the
 [`randstr` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/randstr).
+
+## Key APIs
+
+- `func Runes(n int) string`
 
 ## Basic import
 

@@ -6,10 +6,18 @@ slug: /packages/cache
 
 # Cache (cache)
 
-The `cache` package provides utilities used by Ignite CLI.
+The `cache` package contains reusable utilities used by Ignite CLI internals.
 
 For full API details, see the
 [`cache` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/cache).
+
+## Key APIs
+
+- `var ErrorNotFound = errors.New("no value was found with the provided key")`
+- `func Key(keyParts ...string) string`
+- `type Cache[T any] struct{ ... }`
+- `type Storage struct{ ... }`
+- `type StorageOption func(*Storage)`
 
 ## Basic import
 

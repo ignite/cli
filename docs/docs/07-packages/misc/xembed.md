@@ -6,10 +6,14 @@ slug: /packages/xembed
 
 # Xembed (xembed)
 
-The `xembed` package provides utilities used by Ignite CLI.
+The `xembed` package contains reusable utilities used by Ignite CLI internals.
 
 For full API details, see the
 [`xembed` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/xembed).
+
+## Key APIs
+
+- `func FileList(efs embed.FS, path string) ([]string, error)`
 
 ## Basic import
 

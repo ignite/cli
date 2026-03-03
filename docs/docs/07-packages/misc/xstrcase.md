@@ -6,10 +6,16 @@ slug: /packages/xstrcase
 
 # Xstrcase (xstrcase)
 
-The `xstrcase` package provides utilities used by Ignite CLI.
+The `xstrcase` package contains reusable utilities used by Ignite CLI internals.
 
 For full API details, see the
 [`xstrcase` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/xstrcase).
+
+## Key APIs
+
+- `func Lowercase(name string) string`
+- `func UpperCamel(name string) string`
+- `func Uppercase(name string) string`
 
 ## Basic import
 

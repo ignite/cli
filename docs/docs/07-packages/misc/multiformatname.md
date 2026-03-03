@@ -6,10 +6,16 @@ slug: /packages/multiformatname
 
 # Multiformatname (multiformatname)
 
-The `multiformatname` package provides utilities used by Ignite CLI.
+provides names automatically converted into multiple.
 
 For full API details, see the
 [`multiformatname` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/multiformatname).
+
+## Key APIs
+
+- `func NoNumber(name string) error`
+- `type Checker func(name string) error`
+- `type Name struct{ ... }`
 
 ## Basic import
 

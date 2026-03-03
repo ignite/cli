@@ -6,10 +6,15 @@ slug: /packages/clictx
 
 # Clictx (clictx)
 
-The `clictx` package provides utilities used by Ignite CLI.
+The `clictx` package contains reusable utilities used by Ignite CLI internals.
 
 For full API details, see the
 [`clictx` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/clictx).
+
+## Key APIs
+
+- `func Do(ctx context.Context, fn func() error) error`
+- `func From(ctx context.Context) context.Context`
 
 ## Basic import
 
