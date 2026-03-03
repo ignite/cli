@@ -5,6 +5,7 @@
 ## Features
 
 - [#4877](https://github.com/ignite/cli/pull/4877) Remove app config and ibc add route placeholders.
+- [#4884](https://github.com/ignite/cli/pull/4884) Remove autocli placeholders.
 
 ### Changes
 
