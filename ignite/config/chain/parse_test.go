@@ -154,6 +154,7 @@ client:
         path: override-1
     openapi:
         path: docs/static/include1.yml
+        exclude_list: []
 validators:
     - name: alice
       bonded: 100000000stake`,
@@ -200,6 +201,7 @@ client:
         path: override-2
     openapi:
         path: docs/static/include2.yml
+        exclude_list: []
 validators:
     - name: alice
       bonded: 100000000stake
@@ -259,6 +261,7 @@ client:
         path: override-1
     openapi:
         path: docs/static/include1.yml
+        exclude_list: []
 validators:
     - name: alice
       bonded: 100stake`,
@@ -302,6 +305,7 @@ client:
         path: override-2
     openapi:
         path: docs/static/include2.yml
+        exclude_list: []
 validators:
     - name: alice
       bonded: 100000000stake
@@ -368,6 +372,7 @@ client:
         path: override-2
     openapi:
         path: docs/static/include2.yml
+        exclude_list: []
 validators:
     - name: alice
       bonded: 100stake
@@ -436,6 +441,7 @@ client:
         path: override-2
     openapi:
         path: docs/static/include2.yml
+        exclude_list: []
 validators:
     - name: alice
       bonded: 100stake

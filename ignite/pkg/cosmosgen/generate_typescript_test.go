@@ -3,6 +3,7 @@ package cosmosgen
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -13,10 +14,15 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/cache"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/module"
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
+	"github.com/ignite/cli/v29/ignite/pkg/env"
 )
 
 func TestGenerateTypeScript(t *testing.T) {
 	require := require.New(t)
+	t.Setenv(env.ConfigDirEnvVar, t.TempDir())
+	if _, err := exec.LookPath(protocGenTSProtoBin); err != nil {
+		t.Skipf("%s not found in PATH", protocGenTSProtoBin)
+	}
 	testdataDir := "testdata"
 	appDir := filepath.Join(testdataDir, "testchain")
 	tsClientDir := filepath.Join(appDir, "ts-client")

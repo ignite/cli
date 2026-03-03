@@ -29,7 +29,8 @@ type generateOptions struct {
 	composablesOut      func(module.Module) string
 	composablesRootPath string
 
-	specOut string
+	openAPISpecOut     string
+	openAPIExcludeList []string
 }
 
 // ModulePathFunc defines a function type that returns a path based on a Cosmos SDK module.
@@ -63,9 +64,10 @@ func WithGoGeneration() Option {
 }
 
 // WithOpenAPIGeneration adds OpenAPI spec generation.
-func WithOpenAPIGeneration(out string) Option {
+func WithOpenAPIGeneration(out string, excludeList []string) Option {
 	return func(o *generateOptions) {
-		o.specOut = out
+		o.openAPISpecOut = out
+		o.openAPIExcludeList = excludeList
 	}
 }
 
@@ -167,8 +169,8 @@ func Generate(ctx context.Context, cacheStorage cache.Storage, appPath, protoDir
 		}
 	}
 
-	if g.opts.specOut != "" {
-		if err := g.generateOpenAPISpec(ctx); err != nil {
+	if g.opts.openAPISpecOut != "" {
+		if err := g.generateOpenAPISpec(ctx, g.opts.openAPIExcludeList...); err != nil {
 			return err
 		}
 	}

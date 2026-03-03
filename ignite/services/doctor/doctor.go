@@ -165,7 +165,7 @@ func (d *Doctor) MigrateChainConfig(configPath string) error {
 }
 
 // MigrateToolsGo ensures that.
-// - go.mod is bumped to go 1.24.
+// - go.mod is bumped to go 1.25.
 // - removes tools.go file from chain.
 // - add all tools to go.mod.
 func (d *Doctor) MigrateToolsGo(appPath string) error {
@@ -214,9 +214,9 @@ func (d *Doctor) MigrateToolsGo(appPath string) error {
 		return errf(errors.Errorf("failed to parse go.mod file: %w", err))
 	}
 
-	// bump to go 1.24
+	// bump to go 1.25
 	if goModAst.Go.Version < "1.24" {
-		goModAst.Go.Version = "1.24"
+		goModAst.Go.Version = "1.25"
 	}
 
 	for _, imp := range imports {

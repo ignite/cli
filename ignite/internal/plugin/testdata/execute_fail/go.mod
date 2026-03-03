@@ -1,6 +1,6 @@
 module execute_fail
 
-go 1.24.0
+go 1.24.1
 
 replace github.com/ignite/cli/v29 => ../../../../..
 

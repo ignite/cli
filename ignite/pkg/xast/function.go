@@ -120,6 +120,30 @@ func (c functionCalls) Map() functionCallsMap {
 	return callMap
 }
 
+func cloneFunctionCallsMap(src functionCallsMap) functionCallsMap {
+	dst := make(functionCallsMap, len(src))
+	for k, v := range src {
+		dst[k] = v
+	}
+	return dst
+}
+
+func cloneFunctionStructsMap(src functionStructsMap) functionStructsMap {
+	dst := make(functionStructsMap, len(src))
+	for k, v := range src {
+		dst[k] = v
+	}
+	return dst
+}
+
+func cloneFunctionSwitchesMap(src functionSwitchesMap) functionSwitchesMap {
+	dst := make(functionSwitchesMap, len(src))
+	for k, v := range src {
+		dst[k] = v
+	}
+	return dst
+}
+
 // AppendFuncParams adds a new parameter to a function.
 func AppendFuncParams(name, varType string, index int) FunctionOptions {
 	return func(c *functionOpts) {
@@ -288,7 +312,7 @@ func findFuncDecl(file *ast.File, name string) *ast.FuncDecl {
 
 // addCode converts string code snippets into AST statements.
 func addCode(fileSet *token.FileSet, appendCode []string) ([]ast.Stmt, error) {
-	code := make([]ast.Stmt, 0)
+	code := make([]ast.Stmt, 0, len(appendCode))
 	for _, codeToInsert := range appendCode {
 		body, err := codeToBlockStmt(fileSet, codeToInsert)
 		if err != nil {
@@ -301,7 +325,7 @@ func addCode(fileSet *token.FileSet, appendCode []string) ([]ast.Stmt, error) {
 
 // modifyReturnVars converts return variable strings into AST expressions.
 func modifyReturnVars(fileSet *token.FileSet, returnVars []string) ([]ast.Expr, error) {
-	stmts := make([]ast.Expr, 0)
+	stmts := make([]ast.Expr, 0, len(returnVars))
 	for _, returnVar := range returnVars {
 		newRetExpr, err := parser.ParseExprFrom(fileSet, "", []byte(returnVar), parser.ParseComments)
 		if err != nil {
@@ -384,9 +408,10 @@ func addParams(funcDecl *ast.FuncDecl, newParams []functionParam) error {
 // addNewLine inserts code at specific line numbers in a function body.
 func addNewLine(fileSet *token.FileSet, funcDecl *ast.FuncDecl, newLines []functionLine) error {
 	for _, newLine := range newLines {
+		maxLine := uint64(len(funcDecl.Body.List)) - 1
 		// Validate line number
-		if newLine.number > uint64(len(funcDecl.Body.List))-1 {
-			return errors.Errorf("line number %d out of range (max %d)", newLine.number, len(funcDecl.Body.List)-1)
+		if newLine.number > maxLine {
+			return errors.Errorf("line number %d out of range (max %d)", newLine.number, maxLine)
 		}
 
 		// Parse insertion code
@@ -615,7 +640,6 @@ func formatNode(fileSet *token.FileSet, n ast.Node) (string, error) {
 
 // applyFunctionOptions applies all modifications to a function.
 func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functionOpts) (err error) {
-	// Parse new function body if provided
 	var newFunctionBody *ast.BlockStmt
 	if opts.body != "" {
 		newFunctionBody, err = codeToBlockStmt(fileSet, opts.body)
@@ -624,185 +648,140 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 		}
 	}
 
-	// Parse append code.
 	appendCode, err := addCode(fileSet, opts.appendCode)
 	if err != nil {
 		return err
 	}
 
-	// Parse return variables.
 	returnStmts, err := modifyReturnVars(fileSet, opts.returnVars)
 	if err != nil {
 		return err
 	}
 
-	// Create maps for tracking modifications.
-	var (
-		callMap               = opts.insideCall.Map()
-		callMapCheck          = opts.insideCall.Map()
-		structMap             = opts.insideStruct.Map()
-		structMapCheck        = opts.insideStruct.Map()
-		switchesCasesMap      = opts.appendSwitch.Map()
-		switchesCasesMapCheck = opts.appendSwitch.Map()
-	)
+	callMap := opts.insideCall.Map()
+	callMapCheck := cloneFunctionCallsMap(callMap)
+	structMap := opts.insideStruct.Map()
+	structMapCheck := cloneFunctionStructsMap(structMap)
+	switchesCasesMap := opts.appendSwitch.Map()
+	switchesCasesMapCheck := cloneFunctionSwitchesMap(switchesCasesMap)
 
-	// Remove function calls if specified.
 	if len(opts.removeCalls) > 0 {
-		if err := removeFunctionCalls(f, opts.removeCalls); err != nil {
-			return err
-		}
+		removeFunctionCalls(f, opts.removeCalls)
 	}
 
-	// Apply all modifications.
-	var errInspect error
-	ast.Inspect(f, func(n ast.Node) bool {
-		funcDecl, ok := n.(*ast.FuncDecl)
+	if err := addParams(f, opts.newParams); err != nil {
+		return err
+	}
+
+	if newFunctionBody != nil {
+		f.Body = newFunctionBody
+		f.Body.Rbrace = f.Body.Pos()
+	}
+
+	if err := addNewLine(fileSet, f, opts.newLines); err != nil {
+		return err
+	}
+
+	if err := modifyReturn(f, returnStmts, appendCode); err != nil {
+		return err
+	}
+
+	for _, bodyList := range f.Body.List {
+		var (
+			stmt ast.Stmt
+			key  string
+		)
+		switch expr := bodyList.(type) {
+		case *ast.TypeSwitchStmt:
+			stmt = expr
+			key, err = formatNode(fileSet, expr.Assign)
+		case *ast.SwitchStmt:
+			stmt = expr
+			key, err = formatNode(fileSet, expr.Tag)
+		default:
+			continue
+		}
+		if err != nil {
+			return err
+		}
+
+		switchCase, ok := switchesCasesMap[key]
 		if !ok {
-			return true
+			continue
 		}
 
-		// Add parameters.
-		if err := addParams(funcDecl, opts.newParams); err != nil {
-			errInspect = err
-			return false
+		if err := appendSwitchCase(fileSet, stmt, switchCase); err != nil {
+			return err
 		}
+		delete(switchesCasesMapCheck, key)
+	}
 
-		// Replace body if needed.
-		if newFunctionBody != nil {
-			funcDecl.Body = newFunctionBody
-			funcDecl.Body.Rbrace = funcDecl.Body.Pos()
-		}
-
-		// Add new lines.
-		if err := addNewLine(fileSet, funcDecl, opts.newLines); err != nil {
-			errInspect = err
-			return false
-		}
-
-		// Modify returns and append code.
-		if err := modifyReturn(funcDecl, returnStmts, appendCode); err != nil {
-			errInspect = err
-			return false
-		}
-
-		for _, bodyList := range funcDecl.Body.List {
-			var stmt ast.Stmt
-			var buf bytes.Buffer
-			switch expr := bodyList.(type) {
-			case *ast.TypeSwitchStmt:
-				stmt = expr
-				if err := format.Node(&buf, fileSet, expr.Assign); err != nil {
-					errInspect = err
-					return false
-				}
-			case *ast.SwitchStmt:
-				stmt = expr
-				if err := format.Node(&buf, fileSet, expr.Tag); err != nil {
-					errInspect = err
-					return false
-				}
-			default:
-				continue
+	ast.Inspect(f, func(n ast.Node) bool {
+		switch expr := n.(type) {
+		case *ast.CallExpr:
+			name, exist := exprName(expr.Fun)
+			if !exist {
+				return true
 			}
 
-			switchCase, ok := switchesCasesMap[buf.String()]
-			if !ok {
-				continue
+			var allCalls functionCalls
+			if calls, ok := callMap[name]; ok {
+				allCalls = append(allCalls, calls...)
+				delete(callMapCheck, name)
 			}
 
-			if err := appendSwitchCase(fileSet, stmt, switchCase); err != nil {
-				errInspect = err
+			if sel, isSel := expr.Fun.(*ast.SelectorExpr); isSel {
+				simpleName := sel.Sel.Name
+				if calls, ok := callMap[simpleName]; ok {
+					allCalls = append(allCalls, calls...)
+					delete(callMapCheck, simpleName)
+				}
+			}
+
+			if len(allCalls) == 0 {
+				return true
+			}
+
+			if err = addFunctionCall(expr, allCalls); err != nil {
 				return false
 			}
 
-			delete(switchesCasesMapCheck, buf.String())
-		}
-
-		// Modify function calls and struct literals.
-		ast.Inspect(funcDecl, func(n ast.Node) bool {
-			switch expr := n.(type) {
-			case *ast.CallExpr:
-				name, exist := exprName(expr.Fun)
-				if !exist {
-					return true
-				}
-
-				// Collect all matching calls (both qualified and unqualified names)
-				var allCalls functionCalls
-				if calls, ok := callMap[name]; ok {
-					allCalls = append(allCalls, calls...)
-					delete(callMapCheck, name)
-				}
-
-				// Also check for unqualified name if this is a selector expression
-				if sel, isSel := expr.Fun.(*ast.SelectorExpr); isSel {
-					simpleName := sel.Sel.Name
-					if calls, ok := callMap[simpleName]; ok {
-						allCalls = append(allCalls, calls...)
-						delete(callMapCheck, simpleName)
-					}
-				}
-
-				if len(allCalls) == 0 {
-					return true
-				}
-
-				if err := addFunctionCall(expr, allCalls); err != nil {
-					errInspect = err
-					return false
-				}
-
-			case *ast.CompositeLit:
-				name, exist := exprName(expr.Type)
-				if !exist {
-					return true
-				}
-
-				// Collect all matching structs (both qualified and unqualified names)
-				var allStructs functionStructs
-				if structs, ok := structMap[name]; ok {
-					allStructs = append(allStructs, structs...)
-					delete(structMapCheck, name)
-				}
-
-				// Also check for unqualified name if this is a selector expression
-				if sel, isSel := expr.Type.(*ast.SelectorExpr); isSel {
-					simpleName := sel.Sel.Name
-					if structs, ok := structMap[simpleName]; ok {
-						allStructs = append(allStructs, structs...)
-						delete(structMapCheck, simpleName)
-					}
-				}
-
-				if len(allStructs) == 0 {
-					return true
-				}
-
-				addStructs(fileSet, expr, allStructs)
-
-			default:
+		case *ast.CompositeLit:
+			name, exist := exprName(expr.Type)
+			if !exist {
 				return true
 			}
-			return true
-		})
-		if errInspect != nil {
-			return false
-		}
 
-		// Add test cases.
-		if err := addTestCase(fileSet, funcDecl, opts.appendTestCase); err != nil {
-			errInspect = err
-			return false
-		}
+			var allStructs functionStructs
+			if structs, ok := structMap[name]; ok {
+				allStructs = append(allStructs, structs...)
+				delete(structMapCheck, name)
+			}
 
-		return false
+			if sel, isSel := expr.Type.(*ast.SelectorExpr); isSel {
+				simpleName := sel.Sel.Name
+				if structs, ok := structMap[simpleName]; ok {
+					allStructs = append(allStructs, structs...)
+					delete(structMapCheck, simpleName)
+				}
+			}
+
+			if len(allStructs) == 0 {
+				return true
+			}
+
+			addStructs(fileSet, expr, allStructs)
+		}
+		return true
 	})
-
-	if errInspect != nil {
-		return errInspect
+	if err != nil {
+		return err
 	}
 
-	// Verify all modifications were applied.
+	if err := addTestCase(fileSet, f, opts.appendTestCase); err != nil {
+		return err
+	}
+
 	if len(callMapCheck) > 0 {
 		return errors.Errorf("function calls not found: %v", callMapCheck)
 	}
@@ -812,7 +791,6 @@ func applyFunctionOptions(fileSet *token.FileSet, f *ast.FuncDecl, opts *functio
 	if len(switchesCasesMapCheck) > 0 {
 		return errors.Errorf("function switch not found: %v", switchesCasesMapCheck)
 	}
-
 	return nil
 }
 
@@ -975,109 +953,83 @@ func RemoveFunction(content, funcName string) (string, error) {
 }
 
 // removeFunctionCalls removes all function calls matching the specified names from a function.
-func removeFunctionCalls(f *ast.FuncDecl, callNames []string) error {
+func removeFunctionCalls(f *ast.FuncDecl, callNames []string) {
 	if f.Body == nil {
-		return nil
+		return
 	}
 
-	// Create a map for faster lookup.
-	callMap := make(map[string]bool)
+	callMap := make(map[string]bool, len(callNames))
 	for _, name := range callNames {
 		callMap[name] = true
 	}
 
-	// Helper to check if a call expression matches any of the names to remove.
 	matchesCall := func(callExpr *ast.CallExpr) bool {
 		switch fun := callExpr.Fun.(type) {
 		case *ast.Ident:
-			// Simple function call like doSomething().
 			return callMap[fun.Name]
 		case *ast.SelectorExpr:
-			// Qualified function call like pkg.DoSomething().
 			if ident, ok := fun.X.(*ast.Ident); ok {
-				qualified := ident.Name + "." + fun.Sel.Name
-				return callMap[qualified]
+				return callMap[ident.Name+"."+fun.Sel.Name]
 			}
 		}
 		return false
 	}
 
-	// Filter statements to remove matching function calls.
 	var filterStmts func([]ast.Stmt) []ast.Stmt
 	filterStmts = func(stmts []ast.Stmt) []ast.Stmt {
-		var filtered []ast.Stmt
+		filtered := make([]ast.Stmt, 0, len(stmts))
 		for _, stmt := range stmts {
-			keep := true
-
-			// Check if this is an expression statement with a call expression.
 			if exprStmt, ok := stmt.(*ast.ExprStmt); ok {
-				if callExpr, ok := exprStmt.X.(*ast.CallExpr); ok {
-					if matchesCall(callExpr) {
-						keep = false
-					}
+				if callExpr, ok := exprStmt.X.(*ast.CallExpr); ok && matchesCall(callExpr) {
+					continue
 				}
 			}
 
-			// Recursively handle block statements.
-			if blockStmt, ok := stmt.(*ast.BlockStmt); ok {
-				blockStmt.List = filterStmts(blockStmt.List)
-			}
-
-			// Recursively handle if statements.
-			if ifStmt, ok := stmt.(*ast.IfStmt); ok {
-				if ifStmt.Body != nil {
-					ifStmt.Body.List = filterStmts(ifStmt.Body.List)
+			switch typedStmt := stmt.(type) {
+			case *ast.BlockStmt:
+				typedStmt.List = filterStmts(typedStmt.List)
+			case *ast.IfStmt:
+				if typedStmt.Body != nil {
+					typedStmt.Body.List = filterStmts(typedStmt.Body.List)
 				}
-				if ifStmt.Else != nil {
-					if elseBlock, ok := ifStmt.Else.(*ast.BlockStmt); ok {
+				switch elseNode := typedStmt.Else.(type) {
+				case *ast.BlockStmt:
+					elseNode.List = filterStmts(elseNode.List)
+				case *ast.IfStmt:
+					elseNode.Body.List = filterStmts(elseNode.Body.List)
+					if elseBlock, ok := elseNode.Else.(*ast.BlockStmt); ok {
 						elseBlock.List = filterStmts(elseBlock.List)
 					}
 				}
-			}
-
-			// Recursively handle for statements.
-			if forStmt, ok := stmt.(*ast.ForStmt); ok {
-				if forStmt.Body != nil {
-					forStmt.Body.List = filterStmts(forStmt.Body.List)
+			case *ast.ForStmt:
+				if typedStmt.Body != nil {
+					typedStmt.Body.List = filterStmts(typedStmt.Body.List)
 				}
-			}
-
-			// Recursively handle range statements.
-			if rangeStmt, ok := stmt.(*ast.RangeStmt); ok {
-				if rangeStmt.Body != nil {
-					rangeStmt.Body.List = filterStmts(rangeStmt.Body.List)
+			case *ast.RangeStmt:
+				if typedStmt.Body != nil {
+					typedStmt.Body.List = filterStmts(typedStmt.Body.List)
 				}
-			}
-
-			// Recursively handle switch statements.
-			if switchStmt, ok := stmt.(*ast.SwitchStmt); ok {
-				if switchStmt.Body != nil {
-					for _, caseClause := range switchStmt.Body.List {
+			case *ast.SwitchStmt:
+				if typedStmt.Body != nil {
+					for _, caseClause := range typedStmt.Body.List {
+						if cc, ok := caseClause.(*ast.CaseClause); ok {
+							cc.Body = filterStmts(cc.Body)
+						}
+					}
+				}
+			case *ast.TypeSwitchStmt:
+				if typedStmt.Body != nil {
+					for _, caseClause := range typedStmt.Body.List {
 						if cc, ok := caseClause.(*ast.CaseClause); ok {
 							cc.Body = filterStmts(cc.Body)
 						}
 					}
 				}
 			}
-
-			// Recursively handle type switch statements.
-			if typeSwitchStmt, ok := stmt.(*ast.TypeSwitchStmt); ok {
-				if typeSwitchStmt.Body != nil {
-					for _, caseClause := range typeSwitchStmt.Body.List {
-						if cc, ok := caseClause.(*ast.CaseClause); ok {
-							cc.Body = filterStmts(cc.Body)
-						}
-					}
-				}
-			}
-
-			if keep {
-				filtered = append(filtered, stmt)
-			}
+			filtered = append(filtered, stmt)
 		}
 		return filtered
 	}
 
 	f.Body.List = filterStmts(f.Body.List)
-	return nil
 }

@@ -222,13 +222,13 @@ func (s Scaffolder) CreateModule(
 
 	// Scaffold IBC module
 	if opts.IsIBC {
-		g, err = modulecreate.NewIBC(s.Tracer(), opts)
+		g, err = modulecreate.NewIBC(opts)
 		if err != nil {
 			return err
 		}
 		gens = append(gens, g)
 	}
-	gens = append(gens, modulecreate.NewAppModify(s.Tracer(), opts))
+	gens = append(gens, modulecreate.NewAppModify(opts))
 
 	err = s.Run(gens...)
 	var validationErr errors.ValidationError

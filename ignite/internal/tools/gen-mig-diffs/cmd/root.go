@@ -65,7 +65,7 @@ func NewRootCmd() *cobra.Command {
 			}
 
 			// Check or download the source and generate the binaries for each version.
-			repoOptions := make([]repo.Options, 0)
+			repoOptions := []repo.Options{repo.WithStdOutput(cmd.OutOrStdout())}
 			if repoSource != "" {
 				repoOptions = append(repoOptions, repo.WithSource(repoSource))
 			}
@@ -80,7 +80,7 @@ func NewRootCmd() *cobra.Command {
 				repoOptions = append(repoOptions, repo.WithRepoOutput(repoOutput))
 			}
 
-			igniteRepo, err := repo.New(fromVer, toVer, session, repoOptions...)
+			igniteRepo, err := repo.New(cmd.Context(), fromVer, toVer, session, repoOptions...)
 			if err != nil {
 				return err
 			}

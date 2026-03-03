@@ -26,7 +26,7 @@ const (
 )
 
 var DefaultRepoURL = url.URL{
-	Protocol: "ssh",
+	Protocol: "https",
 	Host:     "github.com",
 	Path:     "ignite/cli",
 }
@@ -46,6 +46,7 @@ type (
 	options struct {
 		source  string
 		output  string
+		stdOut  io.Writer
 		repoURL url.URL
 		binPath string
 	}
@@ -71,6 +72,7 @@ func newOptions() (options, error) {
 		binPath: filepath.Join(tmpDir, "bin"),
 		output:  filepath.Join(tmpDir, "migration-source"),
 		repoURL: DefaultRepoURL,
+		stdOut:  os.Stdout,
 	}, nil
 }
 
@@ -95,6 +97,13 @@ func WithRepoOutput(output string) Options {
 	}
 }
 
+// WithStdOutput set the std output Options.
+func WithStdOutput(stdOut io.Writer) Options {
+	return func(o *options) {
+		o.stdOut = stdOut
+	}
+}
+
 // WithBinPath set the binary path to build the source.
 func WithBinPath(binPath string) Options {
 	return func(o *options) {
@@ -112,7 +121,7 @@ func (o options) validate() error {
 
 // New creates a new generator for migration diffs between from and to versions of ignite cli
 // If source is empty, then it clones the ignite cli repository to a temporary directory and uses it as the source.
-func New(from, to *semver.Version, session *cliui.Session, options ...Options) (*Generator, error) {
+func New(ctx context.Context, from, to *semver.Version, session *cliui.Session, options ...Options) (*Generator, error) {
 	opts, err := newOptions()
 	if err != nil {
 		return nil, err
@@ -141,7 +150,11 @@ func New(from, to *semver.Version, session *cliui.Session, options ...Options) (
 		session.StartSpinner("Cloning ignite repository...")
 
 		source = opts.output
-		repo, err = git.PlainClone(source, false, &git.CloneOptions{URL: opts.repoURL.String(), Depth: 1})
+		repo, err = git.PlainCloneContext(ctx, source, false, &git.CloneOptions{
+			URL:      opts.repoURL.String(),
+			Depth:    1,
+			Progress: opts.stdOut,
+		})
 		if errors.Is(err, git.ErrRepositoryAlreadyExists) {
 			repo, err = verifyRepoSource(source, opts.repoURL)
 		}

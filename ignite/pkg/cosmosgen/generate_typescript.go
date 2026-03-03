@@ -34,12 +34,12 @@ plugins:
   - plugin: ts_proto
     out: .
     opt:
-    	- logtostderr=true
-    	- allow_merge=true
-    	- json_names_for_fields=false
-    	- ts_proto_opt=snakeToCamel=true
-    	- ts_proto_opt=esModuleInterop=true
-    	- ts_proto_out=.
+      - logtostderr=true
+      - allow_merge=true
+      - json_names_for_fields=false
+      - ts_proto_opt=snakeToCamel=true
+      - ts_proto_opt=esModuleInterop=true
+      - ts_proto_out=.
 `
 
 type tsGenerator struct {
