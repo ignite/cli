@@ -73,7 +73,11 @@ func SingletonType() AddTypeKind {
 
 // DryType only creates a type with a basic definition.
 func DryType() AddTypeKind {
-	return func(*addTypeOptions) {}
+	return func(o *addTypeOptions) {
+		// Dry type scaffolding only adds a proto type definition and never generates CRUD messages.
+		// Force this option so component validity checks don't treat existing Msg* types as conflicts.
+		o.withoutMessage = true
+	}
 }
 
 // TypeWithModule module to scaffold type into.
