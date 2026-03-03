@@ -73,11 +73,12 @@ func TestPauseSpinner(t *testing.T) {
 
 func TestStartSpinnerVerboseWritesText(t *testing.T) {
 	var outBuf bytes.Buffer
-	session := New(
-		WithStdout(xio.NopWriteCloser(&outBuf)),
-		WithVerbosity(uilog.VerbosityVerbose),
-	)
-	t.Cleanup(session.End)
+	session := Session{
+		options: sessionOptions{
+			verbosity: uilog.VerbosityVerbose,
+		},
+		out: uilog.NewOutput(uilog.WithStdout(xio.NopWriteCloser(&outBuf))),
+	}
 
 	session.StartSpinner("working")
 	require.Contains(t, outBuf.String(), "working")

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"sync"
 	"testing"
 	"time"
 
@@ -62,9 +63,9 @@ func TestSimpleSpinnerStartAndStop(t *testing.T) {
 		simpleColor = oldColor
 	})
 
-	var out bytes.Buffer
+	out := &safeBuffer{}
 	s := newSimpleSpinner(Options{
-		writer:  &out,
+		writer:  out,
 		text:    "working",
 		charset: []string{"."},
 	})
@@ -100,4 +101,21 @@ func TestNewTermSpinnerDefaultsAndSetters(t *testing.T) {
 
 	require.Equal(t, "ignite ", s.sp.Prefix)
 	require.Equal(t, " running", s.sp.Suffix)
+}
+
+type safeBuffer struct {
+	mu  sync.Mutex
+	buf bytes.Buffer
+}
+
+func (b *safeBuffer) Write(p []byte) (int, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.Write(p)
+}
+
+func (b *safeBuffer) Len() int {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.Len()
 }
