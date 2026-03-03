@@ -16,7 +16,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ignite/cli/v29/ignite/pkg/cosmosfaucet"
-	"github.com/ignite/cli/v29/ignite/pkg/env"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
 	"github.com/ignite/cli/v29/ignite/pkg/httpstatuschecker"
@@ -40,23 +39,26 @@ var (
 // Env provides an isolated testing environment and what's needed to
 // make it possible.
 type Env struct {
-	t   *testing.T
-	ctx context.Context
+	t         *testing.T
+	ctx       context.Context
+	configDir string
+	homeDir   string
 }
 
 // New creates a new testing environment.
 func New(t *testing.T) Env {
 	t.Helper()
 	ctx, cancel := context.WithCancel(t.Context())
-	e := Env{
-		t:   t,
-		ctx: ctx,
-	}
-	// To avoid conflicts with the default config folder located in $HOME, we
-	// set an other one thanks to env var.
 	cfgDir := path.Join(t.TempDir(), ".ignite")
-	env.SetConfigDir(cfgDir)
-	enableDoNotTrackEnv(t)
+	homeDir := path.Join(t.TempDir(), ".home")
+	require.NoError(t, os.MkdirAll(homeDir, 0o755))
+
+	e := Env{
+		t:         t,
+		ctx:       ctx,
+		configDir: cfgDir,
+		homeDir:   homeDir,
+	}
 
 	t.Cleanup(cancel)
 	compileBinaryOnce.Do(func() {
@@ -141,9 +143,7 @@ func (e Env) TmpDir() (path string) {
 
 // Home returns user's home dir.
 func (e Env) Home() string {
-	home, err := os.UserHomeDir()
-	require.NoError(e.t, err)
-	return home
+	return e.homeDir
 }
 
 // AppHome returns app's root home/data dir path.
@@ -165,12 +165,6 @@ func (e Env) HasFailed() bool {
 
 func (e Env) RequireExpectations() {
 	e.Must(e.HasFailed())
-}
-
-// enableDoNotTrackEnv set true the DO_NOT_TRACK env var.
-func enableDoNotTrackEnv(t *testing.T) {
-	t.Helper()
-	t.Setenv(envDoNotTrack, "true")
 }
 
 func HasTestVerboseFlag() bool {
