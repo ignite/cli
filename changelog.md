@@ -12,6 +12,10 @@
 - [#4878](https://github.com/ignite/cli/pull/4878) Improve the `xast` package readability.
 - [#4883](https://github.com/ignite/cli/pull/4883) Remove ibc keys placeholders.
 
+### Fixes
+
+- [#4886](https://github.com/ignite/cli/pull/4886) Fix chain scaffolding checks.
+
 ## [`v29.8.0`](https://github.com/ignite/cli/releases/tag/v29.8.0)
 
 ## Features
