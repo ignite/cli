@@ -6,7 +6,7 @@ slug: /packages/archive
 
 # Archive (archive)
 
-The `archive` package contains reusable utilities used by Ignite CLI internals.
+The `archive` package provides helpers around `CreateArchive` and `ExtractArchive`.
 
 For full API details, see the
 [`archive` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/archive).

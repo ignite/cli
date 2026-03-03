@@ -6,7 +6,7 @@ slug: /packages/xtime
 
 # Xtime (xtime)
 
-The `xtime` package contains reusable utilities used by Ignite CLI internals.
+The `xtime` package provides helpers around `FormatUnix`, `FormatUnixInt`, and `NowAfter`.
 
 For full API details, see the
 [`xtime` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/xtime).

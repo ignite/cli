@@ -6,56 +6,24 @@ slug: /packages/cosmosgen
 
 # Code Generation (cosmosgen)
 
-The `cosmosgen` package orchestrates code generation from protobuf definitions for:
-- Go protobuf code,
-- TypeScript client code,
-- OpenAPI specifications,
-- optional frontend composables/templates.
+The `cosmosgen` package provides helpers around `ErrBufConfig`, `DepTools`, and `Generate`.
 
 For full API details, see the
 [`cosmosgen` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/cosmosgen).
 
-## Example: Run generators
+## Key APIs
+
+- `var ErrBufConfig = errors.New("invalid Buf config") ...`
+- `func DepTools() []string`
+- `func Generate(ctx context.Context, cacheStorage cache.Storage, ...) error`
+- `func MissingTools(f *modfile.File) (missingTools []string)`
+- `func UnusedTools(f *modfile.File) (unusedTools []string)`
+- `func Vue(path string) error`
+- `type ModulePathFunc func(module.Module) string`
+- `type Option func(*generateOptions)`
+
+## Basic import
 
 ```go
-package main
-
-import (
-	"context"
-	"log"
-	"os"
-	"path/filepath"
-
-	"github.com/ignite/cli/v29/ignite/pkg/cache"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosgen"
-)
-
-func main() {
-	ctx := context.Background()
-
-	storage, err := cache.NewStorage(filepath.Join(os.TempDir(), "ignite-cache.db"))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = cosmosgen.Generate(
-		ctx,
-		storage,
-		".",
-		"proto",
-		"github.com/acme/my-chain",
-		"./web",
-		cosmosgen.WithGoGeneration(),
-		cosmosgen.WithTSClientGeneration(
-			cosmosgen.TypescriptModulePath("./ts-client"),
-			"./ts-client",
-			true,
-		),
-		cosmosgen.WithOpenAPIGeneration("./api/openapi.yml", nil),
-		cosmosgen.UpdateBufModule(),
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
+import "github.com/ignite/cli/v29/ignite/pkg/cosmosgen"
 ```

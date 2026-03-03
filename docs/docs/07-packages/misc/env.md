@@ -6,7 +6,7 @@ slug: /packages/env
 
 # Env (env)
 
-The `env` package contains reusable utilities used by Ignite CLI internals.
+The `env` package provides helpers around `DebugEnvVar`, `ConfigDir`, and `IsDebug`.
 
 For full API details, see the
 [`env` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/env).

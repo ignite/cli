@@ -6,7 +6,7 @@ slug: /packages/xnet
 
 # Xnet (xnet)
 
-The `xnet` package contains reusable utilities used by Ignite CLI internals.
+The `xnet` package provides helpers around `AnyIPv4Address`, `IncreasePort`, and `IncreasePortBy`.
 
 For full API details, see the
 [`xnet` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/xnet).

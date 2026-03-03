@@ -6,7 +6,7 @@ slug: /packages/availableport
 
 # Availableport (availableport)
 
-The `availableport` package contains reusable utilities used by Ignite CLI internals.
+The `availableport` package provides helpers around `Find` and `Options`.
 
 For full API details, see the
 [`availableport` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/availableport).

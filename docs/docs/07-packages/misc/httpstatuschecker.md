@@ -6,7 +6,7 @@ slug: /packages/httpstatuschecker
 
 # Httpstatuschecker (httpstatuschecker)
 
-is a tool check health of http pages.
+The `httpstatuschecker` package is a tool check health of http pages.
 
 For full API details, see the
 [`httpstatuschecker` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/httpstatuschecker).

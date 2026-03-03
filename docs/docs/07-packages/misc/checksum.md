@@ -6,7 +6,7 @@ slug: /packages/checksum
 
 # Checksum (checksum)
 
-The `checksum` package contains reusable utilities used by Ignite CLI internals.
+The `checksum` package provides helpers around `Binary`, `Strings`, and `Sum`.
 
 For full API details, see the
 [`checksum` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/checksum).

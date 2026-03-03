@@ -6,7 +6,7 @@ slug: /packages/xexec
 
 # Xexec (xexec)
 
-The `xexec` package contains reusable utilities used by Ignite CLI internals.
+The `xexec` package provides helpers around `IsCommandAvailable`, `IsExec`, and `ResolveAbsPath`.
 
 For full API details, see the
 [`xexec` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/xexec).

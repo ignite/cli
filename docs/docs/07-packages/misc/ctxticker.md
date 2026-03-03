@@ -6,7 +6,7 @@ slug: /packages/ctxticker
 
 # Ctxticker (ctxticker)
 
-The `ctxticker` package contains reusable utilities used by Ignite CLI internals.
+The `ctxticker` package provides helpers around `Do` and `DoNow`.
 
 For full API details, see the
 [`ctxticker` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/ctxticker).

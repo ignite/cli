@@ -6,7 +6,7 @@ slug: /packages/multiformatname
 
 # Multiformatname (multiformatname)
 
-provides names automatically converted into multiple.
+The `multiformatname` package provides names automatically converted into multiple.
 
 For full API details, see the
 [`multiformatname` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/multiformatname).

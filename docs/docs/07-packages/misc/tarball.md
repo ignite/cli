@@ -6,7 +6,7 @@ slug: /packages/tarball
 
 # Tarball (tarball)
 
-The `tarball` package contains reusable utilities used by Ignite CLI internals.
+The `tarball` package provides helpers around `ErrGzipFileNotFound` and `ExtractFile`.
 
 For full API details, see the
 [`tarball` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/tarball).

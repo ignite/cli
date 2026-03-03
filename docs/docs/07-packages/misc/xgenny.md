@@ -6,7 +6,7 @@ slug: /packages/xgenny
 
 # Xgenny (xgenny)
 
-The `xgenny` package contains reusable utilities used by Ignite CLI internals.
+The `xgenny` package provides helpers around `Transformer`, `ApplyOption`, and `OverwriteCallback`.
 
 For full API details, see the
 [`xgenny` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/xgenny).

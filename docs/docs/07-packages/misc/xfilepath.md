@@ -6,7 +6,7 @@ slug: /packages/xfilepath
 
 # Xfilepath (xfilepath)
 
-defines functions to define path retrievers that support error.
+The `xfilepath` package defines functions to define path retrievers that support error.
 
 For full API details, see the
 [`xfilepath` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/xfilepath).

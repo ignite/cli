@@ -6,7 +6,7 @@ slug: /packages/goanalysis
 
 # Goanalysis (goanalysis)
 
-provides a toolset for statically analysing Go applications.
+The `goanalysis` package provides a toolset for statically analysing Go applications.
 
 For full API details, see the
 [`goanalysis` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/goanalysis).

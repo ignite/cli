@@ -6,7 +6,7 @@ slug: /packages/debugger
 
 # Debugger (debugger)
 
-The `debugger` package contains reusable utilities used by Ignite CLI internals.
+The `debugger` package provides helpers around `DefaultAddress`, `Run`, and `Start`.
 
 For full API details, see the
 [`debugger` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/debugger).

@@ -6,7 +6,7 @@ slug: /packages/jsonfile
 
 # Jsonfile (jsonfile)
 
-The `jsonfile` package contains reusable utilities used by Ignite CLI internals.
+The `jsonfile` package provides helpers around `ErrFieldNotFound`, `JSONFile`, and `ReadWriteSeeker`.
 
 For full API details, see the
 [`jsonfile` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/jsonfile).

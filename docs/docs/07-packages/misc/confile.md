@@ -6,7 +6,7 @@ slug: /packages/confile
 
 # Confile (confile)
 
-is helper to load and overwrite configuration files.
+The `confile` package is helper to load and overwrite configuration files.
 
 For full API details, see the
 [`confile` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/confile).

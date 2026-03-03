@@ -6,7 +6,7 @@ slug: /packages/xembed
 
 # Xembed (xembed)
 
-The `xembed` package contains reusable utilities used by Ignite CLI internals.
+The `xembed` package provides helpers around `FileList`.
 
 For full API details, see the
 [`xembed` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/xembed).

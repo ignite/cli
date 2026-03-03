@@ -6,7 +6,7 @@ slug: /packages/errors
 
 # Errors (errors)
 
-provides helpers for error creation, avoiding using different.
+The `errors` package provides helpers for error creation, avoiding using different.
 
 For full API details, see the
 [`errors` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/errors).

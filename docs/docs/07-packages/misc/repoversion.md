@@ -6,7 +6,7 @@ slug: /packages/repoversion
 
 # Repoversion (repoversion)
 
-The `repoversion` package contains reusable utilities used by Ignite CLI internals.
+The `repoversion` package provides helpers around `Version`.
 
 For full API details, see the
 [`repoversion` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/repoversion).

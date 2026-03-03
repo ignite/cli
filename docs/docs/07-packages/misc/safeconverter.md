@@ -6,7 +6,7 @@ slug: /packages/safeconverter
 
 # Safeconverter (safeconverter)
 
-The `safeconverter` package contains reusable utilities used by Ignite CLI internals.
+The `safeconverter` package provides helpers around `ToInt`, `ToInt64`, and `SafeToConvertToInt`.
 
 For full API details, see the
 [`safeconverter` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/safeconverter).

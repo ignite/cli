@@ -6,7 +6,7 @@ slug: /packages/dirchange
 
 # Dirchange (dirchange)
 
-The `dirchange` package contains reusable utilities used by Ignite CLI internals.
+The `dirchange` package provides helpers around `ErrNoFile`, `ChecksumFromPaths`, and `HasDirChecksumChanged`.
 
 For full API details, see the
 [`dirchange` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/dirchange).

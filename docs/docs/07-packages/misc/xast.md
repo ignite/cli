@@ -6,7 +6,7 @@ slug: /packages/xast
 
 # Xast (xast)
 
-The `xast` package contains reusable utilities used by Ignite CLI internals.
+The `xast` package provides helpers around `AppendFuncCodeAtLine`, `ErrStop`, and `AppendFunction`.
 
 For full API details, see the
 [`xast` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/xast).

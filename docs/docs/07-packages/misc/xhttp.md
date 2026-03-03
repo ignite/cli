@@ -6,7 +6,7 @@ slug: /packages/xhttp
 
 # Xhttp (xhttp)
 
-The `xhttp` package contains reusable utilities used by Ignite CLI internals.
+The `xhttp` package provides helpers around `ShutdownTimeout`, `ResponseJSON`, and `Serve`.
 
 For full API details, see the
 [`xhttp` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/xhttp).

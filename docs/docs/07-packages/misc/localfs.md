@@ -6,7 +6,7 @@ slug: /packages/localfs
 
 # Localfs (localfs)
 
-The `localfs` package contains reusable utilities used by Ignite CLI internals.
+The `localfs` package provides helpers around `MkdirAllReset`, `Save`, and `SaveBytesTemp`.
 
 For full API details, see the
 [`localfs` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/localfs).

@@ -6,7 +6,7 @@ slug: /packages/xos
 
 # Xos (xos)
 
-The `xos` package contains reusable utilities used by Ignite CLI internals.
+The `xos` package provides helpers around `JSONFile`, `CopyFile`, and `CopyFolder`.
 
 For full API details, see the
 [`xos` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/xos).

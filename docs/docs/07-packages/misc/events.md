@@ -6,7 +6,7 @@ slug: /packages/events
 
 # Events (events)
 
-provides functionalities for packages to log their states as.
+The `events` package provides functionalities for packages to log their states as.
 
 For full API details, see the
 [`events` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/events).

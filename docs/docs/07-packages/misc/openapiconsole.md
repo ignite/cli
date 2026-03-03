@@ -6,7 +6,7 @@ slug: /packages/openapiconsole
 
 # Openapiconsole (openapiconsole)
 
-The `openapiconsole` package contains reusable utilities used by Ignite CLI internals.
+The `openapiconsole` package provides helpers around `Handler`.
 
 For full API details, see the
 [`openapiconsole` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/openapiconsole).

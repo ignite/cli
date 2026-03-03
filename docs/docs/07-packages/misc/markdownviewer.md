@@ -6,7 +6,7 @@ slug: /packages/markdownviewer
 
 # Markdownviewer (markdownviewer)
 
-The `markdownviewer` package contains reusable utilities used by Ignite CLI internals.
+The `markdownviewer` package provides helpers around `View`.
 
 For full API details, see the
 [`markdownviewer` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/markdownviewer).

@@ -6,7 +6,7 @@ slug: /packages/xurl
 
 # Xurl (xurl)
 
-The `xurl` package contains reusable utilities used by Ignite CLI internals.
+The `xurl` package provides helpers around `Address`, `HTTP`, and `HTTPEnsurePort`.
 
 For full API details, see the
 [`xurl` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/xurl).

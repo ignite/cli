@@ -6,7 +6,7 @@ slug: /packages/xyaml
 
 # Xyaml (xyaml)
 
-The `xyaml` package contains reusable utilities used by Ignite CLI internals.
+The `xyaml` package provides helpers around `Marshal` and `Map`.
 
 For full API details, see the
 [`xyaml` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/xyaml).

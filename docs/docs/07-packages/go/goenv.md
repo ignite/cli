@@ -6,7 +6,7 @@ slug: /packages/goenv
 
 # Goenv (goenv)
 
-defines env variables known by Go and some utilities around it.
+The `goenv` package defines env variables known by Go and some utilities around it.
 
 For full API details, see the
 [`goenv` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/goenv).

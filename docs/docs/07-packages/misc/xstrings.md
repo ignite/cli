@@ -6,7 +6,7 @@ slug: /packages/xstrings
 
 # Xstrings (xstrings)
 
-The `xstrings` package contains reusable utilities used by Ignite CLI internals.
+The `xstrings` package provides helpers around `AllOrSomeFilter`, `FormatUsername`, and `List`.
 
 For full API details, see the
 [`xstrings` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/xstrings).

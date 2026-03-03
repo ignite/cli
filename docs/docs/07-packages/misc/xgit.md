@@ -6,7 +6,7 @@ slug: /packages/xgit
 
 # Xgit (xgit)
 
-The `xgit` package contains reusable utilities used by Ignite CLI internals.
+The `xgit` package provides helpers around `AreChangesCommitted`, `Clone`, and `InitAndCommit`.
 
 For full API details, see the
 [`xgit` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/xgit).

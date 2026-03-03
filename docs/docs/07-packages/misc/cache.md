@@ -6,7 +6,7 @@ slug: /packages/cache
 
 # Cache (cache)
 
-The `cache` package contains reusable utilities used by Ignite CLI internals.
+The `cache` package provides helpers around `ErrorNotFound`, `Key`, and `Cache`.
 
 For full API details, see the
 [`cache` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/cache).

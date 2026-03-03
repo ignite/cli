@@ -6,35 +6,18 @@ slug: /packages/gomodulepath
 
 # Go Module Paths (gomodulepath)
 
-The `gomodulepath` package parses and validates Go module paths and helps discover
-an app module path from the local filesystem.
+The `gomodulepath` package implements functions for the manipulation of Go module.
 
 For full API details, see the
 [`gomodulepath` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/gomodulepath).
 
-## Example: Parse and discover module paths
+## Key APIs
+
+- `func ExtractAppPath(path string) string`
+- `type Path struct{ ... }`
+
+## Basic import
 
 ```go
-package main
-
-import (
-	"fmt"
-	"log"
-
-	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
-)
-
-func main() {
-	parsed, err := gomodulepath.Parse("github.com/acme/my-chain")
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("root=%s package=%s\n", parsed.Root, parsed.Package)
-
-	found, appPath, err := gomodulepath.Find(".")
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("module=%s path=%s\n", found.RawPath, appPath)
-}
+import "github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
 ```

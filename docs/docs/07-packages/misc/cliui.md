@@ -6,7 +6,7 @@ slug: /packages/cliui
 
 # Cliui (cliui)
 
-The `cliui` package contains reusable utilities used by Ignite CLI internals.
+The `cliui` package provides helpers around `ErrAbort`, `Option`, and `Session`.
 
 For full API details, see the
 [`cliui` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/cliui).
