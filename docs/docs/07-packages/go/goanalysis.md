@@ -6,24 +6,53 @@ slug: /packages/goanalysis
 
 # Goanalysis (goanalysis)
 
-The `goanalysis` package provides a toolset for statically analysing Go applications.
+The `goanalysis` package provides static analysis helpers for Go source code. It is used in Ignite to inspect imports, discover binaries, and apply targeted source rewrites.
 
 For full API details, see the
 [`goanalysis` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/goanalysis).
 
+## When to use
+
+- Discover main packages in a project before build/install flows.
+- Inspect and normalize import usage in parsed AST files.
+- Check or patch specific code patterns in generated sources.
+
 ## Key APIs
 
-- `var ErrMultipleMainPackagesFound = errors.New("multiple main packages found")`
-- `func AddOrRemoveTools(f *modfile.File, writer io.Writer, importsToAdd, importsToRemove []string) error`
-- `func DiscoverMain(path string) (pkgPaths []string, err error)`
-- `func DiscoverOneMain(path string) (pkgPath string, err error)`
-- `func FindBlankImports(node *ast.File) []string`
-- `func FormatImports(f *ast.File) map[string]string`
-- `func FuncVarExists(f *ast.File, goImport, methodSignature string) bool`
-- `func HasAnyStructFieldsInPkg(pkgPath, structName string, fields []string) (bool, error)`
+- `DiscoverMain(path string) ([]string, error)`
+- `DiscoverOneMain(path string) (string, error)`
+- `FindBlankImports(node *ast.File) []string`
+- `FormatImports(f *ast.File) map[string]string`
+- `ReplaceCode(pkgPath, oldFunctionName, newFunction string) error`
 
-## Basic import
+## Example
 
 ```go
-import "github.com/ignite/cli/v29/ignite/pkg/goanalysis"
+package main
+
+import (
+	"fmt"
+	"go/parser"
+	"go/token"
+	"log"
+
+	"github.com/ignite/cli/v29/ignite/pkg/goanalysis"
+)
+
+func main() {
+	mainPkg, err := goanalysis.DiscoverOneMain(".")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("main package:", mainPkg)
+
+	fset := token.NewFileSet()
+	file, err := parser.ParseFile(fset, "main.go", nil, 0)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	blank := goanalysis.FindBlankImports(file)
+	fmt.Println("blank imports:", blank)
+}
 ```

@@ -6,21 +6,32 @@ slug: /packages/cosmosanalysis
 
 # Cosmos Source Analysis (cosmosanalysis)
 
-The `cosmosanalysis` package provides a toolset for statically analysing Cosmos SDK's.
+The `cosmosanalysis` package provides static analysis helpers for Cosmos SDK-based projects, especially for app structure and interface/embed discovery.
 
 For full API details, see the
 [`cosmosanalysis` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis).
 
+## When to use
+
+- Validate that a directory is a Cosmos chain project before running codegen.
+- Locate key app files and embedded types in Cosmos app sources.
+- Detect interface implementations across module files.
+
 ## Key APIs
 
-- `var AppEmbeddedTypes = []string{ ... }`
-- `func DeepFindImplementation(modulePath string, interfaceList []string) (found []string, err error)`
-- `func FindAppFilePath(chainRoot string) (path string, err error)`
-- `func FindEmbed(modulePath string, targetEmbeddedTypes []string) (found []string, err error)`
-- `func FindEmbedInFile(n ast.Node, targetEmbeddedTypes []string) (found []string)`
-- `func FindImplementation(modulePath string, interfaceList []string) (found []string, err error)`
-- `func FindImplementationInFile(n ast.Node, interfaceList []string) (found []string)`
-- `func IsChainPath(path string) error`
+- `IsChainPath(path string) error`
+- `FindAppFilePath(chainRoot string) (path string, err error)`
+- `ValidateGoMod(module *modfile.File) error`
+- `FindImplementation(modulePath string, interfaceList []string) (found []string, err error)`
+- `DeepFindImplementation(modulePath string, interfaceList []string) (found []string, err error)`
+- `FindEmbed(modulePath string, targetEmbeddedTypes []string) (found []string, err error)`
+- `FindEmbedInFile(n ast.Node, targetEmbeddedTypes []string) (found []string)`
+
+## Common Tasks
+
+- Call `IsChainPath` early to fail fast on unsupported project layouts.
+- Use `FindAppFilePath` before AST transformations that require the chain app entrypoint.
+- Use `FindImplementation`/`DeepFindImplementation` to verify generated modules are wired as expected.
 
 ## Basic import
 

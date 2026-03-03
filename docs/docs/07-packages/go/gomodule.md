@@ -6,23 +6,50 @@ slug: /packages/gomodule
 
 # Go Module Analysis (gomodule)
 
-The `gomodule` package provides helpers around `ErrGoModNotFound`, `JoinPath`, and `LocatePath`.
+The `gomodule` package parses `go.mod` files, resolves dependencies (including replacements), and locates module directories.
 
 For full API details, see the
 [`gomodule` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/gomodule).
 
+## When to use
+
+- Inspect project dependencies programmatically.
+- Resolve replacement rules from `go.mod` before dependency lookup.
+- Locate module paths for codegen and analysis workflows.
+
 ## Key APIs
 
-- `var ErrGoModNotFound = errors.New("go.mod not found") ...`
-- `func JoinPath(path, version string) string`
-- `func LocatePath(ctx context.Context, cacheStorage cache.Storage, src string, pkg Version) (path string, err error)`
-- `func ParseAt(path string) (*modfile.File, error)`
-- `func SplitPath(path string) (string, string)`
-- `type Module struct{ ... }`
-- `type Version = module.Version`
+- `ParseAt(path string) (*modfile.File, error)`
+- `ResolveDependencies(f *modfile.File, includeIndirect bool) ([]Version, error)`
+- `FilterVersions(dependencies []Version, paths ...string) []Version`
+- `SplitPath(path string) (string, string)`
+- `JoinPath(path, version string) string`
 
-## Basic import
+## Example
 
 ```go
-import "github.com/ignite/cli/v29/ignite/pkg/gomodule"
+package main
+
+import (
+	"fmt"
+	"log"
+
+	"github.com/ignite/cli/v29/ignite/pkg/gomodule"
+)
+
+func main() {
+	mod, err := gomodule.ParseAt(".")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	deps, err := gomodule.ResolveDependencies(mod, false)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, dep := range gomodule.FilterVersions(deps, "github.com/cosmos/cosmos-sdk") {
+		fmt.Printf("%s %s\n", dep.Path, dep.Version)
+	}
+}
 ```

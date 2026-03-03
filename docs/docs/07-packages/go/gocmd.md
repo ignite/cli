@@ -6,24 +6,46 @@ slug: /packages/gocmd
 
 # Go Command Helpers (gocmd)
 
-The `gocmd` package provides helpers around `CommandInstall`, `Build`, and `BuildPath`.
+The `gocmd` package wraps common `go` tool invocations (`build`, `test`, `mod tidy`, `list`, and more) with consistent execution hooks.
 
 For full API details, see the
 [`gocmd` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/gocmd).
 
+## When to use
+
+- Run Go toolchain commands from Ignite services without manually assembling command lines.
+- Apply common options (workdir/stdout/stderr) through shared execution abstractions.
+- Build binaries for specific targets and manage module commands.
+
 ## Key APIs
 
-- `const CommandInstall = "install" ...`
-- `func Build(ctx context.Context, out, path string, flags []string, options ...exec.Option) error`
-- `func BuildPath(ctx context.Context, output, binary, path string, flags []string, ...) error`
-- `func BuildTarget(goos, goarch string) string`
-- `func Env(name string) (string, error)`
-- `func Fmt(ctx context.Context, path string, options ...exec.Option) error`
-- `func Get(ctx context.Context, path string, pkgs []string, options ...exec.Option) error`
-- `func GoImports(ctx context.Context, path string) error`
+- `Fmt(ctx, path, options...)`
+- `ModTidy(ctx, path, options...)`
+- `Build(ctx, out, path, flags, options...)`
+- `Test(ctx, path, flags, options...)`
+- `List(ctx, path, flags, options...)`
 
-## Basic import
+## Example
 
 ```go
-import "github.com/ignite/cli/v29/ignite/pkg/gocmd"
+package main
+
+import (
+	"context"
+	"log"
+
+	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
+)
+
+func main() {
+	ctx := context.Background()
+
+	if err := gocmd.ModTidy(ctx, "."); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := gocmd.Test(ctx, ".", []string{"./..."}); err != nil {
+		log.Fatal(err)
+	}
+}
 ```

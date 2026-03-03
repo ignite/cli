@@ -6,21 +6,46 @@ slug: /packages/xgit
 
 # Xgit (xgit)
 
-The `xgit` package provides helpers around `AreChangesCommitted`, `Clone`, and `InitAndCommit`.
+The `xgit` package wraps common git repository operations used by Ignite scaffolding and upgrade workflows.
 
 For full API details, see the
 [`xgit` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/xgit).
 
+## When to use
+
+- Clone template repositories during setup flows.
+- Verify local repository state before mutating operations.
+- Resolve repository metadata (origin URL, initialized state).
+
 ## Key APIs
 
-- `func AreChangesCommitted(dir string) (bool, error)`
-- `func Clone(ctx context.Context, urlRef, dir string) error`
-- `func InitAndCommit(path string) error`
-- `func IsRepository(path string) (bool, error)`
-- `func RepositoryURL(path string) (string, error)`
+- `Clone(ctx context.Context, urlRef, dir string) error`
+- `IsRepository(path string) (bool, error)`
+- `AreChangesCommitted(dir string) (bool, error)`
+- `RepositoryURL(path string) (string, error)`
+- `InitAndCommit(path string) error`
 
-## Basic import
+## Example
 
 ```go
-import "github.com/ignite/cli/v29/ignite/pkg/xgit"
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/ignite/cli/v29/ignite/pkg/xgit"
+)
+
+func main() {
+	_ = context.Background()
+
+	isRepo, err := xgit.IsRepository(".")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("is repository:", isRepo)
+}
 ```

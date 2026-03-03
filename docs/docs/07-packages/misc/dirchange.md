@@ -6,20 +6,50 @@ slug: /packages/dirchange
 
 # Dirchange (dirchange)
 
-The `dirchange` package provides helpers around `ErrNoFile`, `ChecksumFromPaths`, and `HasDirChecksumChanged`.
+The `dirchange` package computes and compares directory checksums so callers can skip expensive work when inputs have not changed.
 
 For full API details, see the
 [`dirchange` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/dirchange).
 
+## When to use
+
+- Short-circuit generation/build steps when source directories are unchanged.
+- Persist checksum state between command runs.
+- Detect content drift in selected file/folder sets.
+
 ## Key APIs
 
-- `var ErrNoFile = errors.New("no file in specified paths")`
-- `func ChecksumFromPaths(workdir string, paths ...string) ([]byte, error)`
-- `func HasDirChecksumChanged(checksumCache cache.Cache[[]byte], cacheKey string, workdir string, ...) (bool, error)`
-- `func SaveDirChecksum(checksumCache cache.Cache[[]byte], cacheKey string, workdir string, ...) error`
+- `ChecksumFromPaths(workdir string, paths ...string) ([]byte, error)`
+- `HasDirChecksumChanged(checksumCache cache.Cache[[]byte], cacheKey string, workdir string, paths ...string) (bool, error)`
+- `SaveDirChecksum(checksumCache cache.Cache[[]byte], cacheKey string, workdir string, paths ...string) error`
 
-## Basic import
+## Example
 
 ```go
-import "github.com/ignite/cli/v29/ignite/pkg/dirchange"
+package main
+
+import (
+	"fmt"
+	"log"
+	"os"
+	"path/filepath"
+
+	"github.com/ignite/cli/v29/ignite/pkg/cache"
+	"github.com/ignite/cli/v29/ignite/pkg/dirchange"
+)
+
+func main() {
+	storage, err := cache.NewStorage(filepath.Join(os.TempDir(), "ignite-cache.db"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	c := cache.New[[]byte](storage, "dir-checksum")
+
+	changed, err := dirchange.HasDirChecksumChanged(c, "proto", ".", "proto")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("changed:", changed)
+}
 ```
