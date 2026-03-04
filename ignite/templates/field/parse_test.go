@@ -172,6 +172,25 @@ func TestParseFields1(t *testing.T) {
 			},
 		},
 		{
+			name: "test lowercase custom types",
+			fields: []string{
+				name1.Original + ":employee",
+				name2.Original + ":array.employee",
+			},
+			want: Fields{
+				{
+					Name:         name1,
+					DatatypeName: datatype.Custom,
+					Datatype:     "Employee",
+				},
+				{
+					Name:         name2,
+					DatatypeName: datatype.CustomSlice,
+					Datatype:     "Employee",
+				},
+			},
+		},
+		{
 			name: "test sdk.Coin types",
 			fields: []string{
 				name1.Original + ":coin",

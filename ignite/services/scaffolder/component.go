@@ -258,8 +258,17 @@ func customFieldType(fieldType string) (name string, isCustom bool) {
 	}
 
 	if strings.HasPrefix(fieldType, datatype.ArrayPrefix) {
-		return strings.TrimPrefix(fieldType, datatype.ArrayPrefix), true
+		return normalizeCustomTypeName(strings.TrimPrefix(fieldType, datatype.ArrayPrefix)), true
 	}
 
-	return fieldType, true
+	return normalizeCustomTypeName(fieldType), true
+}
+
+func normalizeCustomTypeName(customType string) string {
+	name, err := multiformatname.NewName(customType)
+	if err != nil {
+		return customType
+	}
+
+	return name.UpperCamel
 }

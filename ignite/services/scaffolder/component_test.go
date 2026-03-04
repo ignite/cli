@@ -182,8 +182,20 @@ func TestCustomFieldType(t *testing.T) {
 			isCustom:  true,
 		},
 		{
+			name:      "custom scalar type lower case",
+			fieldType: "productDetails",
+			wantType:  "ProductDetails",
+			isCustom:  true,
+		},
+		{
 			name:      "custom array type",
 			fieldType: "array.ProductDetails",
+			wantType:  "ProductDetails",
+			isCustom:  true,
+		},
+		{
+			name:      "custom array type lower case",
+			fieldType: "array.productDetails",
 			wantType:  "ProductDetails",
 			isCustom:  true,
 		},

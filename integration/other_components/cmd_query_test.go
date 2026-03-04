@@ -78,9 +78,21 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 	)
 
 	app.Scaffold(
+		"create a query with lowercase custom field type as a response",
+		false,
+		"query", "foobaz-lower", "-r", "bar:customType",
+	)
+
+	app.Scaffold(
 		"create a query with the custom array field type as a response",
 		false,
 		"query", "foobaz-array", "-r", "bars:array.CustomType",
+	)
+
+	app.Scaffold(
+		"create a query with lowercase custom array field type as a response",
+		false,
+		"query", "foobaz-array-lower", "-r", "bars:array.customType",
 	)
 
 	app.Scaffold(

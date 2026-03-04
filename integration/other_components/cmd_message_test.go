@@ -101,9 +101,21 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 	)
 
 	app.Scaffold(
+		"create a message with lowercase custom field type",
+		false,
+		"message", "foo-baz-lower", "customField:customType",
+	)
+
+	app.Scaffold(
 		"create a message with custom array field type",
 		false,
 		"message", "foo-baz-array", "customFields:array.CustomType",
+	)
+
+	app.Scaffold(
+		"create a message with lowercase custom array field type",
+		false,
+		"message", "foo-baz-array-lower", "customFields:array.customType",
 	)
 
 	app.Scaffold(

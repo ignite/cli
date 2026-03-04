@@ -102,7 +102,7 @@ func ParseFields(
 			if _, ok := datatype.IsSupportedType(datatype.Name(customArrayType)); !ok {
 				parsedFields = append(parsedFields, Field{
 					Name:         name,
-					Datatype:     customArrayType,
+					Datatype:     normalizeCustomTypeName(customArrayType),
 					DatatypeName: datatype.CustomSlice,
 				})
 				continue
@@ -111,9 +111,18 @@ func ParseFields(
 
 		parsedFields = append(parsedFields, Field{
 			Name:         name,
-			Datatype:     string(datatypeName),
+			Datatype:     normalizeCustomTypeName(string(datatypeName)),
 			DatatypeName: datatype.TypeCustom,
 		})
 	}
 	return parsedFields, nil
+}
+
+func normalizeCustomTypeName(customType string) string {
+	name, err := multiformatname.NewName(customType)
+	if err != nil {
+		return customType
+	}
+
+	return name.UpperCamel
 }
