@@ -106,6 +106,35 @@ func checkComponentCreated(appPath, moduleName string, compName multiformatname.
 	return err
 }
 
+// checkTypeProtoCreated checks if the proto type already exists in the module proto package.
+func checkTypeProtoCreated(
+	ctx context.Context,
+	appPath, appName, protoDir, moduleName string,
+	compName multiformatname.Name,
+) error {
+	path := filepath.Join(appPath, protoDir, appName, moduleName)
+	pkgs, err := protoanalysis.Parse(ctx, protoanalysis.NewCache(), path)
+	if err != nil {
+		return err
+	}
+
+	for _, pkg := range pkgs {
+		for _, msg := range pkg.Messages {
+			if !strings.EqualFold(msg.Name, compName.PascalCase) {
+				continue
+			}
+
+			return errors.Errorf("component %s with name %s is already created (type %s exists)",
+				componentType,
+				compName.Original,
+				msg.Name,
+			)
+		}
+	}
+
+	return nil
+}
+
 // checkCustomTypes returns error if one of the types is invalid.
 func checkCustomTypes(ctx context.Context, appPath, appName, protoDir, module string, fields []string) error {
 	path := filepath.Join(appPath, protoDir, appName, module)

@@ -1,6 +1,9 @@
 package scaffolder
 
 import (
+	"context"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -114,6 +117,45 @@ func TestContainsCustomTypes(t *testing.T) {
 			require.Equal(t, tc.contains, containsCustomTypes(tc.fields))
 		})
 	}
+}
+
+func TestCheckTypeProtoCreated(t *testing.T) {
+	t.Run("should fail when proto type already exists", func(t *testing.T) {
+		tmp := t.TempDir()
+		protoFile := filepath.Join(tmp, "proto", "blog", "blog", "v1", "post.proto")
+		require.NoError(t, os.MkdirAll(filepath.Dir(protoFile), 0o755))
+
+		content := `syntax = "proto3";
+package blog.blog.v1;
+
+message Post {}
+`
+		require.NoError(t, os.WriteFile(protoFile, []byte(content), 0o644))
+
+		name, err := multiformatname.NewName("post")
+		require.NoError(t, err)
+
+		err = checkTypeProtoCreated(context.Background(), tmp, "blog", "proto", "blog", name)
+		require.EqualError(t, err, "component type with name post is already created (type Post exists)")
+	})
+
+	t.Run("should pass when proto type does not exist", func(t *testing.T) {
+		tmp := t.TempDir()
+		protoFile := filepath.Join(tmp, "proto", "blog", "blog", "v1", "comment.proto")
+		require.NoError(t, os.MkdirAll(filepath.Dir(protoFile), 0o755))
+
+		content := `syntax = "proto3";
+package blog.blog.v1;
+
+message Comment {}
+`
+		require.NoError(t, os.WriteFile(protoFile, []byte(content), 0o644))
+
+		name, err := multiformatname.NewName("post")
+		require.NoError(t, err)
+
+		require.NoError(t, checkTypeProtoCreated(context.Background(), tmp, "blog", "proto", "blog", name))
+	})
 }
 
 func TestCustomFieldType(t *testing.T) {
