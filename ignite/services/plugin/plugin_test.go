@@ -541,6 +541,28 @@ func TestPluginClean(t *testing.T) {
 	}
 }
 
+func TestPluginOutdatedBinary(t *testing.T) {
+	t.Run("returns true when source and binary mtimes are equal", func(t *testing.T) {
+		tmp := t.TempDir()
+		srcFile := filepath.Join(tmp, "main.go")
+		binFile := filepath.Join(tmp, "app.ign")
+
+		require.NoError(t, os.WriteFile(srcFile, []byte("package main\n"), 0o644))
+		require.NoError(t, os.WriteFile(binFile, []byte("binary"), 0o755))
+
+		equalTime := time.Now().Add(-time.Minute).Truncate(time.Second)
+		require.NoError(t, os.Chtimes(srcFile, equalTime, equalTime))
+		require.NoError(t, os.Chtimes(binFile, equalTime, equalTime))
+
+		p := Plugin{
+			srcPath: tmp,
+			name:    "app",
+		}
+
+		require.True(t, p.outdatedBinary())
+	})
+}
+
 // scaffoldPlugin runs Scaffold and updates the go.mod so it uses the
 // current ignite/cli sources.
 func scaffoldPlugin(t *testing.T, dir, name string, sharedHost bool) string {
