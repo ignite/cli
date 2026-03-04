@@ -5,6 +5,7 @@
 ## Features
 
 - [#4877](https://github.com/ignite/cli/pull/4877) Remove app config and ibc add route placeholders.
+- [#3094](https://github.com/ignite/cli/issues/3094) Add support for arrays with custom types.
 
 ### Changes
 
