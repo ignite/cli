@@ -87,6 +87,12 @@ func TestCreateMap(t *testing.T) {
 	)
 
 	app.Scaffold(
+		"should prevent creating a map with invalid custom array field type",
+		true,
+		"map", "mapInvalidDetailArray", "users:array.UnknownType", "--module", "example",
+	)
+
+	app.Scaffold(
 		"create a map with Coin and []Coin",
 		false,
 		"map",

@@ -87,6 +87,14 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 	)
 
 	app.Scaffold(
+		"should prevent creating a custom type with invalid custom array field type",
+		true,
+		"type",
+		"custom-type-invalid-array",
+		"customFields:array.UnknownType",
+	)
+
+	app.Scaffold(
 		"create a message with the custom field type",
 		false,
 		"message", "foo-baz", "customField:CustomType", "textCoinsAlias:coins",
@@ -96,6 +104,12 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 		"create a message with custom array field type",
 		false,
 		"message", "foo-baz-array", "customFields:array.CustomType",
+	)
+
+	app.Scaffold(
+		"should prevent creating a message with invalid custom array field type",
+		true,
+		"message", "foo-baz-invalid-array", "customFields:array.UnknownType",
 	)
 
 	app.Scaffold(

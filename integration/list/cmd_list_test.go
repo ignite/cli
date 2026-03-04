@@ -101,6 +101,16 @@ func TestGenerateAnAppWithListAndVerify(t *testing.T) {
 	)
 
 	app.Scaffold(
+		"should prevent creating a list with invalid custom array field type",
+		true,
+		"list",
+		"invalid-custom-array",
+		"documents:array.UnknownType",
+		"--module",
+		"example",
+	)
+
+	app.Scaffold(
 		"should prevent creating a list with duplicated fields",
 		true,
 		"list", "company", "name", "name",
