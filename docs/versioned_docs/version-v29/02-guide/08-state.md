@@ -9,7 +9,7 @@ In blockchain applications, state refers to the current data stored on the block
 
 ## Collections Package
 
-Ignite scaffolds using the [`collections`](http://pkg.go.dev/cosmossdk.io/collections) package for module code. This package provides a type-safe and efficient way to set and query values from the module store.
+IGNITE® scaffolds using the [`collections`](https://pkg.go.dev/cosmossdk.io/collections) package for module code. This package provides a type-safe and efficient way to set and query values from the module store.
 
 ### Key Features of Collections
 
@@ -20,7 +20,7 @@ Ignite scaffolds using the [`collections`](http://pkg.go.dev/cosmossdk.io/collec
 
 ## Understand keeper field
 
-Ignite creates all the necessary boilerplate for collections in the `x/<module>/keeper/keeper.go` file. The `Keeper` struct contains fields for each collection you define in your module. Each field is an instance of a collection type, such as `collections.Map`, `collections.Item`, or `collections.List`.
+IGNITE® creates all the necessary boilerplate for collections in the `x/<module>/keeper/keeper.go` file. The `Keeper` struct contains fields for each collection you define in your module. Each field is an instance of a collection type, such as `collections.Map`, `collections.Item`, or `collections.List`.
 
 ```go
 type Keeper struct {
@@ -227,4 +227,4 @@ if err != nil {
 
 The `collections` package provides a powerful and type-safe way to manage state in Cosmos SDK modules. By understanding how to use collections effectively, you can build robust and efficient blockchain applications that handle state transitions reliably.
 
-When developing with Ignite CLI, you are already taking advantage of collections which significantly simplify the state management code and reduce the potential for errors.
+When developing with IGNITE® CLI, you are already taking advantage of collections which significantly simplify the state management code and reduce the potential for errors.
