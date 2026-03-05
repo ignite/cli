@@ -146,6 +146,7 @@ func TestParseFields1(t *testing.T) {
 			fields: []string{
 				name1.Original + ":Bla",
 				name2.Original + ":Test",
+				name4.Original + ":array.ProductDetails",
 				name3.Original,
 			},
 			want: Fields{
@@ -160,8 +161,32 @@ func TestParseFields1(t *testing.T) {
 					Datatype:     "Test",
 				},
 				{
+					Name:         name4,
+					DatatypeName: datatype.CustomSlice,
+					Datatype:     "ProductDetails",
+				},
+				{
 					Name:         name3,
 					DatatypeName: datatype.String,
+				},
+			},
+		},
+		{
+			name: "test lowercase custom types",
+			fields: []string{
+				name1.Original + ":employee",
+				name2.Original + ":array.employee",
+			},
+			want: Fields{
+				{
+					Name:         name1,
+					DatatypeName: datatype.Custom,
+					Datatype:     "Employee",
+				},
+				{
+					Name:         name2,
+					DatatypeName: datatype.CustomSlice,
+					Datatype:     "Employee",
 				},
 			},
 		},

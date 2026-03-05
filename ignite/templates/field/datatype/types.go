@@ -15,6 +15,8 @@ import (
 const (
 	// Separator represents the type separator.
 	Separator = ":"
+	// ArrayPrefix represents the prefix used by array field types.
+	ArrayPrefix = "array."
 
 	// String represents the string type name.
 	String Name = "string"
@@ -48,6 +50,8 @@ const (
 	Address Name = "address"
 	// Custom represents the custom type name.
 	Custom Name = Name(TypeCustom)
+	// CustomSlice represents the custom array type name.
+	CustomSlice Name = Name(TypeCustomSlice)
 
 	// StringSliceAlias represents the string array type name alias.
 	StringSliceAlias Name = "strings"
@@ -62,6 +66,8 @@ const (
 
 	// TypeCustom represents the string type name id.
 	TypeCustom = "customignitetype"
+	// TypeCustomSlice represents the custom array type name id.
+	TypeCustomSlice = "customignitetypearray"
 
 	collectionValueComment = "/* Add collection key value */"
 )
@@ -89,6 +95,7 @@ var supportedTypes = map[Name]DataType{
 	DecCoinSliceAlias: DataDecCoinSlice,
 	Address:           DataAddress,
 	Custom:            DataCustom,
+	CustomSlice:       DataCustomSlice,
 }
 
 // Name represents the Alias Name for the data type.
@@ -117,7 +124,7 @@ type DataType struct {
 // Usage returns the usage of the data type.
 // It provides a description of how to use the data type in scaffolding.
 func (t DataType) Usage() string {
-	if t.Name == Custom {
+	if t.Name == Custom || t.Name == CustomSlice {
 		return "use the custom type to scaffold already created chain types."
 	}
 	usage := fmt.Sprintf("use '<FIELD_NAME>:%s' to scaffold %s types (eg: %s).", t.Name, t.DataType(""), t.DefaultTestValue)
@@ -148,6 +155,9 @@ func IsSupportedType(typename Name) (dt DataType, ok bool) {
 func SupportedTypes() map[string]string {
 	supported := make(map[string]string)
 	for name, dataType := range supportedTypes {
+		if dataType.Name == CustomSlice {
+			continue
+		}
 		if dataType.Name == Custom {
 			name = "custom"
 		}
