@@ -1566,8 +1566,7 @@ Ignite also supports custom types:
 	ignite scaffold list product price:coin details:ProductDetails
 
 In the example above the "ProductDetails" type was defined first, and then used
-as a custom type for the "details" field. Ignite doesn't support arrays of
-custom types yet.
+as a custom type for the "details" field.
 
 Your chain will accept custom types in JSON-notation:
 
