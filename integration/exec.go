@@ -12,6 +12,7 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner"
 	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v29/ignite/pkg/env"
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
@@ -84,9 +85,26 @@ func (e Env) Exec(msg string, steps step.Steps, options ...ExecOption) (ok bool)
 	if IsCI {
 		copts = append(copts, cmdrunner.EndSignal(os.Kill))
 	}
+	defaultEnvs := []string{
+		fmt.Sprintf("%s=true", envDoNotTrack),
+	}
+	if e.configDir != "" {
+		defaultEnvs = append(defaultEnvs, fmt.Sprintf("%s=%s", env.ConfigDirEnvVar, e.configDir))
+	}
+	preparedSteps := make(step.Steps, 0, len(steps))
+	for _, s := range steps {
+		if s == nil {
+			preparedSteps = append(preparedSteps, nil)
+			continue
+		}
+		cloned := *s
+		cloned.Env = append(append([]string{}, defaultEnvs...), s.Env...)
+		preparedSteps = append(preparedSteps, &cloned)
+	}
+
 	err := cmdrunner.
 		New(copts...).
-		Run(opts.ctx, steps...)
+		Run(opts.ctx, preparedSteps...)
 	if errors.Is(err, context.Canceled) {
 		err = nil
 	}
