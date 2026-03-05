@@ -100,6 +100,16 @@ func TestContainsCustomTypes(t *testing.T) {
 			fields:   []string{"foo", "bar:CustomType"},
 			contains: true,
 		},
+		{
+			name:     "contains one custom array type",
+			fields:   []string{"foo", "bar:array.CustomType"},
+			contains: true,
+		},
+		{
+			name:     "contains one built-in array type",
+			fields:   []string{"foo", "bar:array.string"},
+			contains: false,
+		},
 	}
 
 	for _, tc := range tests {
@@ -146,4 +156,56 @@ message Comment {}
 
 		require.NoError(t, checkTypeProtoCreated(context.Background(), tmp, "blog", "proto", "blog", name))
 	})
+}
+
+func TestCustomFieldType(t *testing.T) {
+	tests := []struct {
+		name      string
+		fieldType string
+		wantType  string
+		isCustom  bool
+	}{
+		{
+			name:      "built-in scalar type",
+			fieldType: "string",
+			isCustom:  false,
+		},
+		{
+			name:      "built-in array type",
+			fieldType: "array.string",
+			isCustom:  false,
+		},
+		{
+			name:      "custom scalar type",
+			fieldType: "ProductDetails",
+			wantType:  "ProductDetails",
+			isCustom:  true,
+		},
+		{
+			name:      "custom scalar type lower case",
+			fieldType: "productDetails",
+			wantType:  "ProductDetails",
+			isCustom:  true,
+		},
+		{
+			name:      "custom array type",
+			fieldType: "array.ProductDetails",
+			wantType:  "ProductDetails",
+			isCustom:  true,
+		},
+		{
+			name:      "custom array type lower case",
+			fieldType: "array.productDetails",
+			wantType:  "ProductDetails",
+			isCustom:  true,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			gotType, isCustom := customFieldType(tc.fieldType)
+			require.Equal(t, tc.isCustom, isCustom)
+			require.Equal(t, tc.wantType, gotType)
+		})
+	}
 }
