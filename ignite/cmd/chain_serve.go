@@ -2,12 +2,14 @@ package ignitecmd
 
 import (
 	"context"
+	"io"
 	"os"
 	"os/signal"
 	"syscall"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
+	"golang.org/x/term"
 
 	cmdmodel "github.com/ignite/cli/v29/ignite/cmd/bubblemodel"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui"
@@ -27,6 +29,8 @@ const (
 	flagResetOnce       = "reset-once"
 	flagOutputFile      = "output-file"
 )
+
+var isTerminal = term.IsTerminal
 
 // NewChainServe creates a new serve command to serve a blockchain.
 func NewChainServe() *cobra.Command {
@@ -88,7 +92,7 @@ production, you may want to run "appd start" manually.
 }
 
 func chainServeHandler(cmd *cobra.Command, _ []string) error {
-	if cmd.Flags().Changed(flagOutputFile) {
+	if shouldRunServeInDaemonMode(cmd) {
 		return daemonMode(cmd)
 	}
 
@@ -122,6 +126,41 @@ func chainServeHandler(cmd *cobra.Command, _ []string) error {
 
 	// Otherwise run the serve command directly
 	return chainServe(cmd, session)
+}
+
+func shouldRunServeInDaemonMode(cmd *cobra.Command) bool {
+	if cmd.Flags().Changed(flagOutputFile) {
+		return true
+	}
+
+	return !hasTerminalInputAndOutput(cmd.InOrStdin(), cmd.OutOrStdout())
+}
+
+func hasTerminalInputAndOutput(stdin io.Reader, stdout io.Writer) bool {
+	stdinFD, ok := fileDescriptor(stdin)
+	if !ok {
+		return false
+	}
+
+	stdoutFD, ok := fileDescriptor(stdout)
+	if !ok {
+		return false
+	}
+
+	return isTerminal(stdinFD) && isTerminal(stdoutFD)
+}
+
+type fileDescriptorProvider interface {
+	Fd() uintptr
+}
+
+func fileDescriptor(v any) (int, bool) {
+	provider, ok := v.(fileDescriptorProvider)
+	if !ok {
+		return 0, false
+	}
+
+	return int(provider.Fd()), true
 }
 
 // daemonMode runs the chain serve command without user interaction, UI in verbose mode. Useful to be used as daemon.
