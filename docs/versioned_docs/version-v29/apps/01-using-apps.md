@@ -1,14 +1,14 @@
 ---
-description: Using and Developing Ignite Apps
+description: Using and Developing IGNITE® Apps
 ---
 
-# Using Ignite Apps
+# Using IGNITE® Apps
 
-Apps offer a way to extend the functionality of the Ignite CLI. There are two
+Apps offer a way to extend the functionality of the IGNITE® CLI. There are two
 core concepts within apps: `Commands` and `Hooks`. `Commands` extend the CLI's
 functionality and `Hooks` extend existing CLI command functionality.
 
-Apps are registered in an Ignite scaffolded blockchain project through the
+Apps are registered in an IGNITE® scaffolded blockchain project through the
 `igniteapps.yml`, or globally through `$HOME/.ignite/apps/igniteapps.yml`.
 
 To use an app within your project execute the following command inside the
@@ -30,12 +30,12 @@ ignite app install -g github.com/project/cli-app
 The command will compile the app and make it immediately available to the
 `ignite` command lists.
 
-Discover recommended Apps in the [Ignite Apps Marketplace](https://ignite.com/marketplace).
+Discover recommended Apps in the [IGNITE® Apps Marketplace](https://ignite.com/marketplace).
 
 ## Listing installed apps
 
 When in an ignite scaffolded blockchain you can use the command `ignite app
-list` to list all Ignite Apps and their statuses.
+list` to list all IGNITE® Apps and their statuses.
 
 ## Updating apps
 

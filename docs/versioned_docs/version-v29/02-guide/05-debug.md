@@ -4,7 +4,7 @@ description: Debugging your Cosmos SDK blockchain
 
 # Debugging a chain
 
-Ignite chain debug command can help you find issues during development. It uses
+IGNITE® chain debug command can help you find issues during development. It uses
 [Delve](https://github.com/go-delve/delve) debugger which enables you to
 interact with your blockchain app by controlling the execution of the process,
 evaluating variables, and providing information of thread / goroutine state, CPU
@@ -138,7 +138,7 @@ Connect to Server" and enter the debug host address and then the port number.
 
 ## Example: Debugging a Blockchain App
 
-In this short example we will be using Ignite CLI to create a new blockchain and
+In this short example we will be using IGNITE® CLI to create a new blockchain and
 a query to be able to trigger a debugging breakpoint when the query is called.
 
 Create a new blockchain:

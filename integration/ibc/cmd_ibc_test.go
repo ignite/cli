@@ -155,6 +155,11 @@ func TestCreateIBCPacket(t *testing.T) {
 	)
 
 	app.Scaffold(
+		"should prevent creating a packet with invalid custom array field type",
+		true, "packet", "foo-baz-invalid-array", "customFields:array.UnknownType", "--module", "foo",
+	)
+
+	app.Scaffold(
 		"create a packet with no send message",
 		false, "packet", "nomessage", "foo", "--no-message", "--module", "foo",
 	)
