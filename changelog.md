@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changes
+
+- [#4901](https://github.com/ignite/cli/pull/4901) Enable automatic switching to daemon mode when not a terminal.
+
 ## [`v29.9.0`](https://github.com/ignite/cli/releases/tag/v29.9.0)
 
 ## Features
@@ -15,7 +19,6 @@
 - [#4878](https://github.com/ignite/cli/pull/4878) Improve the `xast` package readability.
 - [#4883](https://github.com/ignite/cli/pull/4883) Remove ibc keys placeholders.
 - [#4884](https://github.com/ignite/cli/pull/4884) Remove autocli placeholders.
-- [#4901](https://github.com/ignite/cli/pull/4901) Enable automatic switching to daemon mode when not a terminal.
 
 ### Fixes
 
