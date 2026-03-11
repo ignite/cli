@@ -105,6 +105,7 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 		NewScaffoldTypeList(),
 		NewScaffoldChain(),
 		NewScaffoldModule(),
+		NewScaffoldMigration(),
 		NewScaffoldList(),
 		NewScaffoldMap(),
 		NewScaffoldSingle(),
