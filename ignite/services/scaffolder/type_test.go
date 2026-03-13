@@ -131,6 +131,18 @@ func TestParseTypeFields(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:       "dry type defaults to no message",
+			addKind:    DryType(),
+			addOptions: []AddTypeOption{},
+			expectedOptions: addTypeOptions{
+				moduleName:     testModuleName,
+				withoutMessage: true,
+				signer:         testSigner,
+			},
+			shouldError:    false,
+			expectedFields: nil,
+		},
 	}
 
 	for _, tc := range tests {

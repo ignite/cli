@@ -1,8 +1,8 @@
 ---
-description: Using and Developing Ignite Apps
+description: Using and Developing IGNITE® Apps
 ---
 
-# Developing Ignite Apps
+# Developing IGNITE® Apps
 
 It's easy to create an app and use it immediately in your project. First
 choose a directory outside your project and run:
@@ -35,7 +35,7 @@ Now let's detail how to update your app's code.
 
 ## App interface
 
-Under the hood Ignite Apps are implemented using a plugin system based on
+Under the hood IGNITE® Apps are implemented using a plugin system based on
 `github.com/hashicorp/go-plugin`.
 
 All apps must implement a predefined interface:
@@ -94,7 +94,7 @@ message Manifest {
   // Hooks contains the hooks that will be attached to the existing ignite commands.
   repeated Command commands = 3;
 
-  // Enables sharing a single app server across all running instances of an Ignite App.
+  // Enables sharing a single app server across all running instances of an IGNITE® App.
   // Useful if an app adds or extends long running commands.
   //
   // Example: if an app defines a hook on `ignite chain serve`, a server is instantiated
@@ -128,7 +128,7 @@ Allowing all executing commands to share the same server instance, giving shared
 
 ## Adding new commands
 
-App commands are custom commands added to Ignite CLI by an installed app.
+App commands are custom commands added to IGNITE® CLI by an installed app.
 Commands can use any path not defined already by the CLI.
 
 For instance, let's say your app adds a new `oracle` command to `ignite

@@ -1,6 +1,9 @@
 package scaffolder
 
 import (
+	"context"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -97,11 +100,112 @@ func TestContainsCustomTypes(t *testing.T) {
 			fields:   []string{"foo", "bar:CustomType"},
 			contains: true,
 		},
+		{
+			name:     "contains one custom array type",
+			fields:   []string{"foo", "bar:array.CustomType"},
+			contains: true,
+		},
+		{
+			name:     "contains one built-in array type",
+			fields:   []string{"foo", "bar:array.string"},
+			contains: false,
+		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			require.Equal(t, tc.contains, containsCustomTypes(tc.fields))
+		})
+	}
+}
+
+func TestCheckTypeProtoCreated(t *testing.T) {
+	t.Run("should fail when proto type already exists", func(t *testing.T) {
+		tmp := t.TempDir()
+		protoFile := filepath.Join(tmp, "proto", "blog", "blog", "v1", "post.proto")
+		require.NoError(t, os.MkdirAll(filepath.Dir(protoFile), 0o755))
+
+		content := `syntax = "proto3";
+package blog.blog.v1;
+
+message Post {}
+`
+		require.NoError(t, os.WriteFile(protoFile, []byte(content), 0o644))
+
+		name, err := multiformatname.NewName("post")
+		require.NoError(t, err)
+
+		err = checkTypeProtoCreated(context.Background(), tmp, "blog", "proto", "blog", name)
+		require.EqualError(t, err, "component type with name post is already created (type Post exists)")
+	})
+
+	t.Run("should pass when proto type does not exist", func(t *testing.T) {
+		tmp := t.TempDir()
+		protoFile := filepath.Join(tmp, "proto", "blog", "blog", "v1", "comment.proto")
+		require.NoError(t, os.MkdirAll(filepath.Dir(protoFile), 0o755))
+
+		content := `syntax = "proto3";
+package blog.blog.v1;
+
+message Comment {}
+`
+		require.NoError(t, os.WriteFile(protoFile, []byte(content), 0o644))
+
+		name, err := multiformatname.NewName("post")
+		require.NoError(t, err)
+
+		require.NoError(t, checkTypeProtoCreated(context.Background(), tmp, "blog", "proto", "blog", name))
+	})
+}
+
+func TestCustomFieldType(t *testing.T) {
+	tests := []struct {
+		name      string
+		fieldType string
+		wantType  string
+		isCustom  bool
+	}{
+		{
+			name:      "built-in scalar type",
+			fieldType: "string",
+			isCustom:  false,
+		},
+		{
+			name:      "built-in array type",
+			fieldType: "array.string",
+			isCustom:  false,
+		},
+		{
+			name:      "custom scalar type",
+			fieldType: "ProductDetails",
+			wantType:  "ProductDetails",
+			isCustom:  true,
+		},
+		{
+			name:      "custom scalar type lower case",
+			fieldType: "productDetails",
+			wantType:  "ProductDetails",
+			isCustom:  true,
+		},
+		{
+			name:      "custom array type",
+			fieldType: "array.ProductDetails",
+			wantType:  "ProductDetails",
+			isCustom:  true,
+		},
+		{
+			name:      "custom array type lower case",
+			fieldType: "array.productDetails",
+			wantType:  "ProductDetails",
+			isCustom:  true,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			gotType, isCustom := customFieldType(tc.fieldType)
+			require.Equal(t, tc.isCustom, isCustom)
+			require.Equal(t, tc.wantType, gotType)
 		})
 	}
 }

@@ -60,14 +60,14 @@ func (e *JSONEncodingCreator) Create(rw io.ReadWriter) EncodeDecoder {
 	return NewEncoding(json.NewEncoder(rw), json.NewDecoder(rw))
 }
 
-// YAMLEncodingCreator implements EncodingCreator for JSON encoding.
+// YAMLEncodingCreator implements EncodingCreator for YAML encoding.
 type YAMLEncodingCreator struct{}
 
 func (e *YAMLEncodingCreator) Create(rw io.ReadWriter) EncodeDecoder {
 	return NewEncoding(yaml.NewEncoder(rw), yaml.NewDecoder(rw))
 }
 
-// TOMLEncodingCreator implements EncodingCreator for JSON encoding.
+// TOMLEncodingCreator implements EncodingCreator for TOML encoding.
 type TOMLEncodingCreator struct{}
 
 func (e *TOMLEncodingCreator) Create(rw io.ReadWriter) EncodeDecoder {

@@ -97,11 +97,32 @@ func ParseFields(
 			continue
 		}
 
+		if strings.HasPrefix(string(datatypeName), datatype.ArrayPrefix) {
+			customArrayType := strings.TrimPrefix(string(datatypeName), datatype.ArrayPrefix)
+			if _, ok := datatype.IsSupportedType(datatype.Name(customArrayType)); !ok {
+				parsedFields = append(parsedFields, Field{
+					Name:         name,
+					Datatype:     normalizeCustomTypeName(customArrayType),
+					DatatypeName: datatype.CustomSlice,
+				})
+				continue
+			}
+		}
+
 		parsedFields = append(parsedFields, Field{
 			Name:         name,
-			Datatype:     string(datatypeName),
+			Datatype:     normalizeCustomTypeName(string(datatypeName)),
 			DatatypeName: datatype.TypeCustom,
 		})
 	}
 	return parsedFields, nil
+}
+
+func normalizeCustomTypeName(customType string) string {
+	name, err := multiformatname.NewName(customType)
+	if err != nil {
+		return customType
+	}
+
+	return name.UpperCamel
 }

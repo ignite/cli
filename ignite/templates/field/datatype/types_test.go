@@ -70,6 +70,11 @@ func TestIsSupportedType(t *testing.T) {
 			ok:       true,
 		},
 		{
+			name:     "custom slice",
+			typename: datatype.CustomSlice,
+			ok:       true,
+		},
+		{
 			name:     "string slice alias",
 			typename: datatype.StringSliceAlias,
 			ok:       true,
