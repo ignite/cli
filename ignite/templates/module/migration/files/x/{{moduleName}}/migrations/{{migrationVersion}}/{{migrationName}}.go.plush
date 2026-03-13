@@ -1,0 +1,8 @@
+package <%= migrationVersion %>
+
+import sdk "github.com/cosmos/cosmos-sdk/types"
+
+// <%= migrationFunc %> performs in-place store migrations from version <%= fromVersion %> to <%= toVersion %>.
+func <%= migrationFunc %>(_ sdk.Context) error {
+	return nil
+}
