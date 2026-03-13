@@ -91,6 +91,46 @@ func TestGenerateAnAppWithListAndVerify(t *testing.T) {
 	)
 
 	app.Scaffold(
+		"create a list with lowercase custom field type",
+		false,
+		"list",
+		"custom-lower",
+		"document:document",
+		"--module",
+		"example",
+	)
+
+	app.Scaffold(
+		"create a list with custom array field type",
+		false,
+		"list",
+		"custom-array",
+		"documents:array.Document",
+		"--module",
+		"example",
+	)
+
+	app.Scaffold(
+		"create a list with lowercase custom array field type",
+		false,
+		"list",
+		"custom-array-lower",
+		"documents:array.document",
+		"--module",
+		"example",
+	)
+
+	app.Scaffold(
+		"should prevent creating a list with invalid custom array field type",
+		true,
+		"list",
+		"invalid-custom-array",
+		"documents:array.UnknownType",
+		"--module",
+		"example",
+	)
+
+	app.Scaffold(
 		"should prevent creating a list with duplicated fields",
 		true,
 		"list", "company", "name", "name",

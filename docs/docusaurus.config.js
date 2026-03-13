@@ -6,8 +6,8 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: "Ignite Cli Docs",
-  tagline: "Ignite Cli Docs",
+  title: "IGNITE® CLI Docs",
+  tagline: "IGNITE® CLI Docs",
   url: "https://docs.ignite.com",
   baseUrl: "/",
   onBrokenLinks: "warn",
@@ -89,7 +89,7 @@ const config = {
       image: "img/og-image.jpg",
       announcementBar: {
         content:
-          '<a target="_blank" rel="noopener noreferrer" href="https://ignite.com">← Back to Ignite</a>',
+          '<a target="_blank" rel="noopener noreferrer" href="https://ignite.com">← Back to IGNITE®</a>',
         isCloseable: false,
       },
       docs: {
@@ -100,7 +100,7 @@ const config = {
       navbar: {
         hideOnScroll: true,
         logo: {
-          alt: "Ignite Logo",
+          alt: "IGNITE® Logo",
           src: "img/header-logo-docs.svg",
           srcDark: "img/header-logo-docs-dark.svg",
         },
@@ -116,7 +116,7 @@ const config = {
           {
             href: "https://ignite.com",
             className: "ignt-backlink",
-            label: `Back to Ignite`,
+            label: `Back to IGNITE®`,
             position: "right",
           },
           {
@@ -157,11 +157,11 @@ const config = {
             title: "Products",
             items: [
               {
-                label: "Ignite CLI",
+                label: "IGNITE® CLI",
                 href: "https://ignite.com/cli",
               },
               {
-                label: "Ignite Apps",
+                label: "IGNITE® Apps",
                 href: "https://ignite.com/marketplace",
               },
             ],
@@ -170,7 +170,7 @@ const config = {
             title: "Company",
             items: [
               {
-                label: "About Ignite",
+                label: "About IGNITE®",
                 href: "https://ignite.com/about",
               },
               {
@@ -214,7 +214,7 @@ const config = {
             ],
           },
         ],
-        copyright: `<div>© Ignite ${new Date().getFullYear()}</div><div><a href="https://ignite.com/privacy">Privacy Policy</a><a href="https://ignite.com/terms-of-use">Terms of Use</a></div>`,
+        copyright: `<div>© IGNITE® ${new Date().getFullYear()}</div><div><a href="https://ignite.com/privacy">Privacy Policy</a><a href="https://ignite.com/terms-of-use">Terms of Use</a></div>`,
       },
       prism: {
         theme: lightCodeTheme,

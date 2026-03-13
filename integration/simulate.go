@@ -16,6 +16,12 @@ import (
 
 // testValue determines the default test value for a given datatype.
 func testValue(name datatype.Name) string {
+	// Repeated custom message fields in AutoCLI expect one JSON object per argument.
+	// Using "{}" keeps simulation compatible with both singular and repeated custom types.
+	if name == datatype.CustomSlice {
+		return "{}"
+	}
+
 	dt, _ := datatype.IsSupportedType(name)
 	return dt.DefaultTestValue
 }

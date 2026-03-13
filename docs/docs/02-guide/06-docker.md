@@ -1,18 +1,18 @@
 ---
-description: Run Ignite CLI using a Docker container.
+description: Run IGNITE® CLI using a Docker container.
 ---
 
 # Running inside a Docker container
 
-You can run Ignite CLI inside a Docker container without installing the Ignite
+You can run IGNITE® CLI inside a Docker container without installing the IGNITE®
 CLI binary directly on your machine.
 
-Running Ignite CLI in Docker can be useful for various reasons; isolating your
-test environment, running Ignite CLI on an unsupported operating system, or
-experimenting with a different version of Ignite CLI without installing it.
+Running IGNITE® CLI in Docker can be useful for various reasons; isolating your
+test environment, running IGNITE® CLI on an unsupported operating system, or
+experimenting with a different version of IGNITE® CLI without installing it.
 
 Docker containers are like virtual machines because they provide an isolated
-environment to programs that runs inside them. In this case, you can run Ignite
+environment to programs that runs inside them. In this case, you can run IGNITE®
 CLI in an isolated environment.
 
 Experimentation and file system impact is limited to the Docker instance. The
@@ -23,9 +23,9 @@ host machine is not impacted by changes to the container.
 Docker must be installed. See [Get Started with
 Docker](https://www.docker.com/get-started).
 
-## Ignite CLI Commands in Docker
+## IGNITE® CLI Commands in Docker
 
-After you scaffold and start a chain in your Docker container, all Ignite CLI
+After you scaffold and start a chain in your Docker container, all IGNITE® CLI
 commands are available. Just type the commands after `docker run -ti
 ignite/cli`. For example:
 
@@ -39,7 +39,7 @@ docker run -ti ignitehq/cli chain serve
 
 When Docker is installed, you can build a blockchain with a single command.
 
-Ignite CLI, and the chains you serve with Ignite CLI, persist some files. When
+IGNITE® CLI, and the chains you serve with IGNITE® CLI, persist some files. When
 using the CLI binary directly, those files are located in `$HOME/.ignite` and
 `$HOME/.cache`, but in the context of Docker it's better to use a directory
 different from `$HOME`, so we use `$HOME/sdh`. This folder should be created
@@ -61,7 +61,7 @@ Be patient, this command takes a minute or two to run because it does everything
 for you:
 
 - Creates a container that runs from the `ignitehq/cli:0.25.2` image.
-- Executes the Ignite CLI binary inside the image.
+- Executes the IGNITE® CLI binary inside the image.
 - `-v $HOME/sdh:/home/tendermint` maps the `$HOME/sdh` directory in your local
   computer (the host machine) to the home directory `/home/tendermint` inside
   the container.
@@ -108,13 +108,13 @@ This command does the following:
 
 ## Versioning
 
-You can specify which version of Ignite CLI to install and run in your Docker
+You can specify which version of IGNITE® CLI to install and run in your Docker
 container.
 
 ### Latest version
 
 - By default, `ignite/cli` resolves to `ignite/cli:latest`.
-- The `latest` image tag is always the latest stable [Ignite CLI
+- The `latest` image tag is always the latest stable [IGNITE® CLI
   release](https://github.com/ignite/cli/releases).
 
 For example, if latest release is
@@ -123,7 +123,7 @@ points to the `0.25.2` tag.
 
 ### Specific version
 
-You can specify to use a specific version of Ignite CLI. All available tags are
+You can specify to use a specific version of IGNITE® CLI. All available tags are
 in the [ignite/cli
 image](https://hub.docker.com/r/ignitehq/cli/tags?page=1&ordering=last_updated) on
 Docker Hub.

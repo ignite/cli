@@ -106,6 +106,35 @@ func checkComponentCreated(appPath, moduleName string, compName multiformatname.
 	return err
 }
 
+// checkTypeProtoCreated checks if the proto type already exists in the module proto package.
+func checkTypeProtoCreated(
+	ctx context.Context,
+	appPath, appName, protoDir, moduleName string,
+	compName multiformatname.Name,
+) error {
+	path := filepath.Join(appPath, protoDir, appName, moduleName)
+	pkgs, err := protoanalysis.Parse(ctx, protoanalysis.NewCache(), path)
+	if err != nil {
+		return err
+	}
+
+	for _, pkg := range pkgs {
+		for _, msg := range pkg.Messages {
+			if !strings.EqualFold(msg.Name, compName.PascalCase) {
+				continue
+			}
+
+			return errors.Errorf("component %s with name %s is already created (type %s exists)",
+				componentType,
+				compName.Original,
+				msg.Name,
+			)
+		}
+	}
+
+	return nil
+}
+
 // checkCustomTypes returns error if one of the types is invalid.
 func checkCustomTypes(ctx context.Context, appPath, appName, protoDir, module string, fields []string) error {
 	path := filepath.Join(appPath, protoDir, appName, module)
@@ -116,8 +145,9 @@ func checkCustomTypes(ctx context.Context, appPath, appName, protoDir, module st
 			continue
 		}
 
-		if _, ok := datatype.IsSupportedType(datatype.Name(ft)); !ok {
-			customFieldTypes = append(customFieldTypes, ft)
+		customType, ok := customFieldType(ft)
+		if ok {
+			customFieldTypes = append(customFieldTypes, customType)
 		}
 	}
 	return protoanalysis.HasMessages(ctx, path, customFieldTypes...)
@@ -204,7 +234,7 @@ func containsCustomTypes(fields []string) bool {
 			continue
 		}
 
-		if _, ok := datatype.IsSupportedType(datatype.Name(ft)); !ok {
+		if _, ok := customFieldType(ft); ok {
 			return true
 		}
 	}
@@ -219,4 +249,26 @@ func fieldType(field string) (fieldType string, isCustom bool) {
 	}
 
 	return fieldSplit[1], true
+}
+
+// customFieldType checks whether a field type is a custom type and returns its normalized message name.
+func customFieldType(fieldType string) (name string, isCustom bool) {
+	if _, ok := datatype.IsSupportedType(datatype.Name(fieldType)); ok {
+		return "", false
+	}
+
+	if strings.HasPrefix(fieldType, datatype.ArrayPrefix) {
+		return normalizeCustomTypeName(strings.TrimPrefix(fieldType, datatype.ArrayPrefix)), true
+	}
+
+	return normalizeCustomTypeName(fieldType), true
+}
+
+func normalizeCustomTypeName(customType string) string {
+	name, err := multiformatname.NewName(customType)
+	if err != nil {
+		return customType
+	}
+
+	return name.UpperCamel
 }
