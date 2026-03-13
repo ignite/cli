@@ -17,6 +17,8 @@ import (
 
 // TestGenerateAnApp tests scaffolding a new chain.
 func TestGenerateAnApp(t *testing.T) {
+	t.Parallel()
+
 	var (
 		env = envtest.New(t)
 		app = env.ScaffoldApp("github.com/test/blog")
@@ -30,6 +32,8 @@ func TestGenerateAnApp(t *testing.T) {
 
 // TestGenerateAnAppMinimal tests scaffolding a new minimal chain.
 func TestGenerateAnAppMinimal(t *testing.T) {
+	t.Parallel()
+
 	var (
 		env = envtest.New(t)
 		app = env.ScaffoldApp("blog", "--minimal")
@@ -43,6 +47,8 @@ func TestGenerateAnAppMinimal(t *testing.T) {
 
 // TestGenerateAnAppWithName tests scaffolding a new chain using a local name instead of a GitHub URI.
 func TestGenerateAnAppWithName(t *testing.T) {
+	t.Parallel()
+
 	var (
 		env = envtest.New(t)
 		app = env.ScaffoldApp("blog")
@@ -56,6 +62,8 @@ func TestGenerateAnAppWithName(t *testing.T) {
 
 // TestGenerateAnAppWithInvalidName tests scaffolding a new chain using an invalid name.
 func TestGenerateAnAppWithInvalidName(t *testing.T) {
+	t.Parallel()
+
 	buf := new(bytes.Buffer)
 
 	env := envtest.New(t)
@@ -72,6 +80,8 @@ func TestGenerateAnAppWithInvalidName(t *testing.T) {
 }
 
 func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
+	t.Parallel()
+
 	var (
 		env = envtest.New(t)
 		app = env.ScaffoldApp("github.com/test/blog", "--no-module")
@@ -84,6 +94,8 @@ func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
 }
 
 func TestGenerateAnAppWithNoDefaultModuleAndCreateAModule(t *testing.T) {
+	t.Parallel()
+
 	var (
 		env = envtest.New(t)
 		app = env.ScaffoldApp("github.com/test/blog", "--no-module")
@@ -99,6 +111,8 @@ func TestGenerateAnAppWithNoDefaultModuleAndCreateAModule(t *testing.T) {
 }
 
 func TestGenerateAppWithEmptyModule(t *testing.T) {
+	t.Parallel()
+
 	var (
 		env = envtest.New(t)
 		app = env.ScaffoldApp("github.com/test/blog")
@@ -174,6 +188,8 @@ func TestGenerateAppWithEmptyModule(t *testing.T) {
 }
 
 func TestGenerateAnAppWithAddressPrefix(t *testing.T) {
+	t.Parallel()
+
 	var (
 		env = envtest.New(t)
 		app = env.ScaffoldApp("github.com/test/blog", "--address-prefix=gm", "--coin-type=60")
@@ -198,6 +214,8 @@ func TestGenerateAnAppWithAddressPrefix(t *testing.T) {
 }
 
 func TestGenerateAnAppWithDefaultDenom(t *testing.T) {
+	t.Parallel()
+
 	var (
 		env = envtest.New(t)
 		app = env.ScaffoldApp("github.com/test/blog", "--default-denom=good")
@@ -218,6 +236,8 @@ func TestGenerateAnAppWithDefaultDenom(t *testing.T) {
 }
 
 func TestScaffoldModuleWithUnderscoreAppName(t *testing.T) {
+	t.Parallel()
+
 	var (
 		env = envtest.New(t)
 		app = env.ScaffoldApp("github.com/test/space_chain")

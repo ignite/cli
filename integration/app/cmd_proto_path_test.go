@@ -58,6 +58,8 @@ var (
 )
 
 func TestChangeProtoPath(t *testing.T) {
+	t.Parallel()
+
 	var (
 		env     = envtest.New(t)
 		app     = env.ScaffoldApp("github.com/test/protopath", "--proto-dir", newProtoPath)
