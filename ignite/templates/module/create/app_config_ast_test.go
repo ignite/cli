@@ -28,3 +28,13 @@ func TestAddModuleToLegacyAppConfig(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 4, strings.Count(normalizedExpr(modified), "venusmoduletypes.ModuleName"))
 }
+
+func TestAddModuleToAppConfigWithSkipConfig(t *testing.T) {
+	content := readFixture(t, "../../app/files/app/app_config.go.plush")
+
+	modified, err := AddModuleToAppConfig(content, "blog", SkipConfigEntry())
+	require.NoError(t, err)
+	normalized := normalizedExpr(modified)
+	require.Equal(t, 3, strings.Count(normalized, "blogmoduletypes.ModuleName"))
+	require.NotContains(t, normalized, "Config:appconfig.WrapAny(&blogmoduletypes.Module{}),")
+}

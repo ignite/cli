@@ -12,9 +12,38 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
+type addModuleAppConfigOptions struct {
+	skipConfig    bool
+	runtimeFields []string
+}
+
+type AddModuleAppConfigOption func(*addModuleAppConfigOptions)
+
+func SkipConfigEntry() AddModuleAppConfigOption {
+	return func(opts *addModuleAppConfigOptions) {
+		opts.skipConfig = true
+	}
+}
+
+// SpecifyModuleEntry allows to define to which field the module should be added in the app config.
+// E.g. "PreBlockers", "InitGenesis", "BeginBlockers", "EndBlockers"
+func SpecifyModuleEntry(fields ...string) AddModuleAppConfigOption {
+	return func(opts *addModuleAppConfigOptions) {
+		opts.runtimeFields = fields
+	}
+}
+
 // AddModuleToAppConfig appends a given module to the chain app config.
-// TODO: Eventually add variadic options to specify adding before or after a module.
-func AddModuleToAppConfig(content, moduleName string) (string, error) {
+func AddModuleToAppConfig(content, moduleName string, opts ...AddModuleAppConfigOption) (string, error) {
+	options := addModuleAppConfigOptions{}
+	for _, opt := range opts {
+		opt(&options)
+	}
+	return AddModuleToAppConfigWithOptions(content, moduleName, options)
+}
+
+// AddModuleToAppConfigWithOptions appends a given module to the chain app config with options.
+func AddModuleToAppConfigWithOptions(content, moduleName string, opts addModuleAppConfigOptions) (string, error) {
 	fileSet := token.NewFileSet()
 	file, err := parser.ParseFile(fileSet, "", content, parser.ParseComments)
 	if err != nil {
@@ -37,14 +66,21 @@ func AddModuleToAppConfig(content, moduleName string) (string, error) {
 		return "", err
 	}
 
-	for _, fieldName := range []string{"InitGenesis", "BeginBlockers", "EndBlockers"} {
+	fields := opts.runtimeFields
+	if len(fields) == 0 {
+		fields = []string{"InitGenesis", "BeginBlockers", "EndBlockers"}
+	}
+
+	for _, fieldName := range fields {
 		if err := appendModuleNameToRuntimeField(file, runtimeModuleLit, fieldName, moduleName, fileSet); err != nil {
 			return "", err
 		}
 	}
 
-	if err := appendModuleConfigEntry(file, modulesField.Value, moduleName, fileSet); err != nil {
-		return "", err
+	if !opts.skipConfig {
+		if err := appendModuleConfigEntry(file, modulesField.Value, moduleName, fileSet); err != nil {
+			return "", err
+		}
 	}
 
 	file.Comments = commentMap.Filter(file).Comments()
