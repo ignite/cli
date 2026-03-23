@@ -21,7 +21,7 @@ $ ignite scaffold chain example
 
 Announcements:
 
-⋆ A new release has appeared! v29.8.0 has just been released :)
+⋆ A new release has appeared! v29.9.0 has just been released :)
 ⋆ Satisfied with Ignite? Or totally fed-up with it? Tell us: https://bit.ly/3WZS2uS
 
 
