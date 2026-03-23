@@ -12,7 +12,9 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
-func addModuleToAppConfig(content, moduleName string) (string, error) {
+// AddModuleToAppConfig appends a given module to the chain app config.
+// TODO: Eventually add variadic options to specify adding before or after a module.
+func AddModuleToAppConfig(content, moduleName string) (string, error) {
 	fileSet := token.NewFileSet()
 	file, err := parser.ParseFile(fileSet, "", content, parser.ParseComments)
 	if err != nil {
