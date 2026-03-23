@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [`v29.9.1`](https://github.com/ignite/cli/releases/tag/v29.9.1)
+
 ### Changes
 
 - [#4901](https://github.com/ignite/cli/pull/4901) Enable automatic switching to daemon mode when not a terminal.
