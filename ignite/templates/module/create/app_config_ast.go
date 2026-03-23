@@ -13,7 +13,8 @@ import (
 )
 
 type addModuleAppConfigOptions struct {
-	skipConfig bool
+	skipConfig    bool
+	runtimeFields []string
 }
 
 type AddModuleAppConfigOption func(*addModuleAppConfigOptions)
@@ -21,6 +22,14 @@ type AddModuleAppConfigOption func(*addModuleAppConfigOptions)
 func SkipConfigEntry() AddModuleAppConfigOption {
 	return func(opts *addModuleAppConfigOptions) {
 		opts.skipConfig = true
+	}
+}
+
+// SpecifyModuleEntry allows to define to which field the module should be added in the app config.
+// E.g. "PreBlockers", "InitGenesis", "BeginBlockers", "EndBlockers"
+func SpecifyModuleEntry(fields ...string) AddModuleAppConfigOption {
+	return func(opts *addModuleAppConfigOptions) {
+		opts.runtimeFields = fields
 	}
 }
 
@@ -57,7 +66,12 @@ func AddModuleToAppConfigWithOptions(content, moduleName string, opts addModuleA
 		return "", err
 	}
 
-	for _, fieldName := range []string{"InitGenesis", "BeginBlockers", "EndBlockers"} {
+	fields := opts.runtimeFields
+	if len(fields) == 0 {
+		fields = []string{"InitGenesis", "BeginBlockers", "EndBlockers"}
+	}
+
+	for _, fieldName := range fields {
 		if err := appendModuleNameToRuntimeField(file, runtimeModuleLit, fieldName, moduleName, fileSet); err != nil {
 			return "", err
 		}
