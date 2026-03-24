@@ -80,3 +80,59 @@ func TestPackage_ModuleName(t *testing.T) {
 		})
 	}
 }
+
+func TestPackage_MessageByName(t *testing.T) {
+	pkg := Package{
+		Name: "foo.bar",
+		Messages: []Message{
+			{Name: "Request"},
+			{Name: "Outer_Inner"},
+		},
+	}
+
+	tests := []struct {
+		name        string
+		messageName string
+		want        string
+		wantErr     error
+	}{
+		{
+			name:        "plain name",
+			messageName: "Request",
+			want:        "Request",
+		},
+		{
+			name:        "qualified name",
+			messageName: ".foo.bar.Request",
+			want:        "Request",
+		},
+		{
+			name:        "nested qualified name",
+			messageName: ".foo.bar.Outer.Inner",
+			want:        "Outer_Inner",
+		},
+		{
+			name:        "nested leaf name",
+			messageName: "Inner",
+			want:        "Outer_Inner",
+		},
+		{
+			name:        "missing name",
+			messageName: "Missing",
+			wantErr:     ErrMessageNotFound,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			message, err := pkg.MessageByName(tt.messageName)
+			if tt.wantErr != nil {
+				require.ErrorIs(t, err, tt.wantErr)
+				return
+			}
+
+			require.NoError(t, err)
+			require.Equal(t, tt.want, message.Name)
+		})
+	}
+}

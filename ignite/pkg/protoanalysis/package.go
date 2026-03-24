@@ -39,6 +39,9 @@ type (
 
 var regexBetaVersion = regexp.MustCompile("^v[0-9]+(beta|alpha)[0-9]+")
 
+// ErrMessageNotFound is returned when a proto message cannot be found in a package.
+var ErrMessageNotFound = errors.New("no message found")
+
 // ModuleName retrieves the single module name of the package.
 func (p Package) ModuleName() (name string) {
 	names := strings.Split(p.Name, ".")
@@ -53,12 +56,41 @@ func (p Package) ModuleName() (name string) {
 
 // MessageByName finds a message by its name inside Package.
 func (p Package) MessageByName(name string) (Message, error) {
-	for _, message := range p.Messages {
-		if message.Name == name {
-			return message, nil
+	message, ok := p.FindMessageByName(name)
+	if !ok {
+		return Message{}, ErrMessageNotFound
+	}
+
+	return message, nil
+}
+
+// FindMessageByName finds a message by its name inside Package.
+// It accepts plain message names, current-package qualified names and nested message names.
+func (p Package) FindMessageByName(name string) (Message, bool) {
+	for _, candidate := range candidateMessageNames(p.Name, name) {
+		for _, message := range p.Messages {
+			if message.Name == candidate {
+				return message, true
+			}
 		}
 	}
-	return Message{}, errors.New("no message found")
+
+	if !strings.Contains(strings.TrimPrefix(name, "."), ".") {
+		leafName := leafMessageName(name)
+
+		var leafMatches []Message
+		for _, message := range p.Messages {
+			if leafMessageName(message.Name) == leafName {
+				leafMatches = append(leafMatches, message)
+			}
+		}
+
+		if len(leafMatches) == 1 {
+			return leafMatches[0], true
+		}
+	}
+
+	return Message{}, false
 }
 
 // GoImportPath retrieves the Go import path.
@@ -86,6 +118,38 @@ type (
 		Dependencies []string `json:"dependencies,omitempty"`
 	}
 )
+
+func candidateMessageNames(pkgName, name string) []string {
+	candidates := []string{name}
+
+	canonical := canonicalMessageName(pkgName, name)
+	if canonical != "" && canonical != name {
+		candidates = append(candidates, canonical)
+	}
+
+	return candidates
+}
+
+func canonicalMessageName(pkgName, name string) string {
+	name = strings.TrimPrefix(name, ".")
+	if pkgName != "" {
+		name = strings.TrimPrefix(name, pkgName+".")
+	}
+
+	return strings.ReplaceAll(name, ".", "_")
+}
+
+func leafMessageName(name string) string {
+	if index := strings.LastIndex(name, "_"); index >= 0 {
+		return name[index+1:]
+	}
+
+	if index := strings.LastIndex(name, "."); index >= 0 {
+		return name[index+1:]
+	}
+
+	return name
+}
 
 // Paths retrieves the list of paths from the files.
 func (f Files) Paths() []string {

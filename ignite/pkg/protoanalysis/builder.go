@@ -117,15 +117,7 @@ func (b builder) elementsToRPCFunc(elems []proto.Visitee) (rpcFuncs []RPCFunc) {
 			continue
 		}
 
-		var requestMessage *proto.Message
-
-		for _, message := range b.p.messages() {
-			if message.Name != rpc.RequestType {
-				continue
-			}
-			requestMessage = message
-		}
-
+		requestMessage := findProtoMessageByTypeName(b.p.name, b.p.messages(), rpc.RequestType)
 		if requestMessage == nil {
 			continue
 		}
@@ -157,6 +149,38 @@ func (b builder) elementsToHTTPRules(requestMessage *proto.Message, elems []prot
 	}
 
 	return
+}
+
+func findProtoMessageByTypeName(pkgName string, messages []*proto.Message, typeName string) *proto.Message {
+	var exactMatch *proto.Message
+
+	canonicalTypeName := canonicalMessageName(pkgName, typeName)
+	for _, message := range messages {
+		if message.Name == typeName {
+			exactMatch = message
+		}
+
+		if flattenProtoMessageName(message) == canonicalTypeName {
+			return message
+		}
+	}
+
+	return exactMatch
+}
+
+func flattenProtoMessageName(message *proto.Message) string {
+	name := message.Name
+	for parent := message.Parent; parent != nil; {
+		parentMessage, ok := parent.(*proto.Message)
+		if !ok {
+			break
+		}
+
+		name = fmt.Sprintf("%s_%s", parentMessage.Name, name)
+		parent = parentMessage.Parent
+	}
+
+	return name
 }
 
 // Regexp to extract HTTP rule URL parameter names.
