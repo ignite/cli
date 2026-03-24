@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- [#4910](https://github.com/ignite/cli/pull/4910) Resolve qualified and nested RPC request messages.
+
 ## [`v29.9.2`](https://github.com/ignite/cli/releases/tag/v29.9.2)
 
 - [#4904](https://github.com/ignite/cli/pull/4904) Add variadic options in `modulecreate.AddModuleToAppConfig`.
