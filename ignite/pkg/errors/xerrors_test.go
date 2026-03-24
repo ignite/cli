@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"context"
 	stdErrors "errors"
 	"testing"
 
@@ -54,4 +55,17 @@ func TestJoinUnwrapAs(t *testing.T) {
 func TestWithStack(t *testing.T) {
 	base := stdErrors.New("base")
 	require.True(t, Is(WithStack(base), base))
+}
+
+func TestShouldCaptureException(t *testing.T) {
+	t.Run("canceled errors are ignored", func(t *testing.T) {
+		require.False(t, shouldCaptureException(context.Canceled))
+		require.False(t, shouldCaptureException(Wrap(context.Canceled, "prefix")))
+		require.False(t, shouldCaptureException(Wrapf(context.Canceled, "prefix %s", "x")))
+		require.False(t, shouldCaptureException(WithStack(context.Canceled)))
+	})
+
+	t.Run("other errors are reported", func(t *testing.T) {
+		require.True(t, shouldCaptureException(stdErrors.New("boom")))
+	})
 }
