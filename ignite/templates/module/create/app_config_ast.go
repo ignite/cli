@@ -26,7 +26,7 @@ func SkipConfigEntry() AddModuleAppConfigOption {
 }
 
 // SpecifyModuleEntry allows to define to which field the module should be added in the app config.
-// E.g. "PreBlockers", "InitGenesis", "BeginBlockers", "EndBlockers"
+// E.g. "PreBlockers", "InitGenesis", "BeginBlockers", "EndBlockers".
 func SpecifyModuleEntry(fields ...string) AddModuleAppConfigOption {
 	return func(opts *addModuleAppConfigOptions) {
 		opts.runtimeFields = fields
