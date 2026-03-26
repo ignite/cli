@@ -10,7 +10,7 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/blang/semver/v4 v4.0.0
 	github.com/briandowns/spinner v1.23.2
-	github.com/buger/jsonparser v1.1.1
+	github.com/buger/jsonparser v1.1.2
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/charmbracelet/bubbles v0.21.0
 	github.com/charmbracelet/bubbletea v1.3.5
