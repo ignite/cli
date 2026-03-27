@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## Features
+
+- [#4902](https://github.com/ignite/cli/pull/4902) Scaffold migrations.
+
 ### Changes
 
 - [#4901](https://github.com/ignite/cli/pull/4901) Enable automatic switching to daemon mode when not a terminal.
