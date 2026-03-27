@@ -3,17 +3,14 @@ package modulemigration
 import (
 	"fmt"
 	"path/filepath"
-
-	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
 )
 
 // Options represents the options to scaffold a module migration.
 type Options struct {
-	ModuleName    string
-	ModulePath    string
-	MigrationName multiformatname.Name
-	FromVersion   uint64
-	ToVersion     uint64
+	ModuleName  string
+	ModulePath  string
+	FromVersion uint64
+	ToVersion   uint64
 }
 
 // ModuleFile returns the path to the module definition file.
@@ -33,12 +30,12 @@ func (opts Options) MigrationDir() string {
 
 // MigrationFile returns the path to the migration source file.
 func (opts Options) MigrationFile() string {
-	return filepath.Join(opts.MigrationDir(), fmt.Sprintf("%s.go", opts.MigrationName.Snake))
+	return filepath.Join(opts.MigrationDir(), "migrate.go")
 }
 
 // MigrationFunc returns the migration handler function name.
 func (opts Options) MigrationFunc() string {
-	return fmt.Sprintf("Migrate%s", opts.MigrationName.PascalCase)
+	return "Migrate"
 }
 
 // MigrationImportAlias returns the import alias used by module.go.

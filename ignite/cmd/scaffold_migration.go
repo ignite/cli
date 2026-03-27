@@ -12,14 +12,14 @@ import (
 // NewScaffoldMigration returns the command to scaffold a module migration.
 func NewScaffoldMigration() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "migration [module] [name]",
+		Use:   "migration [module]",
 		Short: "Module migration boilerplate",
 		Long: `Scaffold no-op migration boilerplate for an existing Cosmos SDK module.
 
 This command creates a new migration file in "x/<module>/migrations/vN/",
 increments the module consensus version, and registers the new migration handler
 inside "x/<module>/module/module.go".`,
-		Args:    cobra.ExactArgs(2),
+		Args:    cobra.ExactArgs(1),
 		PreRunE: migrationPreRunHandler,
 		RunE:    scaffoldMigrationHandler,
 	}
@@ -32,9 +32,8 @@ inside "x/<module>/module/module.go".`,
 
 func scaffoldMigrationHandler(cmd *cobra.Command, args []string) error {
 	var (
-		moduleName    = args[0]
-		migrationName = args[1]
-		appPath       = flagGetPath(cmd)
+		moduleName = args[0]
+		appPath    = flagGetPath(cmd)
 	)
 
 	session := cliui.New(
@@ -53,7 +52,7 @@ func scaffoldMigrationHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := sc.CreateModuleMigration(moduleName, migrationName); err != nil {
+	if err := sc.CreateModuleMigration(moduleName); err != nil {
 		return err
 	}
 
@@ -72,7 +71,7 @@ func scaffoldMigrationHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	session.Println(modificationsStr)
-	session.Printf("\n🎉 Migration %s added to module %s.\n\n", migrationName, moduleName)
+	session.Printf("\n🎉 Migration added to module %s.\n\n", moduleName)
 
 	return nil
 }

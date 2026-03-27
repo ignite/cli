@@ -10,20 +10,12 @@ import (
 )
 
 // CreateModuleMigration scaffolds a new module migration inside an existing module.
-func (s Scaffolder) CreateModuleMigration(moduleName, migrationName string) error {
+func (s Scaffolder) CreateModuleMigration(moduleName string) error {
 	mfModuleName, err := multiformatname.NewName(moduleName, multiformatname.NoNumber)
 	if err != nil {
 		return err
 	}
 	moduleName = mfModuleName.LowerCase
-
-	mfMigrationName, err := multiformatname.NewName(migrationName)
-	if err != nil {
-		return err
-	}
-	if err := checkGoReservedWord(mfMigrationName.LowerCamel); err != nil {
-		return errors.Errorf("%s can't be used as a migration name: %w", migrationName, err)
-	}
 
 	ok, err := moduleExists(s.appPath, moduleName)
 	if err != nil {
@@ -45,11 +37,10 @@ func (s Scaffolder) CreateModuleMigration(moduleName, migrationName string) erro
 	}
 
 	opts := &modulemigration.Options{
-		ModuleName:    moduleName,
-		ModulePath:    s.modpath.RawPath,
-		MigrationName: mfMigrationName,
-		FromVersion:   fromVersion,
-		ToVersion:     fromVersion + 1,
+		ModuleName:  moduleName,
+		ModulePath:  s.modpath.RawPath,
+		FromVersion: fromVersion,
+		ToVersion:   fromVersion + 1,
 	}
 
 	versionDir := filepath.Join(s.appPath, opts.MigrationDir())

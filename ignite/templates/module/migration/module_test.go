@@ -5,17 +5,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-
-	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
 )
 
 func TestUpdateModuleAddsInitialMigration(t *testing.T) {
 	opts := &Options{
-		ModuleName:    "blog",
-		ModulePath:    "github.com/test/blog",
-		MigrationName: multiformatname.MustNewName("initial-state"),
-		FromVersion:   1,
-		ToVersion:     2,
+		ModuleName:  "blog",
+		ModulePath:  "github.com/test/blog",
+		FromVersion: 1,
+		ToVersion:   2,
 	}
 
 	got, err := updateModule(moduleWithServiceRegistrar(`
@@ -34,17 +31,16 @@ func (AppModule) ConsensusVersion() uint64 { return 1 }
 	require.Contains(t, normalized, `migrationv2"github.com/test/blog/x/blog/migrations/v2"`)
 	require.Contains(t, normalized, `cfg,ok:=registrar.(module.Configurator)`)
 	require.Contains(t, normalized, `if!ok{returnnil}`)
-	require.Contains(t, normalized, `cfg.RegisterMigration(types.ModuleName,1,migrationv2.MigrateInitialState)`)
+	require.Contains(t, normalized, `cfg.RegisterMigration(types.ModuleName,1,migrationv2.Migrate)`)
 	require.Contains(t, normalized, `func(AppModule)ConsensusVersion()uint64{return2}`)
 }
 
 func TestUpdateModuleAppendsMigrationToExistingConfiguratorBlock(t *testing.T) {
 	opts := &Options{
-		ModuleName:    "blog",
-		ModulePath:    "github.com/test/blog",
-		MigrationName: multiformatname.MustNewName("add-index"),
-		FromVersion:   2,
-		ToVersion:     3,
+		ModuleName:  "blog",
+		ModulePath:  "github.com/test/blog",
+		FromVersion: 2,
+		ToVersion:   3,
 	}
 
 	got, err := updateModule(moduleWithServiceRegistrar(`
@@ -57,7 +53,7 @@ func (am AppModule) RegisterServices(registrar grpc.ServiceRegistrar) error {
 		return nil
 	}
 
-	if err := cfg.RegisterMigration(types.ModuleName, 1, migrationv2.MigrateInitialState); err != nil {
+	if err := cfg.RegisterMigration(types.ModuleName, 1, migrationv2.Migrate); err != nil {
 		return err
 	}
 
@@ -71,18 +67,17 @@ func (AppModule) ConsensusVersion() uint64 { return 2 }
 	normalized := normalize(got)
 	require.Equal(t, 1, strings.Count(normalized, `registrar.(module.Configurator)`))
 	require.Contains(t, normalized, `migrationv3"github.com/test/blog/x/blog/migrations/v3"`)
-	require.Contains(t, normalized, `cfg.RegisterMigration(types.ModuleName,1,migrationv2.MigrateInitialState)`)
-	require.Contains(t, normalized, `cfg.RegisterMigration(types.ModuleName,2,migrationv3.MigrateAddIndex)`)
+	require.Contains(t, normalized, `cfg.RegisterMigration(types.ModuleName,1,migrationv2.Migrate)`)
+	require.Contains(t, normalized, `cfg.RegisterMigration(types.ModuleName,2,migrationv3.Migrate)`)
 	require.Contains(t, normalized, `func(AppModule)ConsensusVersion()uint64{return3}`)
 }
 
 func TestUpdateModuleSupportsConfiguratorSignatureAndConstantVersion(t *testing.T) {
 	opts := &Options{
-		ModuleName:    "blog",
-		ModulePath:    "github.com/test/blog",
-		MigrationName: multiformatname.MustNewName("normalize-data"),
-		FromVersion:   2,
-		ToVersion:     3,
+		ModuleName:  "blog",
+		ModulePath:  "github.com/test/blog",
+		FromVersion: 2,
+		ToVersion:   3,
 	}
 
 	got, err := updateModule(moduleWithConfigurator(`
@@ -99,8 +94,8 @@ func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
 
 	normalized := normalize(got)
 	require.NotContains(t, normalized, `registrar.(module.Configurator)`)
-	require.Contains(t, normalized, `cfg.RegisterMigration(types.ModuleName,2,migrationv3.MigrateNormalizeData)`)
-	require.Contains(t, normalized, `iferr:=cfg.RegisterMigration(types.ModuleName,2,migrationv3.MigrateNormalizeData);err!=nil{panic(err)}`)
+	require.Contains(t, normalized, `cfg.RegisterMigration(types.ModuleName,2,migrationv3.Migrate)`)
+	require.Contains(t, normalized, `iferr:=cfg.RegisterMigration(types.ModuleName,2,migrationv3.Migrate);err!=nil{panic(err)}`)
 	require.Contains(t, normalized, `constConsensusVersion=3`)
 
 	version, err := ConsensusVersion(got)

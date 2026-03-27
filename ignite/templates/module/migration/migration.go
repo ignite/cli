@@ -25,13 +25,11 @@ func NewGenerator(opts *Options) (*genny.Generator, error) {
 	ctx := plush.NewContext()
 	ctx.Set("fromVersion", opts.FromVersion)
 	ctx.Set("migrationFunc", opts.MigrationFunc())
-	ctx.Set("migrationName", opts.MigrationName)
 	ctx.Set("migrationVersion", opts.MigrationVersion())
 	ctx.Set("moduleName", opts.ModuleName)
 	ctx.Set("toVersion", opts.ToVersion)
 
 	g.Transformer(xgenny.Transformer(ctx))
-	g.Transformer(genny.Replace("{{migrationName}}", opts.MigrationName.Snake))
 	g.Transformer(genny.Replace("{{migrationVersion}}", opts.MigrationVersion()))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.RunFn(moduleModify(opts))
