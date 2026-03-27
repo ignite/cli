@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- [#4910](https://github.com/ignite/cli/pull/4910) Resolve qualified and nested RPC request messages.
 - [#4909](https://github.com/ignite/cli/pull/4909) Ignore `context.Canceled` errors in Sentry reporting.
 
 ## [`v29.9.2`](https://github.com/ignite/cli/releases/tag/v29.9.2)
