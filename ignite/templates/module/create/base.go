@@ -90,7 +90,7 @@ func appConfigModify(opts *CreateOptions) genny.RunFn {
 			return err
 		}
 
-		content, err = addModuleToAppConfig(content, opts.ModuleName)
+		content, err = AddModuleToAppConfig(content, opts.ModuleName)
 		if err != nil {
 			return err
 		}

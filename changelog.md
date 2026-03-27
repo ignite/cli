@@ -6,6 +6,16 @@
 
 - [#4902](https://github.com/ignite/cli/pull/4902) Scaffold migrations.
 
+### Fixes
+
+- [#4909](https://github.com/ignite/cli/pull/4909) Ignore `context.Canceled` errors in Sentry reporting.
+
+## [`v29.9.2`](https://github.com/ignite/cli/releases/tag/v29.9.2)
+
+- [#4904](https://github.com/ignite/cli/pull/4904) Add variadic options in `modulecreate.AddModuleToAppConfig`.
+
+## [`v29.9.1`](https://github.com/ignite/cli/releases/tag/v29.9.1)
+
 ### Changes
 
 - [#4901](https://github.com/ignite/cli/pull/4901) Enable automatic switching to daemon mode when not a terminal.
