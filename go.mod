@@ -28,7 +28,7 @@ require (
 	github.com/ettle/strcase v0.2.0
 	github.com/getsentry/sentry-go v0.35.0
 	github.com/go-delve/delve v1.24.0
-	github.com/go-git/go-git/v5 v5.16.5
+	github.com/go-git/go-git/v5 v5.17.1
 	github.com/go-openapi/analysis v0.23.0
 	github.com/go-openapi/loads v0.22.0
 	github.com/go-openapi/spec v0.21.0
@@ -212,7 +212,7 @@ require (
 	github.com/go-critic/go-critic v0.12.0 // indirect
 	github.com/go-delve/liner v1.2.3-0.20231231155935-4726ab1d7f62 // indirect
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
-	github.com/go-git/go-billy/v5 v5.6.2 // indirect
+	github.com/go-git/go-billy/v5 v5.8.0 // indirect
 	github.com/go-kit/kit v0.13.0 // indirect
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
