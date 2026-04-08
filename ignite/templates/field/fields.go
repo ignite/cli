@@ -73,7 +73,7 @@ func (f Fields) CLIUsage() string {
 func (f Fields) Custom() []string {
 	fields := make([]string, 0)
 	for _, field := range f {
-		if field.DatatypeName == datatype.TypeCustom {
+		if field.DatatypeName == datatype.Custom || field.DatatypeName == datatype.CustomSlice {
 			dataType, err := multiformatname.NewName(field.Datatype)
 			if err != nil {
 				panic(err)

@@ -8,7 +8,6 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/randstr"
 	"github.com/ignite/cli/v29/ignite/pkg/xos"
 )
@@ -16,7 +15,6 @@ import (
 type Runner struct {
 	*genny.Runner
 	ctx     context.Context
-	tracer  *placeholder.Tracer
 	results []genny.File
 	tmpPath string
 	root    string
@@ -33,7 +31,6 @@ func NewRunner(ctx context.Context, root string) *Runner {
 		ctx:     ctx,
 		Runner:  runner,
 		tmpPath: tmpPath,
-		tracer:  placeholder.New(),
 		results: make([]genny.File, 0),
 		root:    root,
 	}
@@ -48,10 +45,6 @@ func (r *Runner) cleanup() {
 	runner.Root = r.root
 	runner.FileFn = wetFileFn(r)
 	r.Runner = runner
-}
-
-func (r *Runner) Tracer() *placeholder.Tracer {
-	return r.tracer
 }
 
 type (
@@ -168,7 +161,7 @@ func (r *Runner) Run(gens ...*genny.Generator) error {
 	// reset again so a future Run call starts fresh
 	r.cleanup()
 
-	return r.tracer.Err()
+	return nil
 }
 
 func wetFileFn(runner *Runner) func(genny.File) (genny.File, error) {

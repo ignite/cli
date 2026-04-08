@@ -425,5 +425,8 @@ func (p *Plugin) outdatedBinary() bool {
 		fmt.Printf("error while walking app source path %q\n", p.srcPath)
 		return false
 	}
-	return mostRecent.After(binaryTime)
+	// Rebuild when source files are newer OR have the same timestamp as the binary.
+	// In some environments (such as fresh CI checkouts), mtimes can be normalized
+	// to identical values, and strict "after" checks may incorrectly reuse stale binaries.
+	return !mostRecent.Before(binaryTime)
 }

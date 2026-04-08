@@ -8,7 +8,6 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/templates/field"
 	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
 	"github.com/ignite/cli/v29/ignite/templates/typed"
@@ -73,7 +72,11 @@ func SingletonType() AddTypeKind {
 
 // DryType only creates a type with a basic definition.
 func DryType() AddTypeKind {
-	return func(*addTypeOptions) {}
+	return func(o *addTypeOptions) {
+		// Dry type scaffolding only adds a proto type definition and never generates CRUD messages.
+		// Force this option so component validity checks don't treat existing Msg* types as conflicts.
+		o.withoutMessage = true
+	}
 }
 
 // TypeWithModule module to scaffold type into.
@@ -141,6 +144,9 @@ func (s Scaffolder) AddType(
 	if err := checkComponentValidity(s.appPath, moduleName, name, o.withoutMessage); err != nil {
 		return err
 	}
+	if err := checkTypeProtoCreated(ctx, s.appPath, s.modpath.Package, s.protoDir, moduleName, name); err != nil {
+		return err
+	}
 
 	// Check and parse provided fields
 	if err := checkCustomTypes(ctx, s.appPath, s.modpath.Package, s.protoDir, moduleName, o.fields); err != nil {
@@ -182,11 +188,11 @@ func (s Scaffolder) AddType(
 	// create the type generator depending on the model
 	switch {
 	case o.isList:
-		g, err = list.NewGenerator(s.Tracer(), opts)
+		g, err = list.NewGenerator(opts)
 	case o.isMap:
-		g, err = mapGenerator(s.Tracer(), opts, o.index)
+		g, err = mapGenerator(opts, o.index)
 	case o.isSingleton:
-		g, err = singleton.NewGenerator(s.Tracer(), opts)
+		g, err = singleton.NewGenerator(opts)
 	default:
 		g, err = dry.NewGenerator(opts)
 	}
@@ -252,7 +258,7 @@ func parseTypeFields(opts addTypeOptions) (field.Fields, error) {
 }
 
 // mapGenerator returns the template generator for a map.
-func mapGenerator(replacer placeholder.Replacer, opts *typed.Options, index string) (*genny.Generator, error) {
+func mapGenerator(opts *typed.Options, index string) (*genny.Generator, error) {
 	// Parse indexes with the associated type
 	if strings.Contains(index, ",") {
 		return nil, errors.Errorf("multi-index map isn't supported")
@@ -278,5 +284,5 @@ func mapGenerator(replacer placeholder.Replacer, opts *typed.Options, index stri
 	}
 
 	opts.Index = parsedIndexes[0]
-	return maptype.NewGenerator(replacer, opts)
+	return maptype.NewGenerator(opts)
 }

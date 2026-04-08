@@ -269,8 +269,8 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 	// fill queries & messages.
 	for _, s := range pkg.Services {
 		for _, q := range s.RPCFuncs {
-			pkgmsg, err := pkg.MessageByName(q.RequestType)
-			if err != nil {
+			pkgmsg, ok := pkg.FindMessageByName(q.RequestType)
+			if !ok {
 				// no msg found in the proto defs corresponds to discovered sdk message.
 				// if it cannot be found, nothing to worry about, this means that it is used
 				// only internally and not open for actual use.

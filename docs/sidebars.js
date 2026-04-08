@@ -24,12 +24,12 @@ const sidebars = {
       items: [
         {
           type: "link",
-          label: "Ignite CLI on Github",
+          label: "IGNITE® CLI on Github",
           href: "https://github.com/ignite/cli",
         },
         {
           type: "link",
-          label: "Ignite Tutorials",
+          label: "IGNITE® Tutorials",
           href: "https://tutorials.ignite.com/",
         },
         {

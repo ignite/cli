@@ -3,11 +3,11 @@ description: Build your first blockchain and your first Cosmos SDK query.
 title: Hello World
 ---
 
-# "Hello world!" Blockchain Tutorial with Ignite CLI
+# "Hello world!" Blockchain Tutorial with IGNITE® CLI
 
 **Introduction**
 
-In this tutorial, you'll build a simple blockchain using Ignite CLI that responds to a custom query with `Hello %s!`, where `%s` is a name passed in the query.
+In this tutorial, you'll build a simple blockchain using IGNITE® CLI that responds to a custom query with `Hello %s!`, where `%s` is a name passed in the query.
 This will enhance your understanding of creating custom queries in a Cosmos SDK blockchain.
 
 ## Setup and Scaffold
@@ -93,4 +93,4 @@ Expect a response: `Hello world!`
 
 ## Conclusion
 
-Congratulations! 🎉 You've successfully created a blockchain module with a custom query using Ignite CLI. Through this tutorial, you've learned how to scaffold a chain, add a custom query, and modify the logic for personalized responses. This experience illustrates the power of Ignite CLI in streamlining blockchain development and the importance of understanding the underlying code for customization.
+Congratulations! 🎉 You've successfully created a blockchain module with a custom query using IGNITE® CLI. Through this tutorial, you've learned how to scaffold a chain, add a custom query, and modify the logic for personalized responses. This experience illustrates the power of IGNITE® CLI in streamlining blockchain development and the importance of understanding the underlying code for customization.

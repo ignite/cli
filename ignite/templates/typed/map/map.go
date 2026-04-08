@@ -12,7 +12,6 @@ import (
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/v29/ignite/pkg/placeholder"
 	"github.com/ignite/cli/v29/ignite/pkg/protoanalysis/protoutil"
 	"github.com/ignite/cli/v29/ignite/pkg/xast"
 	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
@@ -37,7 +36,7 @@ var (
 )
 
 // NewGenerator returns the generator to scaffold a new map type in a module.
-func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
+func NewGenerator(opts *typed.Options) (*genny.Generator, error) {
 	// Tests are not generated for map with a custom index that contains only booleans
 	// because we can't generate reliable tests for this type
 	var generateTest bool
@@ -69,7 +68,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 	g := genny.New()
 	g.RunFn(protoRPCModify(opts))
 	g.RunFn(keeperModify(opts))
-	g.RunFn(clientCliQueryModify(replacer, opts))
+	g.RunFn(clientCliQueryModify(opts))
 	g.RunFn(genesisProtoModify(opts))
 	g.RunFn(genesisTypesModify(opts))
 	g.RunFn(genesisModuleModify(opts))
@@ -79,7 +78,7 @@ func NewGenerator(replacer placeholder.Replacer, opts *typed.Options) (*genny.Ge
 	// Modifications for new messages
 	if !opts.NoMessage {
 		g.RunFn(protoTxModify(opts))
-		g.RunFn(clientCliTxModify(replacer, opts))
+		g.RunFn(clientCliTxModify(opts))
 		g.RunFn(typesCodecModify(opts))
 
 		if !opts.NoSimulation {
@@ -267,7 +266,7 @@ func protoRPCModify(opts *typed.Options) genny.RunFn {
 	}
 }
 
-func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+func clientCliQueryModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join("x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
@@ -275,28 +274,33 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 			return err
 		}
 
-		template := `{
-			RpcMethod: "List%[2]v",
-			Use: "list-%[3]v",
-			Short: "List all %[4]v",
-		},
-		{
-			RpcMethod: "Get%[2]v",
-			Use: "get-%[3]v [id]",
-			Short: "Gets a %[4]v",
-			Alias: []string{"show-%[3]v"},
-			PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField:"%[5]s"}},
-		},
-		%[1]v`
-		replacement := fmt.Sprintf(
-			template,
-			typed.PlaceholderAutoCLIQuery,
+		listOption := fmt.Sprintf(
+			`{
+				RpcMethod: "List%[1]v",
+				Use: "list-%[2]v",
+				Short: "List all %[3]v",
+			}`,
+			opts.TypeName.PascalCase,
+			opts.TypeName.Kebab,
+			opts.TypeName.Original,
+		)
+		getOption := fmt.Sprintf(
+			`{
+				RpcMethod: "Get%[1]v",
+				Use: "get-%[2]v [id]",
+				Short: "Gets a %[3]v",
+				Alias: []string{"show-%[2]v"},
+				PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "%[4]s"}},
+			}`,
 			opts.TypeName.PascalCase,
 			opts.TypeName.Kebab,
 			opts.TypeName.Original,
 			opts.Index.ProtoFieldName(),
 		)
-		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLIQuery, replacement)
+		content, err := typed.AppendAutoCLIQueryOptions(f.String(), listOption, getOption)
+		if err != nil {
+			return err
+		}
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
@@ -647,7 +651,7 @@ func protoTxModify(opts *typed.Options) genny.RunFn {
 	}
 }
 
-func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+func clientCliTxModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join("x", opts.ModuleName, "module/autocli.go")
 		f, err := r.Disk.Find(path)
@@ -660,39 +664,49 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 		positionalArgs := index + opts.Fields.ProtoFieldNameAutoCLI()
 		positionalArgsStr := indexStr + opts.Fields.CLIUsage()
 
-		template := `{
-			RpcMethod: "Create%[2]v",
-			Use: "create-%[3]v %[6]s",
-			Short: "Create a new %[4]v",
-			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
-		},
-		{
-			RpcMethod: "Update%[2]v",
-			Use: "update-%[3]v %[6]s",
-			Short: "Update %[4]v",
-			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[5]s},
-		},
-		{
-			RpcMethod: "Delete%[2]v",
-			Use: "delete-%[3]v %[8]s",
-			Short: "Delete %[4]v",
-			PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[7]s},
-		},
-		%[1]v`
-
-		replacement := fmt.Sprintf(
-			template,
-			typed.PlaceholderAutoCLITx,
+		createOption := fmt.Sprintf(
+			`{
+				RpcMethod: "Create%[1]v",
+				Use: "create-%[2]v %[5]s",
+				Short: "Create a new %[3]v",
+				PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[4]s},
+			}`,
 			opts.TypeName.PascalCase,
 			opts.TypeName.Kebab,
 			opts.TypeName.Original,
 			strings.TrimSpace(positionalArgs),
 			strings.TrimSpace(positionalArgsStr),
+		)
+		updateOption := fmt.Sprintf(
+			`{
+				RpcMethod: "Update%[1]v",
+				Use: "update-%[2]v %[5]s",
+				Short: "Update %[3]v",
+				PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[4]s},
+			}`,
+			opts.TypeName.PascalCase,
+			opts.TypeName.Kebab,
+			opts.TypeName.Original,
+			strings.TrimSpace(positionalArgs),
+			strings.TrimSpace(positionalArgsStr),
+		)
+		deleteOption := fmt.Sprintf(
+			`{
+				RpcMethod: "Delete%[1]v",
+				Use: "delete-%[2]v %[5]s",
+				Short: "Delete %[3]v",
+				PositionalArgs: []*autocliv1.PositionalArgDescriptor{%[4]s},
+			}`,
+			opts.TypeName.PascalCase,
+			opts.TypeName.Kebab,
+			opts.TypeName.Original,
 			strings.TrimSpace(index),
 			strings.TrimSpace(indexStr),
 		)
-
-		content := replacer.Replace(f.String(), typed.PlaceholderAutoCLITx, replacement)
+		content, err := typed.AppendAutoCLITxOptions(f.String(), createOption, updateOption, deleteOption)
+		if err != nil {
+			return err
+		}
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

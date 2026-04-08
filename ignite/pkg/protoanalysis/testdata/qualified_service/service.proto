@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package qualified_service;
+
+option go_package = "github.com/ignite/qualified_service";
+
+service Query {
+  rpc Ping(.qualified_service.PingRequest) returns (.qualified_service.PingResponse);
+  rpc Nested(.qualified_service.Outer.NestedRequest) returns (.qualified_service.PingResponse);
+}
+
+message PingRequest {
+  string id = 1;
+}
+
+message PingResponse {}
+
+message Outer {
+  message NestedRequest {
+    string id = 1;
+  }
+}

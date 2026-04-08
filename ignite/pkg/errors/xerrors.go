@@ -13,6 +13,8 @@
 package errors
 
 import (
+	"context"
+
 	"github.com/cockroachdb/errors"
 	"github.com/getsentry/sentry-go"
 )
@@ -21,30 +23,28 @@ import (
 // A stack trace is retained.
 func New(msg string) error {
 	err := errors.New(msg)
-	sentry.CaptureException(err)
+	captureException(err)
 	return err
 }
 
 // Errorf aliases Newf().
 func Errorf(format string, args ...any) error {
 	err := errors.Errorf(format, args...)
-	sentry.CaptureException(err)
+	captureException(err)
 	return err
 }
 
 // WithStack annotates err with a stack trace at the point WithStack was called.
 func WithStack(err error) error {
 	errWithStack := errors.WithStack(err)
-	sentry.CaptureException(errWithStack)
+	captureException(errWithStack)
 	return errWithStack
 }
 
 // Wrap wraps an error with a message prefix. A stack trace is retained.
 func Wrap(err error, msg string) error {
 	errWrap := errors.Wrap(err, msg)
-	if err != nil {
-		sentry.CaptureException(errWrap)
-	}
+	captureException(errWrap)
 	return errWrap
 }
 
@@ -53,10 +53,18 @@ func Wrap(err error, msg string) error {
 // but the extra arguments are still processed for reportable strings.
 func Wrapf(err error, format string, args ...any) error {
 	errWrap := errors.Wrapf(err, format, args...)
-	if err != nil {
-		sentry.CaptureException(errWrap)
-	}
+	captureException(errWrap)
 	return errWrap
+}
+
+func captureException(err error) {
+	if shouldCaptureException(err) {
+		sentry.CaptureException(err)
+	}
+}
+
+func shouldCaptureException(err error) bool {
+	return err != nil && !Is(err, context.Canceled)
 }
 
 // Unwrap accesses the direct cause of the error if any, otherwise

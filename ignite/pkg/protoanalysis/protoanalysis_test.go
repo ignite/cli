@@ -17,6 +17,21 @@ func TestNestedMessages(t *testing.T) {
 	require.Equal(t, "A_B_C", pkg.Messages[2].Name)
 }
 
+func TestQualifiedServiceTypes(t *testing.T) {
+	packages, err := Parse(context.Background(), nil, "testdata/qualified_service")
+	require.NoError(t, err)
+
+	require.Len(t, packages, 1)
+	require.Len(t, packages[0].Services, 1)
+	require.Len(t, packages[0].Services[0].RPCFuncs, 2)
+	require.Equal(t, ".qualified_service.PingRequest", packages[0].Services[0].RPCFuncs[0].RequestType)
+	require.Equal(t, ".qualified_service.Outer.NestedRequest", packages[0].Services[0].RPCFuncs[1].RequestType)
+
+	message, err := packages[0].MessageByName(".qualified_service.Outer.NestedRequest")
+	require.NoError(t, err)
+	require.Equal(t, "Outer_NestedRequest", message.Name)
+}
+
 func TestLiquidity(t *testing.T) {
 	packages, err := Parse(context.Background(), nil, "testdata/liquidity")
 	require.NoError(t, err)
