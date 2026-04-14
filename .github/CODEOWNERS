@@ -2,13 +2,4 @@
 
 # Primary repo maintainers
 
-*       @Pantani @julienrbrt
-
-# Ts templates
-
-ignite/pkg/cosmosgen/* @Pantani @julienrbrt @clockworkgr
-
-# Docs
-
-*.md    @Pantani @julienrbrt
-docs/*   @Pantani @julienrbrt
+* @ignite/cli-sdk-team

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## Features
+
+- [#4902](https://github.com/ignite/cli/pull/4902) Scaffold migrations.
+
 ### Fixes
 
 - [#4910](https://github.com/ignite/cli/pull/4910) Resolve qualified and nested RPC request messages.
