@@ -1330,6 +1330,7 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 * [ignite scaffold list](#ignite-scaffold-list)	 - CRUD for data stored as an array
 * [ignite scaffold map](#ignite-scaffold-map)	 - CRUD for data stored as key-value pairs
 * [ignite scaffold message](#ignite-scaffold-message)	 - Message to perform state transition on the blockchain
+* [ignite scaffold migration](#ignite-scaffold-migration)	 - Module migration boilerplate
 * [ignite scaffold module](#ignite-scaffold-module)	 - Custom Cosmos SDK module
 * [ignite scaffold packet](#ignite-scaffold-packet)	 - Message for sending an IBC packet
 * [ignite scaffold params](#ignite-scaffold-params)	 - Parameters for a custom Cosmos SDK module
@@ -1762,6 +1763,41 @@ ignite scaffold message [name] [field1:type1] [field2:type2] ... [flags]
   -r, --response strings   response fields
       --signer string      label for the message signer (default: creator)
   -y, --yes                answers interactive yes/no questions with yes
+```
+
+**Options inherited from parent commands**
+
+```
+  -v, --verbose   verbose output
+```
+
+**SEE ALSO**
+
+* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+
+
+## ignite scaffold migration
+
+Module migration boilerplate
+
+**Synopsis**
+
+Scaffold no-op migration boilerplate for an existing Cosmos SDK module.
+
+This command creates a new migration file in "x/<module>/migrations/vN/",
+increments the module consensus version, and registers the new migration handler
+inside "x/<module>/module/module.go".
+
+```
+ignite scaffold migration [module] [flags]
+```
+
+**Options**
+
+```
+  -h, --help          help for migration
+  -p, --path string   path of the app (default ".")
+  -y, --yes           answers interactive yes/no questions with yes
 ```
 
 **Options inherited from parent commands**
