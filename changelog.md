@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [`v29.10.0`](https://github.com/ignite/cli/releases/tag/v29.10.0)
+
 ## Features
 
 - [#4902](https://github.com/ignite/cli/pull/4902) Scaffold migrations.
