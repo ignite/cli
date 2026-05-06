@@ -17,7 +17,7 @@ faucet:
   name: bob
   coins:
   - 5token
-  - 100000stake
+  - 100000<%= DefaultDenom %>
 validators:
 - name: alice
   bonded: 100000000<%= DefaultDenom %>
