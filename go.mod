@@ -27,8 +27,13 @@ require (
 	github.com/emicklei/proto-contrib v0.15.0
 	github.com/ettle/strcase v0.2.0
 	github.com/getsentry/sentry-go v0.35.0
+<<<<<<< HEAD
 	github.com/go-delve/delve v1.24.0
 	github.com/go-git/go-git/v5 v5.17.1
+=======
+	github.com/go-delve/delve v1.26.3
+	github.com/go-git/go-git/v5 v5.18.0
+>>>>>>> ab9a4f70 (chore(deps): bump delve to 1.26.3 (#4930))
 	github.com/go-openapi/analysis v0.23.0
 	github.com/go-openapi/loads v0.22.0
 	github.com/go-openapi/spec v0.21.0
@@ -51,7 +56,7 @@ require (
 	github.com/radovskyb/watcher v1.0.7
 	github.com/rogpeppe/go-internal v1.14.1
 	github.com/rs/cors v1.11.1
-	github.com/spf13/cobra v1.10.1
+	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.11.1
 	go.etcd.io/bbolt v1.4.0
@@ -182,7 +187,7 @@ require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.0 // indirect
 	github.com/denis-tingaikin/go-header v0.5.0 // indirect
-	github.com/derekparker/trie v0.0.0-20230829180723-39f4de51ef7d // indirect
+	github.com/derekparker/trie/v3 v3.2.0 // indirect
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/dgraph-io/badger/v4 v4.2.0 // indirect
 	github.com/dgraph-io/ristretto v0.2.0 // indirect
