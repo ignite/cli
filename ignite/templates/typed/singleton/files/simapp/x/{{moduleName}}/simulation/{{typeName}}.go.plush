@@ -107,7 +107,7 @@ func SimulateMsgDelete<%= TypeName.PascalCase %>(
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		var (
 			simAccount = simtypes.Account{}
-			msg = &types.MsgUpdate<%= TypeName.PascalCase %>{}
+			msg = &types.MsgDelete<%= TypeName.PascalCase %>{}
 		)
 
 		<%= TypeName.LowerCamel %>, err := k.<%= TypeName.UpperCamel %>.Get(ctx)
