@@ -5,6 +5,7 @@
 ### Fixes
 
 - [#4931](https://github.com/ignite/cli/pull/4931) Fix faucet default denom in generated app config.
+- [#4940](https://github.com/ignite/cli/pull/4940) Fix generated typed singleton delete simulations to use `MsgDelete`.
 
 ## [`v29.10.0`](https://github.com/ignite/cli/releases/tag/v29.10.0)
 
