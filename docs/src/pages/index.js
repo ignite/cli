@@ -47,11 +47,6 @@ export default function Home() {
             description="Explore recommended IGNITE® Apps"
             to="https://ignite.com/marketplace"
           />
-          <HomeCard
-            title="Community"
-            description="Join the IGNITE® community and connect with others"
-            to="https://discord.com/invite/ignitecli"
-          />
         </div>
       </main>
     </Layout>
