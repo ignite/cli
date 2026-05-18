@@ -196,10 +196,6 @@ const config = {
             title: "Social",
             items: [
               {
-                label: "Discord",
-                href: "https://discord.com/invite/ignitecli",
-              },
-              {
                 label: "Twitter",
                 href: "https://x.com/ignite",
               },
