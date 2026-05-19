@@ -28,7 +28,7 @@ require (
 	github.com/ettle/strcase v0.2.0
 	github.com/getsentry/sentry-go v0.35.0
 	github.com/go-delve/delve v1.26.3
-	github.com/go-git/go-git/v5 v5.19.0
+	github.com/go-git/go-git/v5 v5.19.1
 	github.com/go-openapi/analysis v0.23.0
 	github.com/go-openapi/loads v0.22.0
 	github.com/go-openapi/spec v0.21.0
