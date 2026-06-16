@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [`v29.10.1`](https://github.com/ignite/cli/releases/tag/v29.10.1)
+
 ### Fixes
 
 - [#4931](https://github.com/ignite/cli/pull/4931) Fix faucet default denom in generated app config.
