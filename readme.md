@@ -24,7 +24,6 @@
   <a href="https://github.com/ignite/cli/actions/workflows/test-lint.yml">
     <img alt="Lint Status" src="https://github.com/ignite/cli/workflows/Lint/badge.svg" />
   <a href="https://x.com/ignite" target="_blank"><img alt="Twitter" src="https://img.shields.io/twitter/follow/ignite" />
-  <a href="https://discord.com/invite/ignitecli" target="_blank"><img alt="Discord" src="https://img.shields.io/discord/893126937067802685"></a>
 </div>
 
 ![Ignite CLI](./assets/ignite-cli.png)
@@ -177,9 +176,8 @@ blockchain, see [ignite/web](https://github.com/ignite/web).
 
 ## Questions
 
-For questions and support, join the official [Ignite
-Discord](https://discord.gg/ignite) server. The issue list in this repo is
-exclusively for bug reports and feature requests.
+For questions and support, ask easily on [GitHub Discussions](https://github.com/ignite/cli/discussions).
+The issue list in this repo is exclusively for bug reports and feature requests.
 
 ## Cosmos SDK compatibility
 
@@ -270,7 +268,6 @@ Ignite CLI is a free and open source product maintained by
 - [ignite.com website](https://ignite.com)
 - [@ignite on Twitter](https://x.com/ignite)
 - [ignite.com/blog](https://ignite.com/blog)
-- [Ignite Discord](https://discord.com/invite/ignitecli)
 - [Ignite YouTube](https://www.youtube.com/@ignitehq)
 - [Ignite docs](https://docs.ignite.com)
 - [Ignite jobs](https://ignite.com/careers)
