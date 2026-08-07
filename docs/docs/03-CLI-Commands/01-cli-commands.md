@@ -19,10 +19,8 @@ To get started, create a blockchain:
 
 $ ignite scaffold chain example
 
-Announcements:
 
-⋆ A new release has appeared! v29.9.0 has just been released :)
-⋆ Satisfied with Ignite? Or totally fed-up with it? Tell us: https://bit.ly/3WZS2uS
+💬 Survey: https://bit.ly/3WZS2uS
 
 
 **Options**
@@ -1784,9 +1782,9 @@ Module migration boilerplate
 
 Scaffold no-op migration boilerplate for an existing Cosmos SDK module.
 
-This command creates a new migration file in `x/<module>/migrations/vN/`,
+This command creates a new migration file in "x/<module>/migrations/vN/",
 increments the module consensus version, and registers the new migration handler
-inside `x/<module>/module/module.go`.
+inside "x/<module>/module/module.go".
 
 ```
 ignite scaffold migration [module] [flags]
