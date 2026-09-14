@@ -67,7 +67,11 @@ func Serve(ctx context.Context, dir string, opts ServeOptions, out io.Writer) er
 	nodeCfg.ChainID = opts.ChainID
 	nodeCfg.MaxGasPerBlock = opts.MaxGasPerBlock
 	nodeCfg.TMConfig.RPC.ListenAddress = opts.RPCListener
-	nodeCfg.Logger = slog.New(slog.NewTextHandler(out, nil))
+	// errLog captures node errors (e.g. a preloaded package that fails to
+	// compile) so they can be surfaced after startup instead of being buried
+	// in node logs.
+	errLog := &errorLog{}
+	nodeCfg.Logger = slog.New(newErrorLogHandler(errLog, slog.NewTextHandler(out, nil)))
 	nodeCfg.Reload = loader.Reload
 	nodeCfg.NoReplay = true
 
@@ -81,6 +85,16 @@ func Serve(ctx context.Context, dir string, opts ServeOptions, out io.Writer) er
 	defer node.Close()
 
 	printServeBanner(out, opts, paths)
+
+	// report packages that failed to load at genesis (the dev chain skips
+	// failing genesis txs, so a broken package would otherwise be silent).
+	if failures := errLog.errors(); len(failures) > 0 {
+		fmt.Fprintf(out, "\n❌ %d package transaction(s) failed at genesis; the chain is running WITHOUT them:\n", len(failures))
+		for _, e := range failures {
+			fmt.Fprintf(out, "   - %s\n", e)
+		}
+		fmt.Fprintln(out, "   Check imports (only stdlibs and your workspace packages are available) and syntax, then fix and save to reload.")
+	}
 
 	return watchLoop(ctx, node.Reload, dir, out)
 }
