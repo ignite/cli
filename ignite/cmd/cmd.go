@@ -61,10 +61,10 @@ func New(ctx context.Context) (*cobra.Command, func(), error) {
 
 	c := &cobra.Command{
 		Use:   "ignite",
-		Short: "Ignite CLI offers everything you need to build, test, and launch gno.land smart contracts",
-		Long: fmt.Sprintf(`Ignite CLI is the developer experience for gno.land, the smart contract platform
-from the Ignite team. Ignite CLI offers everything you need to scaffold, test,
-and deploy Gno realms and packages.
+		Short: "Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages",
+		Long: fmt.Sprintf(`Ignite CLI is a tool for building smart contracts on gno.land, the smart contract
+platform from the Ignite team. Ignite CLI offers everything you need to scaffold,
+test, build, and launch your realms and packages.
 
 To get started, create a realm and start a dev chain:
 
@@ -99,7 +99,7 @@ $ ignite chain serve
 		NewCompletionCmd(),
 	)
 	c.AddCommand(deprecated()...)
-	c.AddCommand(cosmosDeprecatedStubs()...)
+	c.AddCommand(cosmosMaintenanceStubs()...)
 	c.SetContext(ctx)
 
 	// Don't load Ignite apps for level one commands that doesn't allow them
