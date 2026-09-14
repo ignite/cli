@@ -1,0 +1,2 @@
+module = "crypto/keccak256"
+gno = "0.9"

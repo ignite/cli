@@ -1,0 +1,2 @@
+module = "encoding/base64"
+gno = "0.9"

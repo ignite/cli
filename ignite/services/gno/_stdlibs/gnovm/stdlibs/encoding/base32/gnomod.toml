@@ -1,0 +1,2 @@
+module = "encoding/base32"
+gno = "0.9"

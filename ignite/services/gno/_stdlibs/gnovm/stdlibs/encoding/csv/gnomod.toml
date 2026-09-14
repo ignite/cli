@@ -1,0 +1,2 @@
+module = "encoding/csv"
+gno = "0.9"

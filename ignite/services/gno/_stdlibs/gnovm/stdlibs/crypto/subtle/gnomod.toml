@@ -1,0 +1,2 @@
+module = "crypto/subtle"
+gno = "0.9"

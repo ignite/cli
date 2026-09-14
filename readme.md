@@ -28,16 +28,42 @@
 
 ![Ignite CLI](./assets/ignite-cli.png)
 
-[Ignite CLI](https://ignite.com/cli) is the all-in-one platform to build,
-launch, and maintain any crypto application on a sovereign and secured
-blockchain. It is a developer-friendly interface to the [Cosmos
-SDK](https://github.com/cosmos/cosmos-sdk), the world's most widely-used
-blockchain application framework. Ignite CLI generates boilerplate code for you,
-so you can focus on writing business logic.
+[Ignite CLI](https://ignite.com/cli) is the developer experience for
+[gno.land](https://gno.land), the smart contract platform from the Ignite
+team. It offers everything you need to scaffold, test, and deploy Gno realms
+and packages: a local dev chain with hot reload, key management backed by
+the gno keybase, and one-command deployment.
+
+The legacy Cosmos SDK tooling is still available, deprecated, under
+`ignite cosmos`. It receives no further feature work.
 
 ## Quick start
 
-Ignite CLI can be installed using popular package managers such as Homebrew and Snap, making it easy to stay up-to-date with the latest versions. These package manager installations are maintained regularly for both macOS and GNU/Linux. For those who prefer manual installation or need to set up a development environment, additional instructions are provided at the end of this section.
+Scaffold a realm and start a local gno.land dev chain:
+
+```sh
+ignite scaffold realm counter
+cd counter
+ignite chain serve
+```
+
+The dev chain runs on `tcp://127.0.0.1:26657`, pre-funds the `test1`
+developer account, deploys your realm at genesis, and reloads the chain on
+every `.gno` file change.
+
+Deploy a package to any gno.land chain (module path read from
+`gnomod.toml`):
+
+```sh
+ignite chain deploy --from test1 --remote 127.0.0.1:26657
+```
+
+Manage keys (stored in the gno keybase, `~/.config/gno`):
+
+```sh
+ignite account create alice
+ignite account list
+```
 
 ### Installation
 
@@ -179,9 +205,10 @@ blockchain, see [ignite/web](https://github.com/ignite/web).
 For questions and support, ask easily on [GitHub Discussions](https://github.com/ignite/cli/discussions).
 The issue list in this repo is exclusively for bug reports and feature requests.
 
-## Cosmos SDK compatibility
+## Cosmos SDK compatibility (deprecated)
 
-Blockchains created with Ignite CLI use the [Cosmos
+The Cosmos SDK tooling now lives under `ignite cosmos` and is deprecated.
+Blockchains created with it use the [Cosmos
 SDK](https://github.com/cosmos/cosmos-sdk) framework. To ensure the best
 possible experience, use the version of Ignite CLI that corresponds to the
 version of Cosmos SDK that your blockchain is built with. Unless noted
