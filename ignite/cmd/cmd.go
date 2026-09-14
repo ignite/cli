@@ -62,8 +62,7 @@ func New(ctx context.Context) (*cobra.Command, func(), error) {
 	c := &cobra.Command{
 		Use:   "ignite",
 		Short: "Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages",
-		Long: fmt.Sprintf(`Ignite CLI is a tool for building smart contracts on gno.land, the smart contract
-platform from the Ignite team. Ignite CLI offers everything you need to scaffold,
+		Long: fmt.Sprintf(`Ignite CLI is a tool for building smart contracts on gno.land. Ignite CLI offers everything you need to scaffold,
 test, build, and launch your realms and packages.
 
 To get started, create a realm and start a dev chain:
