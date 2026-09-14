@@ -63,8 +63,8 @@ func (g *generator) updateComposableDependencies() error {
 		return err
 	}
 
-	err = mergo.Merge(&pkg, map[string]interface{}{
-		"dependencies": map[string]interface{}{
+	err = mergo.Merge(&pkg, map[string]any{
+		"dependencies": map[string]any{
 			tsClientName: fmt.Sprintf("file:%s", tsClientRelPath),
 		},
 	})

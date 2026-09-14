@@ -47,7 +47,7 @@ func gnoModuleDir(t *testing.T) string {
 		t.Fatalf("downloading %s: %v", gnoModule, err)
 	}
 	// minimal extraction of the "Dir" field without a JSON dependency
-	for _, line := range strings.Split(string(out), "\n") {
+	for line := range strings.SplitSeq(string(out), "\n") {
 		if d, ok := strings.CutPrefix(strings.TrimSpace(line), "\"Dir\":"); ok {
 			return strings.Trim(strings.TrimSpace(d), "\",")
 		}

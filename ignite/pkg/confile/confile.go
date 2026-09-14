@@ -23,7 +23,7 @@ func New(creator EncodingCreator, path string) *ConfigFile {
 
 // Load loads content of config file into v if file exist on path.
 // otherwise nothing loaded into v and no error is returned.
-func (c *ConfigFile) Load(v interface{}) error {
+func (c *ConfigFile) Load(v any) error {
 	file, err := os.Open(c.path)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -37,7 +37,7 @@ func (c *ConfigFile) Load(v interface{}) error {
 
 // Save saves v into config file by overwriting the previous content it also creates the
 // config file if it wasn't exist.
-func (c *ConfigFile) Save(v interface{}) error {
+func (c *ConfigFile) Save(v any) error {
 	if err := os.MkdirAll(filepath.Dir(c.path), 0o755); err != nil {
 		return err
 	}

@@ -20,14 +20,14 @@ func TestValidatorGetServers(t *testing.T) {
 	want.API.Address = "127.0.0.0:6"
 
 	v := v1.Validator{
-		App: map[string]interface{}{
-			"grpc":     map[string]interface{}{"address": want.GRPC.Address},
-			"grpc-web": map[string]interface{}{"address": want.GRPCWeb.Address},
-			"api":      map[string]interface{}{"address": want.API.Address},
+		App: map[string]any{
+			"grpc":     map[string]any{"address": want.GRPC.Address},
+			"grpc-web": map[string]any{"address": want.GRPCWeb.Address},
+			"api":      map[string]any{"address": want.API.Address},
 		},
-		Config: map[string]interface{}{
-			"p2p": map[string]interface{}{"laddr": want.P2P.Address},
-			"rpc": map[string]interface{}{
+		Config: map[string]any{
+			"p2p": map[string]any{"laddr": want.P2P.Address},
+			"rpc": map[string]any{
 				"laddr":       want.RPC.Address,
 				"pprof_laddr": want.RPC.PProfAddress,
 			},
@@ -47,13 +47,13 @@ func TestValidatorSetServers(t *testing.T) {
 	v := v1.Validator{}
 	s := v1.DefaultServers()
 	wantApp := xyaml.Map{
-		"grpc":     map[string]interface{}{"address": s.GRPC.Address},
-		"grpc-web": map[string]interface{}{"address": s.GRPCWeb.Address},
-		"api":      map[string]interface{}{"address": s.API.Address},
+		"grpc":     map[string]any{"address": s.GRPC.Address},
+		"grpc-web": map[string]any{"address": s.GRPCWeb.Address},
+		"api":      map[string]any{"address": s.API.Address},
 	}
 	wantConfig := xyaml.Map{
-		"p2p": map[string]interface{}{"laddr": s.P2P.Address},
-		"rpc": map[string]interface{}{
+		"p2p": map[string]any{"laddr": s.P2P.Address},
+		"rpc": map[string]any{
 			"laddr":       s.RPC.Address,
 			"pprof_laddr": s.RPC.PProfAddress,
 		},

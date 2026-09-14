@@ -2,6 +2,7 @@ package protoanalysis
 
 import (
 	"regexp"
+	"slices"
 	"strings"
 
 	"golang.org/x/mod/semver"
@@ -45,8 +46,8 @@ var ErrMessageNotFound = errors.New("no message found")
 // ModuleName retrieves the single module name of the package.
 func (p Package) ModuleName() (name string) {
 	names := strings.Split(p.Name, ".")
-	for i := len(names) - 1; i >= 0; i-- {
-		name = names[i]
+	for _, name0 := range slices.Backward(names) {
+		name = name0
 		if !semver.IsValid(name) && !regexBetaVersion.MatchString(name) {
 			break
 		}

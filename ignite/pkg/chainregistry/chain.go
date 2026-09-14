@@ -42,8 +42,8 @@ type Codebase struct {
 	CompatibleVersions []string            `json:"compatible_versions"`
 	Consensus          CodebaseInfo        `json:"consensus"`
 	Sdk                CodebaseInfo        `json:"sdk"`
-	Ibc                CodebaseInfo        `json:"ibc,omitempty"`
-	Cosmwasm           CodebaseInfoEnabled `json:"cosmwasm,omitempty"`
+	Ibc                CodebaseInfo        `json:"ibc"`
+	Cosmwasm           CodebaseInfoEnabled `json:"cosmwasm"`
 }
 
 type CodebaseGenesis struct {

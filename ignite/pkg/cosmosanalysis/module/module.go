@@ -29,7 +29,7 @@ type Module struct {
 	GoModulePath string `json:"go_module_path,omitempty"`
 
 	// Pkg holds the proto package info.
-	Pkg protoanalysis.Package `json:"package,omitempty"`
+	Pkg protoanalysis.Package `json:"package"`
 
 	// Msgs is a list of sdk.Msg implementation of the module.
 	Msgs []Msg `json:"messages,omitempty"`

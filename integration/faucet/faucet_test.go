@@ -89,7 +89,7 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 
 	// send several request in parallel and check max coins is not overflown
 	g, ctx := errgroup.WithContext(ctx)
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		g.Go(func() error {
 			c := faucetClient
 			index := i + 1

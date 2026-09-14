@@ -3,10 +3,10 @@ package xyaml
 // Map defines a map type that uses strings as key value.
 // The map implements the Unmarshaller interface to convert
 // the unmarshalled map keys type from interface{} to string.
-type Map map[string]interface{}
+type Map map[string]any
 
-func (m *Map) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	var raw map[interface{}]interface{}
+func (m *Map) UnmarshalYAML(unmarshal func(any) error) error {
+	var raw map[any]any
 
 	if err := unmarshal(&raw); err != nil {
 		return err
@@ -17,31 +17,31 @@ func (m *Map) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return nil
 }
 
-func convertSlice(raw []interface{}) []interface{} {
+func convertSlice(raw []any) []any {
 	if len(raw) == 0 {
 		return raw
 	}
 
-	if _, ok := raw[0].(map[interface{}]interface{}); !ok {
+	if _, ok := raw[0].(map[any]any); !ok {
 		return raw
 	}
 
-	values := make([]interface{}, len(raw))
+	values := make([]any, len(raw))
 	for i, v := range raw {
-		values[i] = convertMapKeys(v.(map[interface{}]interface{}))
+		values[i] = convertMapKeys(v.(map[any]any))
 	}
 
 	return values
 }
 
-func convertMapKeys(raw map[interface{}]interface{}) map[string]interface{} {
-	m := make(map[string]interface{})
+func convertMapKeys(raw map[any]any) map[string]any {
+	m := make(map[string]any)
 
 	for k, v := range raw {
-		if value, _ := v.(map[interface{}]interface{}); value != nil {
+		if value, _ := v.(map[any]any); value != nil {
 			// Convert map keys to string
 			v = convertMapKeys(value)
-		} else if values, _ := v.([]interface{}); values != nil {
+		} else if values, _ := v.([]any); values != nil {
 			// Make sure that maps inside slices also use strings as key
 			v = convertSlice(values)
 		}

@@ -33,7 +33,7 @@ func AllOrSomeFilter(list, filterList []string) []string {
 func List(n int, do func(i int) string) []string {
 	var list []string
 
-	for i := 0; i < n; i++ {
+	for i := range n {
 		list = append(list, do(i))
 	}
 

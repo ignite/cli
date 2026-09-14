@@ -73,7 +73,7 @@ func New(format string, options ...Option) *Prefixer {
 }
 
 // Gen generates a new prefix by applying s to format given during New().
-func (p *Prefixer) Gen(s ...interface{}) string {
+func (p *Prefixer) Gen(s ...any) string {
 	format := p.format
 	format = p.left + format
 	format += p.right

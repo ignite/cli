@@ -56,7 +56,7 @@ func TestJSONFile_Field(t *testing.T) {
 		name     string
 		filepath string
 		key      string
-		want     interface{}
+		want     any
 		err      error
 	}{
 		{
@@ -144,7 +144,7 @@ func TestJSONFile_Update(t *testing.T) {
 		name     string
 		filepath string
 		opts     []UpdateFileOption
-		want     []interface{}
+		want     []any
 		err      error
 	}{
 		{
@@ -156,7 +156,7 @@ func TestJSONFile_Update(t *testing.T) {
 					"22020096",
 				),
 			},
-			want: []interface{}{float64(22020096)},
+			want: []any{float64(22020096)},
 		},
 		{
 			name:     "update string field to number",
@@ -167,7 +167,7 @@ func TestJSONFile_Update(t *testing.T) {
 					22020096,
 				),
 			},
-			want: []interface{}{float64(22020096)},
+			want: []any{float64(22020096)},
 		},
 		{
 			name:     "update number field",
@@ -178,7 +178,7 @@ func TestJSONFile_Update(t *testing.T) {
 					1000,
 				),
 			},
-			want: []interface{}{float64(1000)},
+			want: []any{float64(1000)},
 		},
 		{
 			name:     "update timestamp field",
@@ -204,7 +204,7 @@ func TestJSONFile_Update(t *testing.T) {
 					1000,
 				),
 			},
-			want: []interface{}{float64(3000000), float64(1000)},
+			want: []any{float64(3000000), float64(1000)},
 		},
 		{
 			name:     "update coin field",
@@ -215,7 +215,7 @@ func TestJSONFile_Update(t *testing.T) {
 					jsonCoins,
 				),
 			},
-			want: []interface{}{map[string]interface{}{
+			want: []any{map[string]any{
 				"denom":  coins.Denom,
 				"amount": coins.Amount.String(),
 			}},
@@ -229,7 +229,7 @@ func TestJSONFile_Update(t *testing.T) {
 					"111",
 				),
 			},
-			want: []interface{}{float64(111)},
+			want: []any{float64(111)},
 		},
 	}
 	for _, tt := range tests {
@@ -268,9 +268,9 @@ func TestJSONFile_Update(t *testing.T) {
 				opt(updates)
 			}
 			if tt.want != nil {
-				got := make([]interface{}, 0)
+				got := make([]any, 0)
 				for key := range updates {
-					var newValue interface{}
+					var newValue any
 					err := f.Field(key, &newValue)
 					require.NoError(t, err)
 					got = append(got, newValue)

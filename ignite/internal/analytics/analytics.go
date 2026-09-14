@@ -91,11 +91,9 @@ func SendMetric(wg *sync.WaitGroup, cmd *cobra.Command) {
 		IsCI:            getIsCI(),
 	}
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		_ = matomoClient.SendMetric(dntInfo.Name, met)
-	}()
+	})
 }
 
 // EnableSentry enable errors reporting to Sentry.
@@ -106,13 +104,11 @@ func EnableSentry(ctx context.Context, wg *sync.WaitGroup) {
 	}
 
 	closeSentry, err := sentry.InitSentry(ctx)
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		if err == nil {
 			defer closeSentry()
 		}
-	}()
+	})
 }
 
 // checkDNT check if the user allow to track data or if the DO_NOT_TRACK

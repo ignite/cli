@@ -7,6 +7,7 @@ import (
 	"go/format"
 	"go/parser"
 	"go/token"
+	"maps"
 	"sort"
 	"strings"
 
@@ -122,25 +123,19 @@ func (c functionCalls) Map() functionCallsMap {
 
 func cloneFunctionCallsMap(src functionCallsMap) functionCallsMap {
 	dst := make(functionCallsMap, len(src))
-	for k, v := range src {
-		dst[k] = v
-	}
+	maps.Copy(dst, src)
 	return dst
 }
 
 func cloneFunctionStructsMap(src functionStructsMap) functionStructsMap {
 	dst := make(functionStructsMap, len(src))
-	for k, v := range src {
-		dst[k] = v
-	}
+	maps.Copy(dst, src)
 	return dst
 }
 
 func cloneFunctionSwitchesMap(src functionSwitchesMap) functionSwitchesMap {
 	dst := make(functionSwitchesMap, len(src))
-	for k, v := range src {
-		dst[k] = v
-	}
+	maps.Copy(dst, src)
 	return dst
 }
 

@@ -507,8 +507,8 @@ func TestFlags_getValue(t *testing.T) {
 		f        Flags
 		key      string
 		flagType FlagType
-		convFunc func(v string) (interface{}, error)
-		want     interface{}
+		convFunc func(v string) (any, error)
+		want     any
 		err      error
 	}{
 		{
@@ -516,7 +516,7 @@ func TestFlags_getValue(t *testing.T) {
 			f:        testFlags,
 			key:      flagString1,
 			flagType: FlagTypeString,
-			convFunc: func(v string) (interface{}, error) { return v, nil },
+			convFunc: func(v string) (any, error) { return v, nil },
 			want:     "text_1",
 		},
 		{
@@ -524,7 +524,7 @@ func TestFlags_getValue(t *testing.T) {
 			f:        testFlags,
 			key:      flagInt1,
 			flagType: FlagTypeInt,
-			convFunc: func(v string) (interface{}, error) { return strconv.Atoi(v) },
+			convFunc: func(v string) (any, error) { return strconv.Atoi(v) },
 			want:     -100,
 		},
 		{
@@ -532,7 +532,7 @@ func TestFlags_getValue(t *testing.T) {
 			f:        testFlags,
 			key:      flagString1,
 			flagType: FlagTypeInt,
-			convFunc: func(v string) (interface{}, error) { return v, nil },
+			convFunc: func(v string) (any, error) { return v, nil },
 			err:      errors.Wrapf(ErrInvalidFlagType, "invalid flag type %v for key %s", FlagTypeString, flagString1),
 		},
 		{
@@ -540,7 +540,7 @@ func TestFlags_getValue(t *testing.T) {
 			f:        testFlags,
 			key:      "non_existing_flag",
 			flagType: FlagTypeString,
-			convFunc: func(v string) (interface{}, error) { return v, nil },
+			convFunc: func(v string) (any, error) { return v, nil },
 			err:      errors.Wrap(ErrFlagNotFound, "non_existing_flag"),
 		},
 	}

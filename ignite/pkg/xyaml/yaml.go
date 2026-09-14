@@ -12,7 +12,7 @@ import (
 
 // Marshal converts an object to a string in a YAML format and transforms
 // the byte slice fields from the path to string to be more readable.
-func Marshal(ctx context.Context, obj interface{}, paths ...string) (string, error) {
+func Marshal(ctx context.Context, obj any, paths ...string) (string, error) {
 	requestYaml, err := yaml.MarshalContext(ctx, obj)
 	if err != nil {
 		return "", err

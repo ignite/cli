@@ -37,7 +37,7 @@ func newTemplateWriter(templateDir string) templateWriter {
 	}
 }
 
-func (t templateWriter) Write(destDir, protoPath string, data interface{}) error {
+func (t templateWriter) Write(destDir, protoPath string, data any) error {
 	base := filepath.Join("templates", t.templateDir)
 
 	// find out templates inside the dir.

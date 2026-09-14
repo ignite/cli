@@ -14,7 +14,7 @@ import (
 
 func TestResponseJSON(t *testing.T) {
 	w := httptest.NewRecorder()
-	data := map[string]interface{}{"a": 1}
+	data := map[string]any{"a": 1}
 	require.NoError(t, ResponseJSON(w, http.StatusCreated, data))
 	resp := w.Result()
 	defer resp.Body.Close() // Ensure the response body is closed

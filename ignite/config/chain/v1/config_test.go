@@ -116,13 +116,13 @@ func TestConfigValidatorWithExistingServers(t *testing.T) {
 			{
 				Name:   "name-1",
 				Bonded: "100ATOM",
-				App: map[string]interface{}{
+				App: map[string]any{
 					// This value should not be overwritten with the default address
-					"api": map[string]interface{}{"address": apiAddr},
+					"api": map[string]any{"address": apiAddr},
 				},
-				Config: map[string]interface{}{
+				Config: map[string]any{
 					// This value should not be overwritten with the default address
-					"rpc": map[string]interface{}{"laddr": rpcAddr},
+					"rpc": map[string]any{"laddr": rpcAddr},
 				},
 			},
 		},
@@ -161,13 +161,13 @@ func TestConfigValidatorsWithExistingServers(t *testing.T) {
 			{
 				Name:   "name-2",
 				Bonded: "200ATOM",
-				App: map[string]interface{}{
+				App: map[string]any{
 					// This value should not be overwritten with the default address
-					"api": map[string]interface{}{"address": apiAddr},
+					"api": map[string]any{"address": apiAddr},
 				},
-				Config: map[string]interface{}{
+				Config: map[string]any{
 					// This value should not be overwritten with the default address
-					"rpc": map[string]interface{}{"laddr": rpcAddr},
+					"rpc": map[string]any{"laddr": rpcAddr},
 				},
 			},
 		},

@@ -57,7 +57,7 @@ func TestSimpleSpinnerStartAndStop(t *testing.T) {
 	oldRefreshRate := simpleRefreshRate
 	oldColor := simpleColor
 	simpleRefreshRate = time.Millisecond
-	simpleColor = func(i ...interface{}) string { return fmt.Sprint(i...) }
+	simpleColor = func(i ...any) string { return fmt.Sprint(i...) }
 	t.Cleanup(func() {
 		simpleRefreshRate = oldRefreshRate
 		simpleColor = oldColor

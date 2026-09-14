@@ -178,7 +178,7 @@ type application struct {
 
 func (a *application) apply(parent proto.Visitee, name string, iter *iterator, n proto.Visitee) {
 	// don't walk into nil's
-	if v := reflect.ValueOf(n); v.Kind() == reflect.Ptr && v.IsNil() {
+	if v := reflect.ValueOf(n); v.Kind() == reflect.Pointer && v.IsNil() {
 		return
 	}
 

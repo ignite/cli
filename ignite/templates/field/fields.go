@@ -62,11 +62,11 @@ func (f Fields) ProtoFieldNameAutoCLI() string {
 
 // CLIUsage returns all inline fields args for CLI command usage.
 func (f Fields) CLIUsage() string {
-	args := ""
+	var args strings.Builder
 	for _, field := range f {
-		args += fmt.Sprintf(" [%s]", field.CLIUsage())
+		args.WriteString(fmt.Sprintf(" [%s]", field.CLIUsage()))
 	}
-	return strings.TrimSpace(args)
+	return strings.TrimSpace(args.String())
 }
 
 // Custom returns a list of custom fields.
