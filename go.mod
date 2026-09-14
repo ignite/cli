@@ -235,8 +235,8 @@ require (
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/fzipp/gocyclo v0.6.0 // indirect
 	github.com/ghostiam/protogetter v0.3.9 // indirect
-	github.com/gnolang/gno v0.0.0
-	github.com/gnolang/gno/contribs/gnodev v0.0.0
+	github.com/gnolang/gno v1.2.0
+	github.com/gnolang/gno/contribs/gnodev v0.0.0-20260914161313-1fc4c140ec40
 	github.com/go-chi/chi/v5 v5.2.4 // indirect
 	github.com/go-critic/go-critic v0.12.0 // indirect
 	github.com/go-delve/liner v1.2.3-0.20231231155935-4726ab1d7f62 // indirect
@@ -535,7 +535,3 @@ replace (
 	// Downgraded to avoid bugs in following commits which caused simulations to fail.
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
-
-replace github.com/gnolang/gno => ./gno
-
-replace github.com/gnolang/gno/contribs/gnodev => ./gno/contribs/gnodev
