@@ -94,11 +94,10 @@ $ ignite chain serve
 		NewDocs(),
 		NewVersion(),
 		NewApp(),
-		NewDoctor(),
 		NewCompletionCmd(),
 	)
 	c.AddCommand(deprecated()...)
-	c.AddCommand(cosmosMaintenanceStubs()...)
+	c.AddCommand(cosmosLegacyStubs()...)
 	c.SetContext(ctx)
 
 	// Don't load Ignite apps for level one commands that doesn't allow them

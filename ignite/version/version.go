@@ -35,9 +35,14 @@ Please, follow the migration guide to upgrade your chain to the latest version a
 // Version is the semantic version of Ignite CLI.
 var Version = versionDev
 
+// gnoModulePath is the gno module providing the gno.land toolchain ignite
+// builds on (dev chain, keybase, stdlibs).
+const gnoModulePath = "github.com/gnolang/gno"
+
 type Info struct {
 	CLIVersion      string
 	GoVersion       string
+	GnoVersion      string
 	SDKVersion      string
 	BufVersion      string
 	BuildDate       string
@@ -148,6 +153,7 @@ func Long(ctx context.Context) (string, error) {
 	write("Ignite CLI build date", info.BuildDate)
 	write("Ignite CLI source hash", info.SourceHash)
 	write("Ignite CLI config version", info.ConfigVersion)
+	write("Gno version", info.GnoVersion)
 	write("Cosmos SDK version", info.SDKVersion)
 	write("Buf.build version", info.BufVersion)
 
@@ -176,11 +182,18 @@ func GetInfo(ctx context.Context) (Info, error) {
 		date       = "undefined"
 		head       = "undefined"
 		sdkVersion = "undefined"
+		gnoVersion = "undefined"
 	)
 	if buildInfo, ok := debug.ReadBuildInfo(); ok {
 		for _, dep := range buildInfo.Deps {
 			if cosmosver.CosmosSDKModulePathPattern.MatchString(dep.Path) {
 				sdkVersion = dep.Version
+				break
+			}
+		}
+		for _, dep := range buildInfo.Deps {
+			if dep.Path == gnoModulePath {
+				gnoVersion = dep.Version
 				break
 			}
 		}
@@ -240,6 +253,7 @@ func GetInfo(ctx context.Context) (Info, error) {
 	info.SourceHash = head
 	info.ConfigVersion = fmt.Sprintf("v%d", chainconfig.LatestVersion)
 	info.SDKVersion = sdkVersion
+	info.GnoVersion = gnoVersion
 	info.OS = runtime.GOOS
 	info.Arch = runtime.GOARCH
 	info.GoVersion = strings.TrimSpace(goVersionBuf.String())

@@ -34,9 +34,8 @@ interface to [gno.land](https://gno.land), the smart contract platform from
 the Ignite team. Ignite CLI offers everything you need to scaffold, test,
 build, and launch your realms and packages.
 
-The Cosmos SDK tooling is still available, in maintenance mode, under
-`ignite cosmos`: it receives bug fixes and compatibility updates, but no new
-features.
+Ignite CLI also ships the Cosmos SDK tooling under `ignite cosmos` for
+building sovereign blockchains.
 
 ## Quick start
 
@@ -215,10 +214,10 @@ blockchain, see [ignite/web](https://github.com/ignite/web).
 For questions and support, ask easily on [GitHub Discussions](https://github.com/ignite/cli/discussions).
 The issue list in this repo is exclusively for bug reports and feature requests.
 
-## Cosmos SDK compatibility (maintenance mode)
+## Cosmos SDK compatibility
 
-The Cosmos SDK tooling now lives under `ignite cosmos` and is in maintenance
-mode. Blockchains created with it use the [Cosmos
+The Cosmos SDK tooling lives under `ignite cosmos`. Blockchains created with
+it use the [Cosmos
 SDK](https://github.com/cosmos/cosmos-sdk) framework. To ensure the best
 possible experience, use the version of Ignite CLI that corresponds to the
 version of Cosmos SDK that your blockchain is built with. Unless noted
