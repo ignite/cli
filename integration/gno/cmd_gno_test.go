@@ -216,7 +216,7 @@ func TestGnoChainTest(t *testing.T) {
 	)
 }
 
-// TestGnoGenerate covers IDL and TypeScript client generation.
+// TestGnoGenerate covers TypeScript client generation.
 func TestGnoGenerate(t *testing.T) {
 	var (
 		env = envtest.New(t)
@@ -231,17 +231,6 @@ func TestGnoGenerate(t *testing.T) {
 	)
 	workdir := filepath.Join(tmp, "counter")
 
-	env.Exec("generate an IDL",
-		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "generate", "idl"),
-			step.Workdir(workdir),
-		)),
-	)
-	idl, err := os.ReadFile(filepath.Join(workdir, "idl.json"))
-	require.NoError(t, err)
-	require.Contains(t, string(idl), `"pkgPath": "gno.land/r/counter"`)
-	require.Contains(t, string(idl), `"name": "Increment"`)
-
 	env.Exec("generate a typescript client",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp, "generate", "ts-client"),
@@ -250,8 +239,9 @@ func TestGnoGenerate(t *testing.T) {
 	)
 	client, err := os.ReadFile(filepath.Join(workdir, "counter.client.ts"))
 	require.NoError(t, err)
-	require.Contains(t, string(client), "export class CounterClient")
-	require.Contains(t, string(client), `"gno.land/r/counter", "Increment"`)
+	require.Contains(t, string(client), "@gnolang/gno-js-client")
+	require.Contains(t, string(client), "export interface CounterRealm")
+	require.Contains(t, string(client), `instance.callMethod(pkgPath, "Increment", [], "commit", send)`)
 }
 
 // TestGnoChainE2E covers the full dev loop: serve the dev chain with a

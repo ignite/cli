@@ -60,10 +60,10 @@ ignite chain send g1... 10000000ugnot            # fund an account
 ignite chain test                               # run _test.gno tests
 ```
 
-Generate an IDL and a TypeScript client from the realm:
+Generate a typed TypeScript client for the realm (built on
+[gno-js-client](https://github.com/gnolang/gno-js-client)):
 
 ```sh
-ignite generate idl
 ignite generate ts-client
 ```
 

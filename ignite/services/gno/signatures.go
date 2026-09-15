@@ -1,7 +1,6 @@
 package gno
 
 import (
-	"encoding/json"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -14,51 +13,40 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
-// IDL describes a gno package interface in an Anchor-like shape, so client
-// generators and external tools can consume it.
-type IDL struct {
-	// Version is the IDL schema version.
-	Version string `json:"version"`
-	// Name is the package name.
-	Name string `json:"name"`
-	// PkgPath is the gno.land module path.
-	PkgPath string `json:"pkgPath"`
-	// Kind is "realm" or "package".
-	Kind string `json:"kind"`
-	// Instructions are the callable functions of the package.
-	Instructions []IDLInstruction `json:"instructions"`
-}
-
-// IDLInstruction describes one exported function.
-type IDLInstruction struct {
+// FuncSig describes one exported function of a gno package.
+type FuncSig struct {
 	// Name is the exported function name.
-	Name string `json:"name"`
+	Name string
 	// Args are the function parameters.
-	Args []IDLArg `json:"args"`
+	Args []FuncArg
 	// Realm reports whether the function requires realm context (mutates
 	// state): its first parameter has type realm.
-	Realm bool `json:"realm"`
+	Realm bool
 }
 
-// IDLArg describes one function parameter.
-type IDLArg struct {
-	Name string `json:"name"`
-	Type string `json:"type"`
+// FuncArg describes one function parameter.
+type FuncArg struct {
+	Name string
+	Type string
 }
 
-// idlVersion is the IDL schema version.
-const idlVersion = "1.0"
+// PackageSignatures holds the exported functions of a gno package.
+type PackageSignatures struct {
+	// Name is the package name.
+	Name string
+	// PkgPath is the gno.land module path.
+	PkgPath string
+	// Funcs are the exported functions, sorted by name.
+	Funcs []FuncSig
+}
 
-// GenerateIDL builds the IDL of the gno package at dir. The module path is
-// read from gnomod.toml.
-func GenerateIDL(dir string) (*IDL, error) {
+// ExtractSignatures parses the gno package at dir and extracts its exported
+// functions. The signatures are the input of client generators; the same
+// data is available at runtime from a deployed chain via vm/qfuncs.
+func ExtractSignatures(dir string) (*PackageSignatures, error) {
 	pkgPath, err := parseGnoModDir(dir)
 	if err != nil {
 		return nil, errors.Wrapf(err, "reading gnomod.toml in %s (scaffold one with `ignite scaffold realm`)", dir)
-	}
-	kind := "package"
-	if strings.Contains(pkgPath, "/r/") || strings.HasSuffix(filepath.Dir(pkgPath), "/r") {
-		kind = "realm"
 	}
 
 	entries, err := os.ReadDir(dir)
@@ -66,11 +54,9 @@ func GenerateIDL(dir string) (*IDL, error) {
 		return nil, err
 	}
 
-	idl := &IDL{
-		Version: idlVersion,
+	sig := &PackageSignatures{
 		Name:    pathPkgName(pkgPath),
 		PkgPath: pkgPath,
-		Kind:    kind,
 	}
 
 	fset := token.NewFileSet()
@@ -83,43 +69,43 @@ func GenerateIDL(dir string) (*IDL, error) {
 		if err != nil {
 			return nil, errors.Wrapf(err, "parsing %s", name)
 		}
-		idl.Name = f.Name.Name
-		collectIDLFuncs(idl, f)
+		sig.Name = f.Name.Name
+		collectFuncSigs(sig, f)
 	}
 
-	sort.Slice(idl.Instructions, func(i, j int) bool {
-		return idl.Instructions[i].Name < idl.Instructions[j].Name
+	sort.Slice(sig.Funcs, func(i, j int) bool {
+		return sig.Funcs[i].Name < sig.Funcs[j].Name
 	})
-	if len(idl.Instructions) == 0 {
+	if len(sig.Funcs) == 0 {
 		return nil, errors.Errorf("no exported functions found in %s", dir)
 	}
-	return idl, nil
+	return sig, nil
 }
 
-// collectIDLFuncs appends the exported functions of a parsed file to idl.
-func collectIDLFuncs(idl *IDL, f *ast.File) {
+// collectFuncSigs appends the exported functions of a parsed file to sig.
+func collectFuncSigs(sig *PackageSignatures, f *ast.File) {
 	for _, decl := range f.Decls {
 		fn, ok := decl.(*ast.FuncDecl)
 		if !ok || !fn.Name.IsExported() {
 			continue
 		}
-		instr := IDLInstruction{Name: fn.Name.Name}
+		funcSig := FuncSig{Name: fn.Name.Name}
 		if fn.Type.Params != nil {
 			for _, p := range fn.Type.Params.List {
 				argType := exprString(p.Type)
-				if argType == "realm" && len(instr.Args) == 0 {
-					instr.Realm = true
+				if argType == "realm" && len(funcSig.Args) == 0 {
+					funcSig.Realm = true
 					continue
 				}
 				for _, name := range p.Names {
-					instr.Args = append(instr.Args, IDLArg{Name: name.Name, Type: argType})
+					funcSig.Args = append(funcSig.Args, FuncArg{Name: name.Name, Type: argType})
 				}
 				if len(p.Names) == 0 {
-					instr.Args = append(instr.Args, IDLArg{Name: fmt.Sprintf("arg%d", len(instr.Args)), Type: argType})
+					funcSig.Args = append(funcSig.Args, FuncArg{Name: fmt.Sprintf("arg%d", len(funcSig.Args)), Type: argType})
 				}
 			}
 		}
-		idl.Instructions = append(idl.Instructions, instr)
+		sig.Funcs = append(sig.Funcs, funcSig)
 	}
 }
 
@@ -146,9 +132,4 @@ func exprString(expr ast.Expr) string {
 	default:
 		return fmt.Sprintf("%T", expr)
 	}
-}
-
-// WriteIDLJSON marshals the IDL to indented JSON.
-func (i *IDL) WriteIDLJSON() ([]byte, error) {
-	return json.MarshalIndent(i, "", "  ")
 }

@@ -65,19 +65,30 @@ Run the gno tests of your package (`_test.gno` files):
 ignite chain test
 ```
 
-## Generate clients
+## Generate a typed TypeScript client
 
-Generate an interface definition (IDL) and a TypeScript client from your
-realm's exported functions:
+Generate a typed realm client built on
+[@gnolang/gno-js-client](https://github.com/gnolang/gno-js-client):
 
 ```sh
-ignite generate idl         # writes idl.json
 ignite generate ts-client   # writes counter.client.ts
 ```
 
-Read-only functions query the chain through `vm/qeval_json`; realm functions
-(state-mutating) go through an injected `GnoSigner`, so any wallet or
-gnokey-based signer can be plugged in.
+The generated module follows the official `GnoWallet.addRealm` pattern:
+read-only functions evaluate expressions through the wallet's provider,
+realm functions (state-mutating) broadcast transactions with
+`wallet.callMethod`:
+
+```ts
+import { GnoWallet } from "@gnolang/gno-js-client";
+import { counterRealm } from "./counter.client";
+
+const Wallet = GnoWallet.addRealm(counterRealm);
+const wallet = await Wallet.fromMnemonic(mnemonic);
+
+await wallet.realm.increment(); // broadcast a MsgCall
+const count = await wallet.realm.get(); // read-only evaluation
+```
 
 ## Deploy
 
