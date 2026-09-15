@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"embed"
 	"encoding/hex"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -12,6 +11,7 @@ import (
 	"sync"
 
 	"github.com/ignite/cli/v29/ignite/config"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 // stdlibsFS embeds the gno standard library sources (from
@@ -29,34 +29,35 @@ var stdlibsFS embed.FS
 const embeddedRoot = "_stdlibs/gnovm"
 
 var (
-	ensureOnce  sync.Once
-	ensureErr   error
-	ensureDir   string
-	ensureHashV string
+	stdlibsMu      sync.Mutex // guards stdlib extraction across goroutines
+	ensureHashV    string
+	ensureHashOnce sync.Once
 )
 
 // stdlibsHash returns a fingerprint of the embedded stdlib tree.
 func stdlibsHash() (string, error) {
-	if ensureHashV != "" {
-		return ensureHashV, nil
-	}
-	h := sha256.New()
-	err := fs.WalkDir(stdlibsFS, embeddedRoot, func(path string, d fs.DirEntry, err error) error {
-		if err != nil || d.IsDir() {
-			return err
+	var err error
+	ensureHashOnce.Do(func() {
+		h := sha256.New()
+		err = fs.WalkDir(stdlibsFS, embeddedRoot, func(path string, d fs.DirEntry, err error) error {
+			if err != nil || d.IsDir() {
+				return err
+			}
+			data, err := stdlibsFS.ReadFile(path)
+			if err != nil {
+				return err
+			}
+			h.Write([]byte(path))
+			h.Write(data)
+			return nil
+		})
+		if err == nil {
+			ensureHashV = hex.EncodeToString(h.Sum(nil))
 		}
-		data, err := stdlibsFS.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		h.Write([]byte(path))
-		h.Write(data)
-		return nil
 	})
 	if err != nil {
 		return "", err
 	}
-	ensureHashV = hex.EncodeToString(h.Sum(nil))
 	return ensureHashV, nil
 }
 
@@ -65,10 +66,9 @@ func stdlibsHash() (string, error) {
 // and returns the gno root directory for them, so the default
 // <rootdir>/gnovm/... resolutions find both.
 func EnsureStdlibs() (string, error) {
-	ensureOnce.Do(func() {
-		ensureDir, ensureErr = extractStdlibs()
-	})
-	return ensureDir, ensureErr
+	stdlibsMu.Lock()
+	defer stdlibsMu.Unlock()
+	return extractStdlibs()
 }
 
 // extractStdlibs writes the embedded stdlib tree to the ignite config dir

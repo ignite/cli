@@ -1,15 +1,32 @@
 package gno
 
 import (
+	"bytes"
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	gnopkg "github.com/gnolang/gno/gnovm/pkg/packages"
+	"github.com/ignite/cli/v29/ignite/pkg/env"
 	"gotest.tools/v3/assert"
 )
+
+// TestTestRunsRealmTests runs the real gno tests of a scaffolded realm
+// through the Test entry point.
+func TestTestRunsRealmTests(t *testing.T) {
+	t.Setenv(env.ConfigDirEnvVar, t.TempDir())
+
+	dir, _, err := Scaffold(KindRealm, "testcounter", ScaffoldOptions{Path: filepath.Join(t.TempDir(), "testcounter")})
+	assert.NilError(t, err)
+	t.Chdir(dir)
+
+	var stdout, stderr bytes.Buffer
+	assert.NilError(t, Test([]string{"."}, &stdout, &stderr))
+	assert.Assert(t, strings.Contains(stderr.String(), "--- PASS"), "expected passing tests, got: %s", stderr.String())
+}
 
 func TestAbsDirs(t *testing.T) {
 	dirs, err := absDirs([]string{"."})
