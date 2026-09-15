@@ -16,9 +16,9 @@ func NewScaffoldMigration() *cobra.Command {
 		Short: "Module migration boilerplate",
 		Long: `Scaffold no-op migration boilerplate for an existing Cosmos SDK module.
 
-This command creates a new migration file in "x/<module>/migrations/vN/",
+This command creates a new migration file in 'x/<module>/migrations/vN/',
 increments the module consensus version, and registers the new migration handler
-inside "x/<module>/module/module.go".`,
+inside 'x/<module>/module/module.go'.`,
 		Args:    cobra.ExactArgs(1),
 		PreRunE: migrationPreRunHandler,
 		RunE:    scaffoldMigrationHandler,
