@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## Features
+
+- [#4984](https://github.com/ignite/cli/pull/4984) Add [Gno](https://gno.land) support.
+
 ## [`v29.10.1`](https://github.com/ignite/cli/releases/tag/v29.10.1)
 
 ### Fixes
