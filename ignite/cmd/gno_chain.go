@@ -18,8 +18,19 @@ func NewGnoChain() *cobra.Command {
 		Use:     "chain [command]",
 		Aliases: []string{"c"},
 		Short:   "Run, deploy and interact with gno.land chains",
-		Args:    cobra.ExactArgs(0),
+		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
+			// point the gno keybase at --home when set (mirrors --keyring-dir)
+			if home, _ := cmd.Flags().GetString(flagGnoHome); home != "" {
+				if err := os.Setenv("GNOHOME", home); err != nil {
+					return err
+				}
+			}
+			return nil
+		},
+		Args: cobra.ExactArgs(0),
 	}
+
+	c.PersistentFlags().String(flagGnoHome, "", "directory for the gno keybase (default: ~/.config/gno)")
 
 	c.AddCommand(
 		newGnoChainServe(),

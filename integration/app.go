@@ -95,6 +95,7 @@ func (e Env) ScaffoldApp(namespace string, flags ...string) App {
 			step.Exec(
 				IgniteApp,
 				append([]string{
+					"cosmos",
 					"scaffold",
 					"chain",
 					namespace,
@@ -159,6 +160,7 @@ func (a *App) Binary() string {
 // unless calling with Must(), Serve() will not exit test runtime on failure.
 func (a *App) Serve(msg string, options ...ExecOption) (ok bool) {
 	serveCommand := []string{
+		"cosmos",
 		"chain",
 		"serve",
 		"-v",
@@ -192,6 +194,7 @@ func (a *App) Simulate(numBlocks, blockSize int) {
 		step.NewSteps(step.New(
 			step.Exec(
 				IgniteApp, // TODO
+				"cosmos",
 				"chain",
 				"simulate",
 				"--numBlocks",
@@ -312,7 +315,8 @@ func (a *App) EditConfig(apply func(*chainconfig.Config)) {
 func (a *App) GenerateTSClient() bool {
 	return a.env.Exec("generate typescript client", step.NewSteps(
 		step.New(
-			step.Exec(IgniteApp, "g", "ts-client", "--yes", "--clear-cache"),
+			step.Exec(IgniteApp, "cosmos",
+				"g", "ts-client", "--yes", "--clear-cache"),
 			step.Workdir(a.path),
 		),
 	))
@@ -358,7 +362,7 @@ func (a *App) generate(msg, command string, shouldFail bool, args ...string) {
 		opts = append(opts, ExecShouldError())
 	}
 
-	args = append([]string{command}, args...)
+	args = append([]string{"cosmos", command}, args...)
 	a.env.Must(a.env.Exec(msg,
 		step.NewSteps(step.New(
 			step.Exec(IgniteApp, append(args, "--yes")...),

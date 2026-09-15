@@ -22,6 +22,8 @@ func TestCreateChainRegistry(t *testing.T) {
 	env.Must(env.Exec("create chain-registry files",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp,
+				"cosmos",
+
 				"s",
 				"chain-registry",
 			),

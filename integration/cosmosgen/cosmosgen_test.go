@@ -31,6 +31,8 @@ func TestCosmosGenScaffold(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec(
 				envtest.IgniteApp,
+				"cosmos",
+
 				"s",
 				"module",
 				"--yes",
@@ -44,6 +46,8 @@ func TestCosmosGenScaffold(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec(
 				envtest.IgniteApp,
+				"cosmos",
+
 				"s",
 				"message",
 				"--yes",
@@ -61,6 +65,8 @@ func TestCosmosGenScaffold(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec(
 				envtest.IgniteApp,
+				"cosmos",
+
 				"s",
 				"module",
 				"--yes",
@@ -74,6 +80,8 @@ func TestCosmosGenScaffold(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec(
 				envtest.IgniteApp,
+				"cosmos",
+
 				"s",
 				"type",
 				"--yes",
@@ -90,6 +98,8 @@ func TestCosmosGenScaffold(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec(
 				envtest.IgniteApp,
+				"cosmos",
+
 				"s",
 				"query",
 				"--yes",
@@ -109,6 +119,8 @@ func TestCosmosGenScaffold(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec(
 				envtest.IgniteApp,
+				"cosmos",
+
 				"g",
 				"ts-client",
 				"--yes",
