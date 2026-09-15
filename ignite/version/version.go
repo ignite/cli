@@ -152,10 +152,8 @@ func Long(ctx context.Context) (string, error) {
 	write("Ignite CLI version", info.CLIVersion)
 	write("Ignite CLI build date", info.BuildDate)
 	write("Ignite CLI source hash", info.SourceHash)
-	write("Ignite CLI config version", info.ConfigVersion)
 	write("Gno version", info.GnoVersion)
 	write("Cosmos SDK version", info.SDKVersion)
-	write("Buf.build version", info.BufVersion)
 
 	write("Your OS", info.OS)
 	write("Your arch", info.Arch)
