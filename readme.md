@@ -52,6 +52,14 @@ The dev chain runs on `tcp://127.0.0.1:26657`, pre-funds the `test1`
 developer account, deploys your realm at genesis, and reloads the chain on
 every `.gno` file change.
 
+Interact with the running chain:
+
+```sh
+ignite chain call gno.land/r/counter Increment   # invoke a realm function
+ignite chain query "gno.land/r/counter.Get()"   # read-only expression
+ignite chain send g1... 10000000ugnot            # fund an account
+```
+
 Deploy a package to any gno.land chain (module path read from
 `gnomod.toml`):
 
@@ -64,6 +72,7 @@ Manage keys (stored in the gno keybase, `~/.config/gno`):
 ```sh
 ignite account create alice
 ignite account list
+ignite account export alice --output alice.asc
 ```
 
 ### Installation

@@ -1,18 +1,20 @@
 package gno
 
 import (
-	"bytes"
-	"context"
 	"os"
 	"path/filepath"
-	"sync/atomic"
 	"testing"
-	"time"
 
-	"github.com/fsnotify/fsnotify"
 	"github.com/gnolang/gno/gno.land/pkg/integration"
 	core_types "github.com/gnolang/gno/tm2/pkg/bft/rpc/core/types"
 	"gotest.tools/v3/assert"
+
+	"bytes"
+	"context"
+	"sync/atomic"
+	"time"
+
+	"github.com/fsnotify/fsnotify"
 )
 
 func TestNewDeployPlan(t *testing.T) {
@@ -21,68 +23,57 @@ func TestNewDeployPlan(t *testing.T) {
 	dir, modulePath, err := Scaffold(KindRealm, "deployplan", ScaffoldOptions{Path: filepath.Join(t.TempDir(), "deployplan")})
 	assert.NilError(t, err)
 
-	plan, err := newDeployPlan(dir, DeployOptions{})
-	assert.NilError(t, err)
-	assert.Equal(t, modulePath, plan.pkgPath)
-	assert.Equal(t, integration.DefaultAccount_Name, plan.from, "default signing key is the dev account")
-	assert.Equal(t, "dev", plan.maketxCfg.ChainID)
-	assert.Equal(t, "127.0.0.1:26657", plan.maketxCfg.RootCfg.Remote)
-	assert.Equal(t, int64(DefaultGasWanted), plan.maketxCfg.GasWanted)
-	assert.Equal(t, 1, len(plan.tx.Msgs))
+	// exercise Deploy through the stubbed broadcast seam and inspect the plan.
+	var got txPlan
+	restore := stubBroadcast(func(plan txPlan) (*core_types.ResultBroadcastTxCommit, error) {
+		got = plan
+		return &core_types.ResultBroadcastTxCommit{}, nil
+	})
+	defer restore()
+
+	assert.NilError(t, Deploy(dir, DeployOptions{}))
+	assert.Equal(t, modulePath, "gno.land/r/deployplan")
+	assert.Equal(t, integration.DefaultAccount_Name, got.from, "default signing key is the dev account")
+	assert.Equal(t, "dev", got.maketxCfg.ChainID)
+	assert.Equal(t, gnoDefaultRemoteForTest, got.maketxCfg.RootCfg.Remote)
+	assert.Equal(t, int64(DefaultGasWanted), got.maketxCfg.GasWanted)
+	assert.Equal(t, 1, len(got.tx.Msgs))
 }
 
-func TestNewDeployPlanErrors(t *testing.T) {
+const gnoDefaultRemoteForTest = "127.0.0.1:26657"
+
+func TestDeployErrors(t *testing.T) {
 	tt := []struct {
 		name string
 		dir  string
 		opts DeployOptions
 	}{
 		{name: "no gnomod", dir: t.TempDir(), opts: DeployOptions{}},
-		{name: "invalid gas fee", opts: DeployOptions{GasFee: "nope"}},
-		{name: "unknown key", opts: DeployOptions{From: "no-such-key"}},
+		{name: "invalid gas fee", opts: DeployOptions{TxBaseOptions: TxBaseOptions{GasFee: "nope"}}},
+		{name: "unknown key", opts: DeployOptions{TxBaseOptions: TxBaseOptions{From: "no-such-key"}}},
 	}
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			withTestGnoHome(t)
 			if tc.name == "invalid gas fee" {
-				tc.dir = scaffoldedRealm(t)
+				tc.dir = scaffoldedRealm(t, "gasfee")
 			}
-			_, err := newDeployPlan(tc.dir, tc.opts)
-			assert.ErrorContains(t, err, "")
+			assert.ErrorContains(t, Deploy(tc.dir, tc.opts), "")
 		})
 	}
 }
 
-func TestDeploySignsAndBroadcasts(t *testing.T) {
-	withTestGnoHome(t)
-	dir := scaffoldedRealm(t)
-
-	_, _, err := CreateKey("deployer", "", "", 0, 0)
-	assert.NilError(t, err)
-
-	var gotPlan deployPlan
-	stub := func(plan deployPlan) (*core_types.ResultBroadcastTxCommit, error) {
-		gotPlan = plan
-		return &core_types.ResultBroadcastTxCommit{}, nil
-	}
-	restore := stubBroadcast(stub)
-	defer restore()
-
-	assert.NilError(t, Deploy(dir, DeployOptions{From: "deployer"}))
-	assert.Equal(t, "gno.land/r/deployed", gotPlan.pkgPath)
-}
-
 // scaffoldedRealm scaffolds a realm and returns its dir.
-func scaffoldedRealm(t *testing.T) string {
+func scaffoldedRealm(t *testing.T, name string) string {
 	t.Helper()
-	dir, _, err := Scaffold(KindRealm, "deployed", ScaffoldOptions{Path: filepath.Join(t.TempDir(), "deployed")})
+	dir, _, err := Scaffold(KindRealm, name, ScaffoldOptions{Path: filepath.Join(t.TempDir(), name)})
 	assert.NilError(t, err)
 	return dir
 }
 
 // stubBroadcast swaps the signAndBroadcast seam for the test and returns a
 // restore function.
-func stubBroadcast(stub func(deployPlan) (*core_types.ResultBroadcastTxCommit, error)) func() {
+func stubBroadcast(stub func(txPlan) (*core_types.ResultBroadcastTxCommit, error)) func() {
 	orig := signAndBroadcast
 	signAndBroadcast = stub
 	return func() { signAndBroadcast = orig }

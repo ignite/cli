@@ -120,6 +120,10 @@ func printServeBanner(out io.Writer, opts ServeOptions, paths []string) {
 			fmt.Fprintf(out, "     - %s\n", p)
 		}
 	}
+	fmt.Fprintln(out, "\n   Interact with the chain:")
+	fmt.Fprintln(out, "     ignite chain call <pkgpath> <func> [args...]")
+	fmt.Fprintln(out, "     ignite chain query \"<pkgpath>.<Func>()\"")
+	fmt.Fprintln(out, "     ignite chain send <address> <amount>")
 	fmt.Fprintln(out, "\n   Watching for .gno file changes (reload chain on save)...")
 }
 
