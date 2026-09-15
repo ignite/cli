@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"embed"
 	"encoding/hex"
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -12,6 +11,7 @@ import (
 	"sync"
 
 	"github.com/ignite/cli/v29/ignite/config"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 // stdlibsFS embeds the gno standard library sources (from
@@ -90,9 +90,9 @@ func extractStdlibs() (string, error) {
 	}
 
 	if err := writeStdlibTree(stdlibDir); err != nil {
-		return "", fmt.Errorf("extracting stdlibs: %w", err)
+		return "", errors.Errorf("extracting stdlibs: %w", err)
 	}
-	if err := os.WriteFile(marker, nil, 0o644); err != nil {
+	if err := os.WriteFile(marker, nil, 0o644); err != nil { //nolint:gosec // informational marker file
 		return "", err
 	}
 	cleanStaleMarkers(gnoRoot, hash)
@@ -128,7 +128,7 @@ func writeStdlibTree(stdlibDir string) error {
 		if err != nil {
 			return err
 		}
-		return os.WriteFile(target, data, 0o644)
+		return os.WriteFile(target, data, 0o644) //nolint:gosec // extracted stdlib sources are world-readable like the gno repo
 	})
 }
 

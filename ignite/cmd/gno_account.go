@@ -85,7 +85,7 @@ The account is created with an empty passphrase unless --passphrase is set
 			session := cliui.New(cliui.StartSpinnerWithText(statusCreating))
 			defer session.End()
 
-			recover, err := cmd.Flags().GetBool(flagGnoRecover)
+			recoverKey, err := cmd.Flags().GetBool(flagGnoRecover)
 			if err != nil {
 				return err
 			}
@@ -94,7 +94,7 @@ The account is created with an empty passphrase unless --passphrase is set
 				return err
 			}
 
-			if recover {
+			if recoverKey {
 				var mnemonic string
 				if err := bubbleconfirm.Ask(
 					bubbleconfirm.NewQuestion("Your mnemonic", &mnemonic, bubbleconfirm.Required())); err != nil {

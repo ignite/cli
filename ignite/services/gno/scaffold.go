@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 // gnoModTmpl is the gnomod.toml written for scaffolded packages.
@@ -108,7 +110,7 @@ type ScaffoldOptions struct {
 // name ("counter") or a full gno.land path ("gno.land/r/demo/counter").
 // It returns the created directory and the module path.
 func Scaffold(kind ScaffoldKind, name string, opts ScaffoldOptions) (dir, modulePath string, err error) {
-	prefix := "r"
+	var prefix string
 	testTmpl := realmTestTmpl
 	var srcTmpl string
 	switch kind {
@@ -120,7 +122,7 @@ func Scaffold(kind ScaffoldKind, name string, opts ScaffoldOptions) (dir, module
 		testTmpl = packageTestTmpl
 		prefix = "p"
 	default:
-		return "", "", fmt.Errorf("unknown scaffold kind: %d", kind)
+		return "", "", errors.Errorf("unknown scaffold kind: %d", kind)
 	}
 
 	modulePath, err = resolveModulePath(prefix, name)
@@ -137,13 +139,10 @@ func Scaffold(kind ScaffoldKind, name string, opts ScaffoldOptions) (dir, module
 		return "", "", err
 	}
 	if entries, err := os.ReadDir(target); err == nil && len(entries) > 0 {
-		return "", "", fmt.Errorf("directory %s is not empty", target)
+		return "", "", errors.Errorf("directory %s is not empty", target)
 	}
 
-	srcContent, err := formatSource(srcTmpl, pkgName, kind)
-	if err != nil {
-		return "", "", err
-	}
+	srcContent := formatSource(srcTmpl, pkgName, kind)
 
 	files := map[string]string{
 		"gnomod.toml":         fmt.Sprintf(gnoModTmpl, modulePath),
@@ -151,7 +150,7 @@ func Scaffold(kind ScaffoldKind, name string, opts ScaffoldOptions) (dir, module
 		pkgName + "_test.gno": fmt.Sprintf(testTmpl, pkgName),
 	}
 	for fname, content := range files {
-		if err := os.WriteFile(filepath.Join(target, fname), []byte(content), 0o644); err != nil {
+		if err := os.WriteFile(filepath.Join(target, fname), []byte(content), 0o644); err != nil { //nolint:gosec // scaffolded sources are world-readable like any project file
 			return "", "", err
 		}
 	}
@@ -161,11 +160,11 @@ func Scaffold(kind ScaffoldKind, name string, opts ScaffoldOptions) (dir, module
 
 // formatSource renders the source template for the package kind. The realm
 // template takes the package name twice (var declarations + Render heading).
-func formatSource(tmpl, pkgName string, kind ScaffoldKind) (string, error) {
+func formatSource(tmpl, pkgName string, kind ScaffoldKind) string {
 	if kind == KindRealm {
-		return fmt.Sprintf(tmpl, pkgName, pkgName), nil
+		return fmt.Sprintf(tmpl, pkgName, pkgName)
 	}
-	return fmt.Sprintf(tmpl, pkgName), nil
+	return fmt.Sprintf(tmpl, pkgName)
 }
 
 // resolveModulePath turns a bare name or full path into a gno.land module
@@ -173,28 +172,28 @@ func formatSource(tmpl, pkgName string, kind ScaffoldKind) (string, error) {
 func resolveModulePath(prefix, name string) (string, error) {
 	name = strings.Trim(name, "/")
 	if name == "" {
-		return "", fmt.Errorf("empty package name")
+		return "", errors.Errorf("empty package name")
 	}
 	var modulePath string
 	switch {
 	case strings.HasPrefix(name, "gno.land/r/"):
 		if prefix != "r" {
-			return "", fmt.Errorf("%q is a realm path, expected a package path (gno.land/p/...)", name)
+			return "", errors.Errorf("%q is a realm path, expected a package path (gno.land/p/...)", name)
 		}
 		modulePath = name
 	case strings.HasPrefix(name, "gno.land/p/"):
 		if prefix != "p" {
-			return "", fmt.Errorf("%q is a package path, expected a realm path (gno.land/r/...)", name)
+			return "", errors.Errorf("%q is a package path, expected a realm path (gno.land/r/...)", name)
 		}
 		modulePath = name
 	default:
 		if !modulePathRegex.MatchString(name) {
-			return "", fmt.Errorf("invalid package name %q: allowed characters are a-z, 0-9, -, _ and /", name)
+			return "", errors.Errorf("invalid package name %q: allowed characters are a-z, 0-9, -, _ and /", name)
 		}
 		modulePath = "gno.land/" + prefix + "/" + name
 	}
 	if !modulePathRegex.MatchString(strings.TrimPrefix(strings.TrimPrefix(modulePath, "gno.land/"+prefix+"/"), "")) {
-		return "", fmt.Errorf("invalid module path %q", modulePath)
+		return "", errors.Errorf("invalid module path %q", modulePath)
 	}
 	return modulePath, nil
 }

@@ -6,6 +6,8 @@ import (
 	"github.com/gnolang/gno/gno.land/pkg/sdk/vm"
 	"github.com/gnolang/gno/tm2/pkg/crypto"
 	"github.com/gnolang/gno/tm2/pkg/std"
+
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 // CallOptions configures Call.
@@ -27,17 +29,17 @@ func Call(opts CallOptions) error {
 	opts.TxBaseOptions = opts.TxBaseOptions.withDefaults()
 
 	if opts.PkgPath == "" {
-		return fmt.Errorf("package path is required")
+		return errors.Errorf("package path is required")
 	}
 	if opts.Func == "" {
-		return fmt.Errorf("function name is required")
+		return errors.Errorf("function name is required")
 	}
 
 	var send std.Coins
 	if opts.Send != "" {
 		var err error
 		if send, err = std.ParseCoins(opts.Send); err != nil {
-			return fmt.Errorf("parsing send coins: %w", err)
+			return errors.Errorf("parsing send coins: %w", err)
 		}
 	}
 

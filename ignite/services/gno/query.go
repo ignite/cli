@@ -3,12 +3,13 @@ package gno
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"strings"
 
 	"github.com/gnolang/gno/gnovm/pkg/gnolang"
 	"github.com/gnolang/gno/tm2/pkg/amino"
 	"github.com/gnolang/gno/tm2/pkg/bft/rpc/client"
+
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 // evalQueryPath is the ABCI query path evaluating a read-only gno expression.
@@ -27,20 +28,20 @@ func Query(remote, expr string) (string, error) {
 		remote = "127.0.0.1:26657"
 	}
 	if expr == "" {
-		return "", fmt.Errorf("expression is required")
+		return "", errors.Errorf("expression is required")
 	}
 
 	cli, err := client.NewHTTPClient(remote)
 	if err != nil {
-		return "", fmt.Errorf("connecting to %s: %w", remote, err)
+		return "", errors.Errorf("connecting to %s: %w", remote, err)
 	}
 
 	qres, err := cli.ABCIQueryWithOptions(context.Background(), evalQueryPath, []byte(expr), client.ABCIQueryOptions{})
 	if err != nil {
-		return "", fmt.Errorf("querying %s: %w", remote, err)
+		return "", errors.Errorf("querying %s: %w", remote, err)
 	}
 	if qres.Response.Error != nil {
-		return "", fmt.Errorf("query failed: %w, log: %s", qres.Response.Error, qres.Response.Log)
+		return "", errors.Errorf("query failed: %w, log: %s", qres.Response.Error, qres.Response.Log)
 	}
 
 	return renderQueryResult(qres.Response.Data)
@@ -54,7 +55,7 @@ func renderQueryResult(data []byte) (string, error) {
 		return string(data), nil // not the expected envelope, show raw
 	}
 	if env.Error != nil && *env.Error != "" {
-		return "", fmt.Errorf("query returned an error: %s", *env.Error)
+		return "", errors.Errorf("query returned an error: %s", *env.Error)
 	}
 
 	var tvs []gnolang.TypedValue

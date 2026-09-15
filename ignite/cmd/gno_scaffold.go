@@ -37,7 +37,7 @@ A realm is a stateful smart contract: package-level variables are persisted
 on-chain. <name> is either a bare name ("counter", deployed as
 gno.land/r/counter) or a full path ("gno.land/r/demo/counter").`,
 		Args: cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, args []string) error {
 			session := cliui.New(cliui.StartSpinnerWithText(statusCreating))
 			defer session.End()
 
@@ -58,7 +58,7 @@ func newGnoScaffoldPackage() *cobra.Command {
 
 A package is a stateless library of pure functions (gno.land/p/...).`,
 		Args: cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, args []string) error {
 			session := cliui.New(cliui.StartSpinnerWithText(statusCreating))
 			defer session.End()
 

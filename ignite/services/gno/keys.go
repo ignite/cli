@@ -4,13 +4,14 @@
 package gno
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/gnolang/gno/gnovm/pkg/gnoenv"
 	"github.com/gnolang/gno/tm2/pkg/crypto/bip39"
 	"github.com/gnolang/gno/tm2/pkg/crypto/keys"
 	"github.com/gnolang/gno/tm2/pkg/crypto/keys/armor"
+
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 // HomeDir returns the default gno home directory (~/.config/gno or $GNOHOME).
@@ -42,24 +43,24 @@ func toKeyInfo(info keys.Info) KeyInfo {
 func CreateKey(name, mnemonic, passphrase string, account, index uint32) (KeyInfo, string, error) {
 	kb, err := openKeybase()
 	if err != nil {
-		return KeyInfo{}, "", fmt.Errorf("opening keybase: %w", err)
+		return KeyInfo{}, "", errors.Errorf("opening keybase: %w", err)
 	}
 	defer kb.CloseDB()
 
 	if mnemonic == "" {
 		entropy, err := bip39.NewEntropy(128)
 		if err != nil {
-			return KeyInfo{}, "", fmt.Errorf("generating entropy: %w", err)
+			return KeyInfo{}, "", errors.Errorf("generating entropy: %w", err)
 		}
 		mnemonic, err = bip39.NewMnemonic(entropy)
 		if err != nil {
-			return KeyInfo{}, "", fmt.Errorf("generating mnemonic: %w", err)
+			return KeyInfo{}, "", errors.Errorf("generating mnemonic: %w", err)
 		}
 	}
 
 	info, err := kb.CreateAccount(name, mnemonic, "", passphrase, account, index)
 	if err != nil {
-		return KeyInfo{}, "", fmt.Errorf("creating account: %w", err)
+		return KeyInfo{}, "", errors.Errorf("creating account: %w", err)
 	}
 	return toKeyInfo(info), mnemonic, nil
 }
@@ -68,13 +69,13 @@ func CreateKey(name, mnemonic, passphrase string, account, index uint32) (KeyInf
 func RecoverKey(name, mnemonic, passphrase string, account, index uint32) (KeyInfo, error) {
 	kb, err := openKeybase()
 	if err != nil {
-		return KeyInfo{}, fmt.Errorf("opening keybase: %w", err)
+		return KeyInfo{}, errors.Errorf("opening keybase: %w", err)
 	}
 	defer kb.CloseDB()
 
 	info, err := kb.CreateAccount(name, mnemonic, "", passphrase, account, index)
 	if err != nil {
-		return KeyInfo{}, fmt.Errorf("recovering account: %w", err)
+		return KeyInfo{}, errors.Errorf("recovering account: %w", err)
 	}
 	return toKeyInfo(info), nil
 }
@@ -83,7 +84,7 @@ func RecoverKey(name, mnemonic, passphrase string, account, index uint32) (KeyIn
 func ShowKey(nameOrAddress string) (KeyInfo, error) {
 	kb, err := openKeybase()
 	if err != nil {
-		return KeyInfo{}, fmt.Errorf("opening keybase: %w", err)
+		return KeyInfo{}, errors.Errorf("opening keybase: %w", err)
 	}
 	defer kb.CloseDB()
 
@@ -98,7 +99,7 @@ func ShowKey(nameOrAddress string) (KeyInfo, error) {
 func ListKeys() ([]KeyInfo, error) {
 	kb, err := openKeybase()
 	if err != nil {
-		return nil, fmt.Errorf("opening keybase: %w", err)
+		return nil, errors.Errorf("opening keybase: %w", err)
 	}
 	defer kb.CloseDB()
 
@@ -118,7 +119,7 @@ func ListKeys() ([]KeyInfo, error) {
 func DeleteKey(name, passphrase string) error {
 	kb, err := openKeybase()
 	if err != nil {
-		return fmt.Errorf("opening keybase: %w", err)
+		return errors.Errorf("opening keybase: %w", err)
 	}
 	defer kb.CloseDB()
 
@@ -130,13 +131,13 @@ func DeleteKey(name, passphrase string) error {
 func ExportKey(name, passphrase, outputPath string) (armorOut string, err error) {
 	kb, err := openKeybase()
 	if err != nil {
-		return "", fmt.Errorf("opening keybase: %w", err)
+		return "", errors.Errorf("opening keybase: %w", err)
 	}
 	defer kb.CloseDB()
 
 	privKey, err := kb.ExportPrivKey(name, passphrase)
 	if err != nil {
-		return "", fmt.Errorf("exporting key: %w", err)
+		return "", errors.Errorf("exporting key: %w", err)
 	}
 	armorOut = armor.EncryptArmorPrivKey(privKey, passphrase)
 
@@ -153,7 +154,7 @@ func ExportKey(name, passphrase, outputPath string) (armorOut string, err error)
 func ImportKey(name, armorPath, passphrase string) (KeyInfo, error) {
 	kb, err := openKeybase()
 	if err != nil {
-		return KeyInfo{}, fmt.Errorf("opening keybase: %w", err)
+		return KeyInfo{}, errors.Errorf("opening keybase: %w", err)
 	}
 	defer kb.CloseDB()
 
@@ -163,10 +164,10 @@ func ImportKey(name, armorPath, passphrase string) (KeyInfo, error) {
 	}
 	privKey, err := armor.UnarmorDecryptPrivKey(string(armorBytes), passphrase)
 	if err != nil {
-		return KeyInfo{}, fmt.Errorf("decrypting armor: %w", err)
+		return KeyInfo{}, errors.Errorf("decrypting armor: %w", err)
 	}
 	if err := kb.ImportPrivKey(name, privKey, passphrase); err != nil {
-		return KeyInfo{}, fmt.Errorf("importing key: %w", err)
+		return KeyInfo{}, errors.Errorf("importing key: %w", err)
 	}
 	return ShowKey(name)
 }

@@ -9,6 +9,8 @@ import (
 	"github.com/gnolang/gno/gnovm/pkg/gnomod"
 	"github.com/gnolang/gno/tm2/pkg/crypto"
 	"github.com/gnolang/gno/tm2/pkg/std"
+
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 // DefaultGasWanted and DefaultGasFee are the defaults used when deploying.
@@ -35,21 +37,21 @@ func Deploy(dir string, opts DeployOptions) error {
 	if pkgPath == "" {
 		mod, err := parseGnoModDir(dir)
 		if err != nil {
-			return fmt.Errorf("reading gnomod.toml in %s: %w (scaffold one with `ignite scaffold realm`)", dir, err)
+			return errors.Errorf("reading gnomod.toml in %s: %w (scaffold one with `ignite scaffold realm`)", dir, err)
 		}
 		pkgPath = mod
 	}
 
 	memPkg := gno.MustReadMemPackage(dir, pkgPath, gno.MPUserAll)
 	if memPkg.IsEmpty() {
-		return fmt.Errorf("no .gno files found in %s", dir)
+		return errors.Errorf("no .gno files found in %s", dir)
 	}
 
 	var maxDeposit std.Coins
 	if opts.MaxDeposit != "" {
 		var err error
 		if maxDeposit, err = std.ParseCoins(opts.MaxDeposit); err != nil {
-			return fmt.Errorf("parsing max deposit: %w", err)
+			return errors.Errorf("parsing max deposit: %w", err)
 		}
 	}
 

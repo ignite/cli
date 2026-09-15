@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 // NewCosmos returns the `ignite cosmos` command tree holding the Cosmos SDK
@@ -35,20 +37,20 @@ blockchains live here.`,
 // cosmosLegacyStubs returns hidden stub commands for the previously
 // top-level cosmos commands, pointing users at `ignite cosmos`.
 func cosmosLegacyStubs() []*cobra.Command {
-	stub := func(use, useLine, instead string) *cobra.Command {
+	stub := func(use, instead string) *cobra.Command {
 		return &cobra.Command{
 			Use:        use,
 			Hidden:     true,
 			Deprecated: fmt.Sprintf("use `ignite cosmos %s` instead.", instead),
-			RunE: func(cmd *cobra.Command, args []string) error {
-				return fmt.Errorf("use `ignite cosmos %s` instead", instead)
+			RunE: func(*cobra.Command, []string) error {
+				return errors.Errorf("use `ignite cosmos %s` instead", instead)
 			},
 		}
 	}
 
 	return []*cobra.Command{
-		stub("chain [command]", "chain [flags]", "chain"),
-		stub("generate [command]", "generate [flags]", "generate"),
-		stub("testnet [command]", "testnet [flags]", "testnet"),
+		stub("chain [command]", "chain"),
+		stub("generate [command]", "generate"),
+		stub("testnet [command]", "testnet"),
 	}
 }

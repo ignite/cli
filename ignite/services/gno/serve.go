@@ -14,6 +14,8 @@ import (
 	gnodev "github.com/gnolang/gno/contribs/gnodev/pkg/dev"
 	"github.com/gnolang/gno/contribs/gnodev/pkg/packages"
 	"github.com/gnolang/gno/gno.land/pkg/integration"
+
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 const reloadTimeout = 60 * time.Second
@@ -53,7 +55,7 @@ func Serve(ctx context.Context, dir string, opts ServeOptions, out io.Writer) er
 
 	gnoRoot, err := EnsureStdlibs()
 	if err != nil {
-		return fmt.Errorf("preparing gno stdlibs: %w", err)
+		return errors.Errorf("preparing gno stdlibs: %w", err)
 	}
 
 	loader := packages.New(packages.Config{
@@ -80,7 +82,7 @@ func Serve(ctx context.Context, dir string, opts ServeOptions, out io.Writer) er
 
 	node, err := gnodev.NewDevNode(ctx, nodeCfg, paths...)
 	if err != nil {
-		return fmt.Errorf("starting dev node: %w", err)
+		return errors.Errorf("starting dev node: %w", err)
 	}
 	defer node.Close()
 

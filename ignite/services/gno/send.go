@@ -7,6 +7,8 @@ import (
 	"github.com/gnolang/gno/tm2/pkg/crypto"
 	"github.com/gnolang/gno/tm2/pkg/sdk/bank"
 	"github.com/gnolang/gno/tm2/pkg/std"
+
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 // SendOptions configures Send.
@@ -24,14 +26,14 @@ func Send(opts SendOptions) error {
 	opts.TxBaseOptions = opts.TxBaseOptions.withDefaults()
 
 	if opts.To == "" {
-		return fmt.Errorf("beneficiary is required")
+		return errors.Errorf("beneficiary is required")
 	}
 	coins, err := std.ParseCoins(opts.Amount)
 	if err != nil {
-		return fmt.Errorf("parsing amount: %w", err)
+		return errors.Errorf("parsing amount: %w", err)
 	}
 	if len(coins) == 0 {
-		return fmt.Errorf("amount is required")
+		return errors.Errorf("amount is required")
 	}
 
 	// resolve beneficiary: allow key names for convenience
@@ -39,7 +41,7 @@ func Send(opts SendOptions) error {
 	if !strings.HasPrefix(opts.To, "g1") {
 		info, err := ShowKey(opts.To)
 		if err != nil {
-			return fmt.Errorf("%q is neither a bech32 address nor a key in the keybase: %w", opts.To, err)
+			return errors.Errorf("%q is neither a bech32 address nor a key in the keybase: %w", opts.To, err)
 		}
 		to = info.Address
 	}

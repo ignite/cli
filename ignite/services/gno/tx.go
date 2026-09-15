@@ -8,6 +8,8 @@ import (
 	"github.com/gnolang/gno/tm2/pkg/commands"
 	"github.com/gnolang/gno/tm2/pkg/crypto/keys/client"
 	"github.com/gnolang/gno/tm2/pkg/std"
+
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 // TxBaseOptions holds the chain connection and gas settings shared by all
@@ -87,13 +89,13 @@ var signAndBroadcast = func(plan txPlan) (*core_types.ResultBroadcastTxCommit, e
 func broadcast(plan txPlan, describe string) error {
 	bres, err := signAndBroadcast(plan)
 	if err != nil {
-		return fmt.Errorf("broadcasting tx: %w", err)
+		return errors.Errorf("broadcasting tx: %w", err)
 	}
 	if bres.CheckTx.IsErr() {
-		return fmt.Errorf("check tx failed: %w, log: %s", bres.CheckTx.Error, bres.CheckTx.Log)
+		return errors.Errorf("check tx failed: %w, log: %s", bres.CheckTx.Error, bres.CheckTx.Log)
 	}
 	if bres.DeliverTx.IsErr() {
-		return fmt.Errorf("deliver tx failed: %w, log: %s", bres.DeliverTx.Error, bres.DeliverTx.Log)
+		return errors.Errorf("deliver tx failed: %w, log: %s", bres.DeliverTx.Error, bres.DeliverTx.Log)
 	}
 	fmt.Printf("%s (gas used: %d)\n", describe, bres.DeliverTx.GasUsed)
 	return nil
@@ -103,7 +105,7 @@ func broadcast(plan txPlan, describe string) error {
 func (b TxBaseOptions) callerAddress() (string, error) {
 	info, err := ensureKey(b.From)
 	if err != nil {
-		return "", fmt.Errorf("key %q not found in the gno keybase: %w (create one with `ignite account create`)", b.From, err)
+		return "", errors.Errorf("key %q not found in the gno keybase: %w (create one with `ignite account create`)", b.From, err)
 	}
 	return info.Address, nil
 }
@@ -112,7 +114,7 @@ func (b TxBaseOptions) callerAddress() (string, error) {
 func (b TxBaseOptions) parseGasFee() (std.Coin, error) {
 	gasFee, err := std.ParseCoin(b.GasFee)
 	if err != nil {
-		return std.Coin{}, fmt.Errorf("parsing gas fee: %w", err)
+		return std.Coin{}, errors.Errorf("parsing gas fee: %w", err)
 	}
 	return gasFee, nil
 }
