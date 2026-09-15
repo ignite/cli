@@ -57,6 +57,14 @@ Interact with the running chain:
 ignite chain call gno.land/r/counter Increment   # invoke a realm function
 ignite chain query "gno.land/r/counter.Get()"   # read-only expression
 ignite chain send g1... 10000000ugnot            # fund an account
+ignite chain test                               # run _test.gno tests
+```
+
+Generate an IDL and a TypeScript client from the realm:
+
+```sh
+ignite generate idl
+ignite generate ts-client
 ```
 
 Deploy a package to any gno.land chain (module path read from

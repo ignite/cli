@@ -194,6 +194,66 @@ func TestGnoAccountLifecycle(t *testing.T) {
 	)
 }
 
+// TestGnoChainTest runs the gno tests of a scaffolded realm.
+func TestGnoChainTest(t *testing.T) {
+	var (
+		env = envtest.New(t)
+		tmp = env.TmpDir()
+	)
+
+	env.Exec("scaffold a realm",
+		step.NewSteps(step.New(
+			step.Exec(envtest.IgniteApp, "scaffold", "realm", "counter"),
+			step.Workdir(tmp),
+		)),
+	)
+
+	env.Exec("run the realm tests",
+		step.NewSteps(step.New(
+			step.Exec(envtest.IgniteApp, "chain", "test"),
+			step.Workdir(filepath.Join(tmp, "counter")),
+		)),
+	)
+}
+
+// TestGnoGenerate covers IDL and TypeScript client generation.
+func TestGnoGenerate(t *testing.T) {
+	var (
+		env = envtest.New(t)
+		tmp = env.TmpDir()
+	)
+
+	env.Exec("scaffold a realm",
+		step.NewSteps(step.New(
+			step.Exec(envtest.IgniteApp, "scaffold", "realm", "counter"),
+			step.Workdir(tmp),
+		)),
+	)
+	workdir := filepath.Join(tmp, "counter")
+
+	env.Exec("generate an IDL",
+		step.NewSteps(step.New(
+			step.Exec(envtest.IgniteApp, "generate", "idl"),
+			step.Workdir(workdir),
+		)),
+	)
+	idl, err := os.ReadFile(filepath.Join(workdir, "idl.json"))
+	require.NoError(t, err)
+	require.Contains(t, string(idl), `"pkgPath": "gno.land/r/counter"`)
+	require.Contains(t, string(idl), `"name": "Increment"`)
+
+	env.Exec("generate a typescript client",
+		step.NewSteps(step.New(
+			step.Exec(envtest.IgniteApp, "generate", "ts-client"),
+			step.Workdir(workdir),
+		)),
+	)
+	client, err := os.ReadFile(filepath.Join(workdir, "counter.client.ts"))
+	require.NoError(t, err)
+	require.Contains(t, string(client), "export class CounterClient")
+	require.Contains(t, string(client), `"gno.land/r/counter", "Increment"`)
+}
+
 // TestGnoChainE2E covers the full dev loop: serve the dev chain with a
 // scaffolded realm preloaded, then call, query, send and deploy against it.
 func TestGnoChainE2E(t *testing.T) {

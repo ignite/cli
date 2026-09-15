@@ -38,6 +38,7 @@ func NewGnoChain() *cobra.Command {
 		newGnoChainCall(),
 		newGnoChainQuery(),
 		newGnoChainSend(),
+		newGnoChainTest(),
 	)
 
 	return c
@@ -199,3 +200,15 @@ $ ignite chain send alice 10000000ugnot --from test1`,
 }
 
 const flagGnoSend = "send"
+
+func newGnoChainTest() *cobra.Command {
+	return &cobra.Command{
+		Use:   "test [dir]",
+		Short: "Run the gno tests of a package",
+		Long:  "Run the gno tests (_test.gno files) of the package at dir (default: current directory).",
+		Args:  cobra.MaximumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return gno.Test(args, cmd.OutOrStdout(), cmd.OutOrStderr())
+		},
+	}
+}

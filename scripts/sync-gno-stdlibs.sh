@@ -10,16 +10,20 @@ MOD=github.com/gnolang/gno
 GNO_DIR=$(go mod download -json "$MOD" | sed -n 's/^\t"Dir": "\(.*\)",$/\1/p')
 [ -n "$GNO_DIR" ] || { echo "error: unable to resolve $MOD source dir" >&2; exit 1; }
 
-SRC="$GNO_DIR/gnovm/stdlibs"
-DEST="ignite/services/gno/_stdlibs/gnovm/stdlibs"
-
-[ -d "$SRC" ] || { echo "error: $SRC not found in module" >&2; exit 1; }
-
+DEST_ROOT="ignite/services/gno/_stdlibs/gnovm"
 VERSION=$(go list -m -f '{{.Version}}' "$MOD")
-chmod -R u+w "$DEST" 2>/dev/null || true
-rm -rf "$DEST"
-mkdir -p "$DEST"
-cp -R "$SRC/." "$DEST/"
-chmod -R u+w "$DEST"
+
+# stdlibs: used by the dev chain; tests/stdlibs: testing overrides used by
+# `ignite chain test`.
+for SUB in stdlibs tests/stdlibs; do
+	SRC="$GNO_DIR/gnovm/$SUB"
+	DEST="$DEST_ROOT/$SUB"
+	[ -d "$SRC" ] || { echo "error: $SRC not found in module" >&2; exit 1; }
+	chmod -R u+w "$DEST" 2>/dev/null || true
+	rm -rf "$DEST"
+	mkdir -p "$DEST"
+	cp -R "$SRC/." "$DEST/"
+	chmod -R u+w "$DEST"
+done
 
 echo "synced stdlibs from $MOD $VERSION ($GNO_DIR)"

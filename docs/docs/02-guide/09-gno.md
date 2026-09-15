@@ -57,6 +57,28 @@ ignite chain query "gno.land/r/counter.Get()"
 ignite chain send alice 10000000ugnot
 ```
 
+## Test
+
+Run the gno tests of your package (`_test.gno` files):
+
+```sh
+ignite chain test
+```
+
+## Generate clients
+
+Generate an interface definition (IDL) and a TypeScript client from your
+realm's exported functions:
+
+```sh
+ignite generate idl         # writes idl.json
+ignite generate ts-client   # writes counter.client.ts
+```
+
+Read-only functions query the chain through `vm/qeval_json`; realm functions
+(state-mutating) go through an injected `GnoSigner`, so any wallet or
+gnokey-based signer can be plugged in.
+
 ## Deploy
 
 ```sh

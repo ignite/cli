@@ -83,20 +83,27 @@ func hashTree(fsys fs.FS, root string) (string, error) {
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
+// embeddedSubtrees are the gno module subtrees ignite embeds, hashed in a
+// fixed order by the sync guard.
+var embeddedSubtrees = []string{
+	"stdlibs",
+	"tests/stdlibs",
+}
+
 // TestStdlibsInSync guards the embedded gno stdlibs against drift: they must
-// be a byte-for-byte copy of gnovm/stdlibs from the gno module version
-// pinned in go.mod. When this fails after a gno version bump, run:
+// be a byte-for-byte copy of the gno module subtrees ignite embeds, at the
+// version pinned in go.mod. When this fails after a gno version bump, run:
 //
 //	make sync-gno-stdlibs
 func TestStdlibsInSync(t *testing.T) {
 	version := gnoModuleVersion(t)
 	modDir := gnoModuleDir(t)
 
-	want, err := hashTree(os.DirFS(modDir), "gnovm/stdlibs")
+	want, err := hashEmbedded(os.DirFS(filepath.Join(modDir, "gnovm")))
 	if err != nil {
 		t.Fatalf("hashing module stdlibs: %v", err)
 	}
-	got, err := hashTree(stdlibsFS, stdlibsRoot)
+	got, err := hashEmbedded(mustSub(stdlibsFS, embeddedRoot))
 	if err != nil {
 		t.Fatalf("hashing embedded stdlibs: %v", err)
 	}
@@ -104,11 +111,35 @@ func TestStdlibsInSync(t *testing.T) {
 	if got != want {
 		t.Errorf(
 			"embedded stdlibs (%s) are out of sync with %s@%s\ncurrent hash:   %s\nexpected hash:  %s\n\nrun `make sync-gno-stdlibs` and commit the result",
-			stdlibsRoot, gnoModule, version, got, want,
+			embeddedRoot, gnoModule, version, got, want,
 		)
 	} else {
 		t.Logf("embedded stdlibs match %s@%s (%s)", gnoModule, version, fmtShortHash(got))
 	}
+}
+
+// hashEmbedded hashes the embedded subtrees in a fixed order, with names
+// relative to the gnovm root so module and embed trees hash identically.
+func hashEmbedded(fsys fs.FS) (string, error) {
+	h := sha256.New()
+	for _, sub := range embeddedSubtrees {
+		subHash, err := hashTree(fsys, sub)
+		if err != nil {
+			return "", err
+		}
+		h.Write([]byte(sub))
+		h.Write([]byte(subHash))
+	}
+	return hex.EncodeToString(h.Sum(nil)), nil
+}
+
+// mustSub returns fsys rooted at dir, skipping when it does not exist.
+func mustSub(fsys fs.FS, dir string) fs.FS {
+	sub, err := fs.Sub(fsys, dir)
+	if err != nil {
+		panic(err)
+	}
+	return sub
 }
 
 func fmtShortHash(h string) string {

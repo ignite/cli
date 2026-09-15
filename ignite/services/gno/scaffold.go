@@ -27,10 +27,12 @@ import (
 // counter is realm state: package-level variables are persisted on-chain.
 var counter int
 
-// Increment mutates realm state. The leading "realm" argument is the gno
-// convention for methods that require access to realm context.
-func Increment(_ realm) {
+// Increment mutates realm state and returns the new counter value. The
+// leading "realm" argument is the gno convention for methods that require
+// access to realm context.
+func Increment(_ realm) int {
 	counter++
+	return counter
 }
 
 // Get returns the current counter value.

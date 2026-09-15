@@ -90,6 +90,7 @@ $ ignite chain serve
 		NewGnoScaffold(),
 		NewGnoChain(),
 		NewGnoAccount(),
+		NewGnoGenerate(),
 		NewCosmos(),
 		NewDocs(),
 		NewVersion(),

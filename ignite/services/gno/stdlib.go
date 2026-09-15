@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"embed"
 	"encoding/hex"
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -11,21 +12,21 @@ import (
 	"sync"
 
 	"github.com/ignite/cli/v29/ignite/config"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
 )
 
 // stdlibsFS embeds the gno standard library sources (from
-// github.com/gnolang/gno, gnovm/stdlibs) so ignite can boot a dev chain
+// github.com/gnolang/gno) so ignite can boot a dev chain and run gno tests
 // without requiring a local gno checkout.
 //
 // The tree is kept in a `_`-prefixed directory so the go tool ignores the
 // copied .go files (they are gno data, not ignite code).
 //
-//go:embed all:_stdlibs/gnovm/stdlibs
+//go:embed all:_stdlibs/gnovm
 var stdlibsFS embed.FS
 
-// stdlibsRoot is the embedded tree root within stdlibsFS.
-const stdlibsRoot = "_stdlibs/gnovm/stdlibs"
+// embeddedRoot is the embedded tree root within stdlibsFS. It holds the
+// gnovm/stdlibs (chain stdlibs) and gnovm/tests/stdlibs (testing overrides).
+const embeddedRoot = "_stdlibs/gnovm"
 
 var (
 	ensureOnce  sync.Once
@@ -40,7 +41,7 @@ func stdlibsHash() (string, error) {
 		return ensureHashV, nil
 	}
 	h := sha256.New()
-	err := fs.WalkDir(stdlibsFS, stdlibsRoot, func(path string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(stdlibsFS, embeddedRoot, func(path string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
 			return err
 		}
@@ -60,9 +61,9 @@ func stdlibsHash() (string, error) {
 }
 
 // EnsureStdlibs extracts the embedded gno stdlibs under
-// <ignite-config>/gno/gnovm/stdlibs (if not already current) and returns the
-// gno root directory to use as the node rootdir (so the default
-// <rootdir>/gnovm/stdlibs resolution finds them).
+// <ignite-config>/gno/gnovm/{stdlibs,tests/stdlibs} (if not already current)
+// and returns the gno root directory for them, so the default
+// <rootdir>/gnovm/... resolutions find both.
 func EnsureStdlibs() (string, error) {
 	ensureOnce.Do(func() {
 		ensureDir, ensureErr = extractStdlibs()
@@ -83,13 +84,13 @@ func extractStdlibs() (string, error) {
 		return "", err
 	}
 	gnoRoot := filepath.Join(base, "gno")
-	stdlibDir := filepath.Join(gnoRoot, "gnovm", "stdlibs")
+	gnovmDir := filepath.Join(gnoRoot, "gnovm")
 	marker := stdlibMarkerPath(gnoRoot, hash)
 	if _, err := os.Stat(marker); err == nil {
 		return gnoRoot, nil // already extracted at this version
 	}
 
-	if err := writeStdlibTree(stdlibDir); err != nil {
+	if err := writeStdlibTree(gnovmDir); err != nil {
 		return "", errors.Errorf("extracting stdlibs: %w", err)
 	}
 	if err := os.WriteFile(marker, nil, 0o644); err != nil { //nolint:gosec // informational marker file
@@ -104,23 +105,31 @@ func stdlibMarkerPath(gnoRoot, hash string) string {
 	return filepath.Join(gnoRoot, ".stdlibs-"+hash)
 }
 
-// writeStdlibTree replaces stdlibDir with the embedded stdlib sources.
-func writeStdlibTree(stdlibDir string) error {
-	if err := os.RemoveAll(stdlibDir); err != nil {
+// writeStdlibTree replaces gnovmDir with the embedded stdlib sources.
+func writeStdlibTree(gnovmDir string) error {
+	if err := os.RemoveAll(gnovmDir); err != nil {
 		return err
 	}
-	if err := os.MkdirAll(stdlibDir, 0o755); err != nil {
-		return err
-	}
-	return fs.WalkDir(stdlibsFS, stdlibsRoot, func(path string, d fs.DirEntry, err error) error {
-		if err != nil || d.IsDir() {
-			return err
-		}
-		rel, err := filepath.Rel(stdlibsRoot, path)
+	return fs.WalkDir(stdlibsFS, embeddedRoot, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		target := filepath.Join(stdlibDir, rel)
+		if d.IsDir() {
+			// skip the embedded root itself; _stdlibs must not leak in
+			if path == embeddedRoot {
+				return nil
+			}
+			rel, err := filepath.Rel(embeddedRoot, path)
+			if err != nil {
+				return err
+			}
+			return os.MkdirAll(filepath.Join(gnovmDir, rel), 0o755)
+		}
+		rel, err := filepath.Rel(embeddedRoot, path)
+		if err != nil {
+			return err
+		}
+		target := filepath.Join(gnovmDir, rel)
 		if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
 			return err
 		}
