@@ -1,8 +1,10 @@
 package gno
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/fsnotify/fsnotify"
@@ -40,6 +42,27 @@ func TestPreloadPaths(t *testing.T) {
 			assert.DeepEqual(t, tc.want, preloadPaths(dir))
 		})
 	}
+}
+
+func TestPrintServeBanner(t *testing.T) {
+	opts := ServeOptions{ChainID: "dev", RPCListener: "tcp://127.0.0.1:26657"}
+
+	t.Run("lists every deployed package", func(t *testing.T) {
+		out := &bytes.Buffer{}
+		printServeBanner(out, opts, []string{"gno.land/p/utils", "gno.land/r/counter"})
+
+		assert.Assert(t, strings.Contains(out.String(), "gno.land/p/utils"), "banner should list utils: %s", out.String())
+		assert.Assert(t, strings.Contains(out.String(), "gno.land/r/counter"), "banner should list counter: %s", out.String())
+		assert.Assert(t, !strings.Contains(out.String(), "No gno package found"), "banner should not show the empty hint: %s", out.String())
+	})
+
+	t.Run("hints when no package is deployed", func(t *testing.T) {
+		out := &bytes.Buffer{}
+		printServeBanner(out, opts, nil)
+
+		assert.Assert(t, strings.Contains(out.String(), "No gno package found"), "banner should show the empty hint: %s", out.String())
+		assert.Assert(t, strings.Contains(out.String(), "gnowork.toml"), "empty hint should mention gnowork.toml: %s", out.String())
+	})
 }
 
 func TestIsGnoFile(t *testing.T) {

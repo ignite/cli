@@ -37,12 +37,36 @@ ignite chain serve
 This runs a local, in-memory gno.land chain:
 
 - the well-known dev account `test1` is pre-funded (its mnemonic is printed),
-- your realm is deployed at genesis,
+- every gno package under the current directory is deployed at genesis: a
+  single package directory deploys that package, a `gnowork.toml` workspace
+  deploys all packages under it,
 - every `.gno` file change reloads the chain,
 - the RPC endpoint listens on `tcp://127.0.0.1:26657` (override with
   `--remote`).
 
 The gno stdlibs are embedded in the binary; no gno installation is required.
+
+## Work with multiple packages
+
+A project can hold several packages: realms under `r/`, pure packages under
+`p/`. Add an empty `gnowork.toml` file at the project root so serve deploys
+all of them:
+
+```
+myproject/
+├── gnowork.toml
+├── counter/    # realm, gno.land/r/counter
+└── strings/    # package, gno.land/p/strings
+```
+
+```sh
+cd myproject
+ignite chain serve
+```
+
+All packages deploy at genesis in dependency order, and saving any `.gno`
+file reloads all of them. `ignite chain deploy` deploys a single package to
+any chain, workspace or not.
 
 ## Interact with the chain
 

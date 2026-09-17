@@ -86,7 +86,7 @@ func Serve(ctx context.Context, dir string, opts ServeOptions, out io.Writer) er
 	}
 	defer node.Close()
 
-	printServeBanner(out, opts, paths)
+	printServeBanner(out, opts, deployedPaths(node))
 
 	// report packages that failed to load at genesis (the dev chain skips
 	// failing genesis txs, so a broken package would otherwise be silent).
@@ -99,6 +99,19 @@ func Serve(ctx context.Context, dir string, opts ServeOptions, out io.Writer) er
 	}
 
 	return watchLoop(ctx, node.Reload, dir, out)
+}
+
+// deployedPaths returns the import paths of the packages deployed at
+// genesis, in deploy order. The dev node deploys every package under the
+// gno loader root: a gnowork.toml workspace when dir is inside one, else
+// the package at dir itself.
+func deployedPaths(node *gnodev.Node) []string {
+	pkgs := node.ListPkgs()
+	paths := make([]string, 0, len(pkgs))
+	for _, pkg := range pkgs {
+		paths = append(paths, pkg.ImportPath)
+	}
+	return paths
 }
 
 // printServeBanner prints the dev chain summary.
@@ -116,6 +129,7 @@ func printServeBanner(out io.Writer, opts ServeOptions, paths []string) {
 		fmt.Fprintln(out, "\n   No gno package found in the current directory.")
 		fmt.Fprintln(out, "   Scaffold one with `ignite scaffold realm <name>` then restart,")
 		fmt.Fprintln(out, "   or deploy at runtime with `ignite chain deploy`.")
+		fmt.Fprintln(out, "   For multiple packages, add a gnowork.toml at the project root.")
 	} else {
 		fmt.Fprintln(out, "\n   Loaded packages:")
 		for _, p := range paths {

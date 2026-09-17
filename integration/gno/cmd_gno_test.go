@@ -244,6 +244,49 @@ func TestGnoGenerate(t *testing.T) {
 	require.Contains(t, string(client), `instance.callMethod(pkgPath, "Increment", [], "commit", send)`)
 }
 
+// TestGnoChainServeWorkspace covers multi-package projects: a gnowork.toml
+// workspace deploys every package under its root at genesis.
+func TestGnoChainServeWorkspace(t *testing.T) {
+	var (
+		env = envtest.New(t)
+		tmp = env.TmpDir()
+	)
+
+	// workspace root with two realms
+	writeFile := func(name, content string) {
+		require.NoError(t, os.WriteFile(filepath.Join(tmp, name), []byte(content), 0o644))
+	}
+	writeFile("gnowork.toml", "")
+
+	for _, name := range []string{"counter", "pixel"} {
+		env.Exec("scaffold a realm",
+			step.NewSteps(step.New(
+				step.Exec(envtest.IgniteApp, "scaffold", "realm", name),
+				step.Workdir(tmp),
+			)),
+		)
+	}
+
+	listener := freeRPCListener(t)
+	startServe(t, env, tmp, listener)
+	remote := strings.TrimPrefix(listener, "tcp://")
+
+	for _, path := range []string{"gno.land/r/counter", "gno.land/r/pixel"} {
+		var out strings.Builder
+		env.Must(env.Exec("query a workspace realm",
+			step.NewSteps(step.New(
+				step.Exec(envtest.IgniteApp,
+					"chain", "query", path+".Get()",
+					"--remote", remote,
+				),
+				step.Workdir(tmp),
+				step.Stdout(&out),
+			)),
+		))
+		require.Contains(t, out.String(), "0", "realm %s should be deployed at genesis: %s", path, out.String())
+	}
+}
+
 // TestGnoChainE2E covers the full dev loop: serve the dev chain with a
 // scaffolded realm preloaded, then call, query, send and deploy against it.
 func TestGnoChainE2E(t *testing.T) {
