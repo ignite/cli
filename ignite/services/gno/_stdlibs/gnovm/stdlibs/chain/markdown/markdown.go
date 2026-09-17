@@ -79,8 +79,10 @@ func NormalizeBreaks(s string) string {
 
 // ---------- EscapeInline / EscapeTitle ----------
 
-var inlineEscapeSet [128]bool
-var titleEscapeSet [128]bool
+var (
+	inlineEscapeSet [128]bool
+	titleEscapeSet  [128]bool
+)
 
 func init() {
 	for _, c := range []byte{'\\', '*', '_', '[', ']', '(', ')', '~', '>', '-', '+', '.', '!', '`', '#', '<', '&'} {
