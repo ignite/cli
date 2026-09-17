@@ -325,10 +325,8 @@ func TestPairingCheckRejectsUnreducedCoordinates(t *testing.T) {
 	p := fpModulusBytes()
 	input := make([]byte, 0, 192)
 	input = append(input, p...)
-	input = append(input, []byte{
-		0, 0, 0, 0, 0, 0, 0, 0,
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
-	}...)
+	input = append(input, []byte{0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}...)
 	input = append(input, g2Marshal...)
 
 	if X_pairingCheck(input) != nil {
