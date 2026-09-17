@@ -4,17 +4,17 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cliui"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"
-	"github.com/ignite/cli/v29/ignite/pkg/env"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
-	"github.com/ignite/cli/v29/ignite/pkg/xgit"
-	"github.com/ignite/cli/v29/ignite/services/scaffolder"
-	"github.com/ignite/cli/v29/ignite/templates/field"
-	"github.com/ignite/cli/v29/ignite/version"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/v30/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v30/ignite/pkg/env"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/gocmd"
+	"github.com/ignite/cli/v30/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v30/ignite/pkg/xgit"
+	"github.com/ignite/cli/v30/ignite/services/scaffolder"
+	"github.com/ignite/cli/v30/ignite/templates/field"
+	"github.com/ignite/cli/v30/ignite/version"
 )
 
 // flags related to component scaffolding.

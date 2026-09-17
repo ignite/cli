@@ -8,12 +8,12 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
-	appanalysis "github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/app"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/v29/ignite/templates/field"
-	"github.com/ignite/cli/v29/ignite/templates/module"
-	modulecreate "github.com/ignite/cli/v29/ignite/templates/module/create"
+	appanalysis "github.com/ignite/cli/v30/ignite/pkg/cosmosanalysis/app"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v30/ignite/templates/field"
+	"github.com/ignite/cli/v30/ignite/templates/module"
+	modulecreate "github.com/ignite/cli/v30/ignite/templates/module/create"
 )
 
 const (

@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	gnopkg "github.com/gnolang/gno/gnovm/pkg/packages"
-	"github.com/ignite/cli/v29/ignite/pkg/env"
+	"github.com/ignite/cli/v30/ignite/pkg/env"
 	"gotest.tools/v3/assert"
 )
 

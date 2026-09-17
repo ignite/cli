@@ -233,6 +233,7 @@ otherwise, a row refers to a minor version and all associated patch versions.
 
 | Ignite CLI  | Cosmos SDK        | IBC                  | Notes                                                         |
 | ----------- | ----------------- | -------------------- | ------------------------------------------------------------- |
+| v30.x.y     | v0.53.x           | v10.4.0              | Cosmos SDK tooling under `ignite cosmos`.                     |
 | v29.x.y     | v0.50.x & v0.53.x | v10.2.0              | Originally in v0.53.x. Can work with v0.50.x.                 |
 | v28.x.y     | v0.50.x & v0.53.x | v8.0.0               | Originally in v0.50.x. Can work with v0.53.x.                 |
 | v0.27.1     | v0.47.3           | v7.1.0               | -                                                             |

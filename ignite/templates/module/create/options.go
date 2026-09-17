@@ -6,7 +6,7 @@ import (
 
 	"github.com/iancoleman/strcase"
 
-	"github.com/ignite/cli/v29/ignite/templates/field"
+	"github.com/ignite/cli/v30/ignite/templates/field"
 )
 
 // ConfigsOptions represents the options to scaffold a Cosmos SDK module configs.

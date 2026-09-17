@@ -5,9 +5,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/ignite/cli/v29/ignite/pkg/chaincmd"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui"
-	"github.com/ignite/cli/v29/ignite/services/chain"
+	"github.com/ignite/cli/v30/ignite/pkg/chaincmd"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui"
+	"github.com/ignite/cli/v30/ignite/services/chain"
 )
 
 // NewChainFaucet creates a new faucet command to send coins to accounts.

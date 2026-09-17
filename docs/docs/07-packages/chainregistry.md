@@ -9,7 +9,7 @@ slug: /packages/chainregistry
 The `chainregistry` package defines strongly-typed Go structs for Cosmos chain-registry data (`chain.json` and `assetlist.json`).
 
 For full API details, see the
-[`chainregistry` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/chainregistry).
+[`chainregistry` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v30/ignite/pkg/chainregistry).
 
 ## When to use
 
@@ -39,5 +39,5 @@ For full API details, see the
 ## Basic import
 
 ```go
-import "github.com/ignite/cli/v29/ignite/pkg/chainregistry"
+import "github.com/ignite/cli/v30/ignite/pkg/chainregistry"
 ```

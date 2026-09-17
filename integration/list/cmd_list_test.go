@@ -5,7 +5,7 @@ package list_test
 import (
 	"testing"
 
-	envtest "github.com/ignite/cli/v29/integration"
+	envtest "github.com/ignite/cli/v30/integration"
 )
 
 func TestGenerateAnAppWithListAndVerify(t *testing.T) {

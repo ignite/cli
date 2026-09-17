@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ignite/cli/v29/ignite/pkg/xexec"
+	"github.com/ignite/cli/v30/ignite/pkg/xexec"
 )
 
 // Sum reads files from dirPath, calculates sha256 for each file and creates a new checksum

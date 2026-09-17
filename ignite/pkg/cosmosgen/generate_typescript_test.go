@@ -11,10 +11,10 @@ import (
 	"github.com/ettle/strcase"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cache"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
-	"github.com/ignite/cli/v29/ignite/pkg/env"
+	"github.com/ignite/cli/v30/ignite/pkg/cache"
+	"github.com/ignite/cli/v30/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/v30/ignite/pkg/cosmosbuf"
+	"github.com/ignite/cli/v30/ignite/pkg/env"
 )
 
 func TestGenerateTypeScript(t *testing.T) {

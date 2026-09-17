@@ -10,9 +10,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/v29/ignite/services/chain"
-	envtest "github.com/ignite/cli/v29/integration"
+	"github.com/ignite/cli/v30/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v30/ignite/services/chain"
+	envtest "github.com/ignite/cli/v30/integration"
 )
 
 // TestGenerateAnApp tests scaffolding a new chain.

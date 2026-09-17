@@ -11,7 +11,7 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
-	"github.com/ignite/cli/v29/ignite/pkg/xstrcase"
+	"github.com/ignite/cli/v30/ignite/pkg/xstrcase"
 )
 
 var (

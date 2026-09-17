@@ -6,10 +6,10 @@ import (
 	"github.com/gobuffalo/genny/v2"
 	"github.com/gobuffalo/plush/v4"
 
-	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
-	"github.com/ignite/cli/v29/ignite/templates/field/plushhelpers"
-	"github.com/ignite/cli/v29/ignite/templates/module"
+	"github.com/ignite/cli/v30/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v30/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v30/ignite/templates/field/plushhelpers"
+	"github.com/ignite/cli/v30/ignite/templates/module"
 )
 
 func Box(box fs.FS, opts *Options, g *genny.Generator) error {

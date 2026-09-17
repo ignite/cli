@@ -4,9 +4,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
-	modulemigration "github.com/ignite/cli/v29/ignite/templates/module/migration"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/multiformatname"
+	modulemigration "github.com/ignite/cli/v30/ignite/templates/module/migration"
 )
 
 // CreateModuleMigration scaffolds a new module migration inside an existing module.

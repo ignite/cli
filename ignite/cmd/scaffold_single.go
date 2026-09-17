@@ -3,7 +3,7 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/v29/ignite/services/scaffolder"
+	"github.com/ignite/cli/v30/ignite/services/scaffolder"
 )
 
 // NewScaffoldSingle returns a new command to scaffold a singleton.

@@ -3,7 +3,7 @@ package chain
 import (
 	"context"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/v30/ignite/pkg/cmdrunner/exec"
 )
 
 // Lint runs the linting process for the chain.

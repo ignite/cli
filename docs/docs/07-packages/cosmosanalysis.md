@@ -9,7 +9,7 @@ slug: /packages/cosmosanalysis
 The `cosmosanalysis` package provides static analysis helpers for Cosmos SDK-based projects, especially for app structure and interface/embed discovery.
 
 For full API details, see the
-[`cosmosanalysis` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis).
+[`cosmosanalysis` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v30/ignite/pkg/cosmosanalysis).
 
 ## When to use
 
@@ -36,5 +36,5 @@ For full API details, see the
 ## Basic import
 
 ```go
-import "github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis"
+import "github.com/ignite/cli/v30/ignite/pkg/cosmosanalysis"
 ```

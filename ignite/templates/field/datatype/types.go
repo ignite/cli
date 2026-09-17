@@ -7,9 +7,9 @@ import (
 
 	"github.com/emicklei/proto"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/entrywriter"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui/entrywriter"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/multiformatname"
 )
 
 const (

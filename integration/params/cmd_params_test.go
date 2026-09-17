@@ -6,7 +6,7 @@ import (
 	"context"
 	"testing"
 
-	envtest "github.com/ignite/cli/v29/integration"
+	envtest "github.com/ignite/cli/v30/integration"
 )
 
 func TestCreateModuleParameters(t *testing.T) {

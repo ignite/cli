@@ -9,7 +9,7 @@ slug: /packages/cosmosgen
 The `cosmosgen` package orchestrates multi-target code generation from protobuf sources, including Go code, TS clients, composables, and OpenAPI output.
 
 For full API details, see the
-[`cosmosgen` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/cosmosgen).
+[`cosmosgen` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v30/ignite/pkg/cosmosgen).
 
 ## When to use
 
@@ -36,8 +36,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cache"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/v30/ignite/pkg/cache"
+	"github.com/ignite/cli/v30/ignite/pkg/cosmosgen"
 )
 
 func main() {

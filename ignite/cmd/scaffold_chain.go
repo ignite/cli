@@ -3,13 +3,13 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui"
-	"github.com/ignite/cli/v29/ignite/pkg/env"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/xfilepath"
-	"github.com/ignite/cli/v29/ignite/pkg/xgit"
-	"github.com/ignite/cli/v29/ignite/services/scaffolder"
+	"github.com/ignite/cli/v30/ignite/config/chain/defaults"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui"
+	"github.com/ignite/cli/v30/ignite/pkg/env"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/xfilepath"
+	"github.com/ignite/cli/v30/ignite/pkg/xgit"
+	"github.com/ignite/cli/v30/ignite/services/scaffolder"
 )
 
 const defaultIgniteDenom = "stake"

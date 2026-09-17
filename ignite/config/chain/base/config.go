@@ -3,9 +3,9 @@ package base
 import (
 	"dario.cat/mergo"
 
-	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
-	"github.com/ignite/cli/v29/ignite/config/chain/version"
-	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
+	"github.com/ignite/cli/v30/ignite/config/chain/defaults"
+	"github.com/ignite/cli/v30/ignite/config/chain/version"
+	"github.com/ignite/cli/v30/ignite/pkg/xyaml"
 )
 
 // Account holds the options related to setting up Cosmos wallets.

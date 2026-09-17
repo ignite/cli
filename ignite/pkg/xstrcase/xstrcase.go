@@ -6,7 +6,7 @@ import (
 	protogenerator "github.com/cosmos/gogoproto/protoc-gen-gogo/generator"
 	"github.com/iancoleman/strcase"
 
-	"github.com/ignite/cli/v29/ignite/pkg/xstrings"
+	"github.com/ignite/cli/v30/ignite/pkg/xstrings"
 )
 
 // UpperCamel returns the name with upper camel and no special character.

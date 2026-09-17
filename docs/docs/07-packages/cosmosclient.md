@@ -9,7 +9,7 @@ slug: /packages/cosmosclient
 The `cosmosclient` package provides a high-level client for querying Cosmos SDK chains and building/signing/broadcasting transactions.
 
 For full API details, see the
-[`cosmosclient` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/cosmosclient).
+[`cosmosclient` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v30/ignite/pkg/cosmosclient).
 
 ## When to use
 
@@ -39,5 +39,5 @@ For full API details, see the
 ## Basic import
 
 ```go
-import "github.com/ignite/cli/v29/ignite/pkg/cosmosclient"
+import "github.com/ignite/cli/v30/ignite/pkg/cosmosclient"
 ```

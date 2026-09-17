@@ -11,12 +11,12 @@ import (
 	"github.com/blang/semver/v4"
 	"github.com/iancoleman/strcase"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cache"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
-	"github.com/ignite/cli/v29/ignite/pkg/dirchange"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	swaggercombine "github.com/ignite/cli/v29/ignite/pkg/swagger-combine"
-	"github.com/ignite/cli/v29/ignite/pkg/xos"
+	"github.com/ignite/cli/v30/ignite/pkg/cache"
+	"github.com/ignite/cli/v30/ignite/pkg/cosmosbuf"
+	"github.com/ignite/cli/v30/ignite/pkg/dirchange"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
+	swaggercombine "github.com/ignite/cli/v30/ignite/pkg/swagger-combine"
+	"github.com/ignite/cli/v30/ignite/pkg/xos"
 )
 
 const (

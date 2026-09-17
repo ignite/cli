@@ -2,9 +2,18 @@
 
 ## Unreleased
 
-## Features
+## [`v30.0.0`](https://github.com/ignite/cli/releases/tag/v30.0.0)
 
-- [#4984](https://github.com/ignite/cli/pull/4984) Add [Gno](https://gno.land) support.
+### Breaking
+
+- [#4984](https://github.com/ignite/cli/pull/4984) Ignite CLI is now the developer tooling for [gno.land](https://gno.land) smart contracts.
+  - The Cosmos SDK tooling moves under the `ignite cosmos` namespace: `ignite cosmos scaffold`, `ignite cosmos chain`, `ignite cosmos generate`, `ignite cosmos account`, `ignite cosmos testnet`, and `ignite cosmos doctor`. Top-level `chain`, `generate`, and `testnet` commands become hidden deprecated stubs.
+  - The top-level `scaffold` and `account` commands now target gno.land (realms, packages, and the gno keybase).
+  - The Go module path changes from `github.com/ignite/cli/v29` to `github.com/ignite/cli/v30`. Update the module require and imports in projects that use Ignite as a library or build Ignite plugins.
+
+### Features
+
+- [#4984](https://github.com/ignite/cli/pull/4984) Add [Gno](https://gno.land) support: scaffold realms and packages, an embedded gno.land dev chain with live reload, accounts backed by the gno keybase, realm calls and queries, package deployment, gno test running, and typed TypeScript client generation.
 
 ## [`v29.10.1`](https://github.com/ignite/cli/releases/tag/v29.10.1)
 
