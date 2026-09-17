@@ -4,7 +4,7 @@ go 1.23
 
 require (
 	github.com/hashicorp/go-plugin v1.6.2
-	github.com/ignite/cli/v30 v29.0.0
+	github.com/ignite/cli/v30 v30.0.0
 	github.com/stretchr/testify v1.8.4
 )
 
