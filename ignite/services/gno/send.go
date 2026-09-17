@@ -1,9 +1,6 @@
 package gno
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/gnolang/gno/tm2/pkg/crypto"
 	"github.com/gnolang/gno/tm2/pkg/sdk/bank"
 	"github.com/gnolang/gno/tm2/pkg/std"
@@ -22,49 +19,63 @@ type SendOptions struct {
 
 // Send transfers coins between accounts on a gno.land chain. Handy on dev
 // chains to fund accounts created with `ignite account create`.
-func Send(opts SendOptions) error {
+func Send(opts SendOptions) (*BroadcastResult, error) {
 	opts.TxBaseOptions = opts.TxBaseOptions.withDefaults()
 
 	if opts.To == "" {
-		return errors.Errorf("beneficiary is required")
+		return nil, errors.Errorf("beneficiary is required")
 	}
 	coins, err := std.ParseCoins(opts.Amount)
 	if err != nil {
-		return errors.Errorf("parsing amount: %w", err)
+		return nil, errors.Errorf("parsing amount: %w", err)
 	}
 	if len(coins) == 0 {
-		return errors.Errorf("amount is required")
+		return nil, errors.Errorf("amount is required")
 	}
 
 	// resolve beneficiary: allow key names for convenience
-	to := opts.To
-	if !strings.HasPrefix(opts.To, "g1") {
-		info, err := ShowKey(opts.To)
-		if err != nil {
-			return errors.Errorf("%q is neither a bech32 address nor a key in the keybase: %w", opts.To, err)
-		}
-		to = info.Address
+	to, err := resolveTo(opts.To)
+	if err != nil {
+		return nil, err
 	}
 
 	fromAddr, err := opts.callerAddress()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	gasFee, err := opts.parseGasFee()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	tx := std.Tx{
 		Msgs: []std.Msg{
 			bank.MsgSend{
-				FromAddress: crypto.MustAddressFromString(fromAddr),
-				ToAddress:   crypto.MustAddressFromString(to),
+				FromAddress: fromAddr,
+				ToAddress:   to,
 				Amount:      coins,
 			},
 		},
 		Fee: std.NewFee(opts.GasWanted, gasFee),
 	}
 
-	return broadcast(opts.newTxPlan(tx), fmt.Sprintf("💸 sent %s to %s", opts.Amount, to))
+	return broadcast(opts.newTxPlan(tx))
+}
+
+// resolveTo resolves the beneficiary to an address: key names are looked up
+// in the keybase, anything else must be a valid bech32 address.
+func resolveTo(nameOrAddr string) (crypto.Address, error) {
+	info, keyErr := ShowKey(nameOrAddr)
+	if keyErr == nil {
+		addr, err := crypto.AddressFromString(info.Address)
+		if err != nil {
+			return crypto.Address{}, errors.Errorf("invalid address stored for key %q: %w", nameOrAddr, err)
+		}
+		return addr, nil
+	}
+	addr, addrErr := crypto.AddressFromString(nameOrAddr)
+	if addrErr != nil {
+		return crypto.Address{}, errors.Errorf("%q is neither a bech32 address nor a key in the keybase", nameOrAddr)
+	}
+	return addr, nil
 }

@@ -1,11 +1,14 @@
 package gno
 
 import (
+	"encoding/hex"
 	"fmt"
+	"strings"
 
 	"github.com/gnolang/gno/gno.land/pkg/gnoland/ugnot"
 	core_types "github.com/gnolang/gno/tm2/pkg/bft/rpc/core/types"
 	"github.com/gnolang/gno/tm2/pkg/commands"
+	"github.com/gnolang/gno/tm2/pkg/crypto"
 	"github.com/gnolang/gno/tm2/pkg/crypto/keys/client"
 	"github.com/gnolang/gno/tm2/pkg/std"
 
@@ -28,10 +31,13 @@ type TxBaseOptions struct {
 	Passphrase string
 }
 
+// defaultRemote is the RPC address of the local dev chain.
+const defaultRemote = "127.0.0.1:26657"
+
 // withDefaults fills unset tx fields with dev-chain friendly defaults.
 func (b TxBaseOptions) withDefaults() TxBaseOptions {
 	if b.Remote == "" {
-		b.Remote = "127.0.0.1:26657"
+		b.Remote = defaultRemote
 	}
 	if b.ChainID == "" {
 		b.ChainID = "dev"
@@ -84,30 +90,44 @@ var signAndBroadcast = func(plan txPlan) (*core_types.ResultBroadcastTxCommit, e
 	return client.SignAndBroadcastHandler(plan.maketxCfg, plan.from, plan.tx, plan.pass, commands.NewDefaultIO())
 }
 
-// broadcast signs and broadcasts plan, returning a formatted result or an
-// error with the check/deliver failure details.
-func broadcast(plan txPlan, describe string) error {
+// BroadcastResult summarizes a broadcast transaction.
+type BroadcastResult struct {
+	// TxHash is the hex-encoded hash of the broadcast tx.
+	TxHash string
+	// GasUsed is the gas consumed by the tx.
+	GasUsed int64
+}
+
+// broadcast signs and broadcasts plan, returning the tx summary or an error
+// with the check/deliver failure details.
+func broadcast(plan txPlan) (*BroadcastResult, error) {
 	bres, err := signAndBroadcast(plan)
 	if err != nil {
-		return errors.Errorf("broadcasting tx: %w", err)
+		return nil, errors.Errorf("broadcasting tx: %w", err)
 	}
 	if bres.CheckTx.IsErr() {
-		return errors.Errorf("check tx failed: %w, log: %s", bres.CheckTx.Error, bres.CheckTx.Log)
+		return nil, errors.Errorf("check tx failed: %w, log: %s", bres.CheckTx.Error, bres.CheckTx.Log)
 	}
 	if bres.DeliverTx.IsErr() {
-		return errors.Errorf("deliver tx failed: %w, log: %s", bres.DeliverTx.Error, bres.DeliverTx.Log)
+		return nil, errors.Errorf("deliver tx failed: %w, log: %s", bres.DeliverTx.Error, bres.DeliverTx.Log)
 	}
-	fmt.Printf("%s (gas used: %d)\n", describe, bres.DeliverTx.GasUsed)
-	return nil
+	return &BroadcastResult{
+		TxHash:  strings.ToUpper(hex.EncodeToString(bres.Hash)),
+		GasUsed: bres.DeliverTx.GasUsed,
+	}, nil
 }
 
 // callerAddress resolves the address of the signing key.
-func (b TxBaseOptions) callerAddress() (string, error) {
+func (b TxBaseOptions) callerAddress() (crypto.Address, error) {
 	info, err := ensureKey(b.From)
 	if err != nil {
-		return "", errors.Errorf("key %q not found in the gno keybase: %w (create one with `ignite account create`)", b.From, err)
+		return crypto.Address{}, errors.Errorf("key %q not found in the gno keybase: %w (create one with `ignite account create`)", b.From, err)
 	}
-	return info.Address, nil
+	addr, err := crypto.AddressFromString(info.Address)
+	if err != nil {
+		return crypto.Address{}, errors.Errorf("invalid address stored for key %q: %w", b.From, err)
+	}
+	return addr, nil
 }
 
 // parseGasFee parses the configured gas fee coin.

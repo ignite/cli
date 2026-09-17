@@ -82,7 +82,11 @@ func testPkg(pkg *gnopkg.Package, opts *test.TestOptions, stderr io.Writer) bool
 	started := time.Now()
 	fmt.Fprintf(stderr, "=== RUN   %s\n", pkgPath)
 
-	mpkg := gno.MustReadMemPackage(pkg.Dir, pkgPath, gno.MPAnyAll)
+	mpkg, err := gno.ReadMemPackage(pkg.Dir, pkgPath, gno.MPAnyAll)
+	if err != nil {
+		fmt.Fprintf(stderr, "--- FAIL: %s (%s)\n\t%v\n", pkgPath, time.Since(started).Round(time.Millisecond), err)
+		return false
+	}
 	if err := test.Test(mpkg, pkg.Dir, opts); err != nil {
 		fmt.Fprintf(stderr, "--- FAIL: %s (%s)\n\t%v\n", pkgPath, time.Since(started).Round(time.Millisecond), err)
 		return false

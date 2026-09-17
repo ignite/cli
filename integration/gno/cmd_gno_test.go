@@ -296,6 +296,20 @@ func TestGnoChainE2E(t *testing.T) {
 	))
 	require.Contains(t, queryOut.String(), "2", "counter should be 2 after two increments: %s", queryOut.String())
 
+	// querying a function without parentheses evaluates it as a call
+	var queryNoParensOut strings.Builder
+	env.Must(env.Exec("query the realm state without parens",
+		step.NewSteps(step.New(
+			step.Exec(envtest.IgniteApp,
+				"chain", "query", "gno.land/r/counter.Get",
+				"--remote", remote,
+			),
+			step.Workdir(tmp),
+			step.Stdout(&queryNoParensOut),
+		)),
+	))
+	require.Contains(t, queryNoParensOut.String(), "2", "query without parens should call Get(): %s", queryNoParensOut.String())
+
 	// fund a fresh account by key name
 	execGno("create an account",
 		"account", "create", "bob", "--home", gnoH,

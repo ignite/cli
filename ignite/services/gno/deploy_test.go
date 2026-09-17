@@ -31,8 +31,10 @@ func TestNewDeployPlan(t *testing.T) {
 	})
 	defer restore()
 
-	assert.NilError(t, Deploy(dir, DeployOptions{}))
-	assert.Equal(t, modulePath, "gno.land/r/deployplan")
+	deployedPath, res, err := Deploy(dir, DeployOptions{})
+	assert.NilError(t, err)
+	assert.Equal(t, modulePath, deployedPath)
+	assert.Assert(t, res != nil, "Deploy should return a broadcast result")
 	assert.Equal(t, integration.DefaultAccount_Name, got.from, "default signing key is the dev account")
 	assert.Equal(t, "dev", got.maketxCfg.ChainID)
 	assert.Equal(t, gnoDefaultRemoteForTest, got.maketxCfg.RootCfg.Remote)
@@ -58,9 +60,19 @@ func TestDeployErrors(t *testing.T) {
 			if tc.name == "invalid gas fee" {
 				tc.dir = scaffoldedRealm(t, "gasfee")
 			}
-			assert.ErrorContains(t, Deploy(tc.dir, tc.opts), "")
+			_, _, err := Deploy(tc.dir, tc.opts)
+			assert.ErrorContains(t, err, "")
 		})
 	}
+}
+
+func TestDeployUnreadableDir(t *testing.T) {
+	withTestGnoHome(t)
+
+	// a nonexistent dir must fail with an error, not a panic
+	missing := filepath.Join(t.TempDir(), "does-not-exist")
+	_, _, err := Deploy(missing, DeployOptions{PkgPath: "gno.land/r/missing"})
+	assert.ErrorContains(t, err, "reading package")
 }
 
 // scaffoldedRealm scaffolds a realm and returns its dir.

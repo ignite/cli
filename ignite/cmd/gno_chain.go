@@ -1,13 +1,13 @@
 package ignitecmd
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cliui"
 	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
 	"github.com/ignite/cli/v29/ignite/services/gno"
 )
@@ -89,9 +89,10 @@ given by --from and broadcast to --remote (default: local dev chain started
 with ` + "`ignite chain serve`" + `).`,
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			dir := "."
-			if len(args) == 1 {
-				dir = args[0]
+			dir := dirArg(args)
+			tb, err := gnoTxBaseFrom(cmd)
+			if err != nil {
+				return err
 			}
 			pkgPath, err := cmd.Flags().GetString(flagGnoPkgPath)
 			if err != nil {
@@ -101,11 +102,15 @@ with ` + "`ignite chain serve`" + `).`,
 			if err != nil {
 				return err
 			}
-			return gno.Deploy(dir, gno.DeployOptions{
-				TxBaseOptions: gnoTxBaseFrom(cmd),
+			deployedPath, res, err := gno.Deploy(dir, gno.DeployOptions{
+				TxBaseOptions: tb,
 				PkgPath:       pkgPath,
 				MaxDeposit:    maxDeposit,
 			})
+			if err != nil {
+				return err
+			}
+			return printTxDone(cmd, fmt.Sprintf("Deployed %s", deployedPath), res)
 		},
 	}
 
@@ -131,13 +136,21 @@ $ ignite chain call gno.land/r/counter Set 42 --send 1000000ugnot`,
 			if err != nil {
 				return err
 			}
-			return gno.Call(gno.CallOptions{
-				TxBaseOptions: gnoTxBaseFrom(cmd),
+			tb, err := gnoTxBaseFrom(cmd)
+			if err != nil {
+				return err
+			}
+			res, err := gno.Call(gno.CallOptions{
+				TxBaseOptions: tb,
 				PkgPath:       args[0],
 				Func:          args[1],
 				Args:          args[2:],
 				Send:          send,
 			})
+			if err != nil {
+				return err
+			}
+			return printTxDone(cmd, fmt.Sprintf("Called %s.%s", args[0], args[1]), res)
 		},
 	}
 
@@ -152,19 +165,20 @@ func newGnoChainQuery() *cobra.Command {
 		Short: "Evaluate a read-only expression on a chain",
 		Long: `Evaluate a read-only gno expression on a gno.land chain and print the result.
 
+An expression that names a function without parentheses is evaluated as a
+call, e.g. "gno.land/r/helloworld.Get" is queried as "gno.land/r/helloworld.Get()".
+
 Example:
 
 $ ignite chain query "gno.land/r/counter.Get()"`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			session := cliui.New(cliui.StartSpinnerWithText("Querying..."))
-			defer session.End()
-
 			res, err := gno.Query(flagGetGnoRemote(cmd), args[0])
 			if err != nil {
 				return err
 			}
-			return session.Printf("%s %s\n", icons.OK, res)
+			fmt.Fprintln(cmd.OutOrStdout(), res)
+			return nil
 		},
 	}
 
@@ -187,11 +201,19 @@ $ ignite chain send g1... 10000000ugnot
 $ ignite chain send alice 10000000ugnot --from test1`,
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return gno.Send(gno.SendOptions{
-				TxBaseOptions: gnoTxBaseFrom(cmd),
+			tb, err := gnoTxBaseFrom(cmd)
+			if err != nil {
+				return err
+			}
+			res, err := gno.Send(gno.SendOptions{
+				TxBaseOptions: tb,
 				To:            args[0],
 				Amount:        args[1],
 			})
+			if err != nil {
+				return err
+			}
+			return printTxDone(cmd, fmt.Sprintf("Sent %s to %s", args[1], args[0]), res)
 		},
 	}
 
@@ -200,6 +222,15 @@ $ ignite chain send alice 10000000ugnot --from test1`,
 }
 
 const flagGnoSend = "send"
+
+// printTxDone reports a broadcast tx on the command output.
+func printTxDone(cmd *cobra.Command, action string, res *gno.BroadcastResult) error {
+	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "%s %s (gas used: %d)\n", icons.OK, action, res.GasUsed); err != nil {
+		return err
+	}
+	_, err := fmt.Fprintf(cmd.OutOrStdout(), "%s Tx hash: %s\n", icons.Info, res.TxHash)
+	return err
+}
 
 func newGnoChainTest() *cobra.Command {
 	return &cobra.Command{

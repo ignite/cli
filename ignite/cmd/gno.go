@@ -32,20 +32,26 @@ func gnoTxBaseFlags(c *cobra.Command) {
 	c.Flags().String(flagGnoChainID, "dev", "chain id")
 	c.Flags().Int64(flagGnoGasWanted, gno.DefaultGasWanted, "gas requested for the tx")
 	c.Flags().String(flagGnoGasFee, "", "gas payment fee (default: 1000000ugnot)")
-	c.Flags().String(flagGnoPassphrase, "", "passphrase to unlock the signing key (empty for dev keys)")
+	c.Flags().String(flagGnoPassphrase, "", "passphrase to unlock the signing key (prompted with hidden input when unset)")
 }
 
-// gnoTxBaseFrom reads the shared tx flags into a gno.TxBaseOptions.
-func gnoTxBaseFrom(cmd *cobra.Command) (tb gno.TxBaseOptions) {
+// gnoTxBaseFrom reads the shared tx flags into a gno.TxBaseOptions. The
+// passphrase is prompted with hidden input when unset and stdin is a
+// terminal, so secrets don't leak to shell history.
+func gnoTxBaseFrom(cmd *cobra.Command) (gno.TxBaseOptions, error) {
 	gasWanted, _ := cmd.Flags().GetInt64(flagGnoGasWanted)
+	passphrase, err := getGnoPassphraseInteractive(cmd)
+	if err != nil {
+		return gno.TxBaseOptions{}, err
+	}
 	return gno.TxBaseOptions{
 		From:       flagGetGnoFrom(cmd),
 		Remote:     flagGetGnoRemote(cmd),
 		ChainID:    flagGetGnoChainID(cmd),
 		GasWanted:  gasWanted,
 		GasFee:     flagGetGnoGasFee(cmd),
-		Passphrase: flagGetGnoPassphrase(cmd),
-	}
+		Passphrase: passphrase,
+	}, nil
 }
 
 func flagGetGnoFrom(cmd *cobra.Command) string {

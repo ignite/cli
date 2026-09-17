@@ -1,13 +1,11 @@
 package gno
 
 import (
-	"fmt"
 	"path/filepath"
 
 	"github.com/gnolang/gno/gno.land/pkg/sdk/vm"
 	gno "github.com/gnolang/gno/gnovm/pkg/gnolang"
 	"github.com/gnolang/gno/gnovm/pkg/gnomod"
-	"github.com/gnolang/gno/tm2/pkg/crypto"
 	"github.com/gnolang/gno/tm2/pkg/std"
 
 	"github.com/ignite/cli/v29/ignite/pkg/errors"
@@ -29,45 +27,48 @@ type DeployOptions struct {
 }
 
 // Deploy publishes the gno package at dir to a gno.land chain. The module
-// path is read from dir/gnomod.toml unless overridden.
-func Deploy(dir string, opts DeployOptions) error {
+// path is read from dir/gnomod.toml unless overridden. It returns the
+// deployed module path and the broadcast result.
+func Deploy(dir string, opts DeployOptions) (string, *BroadcastResult, error) {
 	opts.TxBaseOptions = opts.TxBaseOptions.withDefaults()
 
 	pkgPath := opts.PkgPath
 	if pkgPath == "" {
 		mod, err := parseGnoModDir(dir)
 		if err != nil {
-			return errors.Errorf("reading gnomod.toml in %s: %w (scaffold one with `ignite scaffold realm`)", dir, err)
+			return "", nil, errors.Errorf("reading gnomod.toml in %s: %w (scaffold one with `ignite scaffold realm`)", dir, err)
 		}
 		pkgPath = mod
 	}
 
-	memPkg := gno.MustReadMemPackage(dir, pkgPath, gno.MPUserAll)
+	memPkg, err := gno.ReadMemPackage(dir, pkgPath, gno.MPUserAll)
+	if err != nil {
+		return "", nil, errors.Errorf("reading package in %s: %w", dir, err)
+	}
 	if memPkg.IsEmpty() {
-		return errors.Errorf("no .gno files found in %s", dir)
+		return "", nil, errors.Errorf("no .gno files found in %s", dir)
 	}
 
 	var maxDeposit std.Coins
 	if opts.MaxDeposit != "" {
-		var err error
 		if maxDeposit, err = std.ParseCoins(opts.MaxDeposit); err != nil {
-			return errors.Errorf("parsing max deposit: %w", err)
+			return "", nil, errors.Errorf("parsing max deposit: %w", err)
 		}
 	}
 
-	addr, err := opts.callerAddress()
+	creator, err := opts.callerAddress()
 	if err != nil {
-		return err
+		return "", nil, err
 	}
 	gasFee, err := opts.parseGasFee()
 	if err != nil {
-		return err
+		return "", nil, err
 	}
 
 	tx := std.Tx{
 		Msgs: []std.Msg{
 			vm.MsgAddPackage{
-				Creator:    crypto.MustAddressFromString(addr),
+				Creator:    creator,
 				Package:    memPkg,
 				MaxDeposit: maxDeposit,
 			},
@@ -75,7 +76,8 @@ func Deploy(dir string, opts DeployOptions) error {
 		Fee: std.NewFee(opts.GasWanted, gasFee),
 	}
 
-	return broadcast(opts.newTxPlan(tx), fmt.Sprintf("🚀 deployed %s", pkgPath))
+	res, err := broadcast(opts.newTxPlan(tx))
+	return pkgPath, res, err
 }
 
 // parseGnoModDir reads the module path from dir/gnomod.toml.
