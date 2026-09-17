@@ -5,6 +5,7 @@ description: Ignite CLI docs.
 # CLI commands
 
 Documentation for Ignite CLI.
+
 ## ignite
 
 Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
@@ -25,7 +26,6 @@ Announcements:
 ⋆ A new release has appeared! v29.9.0 has just been released :)
 ⋆ Satisfied with Ignite? Or totally fed-up with it? Tell us: https://bit.ly/3WZS2uS
 
-
 **Options**
 
 ```
@@ -34,18 +34,17 @@ Announcements:
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Create, delete, and show gno.land accounts
-* [ignite app](#ignite-app)	 - Create and manage Ignite Apps
-* [ignite appregistry](#ignite-appregistry)	 - Browse the Ignite App Registry App
-* [ignite chain](#ignite-chain)	 - Run, deploy and interact with gno.land chains
-* [ignite completion](#ignite-completion)	 - Generates shell completion script.
-* [ignite cosmos](#ignite-cosmos)	 - Cosmos SDK blockchain tooling
-* [ignite docs](#ignite-docs)	 - Show Ignite CLI docs
-* [ignite generate](#ignite-generate)	 - Generate clients for gno.land packages
-* [ignite relayer](#ignite-relayer)	 - Connect blockchains with an IBC relayer
-* [ignite scaffold](#ignite-scaffold)	 - Scaffold gno.land realms and packages
-* [ignite version](#ignite-version)	 - Print the current build information
-
+- [ignite account](#ignite-account) - Create, delete, and show gno.land accounts
+- [ignite app](#ignite-app) - Create and manage Ignite Apps
+- [ignite appregistry](#ignite-appregistry) - Browse the Ignite App Registry App
+- [ignite chain](#ignite-chain) - Run, deploy and interact with gno.land chains
+- [ignite completion](#ignite-completion) - Generates shell completion script.
+- [ignite cosmos](#ignite-cosmos) - Cosmos SDK blockchain tooling
+- [ignite docs](#ignite-docs) - Show Ignite CLI docs
+- [ignite generate](#ignite-generate) - Generate clients for gno.land packages
+- [ignite relayer](#ignite-relayer) - Connect blockchains with an IBC relayer
+- [ignite scaffold](#ignite-scaffold) - Scaffold gno.land realms and packages
+- [ignite version](#ignite-version) - Print the current build information
 
 ## ignite account
 
@@ -66,14 +65,13 @@ realm and package deployments.
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
-* [ignite account create](#ignite-account-create)	 - Create a new gno account
-* [ignite account delete](#ignite-account-delete)	 - Delete a gno account by name
-* [ignite account export](#ignite-account-export)	 - Export a gno account as an armored private key
-* [ignite account import](#ignite-account-import)	 - Import a gno account from an armored private key
-* [ignite account list](#ignite-account-list)	 - Show a list of all gno accounts
-* [ignite account show](#ignite-account-show)	 - Show a gno account by name or address
-
+- [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
+- [ignite account create](#ignite-account-create) - Create a new gno account
+- [ignite account delete](#ignite-account-delete) - Delete a gno account by name
+- [ignite account export](#ignite-account-export) - Export a gno account as an armored private key
+- [ignite account import](#ignite-account-import) - Import a gno account from an armored private key
+- [ignite account list](#ignite-account-list) - Show a list of all gno accounts
+- [ignite account show](#ignite-account-show) - Show a gno account by name or address
 
 ## ignite account create
 
@@ -106,8 +104,7 @@ ignite account create <name> [flags]
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Create, delete, and show gno.land accounts
-
+- [ignite account](#ignite-account) - Create, delete, and show gno.land accounts
 
 ## ignite account delete
 
@@ -132,8 +129,7 @@ ignite account delete <name> [flags]
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Create, delete, and show gno.land accounts
-
+- [ignite account](#ignite-account) - Create, delete, and show gno.land accounts
 
 ## ignite account export
 
@@ -159,8 +155,7 @@ ignite account export <name> [flags]
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Create, delete, and show gno.land accounts
-
+- [ignite account](#ignite-account) - Create, delete, and show gno.land accounts
 
 ## ignite account import
 
@@ -185,8 +180,7 @@ ignite account import <name> <armor-file> [flags]
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Create, delete, and show gno.land accounts
-
+- [ignite account](#ignite-account) - Create, delete, and show gno.land accounts
 
 ## ignite account list
 
@@ -210,8 +204,7 @@ ignite account list [flags]
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Create, delete, and show gno.land accounts
-
+- [ignite account](#ignite-account) - Create, delete, and show gno.land accounts
 
 ## ignite account show
 
@@ -235,8 +228,7 @@ ignite account show <name> [flags]
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Create, delete, and show gno.land accounts
-
+- [ignite account](#ignite-account) - Create, delete, and show gno.land accounts
 
 ## ignite app
 
@@ -250,14 +242,13 @@ Create and manage Ignite Apps
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
-* [ignite app describe](#ignite-app-describe)	 - Print information about installed apps
-* [ignite app install](#ignite-app-install)	 - Install app
-* [ignite app list](#ignite-app-list)	 - List installed apps
-* [ignite app scaffold](#ignite-app-scaffold)	 - Scaffold a new Ignite App
-* [ignite app uninstall](#ignite-app-uninstall)	 - Uninstall app
-* [ignite app update](#ignite-app-update)	 - Update app
-
+- [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
+- [ignite app describe](#ignite-app-describe) - Print information about installed apps
+- [ignite app install](#ignite-app-install) - Install app
+- [ignite app list](#ignite-app-list) - List installed apps
+- [ignite app scaffold](#ignite-app-scaffold) - Scaffold a new Ignite App
+- [ignite app uninstall](#ignite-app-uninstall) - Uninstall app
+- [ignite app update](#ignite-app-update) - Update app
 
 ## ignite app describe
 
@@ -285,8 +276,7 @@ ignite app describe github.com/org/my-app/
 
 **SEE ALSO**
 
-* [ignite app](#ignite-app)	 - Create and manage Ignite Apps
-
+- [ignite app](#ignite-app) - Create and manage Ignite Apps
 
 ## ignite app install
 
@@ -317,8 +307,7 @@ ignite app install github.com/org/my-app/ foo=bar baz=qux
 
 **SEE ALSO**
 
-* [ignite app](#ignite-app)	 - Create and manage Ignite Apps
-
+- [ignite app](#ignite-app) - Create and manage Ignite Apps
 
 ## ignite app list
 
@@ -340,8 +329,7 @@ ignite app list [flags]
 
 **SEE ALSO**
 
-* [ignite app](#ignite-app)	 - Create and manage Ignite Apps
-
+- [ignite app](#ignite-app) - Create and manage Ignite Apps
 
 ## ignite app scaffold
 
@@ -371,8 +359,7 @@ ignite app scaffold github.com/org/my-app/
 
 **SEE ALSO**
 
-* [ignite app](#ignite-app)	 - Create and manage Ignite Apps
-
+- [ignite app](#ignite-app) - Create and manage Ignite Apps
 
 ## ignite app uninstall
 
@@ -401,8 +388,7 @@ ignite app uninstall github.com/org/my-app/
 
 **SEE ALSO**
 
-* [ignite app](#ignite-app)	 - Create and manage Ignite Apps
-
+- [ignite app](#ignite-app) - Create and manage Ignite Apps
 
 ## ignite app update
 
@@ -432,8 +418,7 @@ ignite app update github.com/org/my-app/
 
 **SEE ALSO**
 
-* [ignite app](#ignite-app)	 - Create and manage Ignite Apps
-
+- [ignite app](#ignite-app) - Create and manage Ignite Apps
 
 ## ignite appregistry
 
@@ -451,8 +436,7 @@ ignite appregistry [flags]
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
-
+- [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
 
 ## ignite chain
 
@@ -467,14 +451,13 @@ Run, deploy and interact with gno.land chains
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
-* [ignite chain call](#ignite-chain-call)	 - Call a function of a deployed realm
-* [ignite chain deploy](#ignite-chain-deploy)	 - Deploy a gno realm or package to a chain
-* [ignite chain query](#ignite-chain-query)	 - Evaluate a read-only expression on a chain
-* [ignite chain send](#ignite-chain-send)	 - Send coins to an account
-* [ignite chain serve](#ignite-chain-serve)	 - Start a local gno.land dev chain
-* [ignite chain test](#ignite-chain-test)	 - Run the gno tests of a package
-
+- [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
+- [ignite chain call](#ignite-chain-call) - Call a function of a deployed realm
+- [ignite chain deploy](#ignite-chain-deploy) - Deploy a gno realm or package to a chain
+- [ignite chain query](#ignite-chain-query) - Evaluate a read-only expression on a chain
+- [ignite chain send](#ignite-chain-send) - Send coins to an account
+- [ignite chain serve](#ignite-chain-serve) - Start a local gno.land dev chain
+- [ignite chain test](#ignite-chain-test) - Run the gno tests of a package
 
 ## ignite chain call
 
@@ -514,8 +497,7 @@ ignite chain call <pkgpath> <func> [args...] [flags]
 
 **SEE ALSO**
 
-* [ignite chain](#ignite-chain)	 - Run, deploy and interact with gno.land chains
-
+- [ignite chain](#ignite-chain) - Run, deploy and interact with gno.land chains
 
 ## ignite chain deploy
 
@@ -555,8 +537,7 @@ ignite chain deploy [dir] [flags]
 
 **SEE ALSO**
 
-* [ignite chain](#ignite-chain)	 - Run, deploy and interact with gno.land chains
-
+- [ignite chain](#ignite-chain) - Run, deploy and interact with gno.land chains
 
 ## ignite chain query
 
@@ -592,8 +573,7 @@ ignite chain query <expression> [flags]
 
 **SEE ALSO**
 
-* [ignite chain](#ignite-chain)	 - Run, deploy and interact with gno.land chains
-
+- [ignite chain](#ignite-chain) - Run, deploy and interact with gno.land chains
 
 ## ignite chain send
 
@@ -603,7 +583,7 @@ Send coins to an account
 
 Send coins from the account given by --from to another account.
 
-<to> is a bech32 address or a key name from the keybase. Handy on dev chains
+&lt;to&gt; is a bech32 address or a key name from the keybase. Handy on dev chains
 to fund accounts created with `ignite account create`.
 
 Example:
@@ -635,8 +615,7 @@ ignite chain send <to> <amount> [flags]
 
 **SEE ALSO**
 
-* [ignite chain](#ignite-chain)	 - Run, deploy and interact with gno.land chains
-
+- [ignite chain](#ignite-chain) - Run, deploy and interact with gno.land chains
 
 ## ignite chain serve
 
@@ -671,8 +650,7 @@ ignite chain serve [flags]
 
 **SEE ALSO**
 
-* [ignite chain](#ignite-chain)	 - Run, deploy and interact with gno.land chains
-
+- [ignite chain](#ignite-chain) - Run, deploy and interact with gno.land chains
 
 ## ignite chain test
 
@@ -700,8 +678,7 @@ ignite chain test [dir] [flags]
 
 **SEE ALSO**
 
-* [ignite chain](#ignite-chain)	 - Run, deploy and interact with gno.land chains
-
+- [ignite chain](#ignite-chain) - Run, deploy and interact with gno.land chains
 
 ## ignite completion
 
@@ -719,8 +696,7 @@ ignite completion [bash|zsh|fish|powershell] [flags]
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
-
+- [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
 
 ## ignite cosmos
 
@@ -742,13 +718,12 @@ blockchains live here.
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
-* [ignite cosmos account](#ignite-cosmos-account)	 - Create, delete, and show Ignite accounts
-* [ignite cosmos chain](#ignite-cosmos-chain)	 - Build, init and start a blockchain node
-* [ignite cosmos generate](#ignite-cosmos-generate)	 - Generate clients, API docs from source code
-* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
-* [ignite cosmos testnet](#ignite-cosmos-testnet)	 - Simulate and manage test networks
-
+- [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
+- [ignite cosmos account](#ignite-cosmos-account) - Create, delete, and show Ignite accounts
+- [ignite cosmos chain](#ignite-cosmos-chain) - Build, init and start a blockchain node
+- [ignite cosmos generate](#ignite-cosmos-generate) - Generate clients, API docs from source code
+- [ignite cosmos scaffold](#ignite-cosmos-scaffold) - Create a new blockchain, module, message, query, and more
+- [ignite cosmos testnet](#ignite-cosmos-testnet) - Simulate and manage test networks
 
 ## ignite cosmos account
 
@@ -765,7 +740,6 @@ you chain's binary to manage accounts from "config.yml". For example, if your
 blockchain is called "mychain", use "mychaind keys" to manage keys for the
 chain.
 
-
 **Options**
 
 ```
@@ -776,14 +750,13 @@ chain.
 
 **SEE ALSO**
 
-* [ignite cosmos](#ignite-cosmos)	 - Cosmos SDK blockchain tooling
-* [ignite cosmos account create](#ignite-cosmos-account-create)	 - Create a new account
-* [ignite cosmos account delete](#ignite-cosmos-account-delete)	 - Delete an account by name
-* [ignite cosmos account export](#ignite-cosmos-account-export)	 - Export an account as a private key
-* [ignite cosmos account import](#ignite-cosmos-account-import)	 - Import an account by using a mnemonic or a private key
-* [ignite cosmos account list](#ignite-cosmos-account-list)	 - Show a list of all accounts
-* [ignite cosmos account show](#ignite-cosmos-account-show)	 - Show detailed information about a particular account
-
+- [ignite cosmos](#ignite-cosmos) - Cosmos SDK blockchain tooling
+- [ignite cosmos account create](#ignite-cosmos-account-create) - Create a new account
+- [ignite cosmos account delete](#ignite-cosmos-account-delete) - Delete an account by name
+- [ignite cosmos account export](#ignite-cosmos-account-export) - Export an account as a private key
+- [ignite cosmos account import](#ignite-cosmos-account-import) - Import an account by using a mnemonic or a private key
+- [ignite cosmos account list](#ignite-cosmos-account-list) - Show a list of all accounts
+- [ignite cosmos account show](#ignite-cosmos-account-show) - Show detailed information about a particular account
 
 ## ignite cosmos account create
 
@@ -809,8 +782,7 @@ ignite cosmos account create [name] [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos account](#ignite-cosmos-account)	 - Create, delete, and show Ignite accounts
-
+- [ignite cosmos account](#ignite-cosmos-account) - Create, delete, and show Ignite accounts
 
 ## ignite cosmos account delete
 
@@ -835,8 +807,7 @@ ignite cosmos account delete [name] [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos account](#ignite-cosmos-account)	 - Create, delete, and show Ignite accounts
-
+- [ignite cosmos account](#ignite-cosmos-account) - Create, delete, and show Ignite accounts
 
 ## ignite cosmos account export
 
@@ -864,8 +835,7 @@ ignite cosmos account export [name] [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos account](#ignite-cosmos-account)	 - Create, delete, and show Ignite accounts
-
+- [ignite cosmos account](#ignite-cosmos-account) - Create, delete, and show Ignite accounts
 
 ## ignite cosmos account import
 
@@ -894,8 +864,7 @@ ignite cosmos account import [name] [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos account](#ignite-cosmos-account)	 - Create, delete, and show Ignite accounts
-
+- [ignite cosmos account](#ignite-cosmos-account) - Create, delete, and show Ignite accounts
 
 ## ignite cosmos account list
 
@@ -921,8 +890,7 @@ ignite cosmos account list [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos account](#ignite-cosmos-account)	 - Create, delete, and show Ignite accounts
-
+- [ignite cosmos account](#ignite-cosmos-account) - Create, delete, and show Ignite accounts
 
 ## ignite cosmos account show
 
@@ -948,8 +916,7 @@ ignite cosmos account show [name] [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos account](#ignite-cosmos-account)	 - Create, delete, and show Ignite accounts
-
+- [ignite cosmos account](#ignite-cosmos-account) - Create, delete, and show Ignite accounts
 
 ## ignite cosmos chain
 
@@ -1005,7 +972,6 @@ to send token from any other account that exists on chain.
 The "simulate" command helps you start a simulation testing process for your
 chain.
 
-
 **Options**
 
 ```
@@ -1016,16 +982,15 @@ chain.
 
 **SEE ALSO**
 
-* [ignite cosmos](#ignite-cosmos)	 - Cosmos SDK blockchain tooling
-* [ignite cosmos chain build](#ignite-cosmos-chain-build)	 - Build a node binary
-* [ignite cosmos chain debug](#ignite-cosmos-chain-debug)	 - Launch a debugger for a blockchain app
-* [ignite cosmos chain faucet](#ignite-cosmos-chain-faucet)	 - Send coins to an account
-* [ignite cosmos chain init](#ignite-cosmos-chain-init)	 - Initialize your chain
-* [ignite cosmos chain lint](#ignite-cosmos-chain-lint)	 - Lint codebase using golangci-lint
-* [ignite cosmos chain modules](#ignite-cosmos-chain-modules)	 - Manage modules
-* [ignite cosmos chain serve](#ignite-cosmos-chain-serve)	 - Start a blockchain node in development
-* [ignite cosmos chain simulate](#ignite-cosmos-chain-simulate)	 - Run simulation testing for the blockchain
-
+- [ignite cosmos](#ignite-cosmos) - Cosmos SDK blockchain tooling
+- [ignite cosmos chain build](#ignite-cosmos-chain-build) - Build a node binary
+- [ignite cosmos chain debug](#ignite-cosmos-chain-debug) - Launch a debugger for a blockchain app
+- [ignite cosmos chain faucet](#ignite-cosmos-chain-faucet) - Send coins to an account
+- [ignite cosmos chain init](#ignite-cosmos-chain-init) - Initialize your chain
+- [ignite cosmos chain lint](#ignite-cosmos-chain-lint) - Lint codebase using golangci-lint
+- [ignite cosmos chain modules](#ignite-cosmos-chain-modules) - Manage modules
+- [ignite cosmos chain serve](#ignite-cosmos-chain-serve) - Start a blockchain node in development
+- [ignite cosmos chain simulate](#ignite-cosmos-chain-simulate) - Run simulation testing for the blockchain
 
 ## ignite cosmos chain build
 
@@ -1033,27 +998,26 @@ Build a node binary
 
 **Synopsis**
 
-
 The build command compiles the source code of the project into a binary and
 installs the binary in the $(go env GOPATH)/bin directory.
 
 You can customize the output directory for the binary using a flag:
 
-	ignite chain build --output dist
+    ignite chain build --output dist
 
 To compile the binary Ignite first compiles protocol buffer (proto) files into
 Go source code. Proto files contain required type and services definitions. If
 you're using another program to compile proto files, you can use a flag to tell
 Ignite to skip the proto compilation step:
 
-	ignite chain build --skip-proto
+    ignite chain build --skip-proto
 
 Afterwards, Ignite install dependencies specified in the go.mod file. By default
 Ignite doesn't check that dependencies of the main module stored in the module
 cache have not been modified since they were downloaded. To enforce dependency
 checking (essentially, running "go mod verify") use a flag:
 
-	ignite chain build --check-dependencies
+    ignite chain build --check-dependencies
 
 Next, Ignite identifies the "main" package of the project. By default the "main"
 package is located in "cmd/{app}d" directory, where "{app}" is the name of the
@@ -1061,21 +1025,21 @@ scaffolded project and "d" stands for daemon. If your project contains more
 than one "main" package, specify the path to the one that Ignite should compile
 in config.yml:
 
-	build:
-	  main: custom/path/to/main
+    build:
+      main: custom/path/to/main
 
 By default the binary name will match the top-level module name (specified in
 go.mod) with a suffix "d". This can be customized in config.yml:
 
-	build:
-	  binary: mychaind
+    build:
+      binary: mychaind
 
 You can also specify custom linker flags:
 
-	build:
-	  ldflags:
-	    - "-X main.Version=development"
-	    - "-X main.Date=01/05/2022T19:54"
+    build:
+      ldflags:
+        - "-X main.Version=development"
+        - "-X main.Date=01/05/2022T19:54"
 
 To build binaries for a release, use the --release flag. The binaries for one or
 more specified release targets are built in a "release/" directory in the
@@ -1083,8 +1047,7 @@ project's source directory. Specify the release targets with GOOS:GOARCH build
 tags. If the optional --release.targets is not specified, a binary is created
 for your current environment.
 
-	ignite chain build --release -t linux:amd64 -t darwin:amd64 -t darwin:arm64
-
+    ignite chain build --release -t linux:amd64 -t darwin:amd64 -t darwin:arm64
 
 ```
 ignite cosmos chain build [flags]
@@ -1116,8 +1079,7 @@ ignite cosmos chain build [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos chain](#ignite-cosmos-chain)	 - Build, init and start a blockchain node
-
+- [ignite cosmos chain](#ignite-cosmos-chain) - Build, init and start a blockchain node
 
 ## ignite cosmos chain debug
 
@@ -1139,14 +1101,13 @@ JSON-RPC or DAP client connections.
 
 To start a debug server use the following flag:
 
-	ignite chain debug --server
+    ignite chain debug --server
 
 To start a debug server with a custom address use the following flags:
 
-	ignite chain debug --server --server-address 127.0.0.1:30500
+    ignite chain debug --server --server-address 127.0.0.1:30500
 
 The debug server stops automatically when the client connection is closed.
-
 
 ```
 ignite cosmos chain debug [flags]
@@ -1170,8 +1131,7 @@ ignite cosmos chain debug [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos chain](#ignite-cosmos-chain)	 - Build, init and start a blockchain node
-
+- [ignite cosmos chain](#ignite-cosmos-chain) - Build, init and start a blockchain node
 
 ## ignite cosmos chain faucet
 
@@ -1199,8 +1159,7 @@ ignite cosmos chain faucet [address] [coin<,...>] [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos chain](#ignite-cosmos-chain)	 - Build, init and start a blockchain node
-
+- [ignite cosmos chain](#ignite-cosmos-chain) - Build, init and start a blockchain node
 
 ## ignite cosmos chain init
 
@@ -1217,10 +1176,10 @@ By default, the data directory will be initialized in $HOME/.mychain, where
 "mychain" is the name of the project. To set a custom data directory use the
 --home flag or set the value in config.yml:
 
-	validators:
-	  - name: alice
-	    bonded: '100000000stake'
-	    home: "~/.customdir"
+    validators:
+      - name: alice
+        bonded: '100000000stake'
+        home: "~/.customdir"
 
 The data directory contains three files in the "config" directory: app.toml,
 config.toml, client.toml. These files let you customize the behavior of your
@@ -1228,17 +1187,17 @@ blockchain node and the client executable. When a chain is re-initialized the
 data directory can be reset. To make some values in these files persistent, set
 them in config.yml:
 
-	validators:
-	  - name: alice
-	    bonded: '100000000stake'
-	    app:
-	      minimum-gas-prices: "0.025stake"
-	    config:
-	      consensus:
-	        timeout_commit: "5s"
-	        timeout_propose: "5s"
-	    client:
-	      output: "json"
+    validators:
+      - name: alice
+        bonded: '100000000stake'
+        app:
+          minimum-gas-prices: "0.025stake"
+        config:
+          consensus:
+            timeout_commit: "5s"
+            timeout_propose: "5s"
+        client:
+          output: "json"
 
 The configuration above changes the minimum gas price of the validator (by
 default the gas price is set to 0 to allow "free" transactions), sets the block
@@ -1259,11 +1218,11 @@ directory "config" subdirectory and contains the initial state of the chain,
 including consensus and module parameters. You can customize the values of the
 genesis in config.yml:
 
-	genesis:
-	  app_state:
-	    staking:
-	      params:
-	        bond_denom: "foo"
+    genesis:
+      app_state:
+        staking:
+          params:
+            bond_denom: "foo"
 
 The example above changes the staking token to "foo". If you change the staking
 denom, make sure the validator account has the right tokens.
@@ -1272,7 +1231,6 @@ The init command is meant to be used ONLY FOR DEVELOPMENT PURPOSES. Under the
 hood it runs commands like "appd init", "appd add-genesis-account", "appd
 gentx", and "appd collect-gentx". For production, you may want to run these
 commands manually to ensure a production-level node initialization.
-
 
 ```
 ignite cosmos chain init [flags]
@@ -1301,8 +1259,7 @@ ignite cosmos chain init [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos chain](#ignite-cosmos-chain)	 - Build, init and start a blockchain node
-
+- [ignite cosmos chain](#ignite-cosmos-chain) - Build, init and start a blockchain node
 
 ## ignite cosmos chain lint
 
@@ -1331,8 +1288,7 @@ ignite cosmos chain lint [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos chain](#ignite-cosmos-chain)	 - Build, init and start a blockchain node
-
+- [ignite cosmos chain](#ignite-cosmos-chain) - Build, init and start a blockchain node
 
 ## ignite cosmos chain modules
 
@@ -1357,9 +1313,8 @@ The modules command allows you to manage modules in the codebase.
 
 **SEE ALSO**
 
-* [ignite cosmos chain](#ignite-cosmos-chain)	 - Build, init and start a blockchain node
-* [ignite cosmos chain modules list](#ignite-cosmos-chain-modules-list)	 - List all Cosmos SDK modules in the app
-
+- [ignite cosmos chain](#ignite-cosmos-chain) - Build, init and start a blockchain node
+- [ignite cosmos chain modules list](#ignite-cosmos-chain-modules-list) - List all Cosmos SDK modules in the app
 
 ## ignite cosmos chain modules list
 
@@ -1388,8 +1343,7 @@ ignite cosmos chain modules list [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos chain modules](#ignite-cosmos-chain-modules)	 - Manage modules
-
+- [ignite cosmos chain modules](#ignite-cosmos-chain-modules) - Manage modules
 
 ## ignite cosmos chain serve
 
@@ -1412,24 +1366,23 @@ exporting and importing the genesis file.
 To force Ignite to start from a clean slate even if a genesis file exists, use
 the following flag:
 
-	ignite chain serve --reset-once
+    ignite chain serve --reset-once
 
 To force Ignite to reset the state every time the source code is modified, use
 the following flag:
 
-	ignite chain serve --force-reset
+    ignite chain serve --force-reset
 
 With Ignite it's possible to start more than one blockchain from the same source
 code using different config files. This is handy if you're building
 inter-blockchain functionality and, for example, want to try sending packets
 from one blockchain to another. To start a node using a specific config file:
 
-	ignite chain serve --config mars.yml
+    ignite chain serve --config mars.yml
 
 The serve command is meant to be used ONLY FOR DEVELOPMENT PURPOSES. Under the
 hood, it runs "appd start", where "appd" is the name of your chain's binary. For
 production, you may want to run "appd start" manually.
-
 
 ```
 ignite cosmos chain serve [flags]
@@ -1463,8 +1416,7 @@ ignite cosmos chain serve [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos chain](#ignite-cosmos-chain)	 - Build, init and start a blockchain node
-
+- [ignite cosmos chain](#ignite-cosmos-chain) - Build, init and start a blockchain node
 
 ## ignite cosmos chain simulate
 
@@ -1506,8 +1458,7 @@ ignite cosmos chain simulate [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos chain](#ignite-cosmos-chain)	 - Build, init and start a blockchain node
-
+- [ignite cosmos chain](#ignite-cosmos-chain) - Build, init and start a blockchain node
 
 ## ignite cosmos generate
 
@@ -1523,7 +1474,6 @@ functionality, for example, generating an OpenAPI spec.
 Produced source code can be regenerated by running a command again and is not
 meant to be edited by hand.
 
-
 **Options**
 
 ```
@@ -1536,12 +1486,11 @@ meant to be edited by hand.
 
 **SEE ALSO**
 
-* [ignite cosmos](#ignite-cosmos)	 - Cosmos SDK blockchain tooling
-* [ignite cosmos generate composables](#ignite-cosmos-generate-composables)	 - TypeScript frontend client and Vue 3 composables
-* [ignite cosmos generate openapi](#ignite-cosmos-generate-openapi)	 - OpenAPI spec for your chain
-* [ignite cosmos generate proto-go](#ignite-cosmos-generate-proto-go)	 - Compile protocol buffer files to Go source code required by Cosmos SDK
-* [ignite cosmos generate ts-client](#ignite-cosmos-generate-ts-client)	 - TypeScript frontend client
-
+- [ignite cosmos](#ignite-cosmos) - Cosmos SDK blockchain tooling
+- [ignite cosmos generate composables](#ignite-cosmos-generate-composables) - TypeScript frontend client and Vue 3 composables
+- [ignite cosmos generate openapi](#ignite-cosmos-generate-openapi) - OpenAPI spec for your chain
+- [ignite cosmos generate proto-go](#ignite-cosmos-generate-proto-go) - Compile protocol buffer files to Go source code required by Cosmos SDK
+- [ignite cosmos generate ts-client](#ignite-cosmos-generate-ts-client) - TypeScript frontend client
 
 ## ignite cosmos generate composables
 
@@ -1570,8 +1519,7 @@ ignite cosmos generate composables [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos generate](#ignite-cosmos-generate)	 - Generate clients, API docs from source code
-
+- [ignite cosmos generate](#ignite-cosmos-generate) - Generate clients, API docs from source code
 
 ## ignite cosmos generate openapi
 
@@ -1600,8 +1548,7 @@ ignite cosmos generate openapi [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos generate](#ignite-cosmos-generate)	 - Generate clients, API docs from source code
-
+- [ignite cosmos generate](#ignite-cosmos-generate) - Generate clients, API docs from source code
 
 ## ignite cosmos generate proto-go
 
@@ -1629,8 +1576,7 @@ ignite cosmos generate proto-go [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos generate](#ignite-cosmos-generate)	 - Generate clients, API docs from source code
-
+- [ignite cosmos generate](#ignite-cosmos-generate) - Generate clients, API docs from source code
 
 ## ignite cosmos generate ts-client
 
@@ -1643,19 +1589,18 @@ Generate a framework agnostic TypeScript client for your blockchain project.
 By default the TypeScript client is generated in the "ts-client/" directory. You
 can customize the output directory in config.yml:
 
-	client:
-	  typescript:
-	    path: new-path
+    client:
+      typescript:
+        path: new-path
 
 Output can also be customized by using a flag:
 
-	ignite generate ts-client --output new-path
+    ignite generate ts-client --output new-path
 
 TypeScript client code can be automatically regenerated on reset or source code
 changes when the blockchain is started with a flag:
 
-	ignite chain serve --generate-clients
-
+    ignite chain serve --generate-clients
 
 ```
 ignite cosmos generate ts-client [flags]
@@ -1681,8 +1626,7 @@ ignite cosmos generate ts-client [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos generate](#ignite-cosmos-generate)	 - Generate clients, API docs from source code
-
+- [ignite cosmos generate](#ignite-cosmos-generate) - Generate clients, API docs from source code
 
 ## ignite cosmos scaffold
 
@@ -1744,7 +1688,6 @@ scaffold IBC packets. An IBC packet represents the data sent from one blockchain
 to another. You can only scaffold IBC packets in IBC-enabled modules scaffolded
 with an "--ibc" flag. Note that the default module is not IBC-enabled.
 
-
 **Options**
 
 ```
@@ -1754,23 +1697,22 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 
 **SEE ALSO**
 
-* [ignite cosmos](#ignite-cosmos)	 - Cosmos SDK blockchain tooling
-* [ignite cosmos scaffold chain](#ignite-cosmos-scaffold-chain)	 - New Cosmos SDK blockchain
-* [ignite cosmos scaffold chain-registry](#ignite-cosmos-scaffold-chain-registry)	 - Configs for the chain registry
-* [ignite cosmos scaffold configs](#ignite-cosmos-scaffold-configs)	 - Configs for a custom Cosmos SDK module
-* [ignite cosmos scaffold list](#ignite-cosmos-scaffold-list)	 - CRUD for data stored as an array
-* [ignite cosmos scaffold map](#ignite-cosmos-scaffold-map)	 - CRUD for data stored as key-value pairs
-* [ignite cosmos scaffold message](#ignite-cosmos-scaffold-message)	 - Message to perform state transition on the blockchain
-* [ignite cosmos scaffold migration](#ignite-cosmos-scaffold-migration)	 - Module migration boilerplate
-* [ignite cosmos scaffold module](#ignite-cosmos-scaffold-module)	 - Custom Cosmos SDK module
-* [ignite cosmos scaffold packet](#ignite-cosmos-scaffold-packet)	 - Message for sending an IBC packet
-* [ignite cosmos scaffold params](#ignite-cosmos-scaffold-params)	 - Parameters for a custom Cosmos SDK module
-* [ignite cosmos scaffold query](#ignite-cosmos-scaffold-query)	 - Query for fetching data from a blockchain
-* [ignite cosmos scaffold single](#ignite-cosmos-scaffold-single)	 - CRUD for data stored in a single location
-* [ignite cosmos scaffold type](#ignite-cosmos-scaffold-type)	 - Type definition
-* [ignite cosmos scaffold type-list](#ignite-cosmos-scaffold-type-list)	 - List scaffold types
-* [ignite cosmos scaffold vue](#ignite-cosmos-scaffold-vue)	 - Vue 3 web app template
-
+- [ignite cosmos](#ignite-cosmos) - Cosmos SDK blockchain tooling
+- [ignite cosmos scaffold chain](#ignite-cosmos-scaffold-chain) - New Cosmos SDK blockchain
+- [ignite cosmos scaffold chain-registry](#ignite-cosmos-scaffold-chain-registry) - Configs for the chain registry
+- [ignite cosmos scaffold configs](#ignite-cosmos-scaffold-configs) - Configs for a custom Cosmos SDK module
+- [ignite cosmos scaffold list](#ignite-cosmos-scaffold-list) - CRUD for data stored as an array
+- [ignite cosmos scaffold map](#ignite-cosmos-scaffold-map) - CRUD for data stored as key-value pairs
+- [ignite cosmos scaffold message](#ignite-cosmos-scaffold-message) - Message to perform state transition on the blockchain
+- [ignite cosmos scaffold migration](#ignite-cosmos-scaffold-migration) - Module migration boilerplate
+- [ignite cosmos scaffold module](#ignite-cosmos-scaffold-module) - Custom Cosmos SDK module
+- [ignite cosmos scaffold packet](#ignite-cosmos-scaffold-packet) - Message for sending an IBC packet
+- [ignite cosmos scaffold params](#ignite-cosmos-scaffold-params) - Parameters for a custom Cosmos SDK module
+- [ignite cosmos scaffold query](#ignite-cosmos-scaffold-query) - Query for fetching data from a blockchain
+- [ignite cosmos scaffold single](#ignite-cosmos-scaffold-single) - CRUD for data stored in a single location
+- [ignite cosmos scaffold type](#ignite-cosmos-scaffold-type) - Type definition
+- [ignite cosmos scaffold type-list](#ignite-cosmos-scaffold-type-list) - List scaffold types
+- [ignite cosmos scaffold vue](#ignite-cosmos-scaffold-vue) - Vue 3 web app template
 
 ## ignite cosmos scaffold chain
 
@@ -1783,16 +1725,17 @@ Create a new application-specific Cosmos SDK blockchain.
 For example, the following command will create a blockchain called "hello" in
 the "hello/" directory:
 
-	ignite scaffold chain hello
+    ignite scaffold chain hello
 
 A project name can be a simple name or a URL. The name will be used as the Go
 module path for the project. Examples of project names:
 
-	ignite scaffold chain foo
-	ignite scaffold chain foo/bar
-	ignite scaffold chain example.org/foo
-	ignite scaffold chain github.com/username/foo
-		
+    ignite scaffold chain foo
+    ignite scaffold chain foo/bar
+    ignite scaffold chain example.org/foo
+    ignite scaffold chain github.com/username/foo
+
+
 A new directory with source code files will be created in the current directory.
 To use a different path use the "--path" flag.
 
@@ -1809,7 +1752,7 @@ example, the Cosmos Hub blockchain uses the default "cosmos" prefix, so that
 addresses look like this: "cosmos12fjzdtqfrrve7zyg9sv8j25azw2ua6tvu07ypf". To
 use a custom address prefix use the "--address-prefix" flag. For example:
 
-	ignite scaffold chain foo --address-prefix bar
+    ignite scaffold chain foo --address-prefix bar
 
 By default when compiling a blockchain's source code Ignite creates a cache to
 speed up the build process. To clear the cache when building a blockchain use
@@ -1818,7 +1761,6 @@ flag.
 
 The blockchain is using the Cosmos SDK modular blockchain framework. Learn more
 about Cosmos SDK on https://docs.cosmos.network
-
 
 ```
 ignite cosmos scaffold chain [name] [flags]
@@ -1850,8 +1792,7 @@ ignite cosmos scaffold chain [name] [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
-
+- [ignite cosmos scaffold](#ignite-cosmos-scaffold) - Create a new blockchain, module, message, query, and more
 
 ## ignite cosmos scaffold chain-registry
 
@@ -1890,8 +1831,7 @@ ignite cosmos scaffold chain-registry [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
-
+- [ignite cosmos scaffold](#ignite-cosmos-scaffold) - Create a new blockchain, module, message, query, and more
 
 ## ignite cosmos scaffold configs
 
@@ -1903,14 +1843,13 @@ Scaffold a new config for a Cosmos SDK module.
 
 A Cosmos SDK module can have configurations. An example of a config is "address prefix" of the
 "auth" module. A config can be scaffolded into a module using the "--module-configs" into
-the scaffold module command or using the "scaffold configs" command. By default 
+the scaffold module command or using the "scaffold configs" command. By default
 configs are of type "string", but you can specify a type for each config. For example:
 
-	ignite scaffold configs foo baz:uint bar:bool
+    ignite scaffold configs foo baz:uint bar:bool
 
 Refer to Cosmos SDK documentation to learn more about modules, dependencies and
 configs.
-
 
 ```
 ignite cosmos scaffold configs [configs]... [flags]
@@ -1934,8 +1873,7 @@ ignite cosmos scaffold configs [configs]... [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
-
+- [ignite cosmos scaffold](#ignite-cosmos-scaffold) - Create a new blockchain, module, message, query, and more
 
 ## ignite cosmos scaffold list
 
@@ -1968,7 +1906,7 @@ provides the logic to create, read, update, and delete instances of the type.
 For example, let's review a command that generates the code to handle a list of
 posts and each post has "title" and "body" fields:
 
-	ignite scaffold list post title body
+    ignite scaffold list post title body
 
 This provides you with a "Post" type, MsgCreatePost, MsgUpdatePost,
 MsgDeletePost and two queries: Post and PostAll. The compiled CLI, let's say the
@@ -1985,7 +1923,7 @@ different type, you can specify it after a colon ":". The following types are
 supported: string, bool, int, uint, coin, array.string, array.int, array.uint,
 array.coin. An example of using field types:
 
-	ignite scaffold list pool amount:coin tags:array.string height:int
+    ignite scaffold list pool amount:coin tags:array.string height:int
 
 For detailed type information use ignite scaffold type --help
 
@@ -1994,37 +1932,36 @@ For detailed type information use ignite scaffold type --help
 
 Ignite also supports custom types:
 
-	ignite scaffold list product-details name desc
-	ignite scaffold list product price:coin details:ProductDetails
+    ignite scaffold list product-details name desc
+    ignite scaffold list product price:coin details:ProductDetails
 
 In the example above the "ProductDetails" type was defined first, and then used
 as a custom type for the "details" field.
 
 Your chain will accept custom types in JSON-notation:
 
-	exampled tx example create-product 100coin '{"name": "x", "desc": "y"}' --from alice
+    exampled tx example create-product 100coin '{"name": "x", "desc": "y"}' --from alice
 
 By default the code will be scaffolded in the module that matches your project's
 name. If you have several modules in your project, you might want to specify a
 different module:
 
-	ignite scaffold list post title body --module blog
+    ignite scaffold list post title body --module blog
 
 By default, each message comes with a "creator" field that represents the
 address of the transaction signer. You can customize the name of this field with
 a flag:
 
-	ignite scaffold list post title body --signer author
+    ignite scaffold list post title body --signer author
 
 It's possible to scaffold just the getter/setter logic without the CRUD
 messages. This is useful when you want the methods to handle a type, but would
 like to scaffold messages manually. Use a flag to skip message scaffolding:
 
-	ignite scaffold list post title body --no-message
+    ignite scaffold list post title body --no-message
 
 The "creator" field is not generated if a list is scaffolded with the
 "--no-message" flag.
-
 
 ```
 ignite cosmos scaffold list NAME [field]... [flags]
@@ -2051,8 +1988,7 @@ ignite cosmos scaffold list NAME [field]... [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
-
+- [ignite cosmos scaffold](#ignite-cosmos-scaffold) - Create a new blockchain, module, message, query, and more
 
 ## ignite cosmos scaffold map
 
@@ -2071,21 +2007,21 @@ incrementing integer, whereas "map" values are indexed by a user-provided value
 
 Let's use the same blog post example:
 
-	ignite scaffold map post title body:string
+    ignite scaffold map post title body:string
 
 This command scaffolds a "Post" type and CRUD functionality to create, read,
 updated, and delete posts. However, when creating a new post with your chain's
 binary (or by submitting a transaction through the chain's API) you will be
 required to provide an "index":
 
-	blogd tx blog create-post [index] [title] [body]
-	blogd tx blog create-post hello "My first post" "This is the body"
+    blogd tx blog create-post [index] [title] [body]
+    blogd tx blog create-post hello "My first post" "This is the body"
 
 This command will create a post and store it in the blockchain's state under the
 "hello" index. You will be able to fetch back the value of the post by querying
 for the "hello" key.
 
-	blogd q blog show-post hello
+    blogd q blog show-post hello
 
 By default, the index is called "index", to customize the index, use the "--index" flag.
 
@@ -2094,7 +2030,6 @@ the "--no-message", "--module", "--signer" flags as well as the colon syntax for
 custom types.
 
 For detailed type information use ignite scaffold type --help
-
 
 ```
 ignite cosmos scaffold map NAME [field]... [flags]
@@ -2122,8 +2057,7 @@ ignite cosmos scaffold map NAME [field]... [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
-
+- [ignite cosmos scaffold](#ignite-cosmos-scaffold) - Create a new blockchain, module, message, query, and more
 
 ## ignite cosmos scaffold message
 
@@ -2148,7 +2082,7 @@ recipient's account.
 Ignite's message scaffolding lets you create new types of messages and add them
 to your chain. For example:
 
-	ignite scaffold message add-pool amount:coins denom active:bool --module dex
+    ignite scaffold message add-pool amount:coins denom active:bool --module dex
 
 The command above will create a new message MsgAddPool with three fields: amount
 (in tokens), denom (a string), and active (a boolean). The message will be added
@@ -2168,7 +2102,7 @@ Inside this function, you can implement message handling logic.
 When successfully processed a message can return data. Use the —response flag to
 specify response fields and their types. For example
 
-	ignite scaffold message create-post title body --response id:int,title
+    ignite scaffold message create-post title body --response id:int,title
 
 The command above will scaffold MsgCreatePost which returns both an ID (an
 integer) and a title (a string).
@@ -2176,7 +2110,6 @@ integer) and a title (a string).
 Message scaffolding follows the rules as "ignite scaffold list/map/single" and
 supports fields with standard and custom types. See "ignite scaffold list —help"
 for details.
-
 
 ```
 ignite cosmos scaffold message [name] [field1:type1] [field2:type2] ... [flags]
@@ -2204,8 +2137,7 @@ ignite cosmos scaffold message [name] [field1:type1] [field2:type2] ... [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
-
+- [ignite cosmos scaffold](#ignite-cosmos-scaffold) - Create a new blockchain, module, message, query, and more
 
 ## ignite cosmos scaffold migration
 
@@ -2215,9 +2147,9 @@ Module migration boilerplate
 
 Scaffold no-op migration boilerplate for an existing Cosmos SDK module.
 
-This command creates a new migration file in 'x/<module>/migrations/vN/',
+This command creates a new migration file in `x/<module>/migrations/vN/`,
 increments the module consensus version, and registers the new migration handler
-inside 'x/<module>/module/module.go'.
+inside `x/<module>/module/module.go`.
 
 ```
 ignite cosmos scaffold migration [module] [flags]
@@ -2239,8 +2171,7 @@ ignite cosmos scaffold migration [module] [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
-
+- [ignite cosmos scaffold](#ignite-cosmos-scaffold) - Create a new blockchain, module, message, query, and more
 
 ## ignite cosmos scaffold module
 
@@ -2257,9 +2188,9 @@ blockchain, scaffold a module and implement the logic of your application.
 
 This command does the following:
 
-* Creates a directory with module's protocol buffer files in "proto/"
-* Creates a directory with module's boilerplate Go code in "x/"
-* Imports the newly created module by modifying "app/app.go"
+- Creates a directory with module's protocol buffer files in "proto/"
+- Creates a directory with module's boilerplate Go code in "x/"
+- Imports the newly created module by modifying "app/app.go"
 
 This command will proceed with module scaffolding even if "app/app.go" doesn't
 have the required default placeholders. If the placeholders are missing, you
@@ -2279,7 +2210,7 @@ sending tokens between accounts. The method for sending tokens is a defined in
 the "bank"'s module keeper. You can scaffold a "foo" module with the dependency
 on "bank" with the following command:
 
-	ignite scaffold module foo --dep bank
+    ignite scaffold module foo --dep bank
 
 You can then define which methods you want to import from the "bank" keeper in
 "expected_keepers.go".
@@ -2287,7 +2218,7 @@ You can then define which methods you want to import from the "bank" keeper in
 You can also scaffold a module with a list of dependencies that can include both
 standard and custom modules (provided they exist):
 
-	ignite scaffold module bar --dep foo,mint,account,FeeGrant
+    ignite scaffold module bar --dep foo,mint,account,FeeGrant
 
 Note: the "--dep" flag doesn't install third-party modules into your
 application, it just generates extra code that specifies which existing modules
@@ -2300,11 +2231,10 @@ blockchain is running. An example of a param is "Inflation rate change" of the
 that accepts a list of param names. By default params are of type "string", but
 you can specify a type for each param. For example:
 
-	ignite scaffold module foo --params baz:uint,bar:bool
+    ignite scaffold module foo --params baz:uint,bar:bool
 
 Refer to Cosmos SDK documentation to learn more about modules, dependencies and
 params.
-
 
 ```
 ignite cosmos scaffold module [name] [flags]
@@ -2333,8 +2263,7 @@ ignite cosmos scaffold module [name] [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
-
+- [ignite cosmos scaffold](#ignite-cosmos-scaffold) - Create a new blockchain, module, message, query, and more
 
 ## ignite cosmos scaffold packet
 
@@ -2369,8 +2298,7 @@ ignite cosmos scaffold packet [packetName] [field1] [field2] ... --module [modul
 
 **SEE ALSO**
 
-* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
-
+- [ignite cosmos scaffold](#ignite-cosmos-scaffold) - Create a new blockchain, module, message, query, and more
 
 ## ignite cosmos scaffold params
 
@@ -2384,14 +2312,13 @@ A Cosmos SDK module can have parameters (or "params"). Params are values that
 can be set at the genesis of the blockchain and can be modified while the
 blockchain is running. An example of a param is "Inflation rate change" of the
 "mint" module. A params can be scaffolded into a module using the "--params" into
-the scaffold module command or using the "scaffold params" command. By default 
+the scaffold module command or using the "scaffold params" command. By default
 params are of type "string", but you can specify a type for each param. For example:
 
-	ignite scaffold params foo baz:uint bar:bool
+    ignite scaffold params foo baz:uint bar:bool
 
 Refer to Cosmos SDK documentation to learn more about modules, dependencies and
 params.
-
 
 ```
 ignite cosmos scaffold params [param]... [flags]
@@ -2415,8 +2342,7 @@ ignite cosmos scaffold params [param]... [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
-
+- [ignite cosmos scaffold](#ignite-cosmos-scaffold) - Create a new blockchain, module, message, query, and more
 
 ## ignite cosmos scaffold query
 
@@ -2425,7 +2351,7 @@ Query for fetching data from a blockchain
 **Synopsis**
 
 Query for fetching data from a blockchain.
-		
+
 For detailed type information use ignite scaffold type --help.
 
 ```
@@ -2453,8 +2379,7 @@ ignite cosmos scaffold query [name] [field1:type1] [field2:type2] ... [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
-
+- [ignite cosmos scaffold](#ignite-cosmos-scaffold) - Create a new blockchain, module, message, query, and more
 
 ## ignite cosmos scaffold single
 
@@ -2463,7 +2388,7 @@ CRUD for data stored in a single location
 **Synopsis**
 
 CRUD for data stored in a single location.
-		
+
 For detailed type information use ignite scaffold type --help.
 
 ```
@@ -2497,8 +2422,7 @@ ignite cosmos scaffold single NAME [field:type]... [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
-
+- [ignite cosmos scaffold](#ignite-cosmos-scaffold) - Create a new blockchain, module, message, query, and more
 
 ## ignite cosmos scaffold type
 
@@ -2508,36 +2432,32 @@ Type definition
 
 Type information
 
-Types 		Usage 																										
-address 	use '<FIELD_NAME>:address' to scaffold string types (eg: cosmos1abcdefghijklmnopqrstuvwxyz0123456). 														
-array.coin 	use '<FIELD_NAME>:array.coin' to scaffold sdk.Coins types (eg: 20stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations. 		
-array.dec.coin 	use '<FIELD_NAME>:array.dec.coin' to scaffold sdk.DecCoins types (eg: 20000002stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations. 	
-array.int 	use '<FIELD_NAME>:array.int' to scaffold []int64 types (eg: 5,4,3,2,1). 																	
-array.string 	use '<FIELD_NAME>:array.string' to scaffold []string types (eg: abc,xyz). 																	
-array.uint 	use '<FIELD_NAME>:array.uint' to scaffold []uint64 types (eg: 13,26,31,40). 																	
-bool 		use '<FIELD_NAME>:bool' to scaffold bool types (eg: true). 																			
-bytes 		use '<FIELD_NAME>:bytes' to scaffold []byte types (eg: 3,2,3,5). 																		
-coin 		use '<FIELD_NAME>:coin' to scaffold sdk.Coin types (eg: 10token). 																		
-coins 		use '<FIELD_NAME>:array.coin' to scaffold sdk.Coins types (eg: 20stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations. 		
-custom 		use the custom type to scaffold already created chain types. 																			
-dec.coin 	use '<FIELD_NAME>:dec.coin' to scaffold sdk.DecCoin types (eg: 100001token). 																	
-dec.coins 	use '<FIELD_NAME>:array.dec.coin' to scaffold sdk.DecCoins types (eg: 20000002stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations. 	
-int 		use '<FIELD_NAME>:int' to scaffold int64 types (eg: 111). 																			
-int64 		use '<FIELD_NAME>:int' to scaffold int64 types (eg: 111). 																			
-ints 		use '<FIELD_NAME>:array.int' to scaffold []int64 types (eg: 5,4,3,2,1). 																	
-string 		use '<FIELD_NAME>:string' to scaffold string types (eg: xyz). 																			
-strings 	use '<FIELD_NAME>:array.string' to scaffold []string types (eg: abc,xyz). 																	
-uint 		use '<FIELD_NAME>:uint' to scaffold uint64 types (eg: 111). 																			
-uint64 		use '<FIELD_NAME>:uint' to scaffold uint64 types (eg: 111). 																			
-uints 		use '<FIELD_NAME>:array.uint' to scaffold []uint64 types (eg: 13,26,31,40). 																	
+Types Usage
+address use '&lt;FIELD_NAME&gt;:address' to scaffold string types (eg: cosmos1abcdefghijklmnopqrstuvwxyz0123456).
+array.coin use '&lt;FIELD_NAME&gt;:array.coin' to scaffold sdk.Coins types (eg: 20stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations.
+array.dec.coin use '&lt;FIELD_NAME&gt;:array.dec.coin' to scaffold sdk.DecCoins types (eg: 20000002stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations.
+array.int use '&lt;FIELD_NAME&gt;:array.int' to scaffold []int64 types (eg: 5,4,3,2,1).
+array.string use '&lt;FIELD_NAME&gt;:array.string' to scaffold []string types (eg: abc,xyz).
+array.uint use '&lt;FIELD_NAME&gt;:array.uint' to scaffold []uint64 types (eg: 13,26,31,40).
+bool use '&lt;FIELD_NAME&gt;:bool' to scaffold bool types (eg: true).
+bytes use '&lt;FIELD_NAME&gt;:bytes' to scaffold []byte types (eg: 3,2,3,5).
+coin use '&lt;FIELD_NAME&gt;:coin' to scaffold sdk.Coin types (eg: 10token).
+coins use '&lt;FIELD_NAME&gt;:array.coin' to scaffold sdk.Coins types (eg: 20stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations.
+custom use the custom type to scaffold already created chain types.
+dec.coin use '&lt;FIELD_NAME&gt;:dec.coin' to scaffold sdk.DecCoin types (eg: 100001token).
+dec.coins use '&lt;FIELD_NAME&gt;:array.dec.coin' to scaffold sdk.DecCoins types (eg: 20000002stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations.
+int use '&lt;FIELD_NAME&gt;:int' to scaffold int64 types (eg: 111).
+int64 use '&lt;FIELD_NAME&gt;:int' to scaffold int64 types (eg: 111).
+ints use '&lt;FIELD_NAME&gt;:array.int' to scaffold []int64 types (eg: 5,4,3,2,1).
+string use '&lt;FIELD_NAME&gt;:string' to scaffold string types (eg: xyz).
+strings use '&lt;FIELD_NAME&gt;:array.string' to scaffold []string types (eg: abc,xyz).
+uint use '&lt;FIELD_NAME&gt;:uint' to scaffold uint64 types (eg: 111).
+uint64 use '&lt;FIELD_NAME&gt;:uint' to scaffold uint64 types (eg: 111).
+uints use '&lt;FIELD_NAME&gt;:array.uint' to scaffold []uint64 types (eg: 13,26,31,40).
 
-Field Usage:
-    - fieldName
-    - fieldName:fieldType
+Field Usage: - fieldName - fieldName:fieldType
 
 If no :fieldType, default (string) is used
-
-
 
 ```
 ignite cosmos scaffold type NAME [field:type] ... [flags]
@@ -2570,8 +2490,7 @@ ignite cosmos scaffold type NAME [field:type] ... [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
-
+- [ignite cosmos scaffold](#ignite-cosmos-scaffold) - Create a new blockchain, module, message, query, and more
 
 ## ignite cosmos scaffold type-list
 
@@ -2599,8 +2518,7 @@ ignite cosmos scaffold type-list [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
-
+- [ignite cosmos scaffold](#ignite-cosmos-scaffold) - Create a new blockchain, module, message, query, and more
 
 ## ignite cosmos scaffold vue
 
@@ -2625,8 +2543,7 @@ ignite cosmos scaffold vue [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
-
+- [ignite cosmos scaffold](#ignite-cosmos-scaffold) - Create a new blockchain, module, message, query, and more
 
 ## ignite cosmos testnet
 
@@ -2644,11 +2561,10 @@ Comprehensive toolset for managing and simulating blockchain test networks. It a
 
 **SEE ALSO**
 
-* [ignite cosmos](#ignite-cosmos)	 - Cosmos SDK blockchain tooling
-* [ignite cosmos testnet in-place](#ignite-cosmos-testnet-in-place)	 - Create and start a testnet from current local net state
-* [ignite cosmos testnet multi-node](#ignite-cosmos-testnet-multi-node)	 - Initialize and provide multi-node on/off functionality
-* [ignite cosmos testnet simulate](#ignite-cosmos-testnet-simulate)	 - Run simulation testing for the blockchain
-
+- [ignite cosmos](#ignite-cosmos) - Cosmos SDK blockchain tooling
+- [ignite cosmos testnet in-place](#ignite-cosmos-testnet-in-place) - Create and start a testnet from current local net state
+- [ignite cosmos testnet multi-node](#ignite-cosmos-testnet-multi-node) - Initialize and provide multi-node on/off functionality
+- [ignite cosmos testnet simulate](#ignite-cosmos-testnet-simulate) - Run simulation testing for the blockchain
 
 ## ignite cosmos testnet in-place
 
@@ -2680,8 +2596,7 @@ ignite cosmos testnet in-place [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos testnet](#ignite-cosmos-testnet)	 - Simulate and manage test networks
-
+- [ignite cosmos testnet](#ignite-cosmos-testnet) - Simulate and manage test networks
 
 ## ignite cosmos testnet multi-node
 
@@ -2690,26 +2605,21 @@ Initialize and provide multi-node on/off functionality
 **Synopsis**
 
 Initialize the test network with the number of nodes and bonded from the config.yml file::
-			...
-                  validators:
-                        - name: alice
-                        bonded: 100000000stake
-                        - name: validator1
-                        bonded: 100000000stake
-                        - name: validator2
-                        bonded: 200000000stake
-                        - name: validator3
-                        bonded: 300000000stake
+...
+validators: - name: alice
+bonded: 100000000stake - name: validator1
+bonded: 100000000stake - name: validator2
+bonded: 200000000stake - name: validator3
+bonded: 300000000stake
+
+    		The "multi-node" command allows developers to easily set up, initialize, and manage multiple nodes for a
+    		testnet environment. This command provides full flexibility in enabling or disabling each node as desired,
+    		making it a powerful tool for simulating a multi-node blockchain network during development.
+
+    		Usage:
+    				ignite testnet multi-node [flags]
 
 
-			The "multi-node" command allows developers to easily set up, initialize, and manage multiple nodes for a 
-			testnet environment. This command provides full flexibility in enabling or disabling each node as desired, 
-			making it a powerful tool for simulating a multi-node blockchain network during development.
-
-			Usage:
-					ignite testnet multi-node [flags]
-
-		
 
 ```
 ignite cosmos testnet multi-node [flags]
@@ -2731,8 +2641,7 @@ ignite cosmos testnet multi-node [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos testnet](#ignite-cosmos-testnet)	 - Simulate and manage test networks
-
+- [ignite cosmos testnet](#ignite-cosmos-testnet) - Simulate and manage test networks
 
 ## ignite cosmos testnet simulate
 
@@ -2767,8 +2676,7 @@ ignite cosmos testnet simulate [flags]
 
 **SEE ALSO**
 
-* [ignite cosmos testnet](#ignite-cosmos-testnet)	 - Simulate and manage test networks
-
+- [ignite cosmos testnet](#ignite-cosmos-testnet) - Simulate and manage test networks
 
 ## ignite docs
 
@@ -2786,8 +2694,7 @@ ignite docs [flags]
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
-
+- [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
 
 ## ignite generate
 
@@ -2801,9 +2708,8 @@ Generate clients for gno.land packages
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
-* [ignite generate ts-client](#ignite-generate-ts-client)	 - Generate a typed TypeScript client for a gno package
-
+- [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
+- [ignite generate ts-client](#ignite-generate-ts-client) - Generate a typed TypeScript client for a gno package
 
 ## ignite generate ts-client
 
@@ -2832,8 +2738,7 @@ ignite generate ts-client [dir] [flags]
 
 **SEE ALSO**
 
-* [ignite generate](#ignite-generate)	 - Generate clients for gno.land packages
-
+- [ignite generate](#ignite-generate) - Generate clients for gno.land packages
 
 ## ignite relayer
 
@@ -2851,8 +2756,7 @@ ignite relayer [flags]
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
-
+- [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
 
 ## ignite scaffold
 
@@ -2870,10 +2774,9 @@ Scaffold new gno.land smart contracts: stateful realms (r/) and stateless packag
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
-* [ignite scaffold package](#ignite-scaffold-package)	 - Scaffold a new gno.land package (stateless library)
-* [ignite scaffold realm](#ignite-scaffold-realm)	 - Scaffold a new gno.land realm (stateful smart contract)
-
+- [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
+- [ignite scaffold package](#ignite-scaffold-package) - Scaffold a new gno.land package (stateless library)
+- [ignite scaffold realm](#ignite-scaffold-realm) - Scaffold a new gno.land realm (stateful smart contract)
 
 ## ignite scaffold package
 
@@ -2897,8 +2800,7 @@ ignite scaffold package <name> [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Scaffold gno.land realms and packages
-
+- [ignite scaffold](#ignite-scaffold) - Scaffold gno.land realms and packages
 
 ## ignite scaffold realm
 
@@ -2909,7 +2811,7 @@ Scaffold a new gno.land realm (stateful smart contract)
 Scaffold a new gno.land realm.
 
 A realm is a stateful smart contract: package-level variables are persisted
-on-chain. <name> is either a bare name ("counter", deployed as
+on-chain. &lt;name&gt; is either a bare name ("counter", deployed as
 gno.land/r/counter) or a full path ("gno.land/r/demo/counter").
 
 ```
@@ -2924,8 +2826,7 @@ ignite scaffold realm <name> [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Scaffold gno.land realms and packages
-
+- [ignite scaffold](#ignite-scaffold) - Scaffold gno.land realms and packages
 
 ## ignite version
 
@@ -2943,7 +2844,7 @@ ignite version [flags]
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
+- [ignite](#ignite) - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
 
 # Scaffold Type
 
@@ -2952,35 +2853,33 @@ These types are used in the `ignite scaffold` command.
 
 ## Available Scaffold Types
 
-| Type | Usage |
-| --- | --- |
-| address | use '<FIELD_NAME>:address' to scaffold string types (eg: cosmos1abcdefghijklmnopqrstuvwxyz0123456). |
-| array.coin | use '<FIELD_NAME>:array.coin' to scaffold sdk.Coins types (eg: 20stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations. |
-| array.dec.coin | use '<FIELD_NAME>:array.dec.coin' to scaffold sdk.DecCoins types (eg: 20000002stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations. |
-| array.int | use '<FIELD_NAME>:array.int' to scaffold []int64 types (eg: 5,4,3,2,1). |
-| array.string | use '<FIELD_NAME>:array.string' to scaffold []string types (eg: abc,xyz). |
-| array.uint | use '<FIELD_NAME>:array.uint' to scaffold []uint64 types (eg: 13,26,31,40). |
-| bool | use '<FIELD_NAME>:bool' to scaffold bool types (eg: true). |
-| bytes | use '<FIELD_NAME>:bytes' to scaffold []byte types (eg: 3,2,3,5). |
-| coin | use '<FIELD_NAME>:coin' to scaffold sdk.Coin types (eg: 10token). |
-| coins | use '<FIELD_NAME>:array.coin' to scaffold sdk.Coins types (eg: 20stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations. |
-| custom | use the custom type to scaffold already created chain types. |
-| dec.coin | use '<FIELD_NAME>:dec.coin' to scaffold sdk.DecCoin types (eg: 100001token). |
-| dec.coins | use '<FIELD_NAME>:array.dec.coin' to scaffold sdk.DecCoins types (eg: 20000002stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations. |
-| int | use '<FIELD_NAME>:int' to scaffold int64 types (eg: 111). |
-| int64 | use '<FIELD_NAME>:int' to scaffold int64 types (eg: 111). |
-| ints | use '<FIELD_NAME>:array.int' to scaffold []int64 types (eg: 5,4,3,2,1). |
-| string | use '<FIELD_NAME>:string' to scaffold string types (eg: xyz). |
-| strings | use '<FIELD_NAME>:array.string' to scaffold []string types (eg: abc,xyz). |
-| uint | use '<FIELD_NAME>:uint' to scaffold uint64 types (eg: 111). |
-| uint64 | use '<FIELD_NAME>:uint' to scaffold uint64 types (eg: 111). |
-| uints | use '<FIELD_NAME>:array.uint' to scaffold []uint64 types (eg: 13,26,31,40). |
-
+| Type           | Usage                                                                                                                                                                                                          |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| address        | use '&lt;FIELD_NAME&gt;:address' to scaffold string types (eg: cosmos1abcdefghijklmnopqrstuvwxyz0123456).                                                                                                            |
+| array.coin     | use '&lt;FIELD_NAME&gt;:array.coin' to scaffold sdk.Coins types (eg: 20stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations.              |
+| array.dec.coin | use '&lt;FIELD_NAME&gt;:array.dec.coin' to scaffold sdk.DecCoins types (eg: 20000002stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations. |
+| array.int      | use '&lt;FIELD_NAME&gt;:array.int' to scaffold []int64 types (eg: 5,4,3,2,1).                                                                                                                                        |
+| array.string   | use '&lt;FIELD_NAME&gt;:array.string' to scaffold []string types (eg: abc,xyz).                                                                                                                                      |
+| array.uint     | use '&lt;FIELD_NAME&gt;:array.uint' to scaffold []uint64 types (eg: 13,26,31,40).                                                                                                                                    |
+| bool           | use '&lt;FIELD_NAME&gt;:bool' to scaffold bool types (eg: true).                                                                                                                                                     |
+| bytes          | use '&lt;FIELD_NAME&gt;:bytes' to scaffold []byte types (eg: 3,2,3,5).                                                                                                                                               |
+| coin           | use '&lt;FIELD_NAME&gt;:coin' to scaffold sdk.Coin types (eg: 10token).                                                                                                                                              |
+| coins          | use '&lt;FIELD_NAME&gt;:array.coin' to scaffold sdk.Coins types (eg: 20stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations.              |
+| custom         | use the custom type to scaffold already created chain types.                                                                                                                                                   |
+| dec.coin       | use '&lt;FIELD_NAME&gt;:dec.coin' to scaffold sdk.DecCoin types (eg: 100001token).                                                                                                                                   |
+| dec.coins      | use '&lt;FIELD_NAME&gt;:array.dec.coin' to scaffold sdk.DecCoins types (eg: 20000002stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations. |
+| int            | use '&lt;FIELD_NAME&gt;:int' to scaffold int64 types (eg: 111).                                                                                                                                                      |
+| int64          | use '&lt;FIELD_NAME&gt;:int' to scaffold int64 types (eg: 111).                                                                                                                                                      |
+| ints           | use '&lt;FIELD_NAME&gt;:array.int' to scaffold []int64 types (eg: 5,4,3,2,1).                                                                                                                                        |
+| string         | use '&lt;FIELD_NAME&gt;:string' to scaffold string types (eg: xyz).                                                                                                                                                  |
+| strings        | use '&lt;FIELD_NAME&gt;:array.string' to scaffold []string types (eg: abc,xyz).                                                                                                                                      |
+| uint           | use '&lt;FIELD_NAME&gt;:uint' to scaffold uint64 types (eg: 111).                                                                                                                                                    |
+| uint64         | use '&lt;FIELD_NAME&gt;:uint' to scaffold uint64 types (eg: 111).                                                                                                                                                    |
+| uints          | use '&lt;FIELD_NAME&gt;:array.uint' to scaffold []uint64 types (eg: 13,26,31,40).                                                                                                                                    |
 
 Field Usage:
 
     - fieldName
     - fieldName:fieldType
-
 
 If no :fieldType, default (string) is used
