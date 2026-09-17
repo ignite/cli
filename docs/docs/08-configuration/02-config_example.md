@@ -39,6 +39,7 @@ client: # Configures client code generation.
     path: (string) # Relative path where the application&#39;s composable files are located.
   openapi: # Configures OpenAPI spec generation for the API.
     path: (string) # Relative path where the application&#39;s OpenAPI files are located.
+    exclude_list: (string list) # List of proto paths to exclude OpenAPI from generation (supports wildcards).
 genesis: (key/value) # Custom genesis block modifications. Follow the nesting of the genesis file here to access all the parameters.
 default_denom: (string) # Default staking denom (default is stake).
 validators: (list) # Contains information related to the list of validators and settings.
