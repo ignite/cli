@@ -11,6 +11,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -53,6 +54,26 @@ Documentation for Ignite CLI.
 `
 	outFlag = "out"
 )
+
+// mdxTagRe matches JSX-like tags that MDX would otherwise try to parse
+// as elements (e.g. <name>, <module>, <FIELD_NAME>).
+var mdxTagRe = regexp.MustCompile(`<(/?[a-zA-Z][a-zA-Z0-9_-]*)>`)
+
+// escapeMDX escapes JSX-like tags in a markdown line so the generated file
+// compiles as MDX. Entities are the only reliable escape for angle brackets
+// in MDX v1; backslash escapes are not honored before a tag. Inline code
+// spans (backtick-delimited) are left untouched. Lines with unbalanced
+// backticks are returned unchanged to avoid escaping inside a code span.
+func escapeMDX(line string) string {
+	parts := strings.Split(line, "`")
+	if len(parts)%2 == 0 {
+		return line
+	}
+	for i := 0; i < len(parts); i += 2 {
+		parts[i] = mdxTagRe.ReplaceAllString(parts[i], "&lt;${1}&gt;")
+	}
+	return strings.Join(parts, "`")
+}
 
 func main() {
 	if err := run(); err != nil {
@@ -153,7 +174,7 @@ func generateScaffoldTypes(w io.Writer) error {
 
 	// Write table rows
 	for _, entry := range entries {
-		if _, err := fmt.Fprintf(w, "| %s | %s |\n", entry[0], entry[1]); err != nil {
+		if _, err := fmt.Fprintf(w, "| %s | %s |\n", entry[0], escapeMDX(entry[1])); err != nil {
 			return err
 		}
 	}
@@ -176,11 +197,17 @@ func generateCmd(cmd *cobra.Command, w io.Writer) error {
 	// printed in the right menu of docs.ignite.com which is unpleasant because
 	// we only want to see a list of all available commands without the extra noise.
 	sc := bufio.NewScanner(b)
+	inFence := false
 	for sc.Scan() {
 		t := sc.Text()
-		if strings.HasPrefix(t, "###") {
-			t = strings.TrimPrefix(t, "### ")
-			t = fmt.Sprintf("**%s**", t)
+		if strings.HasPrefix(t, "```") {
+			inFence = !inFence
+		} else if !inFence {
+			if strings.HasPrefix(t, "###") {
+				t = strings.TrimPrefix(t, "### ")
+				t = fmt.Sprintf("**%s**", t)
+			}
+			t = escapeMDX(t)
 		}
 		if _, err := fmt.Fprintln(w, t); err != nil {
 			return err

@@ -583,7 +583,7 @@ Send coins to an account
 
 Send coins from the account given by --from to another account.
 
-<to> is a bech32 address or a key name from the keybase. Handy on dev chains
+&lt;to&gt; is a bech32 address or a key name from the keybase. Handy on dev chains
 to fund accounts created with `ignite account create`.
 
 Example:
@@ -2433,27 +2433,27 @@ Type definition
 Type information
 
 Types Usage
-address use '<FIELD_NAME>:address' to scaffold string types (eg: cosmos1abcdefghijklmnopqrstuvwxyz0123456).
-array.coin use '<FIELD_NAME>:array.coin' to scaffold sdk.Coins types (eg: 20stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations.
-array.dec.coin use '<FIELD_NAME>:array.dec.coin' to scaffold sdk.DecCoins types (eg: 20000002stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations.
-array.int use '<FIELD_NAME>:array.int' to scaffold []int64 types (eg: 5,4,3,2,1).
-array.string use '<FIELD_NAME>:array.string' to scaffold []string types (eg: abc,xyz).
-array.uint use '<FIELD_NAME>:array.uint' to scaffold []uint64 types (eg: 13,26,31,40).
-bool use '<FIELD_NAME>:bool' to scaffold bool types (eg: true).
-bytes use '<FIELD_NAME>:bytes' to scaffold []byte types (eg: 3,2,3,5).
-coin use '<FIELD_NAME>:coin' to scaffold sdk.Coin types (eg: 10token).
-coins use '<FIELD_NAME>:array.coin' to scaffold sdk.Coins types (eg: 20stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations.
+address use '&lt;FIELD_NAME&gt;:address' to scaffold string types (eg: cosmos1abcdefghijklmnopqrstuvwxyz0123456).
+array.coin use '&lt;FIELD_NAME&gt;:array.coin' to scaffold sdk.Coins types (eg: 20stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations.
+array.dec.coin use '&lt;FIELD_NAME&gt;:array.dec.coin' to scaffold sdk.DecCoins types (eg: 20000002stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations.
+array.int use '&lt;FIELD_NAME&gt;:array.int' to scaffold []int64 types (eg: 5,4,3,2,1).
+array.string use '&lt;FIELD_NAME&gt;:array.string' to scaffold []string types (eg: abc,xyz).
+array.uint use '&lt;FIELD_NAME&gt;:array.uint' to scaffold []uint64 types (eg: 13,26,31,40).
+bool use '&lt;FIELD_NAME&gt;:bool' to scaffold bool types (eg: true).
+bytes use '&lt;FIELD_NAME&gt;:bytes' to scaffold []byte types (eg: 3,2,3,5).
+coin use '&lt;FIELD_NAME&gt;:coin' to scaffold sdk.Coin types (eg: 10token).
+coins use '&lt;FIELD_NAME&gt;:array.coin' to scaffold sdk.Coins types (eg: 20stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations.
 custom use the custom type to scaffold already created chain types.
-dec.coin use '<FIELD_NAME>:dec.coin' to scaffold sdk.DecCoin types (eg: 100001token).
-dec.coins use '<FIELD_NAME>:array.dec.coin' to scaffold sdk.DecCoins types (eg: 20000002stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations.
-int use '<FIELD_NAME>:int' to scaffold int64 types (eg: 111).
-int64 use '<FIELD_NAME>:int' to scaffold int64 types (eg: 111).
-ints use '<FIELD_NAME>:array.int' to scaffold []int64 types (eg: 5,4,3,2,1).
-string use '<FIELD_NAME>:string' to scaffold string types (eg: xyz).
-strings use '<FIELD_NAME>:array.string' to scaffold []string types (eg: abc,xyz).
-uint use '<FIELD_NAME>:uint' to scaffold uint64 types (eg: 111).
-uint64 use '<FIELD_NAME>:uint' to scaffold uint64 types (eg: 111).
-uints use '<FIELD_NAME>:array.uint' to scaffold []uint64 types (eg: 13,26,31,40).
+dec.coin use '&lt;FIELD_NAME&gt;:dec.coin' to scaffold sdk.DecCoin types (eg: 100001token).
+dec.coins use '&lt;FIELD_NAME&gt;:array.dec.coin' to scaffold sdk.DecCoins types (eg: 20000002stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations.
+int use '&lt;FIELD_NAME&gt;:int' to scaffold int64 types (eg: 111).
+int64 use '&lt;FIELD_NAME&gt;:int' to scaffold int64 types (eg: 111).
+ints use '&lt;FIELD_NAME&gt;:array.int' to scaffold []int64 types (eg: 5,4,3,2,1).
+string use '&lt;FIELD_NAME&gt;:string' to scaffold string types (eg: xyz).
+strings use '&lt;FIELD_NAME&gt;:array.string' to scaffold []string types (eg: abc,xyz).
+uint use '&lt;FIELD_NAME&gt;:uint' to scaffold uint64 types (eg: 111).
+uint64 use '&lt;FIELD_NAME&gt;:uint' to scaffold uint64 types (eg: 111).
+uints use '&lt;FIELD_NAME&gt;:array.uint' to scaffold []uint64 types (eg: 13,26,31,40).
 
 Field Usage: - fieldName - fieldName:fieldType
 
@@ -2811,7 +2811,7 @@ Scaffold a new gno.land realm (stateful smart contract)
 Scaffold a new gno.land realm.
 
 A realm is a stateful smart contract: package-level variables are persisted
-on-chain. <name> is either a bare name ("counter", deployed as
+on-chain. &lt;name&gt; is either a bare name ("counter", deployed as
 gno.land/r/counter) or a full path ("gno.land/r/demo/counter").
 
 ```
@@ -2855,27 +2855,27 @@ These types are used in the `ignite scaffold` command.
 
 | Type           | Usage                                                                                                                                                                                                          |
 | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| address        | use '<FIELD_NAME>:address' to scaffold string types (eg: cosmos1abcdefghijklmnopqrstuvwxyz0123456).                                                                                                            |
-| array.coin     | use '<FIELD_NAME>:array.coin' to scaffold sdk.Coins types (eg: 20stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations.              |
-| array.dec.coin | use '<FIELD_NAME>:array.dec.coin' to scaffold sdk.DecCoins types (eg: 20000002stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations. |
-| array.int      | use '<FIELD_NAME>:array.int' to scaffold []int64 types (eg: 5,4,3,2,1).                                                                                                                                        |
-| array.string   | use '<FIELD_NAME>:array.string' to scaffold []string types (eg: abc,xyz).                                                                                                                                      |
-| array.uint     | use '<FIELD_NAME>:array.uint' to scaffold []uint64 types (eg: 13,26,31,40).                                                                                                                                    |
-| bool           | use '<FIELD_NAME>:bool' to scaffold bool types (eg: true).                                                                                                                                                     |
-| bytes          | use '<FIELD_NAME>:bytes' to scaffold []byte types (eg: 3,2,3,5).                                                                                                                                               |
-| coin           | use '<FIELD_NAME>:coin' to scaffold sdk.Coin types (eg: 10token).                                                                                                                                              |
-| coins          | use '<FIELD_NAME>:array.coin' to scaffold sdk.Coins types (eg: 20stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations.              |
+| address        | use '&lt;FIELD_NAME&gt;:address' to scaffold string types (eg: cosmos1abcdefghijklmnopqrstuvwxyz0123456).                                                                                                            |
+| array.coin     | use '&lt;FIELD_NAME&gt;:array.coin' to scaffold sdk.Coins types (eg: 20stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations.              |
+| array.dec.coin | use '&lt;FIELD_NAME&gt;:array.dec.coin' to scaffold sdk.DecCoins types (eg: 20000002stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations. |
+| array.int      | use '&lt;FIELD_NAME&gt;:array.int' to scaffold []int64 types (eg: 5,4,3,2,1).                                                                                                                                        |
+| array.string   | use '&lt;FIELD_NAME&gt;:array.string' to scaffold []string types (eg: abc,xyz).                                                                                                                                      |
+| array.uint     | use '&lt;FIELD_NAME&gt;:array.uint' to scaffold []uint64 types (eg: 13,26,31,40).                                                                                                                                    |
+| bool           | use '&lt;FIELD_NAME&gt;:bool' to scaffold bool types (eg: true).                                                                                                                                                     |
+| bytes          | use '&lt;FIELD_NAME&gt;:bytes' to scaffold []byte types (eg: 3,2,3,5).                                                                                                                                               |
+| coin           | use '&lt;FIELD_NAME&gt;:coin' to scaffold sdk.Coin types (eg: 10token).                                                                                                                                              |
+| coins          | use '&lt;FIELD_NAME&gt;:array.coin' to scaffold sdk.Coins types (eg: 20stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations.              |
 | custom         | use the custom type to scaffold already created chain types.                                                                                                                                                   |
-| dec.coin       | use '<FIELD_NAME>:dec.coin' to scaffold sdk.DecCoin types (eg: 100001token).                                                                                                                                   |
-| dec.coins      | use '<FIELD_NAME>:array.dec.coin' to scaffold sdk.DecCoins types (eg: 20000002stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations. |
-| int            | use '<FIELD_NAME>:int' to scaffold int64 types (eg: 111).                                                                                                                                                      |
-| int64          | use '<FIELD_NAME>:int' to scaffold int64 types (eg: 111).                                                                                                                                                      |
-| ints           | use '<FIELD_NAME>:array.int' to scaffold []int64 types (eg: 5,4,3,2,1).                                                                                                                                        |
-| string         | use '<FIELD_NAME>:string' to scaffold string types (eg: xyz).                                                                                                                                                  |
-| strings        | use '<FIELD_NAME>:array.string' to scaffold []string types (eg: abc,xyz).                                                                                                                                      |
-| uint           | use '<FIELD_NAME>:uint' to scaffold uint64 types (eg: 111).                                                                                                                                                    |
-| uint64         | use '<FIELD_NAME>:uint' to scaffold uint64 types (eg: 111).                                                                                                                                                    |
-| uints          | use '<FIELD_NAME>:array.uint' to scaffold []uint64 types (eg: 13,26,31,40).                                                                                                                                    |
+| dec.coin       | use '&lt;FIELD_NAME&gt;:dec.coin' to scaffold sdk.DecCoin types (eg: 100001token).                                                                                                                                   |
+| dec.coins      | use '&lt;FIELD_NAME&gt;:array.dec.coin' to scaffold sdk.DecCoins types (eg: 20000002stake). Disclaimer: Only one `coins` or `dec.coins` field can accept multiple CLI values per command due to AutoCLI limitations. |
+| int            | use '&lt;FIELD_NAME&gt;:int' to scaffold int64 types (eg: 111).                                                                                                                                                      |
+| int64          | use '&lt;FIELD_NAME&gt;:int' to scaffold int64 types (eg: 111).                                                                                                                                                      |
+| ints           | use '&lt;FIELD_NAME&gt;:array.int' to scaffold []int64 types (eg: 5,4,3,2,1).                                                                                                                                        |
+| string         | use '&lt;FIELD_NAME&gt;:string' to scaffold string types (eg: xyz).                                                                                                                                                  |
+| strings        | use '&lt;FIELD_NAME&gt;:array.string' to scaffold []string types (eg: abc,xyz).                                                                                                                                      |
+| uint           | use '&lt;FIELD_NAME&gt;:uint' to scaffold uint64 types (eg: 111).                                                                                                                                                    |
+| uint64         | use '&lt;FIELD_NAME&gt;:uint' to scaffold uint64 types (eg: 111).                                                                                                                                                    |
+| uints          | use '&lt;FIELD_NAME&gt;:array.uint' to scaffold []uint64 types (eg: 13,26,31,40).                                                                                                                                    |
 
 Field Usage:
 
