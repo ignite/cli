@@ -18,7 +18,7 @@ func NewScaffoldMigration() *cobra.Command {
 
 This command creates a new migration file in 'x/<module>/migrations/vN/',
 increments the module consensus version, and registers the new migration handler
-inside 'x/<module>/module/module.go'.`,
+inside x/<module>/module/module.go.`,
 		Args:    cobra.ExactArgs(1),
 		PreRunE: migrationPreRunHandler,
 		RunE:    scaffoldMigrationHandler,
