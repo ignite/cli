@@ -7,7 +7,7 @@ import ProjectsTable from '@site/src/components/ProjectsTable';
 # Introduction to IGNITE® CLI: Your Gateway to Blockchain Innovation
 
 > **New:** Ignite CLI now also supports [gno.land](https://gno.land)
-> smart contracts. See the [Gno.land guide](../guide/09-gno.md) to scaffold
+> smart contracts. See the [Gno.land guide](../02-guide/09-gno.md) to scaffold
 > realms, run a dev chain and deploy. The Cosmos SDK tooling remains available
 > under `ignite cosmos`.
 
