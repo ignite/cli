@@ -4,7 +4,7 @@ description: Build gno.land smart contracts with Ignite CLI.
 
 # Gno.land smart contracts
 
-Ignite CLI is the developer tooling for [gno.land](https://gno.land). Gno (Gnolang) is a deterministic
+Ignite CLI supports [gno.land](https://gno.land) smart contracts. Gno (Gnolang) is a deterministic
 variant of Go: smart contracts ("realms") are plain Go-like code, with
 package-level state persisted on-chain.
 

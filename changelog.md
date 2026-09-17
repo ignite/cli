@@ -6,7 +6,7 @@
 
 ### Breaking
 
-- [#4984](https://github.com/ignite/cli/pull/4984) Ignite CLI is now the developer tooling for [gno.land](https://gno.land) smart contracts.
+- [#4984](https://github.com/ignite/cli/pull/4984) Ignite CLI now supports [gno.land](https://gno.land) smart contracts alongside Cosmos SDK chains.
   - The Cosmos SDK tooling moves under the `ignite cosmos` namespace: `ignite cosmos scaffold`, `ignite cosmos chain`, `ignite cosmos generate`, `ignite cosmos account`, `ignite cosmos testnet`, and `ignite cosmos doctor`. Top-level `chain`, `generate`, and `testnet` commands become hidden deprecated stubs.
   - The top-level `scaffold` and `account` commands now target gno.land (realms, packages, and the gno keybase).
   - The Go module path changes from `github.com/ignite/cli/v29` to `github.com/ignite/cli/v30`. Update the module require and imports in projects that use Ignite as a library or build Ignite plugins.
