@@ -7,17 +7,18 @@ description: Ignite CLI docs.
 Documentation for Ignite CLI.
 ## ignite
 
-Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
 
 **Synopsis**
 
-Ignite CLI is a tool for creating sovereign blockchains built with Cosmos SDK, the world's
-most popular modular blockchain framework. Ignite CLI offers everything you need to scaffold,
-test, build, and launch your blockchain.
+Ignite CLI is a tool for building smart contracts on gno.land. Ignite CLI offers everything you need to scaffold,
+test, build, and launch your realms and packages.
 
-To get started, create a blockchain:
+To get started, create a realm and start a dev chain:
 
-$ ignite scaffold chain example
+$ ignite scaffold realm example
+$ cd example
+$ ignite chain serve
 
 Announcements:
 
@@ -33,169 +34,163 @@ Announcements:
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Create, delete, and show Ignite accounts
+* [ignite account](#ignite-account)	 - Create, delete, and show gno.land accounts
 * [ignite app](#ignite-app)	 - Create and manage Ignite Apps
 * [ignite appregistry](#ignite-appregistry)	 - Browse the Ignite App Registry App
-* [ignite chain](#ignite-chain)	 - Build, init and start a blockchain node
+* [ignite chain](#ignite-chain)	 - Run, deploy and interact with gno.land chains
 * [ignite completion](#ignite-completion)	 - Generates shell completion script.
+* [ignite cosmos](#ignite-cosmos)	 - Cosmos SDK blockchain tooling
 * [ignite docs](#ignite-docs)	 - Show Ignite CLI docs
-* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
+* [ignite generate](#ignite-generate)	 - Generate clients for gno.land packages
 * [ignite relayer](#ignite-relayer)	 - Connect blockchains with an IBC relayer
-* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
-* [ignite testnet](#ignite-testnet)	 - Simulate and manage test networks
+* [ignite scaffold](#ignite-scaffold)	 - Scaffold gno.land realms and packages
 * [ignite version](#ignite-version)	 - Print the current build information
 
 
 ## ignite account
 
-Create, delete, and show Ignite accounts
+Create, delete, and show gno.land accounts
 
 **Synopsis**
 
-Commands for managing Ignite accounts. An Ignite account is a private/public
-keypair stored in a keyring. Currently Ignite accounts are used when interacting
-with Ignite Apps (namely ignite relayer, ignite network and ignite connect).
-
-Note: Ignite account commands are not for managing your chain's keys and accounts. Use
-you chain's binary to manage accounts from "config.yml". For example, if your
-blockchain is called "mychain", use "mychaind keys" to manage keys for the
-chain.
-
+Commands for managing gno.land accounts. An account is a private/public keypair
+stored in the gno keybase (~/.config/gno), also used by gnokey. Accounts sign
+realm and package deployments.
 
 **Options**
 
 ```
-  -h, --help                     help for account
-      --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+  -h, --help          help for account
+      --home string   directory for the gno keybase (default: ~/.config/gno)
 ```
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-* [ignite account create](#ignite-account-create)	 - Create a new account
-* [ignite account delete](#ignite-account-delete)	 - Delete an account by name
-* [ignite account export](#ignite-account-export)	 - Export an account as a private key
-* [ignite account import](#ignite-account-import)	 - Import an account by using a mnemonic or a private key
-* [ignite account list](#ignite-account-list)	 - Show a list of all accounts
-* [ignite account show](#ignite-account-show)	 - Show detailed information about a particular account
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
+* [ignite account create](#ignite-account-create)	 - Create a new gno account
+* [ignite account delete](#ignite-account-delete)	 - Delete a gno account by name
+* [ignite account export](#ignite-account-export)	 - Export a gno account as an armored private key
+* [ignite account import](#ignite-account-import)	 - Import a gno account from an armored private key
+* [ignite account list](#ignite-account-list)	 - Show a list of all gno accounts
+* [ignite account show](#ignite-account-show)	 - Show a gno account by name or address
 
 
 ## ignite account create
 
-Create a new account
+Create a new gno account
+
+**Synopsis**
+
+Create a new account in the gno keybase (~/.config/gno).
+
+The account is created with an empty passphrase unless --passphrase is set
+(dev friendly). Use --recover to restore an account from a mnemonic.
 
 ```
-ignite account create [name] [flags]
+ignite account create <name> [flags]
 ```
 
 **Options**
 
 ```
-      --coin-type uint32   coin type to use for the account (default 118)
-  -h, --help               help for create
+  -h, --help                help for create
+      --passphrase string   passphrase to encrypt the key (default: empty)
+      --recover             recover an account from a mnemonic
 ```
 
 **Options inherited from parent commands**
 
 ```
-      --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --home string   directory for the gno keybase (default: ~/.config/gno)
 ```
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Create, delete, and show Ignite accounts
+* [ignite account](#ignite-account)	 - Create, delete, and show gno.land accounts
 
 
 ## ignite account delete
 
-Delete an account by name
+Delete a gno account by name
 
 ```
-ignite account delete [name] [flags]
+ignite account delete <name> [flags]
 ```
 
 **Options**
 
 ```
   -h, --help   help for delete
+  -y, --yes    skips confirmation prompt
 ```
 
 **Options inherited from parent commands**
 
 ```
-      --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --home string   directory for the gno keybase (default: ~/.config/gno)
 ```
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Create, delete, and show Ignite accounts
+* [ignite account](#ignite-account)	 - Create, delete, and show gno.land accounts
 
 
 ## ignite account export
 
-Export an account as a private key
+Export a gno account as an armored private key
 
 ```
-ignite account export [name] [flags]
+ignite account export <name> [flags]
 ```
 
 **Options**
 
 ```
   -h, --help                help for export
-      --non-interactive     do not enter into interactive mode
-      --passphrase string   passphrase to encrypt the exported key
-      --path string         path to export private key. default: ./key_[name]
+      --output string       output path for the armored key (default: stdout)
+      --passphrase string   passphrase used to decrypt and re-encrypt the key
 ```
 
 **Options inherited from parent commands**
 
 ```
-      --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --home string   directory for the gno keybase (default: ~/.config/gno)
 ```
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Create, delete, and show Ignite accounts
+* [ignite account](#ignite-account)	 - Create, delete, and show gno.land accounts
 
 
 ## ignite account import
 
-Import an account by using a mnemonic or a private key
+Import a gno account from an armored private key
 
 ```
-ignite account import [name] [flags]
+ignite account import <name> <armor-file> [flags]
 ```
 
 **Options**
 
 ```
-      --coin-type uint32    coin type to use for the account (default 118)
   -h, --help                help for import
-      --non-interactive     do not enter into interactive mode
-      --passphrase string   passphrase to decrypt the imported key (ignored when secret is a mnemonic)
-      --secret string       Your mnemonic or path to your private key (use interactive mode instead to securely pass your mnemonic)
+      --passphrase string   passphrase used to decrypt the armor
 ```
 
 **Options inherited from parent commands**
 
 ```
-      --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --home string   directory for the gno keybase (default: ~/.config/gno)
 ```
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Create, delete, and show Ignite accounts
+* [ignite account](#ignite-account)	 - Create, delete, and show gno.land accounts
 
 
 ## ignite account list
 
-Show a list of all accounts
+Show a list of all gno accounts
 
 ```
 ignite account list [flags]
@@ -204,47 +199,43 @@ ignite account list [flags]
 **Options**
 
 ```
-      --address-prefix string   account address prefix (default "cosmos")
-  -h, --help                    help for list
+  -h, --help   help for list
 ```
 
 **Options inherited from parent commands**
 
 ```
-      --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --home string   directory for the gno keybase (default: ~/.config/gno)
 ```
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Create, delete, and show Ignite accounts
+* [ignite account](#ignite-account)	 - Create, delete, and show gno.land accounts
 
 
 ## ignite account show
 
-Show detailed information about a particular account
+Show a gno account by name or address
 
 ```
-ignite account show [name] [flags]
+ignite account show <name> [flags]
 ```
 
 **Options**
 
 ```
-      --address-prefix string   account address prefix (default "cosmos")
-  -h, --help                    help for show
+  -h, --help   help for show
 ```
 
 **Options inherited from parent commands**
 
 ```
-      --keyring-backend string   keyring backend to store your account keys (default "test")
-      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+      --home string   directory for the gno keybase (default: ~/.config/gno)
 ```
 
 **SEE ALSO**
 
-* [ignite account](#ignite-account)	 - Create, delete, and show Ignite accounts
+* [ignite account](#ignite-account)	 - Create, delete, and show gno.land accounts
 
 
 ## ignite app
@@ -259,7 +250,7 @@ Create and manage Ignite Apps
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
 * [ignite app describe](#ignite-app-describe)	 - Print information about installed apps
 * [ignite app install](#ignite-app-install)	 - Install app
 * [ignite app list](#ignite-app-list)	 - List installed apps
@@ -460,10 +451,507 @@ ignite appregistry [flags]
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
 
 
 ## ignite chain
+
+Run, deploy and interact with gno.land chains
+
+**Options**
+
+```
+  -h, --help          help for chain
+      --home string   directory for the gno keybase (default: ~/.config/gno)
+```
+
+**SEE ALSO**
+
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
+* [ignite chain call](#ignite-chain-call)	 - Call a function of a deployed realm
+* [ignite chain deploy](#ignite-chain-deploy)	 - Deploy a gno realm or package to a chain
+* [ignite chain query](#ignite-chain-query)	 - Evaluate a read-only expression on a chain
+* [ignite chain send](#ignite-chain-send)	 - Send coins to an account
+* [ignite chain serve](#ignite-chain-serve)	 - Start a local gno.land dev chain
+* [ignite chain test](#ignite-chain-test)	 - Run the gno tests of a package
+
+
+## ignite chain call
+
+Call a function of a deployed realm
+
+**Synopsis**
+
+Call a function of a deployed realm and wait for the result.
+
+Example: fund and increment a counter realm:
+
+$ ignite chain call gno.land/r/counter Increment
+$ ignite chain call gno.land/r/counter Set 42 --send 1000000ugnot
+
+```
+ignite chain call <pkgpath> <func> [args...] [flags]
+```
+
+**Options**
+
+```
+      --chain-id string     chain id (default "dev")
+      --from string         key name or bech32 address signing the tx (default: dev account test1)
+      --gas-fee string      gas payment fee (default: 1000000ugnot)
+      --gas-wanted int      gas requested for the tx (default 5000000)
+  -h, --help                help for call
+      --passphrase string   passphrase to unlock the signing key (prompted with hidden input when unset)
+      --remote string       chain RPC address (default "127.0.0.1:26657")
+      --send string         coins to send along with the call
+```
+
+**Options inherited from parent commands**
+
+```
+      --home string   directory for the gno keybase (default: ~/.config/gno)
+```
+
+**SEE ALSO**
+
+* [ignite chain](#ignite-chain)	 - Run, deploy and interact with gno.land chains
+
+
+## ignite chain deploy
+
+Deploy a gno realm or package to a chain
+
+**Synopsis**
+
+Deploy the gno package at dir (default: current directory) to a gno.land chain.
+
+The module path is read from gnomod.toml. The package is signed with the key
+given by --from and broadcast to --remote (default: local dev chain started
+with `ignite chain serve`).
+
+```
+ignite chain deploy [dir] [flags]
+```
+
+**Options**
+
+```
+      --chain-id string      chain id (default "dev")
+      --from string          key name or bech32 address signing the tx (default: dev account test1)
+      --gas-fee string       gas payment fee (default: 1000000ugnot)
+      --gas-wanted int       gas requested for the tx (default 5000000)
+  -h, --help                 help for deploy
+      --max-deposit string   max storage deposit coins
+      --passphrase string    passphrase to unlock the signing key (prompted with hidden input when unset)
+      --pkg-path string      override the module path from gnomod.toml
+      --remote string        chain RPC address (default "127.0.0.1:26657")
+```
+
+**Options inherited from parent commands**
+
+```
+      --home string   directory for the gno keybase (default: ~/.config/gno)
+```
+
+**SEE ALSO**
+
+* [ignite chain](#ignite-chain)	 - Run, deploy and interact with gno.land chains
+
+
+## ignite chain query
+
+Evaluate a read-only expression on a chain
+
+**Synopsis**
+
+Evaluate a read-only gno expression on a gno.land chain and print the result.
+
+An expression that names a function without parentheses is evaluated as a
+call, e.g. "gno.land/r/helloworld.Get" is queried as "gno.land/r/helloworld.Get()".
+
+Example:
+
+$ ignite chain query "gno.land/r/counter.Get()"
+
+```
+ignite chain query <expression> [flags]
+```
+
+**Options**
+
+```
+  -h, --help            help for query
+      --remote string   chain RPC address (default "127.0.0.1:26657")
+```
+
+**Options inherited from parent commands**
+
+```
+      --home string   directory for the gno keybase (default: ~/.config/gno)
+```
+
+**SEE ALSO**
+
+* [ignite chain](#ignite-chain)	 - Run, deploy and interact with gno.land chains
+
+
+## ignite chain send
+
+Send coins to an account
+
+**Synopsis**
+
+Send coins from the account given by --from to another account.
+
+<to> is a bech32 address or a key name from the keybase. Handy on dev chains
+to fund accounts created with `ignite account create`.
+
+Example:
+
+$ ignite chain send g1... 10000000ugnot
+$ ignite chain send alice 10000000ugnot --from test1
+
+```
+ignite chain send <to> <amount> [flags]
+```
+
+**Options**
+
+```
+      --chain-id string     chain id (default "dev")
+      --from string         key name or bech32 address signing the tx (default: dev account test1)
+      --gas-fee string      gas payment fee (default: 1000000ugnot)
+      --gas-wanted int      gas requested for the tx (default 5000000)
+  -h, --help                help for send
+      --passphrase string   passphrase to unlock the signing key (prompted with hidden input when unset)
+      --remote string       chain RPC address (default "127.0.0.1:26657")
+```
+
+**Options inherited from parent commands**
+
+```
+      --home string   directory for the gno keybase (default: ~/.config/gno)
+```
+
+**SEE ALSO**
+
+* [ignite chain](#ignite-chain)	 - Run, deploy and interact with gno.land chains
+
+
+## ignite chain serve
+
+Start a local gno.land dev chain
+
+**Synopsis**
+
+Start a local in-memory gno.land dev chain.
+
+The chain pre-funds the well-known dev account (test1), preloads any gno
+package found in the current directory and reloads the chain on every .gno
+file change. The RPC endpoint listens on tcp://127.0.0.1:26657 by default.
+
+```
+ignite chain serve [flags]
+```
+
+**Options**
+
+```
+      --chain-id string   chain id (default "dev")
+  -h, --help              help for serve
+      --max-gas int       max gas per block (default 10000000000)
+      --remote string     node RPC listen address (default "tcp://127.0.0.1:26657")
+```
+
+**Options inherited from parent commands**
+
+```
+      --home string   directory for the gno keybase (default: ~/.config/gno)
+```
+
+**SEE ALSO**
+
+* [ignite chain](#ignite-chain)	 - Run, deploy and interact with gno.land chains
+
+
+## ignite chain test
+
+Run the gno tests of a package
+
+**Synopsis**
+
+Run the gno tests (_test.gno files) of the package at dir (default: current directory).
+
+```
+ignite chain test [dir] [flags]
+```
+
+**Options**
+
+```
+  -h, --help   help for test
+```
+
+**Options inherited from parent commands**
+
+```
+      --home string   directory for the gno keybase (default: ~/.config/gno)
+```
+
+**SEE ALSO**
+
+* [ignite chain](#ignite-chain)	 - Run, deploy and interact with gno.land chains
+
+
+## ignite completion
+
+Generates shell completion script.
+
+```
+ignite completion [bash|zsh|fish|powershell] [flags]
+```
+
+**Options**
+
+```
+  -h, --help   help for completion
+```
+
+**SEE ALSO**
+
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
+
+
+## ignite cosmos
+
+Cosmos SDK blockchain tooling
+
+**Synopsis**
+
+Cosmos SDK blockchain tooling.
+
+Ignite's focus is gno.land smart contracts (see the commands at the root of
+`ignite --help`), while the Cosmos SDK commands for sovereign
+blockchains live here.
+
+**Options**
+
+```
+  -h, --help   help for cosmos
+```
+
+**SEE ALSO**
+
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
+* [ignite cosmos account](#ignite-cosmos-account)	 - Create, delete, and show Ignite accounts
+* [ignite cosmos chain](#ignite-cosmos-chain)	 - Build, init and start a blockchain node
+* [ignite cosmos generate](#ignite-cosmos-generate)	 - Generate clients, API docs from source code
+* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
+* [ignite cosmos testnet](#ignite-cosmos-testnet)	 - Simulate and manage test networks
+
+
+## ignite cosmos account
+
+Create, delete, and show Ignite accounts
+
+**Synopsis**
+
+Commands for managing Ignite accounts. An Ignite account is a private/public
+keypair stored in a keyring. Currently Ignite accounts are used when interacting
+with Ignite Apps (namely ignite relayer, ignite network and ignite connect).
+
+Note: Ignite account commands are not for managing your chain's keys and accounts. Use
+you chain's binary to manage accounts from "config.yml". For example, if your
+blockchain is called "mychain", use "mychaind keys" to manage keys for the
+chain.
+
+
+**Options**
+
+```
+  -h, --help                     help for account
+      --keyring-backend string   keyring backend to store your account keys (default "test")
+      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+```
+
+**SEE ALSO**
+
+* [ignite cosmos](#ignite-cosmos)	 - Cosmos SDK blockchain tooling
+* [ignite cosmos account create](#ignite-cosmos-account-create)	 - Create a new account
+* [ignite cosmos account delete](#ignite-cosmos-account-delete)	 - Delete an account by name
+* [ignite cosmos account export](#ignite-cosmos-account-export)	 - Export an account as a private key
+* [ignite cosmos account import](#ignite-cosmos-account-import)	 - Import an account by using a mnemonic or a private key
+* [ignite cosmos account list](#ignite-cosmos-account-list)	 - Show a list of all accounts
+* [ignite cosmos account show](#ignite-cosmos-account-show)	 - Show detailed information about a particular account
+
+
+## ignite cosmos account create
+
+Create a new account
+
+```
+ignite cosmos account create [name] [flags]
+```
+
+**Options**
+
+```
+      --coin-type uint32   coin type to use for the account (default 118)
+  -h, --help               help for create
+```
+
+**Options inherited from parent commands**
+
+```
+      --keyring-backend string   keyring backend to store your account keys (default "test")
+      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+```
+
+**SEE ALSO**
+
+* [ignite cosmos account](#ignite-cosmos-account)	 - Create, delete, and show Ignite accounts
+
+
+## ignite cosmos account delete
+
+Delete an account by name
+
+```
+ignite cosmos account delete [name] [flags]
+```
+
+**Options**
+
+```
+  -h, --help   help for delete
+```
+
+**Options inherited from parent commands**
+
+```
+      --keyring-backend string   keyring backend to store your account keys (default "test")
+      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+```
+
+**SEE ALSO**
+
+* [ignite cosmos account](#ignite-cosmos-account)	 - Create, delete, and show Ignite accounts
+
+
+## ignite cosmos account export
+
+Export an account as a private key
+
+```
+ignite cosmos account export [name] [flags]
+```
+
+**Options**
+
+```
+  -h, --help                help for export
+      --non-interactive     do not enter into interactive mode
+      --passphrase string   passphrase to encrypt the exported key
+      --path string         path to export private key. default: ./key_[name]
+```
+
+**Options inherited from parent commands**
+
+```
+      --keyring-backend string   keyring backend to store your account keys (default "test")
+      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+```
+
+**SEE ALSO**
+
+* [ignite cosmos account](#ignite-cosmos-account)	 - Create, delete, and show Ignite accounts
+
+
+## ignite cosmos account import
+
+Import an account by using a mnemonic or a private key
+
+```
+ignite cosmos account import [name] [flags]
+```
+
+**Options**
+
+```
+      --coin-type uint32    coin type to use for the account (default 118)
+  -h, --help                help for import
+      --non-interactive     do not enter into interactive mode
+      --passphrase string   passphrase to decrypt the imported key (ignored when secret is a mnemonic)
+      --secret string       Your mnemonic or path to your private key (use interactive mode instead to securely pass your mnemonic)
+```
+
+**Options inherited from parent commands**
+
+```
+      --keyring-backend string   keyring backend to store your account keys (default "test")
+      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+```
+
+**SEE ALSO**
+
+* [ignite cosmos account](#ignite-cosmos-account)	 - Create, delete, and show Ignite accounts
+
+
+## ignite cosmos account list
+
+Show a list of all accounts
+
+```
+ignite cosmos account list [flags]
+```
+
+**Options**
+
+```
+      --address-prefix string   account address prefix (default "cosmos")
+  -h, --help                    help for list
+```
+
+**Options inherited from parent commands**
+
+```
+      --keyring-backend string   keyring backend to store your account keys (default "test")
+      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+```
+
+**SEE ALSO**
+
+* [ignite cosmos account](#ignite-cosmos-account)	 - Create, delete, and show Ignite accounts
+
+
+## ignite cosmos account show
+
+Show detailed information about a particular account
+
+```
+ignite cosmos account show [name] [flags]
+```
+
+**Options**
+
+```
+      --address-prefix string   account address prefix (default "cosmos")
+  -h, --help                    help for show
+```
+
+**Options inherited from parent commands**
+
+```
+      --keyring-backend string   keyring backend to store your account keys (default "test")
+      --keyring-dir string       accounts keyring directory (default "/home/runner/.ignite/accounts")
+```
+
+**SEE ALSO**
+
+* [ignite cosmos account](#ignite-cosmos-account)	 - Create, delete, and show Ignite accounts
+
+
+## ignite cosmos chain
 
 Build, init and start a blockchain node
 
@@ -528,18 +1016,18 @@ chain.
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-* [ignite chain build](#ignite-chain-build)	 - Build a node binary
-* [ignite chain debug](#ignite-chain-debug)	 - Launch a debugger for a blockchain app
-* [ignite chain faucet](#ignite-chain-faucet)	 - Send coins to an account
-* [ignite chain init](#ignite-chain-init)	 - Initialize your chain
-* [ignite chain lint](#ignite-chain-lint)	 - Lint codebase using golangci-lint
-* [ignite chain modules](#ignite-chain-modules)	 - Manage modules
-* [ignite chain serve](#ignite-chain-serve)	 - Start a blockchain node in development
-* [ignite chain simulate](#ignite-chain-simulate)	 - Run simulation testing for the blockchain
+* [ignite cosmos](#ignite-cosmos)	 - Cosmos SDK blockchain tooling
+* [ignite cosmos chain build](#ignite-cosmos-chain-build)	 - Build a node binary
+* [ignite cosmos chain debug](#ignite-cosmos-chain-debug)	 - Launch a debugger for a blockchain app
+* [ignite cosmos chain faucet](#ignite-cosmos-chain-faucet)	 - Send coins to an account
+* [ignite cosmos chain init](#ignite-cosmos-chain-init)	 - Initialize your chain
+* [ignite cosmos chain lint](#ignite-cosmos-chain-lint)	 - Lint codebase using golangci-lint
+* [ignite cosmos chain modules](#ignite-cosmos-chain-modules)	 - Manage modules
+* [ignite cosmos chain serve](#ignite-cosmos-chain-serve)	 - Start a blockchain node in development
+* [ignite cosmos chain simulate](#ignite-cosmos-chain-simulate)	 - Run simulation testing for the blockchain
 
 
-## ignite chain build
+## ignite cosmos chain build
 
 Build a node binary
 
@@ -599,7 +1087,7 @@ for your current environment.
 
 
 ```
-ignite chain build [flags]
+ignite cosmos chain build [flags]
 ```
 
 **Options**
@@ -628,10 +1116,10 @@ ignite chain build [flags]
 
 **SEE ALSO**
 
-* [ignite chain](#ignite-chain)	 - Build, init and start a blockchain node
+* [ignite cosmos chain](#ignite-cosmos-chain)	 - Build, init and start a blockchain node
 
 
-## ignite chain debug
+## ignite cosmos chain debug
 
 Launch a debugger for a blockchain app
 
@@ -661,7 +1149,7 @@ The debug server stops automatically when the client connection is closed.
 
 
 ```
-ignite chain debug [flags]
+ignite cosmos chain debug [flags]
 ```
 
 **Options**
@@ -682,15 +1170,15 @@ ignite chain debug [flags]
 
 **SEE ALSO**
 
-* [ignite chain](#ignite-chain)	 - Build, init and start a blockchain node
+* [ignite cosmos chain](#ignite-cosmos-chain)	 - Build, init and start a blockchain node
 
 
-## ignite chain faucet
+## ignite cosmos chain faucet
 
 Send coins to an account
 
 ```
-ignite chain faucet [address] [coin<,...>] [flags]
+ignite cosmos chain faucet [address] [coin<,...>] [flags]
 ```
 
 **Options**
@@ -711,10 +1199,10 @@ ignite chain faucet [address] [coin<,...>] [flags]
 
 **SEE ALSO**
 
-* [ignite chain](#ignite-chain)	 - Build, init and start a blockchain node
+* [ignite cosmos chain](#ignite-cosmos-chain)	 - Build, init and start a blockchain node
 
 
-## ignite chain init
+## ignite cosmos chain init
 
 Initialize your chain
 
@@ -787,7 +1275,7 @@ commands manually to ensure a production-level node initialization.
 
 
 ```
-ignite chain init [flags]
+ignite cosmos chain init [flags]
 ```
 
 **Options**
@@ -813,10 +1301,10 @@ ignite chain init [flags]
 
 **SEE ALSO**
 
-* [ignite chain](#ignite-chain)	 - Build, init and start a blockchain node
+* [ignite cosmos chain](#ignite-cosmos-chain)	 - Build, init and start a blockchain node
 
 
-## ignite chain lint
+## ignite cosmos chain lint
 
 Lint codebase using golangci-lint
 
@@ -825,7 +1313,7 @@ Lint codebase using golangci-lint
 The lint command runs the golangci-lint tool to lint the codebase.
 
 ```
-ignite chain lint [flags]
+ignite cosmos chain lint [flags]
 ```
 
 **Options**
@@ -843,10 +1331,10 @@ ignite chain lint [flags]
 
 **SEE ALSO**
 
-* [ignite chain](#ignite-chain)	 - Build, init and start a blockchain node
+* [ignite cosmos chain](#ignite-cosmos-chain)	 - Build, init and start a blockchain node
 
 
-## ignite chain modules
+## ignite cosmos chain modules
 
 Manage modules
 
@@ -869,11 +1357,11 @@ The modules command allows you to manage modules in the codebase.
 
 **SEE ALSO**
 
-* [ignite chain](#ignite-chain)	 - Build, init and start a blockchain node
-* [ignite chain modules list](#ignite-chain-modules-list)	 - List all Cosmos SDK modules in the app
+* [ignite cosmos chain](#ignite-cosmos-chain)	 - Build, init and start a blockchain node
+* [ignite cosmos chain modules list](#ignite-cosmos-chain-modules-list)	 - List all Cosmos SDK modules in the app
 
 
-## ignite chain modules list
+## ignite cosmos chain modules list
 
 List all Cosmos SDK modules in the app
 
@@ -882,7 +1370,7 @@ List all Cosmos SDK modules in the app
 The list command lists all modules in the app.
 
 ```
-ignite chain modules list [flags]
+ignite cosmos chain modules list [flags]
 ```
 
 **Options**
@@ -900,10 +1388,10 @@ ignite chain modules list [flags]
 
 **SEE ALSO**
 
-* [ignite chain modules](#ignite-chain-modules)	 - Manage modules
+* [ignite cosmos chain modules](#ignite-cosmos-chain-modules)	 - Manage modules
 
 
-## ignite chain serve
+## ignite cosmos chain serve
 
 Start a blockchain node in development
 
@@ -944,7 +1432,7 @@ production, you may want to run "appd start" manually.
 
 
 ```
-ignite chain serve [flags]
+ignite cosmos chain serve [flags]
 ```
 
 **Options**
@@ -975,10 +1463,10 @@ ignite chain serve [flags]
 
 **SEE ALSO**
 
-* [ignite chain](#ignite-chain)	 - Build, init and start a blockchain node
+* [ignite cosmos chain](#ignite-cosmos-chain)	 - Build, init and start a blockchain node
 
 
-## ignite chain simulate
+## ignite cosmos chain simulate
 
 Run simulation testing for the blockchain
 
@@ -987,7 +1475,7 @@ Run simulation testing for the blockchain
 Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node.
 
 ```
-ignite chain simulate [flags]
+ignite cosmos chain simulate [flags]
 ```
 
 **Options**
@@ -1018,48 +1506,10 @@ ignite chain simulate [flags]
 
 **SEE ALSO**
 
-* [ignite chain](#ignite-chain)	 - Build, init and start a blockchain node
+* [ignite cosmos chain](#ignite-cosmos-chain)	 - Build, init and start a blockchain node
 
 
-## ignite completion
-
-Generates shell completion script.
-
-```
-ignite completion [bash|zsh|fish|powershell] [flags]
-```
-
-**Options**
-
-```
-  -h, --help   help for completion
-```
-
-**SEE ALSO**
-
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-
-
-## ignite docs
-
-Show Ignite CLI docs
-
-```
-ignite docs [flags]
-```
-
-**Options**
-
-```
-  -h, --help   help for docs
-```
-
-**SEE ALSO**
-
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-
-
-## ignite generate
+## ignite cosmos generate
 
 Generate clients, API docs from source code
 
@@ -1086,19 +1536,19 @@ meant to be edited by hand.
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-* [ignite generate composables](#ignite-generate-composables)	 - TypeScript frontend client and Vue 3 composables
-* [ignite generate openapi](#ignite-generate-openapi)	 - OpenAPI spec for your chain
-* [ignite generate proto-go](#ignite-generate-proto-go)	 - Compile protocol buffer files to Go source code required by Cosmos SDK
-* [ignite generate ts-client](#ignite-generate-ts-client)	 - TypeScript frontend client
+* [ignite cosmos](#ignite-cosmos)	 - Cosmos SDK blockchain tooling
+* [ignite cosmos generate composables](#ignite-cosmos-generate-composables)	 - TypeScript frontend client and Vue 3 composables
+* [ignite cosmos generate openapi](#ignite-cosmos-generate-openapi)	 - OpenAPI spec for your chain
+* [ignite cosmos generate proto-go](#ignite-cosmos-generate-proto-go)	 - Compile protocol buffer files to Go source code required by Cosmos SDK
+* [ignite cosmos generate ts-client](#ignite-cosmos-generate-ts-client)	 - TypeScript frontend client
 
 
-## ignite generate composables
+## ignite cosmos generate composables
 
 TypeScript frontend client and Vue 3 composables
 
 ```
-ignite generate composables [flags]
+ignite cosmos generate composables [flags]
 ```
 
 **Options**
@@ -1120,15 +1570,15 @@ ignite generate composables [flags]
 
 **SEE ALSO**
 
-* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
+* [ignite cosmos generate](#ignite-cosmos-generate)	 - Generate clients, API docs from source code
 
 
-## ignite generate openapi
+## ignite cosmos generate openapi
 
 OpenAPI spec for your chain
 
 ```
-ignite generate openapi [flags]
+ignite cosmos generate openapi [flags]
 ```
 
 **Options**
@@ -1150,15 +1600,15 @@ ignite generate openapi [flags]
 
 **SEE ALSO**
 
-* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
+* [ignite cosmos generate](#ignite-cosmos-generate)	 - Generate clients, API docs from source code
 
 
-## ignite generate proto-go
+## ignite cosmos generate proto-go
 
 Compile protocol buffer files to Go source code required by Cosmos SDK
 
 ```
-ignite generate proto-go [flags]
+ignite cosmos generate proto-go [flags]
 ```
 
 **Options**
@@ -1179,10 +1629,10 @@ ignite generate proto-go [flags]
 
 **SEE ALSO**
 
-* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
+* [ignite cosmos generate](#ignite-cosmos-generate)	 - Generate clients, API docs from source code
 
 
-## ignite generate ts-client
+## ignite cosmos generate ts-client
 
 TypeScript frontend client
 
@@ -1208,7 +1658,7 @@ changes when the blockchain is started with a flag:
 
 
 ```
-ignite generate ts-client [flags]
+ignite cosmos generate ts-client [flags]
 ```
 
 **Options**
@@ -1231,29 +1681,10 @@ ignite generate ts-client [flags]
 
 **SEE ALSO**
 
-* [ignite generate](#ignite-generate)	 - Generate clients, API docs from source code
+* [ignite cosmos generate](#ignite-cosmos-generate)	 - Generate clients, API docs from source code
 
 
-## ignite relayer
-
-Connect blockchains with an IBC relayer
-
-```
-ignite relayer [flags]
-```
-
-**Options**
-
-```
-  -h, --help   help for relayer
-```
-
-**SEE ALSO**
-
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-
-
-## ignite scaffold
+## ignite cosmos scaffold
 
 Create a new blockchain, module, message, query, and more
 
@@ -1323,25 +1754,25 @@ with an "--ibc" flag. Note that the default module is not IBC-enabled.
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-* [ignite scaffold chain](#ignite-scaffold-chain)	 - New Cosmos SDK blockchain
-* [ignite scaffold chain-registry](#ignite-scaffold-chain-registry)	 - Configs for the chain registry
-* [ignite scaffold configs](#ignite-scaffold-configs)	 - Configs for a custom Cosmos SDK module
-* [ignite scaffold list](#ignite-scaffold-list)	 - CRUD for data stored as an array
-* [ignite scaffold map](#ignite-scaffold-map)	 - CRUD for data stored as key-value pairs
-* [ignite scaffold message](#ignite-scaffold-message)	 - Message to perform state transition on the blockchain
-* [ignite scaffold migration](#ignite-scaffold-migration)	 - Module migration boilerplate
-* [ignite scaffold module](#ignite-scaffold-module)	 - Custom Cosmos SDK module
-* [ignite scaffold packet](#ignite-scaffold-packet)	 - Message for sending an IBC packet
-* [ignite scaffold params](#ignite-scaffold-params)	 - Parameters for a custom Cosmos SDK module
-* [ignite scaffold query](#ignite-scaffold-query)	 - Query for fetching data from a blockchain
-* [ignite scaffold single](#ignite-scaffold-single)	 - CRUD for data stored in a single location
-* [ignite scaffold type](#ignite-scaffold-type)	 - Type definition
-* [ignite scaffold type-list](#ignite-scaffold-type-list)	 - List scaffold types
-* [ignite scaffold vue](#ignite-scaffold-vue)	 - Vue 3 web app template
+* [ignite cosmos](#ignite-cosmos)	 - Cosmos SDK blockchain tooling
+* [ignite cosmos scaffold chain](#ignite-cosmos-scaffold-chain)	 - New Cosmos SDK blockchain
+* [ignite cosmos scaffold chain-registry](#ignite-cosmos-scaffold-chain-registry)	 - Configs for the chain registry
+* [ignite cosmos scaffold configs](#ignite-cosmos-scaffold-configs)	 - Configs for a custom Cosmos SDK module
+* [ignite cosmos scaffold list](#ignite-cosmos-scaffold-list)	 - CRUD for data stored as an array
+* [ignite cosmos scaffold map](#ignite-cosmos-scaffold-map)	 - CRUD for data stored as key-value pairs
+* [ignite cosmos scaffold message](#ignite-cosmos-scaffold-message)	 - Message to perform state transition on the blockchain
+* [ignite cosmos scaffold migration](#ignite-cosmos-scaffold-migration)	 - Module migration boilerplate
+* [ignite cosmos scaffold module](#ignite-cosmos-scaffold-module)	 - Custom Cosmos SDK module
+* [ignite cosmos scaffold packet](#ignite-cosmos-scaffold-packet)	 - Message for sending an IBC packet
+* [ignite cosmos scaffold params](#ignite-cosmos-scaffold-params)	 - Parameters for a custom Cosmos SDK module
+* [ignite cosmos scaffold query](#ignite-cosmos-scaffold-query)	 - Query for fetching data from a blockchain
+* [ignite cosmos scaffold single](#ignite-cosmos-scaffold-single)	 - CRUD for data stored in a single location
+* [ignite cosmos scaffold type](#ignite-cosmos-scaffold-type)	 - Type definition
+* [ignite cosmos scaffold type-list](#ignite-cosmos-scaffold-type-list)	 - List scaffold types
+* [ignite cosmos scaffold vue](#ignite-cosmos-scaffold-vue)	 - Vue 3 web app template
 
 
-## ignite scaffold chain
+## ignite cosmos scaffold chain
 
 New Cosmos SDK blockchain
 
@@ -1390,7 +1821,7 @@ about Cosmos SDK on https://docs.cosmos.network
 
 
 ```
-ignite scaffold chain [name] [flags]
+ignite cosmos scaffold chain [name] [flags]
 ```
 
 **Options**
@@ -1419,10 +1850,10 @@ ignite scaffold chain [name] [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
 
 
-## ignite scaffold chain-registry
+## ignite cosmos scaffold chain-registry
 
 Configs for the chain registry
 
@@ -1439,7 +1870,7 @@ Read more about the chain.json at https://github.com/cosmos/chain-registry?tab=r
 Read more about the assets.json at https://github.com/cosmos/chain-registry?tab=readme-ov-file#assetlists
 
 ```
-ignite scaffold chain-registry [flags]
+ignite cosmos scaffold chain-registry [flags]
 ```
 
 **Options**
@@ -1459,10 +1890,10 @@ ignite scaffold chain-registry [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
 
 
-## ignite scaffold configs
+## ignite cosmos scaffold configs
 
 Configs for a custom Cosmos SDK module
 
@@ -1482,7 +1913,7 @@ configs.
 
 
 ```
-ignite scaffold configs [configs]... [flags]
+ignite cosmos scaffold configs [configs]... [flags]
 ```
 
 **Options**
@@ -1503,10 +1934,10 @@ ignite scaffold configs [configs]... [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
 
 
-## ignite scaffold list
+## ignite cosmos scaffold list
 
 CRUD for data stored as an array
 
@@ -1596,7 +2027,7 @@ The "creator" field is not generated if a list is scaffolded with the
 
 
 ```
-ignite scaffold list NAME [field]... [flags]
+ignite cosmos scaffold list NAME [field]... [flags]
 ```
 
 **Options**
@@ -1620,10 +2051,10 @@ ignite scaffold list NAME [field]... [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
 
 
-## ignite scaffold map
+## ignite cosmos scaffold map
 
 CRUD for data stored as key-value pairs
 
@@ -1666,7 +2097,7 @@ For detailed type information use ignite scaffold type --help
 
 
 ```
-ignite scaffold map NAME [field]... [flags]
+ignite cosmos scaffold map NAME [field]... [flags]
 ```
 
 **Options**
@@ -1691,10 +2122,10 @@ ignite scaffold map NAME [field]... [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
 
 
-## ignite scaffold message
+## ignite cosmos scaffold message
 
 Message to perform state transition on the blockchain
 
@@ -1748,7 +2179,7 @@ for details.
 
 
 ```
-ignite scaffold message [name] [field1:type1] [field2:type2] ... [flags]
+ignite cosmos scaffold message [name] [field1:type1] [field2:type2] ... [flags]
 ```
 
 **Options**
@@ -1773,10 +2204,10 @@ ignite scaffold message [name] [field1:type1] [field2:type2] ... [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
 
 
-## ignite scaffold migration
+## ignite cosmos scaffold migration
 
 Module migration boilerplate
 
@@ -1784,12 +2215,12 @@ Module migration boilerplate
 
 Scaffold no-op migration boilerplate for an existing Cosmos SDK module.
 
-This command creates a new migration file in `x/<module>/migrations/vN/`,
+This command creates a new migration file in 'x/<module>/migrations/vN/',
 increments the module consensus version, and registers the new migration handler
-inside `x/<module>/module/module.go`.
+inside 'x/<module>/module/module.go'.
 
 ```
-ignite scaffold migration [module] [flags]
+ignite cosmos scaffold migration [module] [flags]
 ```
 
 **Options**
@@ -1808,10 +2239,10 @@ ignite scaffold migration [module] [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
 
 
-## ignite scaffold module
+## ignite cosmos scaffold module
 
 Custom Cosmos SDK module
 
@@ -1876,7 +2307,7 @@ params.
 
 
 ```
-ignite scaffold module [name] [flags]
+ignite cosmos scaffold module [name] [flags]
 ```
 
 **Options**
@@ -1902,10 +2333,10 @@ ignite scaffold module [name] [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
 
 
-## ignite scaffold packet
+## ignite cosmos scaffold packet
 
 Message for sending an IBC packet
 
@@ -1914,7 +2345,7 @@ Message for sending an IBC packet
 Scaffold an IBC packet in a specific IBC-enabled Cosmos SDK module
 
 ```
-ignite scaffold packet [packetName] [field1] [field2] ... --module [moduleName] [flags]
+ignite cosmos scaffold packet [packetName] [field1] [field2] ... --module [moduleName] [flags]
 ```
 
 **Options**
@@ -1938,10 +2369,10 @@ ignite scaffold packet [packetName] [field1] [field2] ... --module [moduleName] 
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
 
 
-## ignite scaffold params
+## ignite cosmos scaffold params
 
 Parameters for a custom Cosmos SDK module
 
@@ -1963,7 +2394,7 @@ params.
 
 
 ```
-ignite scaffold params [param]... [flags]
+ignite cosmos scaffold params [param]... [flags]
 ```
 
 **Options**
@@ -1984,10 +2415,10 @@ ignite scaffold params [param]... [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
 
 
-## ignite scaffold query
+## ignite cosmos scaffold query
 
 Query for fetching data from a blockchain
 
@@ -1998,7 +2429,7 @@ Query for fetching data from a blockchain.
 For detailed type information use ignite scaffold type --help.
 
 ```
-ignite scaffold query [name] [field1:type1] [field2:type2] ... [flags]
+ignite cosmos scaffold query [name] [field1:type1] [field2:type2] ... [flags]
 ```
 
 **Options**
@@ -2022,10 +2453,10 @@ ignite scaffold query [name] [field1:type1] [field2:type2] ... [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
 
 
-## ignite scaffold single
+## ignite cosmos scaffold single
 
 CRUD for data stored in a single location
 
@@ -2036,7 +2467,7 @@ CRUD for data stored in a single location.
 For detailed type information use ignite scaffold type --help.
 
 ```
-ignite scaffold single NAME [field:type]... [flags]
+ignite cosmos scaffold single NAME [field:type]... [flags]
 ```
 
 **Examples**
@@ -2066,10 +2497,10 @@ ignite scaffold single NAME [field:type]... [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
 
 
-## ignite scaffold type
+## ignite cosmos scaffold type
 
 Type definition
 
@@ -2109,7 +2540,7 @@ If no :fieldType, default (string) is used
 
 
 ```
-ignite scaffold type NAME [field:type] ... [flags]
+ignite cosmos scaffold type NAME [field:type] ... [flags]
 ```
 
 **Examples**
@@ -2139,10 +2570,10 @@ ignite scaffold type NAME [field:type] ... [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
 
 
-## ignite scaffold type-list
+## ignite cosmos scaffold type-list
 
 List scaffold types
 
@@ -2151,7 +2582,7 @@ List scaffold types
 List all available scaffold types
 
 ```
-ignite scaffold type-list [flags]
+ignite cosmos scaffold type-list [flags]
 ```
 
 **Options**
@@ -2168,15 +2599,15 @@ ignite scaffold type-list [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
 
 
-## ignite scaffold vue
+## ignite cosmos scaffold vue
 
 Vue 3 web app template
 
 ```
-ignite scaffold vue [flags]
+ignite cosmos scaffold vue [flags]
 ```
 
 **Options**
@@ -2194,10 +2625,10 @@ ignite scaffold vue [flags]
 
 **SEE ALSO**
 
-* [ignite scaffold](#ignite-scaffold)	 - Create a new blockchain, module, message, query, and more
+* [ignite cosmos scaffold](#ignite-cosmos-scaffold)	 - Create a new blockchain, module, message, query, and more
 
 
-## ignite testnet
+## ignite cosmos testnet
 
 Simulate and manage test networks
 
@@ -2213,13 +2644,13 @@ Comprehensive toolset for managing and simulating blockchain test networks. It a
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
-* [ignite testnet in-place](#ignite-testnet-in-place)	 - Create and start a testnet from current local net state
-* [ignite testnet multi-node](#ignite-testnet-multi-node)	 - Initialize and provide multi-node on/off functionality
-* [ignite testnet simulate](#ignite-testnet-simulate)	 - Run simulation testing for the blockchain
+* [ignite cosmos](#ignite-cosmos)	 - Cosmos SDK blockchain tooling
+* [ignite cosmos testnet in-place](#ignite-cosmos-testnet-in-place)	 - Create and start a testnet from current local net state
+* [ignite cosmos testnet multi-node](#ignite-cosmos-testnet-multi-node)	 - Initialize and provide multi-node on/off functionality
+* [ignite cosmos testnet simulate](#ignite-cosmos-testnet-simulate)	 - Run simulation testing for the blockchain
 
 
-## ignite testnet in-place
+## ignite cosmos testnet in-place
 
 Create and start a testnet from current local net state
 
@@ -2230,7 +2661,7 @@ After using this command in the repo containing the config.yml file, the network
 We can create a testnet from the local network state and mint additional coins for the desired accounts from the config.yml file.
 
 ```
-ignite testnet in-place [flags]
+ignite cosmos testnet in-place [flags]
 ```
 
 **Options**
@@ -2249,10 +2680,10 @@ ignite testnet in-place [flags]
 
 **SEE ALSO**
 
-* [ignite testnet](#ignite-testnet)	 - Simulate and manage test networks
+* [ignite cosmos testnet](#ignite-cosmos-testnet)	 - Simulate and manage test networks
 
 
-## ignite testnet multi-node
+## ignite cosmos testnet multi-node
 
 Initialize and provide multi-node on/off functionality
 
@@ -2281,7 +2712,7 @@ Initialize the test network with the number of nodes and bonded from the config.
 		
 
 ```
-ignite testnet multi-node [flags]
+ignite cosmos testnet multi-node [flags]
 ```
 
 **Options**
@@ -2300,10 +2731,10 @@ ignite testnet multi-node [flags]
 
 **SEE ALSO**
 
-* [ignite testnet](#ignite-testnet)	 - Simulate and manage test networks
+* [ignite cosmos testnet](#ignite-cosmos-testnet)	 - Simulate and manage test networks
 
 
-## ignite testnet simulate
+## ignite cosmos testnet simulate
 
 Run simulation testing for the blockchain
 
@@ -2312,7 +2743,7 @@ Run simulation testing for the blockchain
 Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node.
 
 ```
-ignite testnet simulate [flags]
+ignite cosmos testnet simulate [flags]
 ```
 
 **Options**
@@ -2336,7 +2767,164 @@ ignite testnet simulate [flags]
 
 **SEE ALSO**
 
-* [ignite testnet](#ignite-testnet)	 - Simulate and manage test networks
+* [ignite cosmos testnet](#ignite-cosmos-testnet)	 - Simulate and manage test networks
+
+
+## ignite docs
+
+Show Ignite CLI docs
+
+```
+ignite docs [flags]
+```
+
+**Options**
+
+```
+  -h, --help   help for docs
+```
+
+**SEE ALSO**
+
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
+
+
+## ignite generate
+
+Generate clients for gno.land packages
+
+**Options**
+
+```
+  -h, --help   help for generate
+```
+
+**SEE ALSO**
+
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
+* [ignite generate ts-client](#ignite-generate-ts-client)	 - Generate a typed TypeScript client for a gno package
+
+
+## ignite generate ts-client
+
+Generate a typed TypeScript client for a gno package
+
+**Synopsis**
+
+Generate a typed TypeScript client for the gno package at dir (default:
+current directory).
+
+The client is a realm module in the GnoWallet.addRealm shape of
+@gnolang/gno-js-client. Read-only functions evaluate expressions through the
+wallet's provider; realm functions (state-mutating) broadcast transactions
+with wallet.callMethod.
+
+```
+ignite generate ts-client [dir] [flags]
+```
+
+**Options**
+
+```
+  -h, --help            help for ts-client
+      --output string   output file (default: <dir>/<name>.client.ts)
+```
+
+**SEE ALSO**
+
+* [ignite generate](#ignite-generate)	 - Generate clients for gno.land packages
+
+
+## ignite relayer
+
+Connect blockchains with an IBC relayer
+
+```
+ignite relayer [flags]
+```
+
+**Options**
+
+```
+  -h, --help   help for relayer
+```
+
+**SEE ALSO**
+
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
+
+
+## ignite scaffold
+
+Scaffold gno.land realms and packages
+
+**Synopsis**
+
+Scaffold new gno.land smart contracts: stateful realms (r/) and stateless packages (p/).
+
+**Options**
+
+```
+  -h, --help   help for scaffold
+```
+
+**SEE ALSO**
+
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
+* [ignite scaffold package](#ignite-scaffold-package)	 - Scaffold a new gno.land package (stateless library)
+* [ignite scaffold realm](#ignite-scaffold-realm)	 - Scaffold a new gno.land realm (stateful smart contract)
+
+
+## ignite scaffold package
+
+Scaffold a new gno.land package (stateless library)
+
+**Synopsis**
+
+Scaffold a new gno.land package.
+
+A package is a stateless library of pure functions (gno.land/p/...).
+
+```
+ignite scaffold package <name> [flags]
+```
+
+**Options**
+
+```
+  -h, --help   help for package
+```
+
+**SEE ALSO**
+
+* [ignite scaffold](#ignite-scaffold)	 - Scaffold gno.land realms and packages
+
+
+## ignite scaffold realm
+
+Scaffold a new gno.land realm (stateful smart contract)
+
+**Synopsis**
+
+Scaffold a new gno.land realm.
+
+A realm is a stateful smart contract: package-level variables are persisted
+on-chain. <name> is either a bare name ("counter", deployed as
+gno.land/r/counter) or a full path ("gno.land/r/demo/counter").
+
+```
+ignite scaffold realm <name> [flags]
+```
+
+**Options**
+
+```
+  -h, --help   help for realm
+```
+
+**SEE ALSO**
+
+* [ignite scaffold](#ignite-scaffold)	 - Scaffold gno.land realms and packages
 
 
 ## ignite version
@@ -2355,7 +2943,7 @@ ignite version [flags]
 
 **SEE ALSO**
 
-* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain
+* [ignite](#ignite)	 - Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages
 
 # Scaffold Type
 
