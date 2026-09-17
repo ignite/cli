@@ -10,8 +10,9 @@ import (
 	"testing"
 
 	gnopkg "github.com/gnolang/gno/gnovm/pkg/packages"
-	"github.com/ignite/cli/v30/ignite/pkg/env"
 	"gotest.tools/v3/assert"
+
+	"github.com/ignite/cli/v30/ignite/pkg/env"
 )
 
 // TestTestRunsRealmTests runs the real gno tests of a scaffolded realm

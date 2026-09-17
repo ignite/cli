@@ -1,18 +1,17 @@
 package gno
 
 import (
+	"bytes"
+	"context"
 	"os"
 	"path/filepath"
+	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/gnolang/gno/gno.land/pkg/integration"
 	core_types "github.com/gnolang/gno/tm2/pkg/bft/rpc/core/types"
 	"gotest.tools/v3/assert"
-
-	"bytes"
-	"context"
-	"sync/atomic"
-	"time"
 
 	"github.com/fsnotify/fsnotify"
 )
