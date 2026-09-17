@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
+	chainconfig "github.com/ignite/cli/v30/ignite/config/chain"
 )
 
 type InPlaceArgs struct {

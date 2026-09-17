@@ -7,13 +7,13 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/stretchr/testify/require"
 
-	cmdmodel "github.com/ignite/cli/v29/ignite/cmd/bubblemodel"
-	"github.com/ignite/cli/v29/ignite/cmd/bubblemodel/testdata"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
-	cliuimodel "github.com/ignite/cli/v29/ignite/pkg/cliui/model"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/events"
+	cmdmodel "github.com/ignite/cli/v30/ignite/cmd/bubblemodel"
+	"github.com/ignite/cli/v30/ignite/cmd/bubblemodel/testdata"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui/icons"
+	cliuimodel "github.com/ignite/cli/v30/ignite/pkg/cliui/model"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/events"
 )
 
 func TestChainDebugErrorView(t *testing.T) {

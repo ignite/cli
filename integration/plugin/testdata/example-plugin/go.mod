@@ -2,11 +2,11 @@ module example-plugin
 
 go 1.26.7
 
-replace github.com/ignite/cli/v29 => ../../../../
+replace github.com/ignite/cli/v30 => ../../../../
 
 require (
 	github.com/hashicorp/go-plugin v1.6.3
-	github.com/ignite/cli/v29 v29.0.0
+	github.com/ignite/cli/v30 v30.0.0
 )
 
 require (

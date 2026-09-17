@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	envtest "github.com/ignite/cli/v29/integration"
+	envtest "github.com/ignite/cli/v30/integration"
 )
 
 func TestGenerateAnAppWithModuleMigrations(t *testing.T) {

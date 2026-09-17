@@ -3,11 +3,11 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cliui"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
-	"github.com/ignite/cli/v29/ignite/services/scaffolder"
-	"github.com/ignite/cli/v29/ignite/templates/field"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/v30/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v30/ignite/services/scaffolder"
+	"github.com/ignite/cli/v30/ignite/templates/field"
 )
 
 const flagSigner = "signer"

@@ -11,12 +11,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/v29/ignite/config"
-	"github.com/ignite/cli/v29/ignite/internal/sentry"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/randstr"
-	"github.com/ignite/cli/v29/ignite/version"
+	"github.com/ignite/cli/v30/ignite/config"
+	"github.com/ignite/cli/v30/ignite/internal/sentry"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/randstr"
+	"github.com/ignite/cli/v30/ignite/version"
 )
 
 const (

@@ -9,17 +9,17 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
-	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
-	"github.com/ignite/cli/v29/ignite/pkg/cache"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosgen"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
-	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
-	"github.com/ignite/cli/v29/ignite/version"
+	chainconfig "github.com/ignite/cli/v30/ignite/config/chain"
+	"github.com/ignite/cli/v30/ignite/pkg/cache"
+	"github.com/ignite/cli/v30/ignite/pkg/cosmosanalysis"
+	"github.com/ignite/cli/v30/ignite/pkg/cosmosbuf"
+	"github.com/ignite/cli/v30/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/v30/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/gocmd"
+	"github.com/ignite/cli/v30/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v30/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v30/ignite/version"
 )
 
 // Scaffolder is Ignite CLI app scaffolder.

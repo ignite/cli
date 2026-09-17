@@ -5,7 +5,7 @@ package other_components_test
 import (
 	"testing"
 
-	envtest "github.com/ignite/cli/v29/integration"
+	envtest "github.com/ignite/cli/v30/integration"
 )
 
 func TestGenerateAnAppWithMessage(t *testing.T) {

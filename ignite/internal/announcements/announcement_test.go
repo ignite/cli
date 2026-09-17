@@ -6,8 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ignite/cli/v29/ignite/internal/announcements"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/v30/ignite/internal/announcements"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui/icons"
 )
 
 func TestFetchAnnouncements(t *testing.T) {

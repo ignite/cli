@@ -8,7 +8,7 @@ import (
 
 	"github.com/hexops/gotextdiff"
 
-	"github.com/ignite/cli/v29/ignite/pkg/xstrings"
+	"github.com/ignite/cli/v30/ignite/pkg/xstrings"
 )
 
 type Diffs map[string][]gotextdiff.Unified

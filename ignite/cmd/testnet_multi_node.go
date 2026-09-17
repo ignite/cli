@@ -10,13 +10,13 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	cmdmodel "github.com/ignite/cli/v29/ignite/cmd/bubblemodel"
-	igcfg "github.com/ignite/cli/v29/ignite/config"
-	v1 "github.com/ignite/cli/v29/ignite/config/chain/v1"
-	"github.com/ignite/cli/v29/ignite/pkg/availableport"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui"
-	"github.com/ignite/cli/v29/ignite/pkg/xfilepath"
-	"github.com/ignite/cli/v29/ignite/services/chain"
+	cmdmodel "github.com/ignite/cli/v30/ignite/cmd/bubblemodel"
+	igcfg "github.com/ignite/cli/v30/ignite/config"
+	v1 "github.com/ignite/cli/v30/ignite/config/chain/v1"
+	"github.com/ignite/cli/v30/ignite/pkg/availableport"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui"
+	"github.com/ignite/cli/v30/ignite/pkg/xfilepath"
+	"github.com/ignite/cli/v30/ignite/services/chain"
 )
 
 const (

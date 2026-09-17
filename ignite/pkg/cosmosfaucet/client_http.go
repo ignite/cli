@@ -7,7 +7,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
 )
 
 // ErrTransferRequest is an error that occurs when a transfer request fails.

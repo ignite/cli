@@ -8,12 +8,12 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/bubbleconfirm"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/clispinner"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/entrywriter"
-	uilog "github.com/ignite/cli/v29/ignite/pkg/cliui/log"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/events"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui/bubbleconfirm"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui/clispinner"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui/entrywriter"
+	uilog "github.com/ignite/cli/v30/ignite/pkg/cliui/log"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/events"
 )
 
 type sessionOptions struct {

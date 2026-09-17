@@ -5,7 +5,7 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/v29/ignite/templates/typed"
+	"github.com/ignite/cli/v30/ignite/templates/typed"
 )
 
 func moduleSimulationModify(opts *typed.Options) genny.RunFn {

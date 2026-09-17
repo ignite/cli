@@ -9,10 +9,10 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/randstr"
+	"github.com/ignite/cli/v30/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/v30/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/randstr"
 
 	"github.com/ignite/cli/ignite/internal/tools/gen-mig-diffs/pkg/cache"
 )

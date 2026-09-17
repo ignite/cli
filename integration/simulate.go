@@ -11,9 +11,9 @@ import (
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/v29/ignite/templates/field"
-	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
+	"github.com/ignite/cli/v30/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v30/ignite/templates/field"
+	"github.com/ignite/cli/v30/ignite/templates/field/datatype"
 )
 
 const (

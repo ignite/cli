@@ -5,7 +5,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/ignite/cli/v29/ignite/pkg/xfilepath"
+	"github.com/ignite/cli/v30/ignite/pkg/xfilepath"
 )
 
 const (

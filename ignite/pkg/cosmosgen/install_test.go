@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/mod/modfile"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosgen"
+	"github.com/ignite/cli/v30/ignite/pkg/cosmosgen"
 )
 
 func TestMissingTools(t *testing.T) {

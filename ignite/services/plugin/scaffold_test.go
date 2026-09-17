@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cliui"
-	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
-	"github.com/ignite/cli/v29/ignite/services/plugin"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui"
+	"github.com/ignite/cli/v30/ignite/pkg/gocmd"
+	"github.com/ignite/cli/v30/ignite/services/plugin"
 )
 
 const fooBarAppURI = "github.com/foo/bar"

@@ -1,7 +1,7 @@
 package chaincmd
 
 import (
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v30/ignite/pkg/cmdrunner/step"
 )
 
 type InPlaceOption func([]string) []string

@@ -15,7 +15,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite/cli/v29/ignite/services/chain"
+	"github.com/ignite/cli/v30/ignite/services/chain"
 )
 
 // NodeStatus is an integer data type that represents the status of a node.

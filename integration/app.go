@@ -13,14 +13,14 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 
-	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
-	v1 "github.com/ignite/cli/v29/ignite/config/chain/v1"
-	"github.com/ignite/cli/v29/ignite/pkg/availableport"
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
-	"github.com/ignite/cli/v29/ignite/pkg/goenv"
-	"github.com/ignite/cli/v29/ignite/pkg/xurl"
-	"github.com/ignite/cli/v29/ignite/templates/field"
+	chainconfig "github.com/ignite/cli/v30/ignite/config/chain"
+	v1 "github.com/ignite/cli/v30/ignite/config/chain/v1"
+	"github.com/ignite/cli/v30/ignite/pkg/availableport"
+	"github.com/ignite/cli/v30/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v30/ignite/pkg/gocmd"
+	"github.com/ignite/cli/v30/ignite/pkg/goenv"
+	"github.com/ignite/cli/v30/ignite/pkg/xurl"
+	"github.com/ignite/cli/v30/ignite/templates/field"
 )
 
 const ServeTimeout = time.Minute * 15

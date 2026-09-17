@@ -11,13 +11,13 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 
-	cmdmodel "github.com/ignite/cli/v29/ignite/cmd/bubblemodel"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui"
-	uilog "github.com/ignite/cli/v29/ignite/pkg/cliui/log"
-	cliuimodel "github.com/ignite/cli/v29/ignite/pkg/cliui/model"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/events"
-	"github.com/ignite/cli/v29/ignite/services/chain"
+	cmdmodel "github.com/ignite/cli/v30/ignite/cmd/bubblemodel"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui"
+	uilog "github.com/ignite/cli/v30/ignite/pkg/cliui/log"
+	cliuimodel "github.com/ignite/cli/v30/ignite/pkg/cliui/model"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/events"
+	"github.com/ignite/cli/v30/ignite/services/chain"
 )
 
 const (

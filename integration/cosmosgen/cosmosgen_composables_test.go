@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	envtest "github.com/ignite/cli/v29/integration"
+	envtest "github.com/ignite/cli/v30/integration"
 )
 
 func TestCosmosGenScaffoldComposables(t *testing.T) {

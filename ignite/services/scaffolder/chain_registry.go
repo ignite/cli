@@ -9,11 +9,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
-	"github.com/ignite/cli/v29/ignite/pkg/chainregistry"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/xgit"
-	"github.com/ignite/cli/v29/ignite/services/chain"
+	chainconfig "github.com/ignite/cli/v30/ignite/config/chain"
+	"github.com/ignite/cli/v30/ignite/pkg/chainregistry"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/xgit"
+	"github.com/ignite/cli/v30/ignite/services/chain"
 )
 
 const (

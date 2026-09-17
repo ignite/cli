@@ -7,11 +7,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cliui"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/bubbleconfirm"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/entrywriter"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
-	"github.com/ignite/cli/v29/ignite/services/gno"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui/bubbleconfirm"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui/entrywriter"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/v30/ignite/services/gno"
 )
 
 // NewGnoAccount returns the `ignite account` command backed by the gno keybase.

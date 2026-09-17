@@ -9,7 +9,7 @@ slug: /packages/cosmosfaucet
 The `cosmosfaucet` package provides a local faucet service and client helpers to fund Cosmos accounts during development and tests.
 
 For full API details, see the
-[`cosmosfaucet` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/cosmosfaucet).
+[`cosmosfaucet` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v30/ignite/pkg/cosmosfaucet).
 
 ## When to use
 
@@ -36,5 +36,5 @@ For full API details, see the
 ## Basic import
 
 ```go
-import "github.com/ignite/cli/v29/ignite/pkg/cosmosfaucet"
+import "github.com/ignite/cli/v30/ignite/pkg/cosmosfaucet"
 ```

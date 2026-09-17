@@ -18,17 +18,17 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 
-	"github.com/ignite/cli/v29/ignite/config/chain"
-	"github.com/ignite/cli/v29/ignite/config/chain/base"
-	v1 "github.com/ignite/cli/v29/ignite/config/chain/v1"
-	"github.com/ignite/cli/v29/ignite/pkg/availableport"
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner"
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/goanalysis"
-	"github.com/ignite/cli/v29/ignite/pkg/randstr"
-	"github.com/ignite/cli/v29/ignite/pkg/xyaml"
-	envtest "github.com/ignite/cli/v29/integration"
+	"github.com/ignite/cli/v30/ignite/config/chain"
+	"github.com/ignite/cli/v30/ignite/config/chain/base"
+	v1 "github.com/ignite/cli/v30/ignite/config/chain/v1"
+	"github.com/ignite/cli/v30/ignite/pkg/availableport"
+	"github.com/ignite/cli/v30/ignite/pkg/cmdrunner"
+	"github.com/ignite/cli/v30/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/v30/ignite/pkg/randstr"
+	"github.com/ignite/cli/v30/ignite/pkg/xyaml"
+	envtest "github.com/ignite/cli/v30/integration"
 )
 
 const (

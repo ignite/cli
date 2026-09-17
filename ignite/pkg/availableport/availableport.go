@@ -6,8 +6,8 @@ import (
 	"math/big"
 	"net"
 
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/safeconverter"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/safeconverter"
 )
 
 type availablePortOptions struct {

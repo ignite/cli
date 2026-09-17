@@ -658,7 +658,7 @@ const file_ignite_services_plugin_grpc_v1_interface_proto_rawDesc = "" +
 	"\x04Hook\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\"\n" +
 	"\rplace_hook_on\x18\x02 \x01(\tR\vplaceHookOn\x12:\n" +
-	"\x05flags\x18\x03 \x03(\v2$.ignite.services.plugin.grpc.v1.FlagR\x05flagsB:Z8github.com/ignite/cli/v29/ignite/services/plugin/grpc/v1b\x06proto3"
+	"\x05flags\x18\x03 \x03(\v2$.ignite.services.plugin.grpc.v1.FlagR\x05flagsB:Z8github.com/ignite/cli/v30/ignite/services/plugin/grpc/v1b\x06proto3"
 
 var (
 	file_ignite_services_plugin_grpc_v1_interface_proto_rawDescOnce sync.Once

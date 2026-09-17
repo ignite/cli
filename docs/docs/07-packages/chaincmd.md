@@ -9,7 +9,7 @@ slug: /packages/chaincmd
 The `chaincmd` package builds `step.Option` command definitions for Cosmos SDK daemon binaries (`simd`, `gaiad`, and others). It does not execute commands directly.
 
 For full API details, see the
-[`chaincmd` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/chaincmd).
+[`chaincmd` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v30/ignite/pkg/chaincmd).
 
 ## When to use
 
@@ -33,8 +33,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/ignite/cli/v29/ignite/pkg/chaincmd"
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v30/ignite/pkg/chaincmd"
+	"github.com/ignite/cli/v30/ignite/pkg/cmdrunner/step"
 )
 
 func main() {
