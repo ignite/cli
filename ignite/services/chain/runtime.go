@@ -235,7 +235,7 @@ func (c Chain) appHome() string {
 	return filepath.Join(home, "."+c.app.Name)
 }
 
-func updateTomlTreeValues(t *toml.Tree, values map[string]interface{}) error {
+func updateTomlTreeValues(t *toml.Tree, values map[string]any) error {
 	flatValues, err := flat.Flatten(values, nil)
 	if err != nil {
 		return err

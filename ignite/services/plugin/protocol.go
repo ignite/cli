@@ -45,7 +45,7 @@ func (p grpcPlugin) GRPCServer(broker *hplugin.GRPCBroker, s *grpc.Server) error
 }
 
 // GRPCClient returns a new plugin client that allows calling the plugin interface over gRPC.
-func (p grpcPlugin) GRPCClient(_ context.Context, broker *hplugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
+func (p grpcPlugin) GRPCClient(_ context.Context, broker *hplugin.GRPCBroker, c *grpc.ClientConn) (any, error) {
 	return &client{
 		grpc:   v1.NewInterfaceServiceClient(c),
 		broker: broker,

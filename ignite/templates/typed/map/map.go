@@ -465,7 +465,7 @@ func genesisTestsModify(opts *typed.Options) genny.RunFn {
 
 		// Create a list of two different indexes to use as sample
 		sampleIndexes := make([]string, 2)
-		for i := 0; i < 2; i++ {
+		for i := range 2 {
 			sampleIndexes[i] = opts.Index.GenesisArgs(i)
 		}
 
@@ -504,7 +504,7 @@ func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 
 		// Create a list of two different indexes to use as sample
 		sampleIndexes := make([]string, 2)
-		for i := 0; i < 2; i++ {
+		for i := range 2 {
 			sampleIndexes[i] = opts.Index.GenesisArgs(i)
 		}
 

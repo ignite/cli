@@ -30,7 +30,7 @@ func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
 	cf := confile.New(confile.DefaultYAMLEncodingCreator, filepath.Join(app.SourcePath(), "config.yml"))
 	require.NoError(t, cf.Load(&cfg))
 
-	cfg.Genesis = map[string]interface{}{"chain_id": "cosmos"}
+	cfg.Genesis = map[string]any{"chain_id": "cosmos"}
 	cfg.Validators[0].App["hello"] = "cosmos"
 	cfg.Validators[0].Config["log_format"] = "json"
 
@@ -48,7 +48,7 @@ func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
 		ec      confile.EncodingCreator
 		relpath string
 		key     string
-		want    interface{}
+		want    any
 	}{
 		{confile.DefaultJSONEncodingCreator, "config/genesis.json", "chain_id", "cosmos"},
 		{confile.DefaultTOMLEncodingCreator, "config/app.toml", "hello", "cosmos"},
@@ -56,7 +56,7 @@ func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
 	}
 	for _, tt := range cases {
 		t.Run("test "+tt.relpath, func(t *testing.T) {
-			var conf map[string]interface{}
+			var conf map[string]any
 
 			path := filepath.Join(env.AppHome(appname), tt.relpath)
 			c := confile.New(tt.ec, path)

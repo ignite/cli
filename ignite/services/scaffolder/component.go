@@ -257,8 +257,8 @@ func customFieldType(fieldType string) (name string, isCustom bool) {
 		return "", false
 	}
 
-	if strings.HasPrefix(fieldType, datatype.ArrayPrefix) {
-		return normalizeCustomTypeName(strings.TrimPrefix(fieldType, datatype.ArrayPrefix)), true
+	if after, ok := strings.CutPrefix(fieldType, datatype.ArrayPrefix); ok {
+		return normalizeCustomTypeName(after), true
 	}
 
 	return normalizeCustomTypeName(fieldType), true

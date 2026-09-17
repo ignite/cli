@@ -1,0 +1,2 @@
+module = "crypto/chacha20/chacha"
+gno = "0.9"

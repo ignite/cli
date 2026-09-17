@@ -25,7 +25,7 @@ type (
 func TestGenDoc(t *testing.T) {
 	tests := []struct {
 		name string
-		v    interface{}
+		v    any
 		want Docs
 		err  error
 	}{
@@ -115,7 +115,7 @@ func TestGenDoc(t *testing.T) {
 		},
 		{
 			name: "Invalid struct",
-			v:    []map[string]interface{}{},
+			v:    []map[string]any{},
 		},
 	}
 	for _, tt := range tests {

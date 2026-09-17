@@ -21,7 +21,7 @@ type Flags []*Flag
 
 // getValue returns the value of the flag with the specified key and type.
 // It uses the provided conversion function to convert the string value to the desired type.
-func (f Flags) getValue(key string, flagType FlagType, convFunc func(v string) (interface{}, error)) (interface{}, error) {
+func (f Flags) getValue(key string, flagType FlagType, convFunc func(v string) (any, error)) (any, error) {
 	for _, flag := range f {
 		if flag.Name == key {
 			if flag.Type != flagType {
@@ -35,7 +35,7 @@ func (f Flags) getValue(key string, flagType FlagType, convFunc func(v string) (
 
 // GetString retrieves the string value of the flag with the specified key.
 func (f Flags) GetString(key string) (string, error) {
-	v, err := f.getValue(key, FlagTypeString, func(v string) (interface{}, error) {
+	v, err := f.getValue(key, FlagTypeString, func(v string) (any, error) {
 		return strings.TrimSpace(v), nil
 	})
 	if err != nil {
@@ -50,7 +50,7 @@ func (f Flags) GetString(key string) (string, error) {
 
 // GetStringSlice retrieves the string slice value of the flag with the specified key.
 func (f Flags) GetStringSlice(key string) ([]string, error) {
-	v, err := f.getValue(key, FlagTypeStringSlice, func(v string) (interface{}, error) {
+	v, err := f.getValue(key, FlagTypeStringSlice, func(v string) (any, error) {
 		v = strings.Trim(v, "[]")
 		s := strings.Split(v, ",")
 		if len(s) == 0 || (len(s) == 1 && s[0] == "") {
@@ -70,7 +70,7 @@ func (f Flags) GetStringSlice(key string) ([]string, error) {
 
 // GetBool retrieves the boolean value of the flag with the specified key.
 func (f Flags) GetBool(key string) (bool, error) {
-	v, err := f.getValue(key, FlagTypeBool, func(v string) (interface{}, error) {
+	v, err := f.getValue(key, FlagTypeBool, func(v string) (any, error) {
 		return strconv.ParseBool(v)
 	})
 	if err != nil {
@@ -85,7 +85,7 @@ func (f Flags) GetBool(key string) (bool, error) {
 
 // GetInt retrieves the integer value of the flag with the specified key.
 func (f Flags) GetInt(key string) (int, error) {
-	v, err := f.getValue(key, FlagTypeInt, func(v string) (interface{}, error) {
+	v, err := f.getValue(key, FlagTypeInt, func(v string) (any, error) {
 		return strconv.Atoi(v)
 	})
 	if err != nil {
@@ -100,7 +100,7 @@ func (f Flags) GetInt(key string) (int, error) {
 
 // GetInt64 retrieves the int64 value of the flag with the specified key.
 func (f Flags) GetInt64(key string) (int64, error) {
-	v, err := f.getValue(key, FlagTypeInt64, func(v string) (interface{}, error) {
+	v, err := f.getValue(key, FlagTypeInt64, func(v string) (any, error) {
 		return strconv.ParseInt(v, 10, 64)
 	})
 	if err != nil {
@@ -115,7 +115,7 @@ func (f Flags) GetInt64(key string) (int64, error) {
 
 // GetUint retrieves the uint value of the flag with the specified key.
 func (f Flags) GetUint(key string) (uint, error) {
-	v, err := f.getValue(key, FlagTypeUint, func(v string) (interface{}, error) {
+	v, err := f.getValue(key, FlagTypeUint, func(v string) (any, error) {
 		return strconv.ParseUint(v, 10, 64)
 	})
 	if err != nil {
@@ -130,7 +130,7 @@ func (f Flags) GetUint(key string) (uint, error) {
 
 // GetUint64 retrieves the uint64 value of the flag with the specified key.
 func (f Flags) GetUint64(key string) (uint64, error) {
-	v, err := f.getValue(key, FlagTypeUint64, func(v string) (interface{}, error) {
+	v, err := f.getValue(key, FlagTypeUint64, func(v string) (any, error) {
 		return strconv.ParseUint(v, 10, 64)
 	})
 	if err != nil {

@@ -250,7 +250,7 @@ func splitCommand(cmd string) []string {
 		splitCmd  = strings.Split(cmd, " ")
 		cmdLevels = make([]string, 6)
 	)
-	for i := 0; i < len(cmdLevels); i++ {
+	for i := range cmdLevels {
 		if i >= len(splitCmd) {
 			break
 		}

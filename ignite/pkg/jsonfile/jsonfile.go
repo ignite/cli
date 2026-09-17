@@ -178,7 +178,7 @@ func (f *JSONFile) Bytes() ([]byte, error) {
 
 // Field returns the param by key and the position into byte slice from the file reader.
 // Key can be a path to a nested parameters eg: app_state.staking.accounts.
-func (f *JSONFile) Field(key string, param interface{}) error {
+func (f *JSONFile) Field(key string, param any) error {
 	file, err := f.Bytes()
 	if err != nil {
 		return err

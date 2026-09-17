@@ -1,6 +1,6 @@
 # Test fix config
 # old config should be migrated
-exec $IGNITE doctor
+exec $IGNITE cosmos doctor
 cmp config.yml.golden config.yml
 
 -- config.yml --

@@ -1,6 +1,6 @@
 # Test fix config
 # config is OK
-exec $IGNITE doctor
+exec $IGNITE cosmos doctor
 stdout 'config file OK'
 
 -- config.yml --

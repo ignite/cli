@@ -245,13 +245,13 @@ func (c *Chain) IsInitialized() (bool, error) {
 
 // UpdateGenesisFile updates the chain genesis with a generic map of data.
 // Updates are made using an override merge strategy.
-func (c Chain) UpdateGenesisFile(data map[string]interface{}) error {
+func (c Chain) UpdateGenesisFile(data map[string]any) error {
 	path, err := c.GenesisPath()
 	if err != nil {
 		return err
 	}
 
-	genesis := make(map[string]interface{})
+	genesis := make(map[string]any)
 	cf := confile.New(confile.DefaultJSONEncodingCreator, path)
 	if err := cf.Load(&genesis); err != nil {
 		return err

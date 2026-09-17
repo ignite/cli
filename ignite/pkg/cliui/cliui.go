@@ -223,21 +223,21 @@ func (s Session) PauseSpinner() (restart func()) {
 }
 
 // Printf prints formatted arbitrary message.
-func (s Session) Printf(format string, a ...interface{}) error {
+func (s Session) Printf(format string, a ...any) error {
 	defer s.PauseSpinner()()
 	_, err := fmt.Fprintf(s.out.Stdout(), format, a...)
 	return err
 }
 
 // Println prints arbitrary message with line break.
-func (s Session) Println(messages ...interface{}) error {
+func (s Session) Println(messages ...any) error {
 	defer s.PauseSpinner()()
 	_, err := fmt.Fprintln(s.out.Stdout(), messages...)
 	return err
 }
 
 // Print prints arbitrary message.
-func (s Session) Print(messages ...interface{}) error {
+func (s Session) Print(messages ...any) error {
 	defer s.PauseSpinner()()
 	_, err := fmt.Fprint(s.out.Stdout(), messages...)
 	return err

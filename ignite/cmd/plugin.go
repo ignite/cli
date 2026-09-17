@@ -314,7 +314,7 @@ func linkPluginCmd(rootCmd *cobra.Command, p *plugin.Plugin, pluginCmd *plugin.C
 	// Check for existing commands
 	// pluginCmd.Use can be like `command [args]` so we need to remove those
 	// extra args if any.
-	pluginCmdName := strings.Split(pluginCmd.Use, " ")[0]
+	pluginCmdName, _, _ := strings.Cut(pluginCmd.Use, " ")
 	for _, cmd := range cmd.Commands() {
 		if cmd.Name() == pluginCmdName {
 			p.Error = errors.Errorf("app command %q already exists in Ignite's commands", pluginCmdName)

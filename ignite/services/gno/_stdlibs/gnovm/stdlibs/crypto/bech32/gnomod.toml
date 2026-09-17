@@ -1,0 +1,2 @@
+module = "crypto/bech32"
+gno = "0.9"

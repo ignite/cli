@@ -29,15 +29,58 @@
 ![Ignite CLI](./assets/ignite-cli.png)
 
 [Ignite CLI](https://ignite.com/cli) is the all-in-one platform to build,
-launch, and maintain any crypto application on a sovereign and secured
-blockchain. It is a developer-friendly interface to the [Cosmos
-SDK](https://github.com/cosmos/cosmos-sdk), the world's most widely-used
-blockchain application framework. Ignite CLI generates boilerplate code for you,
-so you can focus on writing business logic.
+launch, and maintain gno.land smart contracts. It is a developer-friendly
+interface to [gno.land](https://gno.land), the smart contract platform from
+the Ignite team. Ignite CLI offers everything you need to scaffold, test,
+build, and launch your realms and packages.
+
+Ignite CLI also ships the Cosmos SDK tooling under `ignite cosmos` for
+building sovereign blockchains.
 
 ## Quick start
 
-Ignite CLI can be installed using popular package managers such as Homebrew and Snap, making it easy to stay up-to-date with the latest versions. These package manager installations are maintained regularly for both macOS and GNU/Linux. For those who prefer manual installation or need to set up a development environment, additional instructions are provided at the end of this section.
+Scaffold a realm and start a local gno.land dev chain:
+
+```sh
+ignite scaffold realm counter
+cd counter
+ignite chain serve
+```
+
+The dev chain runs on `tcp://127.0.0.1:26657`, pre-funds the `test1`
+developer account, deploys your realm at genesis, and reloads the chain on
+every `.gno` file change.
+
+Interact with the running chain:
+
+```sh
+ignite chain call gno.land/r/counter Increment   # invoke a realm function
+ignite chain query "gno.land/r/counter.Get()"   # read-only expression
+ignite chain send g1... 10000000ugnot            # fund an account
+ignite chain test                               # run _test.gno tests
+```
+
+Generate a typed TypeScript client for the realm (built on
+[gno-js-client](https://github.com/gnolang/gno-js-client)):
+
+```sh
+ignite generate ts-client
+```
+
+Deploy a package to any gno.land chain (module path read from
+`gnomod.toml`):
+
+```sh
+ignite chain deploy --from test1 --remote 127.0.0.1:26657
+```
+
+Manage keys (stored in the gno keybase, `~/.config/gno`):
+
+```sh
+ignite account create alice
+ignite account list
+ignite account export alice --output alice.asc
+```
 
 ### Installation
 
@@ -181,7 +224,8 @@ The issue list in this repo is exclusively for bug reports and feature requests.
 
 ## Cosmos SDK compatibility
 
-Blockchains created with Ignite CLI use the [Cosmos
+The Cosmos SDK tooling lives under `ignite cosmos`. Blockchains created with
+it use the [Cosmos
 SDK](https://github.com/cosmos/cosmos-sdk) framework. To ensure the best
 possible experience, use the version of Ignite CLI that corresponds to the
 version of Cosmos SDK that your blockchain is built with. Unless noted

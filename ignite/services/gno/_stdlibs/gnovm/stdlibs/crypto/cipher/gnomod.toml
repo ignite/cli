@@ -1,0 +1,2 @@
+module = "crypto/cipher"
+gno = "0.9"

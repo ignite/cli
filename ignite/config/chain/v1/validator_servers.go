@@ -100,7 +100,7 @@ func (v *Validator) setConfigServers(s Servers) error {
 	return nil
 }
 
-func decodeServers(input interface{}) (output map[string]interface{}, err error) {
+func decodeServers(input any) (output map[string]any, err error) {
 	// Decode the input structure into a map
 	if err := mapstructure.Decode(input, &output); err != nil {
 		return nil, err
@@ -108,7 +108,7 @@ func decodeServers(input interface{}) (output map[string]interface{}, err error)
 
 	// Remove keys with empty server values from the map
 	for k := range output {
-		if v, _ := output[k].(map[string]interface{}); len(v) == 0 {
+		if v, _ := output[k].(map[string]any); len(v) == 0 {
 			delete(output, k)
 		}
 	}
@@ -122,20 +122,20 @@ func decodeServers(input interface{}) (output map[string]interface{}, err error)
 	return
 }
 
-func mergeMaps(src, dst map[string]interface{}) map[string]interface{} {
+func mergeMaps(src, dst map[string]any) map[string]any {
 	if len(src) == 0 {
 		return dst
 	}
 
 	// Allow dst to be nil by initializing it here
 	if dst == nil {
-		dst = make(map[string]interface{})
+		dst = make(map[string]any)
 	}
 
 	for k, v := range src {
 		// When the current value is a map in both merge their values
-		if srcValue, ok := v.(map[string]interface{}); ok {
-			if dstValue, ok := dst[k].(map[string]interface{}); ok {
+		if srcValue, ok := v.(map[string]any); ok {
+			if dstValue, ok := dst[k].(map[string]any); ok {
 				mergeMaps(srcValue, dstValue)
 
 				continue

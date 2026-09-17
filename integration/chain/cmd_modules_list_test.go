@@ -23,6 +23,8 @@ func TestModulesList(t *testing.T) {
 	env.Must(env.Exec("list modules",
 		step.NewSteps(step.New(
 			step.Exec(envtest.IgniteApp,
+				"cosmos",
+
 				"c",
 				"modules",
 				"list",

@@ -32,46 +32,46 @@ var (
 // SprintFunc returns a function to apply a foreground color to any number of texts.
 // The returned function receives strings as arguments with the text that should be colorized.
 // Color specifies a color by hex or ANSI value.
-func SprintFunc(color string) func(i ...interface{}) string {
-	return func(i ...interface{}) string {
+func SprintFunc(color string) func(i ...any) string {
+	return func(i ...any) string {
 		style := lipgloss.NewStyle().Foreground(lipgloss.Color(color))
 		return style.Render(fmt.Sprint(i...))
 	}
 }
 
-func Info(i ...interface{}) string {
+func Info(i ...any) string {
 	return info.Render(fmt.Sprint(i...))
 }
 
-func Infof(format string, i ...interface{}) string {
+func Infof(format string, i ...any) string {
 	return infof.Render(fmt.Sprintf(format, i...))
 }
 
-func Error(i ...interface{}) string {
+func Error(i ...any) string {
 	return err.Render(fmt.Sprint(i...))
 }
 
-func Success(i ...interface{}) string {
+func Success(i ...any) string {
 	return success.Render(fmt.Sprint(i...))
 }
 
-func Modified(i ...interface{}) string {
+func Modified(i ...any) string {
 	return modified.Render(fmt.Sprint(i...))
 }
 
-func Name(i ...interface{}) string {
+func Name(i ...any) string {
 	return name.Render(fmt.Sprint(i...))
 }
 
-func Mnemonic(i ...interface{}) string {
+func Mnemonic(i ...any) string {
 	return mnemonic.Render(fmt.Sprint(i...))
 }
 
-func Spinner(i ...interface{}) string {
+func Spinner(i ...any) string {
 	return spinner.Render(fmt.Sprint(i...))
 }
 
 // Faint styles the text using a dimmer shade for the foreground color.
-func Faint(i ...interface{}) string {
+func Faint(i ...any) string {
 	return faint.Render(fmt.Sprint(i...))
 }

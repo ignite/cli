@@ -584,7 +584,7 @@ func (g generator) addBufDependencies(depNames []string) error {
 	}
 	defer f.Close()
 
-	var rawCfg map[string]interface{}
+	var rawCfg map[string]any
 	if err := yaml.Unmarshal(bz, &rawCfg); err != nil {
 		return newBufConfigError(path, err)
 	}

@@ -44,8 +44,8 @@ func (m *TendermintClientMock) OnTxSearch() *mock.Call {
 // RepeatMockArgs returns a slice with an N number of mock.Anything arguments.
 // This function can be useful to define a number of generic consecutive arguments
 // for mocked method calls.
-func RepeatMockArgs(n int) (args []interface{}) {
-	for i := 0; i < n; i++ {
+func RepeatMockArgs(n int) (args []any) {
+	for range n {
 		args = append(args, mock.Anything)
 	}
 

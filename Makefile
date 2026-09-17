@@ -33,7 +33,11 @@ clean:
 	@-rm -rf $(BUILD_FOLDER) 2> /dev/null
 	@go clean ./...
 
-.PHONY: install build mocks clean
+## sync-gno-stdlibs: Re-sync the embedded gno stdlibs from the gno version pinned in go.mod.
+sync-gno-stdlibs:
+	@./scripts/sync-gno-stdlibs.sh
+
+.PHONY: install build mocks clean sync-gno-stdlibs
 
 ## govet: Run go vet.
 govet:

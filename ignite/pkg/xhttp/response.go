@@ -9,7 +9,7 @@ import (
 
 // ResponseJSON writes a JSON response to w by using status as http status and data
 // as payload.
-func ResponseJSON(w http.ResponseWriter, status int, data interface{}) error {
+func ResponseJSON(w http.ResponseWriter, status int, data any) error {
 	var errMarhsal error
 	bz, err := json.Marshal(data)
 	if err != nil {

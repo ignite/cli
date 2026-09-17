@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io/fs"
 	"path/filepath"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -195,9 +195,7 @@ func sortedSchemaVersions(paths map[uint64]string) []uint64 {
 		versions = append(versions, ver)
 	}
 
-	sort.Slice(versions, func(i, j int) bool {
-		return versions[i] < versions[j]
-	})
+	slices.Sort(versions)
 
 	return versions
 }

@@ -7,6 +7,7 @@ import (
 	"io/fs"
 	"math/big"
 	"path/filepath"
+	"strings"
 
 	"github.com/emicklei/proto"
 	"github.com/gobuffalo/genny/v2"
@@ -300,13 +301,13 @@ func genesisTestsModify(opts *typed.Options) genny.RunFn {
 		}
 
 		// Create a fields
-		sampleFields := ""
+		var sampleFields strings.Builder
 		for _, field := range opts.Fields {
 			n, err := rand.Int(rand.Reader, big.NewInt(100))
 			if err != nil {
 				return err
 			}
-			sampleFields += field.GenesisArgs(int(n.Int64()) + 1)
+			sampleFields.WriteString(field.GenesisArgs(int(n.Int64()) + 1))
 		}
 		// add parameter to the struct into the new method.
 		content, err := xast.ModifyFunction(
@@ -315,7 +316,7 @@ func genesisTestsModify(opts *typed.Options) genny.RunFn {
 			xast.AppendFuncStruct(
 				"GenesisState",
 				opts.TypeName.UpperCamel,
-				fmt.Sprintf("&types.%[1]v{ %[2]v }", opts.TypeName.PascalCase, sampleFields),
+				fmt.Sprintf("&types.%[1]v{ %[2]v }", opts.TypeName.PascalCase, sampleFields.String()),
 			),
 			xast.AppendFuncCode(
 				fmt.Sprintf("require.EqualExportedValues(t, genesisState.%[1]v, got.%[1]v)", opts.TypeName.UpperCamel),
@@ -339,13 +340,13 @@ func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 		}
 
 		// Create a fields
-		sampleFields := ""
+		var sampleFields strings.Builder
 		for _, field := range opts.Fields {
 			n, err := rand.Int(rand.Reader, big.NewInt(100))
 			if err != nil {
 				return err
 			}
-			sampleFields += field.GenesisArgs(int(n.Int64()) + 1)
+			sampleFields.WriteString(field.GenesisArgs(int(n.Int64()) + 1))
 		}
 
 		// add parameter to the struct into the new method.
@@ -355,7 +356,7 @@ func genesisTypesTestsModify(opts *typed.Options) genny.RunFn {
 			xast.AppendFuncStruct(
 				"GenesisState",
 				opts.TypeName.UpperCamel,
-				fmt.Sprintf("&types.%[1]v{ %[2]v }", opts.TypeName.PascalCase, sampleFields),
+				fmt.Sprintf("&types.%[1]v{ %[2]v }", opts.TypeName.PascalCase, sampleFields.String()),
 			),
 		)
 		if err != nil {

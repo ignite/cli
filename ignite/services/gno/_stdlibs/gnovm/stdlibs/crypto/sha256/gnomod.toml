@@ -1,0 +1,2 @@
+module = "crypto/sha256"
+gno = "0.9"

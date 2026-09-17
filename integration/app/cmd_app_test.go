@@ -61,7 +61,8 @@ func TestGenerateAnAppWithInvalidName(t *testing.T) {
 	env := envtest.New(t)
 	env.Must(env.Exec("should prevent creating an app with an invalid name",
 		step.NewSteps(step.New(
-			step.Exec(envtest.IgniteApp, "s", "chain", "blog2"),
+			step.Exec(envtest.IgniteApp, "cosmos",
+				"s", "chain", "blog2"),
 			step.Stdout(buf),
 			step.Stderr(buf),
 		)),

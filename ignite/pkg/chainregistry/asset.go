@@ -22,7 +22,7 @@ type Asset struct {
 	Symbol      string      `json:"symbol"`
 	LogoURIs    LogoURIs    `json:"logo_URIs"`
 	CoingeckoID string      `json:"coingecko_id,omitempty"`
-	Socials     Socials     `json:"socials,omitempty"`
+	Socials     Socials     `json:"socials"`
 	TypeAsset   string      `json:"type_asset"`
 }
 

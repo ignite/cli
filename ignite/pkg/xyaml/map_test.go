@@ -23,7 +23,7 @@ func TestUnmarshalWithCustomMapType(t *testing.T) {
 	// Assert
 	require.NoError(t, err)
 	require.NotNil(t, output["foo"])
-	require.IsType(t, (map[string]interface{})(nil), output["foo"])
+	require.IsType(t, (map[string]any)(nil), output["foo"])
 }
 
 func TestUnmarshalWithNativeMapType(t *testing.T) {
@@ -32,7 +32,7 @@ func TestUnmarshalWithNativeMapType(t *testing.T) {
     foo:
       bar: baz
     `
-	output := make(map[string]interface{})
+	output := make(map[string]any)
 
 	// Act
 	err := yaml.Unmarshal([]byte(input), &output)
@@ -40,5 +40,5 @@ func TestUnmarshalWithNativeMapType(t *testing.T) {
 	// Assert
 	require.NoError(t, err)
 	require.NotNil(t, output["foo"])
-	require.IsType(t, (map[string]interface{})(nil), output["foo"])
+	require.IsType(t, (map[string]any)(nil), output["foo"])
 }

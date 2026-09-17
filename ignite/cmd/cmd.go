@@ -61,14 +61,15 @@ func New(ctx context.Context) (*cobra.Command, func(), error) {
 
 	c := &cobra.Command{
 		Use:   "ignite",
-		Short: "Ignite CLI offers everything you need to scaffold, test, build, and launch your blockchain",
-		Long: fmt.Sprintf(`Ignite CLI is a tool for creating sovereign blockchains built with Cosmos SDK, the world's
-most popular modular blockchain framework. Ignite CLI offers everything you need to scaffold,
-test, build, and launch your blockchain.
+		Short: "Ignite CLI offers everything you need to scaffold, test, build, and launch gno.land realms and packages",
+		Long: fmt.Sprintf(`Ignite CLI is a tool for building smart contracts on gno.land. Ignite CLI offers everything you need to scaffold,
+test, build, and launch your realms and packages.
 
-To get started, create a blockchain:
+To get started, create a realm and start a dev chain:
 
-$ ignite scaffold chain example
+$ ignite scaffold realm example
+$ cd example
+$ ignite chain serve
 
 %s`, announcements.Fetch()),
 		SilenceUsage:  true,
@@ -86,18 +87,18 @@ $ ignite scaffold chain example
 	}
 
 	c.AddCommand(
-		NewScaffold(),
-		NewChain(),
-		NewGenerate(),
-		NewAccount(),
+		NewGnoScaffold(),
+		NewGnoChain(),
+		NewGnoAccount(),
+		NewGnoGenerate(),
+		NewCosmos(),
 		NewDocs(),
 		NewVersion(),
 		NewApp(),
-		NewDoctor(),
 		NewCompletionCmd(),
-		NewTestnet(),
 	)
 	c.AddCommand(deprecated()...)
+	c.AddCommand(cosmosLegacyStubs()...)
 	c.SetContext(ctx)
 
 	// Don't load Ignite apps for level one commands that doesn't allow them

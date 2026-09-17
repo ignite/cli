@@ -1,8 +1,10 @@
 package envtest
 
 import (
+	"bytes"
 	"context"
 	"strings"
+	"time"
 
 	"github.com/buger/jsonparser"
 	"github.com/stretchr/testify/require"
@@ -12,6 +14,16 @@ import (
 	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
 	"github.com/ignite/cli/v29/ignite/templates/field"
 	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
+)
+
+const (
+	// chainServeTimeout bounds each chain serve attempt. An attempt that does
+	// not bring the chain API up in time is considered wedged and is stopped.
+	chainServeTimeout = 8 * time.Minute
+
+	// chainServeAttempts is how many times chain serving is attempted before
+	// the test is failed with the serve logs.
+	chainServeAttempts = 2
 )
 
 // testValue determines the default test value for a given datatype.
@@ -129,13 +141,80 @@ func (a *App) RunChainAndSimulateTxs(servers Hosts) {
 	ctx, cancel := context.WithCancel(a.env.ctx)
 	defer cancel()
 
-	// Start serving the blockchain in a separate goroutine
-	go func() {
-		a.MustServe(ctx)
-	}()
+	var (
+		serveCtx    context.Context
+		cancelServe context.CancelFunc
+		serveDone   chan struct{}
+		serveLogs   *bytes.Buffer
+	)
 
-	// Wait until the chain is up and running
-	a.WaitChainUp(ctx, servers.API)
+	// startServe runs the chain serve command in the background. Its output is
+	// captured so that it can be reported when serving fails. Serve output is
+	// otherwise invisible because the exec step only prints it on failure.
+	startServe := func() {
+		sctx, scancel := context.WithCancel(ctx)
+		logs := &bytes.Buffer{}
+		done := make(chan struct{})
+		serveCtx, cancelServe, serveLogs, serveDone = sctx, scancel, logs, done
+		go func() {
+			defer close(done)
+			a.Serve("should serve chain",
+				ExecCtx(sctx),
+				ExecStdout(logs),
+				ExecStderr(logs),
+			)
+		}()
+	}
+
+	// waitChainUp waits until the chain API responds, serving exits or the
+	// wait context is done.
+	waitChainUp := func(waitCtx context.Context) (servingExited bool, err error) {
+		apiErr := make(chan error, 1)
+		go func() {
+			apiErr <- a.env.IsAppServed(waitCtx, servers.API)
+		}()
+		select {
+		case err = <-apiErr:
+		case <-serveDone:
+			servingExited = true
+		case <-waitCtx.Done():
+			err = waitCtx.Err()
+		}
+		return servingExited, err
+	}
+
+	startServe()
+	for attempt := 1; ; attempt++ {
+		waitCtx, cancelWait := context.WithTimeout(serveCtx, chainServeTimeout)
+		servingExited, err := waitChainUp(waitCtx)
+		cancelWait()
+
+		if err == nil {
+			break // the chain API is up.
+		}
+
+		if servingExited {
+			cancelServe()
+			cancel()
+			a.env.t.Fatalf("chain serve exited before the chain API %s was up\n\nServe logs:\n\n%s",
+				servers.API, serveLogs.String())
+		}
+
+		if attempt >= chainServeAttempts || ctx.Err() != nil {
+			// Stop serving and wait for the serve goroutine before reading the
+			// logs it wrote.
+			cancelServe()
+			<-serveDone
+			cancel()
+			a.env.t.Fatalf("chain API %s did not come up: %v\n\nServe logs:\n\n%s",
+				servers.API, err, serveLogs.String())
+		}
+
+		// The serve attempt looks wedged: stop it and try again.
+		cancelServe()
+		<-serveDone
+		startServe()
+	}
 
 	// Run the transaction simulations
 	a.RunSimulationTxs(ctx, servers)

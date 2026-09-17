@@ -1,0 +1,95 @@
+package gno
+
+import (
+	"path/filepath"
+
+	"github.com/gnolang/gno/gno.land/pkg/sdk/vm"
+	gno "github.com/gnolang/gno/gnovm/pkg/gnolang"
+	"github.com/gnolang/gno/gnovm/pkg/gnomod"
+	"github.com/gnolang/gno/tm2/pkg/std"
+
+	"github.com/ignite/cli/v29/ignite/pkg/errors"
+)
+
+// DefaultGasWanted and DefaultGasFee are the defaults used when deploying.
+const (
+	DefaultGasWanted = 5_000_000
+	DefaultGasFee    = 1000000 // in ugnot
+)
+
+// DeployOptions configures Deploy.
+type DeployOptions struct {
+	TxBaseOptions
+	// PkgPath overrides the module path read from gnomod.toml.
+	PkgPath string
+	// MaxDeposit is the max storage deposit for the package.
+	MaxDeposit string
+}
+
+// Deploy publishes the gno package at dir to a gno.land chain. The module
+// path is read from dir/gnomod.toml unless overridden. It returns the
+// deployed module path and the broadcast result.
+func Deploy(dir string, opts DeployOptions) (string, *BroadcastResult, error) {
+	opts.TxBaseOptions = opts.TxBaseOptions.withDefaults()
+
+	pkgPath := opts.PkgPath
+	if pkgPath == "" {
+		mod, err := parseGnoModDir(dir)
+		if err != nil {
+			return "", nil, errors.Errorf("reading gnomod.toml in %s: %w (scaffold one with `ignite scaffold realm`)", dir, err)
+		}
+		pkgPath = mod
+	}
+
+	memPkg, err := gno.ReadMemPackage(dir, pkgPath, gno.MPUserAll)
+	if err != nil {
+		return "", nil, errors.Errorf("reading package in %s: %w", dir, err)
+	}
+	if memPkg.IsEmpty() {
+		return "", nil, errors.Errorf("no .gno files found in %s", dir)
+	}
+
+	var maxDeposit std.Coins
+	if opts.MaxDeposit != "" {
+		if maxDeposit, err = std.ParseCoins(opts.MaxDeposit); err != nil {
+			return "", nil, errors.Errorf("parsing max deposit: %w", err)
+		}
+	}
+
+	creator, err := opts.callerAddress()
+	if err != nil {
+		return "", nil, err
+	}
+	gasFee, err := opts.parseGasFee()
+	if err != nil {
+		return "", nil, err
+	}
+
+	tx := std.Tx{
+		Msgs: []std.Msg{
+			vm.MsgAddPackage{
+				Creator:    creator,
+				Package:    memPkg,
+				MaxDeposit: maxDeposit,
+			},
+		},
+		Fee: std.NewFee(opts.GasWanted, gasFee),
+	}
+
+	res, err := broadcast(opts.newTxPlan(tx))
+	return pkgPath, res, err
+}
+
+// parseGnoModDir reads the module path from dir/gnomod.toml.
+func parseGnoModDir(dir string) (string, error) {
+	return parseGnoMod(filepath.Join(dir, "gnomod.toml"))
+}
+
+// parseGnoMod reads the module path from a gnomod.toml file.
+func parseGnoMod(path string) (string, error) {
+	mod, err := gnomod.ParseFilepath(path)
+	if err != nil {
+		return "", err
+	}
+	return mod.Module, nil
+}

@@ -22,12 +22,12 @@ type EncodeDecoder interface {
 
 // Encoder should encode a v into io.Writer given to EncodingCreator.
 type Encoder interface {
-	Encode(v interface{}) error
+	Encode(v any) error
 }
 
 // Decoder should decode a v from io.Reader given to EncodingCreator.
 type Decoder interface {
-	Decode(v interface{}) error
+	Decode(v any) error
 }
 
 // Encoding implements EncodeDecoder.

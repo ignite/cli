@@ -1,0 +1,2 @@
+module = "chain/runtime/unsafe"
+gno = "0.9"

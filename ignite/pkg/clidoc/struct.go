@@ -49,9 +49,9 @@ func (d Docs) writeString(sb *strings.Builder, level int) {
 }
 
 // GenDoc to generate documentation from a struct.
-func GenDoc(v interface{}) (fields Docs, err error) {
+func GenDoc(v any) (fields Docs, err error) {
 	t := reflect.TypeOf(v)
-	if t.Kind() != reflect.Struct && t.Kind() != reflect.Ptr {
+	if t.Kind() != reflect.Struct && t.Kind() != reflect.Pointer {
 		return fields, nil
 	}
 	for i := 0; i < t.NumField(); i++ {
@@ -89,7 +89,7 @@ func GenDoc(v interface{}) (fields Docs, err error) {
 			if err != nil {
 				return nil, err
 			}
-		case reflect.Ptr:
+		case reflect.Pointer:
 			elemType = field.Type.Elem().Kind().String()
 			elemFields, err = GenDoc(reflect.New(field.Type.Elem()).Elem().Interface())
 			if err != nil {

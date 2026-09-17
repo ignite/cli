@@ -40,7 +40,10 @@ func Test<%= Title %>(t *testing.T) {
 	})
 	assertGlobalPlugins(t, nil)
 
-	buf := &bytes.Buffer{}
+	var (
+		stdout = &bytes.Buffer{}
+		stderr = &bytes.Buffer{}
+	)
 	env.Must(env.Exec("run <%= Name %>",
 		step.NewSteps(step.New(
 			step.Exec(
@@ -49,11 +52,11 @@ func Test<%= Title %>(t *testing.T) {
 				"hello",
 			),
 			step.Workdir(app.SourcePath()),
-			step.Stdout(buf),
-			step.Stderr(buf),
+			step.Stdout(stdout),
+			step.Stderr(stderr),
 		)),
 	))
-	require.Equal("Hello, world!\n", buf.String())
+	require.Equal("Hello, world!\n", stdout.String())
 }
 
 func assertLocalPlugins(t *testing.T, app envtest.App, expectedPlugins []pluginsconfig.Plugin) {

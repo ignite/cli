@@ -31,8 +31,8 @@ var ErrConfirmationFailed = errors.New("failed to confirm, your answers were dif
 // the answer stored at.
 type Question struct {
 	question      string
-	defaultAnswer interface{}
-	answer        interface{}
+	defaultAnswer any
+	answer        any
 	hidden        bool
 	shouldConfirm bool
 	required      bool
@@ -42,7 +42,7 @@ type Question struct {
 type Option func(*Question)
 
 // DefaultAnswer sets a default answer to Question.
-func DefaultAnswer(answer interface{}) Option {
+func DefaultAnswer(answer any) Option {
 	return func(q *Question) {
 		q.defaultAnswer = answer
 	}
@@ -70,7 +70,7 @@ func GetConfirmation() Option {
 }
 
 // NewQuestion creates a new question.
-func NewQuestion(question string, answer interface{}, options ...Option) Question {
+func NewQuestion(question string, answer any, options ...Option) Question {
 	q := Question{
 		question: question,
 		answer:   answer,

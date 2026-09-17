@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"slices"
 	"testing"
 	"time"
 
@@ -460,15 +461,15 @@ func TestPluginLoadSharedHost(t *testing.T) {
 			}
 			// Ensure all plugins are killed at the end of test case
 			defer func() {
-				for i := len(plugins) - 1; i >= 0; i-- {
-					plugins[i].KillClient()
+				for i, plugin := range slices.Backward(plugins) {
+					plugin.KillClient()
 					if tt.sharesHost && i > 0 {
-						assert.False(plugins[i].client.Exited(), "non host app can't kill host app")
-						assert.True(checkConfCache(plugins[i].Path), "non host app doesn't remove config cache when killed")
+						assert.False(plugin.client.Exited(), "non host app can't kill host app")
+						assert.True(checkConfCache(plugin.Path), "non host app doesn't remove config cache when killed")
 					} else {
-						assert.True(plugins[i].client.Exited(), "app should be killed")
+						assert.True(plugin.client.Exited(), "app should be killed")
 					}
-					assert.False(plugins[i].isHost, "killed plugins are no longer host")
+					assert.False(plugin.isHost, "killed plugins are no longer host")
 				}
 				assert.False(checkConfCache(plugins[0].Path), "once host is killed the cache should be cleared")
 			}()

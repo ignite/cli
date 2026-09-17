@@ -20,7 +20,7 @@ func moduleSimulationModify(opts *typed.Options) genny.RunFn {
 
 		// Create a list of two different index/fields to use as sample
 		sampleIndexes := make([]string, 2)
-		for i := 0; i < 2; i++ {
+		for i := range 2 {
 			sampleIndexes[i] = fmt.Sprintf("%s: sample.AccAddress(),\n", opts.MsgSigner.UpperCamel)
 			sampleIndexes[i] += opts.Index.GenesisArgs(i)
 		}

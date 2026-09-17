@@ -92,7 +92,7 @@ func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sd
 				)
 			}
 
-			if (totalSent.Add(c.Amount)).GT(coinMax) {
+			if totalSent.Add(c.Amount).GT(coinMax) {
 				return "", errors.Errorf(
 					`ask less amount for %q denom. account is reaching to the limit (%d) that faucet can tolerate`,
 					c.Denom,

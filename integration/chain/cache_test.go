@@ -39,6 +39,8 @@ func TestCliWithCaching(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec(
 				envtest.IgniteApp,
+				"cosmos",
+
 				"c",
 				"build",
 			),
@@ -54,6 +56,8 @@ func TestCliWithCaching(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec(
 				envtest.IgniteApp,
+				"cosmos",
+
 				"c",
 				"build",
 			),
