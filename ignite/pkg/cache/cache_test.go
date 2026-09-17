@@ -113,8 +113,8 @@ func TestStoreObjects(t *testing.T) {
 	val2, err := arrayNamespace.Get("myKey")
 	require.NoError(t, err)
 	require.Equal(t, 2, len(val2))
-	require.Equal(t, 42, (val2)[0].Num)
-	require.Equal(t, 420, (val2)[1].Num)
+	require.Equal(t, 42, val2[0].Num)
+	require.Equal(t, 420, val2[1].Num)
 
 	empty, err := arrayNamespace.Get("doesNotExists")
 	require.Equal(t, cache.ErrorNotFound, err)

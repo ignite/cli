@@ -5,8 +5,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/ignite/cli/v30/ignite/pkg/env"
 	"gotest.tools/v3/assert"
+
+	"github.com/ignite/cli/v30/ignite/pkg/env"
 )
 
 func TestStdlibsHashIsDeterministic(t *testing.T) {
