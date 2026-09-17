@@ -14,9 +14,9 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 
-	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
-	"github.com/ignite/cli/v29/ignite/config/chain/version"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/config/chain/defaults"
+	"github.com/ignite/cli/v30/ignite/config/chain/version"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
 )
 
 // Parse reads a config file.

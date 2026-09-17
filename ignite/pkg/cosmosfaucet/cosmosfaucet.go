@@ -9,9 +9,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	chaincmdrunner "github.com/ignite/cli/v29/ignite/pkg/chaincmd/runner"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosver"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	chaincmdrunner "github.com/ignite/cli/v30/ignite/pkg/chaincmd/runner"
+	"github.com/ignite/cli/v30/ignite/pkg/cosmosver"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
 )
 
 const (

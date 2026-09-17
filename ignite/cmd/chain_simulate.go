@@ -7,7 +7,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/ignite/cli/v29/ignite/services/chain"
+	"github.com/ignite/cli/v30/ignite/services/chain"
 )
 
 const (

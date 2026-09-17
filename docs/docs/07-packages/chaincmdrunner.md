@@ -9,7 +9,7 @@ slug: /packages/chaincmdrunner
 The `chaincmdrunner` package wraps chain binary commands into typed, higher-level operations (accounts, genesis setup, tx queries, node control).
 
 For full API details, see the
-[`chaincmdrunner` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/chaincmd/runner).
+[`chaincmdrunner` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v30/ignite/pkg/chaincmd/runner).
 
 ## When to use
 
@@ -36,5 +36,5 @@ For full API details, see the
 ## Basic import
 
 ```go
-import chaincmdrunner "github.com/ignite/cli/v29/ignite/pkg/chaincmd/runner"
+import chaincmdrunner "github.com/ignite/cli/v30/ignite/pkg/chaincmd/runner"
 ```

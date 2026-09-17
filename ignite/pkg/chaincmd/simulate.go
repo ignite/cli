@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
+	"github.com/ignite/cli/v30/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v30/ignite/pkg/gocmd"
 )
 
 const (

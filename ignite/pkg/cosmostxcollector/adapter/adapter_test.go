@@ -6,8 +6,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosclient"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmostxcollector/query"
+	"github.com/ignite/cli/v30/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/v30/ignite/pkg/cosmostxcollector/query"
 )
 
 type testAdapter struct{}

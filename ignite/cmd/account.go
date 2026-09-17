@@ -6,9 +6,9 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/bubbleconfirm"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/entrywriter"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui/bubbleconfirm"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui/entrywriter"
+	"github.com/ignite/cli/v30/ignite/pkg/cosmosaccount"
 )
 
 const (

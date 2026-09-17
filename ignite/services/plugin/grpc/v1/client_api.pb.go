@@ -245,7 +245,7 @@ const file_ignite_services_plugin_grpc_v1_client_api_proto_rawDesc = "" +
 	"\x02os\x18\b \x01(\tR\x02os\x12\x12\n" +
 	"\x04arch\x18\t \x01(\tR\x04arch\x12*\n" +
 	"\x11build_from_source\x18\n" +
-	" \x01(\bR\x0fbuildFromSourceB:Z8github.com/ignite/cli/v29/ignite/services/plugin/grpc/v1b\x06proto3"
+	" \x01(\bR\x0fbuildFromSourceB:Z8github.com/ignite/cli/v30/ignite/services/plugin/grpc/v1b\x06proto3"
 
 var (
 	file_ignite_services_plugin_grpc_v1_client_api_proto_rawDescOnce sync.Once

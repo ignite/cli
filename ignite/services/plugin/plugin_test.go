@@ -17,11 +17,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	pluginsconfig "github.com/ignite/cli/v29/ignite/config/plugins"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/gocmd"
-	"github.com/ignite/cli/v29/ignite/pkg/gomodule"
+	pluginsconfig "github.com/ignite/cli/v30/ignite/config/plugins"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/gocmd"
+	"github.com/ignite/cli/v30/ignite/pkg/gomodule"
 )
 
 func TestNewPlugin(t *testing.T) {
@@ -585,7 +585,7 @@ func scaffoldPlugin(t *testing.T, dir, name string, sharedHost bool) string {
 	modpath, err := gocmd.Env(gocmd.EnvGOMOD)
 	require.NoError(err)
 	modpath = filepath.Dir(modpath)
-	err = gomod.AddReplace("github.com/ignite/cli/v29", "", modpath, "")
+	err = gomod.AddReplace("github.com/ignite/cli/v30", "", modpath, "")
 	require.NoError(err)
 	// Save go.mod
 	data, err := gomod.Format()

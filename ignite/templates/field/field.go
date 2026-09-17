@@ -6,8 +6,8 @@ import (
 
 	"github.com/emicklei/proto"
 
-	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
+	"github.com/ignite/cli/v30/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v30/ignite/templates/field/datatype"
 )
 
 // Field represents a field inside a structure for a component

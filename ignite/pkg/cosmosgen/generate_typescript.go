@@ -11,12 +11,12 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite/cli/v29/ignite/internal/buf"
-	"github.com/ignite/cli/v29/ignite/pkg/cache"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosanalysis/module"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
-	"github.com/ignite/cli/v29/ignite/pkg/dirchange"
-	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v30/ignite/internal/buf"
+	"github.com/ignite/cli/v30/ignite/pkg/cache"
+	"github.com/ignite/cli/v30/ignite/pkg/cosmosanalysis/module"
+	"github.com/ignite/cli/v30/ignite/pkg/cosmosbuf"
+	"github.com/ignite/cli/v30/ignite/pkg/dirchange"
+	"github.com/ignite/cli/v30/ignite/pkg/gomodulepath"
 )
 
 var (

@@ -12,7 +12,7 @@ import (
 	"github.com/gnolang/gno/tm2/pkg/crypto/keys/client"
 	"github.com/gnolang/gno/tm2/pkg/std"
 
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
 )
 
 // TxBaseOptions holds the chain connection and gas settings shared by all

@@ -7,10 +7,10 @@ import (
 	"dario.cat/mergo"
 	"gopkg.in/yaml.v3"
 
-	"github.com/ignite/cli/v29/ignite/config/chain/base"
-	"github.com/ignite/cli/v29/ignite/config/chain/defaults"
-	"github.com/ignite/cli/v29/ignite/config/chain/version"
-	"github.com/ignite/cli/v29/ignite/pkg/xnet"
+	"github.com/ignite/cli/v30/ignite/config/chain/base"
+	"github.com/ignite/cli/v30/ignite/config/chain/defaults"
+	"github.com/ignite/cli/v30/ignite/config/chain/version"
+	"github.com/ignite/cli/v30/ignite/pkg/xnet"
 )
 
 // DefaultConfig returns a config with default values.

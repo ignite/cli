@@ -53,7 +53,7 @@ govulncheck:
 format:
 	@echo Formatting...
 	@go tool mvdan.cc/gofumpt -w .
-	@go tool golang.org/x/tools/cmd/goimports -w -local github.com/ignite/cli/v29 .
+	@go tool golang.org/x/tools/cmd/goimports -w -local github.com/ignite/cli/v30 .
 	@go tool github.com/tbruyelle/mdgofmt/cmd/mdgofmt -w docs
 
 ## lint: Run Golang CI Lint.

@@ -11,7 +11,7 @@ import (
 	"github.com/hexops/gotextdiff/myers"
 	"github.com/hexops/gotextdiff/span"
 
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
 )
 
 // computeFS computes the unified diffs between the origin and modified filesystems.

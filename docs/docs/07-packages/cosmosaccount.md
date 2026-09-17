@@ -9,7 +9,7 @@ slug: /packages/cosmosaccount
 The `cosmosaccount` package manages Cosmos keyring accounts (create/import/export/list/delete) with configurable backend and Bech32 settings.
 
 For full API details, see the
-[`cosmosaccount` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/cosmosaccount).
+[`cosmosaccount` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v30/ignite/pkg/cosmosaccount).
 
 ## When to use
 
@@ -39,5 +39,5 @@ For full API details, see the
 ## Basic import
 
 ```go
-import "github.com/ignite/cli/v29/ignite/pkg/cosmosaccount"
+import "github.com/ignite/cli/v30/ignite/pkg/cosmosaccount"
 ```

@@ -11,7 +11,7 @@ import (
 	"github.com/gnolang/gno/tm2/pkg/crypto/keys"
 	"github.com/gnolang/gno/tm2/pkg/crypto/keys/armor"
 
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
 )
 
 // HomeDir returns the default gno home directory (~/.config/gno or $GNOHOME).

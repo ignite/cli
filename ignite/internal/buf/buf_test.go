@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/v29/ignite/internal/buf"
+	"github.com/ignite/cli/v30/ignite/internal/buf"
 )
 
 func TestFetchToken(t *testing.T) {

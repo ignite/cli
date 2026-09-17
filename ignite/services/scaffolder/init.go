@@ -6,14 +6,14 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cliui"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/gomodulepath"
-	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
-	"github.com/ignite/cli/v29/ignite/templates/app"
-	"github.com/ignite/cli/v29/ignite/templates/field"
-	modulecreate "github.com/ignite/cli/v29/ignite/templates/module/create"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/gomodulepath"
+	"github.com/ignite/cli/v30/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v30/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v30/ignite/templates/app"
+	"github.com/ignite/cli/v30/ignite/templates/field"
+	modulecreate "github.com/ignite/cli/v30/ignite/templates/module/create"
 )
 
 // Init initializes a new app with name and given options.

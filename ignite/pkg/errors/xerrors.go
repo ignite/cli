@@ -3,7 +3,7 @@
 //
 // e.g.:
 //
-//	import "github.com/ignite/cli/v29/ignite/pkg/errors"
+//	import "github.com/ignite/cli/v30/ignite/pkg/errors"
 //
 //	func main() {
 //	 err1 := errors.New("error new")

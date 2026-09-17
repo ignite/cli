@@ -9,7 +9,7 @@ slug: /packages/cosmosver
 The `cosmosver` package parses, compares, and detects Cosmos SDK versions used by a chain project.
 
 For full API details, see the
-[`cosmosver` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/cosmosver).
+[`cosmosver` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v30/ignite/pkg/cosmosver).
 
 ## When to use
 
@@ -37,5 +37,5 @@ For full API details, see the
 ## Basic import
 
 ```go
-import "github.com/ignite/cli/v29/ignite/pkg/cosmosver"
+import "github.com/ignite/cli/v30/ignite/pkg/cosmosver"
 ```

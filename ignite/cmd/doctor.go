@@ -3,9 +3,9 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui"
-	"github.com/ignite/cli/v29/ignite/services/doctor"
+	chainconfig "github.com/ignite/cli/v30/ignite/config/chain"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui"
+	"github.com/ignite/cli/v30/ignite/services/doctor"
 )
 
 func NewDoctor() *cobra.Command {

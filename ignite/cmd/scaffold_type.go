@@ -6,8 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/v29/ignite/services/scaffolder"
-	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
+	"github.com/ignite/cli/v30/ignite/services/scaffolder"
+	"github.com/ignite/cli/v30/ignite/templates/field/datatype"
 )
 
 // NewScaffoldType returns a new command to scaffold a type.

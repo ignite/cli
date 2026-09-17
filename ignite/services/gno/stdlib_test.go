@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/ignite/cli/v29/ignite/pkg/env"
+	"github.com/ignite/cli/v30/ignite/pkg/env"
 	"gotest.tools/v3/assert"
 )
 

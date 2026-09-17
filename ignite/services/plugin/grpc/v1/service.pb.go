@@ -658,7 +658,7 @@ const file_ignite_services_plugin_grpc_v1_service_proto_rawDesc = "" +
 	"\x12ExecuteHookCleanUp\x129.ignite.services.plugin.grpc.v1.ExecuteHookCleanUpRequest\x1a:.ignite.services.plugin.grpc.v1.ExecuteHookCleanUpResponse2\x8b\x02\n" +
 	"\x10ClientAPIService\x12y\n" +
 	"\fGetChainInfo\x123.ignite.services.plugin.grpc.v1.GetChainInfoRequest\x1a4.ignite.services.plugin.grpc.v1.GetChainInfoResponse\x12|\n" +
-	"\rGetIgniteInfo\x124.ignite.services.plugin.grpc.v1.GetIgniteInfoRequest\x1a5.ignite.services.plugin.grpc.v1.GetIgniteInfoResponseB:Z8github.com/ignite/cli/v29/ignite/services/plugin/grpc/v1b\x06proto3"
+	"\rGetIgniteInfo\x124.ignite.services.plugin.grpc.v1.GetIgniteInfoRequest\x1a5.ignite.services.plugin.grpc.v1.GetIgniteInfoResponseB:Z8github.com/ignite/cli/v30/ignite/services/plugin/grpc/v1b\x06proto3"
 
 var (
 	file_ignite_services_plugin_grpc_v1_service_proto_rawDescOnce sync.Once

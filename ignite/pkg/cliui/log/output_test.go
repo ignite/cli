@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/v29/ignite/pkg/xio"
+	"github.com/ignite/cli/v30/ignite/pkg/xio"
 )
 
 func TestNewOutputDefault(t *testing.T) {

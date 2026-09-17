@@ -9,7 +9,7 @@ slug: /packages/cosmosbuf
 The `cosmosbuf` package wraps Buf workflows (`generate`, `export`, `format`, `migrate`, `dep update`) used by Ignite's protobuf pipelines.
 
 For full API details, see the
-[`cosmosbuf` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v29/ignite/pkg/cosmosbuf).
+[`cosmosbuf` Go package documentation](https://pkg.go.dev/github.com/ignite/cli/v30/ignite/pkg/cosmosbuf).
 
 ## When to use
 
@@ -36,8 +36,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cache"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
+	"github.com/ignite/cli/v30/ignite/pkg/cache"
+	"github.com/ignite/cli/v30/ignite/pkg/cosmosbuf"
 )
 
 func main() {

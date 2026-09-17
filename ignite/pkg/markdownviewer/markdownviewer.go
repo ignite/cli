@@ -6,7 +6,7 @@ import (
 	"github.com/charmbracelet/glow/ui"
 	"golang.org/x/term"
 
-	"github.com/ignite/cli/v29/ignite/pkg/safeconverter"
+	"github.com/ignite/cli/v30/ignite/pkg/safeconverter"
 )
 
 // View starts the Markdown viewer at path that .md files are located at.

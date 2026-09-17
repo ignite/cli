@@ -6,15 +6,15 @@ import (
 
 	"github.com/gobuffalo/genny/v2"
 
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/v29/ignite/templates/field"
-	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
-	"github.com/ignite/cli/v29/ignite/templates/typed"
-	"github.com/ignite/cli/v29/ignite/templates/typed/dry"
-	"github.com/ignite/cli/v29/ignite/templates/typed/list"
-	maptype "github.com/ignite/cli/v29/ignite/templates/typed/map"
-	"github.com/ignite/cli/v29/ignite/templates/typed/singleton"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v30/ignite/templates/field"
+	"github.com/ignite/cli/v30/ignite/templates/field/datatype"
+	"github.com/ignite/cli/v30/ignite/templates/typed"
+	"github.com/ignite/cli/v30/ignite/templates/typed/dry"
+	"github.com/ignite/cli/v30/ignite/templates/typed/list"
+	maptype "github.com/ignite/cli/v30/ignite/templates/typed/map"
+	"github.com/ignite/cli/v30/ignite/templates/typed/singleton"
 )
 
 const maxLength = 64

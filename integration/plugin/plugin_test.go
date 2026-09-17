@@ -7,10 +7,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	pluginsconfig "github.com/ignite/cli/v29/ignite/config/plugins"
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/v29/ignite/services/plugin"
-	envtest "github.com/ignite/cli/v29/integration"
+	pluginsconfig "github.com/ignite/cli/v30/ignite/config/plugins"
+	"github.com/ignite/cli/v30/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v30/ignite/services/plugin"
+	envtest "github.com/ignite/cli/v30/integration"
 )
 
 func TestAddRemovePlugin(t *testing.T) {

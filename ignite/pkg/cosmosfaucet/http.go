@@ -5,7 +5,7 @@ import (
 
 	"github.com/rs/cors"
 
-	"github.com/ignite/cli/v29/ignite/pkg/openapiconsole"
+	"github.com/ignite/cli/v30/ignite/pkg/openapiconsole"
 )
 
 // ServeHTTP implements http.Handler to expose the functionality of Faucet.Transfer() via HTTP.

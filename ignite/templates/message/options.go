@@ -3,8 +3,8 @@ package message
 import (
 	"path/filepath"
 
-	"github.com/ignite/cli/v29/ignite/pkg/multiformatname"
-	"github.com/ignite/cli/v29/ignite/templates/field"
+	"github.com/ignite/cli/v30/ignite/pkg/multiformatname"
+	"github.com/ignite/cli/v30/ignite/templates/field"
 )
 
 // Options ...

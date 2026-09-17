@@ -5,8 +5,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
-	"github.com/ignite/cli/v29/ignite/pkg/xfilepath"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/v30/ignite/pkg/xfilepath"
 )
 
 var (

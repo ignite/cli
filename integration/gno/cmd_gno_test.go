@@ -15,9 +15,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/v29/ignite/pkg/availableport"
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
-	envtest "github.com/ignite/cli/v29/integration"
+	"github.com/ignite/cli/v30/ignite/pkg/availableport"
+	"github.com/ignite/cli/v30/ignite/pkg/cmdrunner/step"
+	envtest "github.com/ignite/cli/v30/integration"
 )
 
 // freeRPCListener returns a free localhost listener address for the dev chain.

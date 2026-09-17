@@ -3,10 +3,10 @@ package ignitecmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cache"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
-	"github.com/ignite/cli/v29/ignite/services/scaffolder"
+	"github.com/ignite/cli/v30/ignite/pkg/cache"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui"
+	"github.com/ignite/cli/v30/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v30/ignite/services/scaffolder"
 )
 
 // NewScaffoldMigration returns the command to scaffold a module migration.

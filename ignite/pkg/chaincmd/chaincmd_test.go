@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v30/ignite/pkg/cmdrunner/step"
 )
 
 func TestInitCommandBuildsExpectedCommand(t *testing.T) {

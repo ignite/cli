@@ -7,12 +7,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	v0 "github.com/ignite/cli/v29/ignite/config/chain/v0"
-	v1 "github.com/ignite/cli/v29/ignite/config/chain/v1"
-	"github.com/ignite/cli/v29/ignite/pkg/clidoc"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
+	v0 "github.com/ignite/cli/v30/ignite/config/chain/v0"
+	v1 "github.com/ignite/cli/v30/ignite/config/chain/v1"
+	"github.com/ignite/cli/v30/ignite/pkg/clidoc"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/xgenny"
 
 	"github.com/ignite/cli/ignite/internal/tools/gen-config-doc/templates/doc"
 )

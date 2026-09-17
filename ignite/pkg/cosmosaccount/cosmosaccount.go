@@ -20,7 +20,7 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
 )
 
 const (

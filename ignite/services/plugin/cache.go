@@ -7,9 +7,9 @@ import (
 
 	hplugin "github.com/hashicorp/go-plugin"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cache"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/version"
+	"github.com/ignite/cli/v30/ignite/pkg/cache"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/version"
 )
 
 const (

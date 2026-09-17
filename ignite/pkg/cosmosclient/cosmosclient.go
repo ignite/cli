@@ -36,9 +36,9 @@ import (
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosaccount"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosfaucet"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/cosmosaccount"
+	"github.com/ignite/cli/v30/ignite/pkg/cosmosfaucet"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
 )
 
 var (

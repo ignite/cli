@@ -11,12 +11,12 @@ import (
 	"github.com/gobwas/glob"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ignite/cli/v29/ignite/pkg/cache"
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/exec"
-	"github.com/ignite/cli/v29/ignite/pkg/cmdrunner/step"
-	"github.com/ignite/cli/v29/ignite/pkg/dircache"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/xos"
+	"github.com/ignite/cli/v30/ignite/pkg/cache"
+	"github.com/ignite/cli/v30/ignite/pkg/cmdrunner/exec"
+	"github.com/ignite/cli/v30/ignite/pkg/cmdrunner/step"
+	"github.com/ignite/cli/v30/ignite/pkg/dircache"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/xos"
 )
 
 const (

@@ -17,11 +17,11 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 
-	ignitecmd "github.com/ignite/cli/v29/ignite/cmd"
-	pluginsconfig "github.com/ignite/cli/v29/ignite/config/plugins"
-	"github.com/ignite/cli/v29/ignite/pkg/env"
-	"github.com/ignite/cli/v29/ignite/services/plugin"
-	"github.com/ignite/cli/v29/ignite/templates/field/datatype"
+	ignitecmd "github.com/ignite/cli/v30/ignite/cmd"
+	pluginsconfig "github.com/ignite/cli/v30/ignite/config/plugins"
+	"github.com/ignite/cli/v30/ignite/pkg/env"
+	"github.com/ignite/cli/v30/ignite/services/plugin"
+	"github.com/ignite/cli/v30/ignite/templates/field/datatype"
 )
 
 const (

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	envtest "github.com/ignite/cli/v29/integration"
+	envtest "github.com/ignite/cli/v30/integration"
 )
 
 func TestCreateMap(t *testing.T) {

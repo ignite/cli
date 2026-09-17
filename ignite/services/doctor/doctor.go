@@ -9,17 +9,17 @@ import (
 
 	"golang.org/x/mod/modfile"
 
-	chainconfig "github.com/ignite/cli/v29/ignite/config/chain"
-	"github.com/ignite/cli/v29/ignite/pkg/cache"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/colors"
-	"github.com/ignite/cli/v29/ignite/pkg/cliui/icons"
-	"github.com/ignite/cli/v29/ignite/pkg/cosmosbuf"
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/events"
-	"github.com/ignite/cli/v29/ignite/pkg/goanalysis"
-	"github.com/ignite/cli/v29/ignite/pkg/xast"
-	"github.com/ignite/cli/v29/ignite/pkg/xgenny"
-	"github.com/ignite/cli/v29/ignite/templates/app"
+	chainconfig "github.com/ignite/cli/v30/ignite/config/chain"
+	"github.com/ignite/cli/v30/ignite/pkg/cache"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui/colors"
+	"github.com/ignite/cli/v30/ignite/pkg/cliui/icons"
+	"github.com/ignite/cli/v30/ignite/pkg/cosmosbuf"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/events"
+	"github.com/ignite/cli/v30/ignite/pkg/goanalysis"
+	"github.com/ignite/cli/v30/ignite/pkg/xast"
+	"github.com/ignite/cli/v30/ignite/pkg/xgenny"
+	"github.com/ignite/cli/v30/ignite/templates/app"
 )
 
 // DONTCOVER: Doctor read and write the filesystem intensively, so it's better

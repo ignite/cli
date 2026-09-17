@@ -7,9 +7,9 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
-	"github.com/ignite/cli/v29/ignite/pkg/gomodule"
-	"github.com/ignite/cli/v29/ignite/pkg/xfilepath"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/gomodule"
+	"github.com/ignite/cli/v30/ignite/pkg/xfilepath"
 )
 
 type Config struct {

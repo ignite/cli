@@ -11,7 +11,7 @@ import (
 	gnopkg "github.com/gnolang/gno/gnovm/pkg/packages"
 	"github.com/gnolang/gno/gnovm/pkg/test"
 
-	"github.com/ignite/cli/v29/ignite/pkg/errors"
+	"github.com/ignite/cli/v30/ignite/pkg/errors"
 )
 
 // Test runs the gno tests (_test.gno files) of the packages at dirs
