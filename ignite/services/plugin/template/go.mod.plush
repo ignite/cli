@@ -11,3 +11,6 @@ require (
 replace github.com/ignite/cli/v30 => github.com/ignite/cli/v30 main
 replace github.com/cosmos/cosmos-sdk => github.com/cosmos/cosmos-sdk v0.55.0
 replace github.com/bytedance/sonic => github.com/bytedance/sonic v1.15.4 // TODO: remove when cosmossdk.io/log/v2 is updated.
+// fix libp2p/webtransport incompatibility with quic-go v0.62+ (pulled by the buf tool)
+replace github.com/libp2p/go-libp2p => github.com/libp2p/go-libp2p v0.50.0
+replace github.com/quic-go/webtransport-go => github.com/quic-go/webtransport-go v0.13.0
