@@ -43,8 +43,6 @@ func TestModulesList(t *testing.T) {
 	// check for specific modules
 	require.Contains(t, output, "client/grpc/cmtservice")
 	require.Contains(t, output, "client/grpc/node")
-	require.Contains(t, output, "contrib/x/circuit")
-	require.Contains(t, output, "contrib/x/nft/module")
 	require.Contains(t, output, "x/evidence")
 	require.Contains(t, output, "x/feegrant/module")
 	require.Contains(t, output, "x/upgrade")

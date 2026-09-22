@@ -413,7 +413,10 @@ func (d moduleDiscoverer) isPkgFromRegisteredModule(pkg protoanalysis.Package) (
 func switchCosmosSDKPackagePath(srcPath, sdkDir string) string {
 	modName := xstrings.StringBetween(srcPath, "/x/", "@")
 	if modName == "" {
-		return srcPath
+		// When the path is the SDK module root (or a module without an x/
+		// submodule), use the SDK proto directory. This excludes the deprecated
+		// contrib modules, whose protos are not part of the SDK proto tree.
+		return filepath.Join(sdkDir, "proto")
 	}
 	return filepath.Join(sdkDir, "proto", "cosmos", modName)
 }

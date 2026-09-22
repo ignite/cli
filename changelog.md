@@ -11,8 +11,7 @@
   - The top-level `scaffold` and `account` commands now target gno.land (realms, packages, and the gno keybase).
   - The Go module path changes from `github.com/ignite/cli/v29` to `github.com/ignite/cli/v30`. Update the module require and imports in projects that use Ignite as a library or build Ignite plugins.
 - [#5001](https://github.com/ignite/cli/pull/5001) Scaffolded chains now use Cosmos SDK `v0.55.0`, IBC-Go `v11.2.0`, and CometBFT `v0.40.0`.
-  - The `x/params` and `x/group` modules are removed from the chain template. `x/group` now ships under the commercial Cosmos Enterprise offering.
-  - The `x/circuit` and `x/nft` modules move to `cosmos-sdk/contrib/x/...`.
+  - The `x/params`, `x/group`, `x/circuit`, and `x/nft` modules are removed from the chain template, following the SDK v0.55 reference app. `x/circuit` and `x/nft` are deprecated and moved to `cosmos-sdk/contrib`, `x/group` ships under the commercial Cosmos Enterprise offering.
   - Chains scaffolded with earlier versions require manual changes to upgrade. See the [migration guide](https://docs.ignite.com/migration/v30.0.0).
 
 ### Features
@@ -23,6 +22,7 @@
   - Use `cosmossdk.io/log/v2` and `github.com/cosmos/cosmos-sdk/store/v2`.
   - Add the staking key rotation fee pool module account and run the bank end blocker first, as required by Cosmos SDK v0.55.
   - Update the scaffolded app (plugin) template to pin Cosmos SDK `v0.55.0`.
+  - Resolve SDK module protos from the SDK `proto` directory only, so the deprecated `contrib` protos (moved out of the proto tree in v0.55) are not picked up during module discovery.
 
 ## [`v29.10.1`](https://github.com/ignite/cli/releases/tag/v29.10.1)
 
