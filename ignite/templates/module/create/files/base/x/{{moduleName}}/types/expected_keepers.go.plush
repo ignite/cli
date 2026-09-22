@@ -3,7 +3,7 @@ package types
 import (
 	"context"
 
-	<%= if (dependencies.Contains("Staking")) { %>"cosmossdk.io/core/address"
+	"cosmossdk.io/core/address"<%= if (dependencies.Contains("Staking")) { %>
     stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"<% } %>
 	<%= if (dependencies.Contains("Authz")) { %>"github.com/cosmos/cosmos-sdk/x/authz"<% } %>
     sdk "github.com/cosmos/cosmos-sdk/types"
