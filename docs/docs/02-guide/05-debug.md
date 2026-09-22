@@ -14,14 +14,14 @@ register state and more.
 
 The debug command requires that the blockchain app binary is build with
 debugging support by removing optimizations and inlining. A debug binary is
-built by default by the `ignite chain serve` command or can optionally be
-created using the `--debug` flag when running `ignite chain init` or `ignite
+built by default by the `ignite cosmos chain serve` command or can optionally be
+created using the `--debug` flag when running `ignite cosmos chain init` or `ignite
 chain build` sub-commands.
 
 To start a debugging session in the terminal run:
 
 ```
-ignite chain debug
+ignite cosmos chain debug
 ```
 
 The command runs your blockchain app in the background, attaches to it and
@@ -72,13 +72,13 @@ client connections.
 To start a debug server use the following flag:
 
 ```
-ignite chain debug --server
+ignite cosmos chain debug --server
 ```
 
 To start a debug server with a custom address use the following flags:
 
 ```
-ignite chain debug --server --server-address 127.0.0.1:30500
+ignite cosmos chain debug --server --server-address 127.0.0.1:30500
 ```
 
 The debug server stops automatically when the client connection is closed.
@@ -144,26 +144,26 @@ a query to be able to trigger a debugging breakpoint when the query is called.
 Create a new blockchain:
 
 ```
-ignite scaffold chain hello
+ignite cosmos scaffold chain hello
 ```
 
 Scaffold a new query in the `hello` directory:
 
 ```
-ignite scaffold query say-hello name --response name
+ignite cosmos scaffold query say-hello name --response name
 ```
 
 The next step initializes the blockchain's data directory and compiles a debug
 binary:
 
 ```
-ignite chain init --debug
+ignite cosmos chain init --debug
 ```
 
 Once the initialization finishes launch the debugger shell:
 
 ```
-ignite chain debug
+ignite cosmos chain debug
 ```
 
 Within the debugger shell create a breakpoint that will be triggered when the

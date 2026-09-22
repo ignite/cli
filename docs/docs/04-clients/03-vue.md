@@ -33,14 +33,14 @@ Prerequisites:
 Create a new blockchain project:
 
 ```
-ignite scaffold chain example
+ignite cosmos scaffold chain example
 ```
 
 To create a Vue frontend template, go to the `example` directory and run the
 following command:
 
 ```
-ignite scaffold vue
+ignite cosmos scaffold vue
 ```
 
 This will create a new Vue project in the `vue` directory. This project can be
@@ -49,7 +49,7 @@ blockchain. To generate an API client, run the following command in the
 `example` directory:
 
 ```
-ignite generate composables
+ignite cosmos generate composables
 ```
 
 This command generates two directories:
@@ -100,7 +100,7 @@ purposes, but you should not do this in production.
 In the `example` directory run the following command to start your blockchain:
 
 ```bash
-ignite chain serve
+ignite cosmos chain serve
 ```
 
 To start your Vue application, go to the `vue` directory and run the following
@@ -144,7 +144,7 @@ the chain that the app is connected to, and must match the prefix used by the
 chain.
 
 By default, IGNITE® creates a chain with the `cosmos` prefix. If you have
-created your chain with `ignite scaffold chain ... --address-prefix foo` or
+created your chain with `ignite cosmos scaffold chain ... --address-prefix foo` or
 manually changed the prefix in the source code of the chain, you need to set the
 prefix in the Vue app.
 

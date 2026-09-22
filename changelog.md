@@ -10,10 +10,19 @@
   - The Cosmos SDK tooling moves under the `ignite cosmos` namespace: `ignite cosmos scaffold`, `ignite cosmos chain`, `ignite cosmos generate`, `ignite cosmos account`, `ignite cosmos testnet`, and `ignite cosmos doctor`. Top-level `chain`, `generate`, and `testnet` commands become hidden deprecated stubs.
   - The top-level `scaffold` and `account` commands now target gno.land (realms, packages, and the gno keybase).
   - The Go module path changes from `github.com/ignite/cli/v29` to `github.com/ignite/cli/v30`. Update the module require and imports in projects that use Ignite as a library or build Ignite plugins.
+- [#5001](https://github.com/ignite/cli/pull/5001) Scaffolded chains now use Cosmos SDK `v0.55.0`, IBC-Go `v11.2.0`, and CometBFT `v0.40.0`.
+  - The `x/params` and `x/group` modules are removed from the chain template. `x/group` now ships under the commercial Cosmos Enterprise offering.
+  - The `x/circuit` and `x/nft` modules move to `cosmos-sdk/contrib/x/...`.
+  - Chains scaffolded with earlier versions require manual changes to upgrade. See the [migration guide](https://docs.ignite.com/migration/v30.0.0).
 
 ### Features
 
 - [#4984](https://github.com/ignite/cli/pull/4984) Add [Gno](https://gno.land) support: scaffold realms and packages, an embedded gno.land dev chain with live reload, accounts backed by the gno keybase, realm calls and queries, package deployment, gno test running, and typed TypeScript client generation.
+- [#5001](https://github.com/ignite/cli/pull/5001) Upgrade scaffolded chains to Cosmos SDK [v0.55.0](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.55.0), IBC-Go [v11.2.0](https://github.com/cosmos/ibc-go/releases/tag/v11.2.0), and CometBFT v0.40.0.
+  - Import `x/evidence`, `x/feegrant`, and `x/upgrade` from `github.com/cosmos/cosmos-sdk/x/...` instead of `cosmossdk.io/x/...`.
+  - Use `cosmossdk.io/log/v2` and `github.com/cosmos/cosmos-sdk/store/v2`.
+  - Add the staking key rotation fee pool module account and run the bank end blocker first, as required by Cosmos SDK v0.55.
+  - Update the scaffolded app (plugin) template to pin Cosmos SDK `v0.55.0`.
 
 ## [`v29.10.1`](https://github.com/ignite/cli/releases/tag/v29.10.1)
 

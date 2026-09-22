@@ -75,7 +75,7 @@ Use IGNITE® CLI to scaffold the blockchain app and the blog module.
 To scaffold a new blockchain named `planet`:
 
 ```bash
-ignite scaffold chain planet --no-module
+ignite cosmos scaffold chain planet --no-module
 cd planet
 ```
 
@@ -91,7 +91,7 @@ to the second blockchain.
 To scaffold a module named `blog`:
 
 ```bash
-ignite scaffold module blog --ibc
+ignite cosmos scaffold module blog --ibc
 ```
 
 A new directory with the code for an IBC module is created in `planet/x/blog`.
@@ -102,28 +102,28 @@ scaffolded IBC module.
 
 Next, create the CRUD actions for the blog module types.
 
-Use the `ignite scaffold list` command to scaffold the boilerplate code for the
+Use the `ignite cosmos scaffold list` command to scaffold the boilerplate code for the
 create, read, update, and delete (CRUD) actions.
 
-These `ignite scaffold list` commands create CRUD code for the following
+These `ignite cosmos scaffold list` commands create CRUD code for the following
 transactions:
 
 - Creating blog posts
 
 ```bash
-ignite scaffold list post title content creator --no-message --module blog
+ignite cosmos scaffold list post title content creator --no-message --module blog
 ```
 
 - Processing acknowledgments for sent posts
 
 ```bash
-ignite scaffold list sentPost postID:uint title chain creator --no-message --module blog
+ignite cosmos scaffold list sentPost postID:uint title chain creator --no-message --module blog
 ```
 
 - Managing post timeouts
 
 ```bash
-ignite scaffold list timeoutPost title chain creator --no-message --module blog
+ignite cosmos scaffold list timeoutPost title chain creator --no-message --module blog
 ```
 
 The scaffolded code includes proto files for defining data structures, messages,
@@ -132,10 +132,10 @@ messages handlers, keepers for modifying the state, and CLI commands.
 ### IGNITE® CLI Scaffold List Command Overview
 
 ```
-ignite scaffold list [typeName] [field1] [field2] ... [flags]
+ignite cosmos scaffold list [typeName] [field1] [field2] ... [flags]
 ```
 
-The first argument of the `ignite scaffold list [typeName]` command specifies
+The first argument of the `ignite cosmos scaffold list [typeName]` command specifies
 the name of the type being created. For the blog app, you created `post`,
 `sentPost`, and `timeoutPost` types.
 
@@ -168,7 +168,7 @@ to another blockchain.
 To scaffold a sendable and interpretable IBC packet:
 
 ```bash
-ignite scaffold packet ibcPost title content --ack postID:uint --module blog
+ignite cosmos scaffold packet ibcPost title content --ack postID:uint --module blog
 ```
 
 Notice the fields in the `ibcPost` packet match the fields in the `post` type
@@ -338,7 +338,7 @@ from the packet.
 ```go title="x/blog/keeper/ibc_post.go"
 package keeper
 
-import transfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
+import transfertypes "github.com/cosmos/ibc-go/v11/modules/apps/transfer/types"
 
 func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData, ack channeltypes.Acknowledgement) error {
 	switch dispatchedAck := ack.Response.(type) {
@@ -485,14 +485,14 @@ Open a terminal window and run the following command to start the `earth`
 blockchain:
 
 ```bash
-ignite chain serve -c earth.yml
+ignite cosmos chain serve -c earth.yml
 ```
 
 Open a different terminal window and run the following command to start the
 `mars` blockchain:
 
 ```bash
-ignite chain serve -c mars.yml
+ignite cosmos chain serve -c mars.yml
 ```
 If existing relayer configurations do not exist, the command returns `no matches
 found` and no action is taken.
