@@ -35,6 +35,7 @@ var (
 		{Account: minttypes.ModuleName, Permissions: []string{authtypes.Minter}},
 		{Account: stakingtypes.BondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
 		{Account: stakingtypes.NotBondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
+		{Account: stakingtypes.KeyRotationFeePoolName, Permissions: []string{authtypes.Burner}},
 	}
 
 	// blocked account addresses
@@ -68,6 +69,7 @@ var (
 						// chain modules
 					},
 					EndBlockers: []string{
+						banktypes.ModuleName,
 						stakingtypes.ModuleName,
 						// chain modules
 					},

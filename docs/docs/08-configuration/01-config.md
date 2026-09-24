@@ -62,7 +62,7 @@ genesis:
 - `chain_id`: Sets the chain ID for your blockchain.
 - `app_state`: Allows you to modify module states (e.g., staking, bank, etc.).
 
-> ⚠️ If you set `chain_id` in the `genesis`, it will persist across `ignite chain init` or `ignite chain serve` runs.
+> ⚠️ If you set `chain_id` in the `genesis`, it will persist across `ignite cosmos chain init` or `ignite cosmos chain serve` runs.
 
 The `genesis` property supports deep merging and can override any field present in the generated genesis file.
 For more complex setups, you can use the `include` field in `config.yml` to split overrides into multiple files.
@@ -80,7 +80,7 @@ of your blockchain. There are currently two supported kinds of validation:
   inherits the one of a provider chain.
 
 While the `sovereign` chain is the default validation when you run the `ignite scaffold
-chain`, to scaffold a consumer chain, you have to run `ignite scaffold chain
+chain`, to scaffold a consumer chain, you have to run `ignite cosmos scaffold chain
 --consumer`.
 
 This field is, at this time of writing, only used by IGNITE® at the genesis
@@ -100,7 +100,7 @@ accounts:
 ```
 
 IGNITE® uses information from `accounts` when initializing the chain with `ignite
-chain init` and `ignite chain start`. In the example above IGNITE® will add two
+chain init` and `ignite cosmos chain start`. In the example above IGNITE® will add two
 accounts to the `genesis.json` file of the chain.
 
 `name` is a local name of a key pair associated with an account. Once the chain
@@ -173,7 +173,7 @@ accounts:
 
 ## Validators
 
-Commands like `ignite chain init` and `ignite chain serve` initialize and launch
+Commands like `ignite cosmos chain init` and `ignite cosmos chain serve` initialize and launch
 a validator node for development purposes.
 
 ```yml
@@ -212,7 +212,7 @@ validators:
 ```
 
 To see which properties are available for `config.toml`, `app.toml` and
-`client.toml`, initialize a chain with `ignite chain init` and open the file you
+`client.toml`, initialize a chain with `ignite cosmos chain init` and open the file you
 want to know more about.
 
 Currently, IGNITE® starts only one validator node, so the first item in the

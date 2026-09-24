@@ -23,7 +23,7 @@ IGNITE® CLI is supported for the following operating systems:
 
 IGNITE® CLI is written in the Go programming language. To use IGNITE® CLI on a local system:
 
-- Install [Go](https://golang.org/doc/install) (**version 1.24.1** or higher)
+- Install [Go](https://golang.org/doc/install) (**version 1.26.7** or higher)
 - Ensure the Go environment variables are [set properly](https://golang.org/doc/gopath_code#GOPATH) on your system
 
 ## Verify your IGNITE® CLI version

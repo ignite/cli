@@ -40,7 +40,7 @@ same random seed is deterministic with the same output.
 To create a new chain:
 
 ```
-ignite scaffold chain mars
+ignite cosmos scaffold chain mars
 ```
 
 Review the empty `x/mars/simulation` folder and the
@@ -49,7 +49,7 @@ Review the empty `x/mars/simulation` folder and the
 Now, scaffold a new message:
 
 ```
-ignite scaffold list user address balance:uint state
+ignite cosmos scaffold list user address balance:uint state
 ```
 
 A new file `x/mars/simulation/user.go` is created and is registered with the
@@ -65,14 +65,14 @@ Run the `BenchmarkSimulation` method into `app/simulation_test.go` to run
 simulation tests for all modules:
 
 ```
-ignite chain simulate
+ignite cosmos chain simulate
 ```
 
 You can also define flags that are provided by the simulation. Flags are defined
 by the method `simapp.GetSimulatorFlags()`:
 
 ```
-ignite chain simulate -v --numBlocks 200 --blockSize 50 --seed 33
+ignite cosmos chain simulate -v --numBlocks 200 --blockSize 50 --seed 33
 ```
 
 Wait for the entire simulation to finish and check the result of the messages.

@@ -13,7 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
-	<%= if (isIBC) { %>porttypes "github.com/cosmos/ibc-go/v10/modules/core/05-port/types"
+	<%= if (isIBC) { %>porttypes "github.com/cosmos/ibc-go/v11/modules/core/05-port/types"
 	"github.com/spf13/cobra"<% } %>
 
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"

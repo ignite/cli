@@ -19,7 +19,7 @@ Go and the `cosmosclient` package.
 To create a blockchain using the IGNITE® CLI, use the following command:
 
 ```
-ignite scaffold chain blog
+ignite cosmos scaffold chain blog
 ```
 
 This will create a new Cosmos SDK blockchain called "blog".
@@ -30,7 +30,7 @@ operations on blog posts. To do this, you can use the following command:
 
 ```
 cd blog
-ignite scaffold list post title body
+ignite cosmos scaffold list post title body
 ```
 
 This will generate the necessary code for the "blog" model, including functions
@@ -43,7 +43,7 @@ functional Cosmos SDK blockchain with the ability to manage blog posts.
 Start your blockchain node with the following command:
 
 ```
-ignite chain serve
+ignite cosmos chain serve
 ```
 
 ## Creating a blockchain client
@@ -77,11 +77,11 @@ To import dependencies for your package, you can add the following code to the
 ```text title="blogclient/go.mod"
 module blogclient
 
-go 1.24.1
+go 1.26.7
 
 require (
  blog v0.0.0-00010101000000-000000000000
- github.com/ignite/cli/v28 v28.8.2
+ github.com/ignite/cli/v30 v30.0.0
 )
 
 replace blog => ../blog
@@ -89,8 +89,8 @@ replace blog => ../blog
 
 Your package will import two dependencies:
 
-* `blog`, which contains `types` of messages and a query client
-* `ignite` for the `cosmosclient` package
+- `blog`, which contains `types` of messages and a query client
+- `ignite` for the `cosmosclient` package
 
 The `replace` directive uses the package from the local `blog` directory and is
 specified as a relative path to the `blogclient` directory.
@@ -133,7 +133,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Account `alice` was initialized during `ignite chain serve`
+	// Account `alice` was initialized during `ignite cosmos chain serve`
 	accountName := "alice"
 
 	// Get account from the keyring
@@ -211,7 +211,7 @@ This documentation provides information on how to use the `Client` type with
 
 ## Run the blockchain and the client
 
-Make sure your blog blockchain is still running with `ignite chain serve`.
+Make sure your blog blockchain is still running with `ignite cosmos chain serve`.
 
 Run the blockchain client:
 
@@ -284,10 +284,10 @@ You can confirm the new post with using the `blogd q blog list-post` command:
 
 ```yaml
 Post:
-- body: This is the first post
-  creator: cosmos1dzemw76wzt7p0gj7w3427a4xx724dz03wxg8hd
-  id: "0"
-  title: Hello!
+  - body: This is the first post
+    creator: cosmos1dzemw76wzt7p0gj7w3427a4xx724dz03wxg8hd
+    id: "0"
+    title: Hello!
 pagination:
   next_key: null
   total: "0"
