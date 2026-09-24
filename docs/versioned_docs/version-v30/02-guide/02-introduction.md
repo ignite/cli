@@ -30,10 +30,10 @@ To create a new blockchain project with IGNITE®, you will need to run the
 following command:
 
 ```
-ignite scaffold chain example
+ignite cosmos scaffold chain example
 ```
 
-The `ignite scaffold chain` command will create a new blockchain in a new
+The `ignite cosmos scaffold chain` command will create a new blockchain in a new
 directory `example`.
 
 The new blockchain is built using the Cosmos SDK framework and imports several
@@ -133,13 +133,13 @@ started using it.
 To start a blockchain node in development, you can run the following command:
 
 ```
-ignite chain serve
+ignite cosmos chain serve
 ```
 
-The `ignite chain serve` command is used to start a blockchain node in
+The `ignite cosmos chain serve` command is used to start a blockchain node in
 development mode. It first compiles and installs the binary using the
-`ignite chain build` command, then initializes the blockchain's data directory
-for a single validator using the `ignite chain init` command. After that, it
+`ignite cosmos chain build` command, then initializes the blockchain's data directory
+for a single validator using the `ignite cosmos chain init` command. After that, it
 starts the node locally and enables automatic code reloading so that changes to
 the code can be reflected in the running blockchain without having to restart
 the node. This allows for faster development and testing of the blockchain.
