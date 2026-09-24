@@ -71,7 +71,7 @@ proto-deps:
 
 proto-gen:
 	@echo "Generating protobuf files..."
-	@ignite generate proto-go --yes
+	@ignite cosmos generate proto-go --yes
 
 .PHONY: proto-gen
 

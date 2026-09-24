@@ -20,8 +20,8 @@ func NewScaffoldQuery() *cobra.Command {
 		Use:   "query [name] [field1:type1] [field2:type2] ...",
 		Short: "Query for fetching data from a blockchain",
 		Long: `Query for fetching data from a blockchain.
-		
-For detailed type information use ignite scaffold type --help.`,
+
+For detailed type information use ignite cosmos scaffold type --help.`,
 		Args:    cobra.MinimumNArgs(1),
 		PreRunE: migrationPreRunHandler,
 		RunE:    queryHandler,

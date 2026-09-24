@@ -18,7 +18,7 @@ import (
 func (g *generator) checkVueExists() error {
 	_, err := os.Stat(filepath.Join(g.appPath, g.frontendPath))
 	if errors.Is(err, os.ErrNotExist) {
-		return errors.New("frontend does not exist, please run `ignite scaffold vue` first")
+		return errors.New("frontend does not exist, please run `ignite cosmos scaffold vue` first")
 	}
 
 	return err

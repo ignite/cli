@@ -25,12 +25,12 @@ can customize the output directory in config.yml:
 
 Output can also be customized by using a flag:
 
-	ignite generate ts-client --output new-path
+	ignite cosmos generate ts-client --output new-path
 
 TypeScript client code can be automatically regenerated on reset or source code
 changes when the blockchain is started with a flag:
 
-	ignite chain serve --generate-clients
+	ignite cosmos chain serve --generate-clients
 `,
 		RunE: generateTSClientHandler,
 	}

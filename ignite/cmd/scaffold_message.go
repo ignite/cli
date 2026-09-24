@@ -34,13 +34,13 @@ recipient's account.
 Ignite's message scaffolding lets you create new types of messages and add them
 to your chain. For example:
 
-	ignite scaffold message add-pool amount:coins denom active:bool --module dex
+	ignite cosmos scaffold message add-pool amount:coins denom active:bool --module dex
 
 The command above will create a new message MsgAddPool with three fields: amount
 (in tokens), denom (a string), and active (a boolean). The message will be added
 to the "dex" module.
 
-For detailed type information use ignite scaffold type --help
+For detailed type information use ignite cosmos scaffold type --help
 
 By default, the message is defined as a proto message in the
 "proto/{app}/{module}/tx.proto" and registered in the "Msg" service. A CLI command to
@@ -54,13 +54,13 @@ Inside this function, you can implement message handling logic.
 When successfully processed a message can return data. Use the —response flag to
 specify response fields and their types. For example
 
-	ignite scaffold message create-post title body --response id:int,title
+	ignite cosmos scaffold message create-post title body --response id:int,title
 
 The command above will scaffold MsgCreatePost which returns both an ID (an
 integer) and a title (a string).
 
-Message scaffolding follows the rules as "ignite scaffold list/map/single" and
-supports fields with standard and custom types. See "ignite scaffold list —help"
+Message scaffolding follows the rules as "ignite cosmos scaffold list/map/single" and
+supports fields with standard and custom types. See "ignite cosmos scaffold list —help"
 for details.
 `,
 		Args:    cobra.MinimumNArgs(1),

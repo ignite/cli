@@ -53,7 +53,7 @@ flag.
 
 To scaffold an IBC-enabled module use the "--ibc" flag. An IBC-enabled module is
 like a regular module with the addition of IBC-specific logic and placeholders
-to scaffold IBC packets with "ignite scaffold packet".
+to scaffold IBC packets with "ignite cosmos scaffold packet".
 
 A module can depend on one or more other modules and import their keeper
 methods. To scaffold a module with a dependency use the "--dep" flag
@@ -63,7 +63,7 @@ sending tokens between accounts. The method for sending tokens is a defined in
 the "bank"'s module keeper. You can scaffold a "foo" module with the dependency
 on "bank" with the following command:
 
-	ignite scaffold module foo --dep bank
+	ignite cosmos scaffold module foo --dep bank
 
 You can then define which methods you want to import from the "bank" keeper in
 "expected_keepers.go".
@@ -71,7 +71,7 @@ You can then define which methods you want to import from the "bank" keeper in
 You can also scaffold a module with a list of dependencies that can include both
 standard and custom modules (provided they exist):
 
-	ignite scaffold module bar --dep foo,mint,account,FeeGrant
+	ignite cosmos scaffold module bar --dep foo,mint,account,FeeGrant
 
 Note: the "--dep" flag doesn't install third-party modules into your
 application, it just generates extra code that specifies which existing modules
@@ -84,7 +84,7 @@ blockchain is running. An example of a param is "Inflation rate change" of the
 that accepts a list of param names. By default params are of type "string", but
 you can specify a type for each param. For example:
 
-	ignite scaffold module foo --params baz:uint,bar:bool
+	ignite cosmos scaffold module foo --params baz:uint,bar:bool
 
 Refer to Cosmos SDK documentation to learn more about modules, dependencies and
 params.

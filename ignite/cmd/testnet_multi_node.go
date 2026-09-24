@@ -40,12 +40,12 @@ func NewTestnetMultiNode() *cobra.Command {
                         bonded: 300000000stake
 
 
-			The "multi-node" command allows developers to easily set up, initialize, and manage multiple nodes for a 
-			testnet environment. This command provides full flexibility in enabling or disabling each node as desired, 
+			The "multi-node" command allows developers to easily set up, initialize, and manage multiple nodes for a
+			testnet environment. This command provides full flexibility in enabling or disabling each node as desired,
 			making it a powerful tool for simulating a multi-node blockchain network during development.
 
 			Usage:
-					ignite testnet multi-node [flags]
+					ignite cosmos testnet multi-node [flags]
 
 		`,
 		Args: cobra.NoArgs,

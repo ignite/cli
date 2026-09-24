@@ -248,17 +248,17 @@ func deprecated() []*cobra.Command {
 		{
 			Use:        "build",
 			Hidden:     true,
-			Deprecated: "use `ignite chain build` instead.",
+			Deprecated: "use `ignite cosmos chain build` instead.",
 		},
 		{
 			Use:        "serve",
 			Hidden:     true,
-			Deprecated: "use `ignite chain serve` instead.",
+			Deprecated: "use `ignite cosmos chain serve` instead.",
 		},
 		{
 			Use:        "faucet",
 			Hidden:     true,
-			Deprecated: "use `ignite chain faucet` instead.",
+			Deprecated: "use `ignite cosmos chain faucet` instead.",
 		},
 		{
 			Use:        "node",

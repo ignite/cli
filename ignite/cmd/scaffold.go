@@ -30,10 +30,10 @@ const (
 	msgCommitPrompt = "Do you want to proceed without committing your saved changes"
 
 	statusScaffolding      = "Scaffolding..."
-	multipleCoinDisclaimer = `**Disclaimer**  
-The 'coins' and 'dec.coins' argument types require special attention when used in CLI commands. 
-Due to current limitations in the AutoCLI, only one variadic (slice) argument is supported per command. 
-If a message contains more than one field of type 'coins' or 'dec.coins', only the last one will accept multiple values via the CLI. 
+	multipleCoinDisclaimer = `**Disclaimer**
+The 'coins' and 'dec.coins' argument types require special attention when used in CLI commands.
+Due to current limitations in the AutoCLI, only one variadic (slice) argument is supported per command.
+If a message contains more than one field of type 'coins' or 'dec.coins', only the last one will accept multiple values via the CLI.
 For the best user experience, manual command handling or scaffolding is recommended when working with messages containing multiple 'coins' or 'dec.coins' fields.
 `
 )
@@ -47,8 +47,8 @@ func NewScaffold() *cobra.Command {
 application.
 
 For details on each scaffolding target (chain, module, message, etc.) run the
-corresponding command with a "--help" flag, for example, "ignite scaffold chain
---help".
+corresponding command with a "--help" flag, for example, "ignite cosmos
+scaffold chain --help".
 
 The Ignite team strongly recommends committing the code to a version control
 system before running scaffolding commands. This will make it easier to see the

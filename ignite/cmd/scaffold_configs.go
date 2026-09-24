@@ -19,10 +19,10 @@ func NewScaffoldConfigs() *cobra.Command {
 
 A Cosmos SDK module can have configurations. An example of a config is "address prefix" of the
 "auth" module. A config can be scaffolded into a module using the "--module-configs" into
-the scaffold module command or using the "scaffold configs" command. By default 
+the scaffold module command or using the "scaffold configs" command. By default
 configs are of type "string", but you can specify a type for each config. For example:
 
-	ignite scaffold configs foo baz:uint bar:bool
+	ignite cosmos scaffold configs foo baz:uint bar:bool
 
 Refer to Cosmos SDK documentation to learn more about modules, dependencies and
 configs.

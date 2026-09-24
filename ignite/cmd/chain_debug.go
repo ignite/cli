@@ -44,11 +44,11 @@ JSON-RPC or DAP client connections.
 
 To start a debug server use the following flag:
 
-	ignite chain debug --server
+	ignite cosmos chain debug --server
 
 To start a debug server with a custom address use the following flags:
 
-	ignite chain debug --server --server-address 127.0.0.1:30500
+	ignite cosmos chain debug --server --server-address 127.0.0.1:30500
 
 The debug server stops automatically when the client connection is closed.
 `,

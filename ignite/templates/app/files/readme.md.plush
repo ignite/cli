@@ -4,7 +4,7 @@
 ## Get started
 
 ```
-ignite chain serve
+ignite cosmos chain serve
 ```
 
 `serve` command installs dependencies, builds, initializes, and starts your blockchain in development.
@@ -17,7 +17,7 @@ Your blockchain in development can be configured with `config.yml`. To learn mor
 
 Additionally, Ignite CLI offers a frontend scaffolding feature (based on Vue) to help you quickly build a web frontend for your blockchain:
 
-Use: `ignite scaffold vue`
+Use: `ignite cosmos scaffold vue`
 This command can be run within your scaffolded blockchain project.
 
 

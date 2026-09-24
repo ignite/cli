@@ -21,10 +21,10 @@ A Cosmos SDK module can have parameters (or "params"). Params are values that
 can be set at the genesis of the blockchain and can be modified while the
 blockchain is running. An example of a param is "Inflation rate change" of the
 "mint" module. A params can be scaffolded into a module using the "--params" into
-the scaffold module command or using the "scaffold params" command. By default 
+the scaffold module command or using the "scaffold params" command. By default
 params are of type "string", but you can specify a type for each param. For example:
 
-	ignite scaffold params foo baz:uint bar:bool
+	ignite cosmos scaffold params foo baz:uint bar:bool
 
 Refer to Cosmos SDK documentation to learn more about modules, dependencies and
 params.

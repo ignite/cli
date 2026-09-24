@@ -13,10 +13,10 @@ func NewChainInit() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "init",
 		Short: "Initialize your chain",
-		Long: `The init command compiles and installs the binary (like "ignite chain build")
+		Long: `The init command compiles and installs the binary (like "ignite cosmos chain build")
 and uses that binary to initialize the blockchain's data directory for one
-validator. To learn how the build process works, refer to "ignite chain build
---help".
+validator. To learn how the build process works, refer to "ignite cosmos chain
+build --help".
 
 By default, the data directory will be initialized in $HOME/.mychain, where
 "mychain" is the name of the project. To set a custom data directory use the

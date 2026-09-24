@@ -260,7 +260,7 @@ func (c *Chain) Serve(ctx context.Context, cacheStorage cache.Storage, options .
 							"state, you can reset the database by launching:\n",
 							"For more verbose logging, add -v to the command.",
 						)
-						command := colors.SprintFunc(colors.White)("ignite chain serve --reset-once -v")
+						command := colors.SprintFunc(colors.White)("ignite cosmos chain serve --reset-once -v")
 						return errors.Errorf("cannot run %s\n\n%s\n%s", startErr.AppName, info, command)
 					}
 
