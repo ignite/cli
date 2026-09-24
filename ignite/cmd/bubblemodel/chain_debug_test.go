@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 	"github.com/stretchr/testify/require"
 
 	cmdmodel "github.com/ignite/cli/v30/ignite/cmd/bubblemodel"
@@ -31,7 +31,7 @@ func TestChainDebugErrorView(t *testing.T) {
 	view := model.View()
 
 	// Assert
-	require.Equal(t, want, view)
+	require.Equal(t, want, view.Content)
 }
 
 func TestChainDebugStartView(t *testing.T) {
@@ -56,7 +56,7 @@ func TestChainDebugStartView(t *testing.T) {
 	view := model.View()
 
 	// Assert
-	require.Equal(t, want, view)
+	require.Equal(t, want, view.Content)
 }
 
 func TestChainDebugRunView(t *testing.T) {
@@ -79,5 +79,5 @@ func TestChainDebugRunView(t *testing.T) {
 	view := model.View()
 
 	// Assert
-	require.Equal(t, want, view)
+	require.Equal(t, want, view.Content)
 }

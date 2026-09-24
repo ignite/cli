@@ -10,9 +10,9 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/charmbracelet/bubbles/help"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/help"
+	tea "charm.land/bubbletea/v2"
+	lipgloss "charm.land/lipgloss/v2"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ignite/cli/v30/ignite/services/chain"
@@ -369,9 +369,9 @@ func (m MultiNode) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 // View renders the interface.
-func (m MultiNode) View() string {
+func (m MultiNode) View() tea.View {
 	if m.showHelp {
-		return renderHelpView()
+		return tea.NewView(renderHelpView())
 	}
 
 	// Create tabs for nodes
@@ -424,12 +424,12 @@ func (m MultiNode) View() string {
 	)
 
 	// Assemble the final view
-	return fmt.Sprintf("%s\n%s\n\n%s\n\n%s",
+	return tea.NewView(fmt.Sprintf("%s\n%s\n\n%s\n\n%s",
 		header,
 		tabRow,
 		nodeDetails,
 		controls,
-	)
+	))
 }
 
 // renderNodeDetails renders the details of a specific node.

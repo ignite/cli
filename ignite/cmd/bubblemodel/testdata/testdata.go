@@ -3,7 +3,7 @@ package testdata
 import (
 	"context"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 
 	"github.com/ignite/cli/v30/ignite/pkg/events"
 )

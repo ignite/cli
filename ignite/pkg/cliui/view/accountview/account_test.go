@@ -1,12 +1,17 @@
 package accountview_test
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
 	"github.com/ignite/cli/v30/ignite/pkg/cliui/view/accountview"
 )
+
+// ansiRegex matches ANSI escape sequences. Views render styled strings since
+// the lipgloss v2 upgrade; colors are stripped at the output writer.
+var ansiRegex = regexp.MustCompile(`\x1b\[[0-9;]*m`)
 
 func TestAccountString(t *testing.T) {
 	tests := []struct {
@@ -28,7 +33,7 @@ func TestAccountString(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := tt.account.String()
+			result := ansiRegex.ReplaceAllString(tt.account.String(), "")
 
 			assert.NotEmpty(t, result)
 			assert.Equal(t, tt.want, result)

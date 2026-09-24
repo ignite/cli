@@ -6,7 +6,8 @@ import (
 	"os"
 	"sync"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
+	"github.com/charmbracelet/colorprofile"
 
 	"github.com/ignite/cli/v30/ignite/pkg/cliui/bubbleconfirm"
 	"github.com/ignite/cli/v30/ignite/pkg/cliui/clispinner"
@@ -102,6 +103,25 @@ func WithoutUserInteraction(yes bool) Option {
 	}
 }
 
+// newColorProfileWriter wraps w so styled output is adapted to the terminal
+// color capabilities of the destination (colors are stripped when the output
+// is not a terminal).
+func newColorProfileWriter(w io.WriteCloser) io.WriteCloser {
+	return &colorProfileWriter{
+		Writer: colorprofile.NewWriter(w, os.Environ()),
+		closer: w,
+	}
+}
+
+type colorProfileWriter struct {
+	*colorprofile.Writer
+	closer io.WriteCloser
+}
+
+func (w *colorProfileWriter) Close() error {
+	return w.closer.Close()
+}
+
 // New creates a new Session.
 func New(options ...Option) *Session {
 	session := Session{
@@ -109,8 +129,8 @@ func New(options ...Option) *Session {
 		wg: &sync.WaitGroup{},
 		options: sessionOptions{
 			stdin:       os.Stdin,
-			stdout:      os.Stdout,
-			stderr:      os.Stderr,
+			stdout:      newColorProfileWriter(os.Stdout),
+			stderr:      newColorProfileWriter(os.Stderr),
 			spinnerText: clispinner.DefaultText,
 		},
 	}

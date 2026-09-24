@@ -3,7 +3,7 @@ package colors
 import (
 	"fmt"
 
-	"github.com/charmbracelet/lipgloss"
+	lipgloss "charm.land/lipgloss/v2"
 )
 
 const (

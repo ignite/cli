@@ -3,8 +3,8 @@ package bubbleconfirm
 import (
 	"fmt"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	tea "charm.land/bubbletea/v2"
+	lipgloss "charm.land/lipgloss/v2"
 )
 
 // confirmation result values.
@@ -84,9 +84,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 // View renders the confirmation prompt.
-func (m Model) View() string {
+func (m Model) View() tea.View {
 	if m.done {
-		return ""
+		return tea.NewView("")
 	}
 
 	question := questionStyle.Render(m.Question)
@@ -102,7 +102,7 @@ func (m Model) View() string {
 		no = cursorStyle.Render("[") + noStyle.Render(no) + cursorStyle.Render("]")
 	}
 
-	return fmt.Sprintf("%s\n%s %s\n", question, yes, no)
+	return tea.NewView(fmt.Sprintf("%s\n%s %s\n", question, yes, no))
 }
 
 // Choice returns the selected choice (Yes, No, or Undecided).

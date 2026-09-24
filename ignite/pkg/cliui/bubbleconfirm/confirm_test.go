@@ -3,7 +3,7 @@ package bubbleconfirm
 import (
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/require"
 )
@@ -19,11 +19,11 @@ func TestNewModel(t *testing.T) {
 func TestModelUpdateNavigationAndSelect(t *testing.T) {
 	m := NewModel("Question")
 
-	next, _ := m.Update(tea.KeyMsg{Type: tea.KeyRight})
+	next, _ := m.Update(tea.KeyPressMsg{Code: tea.KeyRight})
 	m = next.(Model)
 	require.Equal(t, 1, m.cursor)
 
-	next, cmd := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	next, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEnter})
 	m = next.(Model)
 	require.Equal(t, No, m.Choice())
 	require.NotNil(t, cmd)
@@ -32,13 +32,13 @@ func TestModelUpdateNavigationAndSelect(t *testing.T) {
 func TestModelUpdateDirectYesNoChoices(t *testing.T) {
 	m := NewModel("Question")
 
-	next, cmd := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'y'}})
+	next, cmd := m.Update(tea.KeyPressMsg{Text: "y"})
 	m = next.(Model)
 	require.Equal(t, Yes, m.Choice())
 	require.NotNil(t, cmd)
 
 	m = NewModel("Question")
-	next, cmd = m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'n'}})
+	next, cmd = m.Update(tea.KeyPressMsg{Text: "n"})
 	m = next.(Model)
 	require.Equal(t, No, m.Choice())
 	require.NotNil(t, cmd)
@@ -70,7 +70,7 @@ func TestInputModelUpdateRequiredValidation(t *testing.T) {
 		Required: true,
 	}
 
-	next, _ := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	next, _ := m.Update(tea.KeyPressMsg{Code: tea.KeyEnter})
 	m = next.(inputModel)
 
 	require.False(t, m.done)
@@ -82,12 +82,12 @@ func TestInputModelUpdateTypingAndBackspace(t *testing.T) {
 		Question: "Name",
 	}
 
-	next, _ := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'a'}})
+	next, _ := m.Update(tea.KeyPressMsg{Text: "a"})
 	m = next.(inputModel)
 	require.Equal(t, "a", m.Value)
 	require.Equal(t, 1, m.cursorPos)
 
-	next, _ = m.Update(tea.KeyMsg{Type: tea.KeyBackspace})
+	next, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyBackspace})
 	m = next.(inputModel)
 	require.Equal(t, "", m.Value)
 	require.Equal(t, 0, m.cursorPos)

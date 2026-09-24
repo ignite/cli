@@ -7,8 +7,8 @@ import (
 	"os"
 	"sync"
 
+	"charm.land/lipgloss/v2"
 	"github.com/charmbracelet/fang"
-	"github.com/charmbracelet/lipgloss/v2"
 	"google.golang.org/grpc/status"
 
 	ignitecmd "github.com/ignite/cli/v30/ignite/cmd"

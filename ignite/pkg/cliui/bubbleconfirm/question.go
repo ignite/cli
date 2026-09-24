@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	tea "charm.land/bubbletea/v2"
+	lipgloss "charm.land/lipgloss/v2"
 	"github.com/spf13/pflag"
 
 	"github.com/ignite/cli/v30/ignite/pkg/errors"
@@ -134,8 +134,8 @@ func (m inputModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.cursorPos = len(m.Value)
 		default:
 			// only accept printable characters
-			if len(msg.Runes) == 1 {
-				m.Value = m.Value[:m.cursorPos] + string(msg.Runes) + m.Value[m.cursorPos:]
+			if text := msg.Key().Text; len(text) == 1 {
+				m.Value = m.Value[:m.cursorPos] + text + m.Value[m.cursorPos:]
 				m.cursorPos++
 				m.Error = ""
 			}
@@ -145,9 +145,9 @@ func (m inputModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 // View renders the input prompt.
-func (m inputModel) View() string {
+func (m inputModel) View() tea.View {
 	if m.done {
-		return ""
+		return tea.NewView("")
 	}
 
 	question := m.Question
@@ -178,10 +178,10 @@ func (m inputModel) View() string {
 	prompt := fmt.Sprintf("%s\n%s ", question, promptStyle.Render("›"))
 
 	if m.Error != "" {
-		return prompt + display + "\n" + errorStyle.Render(m.Error)
+		return tea.NewView(prompt + display + "\n" + errorStyle.Render(m.Error))
 	}
 
-	return prompt + display
+	return tea.NewView(prompt + display)
 }
 
 func ask(q Question) error {

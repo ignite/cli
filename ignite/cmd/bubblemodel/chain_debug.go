@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 
 	"github.com/ignite/cli/v30/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/v30/ignite/pkg/cliui/icons"
@@ -69,10 +69,10 @@ func (m ChainDebug) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 // View renders the UI after every update.
-func (m ChainDebug) View() string {
+func (m ChainDebug) View() tea.View {
 	if m.error != nil {
 		s := xstrings.ToUpperFirst(m.error.Error())
-		return fmt.Sprintf("%s %s\n", icons.NotOK, colors.Error(s))
+		return tea.NewView(fmt.Sprintf("%s %s\n", icons.NotOK, colors.Error(s)))
 	}
 
 	var view strings.Builder
@@ -85,7 +85,7 @@ func (m ChainDebug) View() string {
 		view.WriteString(m.renderActions())
 	}
 
-	return cliuimodel.FormatView(view.String())
+	return tea.NewView(cliuimodel.FormatView(view.String()))
 }
 
 func (m ChainDebug) updateModel(msg tea.Msg) (tea.Model, tea.Cmd) {
