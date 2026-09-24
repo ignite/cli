@@ -22,8 +22,8 @@ $ ignite chain serve
 
 Announcements:
 
-[38;2;196;160;0m⋆[m A new release has appeared! v29.9.0 has just been released :)
-[38;2;196;160;0m⋆[m Satisfied with Ignite? Or totally fed-up with it? Tell us: https://bit.ly/3WZS2uS
+- A new release has appeared! v29.9.0 has just been released :)
+- Satisfied with Ignite? Or totally fed-up with it? Tell us: https://bit.ly/3WZS2uS
 
 
 **Options**
