@@ -15,7 +15,7 @@ This will enhance your understanding of creating custom queries in a Cosmos SDK 
 1. **Create a New Blockchain:**
 
  ```bash
- ignite scaffold chain hello
+ ignite cosmos scaffold chain hello
  ```
 
 2. **Navigate to the Blockchain Directory:**
@@ -29,7 +29,7 @@ This will enhance your understanding of creating custom queries in a Cosmos SDK 
 - **Scaffold the Query:**
 
 ```bash
-ignite scaffold query say-hello name --response name
+ignite cosmos scaffold query say-hello name --response name
 ```
 
 This command generates code for a new query, `say-hello`, which accepts a name, an input, and returns it in the response.
@@ -78,7 +78,7 @@ func (q queryServer) SayHello(ctx context.Context, req *types.QuerySayHelloReque
 1. **Start the Blockchain:**
 
 ```bash
-ignite chain serve
+ignite cosmos chain serve
 ```
 
 2. **Test the Query:**

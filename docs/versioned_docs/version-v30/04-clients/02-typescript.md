@@ -8,15 +8,15 @@ IGNITE® offers powerful functionality for generating client-side code for your
 blockchain. Think of this as a one-click client SDK generation tailored
 specifically for your blockchain.
 
-See `ignite generate ts-client --help` learn more on how to use TypeScript code generation.
+See `ignite cosmos generate ts-client --help` learn more on how to use TypeScript code generation.
 
 ## Starting a node
 
-Create a new blockchain with `ignite scaffold chain`. You can use an existing
+Create a new blockchain with `ignite cosmos scaffold chain`. You can use an existing
 blockchain project if you have one, instead.
 
 ```
-ignite scaffold chain example
+ignite cosmos scaffold chain example
 ```
 
 For testing purposes add a new account to `config.yml` with a mnemonic:
@@ -32,7 +32,7 @@ Run a command to generate TypeScript clients for both standard and custom Cosmos
 SDK modules:
 
 ```
-ignite generate ts-client --clear-cache
+ignite cosmos generate ts-client --clear-cache
 ```
 
 :::tip
@@ -49,7 +49,7 @@ Learn more at <https://github.com/stephenh/ts-proto>
 Run a command to start your blockchain node:
 
 ```
-ignite chain serve -r
+ignite cosmos chain serve -r
 ```
 
 ## Setting up a TypeScript frontend client
@@ -205,14 +205,14 @@ we'll be using IGNITE®'s scaffolded code as an example. Create a post with CRUD
 messages:
 
 ```
-ignite scaffold list post title body
+ignite cosmos scaffold list post title body
 ```
 
 After adding messages to your chain you may need to re-generate the TypeScript
 client:
 
 ```
-ignite generate ts-client --clear-cache
+ignite cosmos generate ts-client --clear-cache
 ```
 
 Broadcast a transaction containing the custom `MsgCreatePost`:
