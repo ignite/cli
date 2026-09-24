@@ -22,8 +22,8 @@ $ ignite chain serve
 
 Announcements:
 
-⋆ A new release has appeared! v29.9.0 has just been released :)
-⋆ Satisfied with Ignite? Or totally fed-up with it? Tell us: https://bit.ly/3WZS2uS
+[38;2;196;160;0m⋆[m A new release has appeared! v29.9.0 has just been released :)
+[38;2;196;160;0m⋆[m Satisfied with Ignite? Or totally fed-up with it? Tell us: https://bit.ly/3WZS2uS
 
 
 **Options**
@@ -1039,21 +1039,21 @@ installs the binary in the $(go env GOPATH)/bin directory.
 
 You can customize the output directory for the binary using a flag:
 
-	ignite chain build --output dist
+	ignite cosmos chain build --output dist
 
 To compile the binary Ignite first compiles protocol buffer (proto) files into
 Go source code. Proto files contain required type and services definitions. If
 you're using another program to compile proto files, you can use a flag to tell
 Ignite to skip the proto compilation step:
 
-	ignite chain build --skip-proto
+	ignite cosmos chain build --skip-proto
 
 Afterwards, Ignite install dependencies specified in the go.mod file. By default
 Ignite doesn't check that dependencies of the main module stored in the module
 cache have not been modified since they were downloaded. To enforce dependency
 checking (essentially, running "go mod verify") use a flag:
 
-	ignite chain build --check-dependencies
+	ignite cosmos chain build --check-dependencies
 
 Next, Ignite identifies the "main" package of the project. By default the "main"
 package is located in "cmd/{app}d" directory, where "{app}" is the name of the
@@ -1083,7 +1083,7 @@ project's source directory. Specify the release targets with GOOS:GOARCH build
 tags. If the optional --release.targets is not specified, a binary is created
 for your current environment.
 
-	ignite chain build --release -t linux:amd64 -t darwin:amd64 -t darwin:arm64
+	ignite cosmos chain build --release -t linux:amd64 -t darwin:amd64 -t darwin:arm64
 
 
 ```
@@ -1139,11 +1139,11 @@ JSON-RPC or DAP client connections.
 
 To start a debug server use the following flag:
 
-	ignite chain debug --server
+	ignite cosmos chain debug --server
 
 To start a debug server with a custom address use the following flags:
 
-	ignite chain debug --server --server-address 127.0.0.1:30500
+	ignite cosmos chain debug --server --server-address 127.0.0.1:30500
 
 The debug server stops automatically when the client connection is closed.
 
@@ -1208,10 +1208,10 @@ Initialize your chain
 
 **Synopsis**
 
-The init command compiles and installs the binary (like "ignite chain build")
+The init command compiles and installs the binary (like "ignite cosmos chain build")
 and uses that binary to initialize the blockchain's data directory for one
-validator. To learn how the build process works, refer to "ignite chain build
---help".
+validator. To learn how the build process works, refer to "ignite cosmos chain
+build --help".
 
 By default, the data directory will be initialized in $HOME/.mychain, where
 "mychain" is the name of the project. To set a custom data directory use the
@@ -1397,9 +1397,9 @@ Start a blockchain node in development
 
 **Synopsis**
 
-The serve command compiles and installs the binary (like "ignite chain build"),
+The serve command compiles and installs the binary (like "ignite cosmos chain build"),
 uses that binary to initialize the blockchain's data directory for one validator
-(like "ignite chain init"), and starts the node locally for development purposes
+(like "ignite cosmos chain init"), and starts the node locally for development purposes
 with automatic code reloading.
 
 Automatic code reloading means Ignite starts watching the project directory.
@@ -1412,19 +1412,19 @@ exporting and importing the genesis file.
 To force Ignite to start from a clean slate even if a genesis file exists, use
 the following flag:
 
-	ignite chain serve --reset-once
+	ignite cosmos chain serve --reset-once
 
 To force Ignite to reset the state every time the source code is modified, use
 the following flag:
 
-	ignite chain serve --force-reset
+	ignite cosmos chain serve --force-reset
 
 With Ignite it's possible to start more than one blockchain from the same source
 code using different config files. This is handy if you're building
 inter-blockchain functionality and, for example, want to try sending packets
 from one blockchain to another. To start a node using a specific config file:
 
-	ignite chain serve --config mars.yml
+	ignite cosmos chain serve --config mars.yml
 
 The serve command is meant to be used ONLY FOR DEVELOPMENT PURPOSES. Under the
 hood, it runs "appd start", where "appd" is the name of your chain's binary. For
@@ -1649,12 +1649,12 @@ can customize the output directory in config.yml:
 
 Output can also be customized by using a flag:
 
-	ignite generate ts-client --output new-path
+	ignite cosmos generate ts-client --output new-path
 
 TypeScript client code can be automatically regenerated on reset or source code
 changes when the blockchain is started with a flag:
 
-	ignite chain serve --generate-clients
+	ignite cosmos chain serve --generate-clients
 
 
 ```
@@ -1694,8 +1694,8 @@ Scaffolding is a quick way to generate code for major pieces of your
 application.
 
 For details on each scaffolding target (chain, module, message, etc.) run the
-corresponding command with a "--help" flag, for example, "ignite scaffold chain
---help".
+corresponding command with a "--help" flag, for example, "ignite cosmos
+scaffold chain --help".
 
 The Ignite team strongly recommends committing the code to a version control
 system before running scaffolding commands. This will make it easier to see the
@@ -1783,16 +1783,16 @@ Create a new application-specific Cosmos SDK blockchain.
 For example, the following command will create a blockchain called "hello" in
 the "hello/" directory:
 
-	ignite scaffold chain hello
+	ignite cosmos scaffold chain hello
 
 A project name can be a simple name or a URL. The name will be used as the Go
 module path for the project. Examples of project names:
 
-	ignite scaffold chain foo
-	ignite scaffold chain foo/bar
-	ignite scaffold chain example.org/foo
-	ignite scaffold chain github.com/username/foo
-		
+	ignite cosmos scaffold chain foo
+	ignite cosmos scaffold chain foo/bar
+	ignite cosmos scaffold chain example.org/foo
+	ignite cosmos scaffold chain github.com/username/foo
+
 A new directory with source code files will be created in the current directory.
 To use a different path use the "--path" flag.
 
@@ -1801,15 +1801,15 @@ effectively encapsulates an independent piece of functionality. Following the
 Cosmos SDK convention, custom modules are stored inside the "x/" directory. By
 default, Ignite creates a module with a name that matches the name of the
 project. To create a blockchain without a default module use the "--no-module"
-flag. Additional modules can be added after a project is created with "ignite
-scaffold module" command.
+flag. Additional modules can be added after a project is created with the
+"ignite cosmos scaffold module" command.
 
 Account addresses on Cosmos SDK-based blockchains have string prefixes. For
 example, the Cosmos Hub blockchain uses the default "cosmos" prefix, so that
 addresses look like this: "cosmos12fjzdtqfrrve7zyg9sv8j25azw2ua6tvu07ypf". To
 use a custom address prefix use the "--address-prefix" flag. For example:
 
-	ignite scaffold chain foo --address-prefix bar
+	ignite cosmos scaffold chain foo --address-prefix bar
 
 By default when compiling a blockchain's source code Ignite creates a cache to
 speed up the build process. To clear the cache when building a blockchain use
@@ -1903,10 +1903,10 @@ Scaffold a new config for a Cosmos SDK module.
 
 A Cosmos SDK module can have configurations. An example of a config is "address prefix" of the
 "auth" module. A config can be scaffolded into a module using the "--module-configs" into
-the scaffold module command or using the "scaffold configs" command. By default 
+the scaffold module command or using the "scaffold configs" command. By default
 configs are of type "string", but you can specify a type for each config. For example:
 
-	ignite scaffold configs foo baz:uint bar:bool
+	ignite cosmos scaffold configs foo baz:uint bar:bool
 
 Refer to Cosmos SDK documentation to learn more about modules, dependencies and
 configs.
@@ -1968,7 +1968,7 @@ provides the logic to create, read, update, and delete instances of the type.
 For example, let's review a command that generates the code to handle a list of
 posts and each post has "title" and "body" fields:
 
-	ignite scaffold list post title body
+	ignite cosmos scaffold list post title body
 
 This provides you with a "Post" type, MsgCreatePost, MsgUpdatePost,
 MsgDeletePost and two queries: Post and PostAll. The compiled CLI, let's say the
@@ -1985,17 +1985,17 @@ different type, you can specify it after a colon ":". The following types are
 supported: string, bool, int, uint, coin, array.string, array.int, array.uint,
 array.coin. An example of using field types:
 
-	ignite scaffold list pool amount:coin tags:array.string height:int
+	ignite cosmos scaffold list pool amount:coin tags:array.string height:int
 
-For detailed type information use ignite scaffold type --help
+For detailed type information use ignite cosmos scaffold type --help
 
 "Index" indicates whether the type can be used as an index in
-"ignite scaffold map".
+"ignite cosmos scaffold map".
 
 Ignite also supports custom types:
 
-	ignite scaffold list product-details name desc
-	ignite scaffold list product price:coin details:ProductDetails
+	ignite cosmos scaffold list product-details name desc
+	ignite cosmos scaffold list product price:coin details:ProductDetails
 
 In the example above the "ProductDetails" type was defined first, and then used
 as a custom type for the "details" field.
@@ -2008,19 +2008,19 @@ By default the code will be scaffolded in the module that matches your project's
 name. If you have several modules in your project, you might want to specify a
 different module:
 
-	ignite scaffold list post title body --module blog
+	ignite cosmos scaffold list post title body --module blog
 
 By default, each message comes with a "creator" field that represents the
 address of the transaction signer. You can customize the name of this field with
 a flag:
 
-	ignite scaffold list post title body --signer author
+	ignite cosmos scaffold list post title body --signer author
 
 It's possible to scaffold just the getter/setter logic without the CRUD
 messages. This is useful when you want the methods to handle a type, but would
 like to scaffold messages manually. Use a flag to skip message scaffolding:
 
-	ignite scaffold list post title body --no-message
+	ignite cosmos scaffold list post title body --no-message
 
 The "creator" field is not generated if a list is scaffolded with the
 "--no-message" flag.
@@ -2064,14 +2064,14 @@ The "map" scaffolding command is used to generate files that implement the logic
 for storing and interacting with data stored as key-value pairs (or a
 dictionary) in the blockchain state.
 
-The "map" command is very similar to "ignite scaffold list" with the main
+The "map" command is very similar to "ignite cosmos scaffold list" with the main
 difference in how values are indexed. With "list" values are indexed by an
 incrementing integer, whereas "map" values are indexed by a user-provided value
 (or multiple values).
 
 Let's use the same blog post example:
 
-	ignite scaffold map post title body:string
+	ignite cosmos scaffold map post title body:string
 
 This command scaffolds a "Post" type and CRUD functionality to create, read,
 updated, and delete posts. However, when creating a new post with your chain's
@@ -2093,7 +2093,7 @@ Since the behavior of "list" and "map" scaffolding is very similar, you can use
 the "--no-message", "--module", "--signer" flags as well as the colon syntax for
 custom types.
 
-For detailed type information use ignite scaffold type --help
+For detailed type information use ignite cosmos scaffold type --help
 
 
 ```
@@ -2148,13 +2148,13 @@ recipient's account.
 Ignite's message scaffolding lets you create new types of messages and add them
 to your chain. For example:
 
-	ignite scaffold message add-pool amount:coins denom active:bool --module dex
+	ignite cosmos scaffold message add-pool amount:coins denom active:bool --module dex
 
 The command above will create a new message MsgAddPool with three fields: amount
 (in tokens), denom (a string), and active (a boolean). The message will be added
 to the "dex" module.
 
-For detailed type information use ignite scaffold type --help
+For detailed type information use ignite cosmos scaffold type --help
 
 By default, the message is defined as a proto message in the
 "proto/{app}/{module}/tx.proto" and registered in the "Msg" service. A CLI command to
@@ -2168,13 +2168,13 @@ Inside this function, you can implement message handling logic.
 When successfully processed a message can return data. Use the —response flag to
 specify response fields and their types. For example
 
-	ignite scaffold message create-post title body --response id:int,title
+	ignite cosmos scaffold message create-post title body --response id:int,title
 
 The command above will scaffold MsgCreatePost which returns both an ID (an
 integer) and a title (a string).
 
-Message scaffolding follows the rules as "ignite scaffold list/map/single" and
-supports fields with standard and custom types. See "ignite scaffold list —help"
+Message scaffolding follows the rules as "ignite cosmos scaffold list/map/single" and
+supports fields with standard and custom types. See "ignite cosmos scaffold list —help"
 for details.
 
 
@@ -2269,7 +2269,7 @@ flag.
 
 To scaffold an IBC-enabled module use the "--ibc" flag. An IBC-enabled module is
 like a regular module with the addition of IBC-specific logic and placeholders
-to scaffold IBC packets with "ignite scaffold packet".
+to scaffold IBC packets with "ignite cosmos scaffold packet".
 
 A module can depend on one or more other modules and import their keeper
 methods. To scaffold a module with a dependency use the "--dep" flag
@@ -2279,7 +2279,7 @@ sending tokens between accounts. The method for sending tokens is a defined in
 the "bank"'s module keeper. You can scaffold a "foo" module with the dependency
 on "bank" with the following command:
 
-	ignite scaffold module foo --dep bank
+	ignite cosmos scaffold module foo --dep bank
 
 You can then define which methods you want to import from the "bank" keeper in
 "expected_keepers.go".
@@ -2287,7 +2287,7 @@ You can then define which methods you want to import from the "bank" keeper in
 You can also scaffold a module with a list of dependencies that can include both
 standard and custom modules (provided they exist):
 
-	ignite scaffold module bar --dep foo,mint,account,FeeGrant
+	ignite cosmos scaffold module bar --dep foo,mint,account,FeeGrant
 
 Note: the "--dep" flag doesn't install third-party modules into your
 application, it just generates extra code that specifies which existing modules
@@ -2300,7 +2300,7 @@ blockchain is running. An example of a param is "Inflation rate change" of the
 that accepts a list of param names. By default params are of type "string", but
 you can specify a type for each param. For example:
 
-	ignite scaffold module foo --params baz:uint,bar:bool
+	ignite cosmos scaffold module foo --params baz:uint,bar:bool
 
 Refer to Cosmos SDK documentation to learn more about modules, dependencies and
 params.
@@ -2384,10 +2384,10 @@ A Cosmos SDK module can have parameters (or "params"). Params are values that
 can be set at the genesis of the blockchain and can be modified while the
 blockchain is running. An example of a param is "Inflation rate change" of the
 "mint" module. A params can be scaffolded into a module using the "--params" into
-the scaffold module command or using the "scaffold params" command. By default 
+the scaffold module command or using the "scaffold params" command. By default
 params are of type "string", but you can specify a type for each param. For example:
 
-	ignite scaffold params foo baz:uint bar:bool
+	ignite cosmos scaffold params foo baz:uint bar:bool
 
 Refer to Cosmos SDK documentation to learn more about modules, dependencies and
 params.
@@ -2425,8 +2425,8 @@ Query for fetching data from a blockchain
 **Synopsis**
 
 Query for fetching data from a blockchain.
-		
-For detailed type information use ignite scaffold type --help.
+
+For detailed type information use ignite cosmos scaffold type --help.
 
 ```
 ignite cosmos scaffold query [name] [field1:type1] [field2:type2] ... [flags]
@@ -2463,8 +2463,8 @@ CRUD for data stored in a single location
 **Synopsis**
 
 CRUD for data stored in a single location.
-		
-For detailed type information use ignite scaffold type --help.
+
+For detailed type information use ignite cosmos scaffold type --help.
 
 ```
 ignite cosmos scaffold single NAME [field:type]... [flags]
@@ -2473,7 +2473,7 @@ ignite cosmos scaffold single NAME [field:type]... [flags]
 **Examples**
 
 ```
-  ignite scaffold single todo-single title:string done:bool
+  ignite cosmos scaffold single todo-single title:string done:bool
 ```
 
 **Options**
@@ -2546,7 +2546,7 @@ ignite cosmos scaffold type NAME [field:type] ... [flags]
 **Examples**
 
 ```
-  ignite scaffold type todo-item priority:int desc:string tags:array.string done:bool
+  ignite cosmos scaffold type todo-item priority:int desc:string tags:array.string done:bool
 ```
 
 **Options**
@@ -2702,12 +2702,12 @@ Initialize the test network with the number of nodes and bonded from the config.
                         bonded: 300000000stake
 
 
-			The "multi-node" command allows developers to easily set up, initialize, and manage multiple nodes for a 
-			testnet environment. This command provides full flexibility in enabling or disabling each node as desired, 
+			The "multi-node" command allows developers to easily set up, initialize, and manage multiple nodes for a
+			testnet environment. This command provides full flexibility in enabling or disabling each node as desired,
 			making it a powerful tool for simulating a multi-node blockchain network during development.
 
 			Usage:
-					ignite testnet multi-node [flags]
+					ignite cosmos testnet multi-node [flags]
 
 		
 
