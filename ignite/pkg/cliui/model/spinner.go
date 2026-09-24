@@ -3,8 +3,8 @@ package cliuimodel
 import (
 	"time"
 
-	"github.com/charmbracelet/bubbles/spinner"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/spinner"
+	lipgloss "charm.land/lipgloss/v2"
 )
 
 // ColorSpinner defines the foreground color for the spinner.

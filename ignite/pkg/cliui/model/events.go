@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/bubbles/spinner"
-	tea "github.com/charmbracelet/bubbletea"
+	"charm.land/bubbles/v2/spinner"
+	tea "charm.land/bubbletea/v2"
 
 	"github.com/ignite/cli/v30/ignite/pkg/cliui/colors"
 	"github.com/ignite/cli/v30/ignite/pkg/cliui/icons"
